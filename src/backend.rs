@@ -117,6 +117,10 @@ impl Mldsa65Backend for SimulatedBackend {
         transcript: &SigningTranscript,
         shares: PartialShareSet,
     ) -> Result<ThresholdSignature, Self::Error> {
+        if public_key != transcript.public_key() {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+
         let mut hasher = Shake256::default();
         update_bytes(&mut hasher, AGGREGATE_SIGNATURE_LABEL);
         hasher.update(&public_key.0);
