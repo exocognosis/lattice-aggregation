@@ -180,3 +180,71 @@ fn commitment_payload_rejects_bad_version() {
         })
     );
 }
+
+#[test]
+fn commitment_payload_encodes_golden_wire_bytes() {
+    let encoded =
+        encode_commitment_payload([0x11; 32], ValidatorId(0x1234), Commitment([0xAA; 32]));
+
+    assert_eq!(encoded.len(), 72);
+    assert_eq!(encoded[0], 1);
+    assert_eq!(encoded[1], 1);
+    assert_eq!(&encoded[2..34], [0x11; 32].as_slice());
+    assert_eq!(&encoded[34..36], [0x12, 0x34].as_slice());
+    assert_eq!(&encoded[36..40], [0, 0, 0, 32].as_slice());
+    assert_eq!(&encoded[40..72], [0xAA; 32].as_slice());
+}
+
+#[test]
+fn commitment_payload_rejects_too_short_input() {
+    assert_eq!(
+        decode_commitment_payload(&[0; 71]),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "invalid length"
+        })
+    );
+}
+
+#[test]
+fn commitment_payload_rejects_too_long_input() {
+    assert_eq!(
+        decode_commitment_payload(&[0; 73]),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "invalid length"
+        })
+    );
+}
+
+#[test]
+fn commitment_payload_rejects_wrong_message_type() {
+    let mut encoded = encode_commitment_payload([5; 32], ValidatorId(9), Commitment([7; 32]));
+    encoded[1] = 2;
+
+    assert_eq!(
+        decode_commitment_payload(&encoded),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "unexpected message type"
+        })
+    );
+}
+
+#[test]
+fn commitment_payload_rejects_wrong_payload_length() {
+    let mut encoded = encode_commitment_payload([5; 32], ValidatorId(9), Commitment([7; 32]));
+    encoded[39] = 31;
+
+    assert_eq!(
+        decode_commitment_payload(&encoded),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "invalid payload length"
+        })
+    );
+}
+
+#[test]
+fn commitment_payload_round_trips_max_validator_id() {
+    let encoded = encode_commitment_payload([5; 32], ValidatorId(u16::MAX), Commitment([7; 32]));
+    let (_session, validator, _commitment) = decode_commitment_payload(&encoded).unwrap();
+
+    assert_eq!(validator, ValidatorId(u16::MAX));
+}
