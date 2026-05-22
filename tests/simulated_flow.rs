@@ -1,7 +1,7 @@
 use dytallix_pq_threshold::{
     Commitment, CommitmentSet, Mldsa65Backend, PartialShareSet, PartialSignatureShare,
     PrivateKeyShare, SigningTranscript, SimulatedBackend, ThresholdError, ThresholdPublicKey,
-    ValidatorId,
+    SigningSession, ThresholdSigner, ValidatorId,
 };
 
 #[test]
@@ -145,4 +145,33 @@ fn simulated_backend_aggregates_canonical_share_order_deterministically() {
     let right_signature = SimulatedBackend::aggregate(&public_key, &transcript, right).unwrap();
 
     assert_eq!(left_signature, right_signature);
+}
+
+#[test]
+fn signing_session_advances_through_commitment_and_partial_rounds() {
+    let validators = vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)];
+    let public_key = ThresholdPublicKey([4; 1952]);
+    let share = PrivateKeyShare::new(ValidatorId(1), b"share-1".to_vec());
+    let session = SigningSession::new([3; 32], 2, validators.clone(), public_key, share).unwrap();
+
+    let (awaiting, local_commitment) = session.initiate_signing().unwrap();
+    let commitments = CommitmentSet::new(
+        validators,
+        2,
+        vec![
+            (ValidatorId(1), local_commitment),
+            (ValidatorId(2), Commitment([2; 32])),
+        ],
+    )
+    .unwrap();
+
+    let (awaiting_partials, partial) = SigningSession::generate_partial_signature(
+        awaiting,
+        commitments,
+        b"block payload",
+    )
+    .unwrap();
+
+    assert_eq!(partial.signer, ValidatorId(1));
+    assert_eq!(awaiting_partials.challenge().0.len(), 32);
 }
