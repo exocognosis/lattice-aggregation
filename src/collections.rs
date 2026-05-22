@@ -74,6 +74,10 @@ impl CommitmentSet {
     pub fn contains_validator(&self, validator: ValidatorId) -> bool {
         self.validator_set.contains(&validator)
     }
+
+    pub(crate) fn validators(&self) -> &BTreeSet<ValidatorId> {
+        &self.validator_set
+    }
 }
 
 /// Canonical set of partial signature shares keyed by validator ID.

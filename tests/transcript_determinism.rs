@@ -1,5 +1,5 @@
 use dytallix_pq_threshold::{
-    Commitment, CommitmentSet, SigningTranscript, ThresholdPublicKey, ValidatorId,
+    Commitment, CommitmentSet, SigningTranscript, ThresholdError, ThresholdPublicKey, ValidatorId,
 };
 
 fn public_key() -> ThresholdPublicKey {
@@ -83,4 +83,57 @@ fn challenge_binds_message() {
     .unwrap();
 
     assert_ne!(left.challenge(), right.challenge());
+}
+
+#[test]
+fn transcript_rejects_duplicate_validator_set() {
+    let commitments = CommitmentSet::new(
+        validators(),
+        2,
+        vec![
+            (ValidatorId(1), Commitment([1; 32])),
+            (ValidatorId(2), Commitment([2; 32])),
+        ],
+    )
+    .unwrap();
+
+    let result = SigningTranscript::new(
+        session(7),
+        2,
+        vec![ValidatorId(1), ValidatorId(1), ValidatorId(2)],
+        public_key(),
+        b"block-42",
+        commitments,
+    );
+
+    assert_eq!(
+        result.unwrap_err(),
+        ThresholdError::DuplicateValidator {
+            validator: ValidatorId(1)
+        }
+    );
+}
+
+#[test]
+fn transcript_rejects_commitment_validator_universe_mismatch() {
+    let commitments = CommitmentSet::new(
+        validators(),
+        2,
+        vec![
+            (ValidatorId(1), Commitment([1; 32])),
+            (ValidatorId(2), Commitment([2; 32])),
+        ],
+    )
+    .unwrap();
+
+    let result = SigningTranscript::new(
+        session(7),
+        2,
+        vec![ValidatorId(1), ValidatorId(2), ValidatorId(4)],
+        public_key(),
+        b"block-42",
+        commitments,
+    );
+
+    assert_eq!(result.unwrap_err(), ThresholdError::TranscriptMismatch);
 }

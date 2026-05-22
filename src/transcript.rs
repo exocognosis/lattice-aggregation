@@ -6,7 +6,7 @@ use sha3::{
 };
 
 use crate::{
-    collections::CommitmentSet,
+    collections::{set_from_validators, CommitmentSet},
     errors::ThresholdError,
     types::{Challenge, SessionId, ThresholdPublicKey, ValidatorId},
 };
@@ -39,11 +39,16 @@ impl SigningTranscript {
         message: &[u8],
         commitments: CommitmentSet,
     ) -> Result<Self, ThresholdError> {
-        validator_set.sort();
+        let canonical_validator_set = set_from_validators(validator_set)?;
 
         if commitments.threshold() != threshold {
             return Err(ThresholdError::TranscriptMismatch);
         }
+        if commitments.validators() != &canonical_validator_set {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+
+        validator_set = canonical_validator_set.into_iter().collect();
 
         let challenge = derive_challenge(
             session_id,
