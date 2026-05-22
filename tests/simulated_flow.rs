@@ -1,7 +1,8 @@
 use dytallix_pq_threshold::{
     Commitment, CommitmentSet, Mldsa65Backend, PartialShareSet, PartialSignatureShare,
-    PrivateKeyShare, SigningSession, SigningTranscript, SimulatedBackend, ThresholdError,
-    ThresholdPublicKey, ThresholdSigner, ValidatorId,
+    PrivateKeyShare, SignatureAggregator, SigningSession, SigningTranscript, SimulatedAggregator,
+    SimulatedBackend, SimulatedDkg, ThresholdError, ThresholdKeyGeneration, ThresholdPublicKey,
+    ThresholdSigner, ThresholdSigningTranscript, ValidatorId,
 };
 
 #[test]
@@ -200,4 +201,76 @@ fn signing_session_rejects_mismatched_local_commitment() {
             validator: ValidatorId(1)
         }
     );
+}
+
+#[test]
+fn simulated_dkg_sign_and_aggregate_flow_returns_standard_size_signature() {
+    let validators = vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)];
+    let session_id = [11; 32];
+
+    let dkg_commitment = SimulatedDkg::generate_share_commitment(session_id, 3).unwrap();
+    let dkg_shares = CommitmentSet::new(
+        validators.clone(),
+        2,
+        vec![
+            (ValidatorId(1), dkg_commitment),
+            (ValidatorId(2), Commitment([22; 32])),
+        ],
+    )
+    .unwrap();
+    let public_key = SimulatedDkg::finalize_public_key(dkg_shares).unwrap();
+
+    let share_1 = PrivateKeyShare::new(ValidatorId(1), b"share-1".to_vec());
+    let share_2 = PrivateKeyShare::new(ValidatorId(2), b"share-2".to_vec());
+    let session_1 = SigningSession::new(
+        session_id,
+        2,
+        validators.clone(),
+        public_key.clone(),
+        share_1,
+    )
+    .unwrap();
+    let session_2 = SigningSession::new(
+        session_id,
+        2,
+        validators.clone(),
+        public_key.clone(),
+        share_2,
+    )
+    .unwrap();
+
+    let (awaiting_1, commitment_1) = session_1.initiate_signing().unwrap();
+    let (awaiting_2, commitment_2) = session_2.initiate_signing().unwrap();
+    let commitments = CommitmentSet::new(
+        validators.clone(),
+        2,
+        vec![
+            (ValidatorId(1), commitment_1),
+            (ValidatorId(2), commitment_2),
+        ],
+    )
+    .unwrap();
+
+    let (state_1, partial_1) =
+        SigningSession::generate_partial_signature(awaiting_1, commitments.clone(), b"block")
+            .unwrap();
+    let (_, partial_2) =
+        SigningSession::generate_partial_signature(awaiting_2, commitments.clone(), b"block")
+            .unwrap();
+    let transcript = ThresholdSigningTranscript::new(
+        session_id,
+        2,
+        validators.clone(),
+        public_key,
+        b"block",
+        commitments,
+    )
+    .unwrap();
+
+    assert_eq!(state_1.challenge(), transcript.challenge());
+
+    let shares = PartialShareSet::new(validators, 2, vec![partial_1, partial_2]).unwrap();
+    let signature = SimulatedAggregator::aggregate_shares(transcript, shares).unwrap();
+
+    assert_eq!(signature.0.len(), 3309);
 }
