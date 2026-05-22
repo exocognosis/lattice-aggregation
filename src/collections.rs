@@ -55,6 +55,11 @@ impl CommitmentSet {
         self.commitments.iter()
     }
 
+    /// Return the commitment for a validator if one was supplied.
+    pub fn get(&self, validator: ValidatorId) -> Option<&Commitment> {
+        self.commitments.get(&validator)
+    }
+
     /// Return the configured threshold.
     pub fn threshold(&self) -> u16 {
         self.threshold

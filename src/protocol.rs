@@ -1,5 +1,9 @@
 //! Type-state signing protocol.
 
+use core::fmt;
+
+use zeroize::Zeroize;
+
 use crate::{
     backend::{Mldsa65Backend, SimulatedBackend},
     collections::{set_from_validators, validate_threshold, CommitmentSet},
@@ -39,7 +43,6 @@ pub mod state {
 }
 
 /// Participant-local threshold signing session.
-#[derive(Clone, Debug)]
 pub struct SigningSession<State = state::Initialized> {
     session_id: SessionId,
     threshold: u16,
@@ -49,6 +52,27 @@ pub struct SigningSession<State = state::Initialized> {
     validator_set: Vec<ValidatorId>,
     internal_state: State,
     commitment_secret: Option<[u8; 32]>,
+}
+
+impl<State> fmt::Debug for SigningSession<State>
+where
+    State: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("SigningSession")
+            .field("session_id", &self.session_id)
+            .field("threshold", &self.threshold)
+            .field("total_nodes", &self.total_nodes)
+            .field("local_share", &self.local_share)
+            .field("public_key", &self.public_key)
+            .field("validator_set", &self.validator_set)
+            .field("internal_state", &self.internal_state)
+            .field(
+                "commitment_secret_present",
+                &self.commitment_secret.is_some(),
+            )
+            .finish()
+    }
 }
 
 impl SigningSession<state::Initialized> {
@@ -157,6 +181,14 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
         ),
         Self::Error,
     > {
+        let local_validator = session.local_share.share_id;
+        let local_commitment = session.internal_state.local_commitment;
+        if all_commitments.get(local_validator) != Some(&local_commitment) {
+            return Err(ThresholdError::CommitmentVerificationFailed {
+                validator: local_validator,
+            });
+        }
+
         let transcript = SigningTranscript::new(
             session.session_id,
             session.threshold,
@@ -165,10 +197,12 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
             message,
             all_commitments,
         )?;
-        let secret = session
+        let mut secret = session
             .commitment_secret
             .ok_or(ThresholdError::TranscriptMismatch)?;
-        let partial = SimulatedBackend::partial_sign(&session.local_share, secret, &transcript)?;
+        let partial = SimulatedBackend::partial_sign(&session.local_share, secret, &transcript);
+        secret.zeroize();
+        let partial = partial?;
         let challenge = transcript.challenge();
 
         Ok((
