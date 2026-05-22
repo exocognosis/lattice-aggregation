@@ -2,10 +2,8 @@
 
 use core::fmt;
 
-use zeroize::Zeroize;
-
 use crate::{
-    backend::{Mldsa65Backend, SimulatedBackend},
+    backend::{Mldsa65Backend, SimulatedBackend, SimulatedCommitmentSecret},
     collections::{set_from_validators, validate_threshold, CommitmentSet},
     errors::ThresholdError,
     transcript::SigningTranscript,
@@ -14,40 +12,6 @@ use crate::{
         ThresholdPublicKey, ValidatorId,
     },
 };
-
-struct StoredCommitmentSecret([u8; 32]);
-
-impl StoredCommitmentSecret {
-    fn new(secret: [u8; 32]) -> Self {
-        Self(secret)
-    }
-
-    fn into_inner(mut self) -> [u8; 32] {
-        let mut secret = [0u8; 32];
-        core::mem::swap(&mut self.0, &mut secret);
-        secret
-    }
-}
-
-impl fmt::Debug for StoredCommitmentSecret {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("StoredCommitmentSecret")
-            .field("redacted", &true)
-            .finish()
-    }
-}
-
-impl Zeroize for StoredCommitmentSecret {
-    fn zeroize(&mut self) {
-        self.0.zeroize();
-    }
-}
-
-impl Drop for StoredCommitmentSecret {
-    fn drop(&mut self) {
-        self.zeroize();
-    }
-}
 
 /// Signing session states.
 pub mod state {
@@ -85,7 +49,7 @@ pub struct SigningSession<State = state::Initialized> {
     public_key: ThresholdPublicKey,
     validator_set: Vec<ValidatorId>,
     internal_state: State,
-    commitment_secret: Option<StoredCommitmentSecret>,
+    commitment_secret: Option<SimulatedCommitmentSecret>,
 }
 
 impl<State> fmt::Debug for SigningSession<State>
@@ -198,7 +162,7 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
                 internal_state: state::AwaitingCommitments {
                     local_commitment: commitment,
                 },
-                commitment_secret: Some(StoredCommitmentSecret::new(secret)),
+                commitment_secret: Some(secret),
             },
             commitment,
         ))
@@ -231,12 +195,10 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
             message,
             all_commitments,
         )?;
-        let mut secret = session
+        let secret = session
             .commitment_secret
-            .ok_or(ThresholdError::TranscriptMismatch)?
-            .into_inner();
+            .ok_or(ThresholdError::TranscriptMismatch)?;
         let partial = SimulatedBackend::partial_sign(&session.local_share, secret, &transcript);
-        secret.zeroize();
         let partial = partial?;
         let challenge = transcript.challenge();
 

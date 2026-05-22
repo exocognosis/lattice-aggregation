@@ -3,6 +3,8 @@
 //! The simulation backend is deterministic test machinery. It does not produce
 //! real ML-DSA signatures and cannot verify standard ML-DSA signatures.
 
+use core::fmt;
+
 use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
     Shake256,
@@ -24,6 +26,41 @@ const PARTIAL_SIGNATURE_LABEL: &[u8] = b"dytallix-threshold-mldsa65/simulated/pa
 const AGGREGATE_SIGNATURE_LABEL: &[u8] =
     b"dytallix-threshold-mldsa65/simulated/aggregate-signature";
 const PARTIAL_SIGNATURE_BYTES: usize = 64;
+
+/// Secret retained between simulated commitment derivation and partial signing.
+pub struct SimulatedCommitmentSecret([u8; 32]);
+
+impl SimulatedCommitmentSecret {
+    fn from_bytes(mut bytes: [u8; 32]) -> Self {
+        let mut stored = [0u8; 32];
+        core::mem::swap(&mut bytes, &mut stored);
+        Self(stored)
+    }
+
+    fn as_bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+impl fmt::Debug for SimulatedCommitmentSecret {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("SimulatedCommitmentSecret")
+            .field("redacted", &true)
+            .finish()
+    }
+}
+
+impl Zeroize for SimulatedCommitmentSecret {
+    fn zeroize(&mut self) {
+        self.0.zeroize();
+    }
+}
+
+impl Drop for SimulatedCommitmentSecret {
+    fn drop(&mut self) {
+        self.zeroize();
+    }
+}
 
 /// Backend contract for ML-DSA-65 threshold signing operations.
 pub trait Mldsa65Backend {
@@ -71,7 +108,7 @@ pub struct SimulatedBackend;
 impl Mldsa65Backend for SimulatedBackend {
     type Error = ThresholdError;
     type KeyShare = PrivateKeyShare;
-    type CommitmentSecret = [u8; 32];
+    type CommitmentSecret = SimulatedCommitmentSecret;
 
     fn derive_commitment(
         key_share: &Self::KeyShare,
@@ -85,9 +122,10 @@ impl Mldsa65Backend for SimulatedBackend {
 
         let mut reader = hasher.finalize_xof();
         let mut commitment = [0u8; 32];
-        let mut secret = [0u8; 32];
+        let mut secret_bytes = [0u8; 32];
         reader.read(&mut commitment);
-        reader.read(&mut secret);
+        reader.read(&mut secret_bytes);
+        let secret = SimulatedCommitmentSecret::from_bytes(secret_bytes);
 
         Ok((Commitment(commitment), secret))
     }
@@ -99,7 +137,7 @@ impl Mldsa65Backend for SimulatedBackend {
     ) -> Result<PartialSignatureShare, Self::Error> {
         let mut hasher = Shake256::default();
         update_bytes(&mut hasher, PARTIAL_SIGNATURE_LABEL);
-        hasher.update(&secret);
+        hasher.update(secret.as_bytes());
         update_bytes(&mut hasher, share.secret());
         update_validator_id(&mut hasher, share.share_id);
         hasher.update(&transcript.challenge().0);
