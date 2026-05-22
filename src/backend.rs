@@ -7,6 +7,7 @@ use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
     Shake256,
 };
+use zeroize::Zeroize;
 
 use crate::{
     collections::PartialShareSet,
@@ -93,7 +94,7 @@ impl Mldsa65Backend for SimulatedBackend {
 
     fn partial_sign(
         share: &Self::KeyShare,
-        secret: Self::CommitmentSecret,
+        mut secret: Self::CommitmentSecret,
         transcript: &SigningTranscript,
     ) -> Result<PartialSignatureShare, Self::Error> {
         let mut hasher = Shake256::default();
@@ -105,6 +106,7 @@ impl Mldsa65Backend for SimulatedBackend {
 
         let mut bytes = vec![0u8; PARTIAL_SIGNATURE_BYTES];
         hasher.finalize_xof().read(&mut bytes);
+        secret.zeroize();
 
         Ok(PartialSignatureShare {
             signer: share.share_id,
