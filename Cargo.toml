@@ -1,0 +1,23 @@
+[package]
+name = "dytallix-pq-threshold"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Research-grade threshold ML-DSA-65 API boundary and simulation backend"
+
+[lib]
+name = "dytallix_pq_threshold"
+path = "src/lib.rs"
+
+[features]
+default = ["simulated"]
+simulated = []
+hazmat = []
+
+[dependencies]
+sha3 = "0.10"
+thiserror = "1"
+zeroize = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+trybuild = "1"
