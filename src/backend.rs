@@ -43,15 +43,16 @@ pub trait Mldsa65Backend {
 
     /// Produce a partial signature share for one transcript.
     fn partial_sign(
-        key_share: &Self::KeyShare,
+        share: &Self::KeyShare,
+        secret: Self::CommitmentSecret,
         transcript: &SigningTranscript,
-        commitment_secret: &Self::CommitmentSecret,
     ) -> Result<PartialSignatureShare, Self::Error>;
 
     /// Aggregate a canonical set of partial shares into threshold signature bytes.
     fn aggregate(
+        public_key: &ThresholdPublicKey,
         transcript: &SigningTranscript,
-        partial_shares: &PartialShareSet,
+        shares: PartialShareSet,
     ) -> Result<ThresholdSignature, Self::Error>;
 
     /// Verify a standard ML-DSA signature against a public key and message.
@@ -59,7 +60,7 @@ pub trait Mldsa65Backend {
         public_key: &ThresholdPublicKey,
         message: &[u8],
         signature: &ThresholdSignature,
-    ) -> Result<(), Self::Error>;
+    ) -> Result<bool, Self::Error>;
 }
 
 /// Deterministic simulation backend for API and protocol tests.
@@ -91,36 +92,37 @@ impl Mldsa65Backend for SimulatedBackend {
     }
 
     fn partial_sign(
-        key_share: &Self::KeyShare,
+        share: &Self::KeyShare,
+        secret: Self::CommitmentSecret,
         transcript: &SigningTranscript,
-        commitment_secret: &Self::CommitmentSecret,
     ) -> Result<PartialSignatureShare, Self::Error> {
         let mut hasher = Shake256::default();
         update_bytes(&mut hasher, PARTIAL_SIGNATURE_LABEL);
-        hasher.update(commitment_secret);
-        update_bytes(&mut hasher, key_share.secret());
-        update_validator_id(&mut hasher, key_share.share_id);
+        hasher.update(&secret);
+        update_bytes(&mut hasher, share.secret());
+        update_validator_id(&mut hasher, share.share_id);
         hasher.update(&transcript.challenge().0);
 
         let mut bytes = vec![0u8; PARTIAL_SIGNATURE_BYTES];
         hasher.finalize_xof().read(&mut bytes);
 
         Ok(PartialSignatureShare {
-            signer: key_share.share_id,
+            signer: share.share_id,
             bytes,
         })
     }
 
     fn aggregate(
+        public_key: &ThresholdPublicKey,
         transcript: &SigningTranscript,
-        partial_shares: &PartialShareSet,
+        shares: PartialShareSet,
     ) -> Result<ThresholdSignature, Self::Error> {
         let mut hasher = Shake256::default();
         update_bytes(&mut hasher, AGGREGATE_SIGNATURE_LABEL);
-        hasher.update(&transcript.public_key().0);
+        hasher.update(&public_key.0);
         update_bytes(&mut hasher, transcript.message());
         hasher.update(&transcript.challenge().0);
-        for (validator, share) in partial_shares.iter() {
+        for (validator, share) in shares.iter() {
             update_validator_id(&mut hasher, *validator);
             update_bytes(&mut hasher, &share.bytes);
         }
@@ -135,7 +137,7 @@ impl Mldsa65Backend for SimulatedBackend {
         _public_key: &ThresholdPublicKey,
         _message: &[u8],
         _signature: &ThresholdSignature,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<bool, Self::Error> {
         Err(ThresholdError::BackendUnavailable {
             reason: "simulation backend does not implement standard ML-DSA verification",
         })
