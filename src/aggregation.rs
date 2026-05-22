@@ -31,6 +31,16 @@ impl SignatureAggregator for SimulatedAggregator {
         transcript: ThresholdSigningTranscript,
         partial_shares: PartialShareSet,
     ) -> Result<ThresholdSignature, Self::Error> {
+        if partial_shares.threshold() != transcript.threshold()
+            || !partial_shares
+                .validators()
+                .iter()
+                .copied()
+                .eq(transcript.validator_set().iter().copied())
+        {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+
         SimulatedBackend::aggregate(transcript.public_key(), &transcript, partial_shares)
     }
 }

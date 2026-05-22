@@ -68,6 +68,10 @@ impl ThresholdKeyGeneration for SimulatedDkg {
         let mut hasher = Shake256::default();
         update_bytes(&mut hasher, DKG_PUBLIC_KEY_LABEL);
         hasher.update(&verified_shares.threshold().to_be_bytes());
+        hasher.update(&(verified_shares.validators().len() as u16).to_be_bytes());
+        for validator in verified_shares.validators() {
+            hasher.update(&validator.0.to_be_bytes());
+        }
         hasher.update(&(verified_shares.len() as u16).to_be_bytes());
         for (validator, commitment) in verified_shares.iter() {
             hasher.update(&validator.0.to_be_bytes());

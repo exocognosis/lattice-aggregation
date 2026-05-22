@@ -274,3 +274,71 @@ fn simulated_dkg_sign_and_aggregate_flow_returns_standard_size_signature() {
 
     assert_eq!(signature.0.len(), 3309);
 }
+
+#[test]
+fn simulated_aggregator_rejects_partial_share_validator_universe_mismatch() {
+    let transcript_validators = vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)];
+    let public_key = ThresholdPublicKey([7; 1952]);
+    let commitments = CommitmentSet::new(
+        transcript_validators.clone(),
+        2,
+        vec![
+            (ValidatorId(1), Commitment([1; 32])),
+            (ValidatorId(2), Commitment([2; 32])),
+        ],
+    )
+    .unwrap();
+    let transcript = ThresholdSigningTranscript::new(
+        [9; 32],
+        2,
+        transcript_validators,
+        public_key,
+        b"message",
+        commitments,
+    )
+    .unwrap();
+    let shares = PartialShareSet::new(
+        vec![ValidatorId(1), ValidatorId(2), ValidatorId(4)],
+        2,
+        vec![
+            PartialSignatureShare {
+                signer: ValidatorId(1),
+                bytes: vec![1, 2, 3],
+            },
+            PartialSignatureShare {
+                signer: ValidatorId(2),
+                bytes: vec![4, 5, 6],
+            },
+        ],
+    )
+    .unwrap();
+
+    let result = SimulatedAggregator::aggregate_shares(transcript, shares);
+
+    assert_eq!(result.unwrap_err(), ThresholdError::TranscriptMismatch);
+}
+
+#[test]
+fn simulated_dkg_public_key_binds_full_validator_universe() {
+    let commitments = vec![
+        (ValidatorId(1), Commitment([1; 32])),
+        (ValidatorId(2), Commitment([2; 32])),
+    ];
+    let first = CommitmentSet::new(
+        vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)],
+        2,
+        commitments.clone(),
+    )
+    .unwrap();
+    let second = CommitmentSet::new(
+        vec![ValidatorId(1), ValidatorId(2), ValidatorId(4)],
+        2,
+        commitments,
+    )
+    .unwrap();
+
+    let first_public_key = SimulatedDkg::finalize_public_key(first).unwrap();
+    let second_public_key = SimulatedDkg::finalize_public_key(second).unwrap();
+
+    assert_ne!(first_public_key, second_public_key);
+}

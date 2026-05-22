@@ -75,6 +75,11 @@ impl SigningTranscript {
         self.challenge
     }
 
+    /// Return the threshold bound into the transcript.
+    pub fn threshold(&self) -> u16 {
+        self.threshold
+    }
+
     /// Return the message bound into the transcript.
     pub fn message(&self) -> &[u8] {
         &self.message

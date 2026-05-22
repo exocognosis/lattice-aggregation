@@ -88,6 +88,8 @@ impl CommitmentSet {
 /// Canonical set of partial signature shares keyed by validator ID.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PartialShareSet {
+    validator_set: BTreeSet<ValidatorId>,
+    threshold: u16,
     shares: BTreeMap<ValidatorId, PartialSignatureShare>,
 }
 
@@ -120,12 +122,21 @@ impl PartialShareSet {
             });
         }
 
-        Ok(Self { shares: ordered })
+        Ok(Self {
+            validator_set,
+            threshold,
+            shares: ordered,
+        })
     }
 
     /// Iterate shares in canonical validator order.
     pub fn iter(&self) -> impl Iterator<Item = (&ValidatorId, &PartialSignatureShare)> {
         self.shares.iter()
+    }
+
+    /// Return the configured threshold.
+    pub fn threshold(&self) -> u16 {
+        self.threshold
     }
 
     /// Return the number of partial shares in the set.
@@ -136,6 +147,10 @@ impl PartialShareSet {
     /// Return `true` when no partial shares exist.
     pub fn is_empty(&self) -> bool {
         self.shares.is_empty()
+    }
+
+    pub(crate) fn validators(&self) -> &BTreeSet<ValidatorId> {
+        &self.validator_set
     }
 }
 
