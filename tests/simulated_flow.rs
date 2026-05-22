@@ -135,8 +135,11 @@ fn simulated_backend_aggregates_canonical_share_order_deterministically() {
         vec![second.clone(), first.clone()],
     )
     .unwrap();
+    let left_order: Vec<_> = left.iter().map(|(id, _)| *id).collect();
     let right =
         PartialShareSet::new(vec![ValidatorId(1), ValidatorId(2)], 2, vec![first, second]).unwrap();
+
+    assert_eq!(left_order, vec![ValidatorId(1), ValidatorId(2)]);
 
     let left_signature = SimulatedBackend::aggregate(&public_key, &transcript, left).unwrap();
     let right_signature = SimulatedBackend::aggregate(&public_key, &transcript, right).unwrap();
