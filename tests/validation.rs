@@ -1,5 +1,5 @@
 use dytallix_pq_threshold::{
-    ThresholdError, ValidatorId, COMMITMENT_BYTES, MLDSA65_PUBLICKEY_BYTES,
+    PrivateKeyShare, ThresholdError, ValidatorId, COMMITMENT_BYTES, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, POLY_SEED_BYTES,
 };
 
@@ -24,4 +24,14 @@ fn error_message_includes_attributable_validator() {
         validator: ValidatorId(7),
     };
     assert!(err.to_string().contains("validator 7"));
+}
+
+#[test]
+fn private_key_share_debug_redacts_secret_bytes() {
+    let share = PrivateKeyShare::new(ValidatorId(7), vec![11, 22, 33]);
+    let debug = format!("{share:?}");
+
+    assert!(debug.contains("validator 7"));
+    assert!(debug.contains("secret_len"));
+    assert!(!debug.contains("[11, 22, 33]"));
 }

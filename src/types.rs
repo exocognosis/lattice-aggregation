@@ -1,5 +1,7 @@
 //! Public opaque types and ML-DSA-65 constants.
 
+use core::fmt;
+
 use zeroize::Zeroize;
 
 /// FIPS 204 ML-DSA-65 public key byte length.
@@ -52,7 +54,7 @@ pub struct PartialSignatureShare {
 }
 
 /// Opaque local signing key share.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone)]
 pub struct PrivateKeyShare {
     /// Validator that owns this share.
     pub share_id: ValidatorId,
@@ -76,6 +78,15 @@ impl PrivateKeyShare {
 impl Drop for PrivateKeyShare {
     fn drop(&mut self) {
         self.zeroize();
+    }
+}
+
+impl fmt::Debug for PrivateKeyShare {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("PrivateKeyShare")
+            .field("share_id", &self.share_id.to_string())
+            .field("secret_len", &self.secret.len())
+            .finish()
     }
 }
 

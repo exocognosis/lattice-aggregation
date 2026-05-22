@@ -28,4 +28,13 @@ pub struct SigningSession<State = state::Initialized> {
 }
 
 /// Threshold signing interface reserved for the signing protocol task.
-pub trait ThresholdSigner {}
+#[allow(private_bounds)]
+pub trait ThresholdSigner: sealed::Sealed {}
+
+impl<State> ThresholdSigner for SigningSession<State> {}
+
+mod sealed {
+    pub trait Sealed {}
+
+    impl<State> Sealed for super::SigningSession<State> {}
+}
