@@ -25,13 +25,6 @@ impl CommitmentSet {
         validate_threshold(threshold, validators.len() as u16)?;
         let validator_set = set_from_validators(validators)?;
 
-        if commitments.len() < threshold as usize {
-            return Err(ThresholdError::InsufficientCommitments {
-                required: threshold,
-                received: commitments.len(),
-            });
-        }
-
         let mut ordered = BTreeMap::new();
         for (validator, commitment) in commitments {
             if !validator_set.contains(&validator) {
@@ -41,6 +34,13 @@ impl CommitmentSet {
             if ordered.insert(validator, commitment).is_some() {
                 return Err(ThresholdError::DuplicateValidator { validator });
             }
+        }
+
+        if ordered.len() < threshold as usize {
+            return Err(ThresholdError::InsufficientCommitments {
+                required: threshold,
+                received: ordered.len(),
+            });
         }
 
         Ok(Self {
@@ -92,13 +92,6 @@ impl PartialShareSet {
         validate_threshold(threshold, validators.len() as u16)?;
         let validator_set = set_from_validators(validators)?;
 
-        if shares.len() < threshold as usize {
-            return Err(ThresholdError::InsufficientPartialShares {
-                required: threshold,
-                received: shares.len(),
-            });
-        }
-
         let mut ordered = BTreeMap::new();
         for share in shares {
             let signer = share.signer;
@@ -109,6 +102,13 @@ impl PartialShareSet {
             if ordered.insert(signer, share).is_some() {
                 return Err(ThresholdError::DuplicateValidator { validator: signer });
             }
+        }
+
+        if ordered.len() < threshold as usize {
+            return Err(ThresholdError::InsufficientPartialShares {
+                required: threshold,
+                received: ordered.len(),
+            });
         }
 
         Ok(Self { shares: ordered })

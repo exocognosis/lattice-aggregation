@@ -84,6 +84,18 @@ fn commitment_set_rejects_unknown_validator() {
 }
 
 #[test]
+fn commitment_set_reports_unknown_validator_before_insufficient_count() {
+    let result = CommitmentSet::new(validators(), 2, vec![(ValidatorId(4), commitment(4))]);
+
+    assert_eq!(
+        result.unwrap_err(),
+        ThresholdError::UnknownValidator {
+            validator: ValidatorId(4)
+        }
+    );
+}
+
+#[test]
 fn commitment_set_canonicalizes_order() {
     let set = CommitmentSet::new(
         validators(),
@@ -116,6 +128,31 @@ fn partial_share_set_rejects_insufficient_shares() {
         ThresholdError::InsufficientPartialShares {
             required: 2,
             received: 1
+        }
+    );
+}
+
+#[test]
+fn partial_share_set_reports_duplicate_signer_before_insufficient_count() {
+    let result = PartialShareSet::new(
+        validators(),
+        2,
+        vec![
+            PartialSignatureShare {
+                signer: ValidatorId(1),
+                bytes: vec![1, 2, 3],
+            },
+            PartialSignatureShare {
+                signer: ValidatorId(1),
+                bytes: vec![4, 5, 6],
+            },
+        ],
+    );
+
+    assert_eq!(
+        result.unwrap_err(),
+        ThresholdError::DuplicateValidator {
+            validator: ValidatorId(1)
         }
     );
 }
