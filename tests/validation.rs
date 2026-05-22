@@ -1,4 +1,5 @@
 use dytallix_pq_threshold::{
+    serialization::{decode_commitment_payload, encode_commitment_payload},
     Commitment, CommitmentSet, PartialShareSet, PartialSignatureShare, PrivateKeyShare,
     ThresholdError, ValidatorId, COMMITMENT_BYTES, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, POLY_SEED_BYTES,
@@ -154,5 +155,28 @@ fn partial_share_set_reports_duplicate_signer_before_insufficient_count() {
         ThresholdError::DuplicateValidator {
             validator: ValidatorId(1)
         }
+    );
+}
+
+#[test]
+fn commitment_payload_round_trips_with_version_and_validator() {
+    let encoded = encode_commitment_payload([5; 32], ValidatorId(9), Commitment([7; 32]));
+    let (session, validator, commitment) = decode_commitment_payload(&encoded).unwrap();
+
+    assert_eq!(session, [5; 32]);
+    assert_eq!(validator, ValidatorId(9));
+    assert_eq!(commitment, Commitment([7; 32]));
+}
+
+#[test]
+fn commitment_payload_rejects_bad_version() {
+    let mut encoded = encode_commitment_payload([5; 32], ValidatorId(9), Commitment([7; 32]));
+    encoded[0] = 2;
+
+    assert_eq!(
+        decode_commitment_payload(&encoded),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "unsupported version"
+        })
     );
 }
