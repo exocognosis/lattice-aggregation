@@ -1,0 +1,15 @@
+error[E0308]: mismatched types
+  --> tests/ui/type_state_invalid_partial.rs:23:56
+   |
+23 |     let _ = SigningSession::generate_partial_signature(session, commitments, b"message");
+   |             ------------------------------------------ ^^^^^^^ expected `SigningSession<AwaitingCommitments>`, found `SigningSession`
+   |             |
+   |             arguments to this function are incorrect
+   |
+   = note: expected struct `SigningSession<AwaitingCommitments>`
+              found struct `SigningSession<Initialized>`
+note: associated function defined here
+  --> src/protocol.rs
+   |
+   |     fn generate_partial_signature(
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^

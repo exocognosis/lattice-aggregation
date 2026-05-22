@@ -1,0 +1,5 @@
+error[E0599]: no method named `initiate_signing` found for struct `SigningSession` in the current scope
+ --> tests/ui/type_state_invalid_aggregate.rs:4:21
+  |
+4 |     let _ = session.initiate_signing();
+  |                     ^^^^^^^^^^^^^^^^ method not found in `SigningSession<AwaitingPartialSignatures>`
