@@ -1,5 +1,15 @@
-error[E0599]: no method named `initiate_signing` found for struct `SigningSession` in the current scope
- --> tests/ui/type_state_invalid_aggregate.rs:4:21
+error[E0308]: mismatched types
+ --> tests/ui/type_state_invalid_aggregate.rs:6:51
   |
-4 |     let _ = session.initiate_signing();
-  |                     ^^^^^^^^^^^^^^^^ method not found in `SigningSession<AwaitingPartialSignatures>`
+6 |     let _ = SimulatedAggregator::aggregate_shares(session, shares);
+  |             ------------------------------------- ^^^^^^^ expected `SigningTranscript`, found `SigningSession<...>`
+  |             |
+  |             arguments to this function are incorrect
+  |
+  = note: expected struct `SigningTranscript`
+             found struct `SigningSession<AwaitingPartialSignatures>`
+note: associated function defined here
+ --> src/aggregation.rs
+  |
+  |     fn aggregate_shares(
+  |        ^^^^^^^^^^^^^^^^

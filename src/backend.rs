@@ -31,14 +31,16 @@ const PARTIAL_SIGNATURE_BYTES: usize = 64;
 pub struct SimulatedCommitmentSecret([u8; 32]);
 
 impl SimulatedCommitmentSecret {
-    fn from_bytes(mut bytes: [u8; 32]) -> Self {
-        let mut stored = [0u8; 32];
-        core::mem::swap(&mut bytes, &mut stored);
-        Self(stored)
+    fn zeroed() -> Self {
+        Self([0u8; 32])
     }
 
     fn as_bytes(&self) -> &[u8; 32] {
         &self.0
+    }
+
+    fn as_mut_bytes(&mut self) -> &mut [u8; 32] {
+        &mut self.0
     }
 }
 
@@ -122,10 +124,9 @@ impl Mldsa65Backend for SimulatedBackend {
 
         let mut reader = hasher.finalize_xof();
         let mut commitment = [0u8; 32];
-        let mut secret_bytes = [0u8; 32];
+        let mut secret = SimulatedCommitmentSecret::zeroed();
         reader.read(&mut commitment);
-        reader.read(&mut secret_bytes);
-        let secret = SimulatedCommitmentSecret::from_bytes(secret_bytes);
+        reader.read(secret.as_mut_bytes());
 
         Ok((Commitment(commitment), secret))
     }
