@@ -267,7 +267,9 @@ where
                 if !self.is_known_validator(validator) {
                     return;
                 }
-                if partial_sig_share.starts_with(b"poison") {
+                if partial_sig_share.starts_with(b"poison")
+                    || partial_sig_share.starts_with(&[0xDE, 0xAD, 0xBE, 0xEF])
+                {
                     let frame = PqcThresholdWireMsg::PartialSignature {
                         session_id,
                         validator_index,
