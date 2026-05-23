@@ -12,6 +12,7 @@ pub mod backend;
 pub mod collections;
 pub mod dkg;
 pub mod errors;
+pub mod low_level;
 pub mod protocol;
 pub mod serialization;
 pub mod transcript;
@@ -22,6 +23,7 @@ pub use backend::{Mldsa65Backend, SimulatedBackend};
 pub use collections::{CommitmentSet, PartialShareSet, ValidatedDkgShares};
 pub use dkg::{SimulatedDkg, ThresholdKeyGeneration};
 pub use errors::ThresholdError;
+pub use low_level::poly::{Poly, N, Q};
 pub use protocol::{state, SigningSession, ThresholdSigner};
 pub use transcript::{SigningTranscript, ThresholdSigningTranscript};
 pub use types::{

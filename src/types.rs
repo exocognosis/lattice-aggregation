@@ -2,6 +2,7 @@
 
 use core::fmt;
 
+use serde::{Deserialize, Serialize};
 use zeroize::Zeroize;
 
 /// FIPS 204 ML-DSA-65 public key byte length.
@@ -19,7 +20,7 @@ pub const COMMITMENT_BYTES: usize = 32;
 pub type SessionId = [u8; SESSION_ID_BYTES];
 
 /// Stable validator identity inside one threshold validator set.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub struct ValidatorId(pub u16);
 
 impl core::fmt::Display for ValidatorId {

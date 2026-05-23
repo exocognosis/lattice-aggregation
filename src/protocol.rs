@@ -15,24 +15,35 @@ use crate::{
 
 /// Signing session states.
 pub mod state {
-    use crate::types::{Challenge, Commitment};
+    use std::collections::HashMap;
+
+    use crate::{
+        low_level::poly::Poly,
+        types::{Challenge, Commitment},
+    };
 
     /// Initial signing session state.
     #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
     pub struct Initialized;
 
     /// Local commitment has been generated and peer commitments are needed.
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct AwaitingCommitments {
+        /// Local masking polynomial placeholder for low-level integrations.
+        pub local_y: Poly,
         /// Local commitment broadcast to peers.
         pub local_commitment: Commitment,
+        /// Commitments collected from peer validators.
+        pub received_commitments: HashMap<u16, [u8; 32]>,
     }
 
     /// Commitments are bound and partial signatures are being collected.
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct AwaitingPartialSignatures {
         /// Transcript-derived signing challenge.
-        pub challenge: Challenge,
+        pub global_challenge: Challenge,
+        /// Partial polynomial shares collected from validators.
+        pub partial_shares: HashMap<u16, Poly>,
     }
 
     /// Finalized signing session state.
@@ -70,6 +81,13 @@ where
                 &self.commitment_secret.is_some(),
             )
             .finish()
+    }
+}
+
+impl<State> SigningSession<State> {
+    /// Borrow the current type-state marker and its public buffers.
+    pub fn internal_state(&self) -> &State {
+        &self.internal_state
     }
 }
 
@@ -160,7 +178,9 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
                 public_key: self.public_key,
                 validator_set: self.validator_set,
                 internal_state: state::AwaitingCommitments {
+                    local_y: crate::Poly::zero(),
                     local_commitment: commitment,
+                    received_commitments: std::collections::HashMap::new(),
                 },
                 commitment_secret: Some(secret),
             },
@@ -210,7 +230,10 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
                 local_share: session.local_share,
                 public_key: session.public_key,
                 validator_set: session.validator_set,
-                internal_state: state::AwaitingPartialSignatures { challenge },
+                internal_state: state::AwaitingPartialSignatures {
+                    global_challenge: challenge,
+                    partial_shares: std::collections::HashMap::new(),
+                },
                 commitment_secret: None,
             },
             partial,
@@ -221,6 +244,6 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
 impl SigningSession<state::AwaitingPartialSignatures> {
     /// Return the transcript-derived challenge.
     pub fn challenge(&self) -> Challenge {
-        self.internal_state.challenge
+        self.internal_state.global_challenge
     }
 }
