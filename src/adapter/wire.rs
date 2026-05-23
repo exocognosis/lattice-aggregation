@@ -14,6 +14,7 @@ const MSG_SIGN_COMMIT: u8 = 3;
 const MSG_PARTIAL_SIGNATURE: u8 = 4;
 
 /// Decode failure for canonical adapter wire frames.
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum WireDecodeError {
     /// Frame is shorter or longer than required for its message type.
@@ -31,7 +32,11 @@ pub enum WireDecodeError {
 }
 
 /// Threshold protocol wire message.
+///
+/// `SignCommit` carries `validator_index` in this adapter scaffold so actor
+/// simulations can attribute commitments without a separate transport envelope.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum PqcThresholdWireMsg {
     /// Distributed key generation commitment.
     DkgCommit {
@@ -165,6 +170,10 @@ fn encode_variable(
     validator: u16,
     payload: &[u8],
 ) -> Vec<u8> {
+    assert!(
+        payload.len() <= u32::MAX as usize,
+        "wire payload length exceeds u32 framing capacity"
+    );
     let mut out = Vec::with_capacity(40 + payload.len());
     out.push(WIRE_VERSION);
     out.push(msg_type);
