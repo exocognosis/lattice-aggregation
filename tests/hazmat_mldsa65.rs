@@ -2,10 +2,10 @@
 
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
-        check_poly_bound, expand_a, inverse_ntt, matrix_vector_mul, ntt, pack_public_key,
-        pack_signature, poly_add, poly_mul_ntt, poly_negacyclic_mul, poly_shift_left_d, poly_sub,
-        reduce_mod_q, rej_ntt_poly, sample_in_ball, t1_times_2d, unpack_public_key,
-        unpack_signature, use_hint_vector, verify_standard_mldsa65, HintVector,
+        check_poly_bound, compute_verification_w1, expand_a, inverse_ntt, matrix_vector_mul, ntt,
+        pack_public_key, pack_signature, poly_add, poly_mul_ntt, poly_negacyclic_mul,
+        poly_shift_left_d, poly_sub, reduce_mod_q, rej_ntt_poly, sample_in_ball, t1_times_2d,
+        unpack_public_key, unpack_signature, use_hint_vector, verify_standard_mldsa65, HintVector,
         Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA,
         MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K,
         MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
@@ -284,6 +284,27 @@ fn hazmat_verifier_stub_is_explicitly_unavailable_until_kats_land() {
         Err(ThresholdError::BackendUnavailable {
             reason: "hazmat-real-mldsa verifier requires FIPS 204 KAT-backed implementation"
         })
+    );
+}
+
+#[test]
+fn hazmat_compute_verification_w1_returns_k_dimension_vector() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let signature = structurally_valid_zero_z_signature();
+
+    let w1 = compute_verification_w1(&public_key, b"message", &signature).unwrap();
+
+    assert_eq!(w1.polys().len(), MLDSA65_K);
+}
+
+#[test]
+fn hazmat_compute_verification_w1_rejects_bad_z_before_equation() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let signature = ThresholdSignature([0; MLDSA65_SIGNATURE_BYTES]);
+
+    assert_eq!(
+        compute_verification_w1(&public_key, b"message", &signature),
+        Err(ThresholdError::StandardVerificationFailed)
     );
 }
 

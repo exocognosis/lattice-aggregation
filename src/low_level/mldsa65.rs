@@ -680,6 +680,49 @@ pub fn use_hint_vector(hint: &HintVector, values: &VectorK) -> VectorK {
     VectorK::from_polys(adjusted)
 }
 
+/// Compute the hinted `w1` vector used by ML-DSA verification.
+pub fn compute_verification_w1(
+    public_key: &ThresholdPublicKey,
+    _message: &[u8],
+    signature: &ThresholdSignature,
+) -> Result<VectorK, ThresholdError> {
+    let public_key = unpack_public_key(&public_key.0)?;
+    let signature = unpack_signature(&signature.0)?;
+
+    if !signature
+        .z()
+        .polys()
+        .iter()
+        .all(|poly| check_poly_bound(poly, MLDSA65_Z_NORM_BOUND))
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    let matrix = expand_a(public_key.rho());
+    let az = matrix_vector_mul(&matrix, signature.z());
+    let challenge = sample_in_ball(signature.challenge());
+    let t1 = t1_times_2d(public_key.t1());
+
+    let mut challenge_t1 = [Poly::zero(); MLDSA65_K];
+    for (out, t1_poly) in challenge_t1.iter_mut().zip(t1.polys().iter()) {
+        *out = poly_negacyclic_mul(&challenge, t1_poly);
+    }
+    let challenge_t1 = VectorK::from_polys(challenge_t1);
+
+    let mut w_approx = [Poly::zero(); MLDSA65_K];
+    for (out, (az_poly, ct1_poly)) in w_approx
+        .iter_mut()
+        .zip(az.polys().iter().zip(challenge_t1.polys().iter()))
+    {
+        *out = poly_sub(az_poly, ct1_poly);
+    }
+
+    Ok(use_hint_vector(
+        signature.hint(),
+        &VectorK::from_polys(w_approx),
+    ))
+}
+
 /// Check that all polynomial coefficients are strictly below the given bound.
 pub fn check_poly_bound(poly: &Poly, bound: i32) -> bool {
     poly.check_noise_bounds(bound)
@@ -691,20 +734,10 @@ pub fn check_poly_bound(poly: &Poly, bound: i32) -> bool {
 /// completed against FIPS 204 known-answer tests.
 pub fn verify_standard_mldsa65(
     public_key: &ThresholdPublicKey,
-    _message: &[u8],
+    message: &[u8],
     signature: &ThresholdSignature,
 ) -> Result<bool, ThresholdError> {
-    let _public_key = unpack_public_key(&public_key.0)?;
-    let signature = unpack_signature(&signature.0)?;
-
-    if !signature
-        .z()
-        .polys()
-        .iter()
-        .all(|poly| check_poly_bound(poly, MLDSA65_Z_NORM_BOUND))
-    {
-        return Err(ThresholdError::StandardVerificationFailed);
-    }
+    let _w1 = compute_verification_w1(public_key, message, signature)?;
 
     Err(ThresholdError::BackendUnavailable {
         reason: HAZMAT_VERIFIER_UNAVAILABLE,
