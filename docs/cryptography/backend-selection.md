@@ -34,6 +34,8 @@ The first local boundary exposes:
 - FIPS 204 `RejNTTPoly` and `ExpandA(rho)` public matrix expansion.
 - Reference coefficient-domain polynomial and vector arithmetic for verifier
   equation scaffolding.
+- Canonical `O(n^2)` reference NTT and inverse NTT with pointwise
+  multiplication tests.
 - A verifier skeleton that fails closed after structural checks and returns
   `BackendUnavailable` until the full FIPS 204 verification equation lands.
 
@@ -45,7 +47,7 @@ equation.
 
 The remaining standard-verification path should land in this order:
 
-1. NTT/inverse NTT and polynomial multiplication.
+1. Montgomery/table-optimized FIPS NTT with reference-vector fixtures.
 2. NTT-domain verifier equation wiring for `A*z - c*t1*2^d`.
 3. FIPS 204 ML-DSA-65 known-answer tests.
 4. Replacement of the verifier skeleton with the complete verification

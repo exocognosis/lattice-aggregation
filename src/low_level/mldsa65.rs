@@ -42,6 +42,8 @@ pub const MLDSA65_GAMMA2: i32 = (Q - 1) / 32;
 pub const MLDSA65_OMEGA: usize = 55;
 /// ML-DSA-65 secret key byte length.
 pub const MLDSA65_SECRETKEY_BYTES: usize = 4032;
+/// Primitive 512th root of unity used for canonical reference NTT tests.
+pub const MLDSA65_ROOT_OF_UNITY_512: i32 = 1753;
 /// Packed byte length for one ML-DSA `t1` polynomial.
 pub const MLDSA65_POLYT1_PACKED_BYTES: usize = 320;
 /// Packed byte length for one ML-DSA-65 `z` polynomial.
@@ -491,6 +493,55 @@ pub fn matrix_vector_mul(matrix: &MatrixA, vector: &VectorL) -> VectorK {
     VectorK::from_polys(rows)
 }
 
+/// Canonical reference NTT over the negacyclic ML-DSA ring.
+///
+/// This is a slow `O(n^2)` transform with canonical coefficients. It is not
+/// the final Montgomery/table-optimized FIPS implementation.
+pub fn ntt(poly: &Poly) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (point, out) in coeffs.iter_mut().enumerate() {
+        let root = mod_pow(MLDSA65_ROOT_OF_UNITY_512, (2 * point + 1) as u32);
+        let mut root_power = 1i32;
+        let mut accum = 0i64;
+        for coeff in poly.coeffs {
+            accum += mul_mod_q(coeff, root_power) as i64;
+            root_power = mul_mod_q(root_power, root);
+        }
+        *out = reduce_mod_q(accum);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Inverse of the canonical reference NTT.
+pub fn inverse_ntt(poly: &Poly) -> Poly {
+    let n_inverse = mod_inverse(N as i32);
+    let mut coeffs = [0i32; N];
+    for (degree, out) in coeffs.iter_mut().enumerate() {
+        let mut accum = 0i64;
+        for (point, value) in poly.coeffs.iter().enumerate() {
+            let root = mod_pow(MLDSA65_ROOT_OF_UNITY_512, ((2 * point + 1) * degree) as u32);
+            let inverse_root = mod_inverse(root);
+            accum += mul_mod_q(*value, inverse_root) as i64;
+        }
+        *out = mul_mod_q(reduce_mod_q(accum), n_inverse);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Multiply two polynomials through the canonical reference NTT.
+pub fn poly_mul_ntt(lhs: &Poly, rhs: &Poly) -> Poly {
+    let lhs_ntt = ntt(lhs);
+    let rhs_ntt = ntt(rhs);
+    let mut product = [0i32; N];
+    for (out, (left, right)) in product
+        .iter_mut()
+        .zip(lhs_ntt.coeffs.iter().zip(rhs_ntt.coeffs.iter()))
+    {
+        *out = mul_mod_q(*left, *right);
+    }
+    inverse_ntt(&Poly::from_coeffs(product))
+}
+
 /// Sample an ML-DSA-65 challenge polynomial from `c_tilde`.
 pub fn sample_in_ball(seed: &[u8; MLDSA65_CHALLENGE_BYTES]) -> Poly {
     let mut hasher = Shake256::default();
@@ -779,6 +830,24 @@ fn squeeze_three_byte_candidate(reader: &mut impl XofReader) -> u32 {
     let mut bytes = [0u8; 3];
     reader.read(&mut bytes);
     ((bytes[0] as u32) | ((bytes[1] as u32) << 8) | ((bytes[2] as u32) << 16)) & 0x7f_ffff
+}
+
+fn mod_pow(base: i32, exponent: u32) -> i32 {
+    let mut result = 1i32;
+    let mut base = reduce_mod_q(base as i64);
+    let mut exponent = exponent;
+    while exponent > 0 {
+        if exponent & 1 == 1 {
+            result = mul_mod_q(result, base);
+        }
+        base = mul_mod_q(base, base);
+        exponent >>= 1;
+    }
+    result
+}
+
+fn mod_inverse(value: i32) -> i32 {
+    mod_pow(value, (Q - 2) as u32)
 }
 
 fn centered_remainder(value: i32, modulus: i32) -> i32 {

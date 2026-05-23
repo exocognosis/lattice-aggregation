@@ -2,13 +2,14 @@
 
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
-        check_poly_bound, expand_a, matrix_vector_mul, pack_public_key, pack_signature, poly_add,
-        poly_negacyclic_mul, poly_shift_left_d, poly_sub, reduce_mod_q, rej_ntt_poly,
-        sample_in_ball, t1_times_2d, unpack_public_key, unpack_signature, use_hint_vector,
-        verify_standard_mldsa65, HintVector, Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK,
-        VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1,
-        MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES,
-        MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
+        check_poly_bound, expand_a, inverse_ntt, matrix_vector_mul, ntt, pack_public_key,
+        pack_signature, poly_add, poly_mul_ntt, poly_negacyclic_mul, poly_shift_left_d, poly_sub,
+        reduce_mod_q, rej_ntt_poly, sample_in_ball, t1_times_2d, unpack_public_key,
+        unpack_signature, use_hint_vector, verify_standard_mldsa65, HintVector,
+        Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA,
+        MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K,
+        MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
+        MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
     },
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
@@ -214,6 +215,42 @@ fn hazmat_matrix_vector_mul_accumulates_rows() {
     let product = matrix_vector_mul(&matrix, &vector);
 
     assert!(product.polys().iter().all(|poly| poly.coeffs[0] == 2));
+}
+
+#[test]
+fn hazmat_ntt_zero_round_trips() {
+    assert_eq!(inverse_ntt(&ntt(&Poly::zero())), Poly::zero());
+}
+
+#[test]
+fn hazmat_ntt_inverse_round_trips_pattern_poly() {
+    let mut poly = Poly::zero();
+    for (index, coeff) in poly.coeffs.iter_mut().enumerate() {
+        *coeff = ((index as i32 * 17) + 3) % Q;
+    }
+
+    assert_eq!(inverse_ntt(&ntt(&poly)), poly);
+}
+
+#[test]
+fn hazmat_ntt_is_linear_over_mod_q() {
+    let left = t1_pattern_poly();
+    let right = z_pattern_poly();
+    let transformed_sum = ntt(&poly_add(&left, &right));
+    let sum_transformed = poly_add(&ntt(&left), &ntt(&right));
+
+    assert_eq!(transformed_sum, sum_transformed);
+}
+
+#[test]
+fn hazmat_ntt_multiplication_matches_negacyclic_reference() {
+    let left = t1_pattern_poly();
+    let right = z_pattern_poly();
+
+    assert_eq!(
+        poly_mul_ntt(&left, &right),
+        poly_negacyclic_mul(&left, &right)
+    );
 }
 
 #[test]
