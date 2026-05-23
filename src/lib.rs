@@ -18,6 +18,7 @@ pub mod protocol;
 pub mod serialization;
 pub mod transcript;
 pub mod types;
+pub mod utils;
 
 pub use aggregation::{SignatureAggregator, SimulatedAggregator};
 pub use backend::{Mldsa65Backend, SimulatedBackend};

@@ -37,6 +37,17 @@ pub enum ActorEvent {
     TimeoutCheck,
 }
 
+/// Empirical measurements captured for one threshold session.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct SessionMetrics {
+    /// Total wall-clock session duration in nanoseconds.
+    pub total_duration_ns: u64,
+    /// Number of rejection-sampling aborts and retries observed.
+    pub abort_and_retry_count: u32,
+    /// Total network bytes transmitted during the session.
+    pub network_bytes_transmitted: usize,
+}
+
 /// Actor construction config.
 #[derive(Clone, Debug)]
 #[non_exhaustive]
