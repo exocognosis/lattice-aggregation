@@ -2,13 +2,14 @@
 
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
-        check_poly_bound, reduce_mod_q, unpack_public_key, unpack_signature,
-        verify_standard_mldsa65, Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL,
-        MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1,
-        MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES,
-        MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
+        check_poly_bound, pack_public_key, pack_signature, reduce_mod_q, unpack_public_key,
+        unpack_signature, verify_standard_mldsa65, HintVector, Mldsa65PublicKeyBytes,
+        Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D,
+        MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA,
+        MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES,
+        MLDSA65_TAU,
     },
-    ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
+    Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
 };
 
@@ -170,6 +171,18 @@ fn hazmat_public_key_unpacking_rejects_wrong_length() {
 }
 
 #[test]
+fn hazmat_public_key_pack_round_trips_t1_coefficients() {
+    let rho = [0x44; MLDSA65_PUBLIC_SEED_BYTES];
+    let t1 = VectorK::from_polys([t1_pattern_poly(); MLDSA65_K]);
+
+    let packed = pack_public_key(rho, &t1).unwrap();
+    let unpacked = unpack_public_key(packed.as_bytes()).unwrap();
+
+    assert_eq!(unpacked.rho(), &rho);
+    assert_eq!(unpacked.t1(), &t1);
+}
+
+#[test]
 fn hazmat_signature_unpacking_splits_challenge_z_and_hint() {
     let signature = structurally_valid_zero_z_signature();
 
@@ -201,6 +214,34 @@ fn hazmat_signature_unpacking_rejects_nonzero_unused_hint_slots() {
 }
 
 #[test]
+fn hazmat_signature_pack_round_trips_challenge_z_and_empty_hint() {
+    let challenge = [0x9A; MLDSA65_CHALLENGE_BYTES];
+    let z = VectorL::from_polys([z_pattern_poly(); MLDSA65_L]);
+    let hint = HintVector::empty();
+
+    let packed = pack_signature(challenge, &z, &hint).unwrap();
+    let unpacked = unpack_signature(packed.as_bytes()).unwrap();
+
+    assert_eq!(unpacked.challenge(), &challenge);
+    assert_eq!(unpacked.z(), &z);
+    assert_eq!(unpacked.hint(), &hint);
+}
+
+#[test]
+fn hazmat_signature_packing_rejects_z_values_outside_packed_range() {
+    let challenge = [0u8; MLDSA65_CHALLENGE_BYTES];
+    let mut z = VectorL::zero();
+    z.polys_mut()[0].coeffs[0] = -MLDSA65_GAMMA1;
+
+    assert_eq!(
+        pack_signature(challenge, &z, &HintVector::empty()),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 z coefficient cannot be packed"
+        })
+    );
+}
+
+#[test]
 fn hazmat_verifier_rejects_z_outside_mldsa65_norm_bound() {
     let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
     let signature = ThresholdSignature([0; MLDSA65_SIGNATURE_BYTES]);
@@ -224,6 +265,22 @@ fn structurally_valid_zero_z_signature() -> ThresholdSignature {
     }
 
     ThresholdSignature(bytes)
+}
+
+fn t1_pattern_poly() -> Poly {
+    let mut poly = Poly::zero();
+    for (index, coeff) in poly.coeffs.iter_mut().enumerate() {
+        *coeff = (index as i32 * 3) & 0x03ff;
+    }
+    poly
+}
+
+fn z_pattern_poly() -> Poly {
+    let mut poly = Poly::zero();
+    for (index, coeff) in poly.coeffs.iter_mut().enumerate() {
+        *coeff = (index as i32 % 101) - 50;
+    }
+    poly
 }
 
 fn write_bits_le(output: &mut [u8], bit_offset: usize, width: usize, value: u32) {

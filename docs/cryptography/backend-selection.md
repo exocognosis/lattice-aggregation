@@ -24,6 +24,7 @@ The first local boundary exposes:
   primitive.
 - Public key unpacking into `rho` and `t1`.
 - Signature unpacking into `c_tilde`, `z`, and hint metadata.
+- Public key and signature packing helpers for round-trip testing.
 - Structural hint encoding validation and `z` norm rejection.
 - FIPS 204 decomposition helpers: `Power2Round`, `Decompose`,
   `HighBits`, `LowBits`, `MakeHint`, and `UseHint`.
@@ -38,7 +39,7 @@ equation.
 
 The remaining standard-verification path should land in this order:
 
-1. Round-trip tests for `t1`, `z`, and hint packing.
+1. Non-empty hint construction and round-trip tests.
 2. `sample_in_ball(c_tilde)` challenge expansion.
 3. SHAKE128 matrix expansion from `rho`.
 4. NTT/inverse NTT and polynomial multiplication.

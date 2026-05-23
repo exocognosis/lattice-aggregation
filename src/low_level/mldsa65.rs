@@ -54,6 +54,8 @@ const HINT_OFFSET_RANGE: &str = "ML-DSA-65 hint offset exceeds omega";
 const HINT_OFFSET_MONOTONIC: &str = "ML-DSA-65 hint offsets are not monotonic";
 const HINT_INDEX_ORDER: &str = "ML-DSA-65 hint indices are not strictly increasing";
 const HINT_UNUSED_NONZERO: &str = "ML-DSA-65 hint encoding has nonzero unused slot";
+const T1_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 t1 coefficient cannot be packed";
+const Z_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 z coefficient cannot be packed";
 
 /// Fixed-size byte wrapper for an ML-DSA-65 public key.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -127,6 +129,15 @@ pub struct HintVector {
 }
 
 impl HintVector {
+    /// Return an empty hint vector.
+    pub const fn empty() -> Self {
+        Self {
+            indices: [0; MLDSA65_OMEGA],
+            offsets: [0; MLDSA65_K],
+            weight: 0,
+        }
+    }
+
     /// Borrow the packed hint indices.
     pub fn indices(&self) -> &[u8; MLDSA65_OMEGA] {
         &self.indices
@@ -208,6 +219,47 @@ impl<const LEN: usize> Default for PolyVec<LEN> {
 pub type VectorK = PolyVec<MLDSA65_K>;
 /// ML-DSA-65 `l`-dimension polynomial vector.
 pub type VectorL = PolyVec<MLDSA65_L>;
+
+/// Pack an ML-DSA-65 public key from `rho` and `t1`.
+pub fn pack_public_key(
+    rho: [u8; MLDSA65_PUBLIC_SEED_BYTES],
+    t1: &VectorK,
+) -> Result<Mldsa65PublicKeyBytes, ThresholdError> {
+    let mut bytes = [0u8; MLDSA65_PUBLICKEY_BYTES];
+    bytes[..MLDSA65_PUBLIC_SEED_BYTES].copy_from_slice(&rho);
+
+    let mut offset = MLDSA65_PUBLIC_SEED_BYTES;
+    for poly in t1.polys() {
+        let packed = pack_t1_poly(poly)?;
+        bytes[offset..offset + MLDSA65_POLYT1_PACKED_BYTES].copy_from_slice(&packed);
+        offset += MLDSA65_POLYT1_PACKED_BYTES;
+    }
+
+    Ok(Mldsa65PublicKeyBytes::new(bytes))
+}
+
+/// Pack an ML-DSA-65 signature from challenge, response, and hint material.
+pub fn pack_signature(
+    challenge: [u8; MLDSA65_CHALLENGE_BYTES],
+    z: &VectorL,
+    hint: &HintVector,
+) -> Result<Mldsa65SignatureBytes, ThresholdError> {
+    let mut bytes = [0u8; MLDSA65_SIGNATURE_BYTES];
+    bytes[..MLDSA65_CHALLENGE_BYTES].copy_from_slice(&challenge);
+
+    let mut offset = MLDSA65_CHALLENGE_BYTES;
+    for poly in z.polys() {
+        let packed = pack_z_poly(poly)?;
+        bytes[offset..offset + MLDSA65_POLYZ_PACKED_BYTES].copy_from_slice(&packed);
+        offset += MLDSA65_POLYZ_PACKED_BYTES;
+    }
+
+    bytes[offset..offset + MLDSA65_OMEGA].copy_from_slice(hint.indices());
+    offset += MLDSA65_OMEGA;
+    bytes[offset..offset + MLDSA65_K].copy_from_slice(hint.offsets());
+
+    Ok(Mldsa65SignatureBytes::new(bytes))
+}
 
 /// Unpack an ML-DSA-65 public key into `rho` and `t1`.
 pub fn unpack_public_key(bytes: &[u8]) -> Result<UnpackedPublicKey, ThresholdError> {
@@ -382,6 +434,19 @@ fn unpack_t1_poly(bytes: &[u8]) -> Poly {
     Poly::from_coeffs(coeffs)
 }
 
+fn pack_t1_poly(poly: &Poly) -> Result<[u8; MLDSA65_POLYT1_PACKED_BYTES], ThresholdError> {
+    let mut bytes = [0u8; MLDSA65_POLYT1_PACKED_BYTES];
+    for (index, coeff) in poly.coeffs.iter().enumerate() {
+        if !(0..(1 << 10)).contains(coeff) {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: T1_COEFFICIENT_UNPACKABLE,
+            });
+        }
+        write_bits_le(&mut bytes, index * 10, 10, *coeff as u32);
+    }
+    Ok(bytes)
+}
+
 fn unpack_z_poly(bytes: &[u8]) -> Poly {
     let mut coeffs = [0i32; N];
     for (index, coeff) in coeffs.iter_mut().enumerate() {
@@ -389,6 +454,20 @@ fn unpack_z_poly(bytes: &[u8]) -> Poly {
         *coeff = MLDSA65_GAMMA1 - encoded;
     }
     Poly::from_coeffs(coeffs)
+}
+
+fn pack_z_poly(poly: &Poly) -> Result<[u8; MLDSA65_POLYZ_PACKED_BYTES], ThresholdError> {
+    let mut bytes = [0u8; MLDSA65_POLYZ_PACKED_BYTES];
+    for (index, coeff) in poly.coeffs.iter().enumerate() {
+        if *coeff > MLDSA65_GAMMA1 || *coeff <= -MLDSA65_GAMMA1 {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: Z_COEFFICIENT_UNPACKABLE,
+            });
+        }
+
+        write_bits_le(&mut bytes, index * 20, 20, (MLDSA65_GAMMA1 - *coeff) as u32);
+    }
+    Ok(bytes)
 }
 
 fn unpack_hint(bytes: &[u8]) -> Result<HintVector, ThresholdError> {
@@ -446,6 +525,14 @@ fn read_bits_le(bytes: &[u8], bit_offset: usize, width: usize) -> u32 {
         value |= (bit_value as u32) << bit;
     }
     value
+}
+
+fn write_bits_le(bytes: &mut [u8], bit_offset: usize, width: usize, value: u32) {
+    for bit in 0..width {
+        let absolute_bit = bit_offset + bit;
+        let bit_value = ((value >> bit) & 1) as u8;
+        bytes[absolute_bit / 8] |= bit_value << (absolute_bit % 8);
+    }
 }
 
 fn centered_remainder(value: i32, modulus: i32) -> i32 {
