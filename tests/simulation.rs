@@ -12,6 +12,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+type FinalizedRecords = Arc<Mutex<Vec<(u64, Vec<u8>)>>>;
+type EvidenceRecords = Arc<Mutex<Vec<SlashingEvidence>>>;
+type GasUpdates = Arc<Mutex<Vec<u64>>>;
+
 #[derive(Clone, Default)]
 struct RecordingNetwork {
     broadcasts: Arc<Mutex<Vec<PqcThresholdWireMsg>>>,
@@ -35,9 +39,9 @@ impl P2pNetworkAdapter for RecordingNetwork {
 
 #[derive(Clone, Default)]
 struct RecordingConsensus {
-    finalized: Arc<Mutex<Vec<(u64, Vec<u8>)>>>,
-    evidence: Arc<Mutex<Vec<SlashingEvidence>>>,
-    gas_updates: Arc<Mutex<Vec<u64>>>,
+    finalized: FinalizedRecords,
+    evidence: EvidenceRecords,
+    gas_updates: GasUpdates,
 }
 
 #[async_trait::async_trait]
