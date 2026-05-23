@@ -40,19 +40,23 @@ The first local boundary exposes:
   `mu = H(tr || 0x00 || |ctx| || ctx || M)`,
   `w1 = UseHint(Az - c*t1*2^d)`, and
   `c_tilde = H(mu || w1Encode(w1))`.
+- Internal verifier equation support for both `mu = H(tr || M)` and
+  caller-supplied external `mu`.
 - FIPS NTT-domain arithmetic for the verifier equation, including
   `Ahat * NTT(z)` and `NTT(c) * NTT(t1 * 2^d)`.
-- A checked-in NIST ACVP sample group for ML-DSA-65 external/pure `sigVer`.
+- Checked-in NIST ACVP sample groups for ML-DSA-65 external/pure,
+  internal/message, and internal/external-mu `sigVer`.
 
 This is intentionally a scaffold. It does not yet implement key generation,
 secret-key packing, signing, optimized Montgomery/NTT arithmetic, context
-handling, prehash/external-mu interfaces, or broader KAT conformance.
+handling beyond verification transcripts, external prehash interfaces, or
+broader KAT conformance.
 
 ## Next Verifier Slices
 
 The remaining standard-verification path should land in this order:
 
-1. Add ACVP `sigVer` coverage for prehash, internal, and external-mu paths.
+1. Add ACVP `sigVer` coverage for the external prehash path.
 2. Differential tests against an independent implementation.
 3. Montgomery/table-optimized FIPS NTT with reference-vector fixtures.
 
@@ -66,8 +70,9 @@ Fixture source:
 
 - NIST ACVP ML-DSA `sigVer` JSON, `revision = "FIPS204"`.
 - `parameterSet = "ML-DSA-65"`.
-- External pure verification only; prehash, internal, and external-mu vectors
-  are intentionally skipped until those verifier entry points exist.
+- External pure, internal message, and internal external-mu verification groups
+  are covered. External prehash vectors are intentionally skipped until hash OID
+  handling exists.
 - Default path: `tests/fixtures/ml_dsa_65_sigver_acvp.json`.
 - Override path: `DYTALLIX_MLDSA65_SIGVER_KAT`.
 

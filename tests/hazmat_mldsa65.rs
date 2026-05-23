@@ -5,10 +5,11 @@ use dytallix_pq_threshold::{
         check_poly_bound, compute_verification_w1, expand_a, inverse_ntt, matrix_vector_mul, ntt,
         pack_public_key, pack_signature, poly_add, poly_mul_ntt, poly_negacyclic_mul,
         poly_shift_left_d, poly_sub, reduce_mod_q, rej_ntt_poly, sample_in_ball, t1_times_2d,
-        unpack_public_key, unpack_signature, use_hint_vector, verify_standard_mldsa65, HintVector,
-        Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA,
-        MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K,
-        MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
+        unpack_public_key, unpack_signature, use_hint_vector, verify_mldsa65_external_pure,
+        verify_mldsa65_internal_mu, verify_standard_mldsa65, HintVector, Mldsa65PublicKeyBytes,
+        Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D,
+        MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_MU_BYTES,
+        MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
         MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
     },
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
@@ -475,6 +476,34 @@ fn hazmat_verifier_rejects_z_outside_mldsa65_norm_bound() {
     assert_eq!(
         verify_standard_mldsa65(&public_key, b"message", &signature),
         Err(ThresholdError::StandardVerificationFailed)
+    );
+}
+
+#[test]
+fn hazmat_external_pure_rejects_oversized_context() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let signature = structurally_valid_zero_z_signature();
+    let context = vec![0; 256];
+
+    assert_eq!(
+        verify_mldsa65_external_pure(&public_key, b"message", &context, &signature),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 context length exceeds FIPS 204 bound"
+        })
+    );
+}
+
+#[test]
+fn hazmat_internal_mu_rejects_wrong_mu_length() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let signature = structurally_valid_zero_z_signature();
+    let mu = vec![0; MLDSA65_MU_BYTES - 1];
+
+    assert_eq!(
+        verify_mldsa65_internal_mu(&public_key, &mu, &signature),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 mu length mismatch"
+        })
     );
 }
 

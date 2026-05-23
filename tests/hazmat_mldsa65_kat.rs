@@ -3,19 +3,30 @@
 use std::{env, fs, path::PathBuf};
 
 use dytallix_pq_threshold::{
-    mldsa65::verify_mldsa65_external_pure, ThresholdPublicKey, ThresholdSignature,
-    MLDSA65_PUBLICKEY_BYTES, MLDSA65_SIGNATURE_BYTES,
+    mldsa65::{
+        verify_mldsa65_external_pure, verify_mldsa65_internal_message, verify_mldsa65_internal_mu,
+    },
+    ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES, MLDSA65_SIGNATURE_BYTES,
 };
 use serde_json::Value;
 
 #[derive(Debug, Eq, PartialEq)]
 struct SigVerKat {
     tc_id: u64,
+    mode: SigVerMode,
     message: Vec<u8>,
+    mu: Vec<u8>,
     context: Vec<u8>,
     public_key: Vec<u8>,
     signature: Vec<u8>,
     expected_valid: bool,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum SigVerMode {
+    ExternalPure,
+    InternalMessage,
+    InternalMu,
 }
 
 #[test]
@@ -24,7 +35,9 @@ fn hazmat_acvp_sigver_loader_extracts_mldsa65_vectors() {
 
     assert_eq!(vectors.len(), 1);
     assert_eq!(vectors[0].tc_id, 7);
+    assert_eq!(vectors[0].mode, SigVerMode::ExternalPure);
     assert_eq!(vectors[0].message, vec![0xAB, 0xCD]);
+    assert!(vectors[0].mu.is_empty());
     assert_eq!(vectors[0].context, vec![0xAA]);
     assert_eq!(vectors[0].public_key, vec![0x01, 0x02]);
     assert_eq!(vectors[0].signature, vec![0x03, 0x04]);
@@ -39,10 +52,30 @@ fn hazmat_acvp_sigver_loader_ignores_other_parameter_sets() {
 }
 
 #[test]
-fn hazmat_acvp_sigver_loader_ignores_unsupported_interfaces() {
-    let vectors = load_acvp_sigver_vectors(SAMPLE_EXTERNAL_INTERFACE).unwrap();
+fn hazmat_acvp_sigver_loader_ignores_external_prehash_vectors() {
+    let vectors = load_acvp_sigver_vectors(SAMPLE_EXTERNAL_PREHASH).unwrap();
 
     assert!(vectors.is_empty());
+}
+
+#[test]
+fn hazmat_acvp_sigver_loader_extracts_internal_message_vectors() {
+    let vectors = load_acvp_sigver_vectors(SAMPLE_INTERNAL_MESSAGE).unwrap();
+
+    assert_eq!(vectors.len(), 1);
+    assert_eq!(vectors[0].mode, SigVerMode::InternalMessage);
+    assert_eq!(vectors[0].message, vec![0xCA, 0xFE]);
+    assert!(vectors[0].mu.is_empty());
+}
+
+#[test]
+fn hazmat_acvp_sigver_loader_extracts_internal_external_mu_vectors() {
+    let vectors = load_acvp_sigver_vectors(SAMPLE_INTERNAL_EXTERNAL_MU).unwrap();
+
+    assert_eq!(vectors.len(), 1);
+    assert_eq!(vectors[0].mode, SigVerMode::InternalMu);
+    assert!(vectors[0].message.is_empty());
+    assert_eq!(vectors[0].mu, vec![0xDE, 0xAD]);
 }
 
 #[test]
@@ -93,8 +126,20 @@ fn official_mldsa65_sigver_kats_pass() {
                 .try_into()
                 .expect("signature length checked"),
         );
-        let verified =
-            verify_mldsa65_external_pure(&public_key, &vector.message, &vector.context, &signature);
+        let verified = match vector.mode {
+            SigVerMode::ExternalPure => verify_mldsa65_external_pure(
+                &public_key,
+                &vector.message,
+                &vector.context,
+                &signature,
+            ),
+            SigVerMode::InternalMessage => {
+                verify_mldsa65_internal_message(&public_key, &vector.message, &signature)
+            }
+            SigVerMode::InternalMu => {
+                verify_mldsa65_internal_mu(&public_key, &vector.mu, &signature)
+            }
+        };
         let verified_bool = match verified {
             Ok(value) => value,
             Err(_) if !vector.expected_valid => false,
@@ -135,15 +180,9 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
         if group.get("parameterSet").and_then(Value::as_str) != Some("ML-DSA-65") {
             continue;
         }
-        if group.get("signatureInterface").and_then(Value::as_str) != Some("external") {
+        let Some(mode) = group_sigver_mode(group) else {
             continue;
-        }
-        if !matches!(
-            group.get("preHash").and_then(Value::as_str),
-            None | Some("pure")
-        ) {
-            continue;
-        }
+        };
 
         let public_key = group
             .get("pk")
@@ -171,7 +210,19 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
                     .get("tcId")
                     .and_then(Value::as_u64)
                     .ok_or("missing tcId")?,
-                message: decode_hex(required_string(test, "message")?)?,
+                mode,
+                message: test
+                    .get("message")
+                    .and_then(Value::as_str)
+                    .map(decode_hex)
+                    .transpose()?
+                    .unwrap_or_default(),
+                mu: test
+                    .get("mu")
+                    .and_then(Value::as_str)
+                    .map(decode_hex)
+                    .transpose()?
+                    .unwrap_or_default(),
                 context: test
                     .get("context")
                     .and_then(Value::as_str)
@@ -186,6 +237,21 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
     }
 
     Ok(vectors)
+}
+
+fn group_sigver_mode(group: &Value) -> Option<SigVerMode> {
+    match (
+        group.get("signatureInterface").and_then(Value::as_str),
+        group.get("preHash").and_then(Value::as_str),
+        group.get("externalMu").and_then(Value::as_bool),
+    ) {
+        (Some("external"), None | Some("pure"), _) => Some(SigVerMode::ExternalPure),
+        (Some("internal"), None | Some("none"), Some(true)) => Some(SigVerMode::InternalMu),
+        (Some("internal"), None | Some("none"), None | Some(false)) => {
+            Some(SigVerMode::InternalMessage)
+        }
+        _ => None,
+    }
 }
 
 fn required_string<'a>(value: &'a Value, key: &'static str) -> Result<&'a str, &'static str> {
@@ -285,7 +351,34 @@ const SAMPLE_OTHER_PARAMETER_SET: &str = r#"[
   }
 ]"#;
 
-const SAMPLE_EXTERNAL_INTERFACE: &str = r#"[
+const SAMPLE_EXTERNAL_PREHASH: &str = r#"[
+  { "acvVersion": "1.0" },
+  {
+    "algorithm": "ML-DSA",
+    "mode": "sigVer",
+    "revision": "FIPS204",
+    "testGroups": [
+      {
+        "tgId": 1,
+        "testType": "AFT",
+        "parameterSet": "ML-DSA-65",
+        "signatureInterface": "external",
+        "preHash": "preHash",
+        "pk": "0102",
+        "tests": [
+          {
+            "tcId": 7,
+            "message": "abcd",
+            "signature": "0304",
+            "testPassed": true
+          }
+        ]
+      }
+    ]
+  }
+]"#;
+
+const SAMPLE_INTERNAL_MESSAGE: &str = r#"[
   { "acvVersion": "1.0" },
   {
     "algorithm": "ML-DSA",
@@ -297,12 +390,39 @@ const SAMPLE_EXTERNAL_INTERFACE: &str = r#"[
         "testType": "AFT",
         "parameterSet": "ML-DSA-65",
         "signatureInterface": "internal",
-        "preHash": "preHash",
+        "externalMu": false,
         "pk": "0102",
         "tests": [
           {
             "tcId": 7,
-            "message": "abcd",
+            "message": "cafe",
+            "signature": "0304",
+            "testPassed": true
+          }
+        ]
+      }
+    ]
+  }
+]"#;
+
+const SAMPLE_INTERNAL_EXTERNAL_MU: &str = r#"[
+  { "acvVersion": "1.0" },
+  {
+    "algorithm": "ML-DSA",
+    "mode": "sigVer",
+    "revision": "FIPS204",
+    "testGroups": [
+      {
+        "tgId": 1,
+        "testType": "AFT",
+        "parameterSet": "ML-DSA-65",
+        "signatureInterface": "internal",
+        "externalMu": true,
+        "pk": "0102",
+        "tests": [
+          {
+            "tcId": 7,
+            "mu": "dead",
             "signature": "0304",
             "testPassed": true
           }

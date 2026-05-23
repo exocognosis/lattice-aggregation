@@ -22,6 +22,8 @@ use crate::{
 pub const MLDSA65_PUBLIC_SEED_BYTES: usize = 32;
 /// ML-DSA-65 challenge byte length for `c_tilde`.
 pub const MLDSA65_CHALLENGE_BYTES: usize = 48;
+/// ML-DSA digest byte length for `mu`.
+pub const MLDSA65_MU_BYTES: usize = 64;
 /// ML-DSA dropped-bit parameter `d`.
 pub const MLDSA65_D: usize = 13;
 /// ML-DSA-65 matrix row dimension `k`.
@@ -67,6 +69,8 @@ const HINT_POSITION_ORDER: &str = "ML-DSA-65 hint positions are not strictly inc
 const HINT_UNUSED_NONZERO: &str = "ML-DSA-65 hint encoding has nonzero unused slot";
 const T1_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 t1 coefficient cannot be packed";
 const Z_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 z coefficient cannot be packed";
+const CONTEXT_LENGTH_RANGE: &str = "ML-DSA-65 context length exceeds FIPS 204 bound";
+const MU_LENGTH_MISMATCH: &str = "ML-DSA-65 mu length mismatch";
 
 /// Fixed-size byte wrapper for an ML-DSA-65 public key.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -915,9 +919,48 @@ pub fn verify_mldsa65_external_pure(
     context: &[u8],
     signature: &ThresholdSignature,
 ) -> Result<bool, ThresholdError> {
+    if context.len() > u8::MAX as usize {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: CONTEXT_LENGTH_RANGE,
+        });
+    }
+
     let unpacked_signature = unpack_signature(&signature.0)?;
     let w1 = compute_verification_w1(public_key, message, signature)?;
     let expected_challenge = compute_verification_challenge(public_key, message, context, &w1);
+
+    Ok(unpacked_signature.challenge() == &expected_challenge)
+}
+
+/// Verify an internal ML-DSA-65 signature whose `mu` value is derived from the message.
+pub fn verify_mldsa65_internal_message(
+    public_key: &ThresholdPublicKey,
+    message: &[u8],
+    signature: &ThresholdSignature,
+) -> Result<bool, ThresholdError> {
+    let unpacked_signature = unpack_signature(&signature.0)?;
+    let w1 = compute_verification_w1(public_key, message, signature)?;
+    let tr = shake256_64(&public_key.0);
+    let mu = compute_internal_message_mu(&tr, message);
+    let expected_challenge = compute_challenge_from_mu(&mu, &w1);
+
+    Ok(unpacked_signature.challenge() == &expected_challenge)
+}
+
+/// Verify an internal ML-DSA-65 signature using a caller-supplied `mu` digest.
+pub fn verify_mldsa65_internal_mu(
+    public_key: &ThresholdPublicKey,
+    mu: &[u8],
+    signature: &ThresholdSignature,
+) -> Result<bool, ThresholdError> {
+    let mu: &[u8; MLDSA65_MU_BYTES] =
+        mu.try_into()
+            .map_err(|_| ThresholdError::MalformedSerialization {
+                reason: MU_LENGTH_MISMATCH,
+            })?;
+    let unpacked_signature = unpack_signature(&signature.0)?;
+    let w1 = compute_verification_w1(public_key, &[], signature)?;
+    let expected_challenge = compute_challenge_from_mu(mu, &w1);
 
     Ok(unpacked_signature.challenge() == &expected_challenge)
 }
@@ -929,18 +972,46 @@ fn compute_verification_challenge(
     w1: &VectorK,
 ) -> [u8; MLDSA65_CHALLENGE_BYTES] {
     let tr = shake256_64(&public_key.0);
+    let mu = compute_external_pure_mu(&tr, message, context);
 
+    compute_challenge_from_mu(&mu, w1)
+}
+
+fn compute_external_pure_mu(
+    tr: &[u8; MLDSA65_MU_BYTES],
+    message: &[u8],
+    context: &[u8],
+) -> [u8; MLDSA65_MU_BYTES] {
     let mut mu_hasher = Shake256::default();
-    mu_hasher.update(&tr);
+    mu_hasher.update(tr);
     mu_hasher.update(&[0x00, context.len() as u8]);
     mu_hasher.update(context);
     mu_hasher.update(message);
     let mut mu_reader = mu_hasher.finalize_xof();
-    let mut mu = [0u8; 64];
+    let mut mu = [0u8; MLDSA65_MU_BYTES];
     mu_reader.read(&mut mu);
+    mu
+}
 
+fn compute_internal_message_mu(
+    tr: &[u8; MLDSA65_MU_BYTES],
+    message: &[u8],
+) -> [u8; MLDSA65_MU_BYTES] {
+    let mut mu_hasher = Shake256::default();
+    mu_hasher.update(tr);
+    mu_hasher.update(message);
+    let mut mu_reader = mu_hasher.finalize_xof();
+    let mut mu = [0u8; MLDSA65_MU_BYTES];
+    mu_reader.read(&mut mu);
+    mu
+}
+
+fn compute_challenge_from_mu(
+    mu: &[u8; MLDSA65_MU_BYTES],
+    w1: &VectorK,
+) -> [u8; MLDSA65_CHALLENGE_BYTES] {
     let mut challenge_hasher = Shake256::default();
-    challenge_hasher.update(&mu);
+    challenge_hasher.update(mu);
     challenge_hasher.update(&encode_w1(w1));
     let mut challenge_reader = challenge_hasher.finalize_xof();
     let mut challenge = [0u8; MLDSA65_CHALLENGE_BYTES];
