@@ -32,6 +32,8 @@ The first local boundary exposes:
   `HighBits`, `LowBits`, `MakeHint`, and `UseHint`.
 - FIPS 204 `SampleInBall(c_tilde)` challenge-polynomial expansion.
 - FIPS 204 `RejNTTPoly` and `ExpandA(rho)` public matrix expansion.
+- Reference coefficient-domain polynomial and vector arithmetic for verifier
+  equation scaffolding.
 - A verifier skeleton that fails closed after structural checks and returns
   `BackendUnavailable` until the full FIPS 204 verification equation lands.
 
@@ -44,7 +46,7 @@ equation.
 The remaining standard-verification path should land in this order:
 
 1. NTT/inverse NTT and polynomial multiplication.
-2. Vector operations for `A*z - c*t1*2^d`.
+2. NTT-domain verifier equation wiring for `A*z - c*t1*2^d`.
 3. FIPS 204 ML-DSA-65 known-answer tests.
 4. Replacement of the verifier skeleton with the complete verification
    equation.

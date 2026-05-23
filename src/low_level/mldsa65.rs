@@ -414,6 +414,83 @@ pub fn mul_mod_q(lhs: i32, rhs: i32) -> i32 {
     reduce_mod_q(lhs as i64 * rhs as i64)
 }
 
+/// Add two polynomials coefficientwise modulo `Q`.
+pub fn poly_add(lhs: &Poly, rhs: &Poly) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (out, (left, right)) in coeffs
+        .iter_mut()
+        .zip(lhs.coeffs.iter().zip(rhs.coeffs.iter()))
+    {
+        *out = add_mod_q(*left, *right);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Subtract two polynomials coefficientwise modulo `Q`.
+pub fn poly_sub(lhs: &Poly, rhs: &Poly) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (out, (left, right)) in coeffs
+        .iter_mut()
+        .zip(lhs.coeffs.iter().zip(rhs.coeffs.iter()))
+    {
+        *out = sub_mod_q(*left, *right);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Multiply two polynomials in `Z_q[X] / (X^256 + 1)`.
+pub fn poly_negacyclic_mul(lhs: &Poly, rhs: &Poly) -> Poly {
+    let mut accum = [0i64; N];
+    for (i, left) in lhs.coeffs.iter().enumerate() {
+        for (j, right) in rhs.coeffs.iter().enumerate() {
+            let product = *left as i64 * *right as i64;
+            let degree = i + j;
+            if degree < N {
+                accum[degree] += product;
+            } else {
+                accum[degree - N] -= product;
+            }
+        }
+    }
+
+    let mut coeffs = [0i32; N];
+    for (out, value) in coeffs.iter_mut().zip(accum) {
+        *out = reduce_mod_q(value);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Multiply every coefficient by `2^d` modulo `Q`.
+pub fn poly_shift_left_d(poly: &Poly) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (out, coeff) in coeffs.iter_mut().zip(poly.coeffs.iter()) {
+        *out = reduce_mod_q((*coeff as i64) << MLDSA65_D);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Multiply each `t1` component by `2^d` modulo `Q`.
+pub fn t1_times_2d(t1: &VectorK) -> VectorK {
+    let mut polys = [Poly::zero(); MLDSA65_K];
+    for (out, poly) in polys.iter_mut().zip(t1.polys().iter()) {
+        *out = poly_shift_left_d(poly);
+    }
+    VectorK::from_polys(polys)
+}
+
+/// Reference coefficient-domain matrix-vector multiplication.
+pub fn matrix_vector_mul(matrix: &MatrixA, vector: &VectorL) -> VectorK {
+    let mut rows = [Poly::zero(); MLDSA65_K];
+    for (out, matrix_row) in rows.iter_mut().zip(matrix.rows().iter()) {
+        let mut sum = Poly::zero();
+        for (entry, vector_poly) in matrix_row.polys().iter().zip(vector.polys().iter()) {
+            sum = poly_add(&sum, &poly_negacyclic_mul(entry, vector_poly));
+        }
+        *out = sum;
+    }
+    VectorK::from_polys(rows)
+}
+
 /// Sample an ML-DSA-65 challenge polynomial from `c_tilde`.
 pub fn sample_in_ball(seed: &[u8; MLDSA65_CHALLENGE_BYTES]) -> Poly {
     let mut hasher = Shake256::default();

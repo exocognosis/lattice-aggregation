@@ -2,8 +2,9 @@
 
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
-        check_poly_bound, expand_a, pack_public_key, pack_signature, reduce_mod_q, rej_ntt_poly,
-        sample_in_ball, unpack_public_key, unpack_signature, use_hint_vector,
+        check_poly_bound, expand_a, matrix_vector_mul, pack_public_key, pack_signature, poly_add,
+        poly_negacyclic_mul, poly_shift_left_d, poly_sub, reduce_mod_q, rej_ntt_poly,
+        sample_in_ball, t1_times_2d, unpack_public_key, unpack_signature, use_hint_vector,
         verify_standard_mldsa65, HintVector, Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK,
         VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1,
         MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES,
@@ -153,6 +154,66 @@ fn hazmat_field_reduction_canonicalizes_signed_inputs() {
     assert_eq!(reduce_mod_q(Q as i64), 0);
     assert_eq!(reduce_mod_q(-1), Q - 1);
     assert_eq!(reduce_mod_q((Q as i64 * 3) + 42), 42);
+}
+
+#[test]
+fn hazmat_poly_add_and_sub_reduce_coefficients() {
+    let mut left = Poly::zero();
+    let mut right = Poly::zero();
+    left.coeffs[0] = Q - 1;
+    right.coeffs[0] = 5;
+
+    assert_eq!(poly_add(&left, &right).coeffs[0], 4);
+    assert_eq!(poly_sub(&right, &left).coeffs[0], 6);
+}
+
+#[test]
+fn hazmat_poly_negacyclic_mul_respects_x_256_plus_one() {
+    let mut left = Poly::zero();
+    let mut right = Poly::zero();
+    left.coeffs[255] = 1;
+    right.coeffs[1] = 1;
+
+    assert_eq!(poly_negacyclic_mul(&left, &right).coeffs[0], Q - 1);
+}
+
+#[test]
+fn hazmat_poly_shift_left_d_multiplies_by_2_to_d() {
+    let mut poly = Poly::zero();
+    poly.coeffs[0] = 7;
+
+    assert_eq!(
+        poly_shift_left_d(&poly).coeffs[0],
+        reduce_mod_q(7i64 << MLDSA65_D)
+    );
+}
+
+#[test]
+fn hazmat_t1_times_2d_maps_each_public_key_component() {
+    let mut poly = Poly::zero();
+    poly.coeffs[3] = 11;
+    let vector = VectorK::from_polys([poly; MLDSA65_K]);
+
+    let shifted = t1_times_2d(&vector);
+
+    assert_eq!(
+        shifted.polys()[4].coeffs[3],
+        reduce_mod_q(11i64 << MLDSA65_D)
+    );
+}
+
+#[test]
+fn hazmat_matrix_vector_mul_accumulates_rows() {
+    let mut one = Poly::zero();
+    one.coeffs[0] = 1;
+    let matrix = dytallix_pq_threshold::mldsa65::MatrixA::from_rows(
+        [VectorL::from_polys([one, one, Poly::zero(), Poly::zero(), Poly::zero()]); MLDSA65_K],
+    );
+    let vector = VectorL::from_polys([one; MLDSA65_L]);
+
+    let product = matrix_vector_mul(&matrix, &vector);
+
+    assert!(product.polys().iter().all(|poly| poly.coeffs[0] == 2));
 }
 
 #[test]
