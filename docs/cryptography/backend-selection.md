@@ -28,6 +28,7 @@ The first local boundary exposes:
 - Structural hint encoding validation and `z` norm rejection.
 - FIPS 204 decomposition helpers: `Power2Round`, `Decompose`,
   `HighBits`, `LowBits`, `MakeHint`, and `UseHint`.
+- FIPS 204 `SampleInBall(c_tilde)` challenge-polynomial expansion.
 - A verifier skeleton that fails closed after structural checks and returns
   `BackendUnavailable` until the full FIPS 204 verification equation lands.
 
@@ -40,13 +41,12 @@ equation.
 The remaining standard-verification path should land in this order:
 
 1. Non-empty hint construction and round-trip tests.
-2. `sample_in_ball(c_tilde)` challenge expansion.
-3. SHAKE128 matrix expansion from `rho`.
-4. NTT/inverse NTT and polynomial multiplication.
-5. Vector operations for `A*z - c*t1*2^d`.
-6. Hint application over `w1`.
-7. FIPS 204 ML-DSA-65 known-answer tests.
-8. Replacement of the verifier skeleton with the complete verification
+2. SHAKE128 matrix expansion from `rho`.
+3. NTT/inverse NTT and polynomial multiplication.
+4. Vector operations for `A*z - c*t1*2^d`.
+5. Hint application over `w1`.
+6. FIPS 204 ML-DSA-65 known-answer tests.
+7. Replacement of the verifier skeleton with the complete verification
    equation.
 
 ## Publication Gate

@@ -2,12 +2,12 @@
 
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
-        check_poly_bound, pack_public_key, pack_signature, reduce_mod_q, unpack_public_key,
-        unpack_signature, verify_standard_mldsa65, HintVector, Mldsa65PublicKeyBytes,
-        Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D,
-        MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA,
-        MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES,
-        MLDSA65_TAU,
+        check_poly_bound, pack_public_key, pack_signature, reduce_mod_q, sample_in_ball,
+        unpack_public_key, unpack_signature, verify_standard_mldsa65, HintVector,
+        Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA,
+        MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K,
+        MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
+        MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
     },
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
@@ -90,6 +90,29 @@ fn hazmat_make_hint_reports_high_bit_changes() {
 
     assert!(!dytallix_pq_threshold::mldsa65::make_hint(1, base));
     assert!(dytallix_pq_threshold::mldsa65::make_hint(20, base));
+}
+
+#[test]
+fn hazmat_sample_in_ball_is_deterministic_sparse_and_ternary() {
+    let seed = [0xA7; MLDSA65_CHALLENGE_BYTES];
+
+    let first = sample_in_ball(&seed);
+    let second = sample_in_ball(&seed);
+
+    assert_eq!(first, second);
+    assert_eq!(
+        first.coeffs.iter().filter(|coeff| **coeff != 0).count(),
+        MLDSA65_TAU as usize
+    );
+    assert!(first.coeffs.iter().all(|coeff| matches!(*coeff, -1..=1)));
+}
+
+#[test]
+fn hazmat_sample_in_ball_changes_with_seed() {
+    let left = sample_in_ball(&[0x11; MLDSA65_CHALLENGE_BYTES]);
+    let right = sample_in_ball(&[0x22; MLDSA65_CHALLENGE_BYTES]);
+
+    assert_ne!(left, right);
 }
 
 #[test]

@@ -5,6 +5,11 @@
 //! a complete signing or verification implementation yet; callers must treat
 //! every item here as low-level cryptographic construction material.
 
+use sha3::{
+    digest::{ExtendableOutput, Update, XofReader},
+    Shake256,
+};
+
 use crate::{
     errors::ThresholdError,
     low_level::poly::{Poly, N, Q},
@@ -342,6 +347,31 @@ pub fn mul_mod_q(lhs: i32, rhs: i32) -> i32 {
     reduce_mod_q(lhs as i64 * rhs as i64)
 }
 
+/// Sample an ML-DSA-65 challenge polynomial from `c_tilde`.
+pub fn sample_in_ball(seed: &[u8; MLDSA65_CHALLENGE_BYTES]) -> Poly {
+    let mut hasher = Shake256::default();
+    hasher.update(seed);
+    let mut reader = hasher.finalize_xof();
+
+    let mut sign_bytes = [0u8; 8];
+    reader.read(&mut sign_bytes);
+    let signs = u64::from_le_bytes(sign_bytes);
+
+    let mut coeffs = [0i32; N];
+    for i in (N - MLDSA65_TAU as usize)..N {
+        let mut j = squeeze_byte(&mut reader);
+        while j > i {
+            j = squeeze_byte(&mut reader);
+        }
+
+        coeffs[i] = coeffs[j];
+        let sign_bit = (signs >> (i + MLDSA65_TAU as usize - N)) & 1;
+        coeffs[j] = if sign_bit == 0 { 1 } else { -1 };
+    }
+
+    Poly::from_coeffs(coeffs)
+}
+
 /// Decompose `r` into `(r1, r0)` such that `r = r1 * 2^d + r0 mod q`.
 pub fn power2round(r: i32) -> (i32, i32) {
     let r_plus = reduce_mod_q(r as i64);
@@ -533,6 +563,12 @@ fn write_bits_le(bytes: &mut [u8], bit_offset: usize, width: usize, value: u32) 
         let bit_value = ((value >> bit) & 1) as u8;
         bytes[absolute_bit / 8] |= bit_value << (absolute_bit % 8);
     }
+}
+
+fn squeeze_byte(reader: &mut impl XofReader) -> usize {
+    let mut byte = [0u8; 1];
+    reader.read(&mut byte);
+    byte[0] as usize
 }
 
 fn centered_remainder(value: i32, modulus: i32) -> i32 {
