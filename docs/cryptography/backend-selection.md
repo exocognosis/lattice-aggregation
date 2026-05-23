@@ -1,0 +1,46 @@
+# Backend Selection: Local Hazmat ML-DSA-65 Internals
+
+Date: 2026-05-23
+
+## Decision
+
+The crate will grow the real ML-DSA-65 implementation locally behind the
+`hazmat-real-mldsa` Cargo feature.
+
+The default feature set remains `simulated`. This keeps ordinary protocol,
+actor, and consensus-adapter tests deterministic and prevents downstream users
+from accidentally treating the research scaffold as a production FIPS 204
+implementation.
+
+## Scope of the First Hazmat Boundary
+
+The first local boundary exposes:
+
+- ML-DSA-65 parameter constants from FIPS 204.
+- Fixed-size public-key and signature byte wrappers.
+- `k = 6` and `l = 5` polynomial vector shapes.
+- Basic modular arithmetic helpers over `q = 8380417`.
+- Strict polynomial bound checks delegated to the existing low-level `Poly`
+  primitive.
+- An explicit verifier stub returning `BackendUnavailable`.
+
+This is intentionally a scaffold. It does not yet implement key generation,
+packing, NTT, expansion, challenge sampling, signing, or verification.
+
+## Publication Gate
+
+The feature must not be described as a real ML-DSA-65 backend until the local
+implementation passes at least:
+
+- FIPS 204 known-answer tests for ML-DSA-65 key generation, signing, and
+  verification.
+- Differential tests against an independent validated implementation.
+- Packing and unpacking round-trip tests for every public and secret structure.
+- Rejection-sampling tests at the ML-DSA-65 bounds.
+- Constant-time review for secret-dependent arithmetic paths.
+
+## Integration Rule
+
+Protocol and adapter code may depend on `hazmat-real-mldsa` only through small,
+audited functions. The default public API must continue to compile and test
+without the feature enabled.

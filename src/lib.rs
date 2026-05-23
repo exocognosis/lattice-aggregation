@@ -25,6 +25,8 @@ pub use backend::{Mldsa65Backend, SimulatedBackend};
 pub use collections::{CommitmentSet, PartialShareSet, ValidatedDkgShares};
 pub use dkg::{SimulatedDkg, ThresholdKeyGeneration};
 pub use errors::ThresholdError;
+#[cfg(feature = "hazmat-real-mldsa")]
+pub use low_level::mldsa65;
 pub use low_level::poly::{Poly, N, Q};
 pub use protocol::{state, SigningSession, ThresholdSigner};
 pub use transcript::{SigningTranscript, ThresholdSigningTranscript};

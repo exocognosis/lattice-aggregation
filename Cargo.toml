@@ -13,6 +13,7 @@ path = "src/lib.rs"
 default = ["simulated"]
 simulated = []
 hazmat = []
+hazmat-real-mldsa = ["hazmat"]
 
 [dependencies]
 async-trait = "0.1"
