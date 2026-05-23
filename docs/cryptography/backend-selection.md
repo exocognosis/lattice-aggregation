@@ -54,6 +54,22 @@ The remaining standard-verification path should land in this order:
 3. Replacement of the verifier skeleton with the complete verification
    equation.
 
+## KAT Harness
+
+The crate includes ACVP-style fixture plumbing in
+`tests/hazmat_mldsa65_kat.rs`. The official verifier KAT is ignored until real
+vectors are supplied and the verifier exits the current fail-closed
+`BackendUnavailable` gate.
+
+Fixture source:
+
+- NIST ACVP ML-DSA `sigVer` JSON, `revision = "FIPS204"`.
+- `parameterSet = "ML-DSA-65"`.
+- Pure internal message verification only; context, prehash, and external-mu
+  vectors are intentionally skipped until those verifier entry points exist.
+- Default path: `tests/fixtures/ml_dsa_65_sigver_acvp.json`.
+- Override path: `DYTALLIX_MLDSA65_SIGVER_KAT`.
+
 ## Publication Gate
 
 The feature must not be described as a real ML-DSA-65 backend until the local
