@@ -6,6 +6,7 @@
 //! for threshold ML-DSA-65 experiments. The default backend is a deterministic
 //! simulation backend and does not produce real ML-DSA signatures.
 
+pub mod adapter;
 pub mod aggregation;
 pub mod backend;
 pub mod collections;

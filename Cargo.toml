@@ -15,8 +15,10 @@ simulated = []
 hazmat = []
 
 [dependencies]
+async-trait = "0.1"
 sha3 = "0.10"
 thiserror = "1"
+tokio = { version = "1", features = ["macros", "rt", "sync", "time"] }
 zeroize = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
