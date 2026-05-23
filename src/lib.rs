@@ -10,6 +10,7 @@ pub mod adapter;
 pub mod aggregation;
 pub mod backend;
 pub mod collections;
+pub mod crypto;
 pub mod dkg;
 pub mod errors;
 pub mod low_level;
