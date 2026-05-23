@@ -3,7 +3,7 @@
 use std::{env, fs, path::PathBuf};
 
 use dytallix_pq_threshold::{
-    mldsa65::verify_standard_mldsa65, ThresholdPublicKey, ThresholdSignature,
+    mldsa65::verify_mldsa65_external_pure, ThresholdPublicKey, ThresholdSignature,
     MLDSA65_PUBLICKEY_BYTES, MLDSA65_SIGNATURE_BYTES,
 };
 use serde_json::Value;
@@ -12,6 +12,7 @@ use serde_json::Value;
 struct SigVerKat {
     tc_id: u64,
     message: Vec<u8>,
+    context: Vec<u8>,
     public_key: Vec<u8>,
     signature: Vec<u8>,
     expected_valid: bool,
@@ -24,6 +25,7 @@ fn hazmat_acvp_sigver_loader_extracts_mldsa65_vectors() {
     assert_eq!(vectors.len(), 1);
     assert_eq!(vectors[0].tc_id, 7);
     assert_eq!(vectors[0].message, vec![0xAB, 0xCD]);
+    assert_eq!(vectors[0].context, vec![0xAA]);
     assert_eq!(vectors[0].public_key, vec![0x01, 0x02]);
     assert_eq!(vectors[0].signature, vec![0x03, 0x04]);
     assert!(vectors[0].expected_valid);
@@ -44,10 +46,11 @@ fn hazmat_acvp_sigver_loader_ignores_unsupported_interfaces() {
 }
 
 #[test]
-fn hazmat_acvp_sigver_loader_ignores_non_empty_context_vectors() {
+fn hazmat_acvp_sigver_loader_extracts_non_empty_context_vectors() {
     let vectors = load_acvp_sigver_vectors(SAMPLE_NON_EMPTY_CONTEXT).unwrap();
 
-    assert!(vectors.is_empty());
+    assert_eq!(vectors.len(), 1);
+    assert_eq!(vectors[0].context, vec![0x01]);
 }
 
 #[test]
@@ -90,11 +93,19 @@ fn official_mldsa65_sigver_kats_pass() {
                 .try_into()
                 .expect("signature length checked"),
         );
-        let verified = verify_standard_mldsa65(&public_key, &vector.message, &signature);
+        let verified =
+            verify_mldsa65_external_pure(&public_key, &vector.message, &vector.context, &signature);
+        let verified_bool = match verified {
+            Ok(value) => value,
+            Err(_) if !vector.expected_valid => false,
+            Err(error) => panic!(
+                "tcId {} valid signature returned verifier error: {:?}",
+                vector.tc_id, error
+            ),
+        };
 
         assert_eq!(
-            verified,
-            Ok(vector.expected_valid),
+            verified_bool, vector.expected_valid,
             "tcId {} verification mismatch",
             vector.tc_id
         );
@@ -154,14 +165,6 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
                 .transpose()?
                 .or_else(|| public_key.clone())
                 .ok_or("missing public key")?;
-            if !test
-                .get("context")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .is_empty()
-            {
-                continue;
-            }
 
             vectors.push(SigVerKat {
                 tc_id: test
@@ -169,6 +172,12 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
                     .and_then(Value::as_u64)
                     .ok_or("missing tcId")?,
                 message: decode_hex(required_string(test, "message")?)?,
+                context: test
+                    .get("context")
+                    .and_then(Value::as_str)
+                    .map(decode_hex)
+                    .transpose()?
+                    .unwrap_or_default(),
                 public_key: test_public_key,
                 signature: decode_hex(required_string(test, "signature")?)?,
                 expected_valid: expected_valid(test)?,
@@ -241,7 +250,7 @@ const SAMPLE_ACVP_SIGVER: &str = r#"[
           {
             "tcId": 7,
             "message": "abcd",
-            "context": "",
+            "context": "aa",
             "signature": "0304",
             "testPassed": true
           }

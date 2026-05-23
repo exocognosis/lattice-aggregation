@@ -905,9 +905,19 @@ pub fn verify_standard_mldsa65(
     message: &[u8],
     signature: &ThresholdSignature,
 ) -> Result<bool, ThresholdError> {
+    verify_mldsa65_external_pure(public_key, message, &[], signature)
+}
+
+/// Verify an external pure ML-DSA-65 signature with an explicit context string.
+pub fn verify_mldsa65_external_pure(
+    public_key: &ThresholdPublicKey,
+    message: &[u8],
+    context: &[u8],
+    signature: &ThresholdSignature,
+) -> Result<bool, ThresholdError> {
     let unpacked_signature = unpack_signature(&signature.0)?;
     let w1 = compute_verification_w1(public_key, message, signature)?;
-    let expected_challenge = compute_verification_challenge(public_key, message, &w1);
+    let expected_challenge = compute_verification_challenge(public_key, message, context, &w1);
 
     Ok(unpacked_signature.challenge() == &expected_challenge)
 }
@@ -915,13 +925,15 @@ pub fn verify_standard_mldsa65(
 fn compute_verification_challenge(
     public_key: &ThresholdPublicKey,
     message: &[u8],
+    context: &[u8],
     w1: &VectorK,
 ) -> [u8; MLDSA65_CHALLENGE_BYTES] {
     let tr = shake256_64(&public_key.0);
 
     let mut mu_hasher = Shake256::default();
     mu_hasher.update(&tr);
-    mu_hasher.update(&[0x00, 0x00]);
+    mu_hasher.update(&[0x00, context.len() as u8]);
+    mu_hasher.update(context);
     mu_hasher.update(message);
     let mut mu_reader = mu_hasher.finalize_xof();
     let mut mu = [0u8; 64];
