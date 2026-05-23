@@ -6,7 +6,7 @@ use dytallix_pq_threshold::{
     adapter::wire::{
         PqcThresholdWireMsg, WireDecodeError, MAX_DKG_SHARE_BYTES, MAX_PARTIAL_SHARE_BYTES,
     },
-    PrivateKeyShare, ThresholdPublicKey, ValidatorId,
+    MLDSA65_SIGNATURE_BYTES, PrivateKeyShare, ThresholdPublicKey, ValidatorId,
 };
 use std::{
     convert::Infallible,
@@ -352,4 +352,137 @@ async fn actor_rejects_sessions_past_capacity() {
             ..
         } if session_id == &[1; 32]
     ));
+}
+
+#[tokio::test]
+async fn actor_finalizes_ideal_threshold_signature() {
+    let (tx, rx) = mpsc::channel(8);
+    let network = RecordingNetwork::default();
+    let consensus = RecordingConsensus::default();
+    let actor = ThresholdActor::new(actor_config(4), network, consensus.clone(), rx)
+        .expect("actor config should be valid");
+    let handle = tokio::spawn(actor.run());
+
+    tx.send(ActorEvent::TriggerSigningRound {
+        session_id: [3; 32],
+        block_height: 44,
+        message_hash: [0x44; 32],
+    })
+    .await
+    .unwrap();
+    tx.send(ActorEvent::IncomingNetworkMessage(
+        PqcThresholdWireMsg::SignCommit {
+            session_id: [3; 32],
+            block_height: 44,
+            validator_index: 2,
+            commitment: [0x22; 32],
+        },
+    ))
+    .await
+    .unwrap();
+    tx.send(ActorEvent::IncomingNetworkMessage(
+        PqcThresholdWireMsg::PartialSignature {
+            session_id: [3; 32],
+            validator_index: 2,
+            partial_sig_share: vec![0xAB; 64],
+        },
+    ))
+    .await
+    .unwrap();
+    drop(tx);
+
+    handle.await.unwrap();
+
+    let finalized = consensus.finalized.lock().unwrap();
+    assert_eq!(finalized.len(), 1);
+    assert_eq!(finalized[0].0, 44);
+    assert_eq!(finalized[0].1.len(), MLDSA65_SIGNATURE_BYTES);
+}
+
+#[tokio::test]
+async fn actor_submits_evidence_for_poisoned_partial_share() {
+    let (tx, rx) = mpsc::channel(8);
+    let network = RecordingNetwork::default();
+    let consensus = RecordingConsensus::default();
+    let actor = ThresholdActor::new(actor_config(4), network, consensus.clone(), rx)
+        .expect("actor config should be valid");
+    let handle = tokio::spawn(actor.run());
+
+    tx.send(ActorEvent::TriggerSigningRound {
+        session_id: [4; 32],
+        block_height: 45,
+        message_hash: [0x45; 32],
+    })
+    .await
+    .unwrap();
+    tx.send(ActorEvent::IncomingNetworkMessage(
+        PqcThresholdWireMsg::SignCommit {
+            session_id: [4; 32],
+            block_height: 45,
+            validator_index: 2,
+            commitment: [0x23; 32],
+        },
+    ))
+    .await
+    .unwrap();
+    tx.send(ActorEvent::IncomingNetworkMessage(
+        PqcThresholdWireMsg::PartialSignature {
+            session_id: [4; 32],
+            validator_index: 2,
+            partial_sig_share: b"poison-share".to_vec(),
+        },
+    ))
+    .await
+    .unwrap();
+    drop(tx);
+
+    handle.await.unwrap();
+
+    let evidence = consensus.evidence.lock().unwrap();
+    assert!(evidence.iter().any(|record| {
+        record.kind == EvidenceKind::InvalidPartialSignature
+            && record.validator == ValidatorId(2)
+            && record.session_id == [4; 32]
+    }));
+    assert!(consensus.finalized.lock().unwrap().is_empty());
+}
+
+#[tokio::test]
+async fn actor_submits_liveness_evidence_for_commitment_without_partial() {
+    let (tx, rx) = mpsc::channel(8);
+    let network = RecordingNetwork::default();
+    let consensus = RecordingConsensus::default();
+    let actor = ThresholdActor::new(actor_config(4), network, consensus.clone(), rx)
+        .expect("actor config should be valid");
+    let handle = tokio::spawn(actor.run());
+
+    tx.send(ActorEvent::TriggerSigningRound {
+        session_id: [5; 32],
+        block_height: 46,
+        message_hash: [0x46; 32],
+    })
+    .await
+    .unwrap();
+    tx.send(ActorEvent::IncomingNetworkMessage(
+        PqcThresholdWireMsg::SignCommit {
+            session_id: [5; 32],
+            block_height: 46,
+            validator_index: 2,
+            commitment: [0x24; 32],
+        },
+    ))
+    .await
+    .unwrap();
+    tokio::time::sleep(Duration::from_millis(75)).await;
+    tx.send(ActorEvent::TimeoutCheck).await.unwrap();
+    drop(tx);
+
+    handle.await.unwrap();
+
+    let evidence = consensus.evidence.lock().unwrap();
+    assert!(evidence.iter().any(|record| {
+        record.kind == EvidenceKind::CommitmentWithoutPartial
+            && record.validator == ValidatorId(2)
+            && record.session_id == [5; 32]
+    }));
 }
