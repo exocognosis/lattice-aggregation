@@ -58,6 +58,8 @@ const SIGNATURE_LENGTH_MISMATCH: &str = "ML-DSA-65 signature length mismatch";
 const HINT_OFFSET_RANGE: &str = "ML-DSA-65 hint offset exceeds omega";
 const HINT_OFFSET_MONOTONIC: &str = "ML-DSA-65 hint offsets are not monotonic";
 const HINT_INDEX_ORDER: &str = "ML-DSA-65 hint indices are not strictly increasing";
+const HINT_POSITION_RANGE: &str = "ML-DSA-65 hint position is out of range";
+const HINT_POSITION_ORDER: &str = "ML-DSA-65 hint positions are not strictly increasing";
 const HINT_UNUSED_NONZERO: &str = "ML-DSA-65 hint encoding has nonzero unused slot";
 const T1_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 t1 coefficient cannot be packed";
 const Z_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 z coefficient cannot be packed";
@@ -141,6 +143,53 @@ impl HintVector {
             offsets: [0; MLDSA65_K],
             weight: 0,
         }
+    }
+
+    /// Build a canonical hint vector from `(row, coefficient)` positions.
+    pub fn from_positions(positions: &[(usize, usize)]) -> Result<Self, ThresholdError> {
+        if positions.len() > MLDSA65_OMEGA {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: HINT_OFFSET_RANGE,
+            });
+        }
+
+        let mut indices = [0u8; MLDSA65_OMEGA];
+        let mut offsets = [0u8; MLDSA65_K];
+        let mut cursor = 0usize;
+        let mut position_iter = positions.iter().copied().peekable();
+
+        for (row, offset) in offsets.iter_mut().enumerate() {
+            let mut last_coeff = None;
+            while matches!(position_iter.peek(), Some((next_row, _)) if *next_row == row) {
+                let (_, coeff) = position_iter.next().expect("peeked position exists");
+                if coeff >= N {
+                    return Err(ThresholdError::MalformedSerialization {
+                        reason: HINT_POSITION_RANGE,
+                    });
+                }
+                if last_coeff.is_some_and(|previous| coeff <= previous) {
+                    return Err(ThresholdError::MalformedSerialization {
+                        reason: HINT_POSITION_ORDER,
+                    });
+                }
+                indices[cursor] = coeff as u8;
+                cursor += 1;
+                last_coeff = Some(coeff);
+            }
+            *offset = cursor as u8;
+        }
+
+        if position_iter.peek().is_some() {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: HINT_POSITION_RANGE,
+            });
+        }
+
+        Ok(Self {
+            indices,
+            offsets,
+            weight: cursor,
+        })
     }
 
     /// Borrow the packed hint indices.
@@ -477,6 +526,30 @@ pub fn use_hint(hint: bool, r: i32) -> i32 {
     } else {
         (r1 + modulus - 1) % modulus
     }
+}
+
+/// Apply an ML-DSA hint vector to decomposed high-bit inputs.
+pub fn use_hint_vector(hint: &HintVector, values: &VectorK) -> VectorK {
+    let mut adjusted = [Poly::zero(); MLDSA65_K];
+    let mut start = 0usize;
+
+    for (row_index, row) in adjusted.iter_mut().enumerate() {
+        *row = values.polys()[row_index];
+        let end = hint.offsets()[row_index] as usize;
+        for coeff_index in hint.indices()[start..end].iter().copied() {
+            let coeff_index = coeff_index as usize;
+            row.coeffs[coeff_index] = use_hint(true, values.polys()[row_index].coeffs[coeff_index]);
+        }
+        for coeff_index in 0..N {
+            if !hint.indices()[start..end].contains(&(coeff_index as u8)) {
+                row.coeffs[coeff_index] =
+                    use_hint(false, values.polys()[row_index].coeffs[coeff_index]);
+            }
+        }
+        start = end;
+    }
+
+    VectorK::from_polys(adjusted)
 }
 
 /// Check that all polynomial coefficients are strictly below the given bound.

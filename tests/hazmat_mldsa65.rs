@@ -3,11 +3,11 @@
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
         check_poly_bound, expand_a, pack_public_key, pack_signature, reduce_mod_q, rej_ntt_poly,
-        sample_in_ball, unpack_public_key, unpack_signature, verify_standard_mldsa65, HintVector,
-        Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA,
-        MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K,
-        MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
-        MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
+        sample_in_ball, unpack_public_key, unpack_signature, use_hint_vector,
+        verify_standard_mldsa65, HintVector, Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK,
+        VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1,
+        MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES,
+        MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
     },
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
@@ -271,6 +271,42 @@ fn hazmat_signature_pack_round_trips_challenge_z_and_empty_hint() {
     assert_eq!(unpacked.challenge(), &challenge);
     assert_eq!(unpacked.z(), &z);
     assert_eq!(unpacked.hint(), &hint);
+}
+
+#[test]
+fn hazmat_signature_pack_round_trips_non_empty_hint() {
+    let challenge = [0x77; MLDSA65_CHALLENGE_BYTES];
+    let z = VectorL::zero();
+    let hint = HintVector::from_positions(&[(0, 3), (0, 9), (2, 17), (5, 255)]).unwrap();
+
+    let packed = pack_signature(challenge, &z, &hint).unwrap();
+    let unpacked = unpack_signature(packed.as_bytes()).unwrap();
+
+    assert_eq!(unpacked.hint(), &hint);
+    assert_eq!(unpacked.hint().weight(), 4);
+}
+
+#[test]
+fn hazmat_hint_construction_rejects_duplicate_positions() {
+    assert_eq!(
+        HintVector::from_positions(&[(0, 3), (0, 3)]),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 hint positions are not strictly increasing"
+        })
+    );
+}
+
+#[test]
+fn hazmat_use_hint_vector_applies_row_positions_only() {
+    let mut low_bits_vector = VectorK::zero();
+    low_bits_vector.polys_mut()[1].coeffs[7] = 2 * MLDSA65_GAMMA2 + 5;
+    low_bits_vector.polys_mut()[1].coeffs[9] = 2 * MLDSA65_GAMMA2 - 5;
+    let hint = HintVector::from_positions(&[(1, 7)]).unwrap();
+
+    let adjusted = use_hint_vector(&hint, &low_bits_vector);
+
+    assert_eq!(adjusted.polys()[1].coeffs[7], 2);
+    assert_eq!(adjusted.polys()[1].coeffs[9], 1);
 }
 
 #[test]

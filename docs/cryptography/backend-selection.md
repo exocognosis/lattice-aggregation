@@ -26,6 +26,8 @@ The first local boundary exposes:
 - Signature unpacking into `c_tilde`, `z`, and hint metadata.
 - Public key and signature packing helpers for round-trip testing.
 - Structural hint encoding validation and `z` norm rejection.
+- Non-empty hint construction, signature round-tripping, and `UseHint`
+  application over `k`-dimension vectors.
 - FIPS 204 decomposition helpers: `Power2Round`, `Decompose`,
   `HighBits`, `LowBits`, `MakeHint`, and `UseHint`.
 - FIPS 204 `SampleInBall(c_tilde)` challenge-polynomial expansion.
@@ -41,12 +43,10 @@ equation.
 
 The remaining standard-verification path should land in this order:
 
-1. Non-empty hint construction and round-trip tests.
-2. NTT/inverse NTT and polynomial multiplication.
-3. Vector operations for `A*z - c*t1*2^d`.
-4. Hint application over `w1`.
-5. FIPS 204 ML-DSA-65 known-answer tests.
-6. Replacement of the verifier skeleton with the complete verification
+1. NTT/inverse NTT and polynomial multiplication.
+2. Vector operations for `A*z - c*t1*2^d`.
+3. FIPS 204 ML-DSA-65 known-answer tests.
+4. Replacement of the verifier skeleton with the complete verification
    equation.
 
 ## Publication Gate
