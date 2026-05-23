@@ -7,13 +7,14 @@
 use crate::{SessionId, ValidatorId};
 
 /// Classification for adapter-observed evidence.
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EvidenceKind {
     /// A wire message could not be decoded or failed framing validation.
     MalformedWireMessage,
     /// A validator sent a duplicate message for the same session context.
     DuplicateMessage,
-    /// A partial signature arrived without a matching commitment.
+    /// A validator committed but did not submit a partial signature before timeout.
     CommitmentWithoutPartial,
     /// A partial signature failed cryptographic verification.
     InvalidPartialSignature,
