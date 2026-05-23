@@ -48,15 +48,15 @@ struct RecordingConsensus {
 }
 
 fn actor_config(max_sessions: usize) -> ActorConfig {
-    ActorConfig {
-        local_validator: ValidatorId(1),
-        validator_set: vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)],
-        threshold: 2,
-        public_key: ThresholdPublicKey([4; 1952]),
-        local_share: PrivateKeyShare::new(ValidatorId(1), b"share-1".to_vec()),
-        round_timeout: Duration::from_millis(50),
+    ActorConfig::new(
+        ValidatorId(1),
+        vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)],
+        2,
+        ThresholdPublicKey([4; 1952]),
+        PrivateKeyShare::new(ValidatorId(1), b"share-1".to_vec()),
+        Duration::from_millis(50),
         max_sessions,
-    }
+    )
 }
 
 #[async_trait::async_trait]

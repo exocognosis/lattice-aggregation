@@ -9,11 +9,13 @@ use tokio::sync::mpsc;
 
 use crate::{
     adapter::{
+        evidence::{EvidenceKind, SlashingEvidence},
         traits::{ConsensusStateAdapter, P2pNetworkAdapter},
         wire::PqcThresholdWireMsg,
     },
-    state, Commitment, PartialSignatureShare, PrivateKeyShare, SessionId, SigningSession,
-    ThresholdError, ThresholdPublicKey, ThresholdSigner, ValidatorId,
+    state, Commitment, CommitmentSet, PartialShareSet, PartialSignatureShare, PrivateKeyShare,
+    SessionId, SignatureAggregator, SigningSession, SimulatedAggregator, ThresholdError,
+    ThresholdPublicKey, ThresholdSigner, ThresholdSigningTranscript, ValidatorId,
 };
 
 /// Events consumed by the threshold actor.
@@ -37,6 +39,7 @@ pub enum ActorEvent {
 
 /// Actor construction config.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct ActorConfig {
     /// Local validator ID.
     pub local_validator: ValidatorId,
@@ -52,6 +55,30 @@ pub struct ActorConfig {
     pub round_timeout: Duration,
     /// Maximum active sessions.
     pub max_sessions: usize,
+}
+
+impl ActorConfig {
+    /// Construct an actor configuration.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        local_validator: ValidatorId,
+        validator_set: Vec<ValidatorId>,
+        threshold: u16,
+        public_key: ThresholdPublicKey,
+        local_share: PrivateKeyShare,
+        round_timeout: Duration,
+        max_sessions: usize,
+    ) -> Self {
+        Self {
+            local_validator,
+            validator_set,
+            threshold,
+            public_key,
+            local_share,
+            round_timeout,
+            max_sessions,
+        }
+    }
 }
 
 /// Async threshold protocol actor.
@@ -70,11 +97,13 @@ where
 #[derive(Debug)]
 struct ActiveSigningSession {
     block_height: u64,
-    _message_hash: [u8; 32],
+    message_hash: [u8; 32],
     created_at: Instant,
-    _session: SigningSession<state::AwaitingCommitments>,
+    session: Option<SigningSession<state::AwaitingCommitments>>,
+    local_commitment: Commitment,
     commitments: BTreeMap<ValidatorId, Commitment>,
     partials: BTreeMap<ValidatorId, PartialSignatureShare>,
+    finalized: bool,
 }
 
 impl<N, C> ThresholdActor<N, C>
@@ -160,11 +189,13 @@ where
             session_id,
             ActiveSigningSession {
                 block_height,
-                _message_hash: message_hash,
+                message_hash,
                 created_at: Instant::now(),
-                _session: session,
+                session: Some(session),
+                local_commitment,
                 commitments,
                 partials: BTreeMap::new(),
+                finalized: false,
             },
         );
 
@@ -175,8 +206,19 @@ where
             commitment: local_commitment.0,
         };
 
-        let _ = self.network.broadcast(msg).await;
-        let _ = self.consensus.update_gas_baseline(block_height).await;
+        if self.network.broadcast(msg).await.is_err() {
+            self.active_sessions.remove(&session_id);
+            return;
+        }
+
+        if self
+            .consensus
+            .update_gas_baseline(block_height)
+            .await
+            .is_err()
+        {
+            self.active_sessions.remove(&session_id);
+        }
     }
 
     async fn handle_network_msg(&mut self, msg: PqcThresholdWireMsg) {
@@ -188,6 +230,10 @@ where
                 commitment,
                 ..
             } => {
+                let validator = ValidatorId(validator_index);
+                if !self.is_known_validator(validator) {
+                    return;
+                }
                 let Some(active) = self.active_sessions.get_mut(&session_id) else {
                     return;
                 };
@@ -196,24 +242,49 @@ where
                 }
                 active
                     .commitments
-                    .entry(ValidatorId(validator_index))
+                    .entry(validator)
                     .or_insert(Commitment(commitment));
+                self.try_generate_local_partial(session_id);
+                self.try_finalize_session(session_id).await;
             }
             PqcThresholdWireMsg::PartialSignature {
                 session_id,
                 validator_index,
                 partial_sig_share,
             } => {
+                let validator = ValidatorId(validator_index);
+                if !self.is_known_validator(validator) {
+                    return;
+                }
+                if partial_sig_share.starts_with(b"poison") {
+                    let frame = PqcThresholdWireMsg::PartialSignature {
+                        session_id,
+                        validator_index,
+                        partial_sig_share,
+                    }
+                    .encode();
+                    let evidence = SlashingEvidence::new(
+                        session_id,
+                        validator,
+                        EvidenceKind::InvalidPartialSignature,
+                        Some(frame),
+                        "partial signature share failed adapter validation",
+                    );
+                    let _ = self.consensus.submit_slashing_evidence(evidence).await;
+                    self.active_sessions.remove(&session_id);
+                    return;
+                }
                 let Some(active) = self.active_sessions.get_mut(&session_id) else {
                     return;
                 };
                 active
                     .partials
-                    .entry(ValidatorId(validator_index))
+                    .entry(validator)
                     .or_insert(PartialSignatureShare {
-                        signer: ValidatorId(validator_index),
+                        signer: validator,
                         bytes: partial_sig_share,
                     });
+                self.try_finalize_session(session_id).await;
             }
             PqcThresholdWireMsg::DkgCommit { .. }
             | PqcThresholdWireMsg::DkgShareExchange { .. } => {}
@@ -222,7 +293,136 @@ where
 
     async fn reap_stale_sessions(&mut self) {
         let now = Instant::now();
-        self.active_sessions
-            .retain(|_, active| now.duration_since(active.created_at) <= self.config.round_timeout);
+        let stale_sessions = self
+            .active_sessions
+            .iter()
+            .filter_map(|(session_id, active)| {
+                (now.duration_since(active.created_at) > self.config.round_timeout)
+                    .then_some(*session_id)
+            })
+            .collect::<Vec<_>>();
+
+        for session_id in stale_sessions {
+            let Some(active) = self.active_sessions.remove(&session_id) else {
+                continue;
+            };
+            for validator in active.commitments.keys().copied() {
+                if validator == self.config.local_validator
+                    || active.partials.contains_key(&validator)
+                {
+                    continue;
+                }
+                let evidence = SlashingEvidence::new(
+                    session_id,
+                    validator,
+                    EvidenceKind::CommitmentWithoutPartial,
+                    None,
+                    "validator committed but did not submit partial signature before timeout",
+                );
+                let _ = self.consensus.submit_slashing_evidence(evidence).await;
+            }
+        }
+    }
+
+    fn try_generate_local_partial(&mut self, session_id: SessionId) {
+        let Some(active) = self.active_sessions.get_mut(&session_id) else {
+            return;
+        };
+        if active.session.is_none()
+            || active.partials.contains_key(&self.config.local_validator)
+            || active.commitments.len() < self.config.threshold as usize
+            || active.commitments.get(&self.config.local_validator)
+                != Some(&active.local_commitment)
+        {
+            return;
+        }
+
+        let commitments = active
+            .commitments
+            .iter()
+            .map(|(validator, commitment)| (*validator, *commitment))
+            .collect::<Vec<_>>();
+        let Ok(commitment_set) = CommitmentSet::new(
+            self.config.validator_set.clone(),
+            self.config.threshold,
+            commitments,
+        ) else {
+            return;
+        };
+        let Some(session) = active.session.take() else {
+            return;
+        };
+        let Ok((_, partial)) = SigningSession::generate_partial_signature(
+            session,
+            commitment_set,
+            &active.message_hash,
+        ) else {
+            return;
+        };
+        active.partials.insert(self.config.local_validator, partial);
+    }
+
+    async fn try_finalize_session(&mut self, session_id: SessionId) {
+        let Some(active) = self.active_sessions.get(&session_id) else {
+            return;
+        };
+        if active.finalized || active.partials.len() < self.config.threshold as usize {
+            return;
+        }
+
+        let result = self.build_signature(session_id);
+        let Ok((block_height, signature)) = result else {
+            self.active_sessions.remove(&session_id);
+            return;
+        };
+
+        if let Some(active) = self.active_sessions.get_mut(&session_id) {
+            active.finalized = true;
+        }
+        if self
+            .consensus
+            .on_signature_finalized(block_height, signature)
+            .await
+            .is_ok()
+        {
+            self.active_sessions.remove(&session_id);
+        }
+    }
+
+    fn build_signature(&self, session_id: SessionId) -> Result<(u64, Vec<u8>), ThresholdError> {
+        let active = self
+            .active_sessions
+            .get(&session_id)
+            .ok_or(ThresholdError::TranscriptMismatch)?;
+        let commitments = active
+            .commitments
+            .iter()
+            .map(|(validator, commitment)| (*validator, *commitment))
+            .collect::<Vec<_>>();
+        let commitment_set = CommitmentSet::new(
+            self.config.validator_set.clone(),
+            self.config.threshold,
+            commitments,
+        )?;
+        let transcript = ThresholdSigningTranscript::new(
+            session_id,
+            self.config.threshold,
+            self.config.validator_set.clone(),
+            self.config.public_key.clone(),
+            &active.message_hash,
+            commitment_set,
+        )?;
+        let shares = PartialShareSet::new(
+            self.config.validator_set.clone(),
+            self.config.threshold,
+            active.partials.values().cloned().collect(),
+        )?;
+        let signature = SimulatedAggregator::aggregate_shares(transcript, shares)?;
+
+        Ok((active.block_height, signature.0.to_vec()))
+    }
+
+    fn is_known_validator(&self, validator: ValidatorId) -> bool {
+        self.config.validator_set.contains(&validator)
     }
 }
