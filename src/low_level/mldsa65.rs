@@ -7,12 +7,16 @@
 
 use crate::{
     errors::ThresholdError,
-    low_level::poly::{Poly, Q},
+    low_level::poly::{Poly, N, Q},
     types::{
         ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES, MLDSA65_SIGNATURE_BYTES,
     },
 };
 
+/// ML-DSA-65 public seed byte length for `rho`.
+pub const MLDSA65_PUBLIC_SEED_BYTES: usize = 32;
+/// ML-DSA-65 challenge byte length for `c_tilde`.
+pub const MLDSA65_CHALLENGE_BYTES: usize = 48;
 /// ML-DSA-65 matrix row dimension `k`.
 pub const MLDSA65_K: usize = 6;
 /// ML-DSA-65 matrix column dimension `l`.
@@ -31,9 +35,23 @@ pub const MLDSA65_GAMMA2: i32 = (Q - 1) / 32;
 pub const MLDSA65_OMEGA: usize = 55;
 /// ML-DSA-65 secret key byte length.
 pub const MLDSA65_SECRETKEY_BYTES: usize = 4032;
+/// Packed byte length for one ML-DSA `t1` polynomial.
+pub const MLDSA65_POLYT1_PACKED_BYTES: usize = 320;
+/// Packed byte length for one ML-DSA-65 `z` polynomial.
+pub const MLDSA65_POLYZ_PACKED_BYTES: usize = 640;
+/// Packed byte length for an ML-DSA-65 hint vector.
+pub const MLDSA65_HINT_PACKED_BYTES: usize = MLDSA65_OMEGA + MLDSA65_K;
+/// Strict infinity norm bound for ML-DSA-65 `z`.
+pub const MLDSA65_Z_NORM_BOUND: i32 = MLDSA65_GAMMA1 - MLDSA65_BETA;
 
 const HAZMAT_VERIFIER_UNAVAILABLE: &str =
     "hazmat-real-mldsa verifier requires FIPS 204 KAT-backed implementation";
+const PUBLIC_KEY_LENGTH_MISMATCH: &str = "ML-DSA-65 public key length mismatch";
+const SIGNATURE_LENGTH_MISMATCH: &str = "ML-DSA-65 signature length mismatch";
+const HINT_OFFSET_RANGE: &str = "ML-DSA-65 hint offset exceeds omega";
+const HINT_OFFSET_MONOTONIC: &str = "ML-DSA-65 hint offsets are not monotonic";
+const HINT_INDEX_ORDER: &str = "ML-DSA-65 hint indices are not strictly increasing";
+const HINT_UNUSED_NONZERO: &str = "ML-DSA-65 hint encoding has nonzero unused slot";
 
 /// Fixed-size byte wrapper for an ML-DSA-65 public key.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -79,6 +97,75 @@ impl From<Mldsa65SignatureBytes> for ThresholdSignature {
     }
 }
 
+/// Unpacked ML-DSA-65 public key material.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct UnpackedPublicKey {
+    rho: [u8; MLDSA65_PUBLIC_SEED_BYTES],
+    t1: VectorK,
+}
+
+impl UnpackedPublicKey {
+    /// Borrow the public matrix seed `rho`.
+    pub fn rho(&self) -> &[u8; MLDSA65_PUBLIC_SEED_BYTES] {
+        &self.rho
+    }
+
+    /// Borrow the unpacked `t1` vector.
+    pub fn t1(&self) -> &VectorK {
+        &self.t1
+    }
+}
+
+/// Unpacked ML-DSA-65 hint vector metadata.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct HintVector {
+    indices: [u8; MLDSA65_OMEGA],
+    offsets: [u8; MLDSA65_K],
+    weight: usize,
+}
+
+impl HintVector {
+    /// Borrow the packed hint indices.
+    pub fn indices(&self) -> &[u8; MLDSA65_OMEGA] {
+        &self.indices
+    }
+
+    /// Borrow the per-polynomial cumulative hint offsets.
+    pub fn offsets(&self) -> &[u8; MLDSA65_K] {
+        &self.offsets
+    }
+
+    /// Return the total number of hint positions used by the vector.
+    pub fn weight(&self) -> usize {
+        self.weight
+    }
+}
+
+/// Unpacked ML-DSA-65 signature material.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct UnpackedSignature {
+    challenge: [u8; MLDSA65_CHALLENGE_BYTES],
+    z: VectorL,
+    hint: HintVector,
+}
+
+impl UnpackedSignature {
+    /// Borrow the encoded challenge `c_tilde`.
+    pub fn challenge(&self) -> &[u8; MLDSA65_CHALLENGE_BYTES] {
+        &self.challenge
+    }
+
+    /// Borrow the unpacked response vector `z`.
+    pub fn z(&self) -> &VectorL {
+        &self.z
+    }
+
+    /// Borrow the decoded hint metadata.
+    pub fn hint(&self) -> &HintVector {
+        &self.hint
+    }
+}
+
 /// Fixed-length ML-DSA polynomial vector.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PolyVec<const LEN: usize> {
@@ -120,6 +207,62 @@ pub type VectorK = PolyVec<MLDSA65_K>;
 /// ML-DSA-65 `l`-dimension polynomial vector.
 pub type VectorL = PolyVec<MLDSA65_L>;
 
+/// Unpack an ML-DSA-65 public key into `rho` and `t1`.
+pub fn unpack_public_key(bytes: &[u8]) -> Result<UnpackedPublicKey, ThresholdError> {
+    if bytes.len() != MLDSA65_PUBLICKEY_BYTES {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: PUBLIC_KEY_LENGTH_MISMATCH,
+        });
+    }
+
+    let mut rho = [0u8; MLDSA65_PUBLIC_SEED_BYTES];
+    rho.copy_from_slice(&bytes[..MLDSA65_PUBLIC_SEED_BYTES]);
+
+    let mut t1 = [Poly::zero(); MLDSA65_K];
+    let t1_bytes = &bytes[MLDSA65_PUBLIC_SEED_BYTES..];
+    for (poly, packed) in t1
+        .iter_mut()
+        .zip(t1_bytes.chunks_exact(MLDSA65_POLYT1_PACKED_BYTES))
+    {
+        *poly = unpack_t1_poly(packed);
+    }
+
+    Ok(UnpackedPublicKey {
+        rho,
+        t1: VectorK::from_polys(t1),
+    })
+}
+
+/// Unpack an ML-DSA-65 signature into challenge, response, and hint material.
+pub fn unpack_signature(bytes: &[u8]) -> Result<UnpackedSignature, ThresholdError> {
+    if bytes.len() != MLDSA65_SIGNATURE_BYTES {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: SIGNATURE_LENGTH_MISMATCH,
+        });
+    }
+
+    let mut challenge = [0u8; MLDSA65_CHALLENGE_BYTES];
+    challenge.copy_from_slice(&bytes[..MLDSA65_CHALLENGE_BYTES]);
+
+    let z_start = MLDSA65_CHALLENGE_BYTES;
+    let z_end = z_start + (MLDSA65_L * MLDSA65_POLYZ_PACKED_BYTES);
+    let mut z = [Poly::zero(); MLDSA65_L];
+    for (poly, packed) in z
+        .iter_mut()
+        .zip(bytes[z_start..z_end].chunks_exact(MLDSA65_POLYZ_PACKED_BYTES))
+    {
+        *poly = unpack_z_poly(packed);
+    }
+
+    let hint = unpack_hint(&bytes[z_end..])?;
+
+    Ok(UnpackedSignature {
+        challenge,
+        z: VectorL::from_polys(z),
+        hint,
+    })
+}
+
 /// Return a canonical representative in `[0, Q)` for a signed integer.
 pub fn reduce_mod_q(value: i64) -> i32 {
     let modulus = Q as i64;
@@ -155,11 +298,97 @@ pub fn check_poly_bound(poly: &Poly, bound: i32) -> bool {
 /// This function is a deliberate hard stop until the local implementation is
 /// completed against FIPS 204 known-answer tests.
 pub fn verify_standard_mldsa65(
-    _public_key: &ThresholdPublicKey,
+    public_key: &ThresholdPublicKey,
     _message: &[u8],
-    _signature: &ThresholdSignature,
+    signature: &ThresholdSignature,
 ) -> Result<bool, ThresholdError> {
+    let _public_key = unpack_public_key(&public_key.0)?;
+    let signature = unpack_signature(&signature.0)?;
+
+    if !signature
+        .z()
+        .polys()
+        .iter()
+        .all(|poly| check_poly_bound(poly, MLDSA65_Z_NORM_BOUND))
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
     Err(ThresholdError::BackendUnavailable {
         reason: HAZMAT_VERIFIER_UNAVAILABLE,
     })
+}
+
+fn unpack_t1_poly(bytes: &[u8]) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (index, coeff) in coeffs.iter_mut().enumerate() {
+        *coeff = read_bits_le(bytes, index * 10, 10) as i32;
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+fn unpack_z_poly(bytes: &[u8]) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (index, coeff) in coeffs.iter_mut().enumerate() {
+        let encoded = read_bits_le(bytes, index * 20, 20) as i32;
+        *coeff = MLDSA65_GAMMA1 - encoded;
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+fn unpack_hint(bytes: &[u8]) -> Result<HintVector, ThresholdError> {
+    debug_assert_eq!(bytes.len(), MLDSA65_HINT_PACKED_BYTES);
+
+    let mut indices = [0u8; MLDSA65_OMEGA];
+    indices.copy_from_slice(&bytes[..MLDSA65_OMEGA]);
+
+    let mut offsets = [0u8; MLDSA65_K];
+    offsets.copy_from_slice(&bytes[MLDSA65_OMEGA..]);
+
+    let mut previous_offset = 0usize;
+    for offset in offsets {
+        let offset = offset as usize;
+        if offset > MLDSA65_OMEGA {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: HINT_OFFSET_RANGE,
+            });
+        }
+        if offset < previous_offset {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: HINT_OFFSET_MONOTONIC,
+            });
+        }
+
+        let segment = &indices[previous_offset..offset];
+        if segment.windows(2).any(|window| window[1] <= window[0]) {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: HINT_INDEX_ORDER,
+            });
+        }
+
+        previous_offset = offset;
+    }
+
+    if indices[previous_offset..].iter().any(|index| *index != 0) {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: HINT_UNUSED_NONZERO,
+        });
+    }
+
+    Ok(HintVector {
+        indices,
+        offsets,
+        weight: previous_offset,
+    })
+}
+
+fn read_bits_le(bytes: &[u8], bit_offset: usize, width: usize) -> u32 {
+    let mut value = 0u32;
+    for bit in 0..width {
+        let absolute_bit = bit_offset + bit;
+        let byte = bytes[absolute_bit / 8];
+        let bit_value = (byte >> (absolute_bit % 8)) & 1;
+        value |= (bit_value as u32) << bit;
+    }
+    value
 }

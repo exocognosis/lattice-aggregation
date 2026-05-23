@@ -22,10 +22,15 @@ The first local boundary exposes:
 - Basic modular arithmetic helpers over `q = 8380417`.
 - Strict polynomial bound checks delegated to the existing low-level `Poly`
   primitive.
-- An explicit verifier stub returning `BackendUnavailable`.
+- Public key unpacking into `rho` and `t1`.
+- Signature unpacking into `c_tilde`, `z`, and hint metadata.
+- Structural hint encoding validation and `z` norm rejection.
+- A verifier skeleton that fails closed after structural checks and returns
+  `BackendUnavailable` until the full FIPS 204 verification equation lands.
 
 This is intentionally a scaffold. It does not yet implement key generation,
-packing, NTT, expansion, challenge sampling, signing, or verification.
+NTT, matrix expansion, challenge sampling, signing, or the final verification
+equation.
 
 ## Publication Gate
 
