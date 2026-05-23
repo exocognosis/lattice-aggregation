@@ -700,29 +700,198 @@ pub fn compute_verification_w1(
         return Err(ThresholdError::StandardVerificationFailed);
     }
 
+    let w_approx = compute_verification_w_approx(&public_key, &signature);
+
+    Ok(use_hint_vector(signature.hint(), &w_approx))
+}
+
+fn compute_verification_w_approx(
+    public_key: &UnpackedPublicKey,
+    signature: &UnpackedSignature,
+) -> VectorK {
     let matrix = expand_a(public_key.rho());
-    let az = matrix_vector_mul(&matrix, signature.z());
+    let z_hat = fips_ntt_vector_l(signature.z());
+    let az_hat = fips_matrix_vector_mul(&matrix, &z_hat);
     let challenge = sample_in_ball(signature.challenge());
-    let t1 = t1_times_2d(public_key.t1());
+    let c_hat = fips_ntt_poly(&challenge);
+    let t1_d2_hat_mont = fips_t1_d2_hat_mont(public_key.t1());
 
-    let mut challenge_t1 = [Poly::zero(); MLDSA65_K];
-    for (out, t1_poly) in challenge_t1.iter_mut().zip(t1.polys().iter()) {
-        *out = poly_negacyclic_mul(&challenge, t1_poly);
-    }
-    let challenge_t1 = VectorK::from_polys(challenge_t1);
-
-    let mut w_approx = [Poly::zero(); MLDSA65_K];
-    for (out, (az_poly, ct1_poly)) in w_approx
+    let mut w_approx_hat = [Poly::zero(); MLDSA65_K];
+    for (row, (az_poly, t1_poly)) in w_approx_hat
         .iter_mut()
-        .zip(az.polys().iter().zip(challenge_t1.polys().iter()))
+        .zip(az_hat.polys().iter().zip(t1_d2_hat_mont.polys().iter()))
     {
-        *out = poly_sub(az_poly, ct1_poly);
+        for (coeff_index, (out, (az_coeff, t1_coeff))) in row
+            .coeffs
+            .iter_mut()
+            .zip(az_poly.coeffs.iter().zip(t1_poly.coeffs.iter()))
+            .enumerate()
+        {
+            *out =
+                *az_coeff - montgomery_reduce(c_hat.coeffs[coeff_index] as i64 * *t1_coeff as i64);
+        }
     }
 
-    Ok(use_hint_vector(
-        signature.hint(),
-        &VectorK::from_polys(w_approx),
-    ))
+    fips_inverse_ntt_vector_k(&VectorK::from_polys(w_approx_hat))
+}
+
+fn fips_ntt_vector_l(vector: &VectorL) -> VectorL {
+    let mut polys = [Poly::zero(); MLDSA65_L];
+    for (out, poly) in polys.iter_mut().zip(vector.polys().iter()) {
+        *out = fips_ntt_poly(poly);
+    }
+    VectorL::from_polys(polys)
+}
+
+fn fips_inverse_ntt_vector_k(vector: &VectorK) -> VectorK {
+    let mut polys = [Poly::zero(); MLDSA65_K];
+    for (out, poly) in polys.iter_mut().zip(vector.polys().iter()) {
+        *out = fips_inverse_ntt_poly(poly);
+    }
+    VectorK::from_polys(polys)
+}
+
+fn fips_t1_d2_hat_mont(t1: &VectorK) -> VectorK {
+    let t1_d2 = t1_times_2d(t1);
+    let mut polys = [Poly::zero(); MLDSA65_K];
+    for (out, poly) in polys.iter_mut().zip(t1_d2.polys().iter()) {
+        *out = fips_to_mont_poly(&fips_ntt_poly(poly));
+    }
+    VectorK::from_polys(polys)
+}
+
+fn fips_matrix_vector_mul(matrix: &MatrixA, vector_hat: &VectorL) -> VectorK {
+    let vector_hat_mont = fips_to_mont_vector_l(vector_hat);
+    let mut rows = [Poly::zero(); MLDSA65_K];
+
+    for (out, matrix_row) in rows.iter_mut().zip(matrix.rows().iter()) {
+        for (entry, vector_poly) in matrix_row
+            .polys()
+            .iter()
+            .zip(vector_hat_mont.polys().iter())
+        {
+            for (accum, (left, right)) in out
+                .coeffs
+                .iter_mut()
+                .zip(entry.coeffs.iter().zip(vector_poly.coeffs.iter()))
+            {
+                *accum += montgomery_reduce(*left as i64 * *right as i64);
+            }
+        }
+    }
+
+    VectorK::from_polys(rows)
+}
+
+fn fips_to_mont_vector_l(vector: &VectorL) -> VectorL {
+    let mut polys = [Poly::zero(); MLDSA65_L];
+    for (out, poly) in polys.iter_mut().zip(vector.polys().iter()) {
+        *out = fips_to_mont_poly(poly);
+    }
+    VectorL::from_polys(polys)
+}
+
+fn fips_to_mont_poly(poly: &Poly) -> Poly {
+    let mut coeffs = [0i32; N];
+    for (out, coeff) in coeffs.iter_mut().zip(poly.coeffs.iter()) {
+        *out = partial_reduce64((*coeff as i64) << 32);
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+fn fips_ntt_poly(poly: &Poly) -> Poly {
+    let zetas = zeta_table_mont();
+    let mut coeffs = poly.coeffs;
+    let mut m = 0usize;
+    let mut len = 128usize;
+
+    while len >= 1 {
+        let mut start = 0usize;
+        while start < N {
+            m += 1;
+            let zeta = zetas[m] as i64;
+            for j in start..(start + len) {
+                let t = montgomery_reduce(zeta * coeffs[j + len] as i64);
+                coeffs[j + len] = coeffs[j] - t;
+                coeffs[j] += t;
+            }
+            start += 2 * len;
+        }
+        len >>= 1;
+    }
+
+    Poly::from_coeffs(coeffs)
+}
+
+fn fips_inverse_ntt_poly(poly: &Poly) -> Poly {
+    const F_MONT: i64 = 8_347_681_i128.wrapping_mul(1 << 32).rem_euclid(Q as i128) as i64;
+
+    let zetas = zeta_table_mont();
+    let mut coeffs = poly.coeffs;
+    let mut m = 256usize;
+    let mut len = 1usize;
+
+    while len < N {
+        let mut start = 0usize;
+        while start < N {
+            m -= 1;
+            let zeta = -zetas[m] as i64;
+            for j in start..(start + len) {
+                let t = coeffs[j];
+                coeffs[j] = t + coeffs[j + len];
+                coeffs[j + len] = t - coeffs[j + len];
+                coeffs[j + len] = montgomery_reduce(zeta * coeffs[j + len] as i64);
+            }
+            start += 2 * len;
+        }
+        len <<= 1;
+    }
+
+    for coeff in &mut coeffs {
+        *coeff = full_reduce32(montgomery_reduce(F_MONT * *coeff as i64));
+    }
+
+    Poly::from_coeffs(coeffs)
+}
+
+fn zeta_table_mont() -> [i32; N] {
+    let mut table = [0i32; N];
+    let mut x = 1i64;
+    for i in 0..N {
+        table[reverse_bits_u8(i as u8) as usize] = ((x << 32) % Q as i64) as i32;
+        x = (x * MLDSA65_ROOT_OF_UNITY_512 as i64) % Q as i64;
+    }
+    table
+}
+
+fn reverse_bits_u8(value: u8) -> u8 {
+    value.reverse_bits()
+}
+
+fn partial_reduce64(value: i64) -> i32 {
+    const M: i64 = (1 << 48) / Q as i64;
+    let x = value >> 23;
+    let value = value - x * Q as i64;
+    let x = value >> 23;
+    let value = value - x * Q as i64;
+    let quotient = (value * M) >> 48;
+    (value - quotient * Q as i64) as i32
+}
+
+fn partial_reduce32(value: i32) -> i32 {
+    let quotient = (value + (1 << 22)) >> 23;
+    value - quotient * Q
+}
+
+fn full_reduce32(value: i32) -> i32 {
+    let reduced = partial_reduce32(value);
+    reduced + ((reduced >> 31) & Q)
+}
+
+fn montgomery_reduce(value: i64) -> i32 {
+    const QINV: i32 = 58_728_449;
+    let t = (value as i32).wrapping_mul(QINV);
+    ((value - (t as i64).wrapping_mul(Q as i64)) >> 32) as i32
 }
 
 /// Check that all polynomial coefficients are strictly below the given bound.

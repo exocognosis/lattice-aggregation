@@ -44,6 +44,13 @@ fn hazmat_acvp_sigver_loader_ignores_unsupported_interfaces() {
 }
 
 #[test]
+fn hazmat_acvp_sigver_loader_ignores_non_empty_context_vectors() {
+    let vectors = load_acvp_sigver_vectors(SAMPLE_NON_EMPTY_CONTEXT).unwrap();
+
+    assert!(vectors.is_empty());
+}
+
+#[test]
 fn hazmat_acvp_sigver_loader_rejects_bad_hex() {
     assert_eq!(
         load_acvp_sigver_vectors(SAMPLE_BAD_HEX),
@@ -52,7 +59,6 @@ fn hazmat_acvp_sigver_loader_rejects_bad_hex() {
 }
 
 #[test]
-#[ignore = "requires official ML-DSA-65 pure/internal ACVP sigVer vectors"]
 fn official_mldsa65_sigver_kats_pass() {
     let path = env::var_os("DYTALLIX_MLDSA65_SIGVER_KAT")
         .map(PathBuf::from)
@@ -118,10 +124,7 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
         if group.get("parameterSet").and_then(Value::as_str) != Some("ML-DSA-65") {
             continue;
         }
-        if !matches!(
-            group.get("signatureInterface").and_then(Value::as_str),
-            None | Some("internal")
-        ) {
+        if group.get("signatureInterface").and_then(Value::as_str) != Some("external") {
             continue;
         }
         if !matches!(
@@ -151,6 +154,14 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
                 .transpose()?
                 .or_else(|| public_key.clone())
                 .ok_or("missing public key")?;
+            if !test
+                .get("context")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .is_empty()
+            {
+                continue;
+            }
 
             vectors.push(SigVerKat {
                 tc_id: test
@@ -223,11 +234,14 @@ const SAMPLE_ACVP_SIGVER: &str = r#"[
         "tgId": 1,
         "testType": "AFT",
         "parameterSet": "ML-DSA-65",
+        "signatureInterface": "external",
+        "preHash": "pure",
         "pk": "0102",
         "tests": [
           {
             "tcId": 7,
             "message": "abcd",
+            "context": "",
             "signature": "0304",
             "testPassed": true
           }
@@ -273,13 +287,41 @@ const SAMPLE_EXTERNAL_INTERFACE: &str = r#"[
         "tgId": 1,
         "testType": "AFT",
         "parameterSet": "ML-DSA-65",
-        "signatureInterface": "external",
+        "signatureInterface": "internal",
         "preHash": "preHash",
         "pk": "0102",
         "tests": [
           {
             "tcId": 7,
             "message": "abcd",
+            "signature": "0304",
+            "testPassed": true
+          }
+        ]
+      }
+    ]
+  }
+]"#;
+
+const SAMPLE_NON_EMPTY_CONTEXT: &str = r#"[
+  { "acvVersion": "1.0" },
+  {
+    "algorithm": "ML-DSA",
+    "mode": "sigVer",
+    "revision": "FIPS204",
+    "testGroups": [
+      {
+        "tgId": 1,
+        "testType": "AFT",
+        "parameterSet": "ML-DSA-65",
+        "signatureInterface": "external",
+        "preHash": "pure",
+        "pk": "0102",
+        "tests": [
+          {
+            "tcId": 7,
+            "message": "abcd",
+            "context": "01",
             "signature": "0304",
             "testPassed": true
           }
@@ -300,6 +342,8 @@ const SAMPLE_BAD_HEX: &str = r#"[
         "tgId": 1,
         "testType": "AFT",
         "parameterSet": "ML-DSA-65",
+        "signatureInterface": "external",
+        "preHash": "pure",
         "pk": "zz",
         "tests": [
           {

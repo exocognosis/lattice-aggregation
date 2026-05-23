@@ -36,34 +36,39 @@ The first local boundary exposes:
   equation scaffolding.
 - Canonical `O(n^2)` reference NTT and inverse NTT with pointwise
   multiplication tests.
-- Pure internal-message verifier equation support: `tr = H(pk)`,
+- External pure empty-context verifier equation support: `tr = H(pk)`,
   `mu = H(tr || 0x00 || 0x00 || M)`, `w1 = UseHint(Az - c*t1*2^d)`, and
   `c_tilde = H(mu || w1Encode(w1))`.
+- FIPS NTT-domain arithmetic for the verifier equation, including
+  `Ahat * NTT(z)` and `NTT(c) * NTT(t1 * 2^d)`.
+- A checked-in NIST ACVP sample vector for ML-DSA-65 external/pure
+  empty-context `sigVer`.
 
 This is intentionally a scaffold. It does not yet implement key generation,
 secret-key packing, signing, optimized Montgomery/NTT arithmetic, context
-handling, prehash/external-mu interfaces, or KAT-backed conformance.
+handling, prehash/external-mu interfaces, or broader KAT conformance.
 
 ## Next Verifier Slices
 
 The remaining standard-verification path should land in this order:
 
-1. FIPS 204 ML-DSA-65 verification known-answer tests.
+1. Broaden ACVP `sigVer` fixtures beyond the checked-in empty-context sample.
 2. Differential tests against an independent implementation.
 3. Montgomery/table-optimized FIPS NTT with reference-vector fixtures.
 
 ## KAT Harness
 
 The crate includes ACVP-style fixture plumbing in
-`tests/hazmat_mldsa65_kat.rs`. The official verifier KAT is ignored until real
-vectors are supplied and checked against the pure internal-message verifier.
+`tests/hazmat_mldsa65_kat.rs`. A NIST sample vector is checked in at the default
+fixture path and runs under the `hazmat-real-mldsa` feature.
 
 Fixture source:
 
 - NIST ACVP ML-DSA `sigVer` JSON, `revision = "FIPS204"`.
 - `parameterSet = "ML-DSA-65"`.
-- Pure internal message verification only; context, prehash, and external-mu
-  vectors are intentionally skipped until those verifier entry points exist.
+- External pure empty-context verification only; non-empty context, prehash,
+  internal, and external-mu vectors are intentionally skipped until those
+  verifier entry points exist.
 - Default path: `tests/fixtures/ml_dsa_65_sigver_acvp.json`.
 - Override path: `DYTALLIX_MLDSA65_SIGVER_KAT`.
 
