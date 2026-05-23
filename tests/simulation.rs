@@ -1,16 +1,19 @@
 use dytallix_pq_threshold::{
     adapter,
+    adapter::actor::{ActorConfig, ActorEvent, ThresholdActor},
     adapter::evidence::{EvidenceKind, SlashingEvidence},
     adapter::traits::{ConsensusStateAdapter, P2pNetworkAdapter},
     adapter::wire::{
         PqcThresholdWireMsg, WireDecodeError, MAX_DKG_SHARE_BYTES, MAX_PARTIAL_SHARE_BYTES,
     },
-    ValidatorId,
+    PrivateKeyShare, ThresholdPublicKey, ValidatorId,
 };
 use std::{
     convert::Infallible,
     sync::{Arc, Mutex},
+    time::Duration,
 };
+use tokio::sync::mpsc;
 
 type FinalizedRecords = Arc<Mutex<Vec<(u64, Vec<u8>)>>>;
 type EvidenceRecords = Arc<Mutex<Vec<SlashingEvidence>>>;
@@ -42,6 +45,18 @@ struct RecordingConsensus {
     finalized: FinalizedRecords,
     evidence: EvidenceRecords,
     gas_updates: GasUpdates,
+}
+
+fn actor_config(max_sessions: usize) -> ActorConfig {
+    ActorConfig {
+        local_validator: ValidatorId(1),
+        validator_set: vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)],
+        threshold: 2,
+        public_key: ThresholdPublicKey([4; 1952]),
+        local_share: PrivateKeyShare::new(ValidatorId(1), b"share-1".to_vec()),
+        round_timeout: Duration::from_millis(50),
+        max_sessions,
+    }
 }
 
 #[async_trait::async_trait]
@@ -293,4 +308,48 @@ fn wire_decode_rejects_malformed_frames() {
         PqcThresholdWireMsg::decode(&truncated_variable),
         Err(WireDecodeError::InvalidLength)
     );
+}
+
+#[tokio::test]
+async fn actor_rejects_sessions_past_capacity() {
+    let (tx, rx) = mpsc::channel(8);
+    let network = RecordingNetwork::default();
+    let consensus = RecordingConsensus::default();
+    let actor = ThresholdActor::new(actor_config(1), network.clone(), consensus.clone(), rx)
+        .expect("actor config should be valid");
+
+    assert_eq!(actor.active_session_count(), 0);
+    let handle = tokio::spawn(actor.run());
+
+    tx.send(ActorEvent::TriggerSigningRound {
+        session_id: [1; 32],
+        block_height: 1,
+        message_hash: [9; 32],
+    })
+    .await
+    .unwrap();
+    tx.send(ActorEvent::TriggerSigningRound {
+        session_id: [2; 32],
+        block_height: 2,
+        message_hash: [8; 32],
+    })
+    .await
+    .unwrap();
+    drop(tx);
+
+    handle.await.unwrap();
+
+    let broadcasts = network.broadcasts.lock().unwrap();
+    let gas_updates = consensus.gas_updates.lock().unwrap();
+    assert_eq!(broadcasts.len(), 1);
+    assert_eq!(gas_updates.as_slice(), &[1]);
+    assert!(matches!(
+        &broadcasts[0],
+        PqcThresholdWireMsg::SignCommit {
+            session_id,
+            block_height: 1,
+            validator_index: 1,
+            ..
+        } if session_id == &[1; 32]
+    ));
 }
