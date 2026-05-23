@@ -6,7 +6,7 @@ use dytallix_pq_threshold::{
     adapter::wire::{
         PqcThresholdWireMsg, WireDecodeError, MAX_DKG_SHARE_BYTES, MAX_PARTIAL_SHARE_BYTES,
     },
-    MLDSA65_SIGNATURE_BYTES, PrivateKeyShare, ThresholdPublicKey, ValidatorId,
+    PrivateKeyShare, ThresholdPublicKey, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
 use std::{
     convert::Infallible,
@@ -48,13 +48,17 @@ struct RecordingConsensus {
 }
 
 fn actor_config(max_sessions: usize) -> ActorConfig {
+    actor_config_with_timeout(max_sessions, Duration::from_millis(50))
+}
+
+fn actor_config_with_timeout(max_sessions: usize, round_timeout: Duration) -> ActorConfig {
     ActorConfig::new(
         ValidatorId(1),
         vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)],
         2,
         ThresholdPublicKey([4; 1952]),
         PrivateKeyShare::new(ValidatorId(1), b"share-1".to_vec()),
-        Duration::from_millis(50),
+        round_timeout,
         max_sessions,
     )
 }
@@ -359,8 +363,13 @@ async fn actor_finalizes_ideal_threshold_signature() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(actor_config(4), network, consensus.clone(), rx)
-        .expect("actor config should be valid");
+    let actor = ThresholdActor::new(
+        actor_config_with_timeout(4, Duration::ZERO),
+        network.clone(),
+        consensus.clone(),
+        rx,
+    )
+    .expect("actor config should be valid");
     let handle = tokio::spawn(actor.run());
 
     tx.send(ActorEvent::TriggerSigningRound {
@@ -404,8 +413,13 @@ async fn actor_submits_evidence_for_poisoned_partial_share() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(actor_config(4), network, consensus.clone(), rx)
-        .expect("actor config should be valid");
+    let actor = ThresholdActor::new(
+        actor_config_with_timeout(4, Duration::ZERO),
+        network.clone(),
+        consensus.clone(),
+        rx,
+    )
+    .expect("actor config should be valid");
     let handle = tokio::spawn(actor.run());
 
     tx.send(ActorEvent::TriggerSigningRound {
@@ -452,8 +466,13 @@ async fn actor_submits_liveness_evidence_for_commitment_without_partial() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(actor_config(4), network, consensus.clone(), rx)
-        .expect("actor config should be valid");
+    let actor = ThresholdActor::new(
+        actor_config_with_timeout(4, Duration::ZERO),
+        network.clone(),
+        consensus.clone(),
+        rx,
+    )
+    .expect("actor config should be valid");
     let handle = tokio::spawn(actor.run());
 
     tx.send(ActorEvent::TriggerSigningRound {
@@ -473,7 +492,9 @@ async fn actor_submits_liveness_evidence_for_commitment_without_partial() {
     ))
     .await
     .unwrap();
-    tokio::time::sleep(Duration::from_millis(75)).await;
+    while network.broadcasts.lock().unwrap().is_empty() {
+        tokio::task::yield_now().await;
+    }
     tx.send(ActorEvent::TimeoutCheck).await.unwrap();
     drop(tx);
 
