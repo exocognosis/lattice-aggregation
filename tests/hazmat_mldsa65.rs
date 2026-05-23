@@ -4,9 +4,9 @@ use dytallix_pq_threshold::{
     low_level::mldsa65::{
         check_poly_bound, reduce_mod_q, unpack_public_key, unpack_signature,
         verify_standard_mldsa65, Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL,
-        MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2,
-        MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
-        MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
+        MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1,
+        MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES,
+        MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES, MLDSA65_TAU,
     },
     ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
@@ -17,12 +17,78 @@ fn hazmat_mldsa65_constants_match_fips_204_profile() {
     assert_eq!(MLDSA65_K, 6);
     assert_eq!(MLDSA65_L, 5);
     assert_eq!(MLDSA65_ETA, 4);
+    assert_eq!(MLDSA65_D, 13);
     assert_eq!(MLDSA65_TAU, 49);
     assert_eq!(MLDSA65_BETA, 196);
     assert_eq!(MLDSA65_GAMMA1, 1 << 19);
     assert_eq!(MLDSA65_GAMMA2, (Q - 1) / 32);
     assert_eq!(MLDSA65_OMEGA, 55);
     assert_eq!(MLDSA65_SECRETKEY_BYTES, 4032);
+}
+
+#[test]
+fn hazmat_power2round_reconstructs_canonical_values() {
+    for value in [0, 1, 4096, 4097, Q - 2, Q - 1] {
+        let (high, low) = dytallix_pq_threshold::mldsa65::power2round(value);
+        assert_eq!(
+            reduce_mod_q(((high as i64) << MLDSA65_D) + low as i64),
+            value
+        );
+        assert!(low > -(1 << (MLDSA65_D - 1)));
+        assert!(low <= 1 << (MLDSA65_D - 1));
+    }
+}
+
+#[test]
+fn hazmat_decompose_handles_mldsa65_top_bucket_wrap() {
+    let (high, low) = dytallix_pq_threshold::mldsa65::decompose(Q - 1);
+
+    assert_eq!(high, 0);
+    assert_eq!(low, -1);
+    assert_eq!(
+        reduce_mod_q(high as i64 * (2 * MLDSA65_GAMMA2) as i64 + low as i64),
+        Q - 1
+    );
+}
+
+#[test]
+fn hazmat_high_low_bits_match_decompose() {
+    let value = 3 * 2 * MLDSA65_GAMMA2 + 17;
+    let (high, low) = dytallix_pq_threshold::mldsa65::decompose(value);
+
+    assert_eq!(dytallix_pq_threshold::mldsa65::high_bits(value), high);
+    assert_eq!(dytallix_pq_threshold::mldsa65::low_bits(value), low);
+}
+
+#[test]
+fn hazmat_use_hint_adjusts_high_bits_by_low_sign() {
+    let positive_low = 2 * MLDSA65_GAMMA2 + 7;
+    let negative_low = 2 * MLDSA65_GAMMA2 - 7;
+
+    assert_eq!(
+        dytallix_pq_threshold::mldsa65::use_hint(false, positive_low),
+        1
+    );
+    assert_eq!(
+        dytallix_pq_threshold::mldsa65::use_hint(true, positive_low),
+        2
+    );
+    assert_eq!(
+        dytallix_pq_threshold::mldsa65::use_hint(false, negative_low),
+        1
+    );
+    assert_eq!(
+        dytallix_pq_threshold::mldsa65::use_hint(true, negative_low),
+        0
+    );
+}
+
+#[test]
+fn hazmat_make_hint_reports_high_bit_changes() {
+    let base = 2 * MLDSA65_GAMMA2 + MLDSA65_GAMMA2 - 5;
+
+    assert!(!dytallix_pq_threshold::mldsa65::make_hint(1, base));
+    assert!(dytallix_pq_threshold::mldsa65::make_hint(20, base));
 }
 
 #[test]

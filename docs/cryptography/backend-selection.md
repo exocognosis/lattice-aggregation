@@ -25,12 +25,28 @@ The first local boundary exposes:
 - Public key unpacking into `rho` and `t1`.
 - Signature unpacking into `c_tilde`, `z`, and hint metadata.
 - Structural hint encoding validation and `z` norm rejection.
+- FIPS 204 decomposition helpers: `Power2Round`, `Decompose`,
+  `HighBits`, `LowBits`, `MakeHint`, and `UseHint`.
 - A verifier skeleton that fails closed after structural checks and returns
   `BackendUnavailable` until the full FIPS 204 verification equation lands.
 
 This is intentionally a scaffold. It does not yet implement key generation,
 NTT, matrix expansion, challenge sampling, signing, or the final verification
 equation.
+
+## Next Verifier Slices
+
+The remaining standard-verification path should land in this order:
+
+1. Round-trip tests for `t1`, `z`, and hint packing.
+2. `sample_in_ball(c_tilde)` challenge expansion.
+3. SHAKE128 matrix expansion from `rho`.
+4. NTT/inverse NTT and polynomial multiplication.
+5. Vector operations for `A*z - c*t1*2^d`.
+6. Hint application over `w1`.
+7. FIPS 204 ML-DSA-65 known-answer tests.
+8. Replacement of the verifier skeleton with the complete verification
+   equation.
 
 ## Publication Gate
 

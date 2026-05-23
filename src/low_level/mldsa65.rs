@@ -17,6 +17,8 @@ use crate::{
 pub const MLDSA65_PUBLIC_SEED_BYTES: usize = 32;
 /// ML-DSA-65 challenge byte length for `c_tilde`.
 pub const MLDSA65_CHALLENGE_BYTES: usize = 48;
+/// ML-DSA dropped-bit parameter `d`.
+pub const MLDSA65_D: usize = 13;
 /// ML-DSA-65 matrix row dimension `k`.
 pub const MLDSA65_K: usize = 6;
 /// ML-DSA-65 matrix column dimension `l`.
@@ -288,6 +290,59 @@ pub fn mul_mod_q(lhs: i32, rhs: i32) -> i32 {
     reduce_mod_q(lhs as i64 * rhs as i64)
 }
 
+/// Decompose `r` into `(r1, r0)` such that `r = r1 * 2^d + r0 mod q`.
+pub fn power2round(r: i32) -> (i32, i32) {
+    let r_plus = reduce_mod_q(r as i64);
+    let modulus = 1i32 << MLDSA65_D;
+    let r0 = centered_remainder(r_plus, modulus);
+    ((r_plus - r0) / modulus, r0)
+}
+
+/// Decompose `r` into `(r1, r0)` such that `r = r1 * 2 * gamma2 + r0 mod q`.
+pub fn decompose(r: i32) -> (i32, i32) {
+    let r_plus = reduce_mod_q(r as i64);
+    let alpha = 2 * MLDSA65_GAMMA2;
+    let mut r0 = centered_remainder(r_plus, alpha);
+
+    if r_plus - r0 == Q - 1 {
+        r0 -= 1;
+        (0, r0)
+    } else {
+        ((r_plus - r0) / alpha, r0)
+    }
+}
+
+/// Return the high bits of `r` under ML-DSA decomposition.
+pub fn high_bits(r: i32) -> i32 {
+    decompose(r).0
+}
+
+/// Return the low bits of `r` under ML-DSA decomposition.
+pub fn low_bits(r: i32) -> i32 {
+    decompose(r).1
+}
+
+/// Return `true` when adding `z` changes the decomposed high bits of `r`.
+pub fn make_hint(z: i32, r: i32) -> bool {
+    high_bits(r) != high_bits(add_mod_q(r, z))
+}
+
+/// Adjust the high bits of `r` according to a verifier hint bit.
+pub fn use_hint(hint: bool, r: i32) -> i32 {
+    let modulus = (Q - 1) / (2 * MLDSA65_GAMMA2);
+    let (r1, r0) = decompose(r);
+
+    if !hint {
+        return r1;
+    }
+
+    if r0 > 0 {
+        (r1 + 1) % modulus
+    } else {
+        (r1 + modulus - 1) % modulus
+    }
+}
+
 /// Check that all polynomial coefficients are strictly below the given bound.
 pub fn check_poly_bound(poly: &Poly, bound: i32) -> bool {
     poly.check_noise_bounds(bound)
@@ -391,4 +446,12 @@ fn read_bits_le(bytes: &[u8], bit_offset: usize, width: usize) -> u32 {
         value |= (bit_value as u32) << bit;
     }
     value
+}
+
+fn centered_remainder(value: i32, modulus: i32) -> i32 {
+    let mut remainder = value % modulus;
+    if remainder > modulus / 2 {
+        remainder -= modulus;
+    }
+    remainder
 }
