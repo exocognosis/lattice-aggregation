@@ -1,15 +1,129 @@
 use dytallix_pq_threshold::{
     adapter,
     adapter::evidence::{EvidenceKind, SlashingEvidence},
+    adapter::traits::{ConsensusStateAdapter, P2pNetworkAdapter},
     adapter::wire::{
         PqcThresholdWireMsg, WireDecodeError, MAX_DKG_SHARE_BYTES, MAX_PARTIAL_SHARE_BYTES,
     },
     ValidatorId,
 };
+use std::{
+    convert::Infallible,
+    sync::{Arc, Mutex},
+};
+
+#[derive(Clone, Default)]
+struct RecordingNetwork {
+    broadcasts: Arc<Mutex<Vec<PqcThresholdWireMsg>>>,
+    direct_sends: Arc<Mutex<Vec<(u16, PqcThresholdWireMsg)>>>,
+}
+
+#[async_trait::async_trait]
+impl P2pNetworkAdapter for RecordingNetwork {
+    type Error = Infallible;
+
+    async fn broadcast(&self, msg: PqcThresholdWireMsg) -> Result<(), Self::Error> {
+        self.broadcasts.lock().unwrap().push(msg);
+        Ok(())
+    }
+
+    async fn send_to(&self, target: u16, msg: PqcThresholdWireMsg) -> Result<(), Self::Error> {
+        self.direct_sends.lock().unwrap().push((target, msg));
+        Ok(())
+    }
+}
+
+#[derive(Clone, Default)]
+struct RecordingConsensus {
+    finalized: Arc<Mutex<Vec<(u64, Vec<u8>)>>>,
+    evidence: Arc<Mutex<Vec<SlashingEvidence>>>,
+    gas_updates: Arc<Mutex<Vec<u64>>>,
+}
+
+#[async_trait::async_trait]
+impl ConsensusStateAdapter for RecordingConsensus {
+    type Error = Infallible;
+
+    async fn on_signature_finalized(
+        &self,
+        block_height: u64,
+        signature: Vec<u8>,
+    ) -> Result<(), Self::Error> {
+        self.finalized
+            .lock()
+            .unwrap()
+            .push((block_height, signature));
+        Ok(())
+    }
+
+    async fn submit_slashing_evidence(
+        &self,
+        evidence: SlashingEvidence,
+    ) -> Result<(), Self::Error> {
+        self.evidence.lock().unwrap().push(evidence);
+        Ok(())
+    }
+
+    async fn update_gas_baseline(&self, block_height: u64) -> Result<(), Self::Error> {
+        self.gas_updates.lock().unwrap().push(block_height);
+        Ok(())
+    }
+}
 
 #[test]
 fn adapter_module_is_exported() {
     let _ = core::any::type_name::<adapter::wire::PqcThresholdWireMsg>();
+}
+
+#[tokio::test]
+async fn adapter_traits_can_be_mocked_in_memory() {
+    let network = RecordingNetwork::default();
+    let consensus = RecordingConsensus::default();
+    let sign_commit = PqcThresholdWireMsg::SignCommit {
+        session_id: [1; 32],
+        block_height: 42,
+        validator_index: 7,
+        commitment: [2; 32],
+    };
+    let dkg_share = PqcThresholdWireMsg::DkgShareExchange {
+        session_id: [3; 32],
+        target_validator_index: 9,
+        encrypted_share: vec![4, 5, 6],
+    };
+    let evidence = SlashingEvidence::new(
+        [8; 32],
+        ValidatorId(9),
+        EvidenceKind::CommitmentWithoutPartial,
+        Some(vec![0xAA]),
+        "validator committed without partial",
+    );
+
+    network.broadcast(sign_commit.clone()).await.unwrap();
+    network.send_to(9, dkg_share.clone()).await.unwrap();
+    consensus
+        .on_signature_finalized(42, vec![0x11, 0x22])
+        .await
+        .unwrap();
+    consensus
+        .submit_slashing_evidence(evidence.clone())
+        .await
+        .unwrap();
+    consensus.update_gas_baseline(42).await.unwrap();
+
+    assert_eq!(
+        network.broadcasts.lock().unwrap().as_slice(),
+        &[sign_commit]
+    );
+    assert_eq!(
+        network.direct_sends.lock().unwrap().as_slice(),
+        &[(9, dkg_share)]
+    );
+    assert_eq!(
+        consensus.finalized.lock().unwrap().as_slice(),
+        &[(42, vec![0x11, 0x22])]
+    );
+    assert_eq!(consensus.evidence.lock().unwrap().as_slice(), &[evidence]);
+    assert_eq!(consensus.gas_updates.lock().unwrap().as_slice(), &[42]);
 }
 
 #[test]
