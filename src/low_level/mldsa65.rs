@@ -50,11 +50,13 @@ pub const MLDSA65_POLYT1_PACKED_BYTES: usize = 320;
 pub const MLDSA65_POLYZ_PACKED_BYTES: usize = 640;
 /// Packed byte length for an ML-DSA-65 hint vector.
 pub const MLDSA65_HINT_PACKED_BYTES: usize = MLDSA65_OMEGA + MLDSA65_K;
+/// Packed byte length for one ML-DSA `w1` polynomial.
+pub const MLDSA65_POLYW1_PACKED_BYTES: usize = 128;
+/// Packed byte length for an ML-DSA-65 `w1` vector.
+pub const MLDSA65_W1_ENCODED_BYTES: usize = MLDSA65_K * MLDSA65_POLYW1_PACKED_BYTES;
 /// Strict infinity norm bound for ML-DSA-65 `z`.
 pub const MLDSA65_Z_NORM_BOUND: i32 = MLDSA65_GAMMA1 - MLDSA65_BETA;
 
-const HAZMAT_VERIFIER_UNAVAILABLE: &str =
-    "hazmat-real-mldsa verifier requires FIPS 204 KAT-backed implementation";
 const PUBLIC_KEY_LENGTH_MISMATCH: &str = "ML-DSA-65 public key length mismatch";
 const SIGNATURE_LENGTH_MISMATCH: &str = "ML-DSA-65 signature length mismatch";
 const HINT_OFFSET_RANGE: &str = "ML-DSA-65 hint offset exceeds omega";
@@ -729,19 +731,67 @@ pub fn check_poly_bound(poly: &Poly, bound: i32) -> bool {
 }
 
 /// Verify a standard ML-DSA-65 signature.
-///
-/// This function is a deliberate hard stop until the local implementation is
-/// completed against FIPS 204 known-answer tests.
 pub fn verify_standard_mldsa65(
     public_key: &ThresholdPublicKey,
     message: &[u8],
     signature: &ThresholdSignature,
 ) -> Result<bool, ThresholdError> {
-    let _w1 = compute_verification_w1(public_key, message, signature)?;
+    let unpacked_signature = unpack_signature(&signature.0)?;
+    let w1 = compute_verification_w1(public_key, message, signature)?;
+    let expected_challenge = compute_verification_challenge(public_key, message, &w1);
 
-    Err(ThresholdError::BackendUnavailable {
-        reason: HAZMAT_VERIFIER_UNAVAILABLE,
-    })
+    Ok(unpacked_signature.challenge() == &expected_challenge)
+}
+
+fn compute_verification_challenge(
+    public_key: &ThresholdPublicKey,
+    message: &[u8],
+    w1: &VectorK,
+) -> [u8; MLDSA65_CHALLENGE_BYTES] {
+    let tr = shake256_64(&public_key.0);
+
+    let mut mu_hasher = Shake256::default();
+    mu_hasher.update(&tr);
+    mu_hasher.update(&[0x00, 0x00]);
+    mu_hasher.update(message);
+    let mut mu_reader = mu_hasher.finalize_xof();
+    let mut mu = [0u8; 64];
+    mu_reader.read(&mut mu);
+
+    let mut challenge_hasher = Shake256::default();
+    challenge_hasher.update(&mu);
+    challenge_hasher.update(&encode_w1(w1));
+    let mut challenge_reader = challenge_hasher.finalize_xof();
+    let mut challenge = [0u8; MLDSA65_CHALLENGE_BYTES];
+    challenge_reader.read(&mut challenge);
+    challenge
+}
+
+fn shake256_64(input: &[u8]) -> [u8; 64] {
+    let mut hasher = Shake256::default();
+    hasher.update(input);
+    let mut reader = hasher.finalize_xof();
+    let mut output = [0u8; 64];
+    reader.read(&mut output);
+    output
+}
+
+fn encode_w1(w1: &VectorK) -> [u8; MLDSA65_W1_ENCODED_BYTES] {
+    let mut bytes = [0u8; MLDSA65_W1_ENCODED_BYTES];
+    for (poly_index, poly) in w1.polys().iter().enumerate() {
+        let offset = poly_index * MLDSA65_POLYW1_PACKED_BYTES;
+        bytes[offset..offset + MLDSA65_POLYW1_PACKED_BYTES].copy_from_slice(&pack_w1_poly(poly));
+    }
+    bytes
+}
+
+fn pack_w1_poly(poly: &Poly) -> [u8; MLDSA65_POLYW1_PACKED_BYTES] {
+    let mut bytes = [0u8; MLDSA65_POLYW1_PACKED_BYTES];
+    for (pair_index, pair) in poly.coeffs.chunks_exact(2).enumerate() {
+        bytes[pair_index] =
+            reduce_mod_q(pair[0] as i64) as u8 | ((reduce_mod_q(pair[1] as i64) as u8) << 4);
+    }
+    bytes
 }
 
 fn unpack_t1_poly(bytes: &[u8]) -> Poly {

@@ -52,7 +52,7 @@ fn hazmat_acvp_sigver_loader_rejects_bad_hex() {
 }
 
 #[test]
-#[ignore = "requires official ML-DSA-65 ACVP vectors and completed verifier"]
+#[ignore = "requires official ML-DSA-65 pure/internal ACVP sigVer vectors"]
 fn official_mldsa65_sigver_kats_pass() {
     let path = env::var_os("DYTALLIX_MLDSA65_SIGVER_KAT")
         .map(PathBuf::from)

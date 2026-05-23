@@ -14,6 +14,10 @@ use dytallix_pq_threshold::{
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
 };
+use sha3::{
+    digest::{ExtendableOutput, Update, XofReader},
+    Shake256,
+};
 
 #[test]
 fn hazmat_mldsa65_constants_match_fips_204_profile() {
@@ -275,15 +279,36 @@ fn hazmat_bound_check_rejects_boundary_value() {
 }
 
 #[test]
-fn hazmat_verifier_stub_is_explicitly_unavailable_until_kats_land() {
+fn hazmat_verifier_accepts_synthetic_zero_equation_signature() {
     let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
-    let signature = structurally_valid_zero_z_signature();
+    let signature = zero_equation_signature(&public_key, b"message");
 
     assert_eq!(
         verify_standard_mldsa65(&public_key, b"message", &signature),
-        Err(ThresholdError::BackendUnavailable {
-            reason: "hazmat-real-mldsa verifier requires FIPS 204 KAT-backed implementation"
-        })
+        Ok(true)
+    );
+}
+
+#[test]
+fn hazmat_verifier_rejects_synthetic_signature_for_different_message() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let signature = zero_equation_signature(&public_key, b"message");
+
+    assert_eq!(
+        verify_standard_mldsa65(&public_key, b"different", &signature),
+        Ok(false)
+    );
+}
+
+#[test]
+fn hazmat_verifier_rejects_tampered_challenge() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let mut signature = zero_equation_signature(&public_key, b"message");
+    signature.0[0] ^= 1;
+
+    assert_eq!(
+        verify_standard_mldsa65(&public_key, b"message", &signature),
+        Ok(false)
     );
 }
 
@@ -466,6 +491,39 @@ fn structurally_valid_zero_z_signature() -> ThresholdSignature {
     }
 
     ThresholdSignature(bytes)
+}
+
+fn zero_equation_signature(public_key: &ThresholdPublicKey, message: &[u8]) -> ThresholdSignature {
+    let mut tr_reader = {
+        let mut hasher = Shake256::default();
+        hasher.update(&public_key.0);
+        hasher.finalize_xof()
+    };
+    let mut tr = [0u8; 64];
+    tr_reader.read(&mut tr);
+
+    let mut mu_reader = {
+        let mut hasher = Shake256::default();
+        hasher.update(&tr);
+        hasher.update(&[0x00, 0x00]);
+        hasher.update(message);
+        hasher.finalize_xof()
+    };
+    let mut mu = [0u8; 64];
+    mu_reader.read(&mut mu);
+
+    let mut challenge_reader = {
+        let mut hasher = Shake256::default();
+        hasher.update(&mu);
+        hasher.update(&[0u8; MLDSA65_K * (N / 2)]);
+        hasher.finalize_xof()
+    };
+    let mut challenge = [0u8; MLDSA65_CHALLENGE_BYTES];
+    challenge_reader.read(&mut challenge);
+
+    pack_signature(challenge, &VectorL::zero(), &HintVector::empty())
+        .unwrap()
+        .into()
 }
 
 fn t1_pattern_poly() -> Poly {

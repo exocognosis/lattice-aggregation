@@ -36,30 +36,27 @@ The first local boundary exposes:
   equation scaffolding.
 - Canonical `O(n^2)` reference NTT and inverse NTT with pointwise
   multiplication tests.
-- Fail-closed verifier equation scaffolding that computes hinted `w1` from
-  unpacked public keys and signatures before stopping at the KAT gate.
-- A verifier skeleton that fails closed after structural checks and returns
-  `BackendUnavailable` until the full FIPS 204 verification equation lands.
+- Pure internal-message verifier equation support: `tr = H(pk)`,
+  `mu = H(tr || 0x00 || 0x00 || M)`, `w1 = UseHint(Az - c*t1*2^d)`, and
+  `c_tilde = H(mu || w1Encode(w1))`.
 
 This is intentionally a scaffold. It does not yet implement key generation,
-NTT, matrix expansion, challenge sampling, signing, or the final verification
-equation.
+secret-key packing, signing, optimized Montgomery/NTT arithmetic, context
+handling, prehash/external-mu interfaces, or KAT-backed conformance.
 
 ## Next Verifier Slices
 
 The remaining standard-verification path should land in this order:
 
-1. Montgomery/table-optimized FIPS NTT with reference-vector fixtures.
-2. FIPS 204 ML-DSA-65 known-answer tests.
-3. Replacement of the verifier skeleton with the complete verification
-   equation.
+1. FIPS 204 ML-DSA-65 verification known-answer tests.
+2. Differential tests against an independent implementation.
+3. Montgomery/table-optimized FIPS NTT with reference-vector fixtures.
 
 ## KAT Harness
 
 The crate includes ACVP-style fixture plumbing in
 `tests/hazmat_mldsa65_kat.rs`. The official verifier KAT is ignored until real
-vectors are supplied and the verifier exits the current fail-closed
-`BackendUnavailable` gate.
+vectors are supplied and checked against the pure internal-message verifier.
 
 Fixture source:
 
