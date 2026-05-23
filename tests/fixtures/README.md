@@ -16,9 +16,8 @@ DYTALLIX_MLDSA65_SIGVER_KAT=/path/to/vector-set.json
 
 The expected schema follows NIST ACVP ML-DSA `sigVer` vector-set JSON for
 `parameterSet = "ML-DSA-65"`. The checked-in fixture contains the NIST sample
-groups `tgId = 3`, `tgId = 9`, and `tgId = 10` from
+groups `tgId = 3`, `tgId = 4`, `tgId = 9`, and `tgId = 10` from
 `usnistgov/ACVP-Server/gen-val/json-files/ML-DSA-sigVer-FIPS204/internalProjection.json`.
-The current gate covers external pure verification, internal message
-verification, and internal verification with caller-supplied external `mu`.
-It skips external prehash vectors because the public hazmat verifier API does
-not yet expose hash OID handling.
+The current gate covers external pure verification, external prehash
+verification, internal message verification, and internal verification with
+caller-supplied external `mu`.

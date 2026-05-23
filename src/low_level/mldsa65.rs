@@ -5,9 +5,12 @@
 //! a complete signing or verification implementation yet; callers must treat
 //! every item here as low-level cryptographic construction material.
 
+use std::str::FromStr;
+
+use sha2::{Digest as FixedDigest, Sha224, Sha256, Sha384, Sha512, Sha512_224, Sha512_256};
 use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
-    Shake128, Shake256,
+    Sha3_224, Sha3_256, Sha3_384, Sha3_512, Shake128, Shake256,
 };
 
 use crate::{
@@ -71,6 +74,129 @@ const T1_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 t1 coefficient cannot be pack
 const Z_COEFFICIENT_UNPACKABLE: &str = "ML-DSA-65 z coefficient cannot be packed";
 const CONTEXT_LENGTH_RANGE: &str = "ML-DSA-65 context length exceeds FIPS 204 bound";
 const MU_LENGTH_MISMATCH: &str = "ML-DSA-65 mu length mismatch";
+
+/// FIPS 204 HashML-DSA prehash algorithms accepted by ACVP `sigVer` vectors.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Mldsa65PreHashAlgorithm {
+    /// SHA2-224 prehash.
+    Sha2_224,
+    /// SHA2-256 prehash.
+    Sha2_256,
+    /// SHA2-384 prehash.
+    Sha2_384,
+    /// SHA2-512 prehash.
+    Sha2_512,
+    /// SHA2-512/224 prehash.
+    Sha2_512_224,
+    /// SHA2-512/256 prehash.
+    Sha2_512_256,
+    /// SHA3-224 prehash.
+    Sha3_224,
+    /// SHA3-256 prehash.
+    Sha3_256,
+    /// SHA3-384 prehash.
+    Sha3_384,
+    /// SHA3-512 prehash.
+    Sha3_512,
+    /// SHAKE-128 prehash with 32 output bytes.
+    Shake128,
+    /// SHAKE-256 prehash with 64 output bytes.
+    Shake256,
+}
+
+impl FromStr for Mldsa65PreHashAlgorithm {
+    type Err = ();
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "SHA2-224" => Ok(Self::Sha2_224),
+            "SHA2-256" => Ok(Self::Sha2_256),
+            "SHA2-384" => Ok(Self::Sha2_384),
+            "SHA2-512" => Ok(Self::Sha2_512),
+            "SHA2-512/224" => Ok(Self::Sha2_512_224),
+            "SHA2-512/256" => Ok(Self::Sha2_512_256),
+            "SHA3-224" => Ok(Self::Sha3_224),
+            "SHA3-256" => Ok(Self::Sha3_256),
+            "SHA3-384" => Ok(Self::Sha3_384),
+            "SHA3-512" => Ok(Self::Sha3_512),
+            "SHAKE-128" => Ok(Self::Shake128),
+            "SHAKE-256" => Ok(Self::Shake256),
+            _ => Err(()),
+        }
+    }
+}
+
+impl Mldsa65PreHashAlgorithm {
+    fn oid_der(self) -> &'static [u8] {
+        match self {
+            Self::Sha2_224 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04,
+            ],
+            Self::Sha2_256 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01,
+            ],
+            Self::Sha2_384 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02,
+            ],
+            Self::Sha2_512 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03,
+            ],
+            Self::Sha2_512_224 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x05,
+            ],
+            Self::Sha2_512_256 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x06,
+            ],
+            Self::Sha3_224 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x07,
+            ],
+            Self::Sha3_256 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x08,
+            ],
+            Self::Sha3_384 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x09,
+            ],
+            Self::Sha3_512 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0A,
+            ],
+            Self::Shake128 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0B,
+            ],
+            Self::Shake256 => &[
+                0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0C,
+            ],
+        }
+    }
+
+    fn digest_message(self, message: &[u8]) -> Vec<u8> {
+        match self {
+            Self::Sha2_224 => Sha224::digest(message).to_vec(),
+            Self::Sha2_256 => Sha256::digest(message).to_vec(),
+            Self::Sha2_384 => Sha384::digest(message).to_vec(),
+            Self::Sha2_512 => Sha512::digest(message).to_vec(),
+            Self::Sha2_512_224 => Sha512_224::digest(message).to_vec(),
+            Self::Sha2_512_256 => Sha512_256::digest(message).to_vec(),
+            Self::Sha3_224 => Sha3_224::digest(message).to_vec(),
+            Self::Sha3_256 => Sha3_256::digest(message).to_vec(),
+            Self::Sha3_384 => Sha3_384::digest(message).to_vec(),
+            Self::Sha3_512 => Sha3_512::digest(message).to_vec(),
+            Self::Shake128 => {
+                let mut digest = vec![0; 32];
+                let mut hasher = Shake128::default();
+                hasher.update(message);
+                hasher.finalize_xof().read(&mut digest);
+                digest
+            }
+            Self::Shake256 => {
+                let mut digest = vec![0; 64];
+                let mut hasher = Shake256::default();
+                hasher.update(message);
+                hasher.finalize_xof().read(&mut digest);
+                digest
+            }
+        }
+    }
+}
 
 /// Fixed-size byte wrapper for an ML-DSA-65 public key.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -932,6 +1058,30 @@ pub fn verify_mldsa65_external_pure(
     Ok(unpacked_signature.challenge() == &expected_challenge)
 }
 
+/// Verify an external prehash HashML-DSA-65 signature with an explicit context string.
+pub fn verify_mldsa65_external_prehash(
+    public_key: &ThresholdPublicKey,
+    message: &[u8],
+    context: &[u8],
+    hash_alg: Mldsa65PreHashAlgorithm,
+    signature: &ThresholdSignature,
+) -> Result<bool, ThresholdError> {
+    if context.len() > u8::MAX as usize {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: CONTEXT_LENGTH_RANGE,
+        });
+    }
+
+    let unpacked_signature = unpack_signature(&signature.0)?;
+    let w1 = compute_verification_w1(public_key, message, signature)?;
+    let tr = shake256_64(&public_key.0);
+    let phm = hash_alg.digest_message(message);
+    let mu = compute_external_prehash_mu(&tr, context, hash_alg.oid_der(), &phm);
+    let expected_challenge = compute_challenge_from_mu(&mu, &w1);
+
+    Ok(unpacked_signature.challenge() == &expected_challenge)
+}
+
 /// Verify an internal ML-DSA-65 signature whose `mu` value is derived from the message.
 pub fn verify_mldsa65_internal_message(
     public_key: &ThresholdPublicKey,
@@ -1000,6 +1150,24 @@ fn compute_internal_message_mu(
     let mut mu_hasher = Shake256::default();
     mu_hasher.update(tr);
     mu_hasher.update(message);
+    let mut mu_reader = mu_hasher.finalize_xof();
+    let mut mu = [0u8; MLDSA65_MU_BYTES];
+    mu_reader.read(&mut mu);
+    mu
+}
+
+fn compute_external_prehash_mu(
+    tr: &[u8; MLDSA65_MU_BYTES],
+    context: &[u8],
+    oid: &[u8],
+    phm: &[u8],
+) -> [u8; MLDSA65_MU_BYTES] {
+    let mut mu_hasher = Shake256::default();
+    mu_hasher.update(tr);
+    mu_hasher.update(&[0x01, context.len() as u8]);
+    mu_hasher.update(context);
+    mu_hasher.update(oid);
+    mu_hasher.update(phm);
     let mut mu_reader = mu_hasher.finalize_xof();
     let mut mu = [0u8; MLDSA65_MU_BYTES];
     mu_reader.read(&mut mu);

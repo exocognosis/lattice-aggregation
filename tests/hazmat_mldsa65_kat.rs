@@ -4,7 +4,8 @@ use std::{env, fs, path::PathBuf};
 
 use dytallix_pq_threshold::{
     mldsa65::{
-        verify_mldsa65_external_pure, verify_mldsa65_internal_message, verify_mldsa65_internal_mu,
+        verify_mldsa65_external_prehash, verify_mldsa65_external_pure,
+        verify_mldsa65_internal_message, verify_mldsa65_internal_mu, Mldsa65PreHashAlgorithm,
     },
     ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES, MLDSA65_SIGNATURE_BYTES,
 };
@@ -25,6 +26,15 @@ struct SigVerKat {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum SigVerMode {
     ExternalPure,
+    ExternalPreHash(Mldsa65PreHashAlgorithm),
+    InternalMessage,
+    InternalMu,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum AcvpGroupMode {
+    ExternalPure,
+    ExternalPreHash,
     InternalMessage,
     InternalMu,
 }
@@ -52,10 +62,16 @@ fn hazmat_acvp_sigver_loader_ignores_other_parameter_sets() {
 }
 
 #[test]
-fn hazmat_acvp_sigver_loader_ignores_external_prehash_vectors() {
+fn hazmat_acvp_sigver_loader_extracts_external_prehash_vectors() {
     let vectors = load_acvp_sigver_vectors(SAMPLE_EXTERNAL_PREHASH).unwrap();
 
-    assert!(vectors.is_empty());
+    assert_eq!(vectors.len(), 1);
+    assert_eq!(
+        vectors[0].mode,
+        SigVerMode::ExternalPreHash(Mldsa65PreHashAlgorithm::Sha2_256)
+    );
+    assert_eq!(vectors[0].message, vec![0xAB, 0xCD]);
+    assert_eq!(vectors[0].context, vec![0xAA]);
 }
 
 #[test]
@@ -133,6 +149,13 @@ fn official_mldsa65_sigver_kats_pass() {
                 &vector.context,
                 &signature,
             ),
+            SigVerMode::ExternalPreHash(hash_alg) => verify_mldsa65_external_prehash(
+                &public_key,
+                &vector.message,
+                &vector.context,
+                hash_alg,
+                &signature,
+            ),
             SigVerMode::InternalMessage => {
                 verify_mldsa65_internal_message(&public_key, &vector.message, &signature)
             }
@@ -180,7 +203,7 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
         if group.get("parameterSet").and_then(Value::as_str) != Some("ML-DSA-65") {
             continue;
         }
-        let Some(mode) = group_sigver_mode(group) else {
+        let Some(group_mode) = group_sigver_mode(group) else {
             continue;
         };
 
@@ -204,6 +227,8 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
                 .transpose()?
                 .or_else(|| public_key.clone())
                 .ok_or("missing public key")?;
+
+            let mode = test_sigver_mode(group_mode, test)?;
 
             vectors.push(SigVerKat {
                 tc_id: test
@@ -239,18 +264,33 @@ fn load_acvp_sigver_vectors(json: &str) -> Result<Vec<SigVerKat>, &'static str> 
     Ok(vectors)
 }
 
-fn group_sigver_mode(group: &Value) -> Option<SigVerMode> {
+fn group_sigver_mode(group: &Value) -> Option<AcvpGroupMode> {
     match (
         group.get("signatureInterface").and_then(Value::as_str),
         group.get("preHash").and_then(Value::as_str),
         group.get("externalMu").and_then(Value::as_bool),
     ) {
-        (Some("external"), None | Some("pure"), _) => Some(SigVerMode::ExternalPure),
-        (Some("internal"), None | Some("none"), Some(true)) => Some(SigVerMode::InternalMu),
+        (Some("external"), None | Some("pure"), _) => Some(AcvpGroupMode::ExternalPure),
+        (Some("external"), Some("preHash"), _) => Some(AcvpGroupMode::ExternalPreHash),
+        (Some("internal"), None | Some("none"), Some(true)) => Some(AcvpGroupMode::InternalMu),
         (Some("internal"), None | Some("none"), None | Some(false)) => {
-            Some(SigVerMode::InternalMessage)
+            Some(AcvpGroupMode::InternalMessage)
         }
         _ => None,
+    }
+}
+
+fn test_sigver_mode(group_mode: AcvpGroupMode, test: &Value) -> Result<SigVerMode, &'static str> {
+    match group_mode {
+        AcvpGroupMode::ExternalPure => Ok(SigVerMode::ExternalPure),
+        AcvpGroupMode::ExternalPreHash => {
+            let hash_alg = required_string(test, "hashAlg")?
+                .parse()
+                .map_err(|_| "unsupported hashAlg")?;
+            Ok(SigVerMode::ExternalPreHash(hash_alg))
+        }
+        AcvpGroupMode::InternalMessage => Ok(SigVerMode::InternalMessage),
+        AcvpGroupMode::InternalMu => Ok(SigVerMode::InternalMu),
     }
 }
 
@@ -369,6 +409,8 @@ const SAMPLE_EXTERNAL_PREHASH: &str = r#"[
           {
             "tcId": 7,
             "message": "abcd",
+            "context": "aa",
+            "hashAlg": "SHA2-256",
             "signature": "0304",
             "testPassed": true
           }
