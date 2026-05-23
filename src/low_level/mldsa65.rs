@@ -7,7 +7,7 @@
 
 use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
-    Shake256,
+    Shake128, Shake256,
 };
 
 use crate::{
@@ -165,6 +165,24 @@ pub struct UnpackedSignature {
     challenge: [u8; MLDSA65_CHALLENGE_BYTES],
     z: VectorL,
     hint: HintVector,
+}
+
+/// ML-DSA-65 public matrix expanded from `rho`.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct MatrixA {
+    rows: [VectorL; MLDSA65_K],
+}
+
+impl MatrixA {
+    /// Construct a matrix from row vectors.
+    pub const fn from_rows(rows: [VectorL; MLDSA65_K]) -> Self {
+        Self { rows }
+    }
+
+    /// Borrow matrix rows.
+    pub fn rows(&self) -> &[VectorL; MLDSA65_K] {
+        &self.rows
+    }
 }
 
 impl UnpackedSignature {
@@ -372,6 +390,42 @@ pub fn sample_in_ball(seed: &[u8; MLDSA65_CHALLENGE_BYTES]) -> Poly {
     Poly::from_coeffs(coeffs)
 }
 
+/// Rejection-sample an NTT-domain polynomial from a SHAKE128 seed stream.
+pub fn rej_ntt_poly(seed: &[u8]) -> Poly {
+    let mut hasher = Shake128::default();
+    hasher.update(seed);
+    let mut reader = hasher.finalize_xof();
+
+    let mut coeffs = [0i32; N];
+    let mut filled = 0usize;
+    while filled < N {
+        let candidate = squeeze_three_byte_candidate(&mut reader);
+        if candidate < Q as u32 {
+            coeffs[filled] = candidate as i32;
+            filled += 1;
+        }
+    }
+
+    Poly::from_coeffs(coeffs)
+}
+
+/// Expand the ML-DSA-65 public matrix `A` from public seed `rho`.
+pub fn expand_a(rho: &[u8; MLDSA65_PUBLIC_SEED_BYTES]) -> MatrixA {
+    let mut rows = [VectorL::zero(); MLDSA65_K];
+    for (row_index, row) in rows.iter_mut().enumerate() {
+        let mut polys = [Poly::zero(); MLDSA65_L];
+        for (column_index, poly) in polys.iter_mut().enumerate() {
+            let mut seed = [0u8; MLDSA65_PUBLIC_SEED_BYTES + 2];
+            seed[..MLDSA65_PUBLIC_SEED_BYTES].copy_from_slice(rho);
+            seed[MLDSA65_PUBLIC_SEED_BYTES] = column_index as u8;
+            seed[MLDSA65_PUBLIC_SEED_BYTES + 1] = row_index as u8;
+            *poly = rej_ntt_poly(&seed);
+        }
+        *row = VectorL::from_polys(polys);
+    }
+    MatrixA::from_rows(rows)
+}
+
 /// Decompose `r` into `(r1, r0)` such that `r = r1 * 2^d + r0 mod q`.
 pub fn power2round(r: i32) -> (i32, i32) {
     let r_plus = reduce_mod_q(r as i64);
@@ -569,6 +623,12 @@ fn squeeze_byte(reader: &mut impl XofReader) -> usize {
     let mut byte = [0u8; 1];
     reader.read(&mut byte);
     byte[0] as usize
+}
+
+fn squeeze_three_byte_candidate(reader: &mut impl XofReader) -> u32 {
+    let mut bytes = [0u8; 3];
+    reader.read(&mut bytes);
+    ((bytes[0] as u32) | ((bytes[1] as u32) << 8) | ((bytes[2] as u32) << 16)) & 0x7f_ffff
 }
 
 fn centered_remainder(value: i32, modulus: i32) -> i32 {

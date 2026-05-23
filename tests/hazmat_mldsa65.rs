@@ -2,8 +2,8 @@
 
 use dytallix_pq_threshold::{
     low_level::mldsa65::{
-        check_poly_bound, pack_public_key, pack_signature, reduce_mod_q, sample_in_ball,
-        unpack_public_key, unpack_signature, verify_standard_mldsa65, HintVector,
+        check_poly_bound, expand_a, pack_public_key, pack_signature, reduce_mod_q, rej_ntt_poly,
+        sample_in_ball, unpack_public_key, unpack_signature, verify_standard_mldsa65, HintVector,
         Mldsa65PublicKeyBytes, Mldsa65SignatureBytes, VectorK, VectorL, MLDSA65_BETA,
         MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1, MLDSA65_GAMMA2, MLDSA65_K,
         MLDSA65_L, MLDSA65_OMEGA, MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES,
@@ -113,6 +113,29 @@ fn hazmat_sample_in_ball_changes_with_seed() {
     let right = sample_in_ball(&[0x22; MLDSA65_CHALLENGE_BYTES]);
 
     assert_ne!(left, right);
+}
+
+#[test]
+fn hazmat_rej_ntt_poly_is_deterministic_and_canonical() {
+    let seed = [0x5C; MLDSA65_PUBLIC_SEED_BYTES + 2];
+
+    let first = rej_ntt_poly(&seed);
+    let second = rej_ntt_poly(&seed);
+
+    assert_eq!(first, second);
+    assert!(first.coeffs.iter().all(|coeff| (0..Q).contains(coeff)));
+}
+
+#[test]
+fn hazmat_expand_a_builds_mldsa65_matrix_dimensions() {
+    let matrix = expand_a(&[0x42; MLDSA65_PUBLIC_SEED_BYTES]);
+
+    assert_eq!(matrix.rows().len(), MLDSA65_K);
+    assert!(matrix
+        .rows()
+        .iter()
+        .all(|row| row.polys().len() == MLDSA65_L));
+    assert_ne!(matrix.rows()[0].polys()[0], matrix.rows()[1].polys()[0]);
 }
 
 #[test]
