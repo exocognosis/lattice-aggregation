@@ -18,8 +18,6 @@ Lattice Aggregation is a research and engineering scaffold for:
 - async validator actor integration with P2P and consensus adapters
 - audit-oriented documentation for trusted computing base and attack surface review
 
-The crate is published locally as `lattice-aggregation` and exposes the Rust library name `lattice_aggregation`.
-
 ## Current Status
 
 This is not production cryptography.
