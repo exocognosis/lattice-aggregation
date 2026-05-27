@@ -1,12 +1,17 @@
 [package]
-name = "dytallix-pq-threshold"
+name = "lattice-aggregation"
 version = "0.1.0"
 edition = "2021"
-license = "Apache-2.0"
+license = "MIT"
 description = "Research-grade threshold ML-DSA-65 API boundary and simulation backend"
+repository = "https://github.com/exocognosis/lattice-aggregation"
+homepage = "https://github.com/exocognosis/lattice-aggregation"
+readme = "README.md"
+keywords = ["post-quantum", "threshold", "mldsa", "lattice", "signatures"]
+categories = ["cryptography", "simulation"]
 
 [lib]
-name = "dytallix_pq_threshold"
+name = "lattice_aggregation"
 path = "src/lib.rs"
 
 [features]
@@ -18,7 +23,6 @@ hazmat-real-mldsa = ["hazmat"]
 [dependencies]
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }
-sha2 = "0.10"
 sha3 = "0.10"
 thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt", "sync", "time"] }

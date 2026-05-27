@@ -15,8 +15,10 @@ use crate::{
     types::{Commitment, SessionId, ThresholdPublicKey, MLDSA65_PUBLICKEY_BYTES},
 };
 
-const DKG_COMMITMENT_LABEL: &[u8] = b"dytallix-threshold-mldsa65/simulated/dkg-commitment";
-const DKG_PUBLIC_KEY_LABEL: &[u8] = b"dytallix-threshold-mldsa65/simulated/dkg-public-key";
+const DKG_COMMITMENT_LABEL: &[u8] =
+    b"lattice-aggregation/threshold-mldsa65/simulated/dkg-commitment";
+const DKG_PUBLIC_KEY_LABEL: &[u8] =
+    b"lattice-aggregation/threshold-mldsa65/simulated/dkg-public-key";
 
 /// Threshold key generation interface.
 pub trait ThresholdKeyGeneration {

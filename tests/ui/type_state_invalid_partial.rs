@@ -1,4 +1,4 @@
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     Commitment, CommitmentSet, PrivateKeyShare, SigningSession, ThresholdPublicKey,
     ThresholdSigner, ValidatorId,
 };

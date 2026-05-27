@@ -4,9 +4,9 @@ Date: 2026-05-22
 
 ## Status
 
-Approved direction for Phase 3 P2P Network Protocol Upgrades and Phase 4 Consensus Engine integration boundaries, implemented as an adapter scaffold inside `dytallix-pq-threshold`.
+Approved direction for Phase 3 P2P Network Protocol Upgrades and Phase 4 Consensus Engine integration boundaries, implemented as an adapter scaffold inside `lattice-aggregation`.
 
-This design does not integrate with the real Dytallix L1 networking, Noise transport, state trie, block proposal engine, or gas runtime. It defines the portable boundary that those systems will later implement.
+This design does not integrate with the real production L1 networking, Noise transport, state trie, block proposal engine, or gas runtime. It defines the portable boundary that those systems will later implement.
 
 ## Scope
 
@@ -42,7 +42,7 @@ The adapter scaffold must:
 ## Module Layout
 
 ```text
-dytallix-pq-threshold/
+lattice-aggregation/
 ├── src/
 │   ├── adapter.rs
 │   └── adapter/
@@ -258,7 +258,7 @@ No real network, consensus, or state trie dependencies are introduced.
 
 This adapter scaffold is not production consensus integration. Production use requires:
 
-- Real Dytallix P2P implementation of `P2pNetworkAdapter`.
+- Real production P2P implementation of `P2pNetworkAdapter`.
 - Real consensus/state implementation of `ConsensusStateAdapter`.
 - Real threshold ML-DSA backend with share verification.
 - Wire compatibility tests against real network frames.

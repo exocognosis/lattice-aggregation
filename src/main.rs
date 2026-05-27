@@ -5,7 +5,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     adapter::{
         actor::{ActorConfig, ActorEvent, SessionMetrics, ThresholdActor},
         evidence::SlashingEvidence,
@@ -17,14 +17,13 @@ use dytallix_pq_threshold::{
 };
 use tokio::sync::mpsc;
 
+type FinalizedSignatures = Vec<(u64, Vec<u8>)>;
+type Shared<T> = Arc<Mutex<T>>;
+
 #[derive(Clone, Default)]
 struct HarnessNetwork {
-    bytes: Arc<Mutex<usize>>,
+    bytes: Shared<usize>,
 }
-
-type FinalizedRecords = Arc<Mutex<Vec<(u64, Vec<u8>)>>>;
-type EvidenceRecords = Arc<Mutex<Vec<SlashingEvidence>>>;
-type GasUpdates = Arc<Mutex<Vec<u64>>>;
 
 #[async_trait]
 impl P2pNetworkAdapter for HarnessNetwork {
@@ -43,9 +42,9 @@ impl P2pNetworkAdapter for HarnessNetwork {
 
 #[derive(Clone, Default)]
 struct HarnessConsensus {
-    finalized: FinalizedRecords,
-    evidence: EvidenceRecords,
-    gas_updates: GasUpdates,
+    finalized: Shared<FinalizedSignatures>,
+    evidence: Shared<Vec<SlashingEvidence>>,
+    gas_updates: Shared<Vec<u64>>,
 }
 
 #[async_trait]

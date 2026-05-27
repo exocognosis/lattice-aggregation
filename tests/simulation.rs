@@ -1,4 +1,4 @@
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     adapter,
     adapter::actor::{ActorConfig, ActorEvent, ThresholdActor},
     adapter::evidence::{EvidenceKind, SlashingEvidence},
