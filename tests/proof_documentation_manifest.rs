@@ -1,0 +1,144 @@
+use std::{fs, path::Path};
+
+const PROOF_CROSSWALK: &str = "docs/cryptography/proof-implementation-crosswalk.md";
+const FORMAL_THEOREM: &str = "docs/cryptography/formal-security-theorem.md";
+const IDEAL_FUNCTIONALITY: &str = "docs/cryptography/ideal-functionality.md";
+const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
+const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
+const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
+const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
+const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
+
+fn read_doc(path: &str) -> String {
+    fs::read_to_string(path).unwrap_or_else(|err| panic!("failed to read {path}: {err}"))
+}
+
+fn assert_contains_all(path: &str, required: &[&str]) {
+    let doc = read_doc(path);
+    for needle in required {
+        assert!(
+            doc.contains(needle),
+            "{path} is missing required text anchor: {needle}"
+        );
+    }
+}
+
+#[test]
+fn proof_documentation_manifest_tracks_required_docs() {
+    for path in [
+        PROOF_CROSSWALK,
+        FORMAL_THEOREM,
+        IDEAL_FUNCTIONALITY,
+        CORRECTNESS_LEMMAS,
+        NOISE_REJECTION,
+        VSS_DKG_PLAN,
+        ACTIVE_ADVERSARY,
+        PHASE_1_NOISE_MODEL,
+    ] {
+        assert!(
+            Path::new(path).is_file(),
+            "required proof documentation file is missing: {path}"
+        );
+    }
+}
+
+#[test]
+fn full_proof_surface_exposes_stable_anchors() {
+    assert_contains_all(
+        FORMAL_THEOREM,
+        &[
+            "# Formal Security Theorem for Threshold ML-DSA-65",
+            "theorem-tmldsa-euf-cma",
+            "assumptions",
+            "limitations",
+            "Theorem FST-T1",
+            "Proof status: not proved in this repository.",
+        ],
+    );
+    assert_contains_all(
+        IDEAL_FUNCTIONALITY,
+        &[
+            "# Ideal Functionality F_TMLDSA",
+            "ideal-functionality-ftmldsa",
+            "## IF-3. Interfaces",
+            "## IF-8. Simulator Obligations",
+        ],
+    );
+    assert_contains_all(
+        CORRECTNESS_LEMMAS,
+        &[
+            "lemma-lagrange-reconstruction",
+            "lemma-standard-verification",
+            "## Lemma 3: Coefficient-Lane Shamir Reconstruction over `R_q`",
+            "## Lemma 7: Standard ML-DSA Verification Compatibility",
+        ],
+    );
+    assert_contains_all(
+        NOISE_REJECTION,
+        &[
+            "noise-bound-obligations",
+            "rejection-sampling-gap",
+            "## Lemma D: Infinity-Norm Bound Preservation",
+            "## Exactly What Remains to Be Proven",
+        ],
+    );
+    assert_contains_all(
+        VSS_DKG_PLAN,
+        &[
+            "vss-security-properties",
+            "dkg-key-bias-resistance",
+            "production-replacement-obligations",
+            "## Current Non-Claims",
+        ],
+    );
+    assert_contains_all(
+        ACTIVE_ADVERSARY,
+        &[
+            "active-adversary-model",
+            "## Corruption Options",
+            "## Rushing Behavior",
+            "## Complaint and Evidence Semantics",
+        ],
+    );
+}
+
+#[test]
+fn proof_crosswalk_maps_obligations_to_code_and_tests() {
+    assert_contains_all(
+        PROOF_CROSSWALK,
+        &[
+            "# Proof Implementation Crosswalk",
+            "## Scope",
+            "## Crosswalk",
+            "## Manifest Anchors",
+            "Transcript binding and Fiat-Shamir challenge derivation",
+            "Canonical validator, commitment, and partial-share sets",
+            "Wire encoding and untrusted-frame rejection",
+            "Aggregation boundary and transcript consistency",
+            "Simulation-only backend and production proof gates",
+            "`src/transcript.rs`",
+            "`src/adapter/wire.rs`",
+            "`src/aggregation.rs`",
+            "`src/backend.rs`",
+            "`tests/transcript_determinism.rs`",
+            "`tests/simulation.rs`",
+            "`tests/simulated_flow.rs`",
+            "`tests/validation.rs`",
+        ],
+    );
+}
+
+#[test]
+fn proof_model_states_current_security_boundary() {
+    assert_contains_all(
+        PHASE_1_NOISE_MODEL,
+        &[
+            "# Phase 1 Threshold ML-DSA-65 Noise-Bound Model",
+            "## Scope",
+            "## ML-DSA-65 Constraint",
+            "## Threshold Signing Requirement",
+            "## Rejection Requirement",
+            "## Production Gates",
+        ],
+    );
+}
