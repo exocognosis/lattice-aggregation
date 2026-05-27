@@ -943,7 +943,7 @@ fn hex_decode_field(
     field: &'static str,
     value: &str,
 ) -> Result<Vec<u8>, HazmatArtifactVerificationError> {
-    if value.len() % 2 != 0 || !value.as_bytes().iter().all(u8::is_ascii_hexdigit) {
+    if !value.len().is_multiple_of(2) || !value.as_bytes().iter().all(u8::is_ascii_hexdigit) {
         return Err(HazmatArtifactVerificationError::InvalidHexField { line, field });
     }
     let mut out = Vec::with_capacity(value.len() / 2);

@@ -24,10 +24,42 @@ out here.
 - **Open**: proof work is not complete and no production claim may rely on it.
 - **Scaffold Evidence Only**: repository artifacts fix an interface,
   transcript shape, or test boundary, but do not prove the cryptographic claim.
+- **Idealized Proof Path**: an immediate theorem may assume an ideal
+  functionality, but no production claim may rely on it as an implementation.
 - **Implementation Gate Only**: code rejects unsafe backend declarations or
   malformed artifacts, but the gate is not a proof of backend security.
 - **Production Blocker**: this obligation must be closed before production
   security, deployment-readiness, or production slashing claims are made.
+
+## Full-Proof Surface Status Overlay
+
+The full-proof surface introduced on 2026-05-27 uses this more granular review
+language when mapping theorem and lemma targets to current repository evidence:
+
+- **implemented engineering guard**: code or tests enforce a scaffold
+  invariant, but no cryptographic proof follows from the guard alone.
+- **proof sketch only**: the repository states a plausible proof shape or
+  lemma, but has not completed a reduction, simulator, or parameter-specific
+  proof.
+- **external theorem dependency**: a final proof must cite and instantiate an
+  external result, such as the accepted ML-DSA-65 security theorem or a
+  selected commitment/proof-system theorem.
+- **open**: no production-facing claim may rely on the obligation.
+
+| Proof surface | Source | Current status | Closure requirement |
+| --- | --- | --- | --- |
+| FST-T1-IdealVSS threshold unforgeability under `F_VSS_DKG` | [formal-security-theorem.md](formal-security-theorem.md), [vss-idealization-and-selection.md](vss-idealization-and-selection.md) | Idealized Proof Path | Complete FST-L1 through FST-L7 under the explicit ideal setup assumption and reduce unauthorized signing to ML-DSA-65 or remaining signing-side assumption violations. This can unblock the signing proof only, not production VSS/DKG. |
+| FST-T1 threshold unforgeability | [formal-security-theorem.md](formal-security-theorem.md) | open | Complete FST-L1 through FST-L7, instantiate assumptions, and reduce forgeries to ML-DSA-65 or selected backend assumptions. Production FST-T1 remains blocked after idealization until concrete VSS/DKG realizes the setup assumptions. |
+| FST-T2 real/ideal realization | [ideal-functionality.md](ideal-functionality.md) | open | Build simulator hybrids for DKG, commitments, partial shares, aborts, evidence, and final signatures. |
+| FST-T3 transcript non-malleability | [formal-security-theorem.md](formal-security-theorem.md), [random-oracle-game.md](random-oracle-game.md) | proof sketch only | Prove typed byte encodings are injective and domain-separated across `H_mu`, `H_w`, `H_c`, `H_vss`, and `H_contrib`. |
+| FST-T4 implementation conformance | [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md) | implemented engineering guard | Keep tests as necessary traceability gates while preserving the boundary that tests do not prove cryptographic security. |
+| Lagrange and Shamir reconstruction | [correctness-lemmas.md](correctness-lemmas.md) | proof sketch only | Prove all nonzero, duplicate-free active sets reconstruct over `Z_q` coefficient lanes and that callers enforce preconditions. |
+| Standard ML-DSA verification compatibility | [correctness-lemmas.md](correctness-lemmas.md), [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Prove accepted threshold transcripts produce `(c, z, h)` accepted by unmodified ML-DSA-65 verification. |
+| Noise and rejection-sampling preservation | [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Bound accepted-signature distribution and selective-abort leakage for the chosen threshold construction. |
+| VSS binding, hiding, and extractability | [vss-dkg-security-plan.md](vss-dkg-security-plan.md) | open | Select and prove a production VSS/DKG relation with complaint soundness and anti-framing semantics. |
+| Static active adversary model | [active-adversary-model.md](active-adversary-model.md) | proof sketch only | Fix exact corruption, rushing, synchrony, and evidence semantics used by the first production theorem. |
+| Adaptive security with erasures | [active-adversary-model.md](active-adversary-model.md) | open | Add erasure points, state exposure rules, and a separate simulator theorem. |
+| Side-channel and constant-time discipline | [side-channel-boundary.md](side-channel-boundary.md) | open | Add leakage-model closure, empirical timing artifacts, code review, compiler-output review, and external audit. |
 
 ## PO-1: Malicious-Secure DKG/VSS
 
@@ -47,6 +79,9 @@ and one consistent set of validator shares for the accepted epoch.
   required game.
 - [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks setup/DKG
   idealization as an open hybrid.
+- [vss-idealization-and-selection.md](vss-idealization-and-selection.md)
+  records the immediate `FST-T1-IdealVSS` route through `F_VSS_DKG`; this is an
+  ideal assumption for the signing proof, not production VSS evidence.
 - The current scaffold includes deterministic VSS/interpolation tests and a
   production policy gate that rejects scaffold VSS backends for
   production-labeled configuration.
@@ -78,7 +113,10 @@ and one consistent set of validator shares for the accepted epoch.
 ### Claim Status
 
 Production Blocker. Current evidence is scaffold evidence and implementation
-gating only; it does not establish malicious-secure DKG or VSS.
+gating only; it does not establish malicious-secure DKG or VSS. The ideal
+`F_VSS_DKG` route may discharge this obligation for the immediate signing proof
+variant labeled `IdealVSS`, but the concrete production VSS/DKG realization
+remains open and not proven.
 
 ## PO-2: Contribution Proof Soundness and Hiding
 
@@ -94,6 +132,10 @@ hiding secret-dependent witness material.
 - [proof-bearing-contribution-boundary.md](proof-bearing-contribution-boundary.md)
   defines the current proof-bearing boundary and the production replacement
   target.
+- [contribution-soundness-relation.md](contribution-soundness-relation.md)
+  defines the production public statement, witness relation, soundness game,
+  extraction target, witness-hiding target, context-binding requirements, and
+  non-claims needed to replace the scaffold.
 - [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks contribution
   proof soundness as an open hybrid.
 - [security-model.md](security-model.md) explicitly states that the current
@@ -134,7 +176,8 @@ hiding secret-dependent witness material.
 
 Production Blocker. Current contribution proofs provide transcript
 digest-binding only and must not be described as sound, hidden, zero-knowledge,
-or production-ready.
+or production-ready. The contribution soundness worksheet fixes the target
+relation for a future backend, but it does not close this obligation.
 
 ## PO-3: Selective-Abort/Retry Bound
 
