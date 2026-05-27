@@ -424,6 +424,93 @@ Transition dependencies:
 - If the extractor cannot classify the output into one of the named cases, the
   residual is `eps_classify`; a completed proof must remove this term.
 
+#### unauthorized-output-classifier
+
+The S7 to S8 classifier is still a proof obligation, not a completed
+reduction. Its intended input is an accepting aggregate output
+`(m*, sigma*, trace*)` for an unauthorized `m*`, including the aggregate
+verification transcript, selected contributors, VSS/DKG references,
+commitments, contribution proofs, random-oracle inputs, collection metadata,
+and evidence frames available to the simulator. The classifier must assign the
+output to exactly one reduction case or leave it in `eps_classify`.
+
+#### eps-classify-decomposition
+
+The residual classifier term should be decomposed into the following named
+cases:
+
+```text
+eps_classify(A,Z)
+ <= eps_cls_mldsa(A,Z)
+  + eps_cls_threshold(A,Z)
+  + eps_cls_vss_dkg(A,Z)
+  + eps_cls_commit(A,Z)
+  + eps_cls_contrib(A,Z)
+  + eps_cls_ro_transcript(A,Z)
+  + eps_cls_collect(A,Z)
+  + eps_cls_evid(A,Z)
+  + eps_cls_unmapped(A,Z)
+```
+
+- `eps_cls_mldsa`: the aggregate verifies as a valid ML-DSA signature for
+  unauthorized `m*`, is not byte-identical to an authorized release for the
+  same message and context, and all threshold-side transcript checks needed to
+  treat `sigma*` as a standalone signature are present. This maps to base
+  ML-DSA EUF-CMA or strong unforgeability.
+- `eps_cls_threshold`: the output needs honest-consistent signing material from
+  fewer than `t` valid in-set contributors, or from shares not authorized by
+  `F_TMLDSA`. This maps to threshold-share soundness.
+- `eps_cls_vss_dkg`: a counted contributor is accepted with a share or public
+  verification key that is not extractable from, or not consistent with, the
+  accepted VSS/DKG transcript. This maps to VSS/DKG binding, agreement,
+  extractability, or key-bias violations.
+- `eps_cls_commit`: an accepted contribution depends on a commitment that is
+  opened inconsistently, rebound across sessions, or otherwise used outside the
+  committed statement. This maps to commitment binding or hiding violations.
+- `eps_cls_contrib`: an accepted partial contribution lacks a valid proof tying
+  the signer, share, message, context, and commitment transcript together. This
+  maps to contribution-proof soundness or extractability violations.
+- `eps_cls_ro_transcript`: verification succeeds only because a challenge,
+  domain separator, context string, or transcript hash is reused, rebound, or
+  programmed inconsistently across `H_mu`, `H_w`, `H_c`, `H_vss`, or
+  `H_contrib`. This maps to random-oracle or transcript-binding violations.
+- `eps_cls_collect`: the aggregate counts an unknown, duplicate, out-of-set,
+  stale, malformed, or incorrectly weighted contribution, or accepts collection
+  metadata that should be rejected. This maps to canonical collection and
+  aggregation-validation violations.
+- `eps_cls_evid`: evidence omission, reordering, replay, or rebinding changes
+  authorization, contributor identity, or acceptance without producing one of
+  the preceding failures. This maps to evidence noninterference or anti-framing
+  violations.
+- `eps_cls_unmapped`: the classifier cannot assign an accepting unauthorized
+  output to any listed reduction case. A completed proof must prove this event
+  has probability zero, then remove `eps_cls_unmapped` and hence remove
+  `eps_classify` from the final theorem.
+
+Closure checklist for eliminating `eps_classify`:
+
+- Define the classifier input tuple, including exact encodings for `m*`,
+  `sigma*`, contributor identities, VSS/DKG references, commitments,
+  contribution proofs, oracle inputs, collection records, and evidence frames.
+- Prove `classifier-totality-obligation`: every accepting unauthorized output
+  either maps to ML-DSA forgery, threshold-share violation, VSS/DKG violation,
+  commitment violation, contribution-proof violation, random-oracle/transcript
+  violation, collection violation, evidence violation, or the explicitly named
+  `eps_cls_unmapped` gap.
+- Prove `classifier-disjointness-obligation`: the case predicates are ordered
+  or made syntactically disjoint so the reduction does not double-charge a
+  single accepting output, especially where collection, contribution-proof,
+  transcript, and evidence failures overlap.
+- For each non-gap case, specify the reduction algorithm, success probability,
+  runtime loss, oracle programming constraints, and which transcript fields are
+  forwarded to the underlying assumption game.
+- Prove that the authorized-release replacement from S6 to S7 gives the
+  classifier a reliable exclusion test for byte-identical authorized outputs
+  and for outputs replayed under a different message, context, or transcript.
+- Prove `eps_cls_unmapped = 0` from the production verification relation and
+  transcript grammar before setting `eps_classify` to zero. Until that proof is
+  supplied, the gap remains open.
+
 For `q_out` adversarial aggregate verification attempts in the final game, the
 classifier target is:
 

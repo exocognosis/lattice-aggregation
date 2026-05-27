@@ -15,6 +15,7 @@ const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
 const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
 const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
+const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
 const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
 const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
@@ -53,6 +54,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         RANDOM_ORACLE_GAME,
         SIDE_CHANNEL_BOUNDARY,
         FORMAL_TRANSCRIPT,
+        CONTRIBUTION_SOUNDNESS,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
         SIMULATOR_HYBRID_REDUCTIONS,
@@ -157,6 +159,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "## Theorem T1: Conditional Accepted-Distribution Bound",
             "Delta_accept",
             "eps_commit",
+            "epsilon-closure-dependency-graph",
+            "eps-mask-closure-route",
+            "eps-rej-closure-route",
+            "eps-withhold-closure-route",
             "## Top Missing Mathematical Bounds",
         ],
     );
@@ -234,6 +240,18 @@ fn full_proof_surface_exposes_stable_anchors() {
         ],
     );
     assert_contains_all(
+        CONTRIBUTION_SOUNDNESS,
+        &[
+            "# Contribution Soundness Relation Worksheet",
+            "contribution-soundness-relation",
+            "csr-production-statement",
+            "csr-soundness-game",
+            "csr-extraction-target",
+            "csr-witness-hiding-target",
+            "csr-non-claims",
+        ],
+    );
+    assert_contains_all(
         PROOF_OBLIGATIONS,
         &[
             "## Full-Proof Surface Status Overlay",
@@ -259,6 +277,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "## SHR-1A. Worksheet Advantage Terms",
             "Adv_real_ideal(A,Z)",
             "eps_classify",
+            "unauthorized-output-classifier",
+            "eps-classify-decomposition",
+            "classifier-totality-obligation",
+            "classifier-disjointness-obligation",
             "## SHR-5. Hardest Remaining Reductions",
         ],
     );
@@ -290,6 +312,7 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
             "Canonical validator, commitment, and partial-share sets",
             "Wire encoding and untrusted-frame rejection",
             "Aggregation boundary and transcript consistency",
+            "Contribution soundness relation target",
             "Simulation-only backend and production proof gates",
             "`src/transcript.rs`",
             "`src/adapter/wire.rs`",

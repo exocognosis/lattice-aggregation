@@ -594,6 +594,189 @@ Exact remaining missing steps:
 - Prove bounded retries do not change the accepted-signature distribution
   except through `eps_retry_limit`.
 
+<a id="epsilon-closure-dependency-graph"></a>
+
+## Epsilon Closure Dependency Graph
+
+Status: conservative closure plan only. The routes below do not prove Theorem
+T1 and do not assert that `eps_mask`, `eps_rej`, or `eps_withhold` are
+negligible. They state what must be true before T1 can be invoked as a
+publication-ready accepted-distribution bound for the H2 through H6 hybrid
+chain.
+
+```text
+H1 algebraic reconstruction
+  -> H2 mask distribution route (eps_mask)
+  -> H3 commit-before-challenge and RO binding (eps_commit, eps_ro)
+  -> H4 exact partial-response reconstruction
+  -> H5 rejection-predicate route (eps_rej)
+  -> H6 withholding and conditioning route (eps_withhold)
+  -> Theorem T1 conditional Delta_accept bound
+```
+
+The graph is intentionally acyclic at the proof-obligation level. `eps_mask`
+is a pre-rejection distribution term and must be closed before conditioning on
+aggregate acceptance. `eps_rej` is a same-candidate predicate-equivalence term
+and depends on H1/H4 algebra plus H5 encoding and verifier equivalence.
+`eps_withhold` is a view and conditioning term at H6 and depends on the H2
+freshness result and the H3 commitment-ordering result, but must not be used
+to hide a mask-distribution or rejection-predicate mismatch.
+
+<a id="eps-mask-closure-route"></a>
+
+### eps-mask-closure-route
+
+Route objective: instantiate Sub-Lemma M so the H1 -> H2 transition in the
+hybrid map can replace centralized ML-DSA-65 mask sampling with threshold
+mask generation before rejection conditioning.
+
+Theorem-style obligation:
+
+```text
+Theorem M-close.
+For every public key, message binding, active set A, retry context rho,
+and adversary allowed by active-adversary-model.md before H_c is queried,
+the production threshold mask generator outputs Y_T such that
+
+Delta((Y_T, HighBits(A_matrix*Y_T), rho),
+      (Y_0, HighBits(A_matrix*Y_0), rho))
+  <= eps_mask_bound(lambda, A, rho),
+
+where Y_0 is the centralized ML-DSA-65 mask distribution and
+eps_mask_bound is either negligible in the security parameter or an explicit
+symbolic summand carried unchanged into T1.
+```
+
+Acceptance criteria:
+
+- The production mask protocol is fixed: additive, Lagrange-weighted, or
+  MPC-generated, with the exact `CombineMask` equation stated.
+- The proof covers the full ML-DSA-65 mask support, coefficient ranges,
+  module dimensions, seed expansion, rejection-retry context, and public
+  high-bit value used by H3.
+- Corrupted pre-challenge contributions are modeled as either fixed public
+  inputs with a quantified bias term or are excluded by a verified protocol
+  rule; the same event is not double-counted in `eps_withhold`.
+- Retry identifiers and mask seeds are injective and fresh across all rejected
+  attempts used by H6 conditioning.
+- The final value of `eps_mask` in T1 is set to zero only if exact equality is
+  proved; otherwise the explicit `eps_mask_bound` remains visible.
+
+Exact blockers:
+
+- No production-level mask-sharing distribution has been selected in this
+  worksheet.
+- The current hazmat aggregation evidence does not prove centralized ML-DSA
+  support, min-entropy, or high-bit distribution for aggregate masks.
+- The retry-freshness and transcript-binding argument is still symbolic.
+- The adversarial pre-challenge bias boundary is not yet separated from
+  selective withholding with a formal game hop.
+
+<a id="eps-rej-closure-route"></a>
+
+### eps-rej-closure-route
+
+Route objective: instantiate Sub-Lemma R so the H4 -> H5 transition in the
+hybrid map can replace centralized rejection by threshold aggregate rejection
+on the same reconstructed candidate values.
+
+Theorem-style obligation:
+
+```text
+Theorem R-close.
+Conditioned on H1 shared-secret reconstruction, H4 partial-response
+reconstruction, and the exact candidate tuple
+(pk, mu, c_tilde, c, z, LowBits(w - c*s2), c*t0, h),
+the production aggregate predicate Reject_T differs from the centralized
+ML-DSA-65 predicate Reject_0 only on explicitly enumerated bad events:
+
+Delta(1[Reject_T], 1[Reject_0])
+  <= eps_bound_encoding
+   + eps_hint_encoding
+   + eps_challenge_encoding
+   + eps_active_set_mismatch
+   + eps_verify_mismatch.
+```
+
+Acceptance criteria:
+
+- The proof fixes whether unmodified standard ML-DSA-65 verification is part
+  of `Reject_T`; if not, `eps_verify_mismatch` remains a separate visible
+  T1 summand or a visible part of `eps_rej`.
+- The strict inequalities for `z`, low bits, `c*t0`, hint weight, and
+  challenge weight are shown bit-for-bit equivalent to the standard ML-DSA-65
+  predicate under the same centered representatives.
+- `LowBits`, `HighBits`, `MakeHint`, challenge sampling, signature packing,
+  and verifier input formation are canonical over every module coefficient,
+  not only tested examples.
+- The active set bound into commitments, challenge derivation, contribution
+  proofs, reconstruction, and final aggregation is the same set `A`.
+- Every malformed, duplicate, stale, noncanonical, or boundary-value input is
+  either rejected before output or charged to one of the displayed bad events.
+
+Exact blockers:
+
+- The worksheet has not yet supplied a full verifier-equivalence proof for the
+  final wire signature.
+- Boundary coverage for the strict norm thresholds and hint/challenge
+  encodings remains evidence work, not a theorem.
+- The active-set equality proof across H3, H4, and H5 is still open.
+- The final theorem has not decided whether `eps_verify` is absorbed into
+  `eps_rej` or remains separate from T1.
+
+<a id="eps-withhold-closure-route"></a>
+
+### eps-withhold-closure-route
+
+Route objective: instantiate Sub-Lemma W so the H5 -> H6 transition in the
+hybrid map can condition on accepted aggregate signatures without hiding a
+selective-abort bias in the accepted distribution.
+
+Theorem-style obligation:
+
+```text
+Theorem W-close.
+For the production corruption model, network abstraction, retry limit R_max,
+timeout/exclusion policy, and abort-observable set O_abort, there exists a
+simulator Sim that produces the adversary-visible H6 abort transcript from
+public data and allowed leakage such that
+
+Delta(View_with_abort_labels, SimulatedView)
+  + Pr[withholding changes the conditioned challenge or accepted-signature
+       distribution outside O_abort]
+  <= eps_withhold_bound(lambda, R_max, O_abort).
+```
+
+Acceptance criteria:
+
+- The proof states static versus adaptive corruption, rushing power, timeout
+  semantics, signer exclusion rules, and the exact retry cap used by H6.
+- Every observable abort label, evidence record, retry count, message size,
+  and timing category is either simulated from public data or explicitly
+  placed outside the distribution theorem as availability or side-channel
+  leakage.
+- Withholding before `H_c`, after `H_c`, and after partial contribution
+  publication is separated into the symbolic terms
+  `eps_withhold_commit`, `eps_withhold_challenge`, and `eps_abort_labels`.
+- The simulator never needs honest secret shares or honest masks, relying only
+  on H2 freshness, H3 commitment binding, H4 reconstruction soundness, and H5
+  predicate equivalence.
+- Bounded retries are proved to preserve the accepted distribution except for
+  the explicit `eps_retry_limit` term, and denial-of-service probability is
+  stated separately from `Delta_accept`.
+
+Exact blockers:
+
+- The production network and timeout/exclusion policy are not fixed in this
+  worksheet.
+- The abort transcript and side-channel boundary are not yet theorem-level
+  objects.
+- No simulator is currently defined for participant-specific abort labels or
+  evidence records.
+- The bounded-retry conditioning bound is still symbolic and cannot be
+  declared negligible without a concrete `R_max`, acceptance probability lower
+  bound, and freshness proof.
+
 ## Evidence and Remaining Work
 
 | Bound or term | Current evidence | Remaining proof work |

@@ -406,6 +406,26 @@ the simulator and retry-limit bound remain open.
 | H5 aggregate rejection predicate | Proof sketch with hazmat rejection checks; exact verifier-equivalence proof open. | `eps_rej` formalized symbolically; predicate-equivalence proof open. |
 | H6 accepted-signature distribution | Open. Distribution equivalence is not complete. | `Delta_accept` theorem shape and `eps_withhold` decomposition formalized; accepted-distribution proof open. |
 
+## RSH-4.1. Epsilon Closure Routes
+
+Status: dependency map for future proof closure, not a completed proof. The
+formal route details and acceptance criteria are recorded in
+[`rejection-sampling-bounds.md#epsilon-closure-dependency-graph`](rejection-sampling-bounds.md#epsilon-closure-dependency-graph).
+
+| Closure route | Hybrid edge | Required endpoint before invoking T1 |
+| --- | --- | --- |
+| [`eps-mask-closure-route`](rejection-sampling-bounds.md#eps-mask-closure-route) | H1 -> H2 | A theorem or explicit bound comparing the aggregate threshold mask and public high-bit distribution to centralized ML-DSA-65 before rejection conditioning. |
+| [`eps-rej-closure-route`](rejection-sampling-bounds.md#eps-rej-closure-route) | H4 -> H5 | A theorem or explicit bound that `Reject_T` and `Reject_0` differ only on enumerated encoding, active-set, challenge, hint, bound, or verifier-mismatch bad events. |
+| [`eps-withhold-closure-route`](rejection-sampling-bounds.md#eps-withhold-closure-route) | H5 -> H6 | A simulator and retry-conditioning theorem, or explicit bound, for abort labels, withholding, timeout/exclusion behavior, and bounded retries. |
+
+These routes are ordered dependencies for the conditional Theorem T1 bound:
+`eps_mask` must be closed before using H6 conditioning, `eps_rej` must be
+closed on the same reconstructed candidate tuple produced by H4, and
+`eps_withhold` must be closed without absorbing mask-distribution or
+rejection-predicate gaps. If any route ends in an explicit non-negligible
+bound rather than a negligible term, that bound remains visible in T1's final
+`Delta_accept` statement.
+
 ## RSH-5. Links to Other Proof Documents
 
 - `noise-rejection-proof-plan.md` tracks the noise-bound and rejection

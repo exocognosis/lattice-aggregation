@@ -28,6 +28,7 @@ proof phase.
 | Canonical validator, commitment, and partial-share sets | Set construction must reject duplicate, unknown, insufficient, or mismatched validators so aggregation cannot mix signers or commitments across universes. | `src/collections.rs`, `src/types.rs`, `src/errors.rs` | `tests/validation.rs`, `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Implemented as Rust API validation and error checks. |
 | Wire encoding and untrusted-frame rejection | Network-facing frames must use crate-owned versioned encodings, reject malformed or oversized inputs, and preserve replay-relevant context fields. | `src/adapter/wire.rs`, `src/serialization.rs`, `src/adapter/evidence.rs` | `tests/simulation.rs`, `tests/validation.rs`, `tests/low_level.rs` | Implemented for scaffold adapter frames and commitment payloads. |
 | Aggregation boundary and transcript consistency | Aggregation must receive a bound transcript and a threshold-valid partial-share set, then reject shares that do not match transcript validators or public key context. | `src/aggregation.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/ui/type_state_invalid_aggregate.rs`, `tests/ui/type_state_invalid_partial.rs` | Implemented for deterministic simulation backend and compile-fail state transitions. |
+| Contribution soundness relation target | Accepted production contributions must verify against a public statement and relation that proves context binding, share consistency, partial-equation correctness, extraction or equivalent soundness, and witness hiding. | `src/crypto/contribution_proof.rs`, `src/crypto/production_policy.rs`, `src/adapter/wire.rs`, `src/adapter/actor.rs`, `docs/cryptography/contribution-soundness-relation.md` | `tests/contribution_proof.rs`, `tests/production_policy.rs`, `tests/hazmat_mldsa65_wire.rs` | Documented as a production replacement target only; current transcript-hash scaffold is not sound, extractable, or witness hiding. |
 | Simulation-only backend and production proof gates | The repository must not present deterministic simulation behavior as production threshold ML-DSA security. Production use requires a selected protocol, completed proof, verifier compatibility, timing review, and external cryptographic review. | `src/backend.rs`, `src/dkg.rs`, `src/crypto/vss.rs`, `docs/cryptography/phase-1-noise-bound-model.md`, `docs/audit/tcb.md` | `tests/simulated_flow.rs`, `tests/simulation.rs`, `tests/low_level.rs`, `tests/proof_documentation_manifest.rs` | Open proof obligation; current code and docs are scoped to research scaffold claims. |
 
 ## Transcript Binding and Fiat-Shamir Challenge Derivation
@@ -96,6 +97,9 @@ The following obligations remain outside the implemented security claim:
   anti-framing guarantees.
 - A production contribution-proof or MPC verification boundary that is sound,
   hiding where required, and externally reviewed.
+- Closure of the documented `eps_mask`, `eps_rej`, `eps_withhold`, and
+  `eps_classify` routes before claiming the accepted threshold distribution or
+  real/ideal theorem is proven.
 - Constant-time, side-channel, randomness, erasure, and authenticated-transport
   review for a selected production backend.
 
@@ -112,6 +116,7 @@ stable contract for this file:
 - `Canonical validator, commitment, and partial-share sets`
 - `Wire encoding and untrusted-frame rejection`
 - `Aggregation boundary and transcript consistency`
+- `Contribution soundness relation target`
 - `Simulation-only backend and production proof gates`
 
 Keep these anchors stable when reorganizing this document, or update

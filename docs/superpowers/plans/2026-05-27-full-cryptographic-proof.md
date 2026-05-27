@@ -294,3 +294,55 @@ The project may claim "cryptographically proven construction" only after all of 
 - [x] Tighten S6 to S7 and S7 to S8 transition dependencies.
 - [x] Add a theorem-style consolidated `Adv_real_ideal(A,Z)` bound while
   keeping `eps_classify` as an explicit unresolved classifier gap.
+
+## Parallel Batch 6: Proof Gap Closure Routes
+
+### Task 20: Epsilon Closure Routes
+
+**Files:**
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+
+- [x] Add `epsilon-closure-dependency-graph` linking H1 through H6 proof
+  dependencies.
+- [x] Add conservative theorem-style closure routes for `eps_mask`,
+  `eps_rej`, and `eps_withhold`.
+- [x] State acceptance criteria and exact blockers for making each term
+  negligible or carrying an explicit symbolic bound.
+
+### Task 21: Contribution Soundness Relation Target
+
+**Files:**
+- Create: `docs/cryptography/contribution-soundness-relation.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+
+- [x] Define the production public statement, witness relation, soundness game,
+  extraction target, witness-hiding/simulation target, context-binding
+  requirements, and non-claims.
+- [x] Link the worksheet into the proof obligation, claims, and crosswalk
+  surfaces while preserving scaffold-only status for current contribution
+  proofs.
+
+### Task 22: Unauthorized Output Classifier Route
+
+**Files:**
+- Modify: `docs/cryptography/simulator-hybrid-reductions.md`
+
+- [x] Decompose `eps_classify` into named classifier cases.
+- [x] Add totality and disjointness obligations for mapping every unauthorized
+  accepting output to a base ML-DSA forgery or named threshold-side assumption
+  violation.
+- [x] Keep `eps_cls_unmapped` explicit until a production verification grammar
+  proves no accepting output remains unclassified.
+
+### Task 23: Manifest Integration
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add the contribution soundness worksheet to the required proof document
+  manifest.
+- [x] Add stable anchors for epsilon closure routes and unauthorized-output
+  classifier obligations.

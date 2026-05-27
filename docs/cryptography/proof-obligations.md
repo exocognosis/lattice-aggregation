@@ -132,6 +132,10 @@ hiding secret-dependent witness material.
 - [proof-bearing-contribution-boundary.md](proof-bearing-contribution-boundary.md)
   defines the current proof-bearing boundary and the production replacement
   target.
+- [contribution-soundness-relation.md](contribution-soundness-relation.md)
+  defines the production public statement, witness relation, soundness game,
+  extraction target, witness-hiding target, context-binding requirements, and
+  non-claims needed to replace the scaffold.
 - [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks contribution
   proof soundness as an open hybrid.
 - [security-model.md](security-model.md) explicitly states that the current
@@ -172,7 +176,8 @@ hiding secret-dependent witness material.
 
 Production Blocker. Current contribution proofs provide transcript
 digest-binding only and must not be described as sound, hidden, zero-knowledge,
-or production-ready.
+or production-ready. The contribution soundness worksheet fixes the target
+relation for a future backend, but it does not close this obligation.
 
 ## PO-3: Selective-Abort/Retry Bound
 
