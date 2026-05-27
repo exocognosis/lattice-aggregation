@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the initial `lattice-aggregation` Rust crate with research-grade threshold ML-DSA-65 API boundaries, type-state signing flow, canonical transcript validation, and a deterministic simulation backend.
+**Goal:** Build the initial `dytallix-pq-threshold` Rust crate with research-grade threshold ML-DSA-65 API boundaries, type-state signing flow, canonical transcript validation, and a deterministic simulation backend.
 
 **Architecture:** The crate exposes production-shaped public traits and opaque types while keeping cryptographic internals behind backend traits. The first backend is deterministic simulation only, so tests can exercise DKG, signing, transcript, validation, and aggregation behavior without claiming audited threshold ML-DSA security.
 
@@ -43,14 +43,14 @@ Create `Cargo.toml` with:
 
 ```toml
 [package]
-name = "lattice-aggregation"
+name = "dytallix-pq-threshold"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
 description = "Research-grade threshold ML-DSA-65 API boundary and simulation backend"
 
 [lib]
-name = "lattice_aggregation"
+name = "dytallix_pq_threshold"
 path = "src/lib.rs"
 
 [features]
@@ -133,7 +133,7 @@ git commit -m "chore: scaffold threshold ML-DSA crate"
 Create `tests/validation.rs` with:
 
 ```rust
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     ThresholdError, ValidatorId, COMMITMENT_BYTES, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, POLY_SEED_BYTES,
 };
@@ -341,7 +341,7 @@ git commit -m "feat: add threshold core types and errors"
 Append to `tests/validation.rs`:
 
 ```rust
-use lattice_aggregation::{Commitment, CommitmentSet, PartialShareSet, PartialSignatureShare};
+use dytallix_pq_threshold::{Commitment, CommitmentSet, PartialShareSet, PartialSignatureShare};
 
 fn validators() -> Vec<ValidatorId> {
     vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)]
@@ -583,7 +583,7 @@ git commit -m "feat: validate threshold protocol collections"
 Create `tests/transcript_determinism.rs` with:
 
 ```rust
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     Commitment, CommitmentSet, SigningTranscript, ThresholdPublicKey, ValidatorId,
 };
 
@@ -693,7 +693,7 @@ use crate::{
     types::{Challenge, SessionId, ThresholdPublicKey, ValidatorId},
 };
 
-const PROTOCOL_LABEL: &[u8] = b"lattice-aggregation/threshold-mldsa65";
+const PROTOCOL_LABEL: &[u8] = b"dytallix-threshold-mldsa65";
 const PROTOCOL_VERSION: u16 = 1;
 
 /// Fully bound signing transcript.
@@ -835,7 +835,7 @@ git commit -m "feat: derive canonical signing transcripts"
 Create `tests/simulated_flow.rs` with:
 
 ```rust
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     CommitmentSet, Mldsa65Backend, PrivateKeyShare, SigningTranscript, SimulatedBackend,
     ThresholdPublicKey, ValidatorId,
 };
@@ -847,7 +847,7 @@ fn simulated_backend_derives_repeatable_commitment() {
     let commitments = CommitmentSet::new(
         vec![ValidatorId(1), ValidatorId(2)],
         1,
-        vec![(ValidatorId(1), lattice_aggregation::Commitment([1; 32]))],
+        vec![(ValidatorId(1), dytallix_pq_threshold::Commitment([1; 32]))],
     )
     .unwrap();
     let transcript = SigningTranscript::new(
@@ -1043,7 +1043,7 @@ git commit -m "feat: add simulated ML-DSA backend boundary"
 Append to `tests/simulated_flow.rs`:
 
 ```rust
-use lattice_aggregation::{SigningSession, ThresholdSigner};
+use dytallix_pq_threshold::{SigningSession, ThresholdSigner};
 
 #[test]
 fn signing_session_advances_through_commitment_and_partial_rounds() {
@@ -1056,12 +1056,12 @@ fn signing_session_advances_through_commitment_and_partial_rounds() {
     let commitments = CommitmentSet::new(
         validators,
         2,
-        vec![(ValidatorId(1), local_commitment), (ValidatorId(2), lattice_aggregation::Commitment([2; 32]))],
+        vec![(ValidatorId(1), local_commitment), (ValidatorId(2), dytallix_pq_threshold::Commitment([2; 32]))],
     )
     .unwrap();
 
     let (awaiting_partials, partial) =
-        lattice_aggregation::SigningSession::generate_partial_signature(
+        dytallix_pq_threshold::SigningSession::generate_partial_signature(
             awaiting,
             commitments,
             b"block payload",
@@ -1300,7 +1300,7 @@ git commit -m "feat: add type-state signing protocol"
 Append to `tests/simulated_flow.rs`:
 
 ```rust
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     PartialShareSet, SignatureAggregator, SimulatedAggregator, SimulatedDkg,
     ThresholdKeyGeneration, ThresholdSignature,
 };
@@ -1313,7 +1313,7 @@ fn simulated_dkg_sign_and_aggregate_flow_returns_standard_size_signature() {
     let dkg_commitment = SimulatedDkg::generate_share_commitment(session_id, 3).unwrap();
     let dkg_shares = CommitmentSet::new(validators.clone(), 2, vec![
         (ValidatorId(1), dkg_commitment),
-        (ValidatorId(2), lattice_aggregation::Commitment([22; 32])),
+        (ValidatorId(2), dytallix_pq_threshold::Commitment([22; 32])),
     ]).unwrap();
     let public_key = SimulatedDkg::finalize_public_key(dkg_shares).unwrap();
 
@@ -1335,7 +1335,7 @@ fn simulated_dkg_sign_and_aggregate_flow_returns_standard_size_signature() {
     let (_state_2, partial_2) =
         SigningSession::generate_partial_signature(awaiting_2, commitments.clone(), b"block").unwrap();
 
-    let transcript = lattice_aggregation::ThresholdSigningTranscript::new(
+    let transcript = dytallix_pq_threshold::ThresholdSigningTranscript::new(
         session_id,
         2,
         validators.clone(),
@@ -1516,7 +1516,7 @@ git commit -m "feat: add simulated DKG and aggregation APIs"
 Append to `tests/validation.rs`:
 
 ```rust
-use lattice_aggregation::serialization::{decode_commitment_payload, encode_commitment_payload};
+use dytallix_pq_threshold::serialization::{decode_commitment_payload, encode_commitment_payload};
 
 #[test]
 fn commitment_payload_round_trips_with_version_and_validator() {
@@ -1648,7 +1648,7 @@ fn invalid_type_state_calls_do_not_compile() {
 Create `tests/ui/type_state_invalid_partial.rs` with:
 
 ```rust
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     CommitmentSet, PrivateKeyShare, SigningSession, ThresholdPublicKey, ValidatorId,
 };
 
@@ -1672,7 +1672,7 @@ fn main() {
 Create `tests/ui/type_state_invalid_aggregate.rs` with:
 
 ```rust
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     CommitmentSet, PrivateKeyShare, SigningSession, ThresholdPublicKey, ValidatorId,
 };
 
@@ -1687,7 +1687,7 @@ fn main() {
     )
     .unwrap();
     let commitments = CommitmentSet::new(validators, 1, vec![]).unwrap();
-    let _ = lattice_aggregation::SigningSession::generate_partial_signature(
+    let _ = dytallix_pq_threshold::SigningSession::generate_partial_signature(
         session,
         commitments,
         b"message",

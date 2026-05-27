@@ -1,72 +1,71 @@
-# Lattice Aggregation
+# ML-DSA Lattice Aggregator
 
-Research-grade Rust scaffolding for threshold post-quantum signature aggregation over lattice-based ML-DSA-65 style primitives.
+Research scaffold for threshold-style ML-DSA-65 protocol integration in Rust.
+The crate provides typed signing-session boundaries, simulated and hazmat
+backend paths, actor/wire adapters, deterministic Section V artifact exporters,
+and claim-boundary documentation for review.
 
-This repository explores the API boundaries, state machines, wire formats, actor integration points, and audit surface needed for threshold signing in distributed validator systems. The current implementation uses a deterministic simulation backend so protocol flow, validation, transcript binding, and aggregation behavior can be tested without claiming production cryptographic security.
+## Warning
 
-[![CI](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml/badge.svg)](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+This repository is a publishable research artifact scaffold. It is not
+production-ready, not an audited implementation, and not a security proof for
+threshold ML-DSA-65. The current code and tests provide engineering evidence for
+the documented artifact boundary only. Production security still depends on the
+open proof, backend replacement, audit, side-channel, and external review work
+tracked in the linked proof obligations.
+Those obligations include malicious-secure DKG, contribution proof soundness,
+side-channel review, and external cryptographic review.
 
-## What This Is
+## Quickstart
 
-Lattice Aggregation is a research and engineering scaffold for:
+Run from the repository root:
 
-- threshold ML-DSA-65 signing protocol experiments
-- deterministic transcript and challenge binding
-- canonical commitment and partial-share collection
-- simulated distributed key generation and signing flows
-- async validator actor integration with P2P and consensus adapters
-- audit-oriented documentation for trusted computing base and attack surface review
+```bash
+export CARGO_TARGET_DIR=/tmp/dytallix-pq-threshold-target
+export CARGO_INCREMENTAL=0
 
-## Current Status
-
-This is not production cryptography.
-
-The default backend is deterministic simulation machinery. It produces stable, standard-size byte outputs for testing protocol behavior, but it does not produce or verify real ML-DSA signatures. Treat this repository as a research scaffold for protocol design, integration testing, benchmarking shape, and review preparation.
-
-## Quick Start
-
-```sh
-cargo test
+scripts/reproduce-section-v.sh
 ```
 
-Run the included experiment harness:
+The reproduction script regenerates Section V output into a temporary file,
+checks the checked-in sample bundle checksum, runs artifact verifier tests, and
+prints a digest for the regenerated output.
 
-```sh
-cargo run
+Useful local checks:
+
+```bash
+cargo fmt --check
+cargo clippy -j1 --all-targets --all-features -- -D warnings
+cargo test -j1 --all-features
 ```
 
-The harness prints LaTeX tables and PGFPlots-compatible CSV for simulated threshold signing sessions across small, mid-scale, and adversarial cluster profiles.
+## Review Map
 
-## Repository Map
+- [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
+- [Claims matrix](docs/cryptography/claims-matrix.md)
+- [Audit packet](docs/audit/README.md)
+- [Proof obligations](docs/cryptography/proof-obligations.md)
+- [Reproducibility manifest](docs/benchmarks/reproducibility-manifest.md)
+- [Section V sample bundle](docs/benchmarks/artifacts/section-v-sample-output.txt)
+- [Section V sample checksum](docs/benchmarks/artifacts/SHA256SUMS)
 
-- `src/backend.rs`: backend trait boundary and deterministic simulation backend
-- `src/protocol.rs`: type-state signing session flow
-- `src/aggregation.rs`: partial-share aggregation interface
-- `src/dkg.rs`: simulated distributed key generation scaffold
-- `src/adapter/`: async actor, wire messages, consensus and P2P adapter traits, and evidence types
-- `src/crypto/`: interpolation and verifiable-secret-sharing support code
-- `src/low_level/`: polynomial primitives used by lower-level experiments
-- `tests/`: simulation, validation, transcript determinism, type-state, and low-level coverage
-- `docs/audit/`: reviewer packet for attack surface and trusted computing base analysis
-- `docs/cryptography/`: cryptographic notes and proof-model work in progress
+## Feature Gates
 
-## Design Boundaries
+- `hazmat-real-mldsa`: enables the local hazmat ML-DSA-65 backend used for
+  experiments, verifier-compatibility checks, actor simulations, and Section V
+  artifact generation. This is implementation evidence only and is not a
+  production cryptographic module or FIPS validation claim.
+- `experimental-vss`: enables experimental VSS complaint-evidence artifacts and
+  structural checks. These artifacts are research scaffolding only and are not a
+  production VSS relation proof, malicious-secure DKG, or production slashing
+  mechanism.
 
-The repository separates protocol shape from cryptographic backend implementation:
+## Artifact Boundary
 
-- public APIs make transcript, validator set, threshold, commitment, and partial-share relationships explicit
-- deterministic simulation lets tests assert stable behavior without relying on live cryptographic randomness
-- type-state transitions prevent generating partials or aggregates from invalid session states
-- adapter traits keep networking and consensus effects outside the core protocol model
-- audit docs state what reviewers should trust, what is simulated, and what still needs production hardening
+The supported claim is narrow: this repository demonstrates a reproducible Rust
+research scaffold with feature-gated hazmat ML-DSA-65 conformance paths,
+deterministic simulations, transcript artifacts, evidence-shaping paths, and
+fail-closed production policy boundaries.
 
-## Relevant GitHub Topics
-
-`rust`, `post-quantum`, `cryptography`, `threshold-signatures`, `mldsa`, `dilithium`, `lattice-cryptography`, `distributed-systems`, `validator`, `research`
-
-## Contributing
-
-Contributions should keep claims precise. If a change touches cryptographic behavior, transcript construction, validation logic, or wire formats, include tests and update the relevant audit notes.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md) before opening larger changes.
+Do not describe the current artifact as a secure, production-ready,
+malicious-secure threshold ML-DSA-65 signature scheme.

@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 use crate::adapter::{evidence::SlashingEvidence, wire::PqcThresholdWireMsg};
 
-/// Boundary expected from the production P2P network layer.
+/// Boundary expected from the Dytallix P2P network layer.
 #[async_trait]
 pub trait P2pNetworkAdapter: Send + Sync + 'static {
     /// Adapter-specific network error.
@@ -17,7 +17,7 @@ pub trait P2pNetworkAdapter: Send + Sync + 'static {
     async fn send_to(&self, target: u16, msg: PqcThresholdWireMsg) -> Result<(), Self::Error>;
 }
 
-/// Boundary expected from the production consensus and state engine.
+/// Boundary expected from the Dytallix consensus and state engine.
 #[async_trait]
 pub trait ConsensusStateAdapter: Send + Sync + 'static {
     /// Adapter-specific consensus/state error.

@@ -21,11 +21,10 @@ use crate::{
     },
 };
 
-const COMMITMENT_LABEL: &[u8] = b"lattice-aggregation/threshold-mldsa65/simulated/commitment";
-const PARTIAL_SIGNATURE_LABEL: &[u8] =
-    b"lattice-aggregation/threshold-mldsa65/simulated/partial-signature";
+const COMMITMENT_LABEL: &[u8] = b"dytallix-threshold-mldsa65/simulated/commitment";
+const PARTIAL_SIGNATURE_LABEL: &[u8] = b"dytallix-threshold-mldsa65/simulated/partial-signature";
 const AGGREGATE_SIGNATURE_LABEL: &[u8] =
-    b"lattice-aggregation/threshold-mldsa65/simulated/aggregate-signature";
+    b"dytallix-threshold-mldsa65/simulated/aggregate-signature";
 const PARTIAL_SIGNATURE_BYTES: usize = 64;
 
 /// Secret retained between simulated commitment derivation and partial signing.

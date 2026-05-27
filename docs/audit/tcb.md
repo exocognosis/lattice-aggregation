@@ -1,171 +1,105 @@
 # Trusted Computing Base
 
-Date: 2026-05-26
+Date: 2026-05-27
 
-## Scope
+## Status
 
-This document identifies what a reviewer would need to trust for the current
-research scaffold and feature-gated hazmat ML-DSA-65 backend. It is a triage
-aid, not an audit result, certification statement, or production-readiness
-claim.
+This document describes the trusted computing base for the current research
+artifact. The crate is not production-ready. The TCB below supports review of
+the scaffold, hazmat backend, simulation harnesses, and publication artifacts;
+it is not a deployment certification boundary.
 
-The authoritative claim boundaries remain in
-[claims-matrix.md](../cryptography/claims-matrix.md),
-[protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md), and
-[release-readiness-checklist.md](../benchmarks/release-readiness-checklist.md).
+## Trusted Computing Base
 
-## Current TCB
+For current research claims, reviewers should treat these components as inside
+the trusted computing base:
 
-The current TCB for research-review purposes includes:
-
-- Rust compiler, Cargo feature resolution, and build profile selection.
-- Runtime dependencies in `Cargo.toml`: `async-trait`, `serde`, `sha2`, `sha3`,
-  `thiserror`, `tokio`, and `zeroize`.
-- Test-only or development dependencies when evaluating conformance evidence:
-  `ml-dsa`, `serde_json`, and `trybuild`.
-- `src/types.rs`, `src/errors.rs`, and shared protocol types used by wire,
-  actor, and crypto paths.
-- `src/adapter/wire.rs` for canonical frame encoding and decoding.
-- `src/adapter/actor.rs`, `src/adapter/traits.rs`, and
-  `src/adapter/evidence.rs` for actor behavior, external adapter assumptions,
-  and evidence payloads.
-- `src/low_level/mldsa65.rs` and `src/low_level/poly.rs` when
-  `hazmat-real-mldsa` is enabled.
-- `src/crypto/contribution_proof.rs`, `src/crypto/vss.rs`,
-  `src/crypto/interpolation.rs`, and `src/crypto/production_policy.rs` for
-  scaffold proof/VSS relations, interpolation, and production policy gates.
-- `src/utils/hazmat_artifacts.rs`, `src/utils/hazmat_simulation.rs`,
-  `src/utils/hazmat_fuzz.rs`, `src/utils/exporter.rs`, and `src/main.rs` for
-  reproducibility artifacts and benchmark harness behavior.
-- The cryptography and benchmark docs that define current claims, non-claims,
-  and review boundaries.
-
-This TCB is intentionally broad because the project is a scaffold: claim
-accuracy depends on code behavior, feature gates, tests, harnesses, and docs
-remaining aligned.
+- ML-DSA-65 hazmat arithmetic, packing, unpacking, contribution, aggregation,
+  and verifier compatibility code in `src/low_level/mldsa65.rs`.
+- Polynomial and interpolation helpers in `src/low_level/poly.rs`,
+  `src/crypto/vss.rs`, and `src/crypto/interpolation.rs`.
+- Transcript, wire, actor, and evidence state transitions in `src/adapter/`.
+- Production policy gates in `src/crypto/production_policy.rs`.
+- Artifact exporters and verifiers in `src/utils/hazmat_artifacts.rs`,
+  `src/utils/hazmat_simulation.rs`, and `src/utils/exporter.rs`.
+- Manifest and claim-boundary tests in `tests/protocol_spec_manifest.rs`,
+  `tests/reproducibility_manifest.rs`, `tests/section_v_sample_bundle.rs`,
+  and `tests/audit_manifest.rs`.
 
 ## Dependency Assumptions
 
-Reviewers should treat dependency behavior as assumed rather than proven by
-this repository:
+Current review assumes:
 
-- `sha2` and `sha3` implement the hash and XOF primitives used for transcript,
-  statement, and artifact digests.
-- `serde` and `serde_json` correctly serialize and parse benchmark artifacts
-  where used, but canonical cryptographic frame encodings are local code and
-  must be reviewed directly.
-- `tokio` scheduling in tests and harnesses is not a production network model.
-- `zeroize` availability does not by itself prove reliable erasure or adaptive
-  security.
-- `ml-dsa` is a dev-dependency for differential or regression evidence; it is
-  not a validation authority for this implementation.
-- Cargo feature resolution is part of the trust boundary. Reviewers should test
-  intended feature combinations explicitly.
+- Rust compiler and standard library behavior match the tested toolchain.
+- Hash implementations used for transcript and artifact digests behave as
+  specified by their crates.
+- Tokio and async-trait behavior is trusted for the in-memory actor tests.
+- Test fixtures and checked-in Section V sample artifacts are not maliciously
+  replaced outside Git review.
 
-No dependency assumption substitutes for formal proof, side-channel review, or
-external cryptographic audit.
+These assumptions are sufficient for research reproducibility review. A
+production deployment would require dependency pinning policy, supply-chain
+review, build reproducibility requirements, and operational key-management
+review.
 
 ## Feature-Gate Risks
 
-Feature gates are security-relevant because they decide which scaffold and
-hazmat paths are compiled:
+Feature-gate risks are part of the TCB because `hazmat-real-mldsa` and
+`experimental-vss` expose production-shaped data flows while remaining
+research-only.
 
-- `simulated` is enabled by default and supports scaffold behavior only.
-- `hazmat-real-mldsa` enables local ML-DSA-65 internals and typed hazmat actor
-  rounds. This is the main implementation review target, but it is still
-  experimental.
-- `hazmat-real-mldsa` implies `hazmat`; neither gate should be treated as
-  production approval.
-- `experimental-vss` enables structural VSS complaint artifacts and
-  experimental statement/opening/proof encodings. It does not implement
-  malicious-secure VSS.
-- Production-labeled construction must fail closed through
-  `require_production_threshold_backends` and related backend policy gates.
-  Passing those gates is a configuration check, not proof of production
-  security.
+Review files:
 
-Triage should look for accidental default exposure, docs that omit feature
-conditions, tests that only cover one feature combination, and public APIs that
-make scaffold backends appear production-approved.
+- `Cargo.toml`
+- `src/utils.rs`
+- `src/crypto/production_policy.rs`
+- `tests/production_policy.rs`
 
-## High-Priority Review Files
+Required behavior: production-labeled configuration must reject scaffold VSS
+and contribution-proof backends. Enabling a feature gate must not be described
+as enabling production security.
 
-Start with these files for security triage:
+## Review Files
 
-| File | Why it is high priority |
-| --- | --- |
-| `Cargo.toml` | Feature-gate graph, dependency set, and default behavior. |
-| `src/adapter/wire.rs` | Untrusted byte parsing, canonical frame encoding, replay/context fields, and proof-bound hazmat variants. |
-| `src/adapter/actor.rs` | State machine, quorum behavior, strict commitment enforcement, evidence emission, and production-checked configuration. |
-| `src/low_level/mldsa65.rs` | Hazmat ML-DSA-65 arithmetic, encodings, contribution validation, aggregation, and verification compatibility. |
-| `src/crypto/contribution_proof.rs` | Transcript-hash proof scaffold, production statement serialization, digest binding, and production proof gate. |
-| `src/crypto/vss.rs` | VSS/interpolation scaffold, production VSS relation statement, experimental complaint artifacts, and VSS backend policy. |
-| `src/crypto/production_policy.rs` | Combined production backend policy report and fail-closed enforcement. |
-| `src/adapter/evidence.rs` | Evidence payload encoding and fields that could become consensus-facing. |
-| `src/utils/hazmat_artifacts.rs` | Artifact replay checks, frame digest verification, and experimental complaint export verification. |
-| `src/utils/hazmat_simulation.rs` | Deterministic network/adversary model used by Section V-style results. |
-| `src/main.rs` | Feature-gated benchmark/export entrypoint and sample artifact generation behavior. |
+High-priority review files:
 
-The crosswalk in
-[protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md)
-maps these files to protocol rounds and tests.
+- `src/low_level/mldsa65.rs`
+- `src/adapter/actor.rs`
+- `src/adapter/wire.rs`
+- `src/crypto/contribution_proof.rs`
+- `src/crypto/vss.rs`
+- `src/crypto/production_policy.rs`
+- `src/utils/hazmat_artifacts.rs`
+- `docs/cryptography/claims-matrix.md`
+- `docs/cryptography/proof-obligations.md`
+- `docs/cryptography/protocol-code-crosswalk.md`
+- `docs/benchmarks/release-readiness-checklist.md`
 
-## What Is Outside Production Trust Today
+These files are the best starting points for checking implementation behavior,
+claim boundaries, and whether production blockers are still open.
 
-The following are explicitly outside the production TCB because production trust
-has not been established:
+## Non-Production Boundaries
 
-- The deterministic VSS/DKG scaffold as malicious-secure DKG.
-- Transcript-hash contribution proofs as sound, hiding, zero-knowledge, or
-  valid-share proofs.
-- Experimental VSS complaint artifacts as production slashing evidence.
-- Raw hazmat contribution payloads as production MPC-compatible messages.
-- Simulated P2P and consensus harnesses as authenticated transport or
-  consensus integration.
-- Deterministic benchmark seeds and schedules as production randomness.
-- Benchmark tables, JSONL/CSV artifacts, and checksums as cryptographic
-  security evidence.
-- `zeroize` usage as sufficient adaptive-corruption or erasure support.
-- Existing tests as side-channel, constant-time, FIPS, or certification
-  evidence.
+The following are explicit non-production boundaries:
 
-These exclusions should remain visible until the corresponding proof,
-implementation, operational, and external audit work is complete.
+- Deterministic VSS/DKG scaffolding is not malicious-secure DKG.
+- Transcript-hash contribution proofs are not sound or hiding production
+  contribution proofs.
+- Experimental VSS complaint artifacts are not production slashing evidence.
+- Hazmat ML-DSA internals are not FIPS validated or side-channel audited.
+- In-memory actor simulations are not production network or consensus
+  integration evidence.
+- Benchmark outputs are performance and reproducibility artifacts, not
+  security proofs.
 
-## Review Questions For TCB Reduction
+## Closure Requirements
 
-Use these questions to decide whether a future change narrows or expands the
-TCB:
+Before this project can be treated as production-ready, the TCB must be reduced
+or justified by:
 
-- Does the change move a scaffold path into a production-labeled API?
-- Does any production-labeled constructor bypass the combined backend policy
-  gate?
-- Does a new wire field alter canonical frame binding or artifact replay
-  verification?
-- Does new evidence become consensus-facing before anti-framing and complaint
-  soundness are proven?
-- Does a benchmark or test artifact support a narrower engineering claim, or is
-  it being used as security evidence?
-- Does new cryptographic code add secret-dependent branches, memory lifetime
-  assumptions, randomness assumptions, or dependency assumptions?
-- Are docs and claims updated in the same change when behavior or evidence
-  changes?
-
-## Minimum Production-Gate Evidence Still Missing
-
-A future production TCB would require at least:
-
-- a completed formal threshold ML-DSA-65 security proof under an explicit
-  adversary, network, and abort model;
-- malicious-secure production DKG/VSS with complaint soundness and anti-framing
-  analysis;
-- sound and hiding production contribution proof or audited MPC verification
-  boundary;
-- audited randomness, nonce derivation, transcript binding, key handling, and
-  erasure behavior;
-- side-channel and constant-time review for selected arithmetic and encoding
-  paths;
-- authenticated transport and consensus integration analysis;
-- external cryptographic and implementation audit;
-- any required certification or validation campaign before certification
-  claims are made.
+1. production VSS/DKG and contribution-proof backends,
+2. completed formal proof obligations,
+3. constant-time and leakage review,
+4. authenticated transport and consensus integration review,
+5. supply-chain and build reproducibility review, and
+6. external cryptographic and implementation audit.
