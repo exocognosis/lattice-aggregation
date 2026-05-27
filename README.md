@@ -61,7 +61,7 @@ The repository separates protocol shape from cryptographic backend implementatio
 - adapter traits keep networking and consensus effects outside the core protocol model
 - audit docs state what reviewers should trust, what is simulated, and what still needs production hardening
 
-## Suggested GitHub Topics
+## Relevant GitHub Topics
 
 `rust`, `post-quantum`, `cryptography`, `threshold-signatures`, `mldsa`, `dilithium`, `lattice-cryptography`, `distributed-systems`, `validator`, `research`
 
