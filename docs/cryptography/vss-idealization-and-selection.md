@@ -18,6 +18,38 @@ backend selection, does not satisfy
 `VssCommitmentSecurityProfile::ProductionBindingHiding`, and does not change
 the fail-closed production policy in `src/crypto/production_policy.rs`.
 
+## Decision Record: Immediate IdealVSS Route
+
+Decision date: 2026-05-27.
+
+Decision: the immediate theorem path is the idealized signing theorem
+`FST-T1-IdealVSS` in
+[formal-security-theorem.md](formal-security-theorem.md), which assumes
+`F_VSS_DKG` for DKG/VSS setup and then proves the threshold ML-DSA-65 signing
+argument against the remaining signing-side assumptions. This path deliberately
+does not select Feldman/Pedersen-style commitments, lattice/vector commitments,
+or any other concrete production VSS backend.
+
+Rationale:
+
+- The first theorem can be made sharper and more provable by isolating DKG/VSS
+  behind the explicit ideal functionality boundary.
+- The signing proof still must close transcript binding, contribution
+  correctness and extractability, commitment binding and hiding, aggregation
+  correctness, and rejection/abort distribution preservation.
+- Concrete production VSS/DKG selection remains high risk and should not block
+  the idealized signing proof from stating exactly what it needs from setup.
+
+Consequences:
+
+- `F_VSS_DKG` may unblock the immediate signing proof only for claims labeled
+  `IdealVSS` or otherwise explicitly idealized.
+- Production VSS/DKG remains open and unproved until a concrete backend closes
+  binding, hiding, extractability, complaint soundness, anti-framing,
+  key-bias resistance, implementation conformance, and external review.
+- Production claims, production slashing claims, and deployment-readiness
+  language remain blocked even if `FST-T1-IdealVSS` is later proved.
+
 ## Ideal Functionality `F_VSS_DKG`
 
 `F_VSS_DKG` is an ideal DKG/VSS functionality for the setup phase of the

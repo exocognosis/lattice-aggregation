@@ -24,6 +24,8 @@ out here.
 - **Open**: proof work is not complete and no production claim may rely on it.
 - **Scaffold Evidence Only**: repository artifacts fix an interface,
   transcript shape, or test boundary, but do not prove the cryptographic claim.
+- **Idealized Proof Path**: an immediate theorem may assume an ideal
+  functionality, but no production claim may rely on it as an implementation.
 - **Implementation Gate Only**: code rejects unsafe backend declarations or
   malformed artifacts, but the gate is not a proof of backend security.
 - **Production Blocker**: this obligation must be closed before production
@@ -46,7 +48,8 @@ language when mapping theorem and lemma targets to current repository evidence:
 
 | Proof surface | Source | Current status | Closure requirement |
 | --- | --- | --- | --- |
-| FST-T1 threshold unforgeability | [formal-security-theorem.md](formal-security-theorem.md) | open | Complete FST-L1 through FST-L7, instantiate assumptions, and reduce forgeries to ML-DSA-65 or selected backend assumptions. |
+| FST-T1-IdealVSS threshold unforgeability under `F_VSS_DKG` | [formal-security-theorem.md](formal-security-theorem.md), [vss-idealization-and-selection.md](vss-idealization-and-selection.md) | Idealized Proof Path | Complete FST-L1 through FST-L7 under the explicit ideal setup assumption and reduce unauthorized signing to ML-DSA-65 or remaining signing-side assumption violations. This can unblock the signing proof only, not production VSS/DKG. |
+| FST-T1 threshold unforgeability | [formal-security-theorem.md](formal-security-theorem.md) | open | Complete FST-L1 through FST-L7, instantiate assumptions, and reduce forgeries to ML-DSA-65 or selected backend assumptions. Production FST-T1 remains blocked after idealization until concrete VSS/DKG realizes the setup assumptions. |
 | FST-T2 real/ideal realization | [ideal-functionality.md](ideal-functionality.md) | open | Build simulator hybrids for DKG, commitments, partial shares, aborts, evidence, and final signatures. |
 | FST-T3 transcript non-malleability | [formal-security-theorem.md](formal-security-theorem.md), [random-oracle-game.md](random-oracle-game.md) | proof sketch only | Prove typed byte encodings are injective and domain-separated across `H_mu`, `H_w`, `H_c`, `H_vss`, and `H_contrib`. |
 | FST-T4 implementation conformance | [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md) | implemented engineering guard | Keep tests as necessary traceability gates while preserving the boundary that tests do not prove cryptographic security. |
@@ -76,6 +79,9 @@ and one consistent set of validator shares for the accepted epoch.
   required game.
 - [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks setup/DKG
   idealization as an open hybrid.
+- [vss-idealization-and-selection.md](vss-idealization-and-selection.md)
+  records the immediate `FST-T1-IdealVSS` route through `F_VSS_DKG`; this is an
+  ideal assumption for the signing proof, not production VSS evidence.
 - The current scaffold includes deterministic VSS/interpolation tests and a
   production policy gate that rejects scaffold VSS backends for
   production-labeled configuration.
@@ -107,7 +113,10 @@ and one consistent set of validator shares for the accepted epoch.
 ### Claim Status
 
 Production Blocker. Current evidence is scaffold evidence and implementation
-gating only; it does not establish malicious-secure DKG or VSS.
+gating only; it does not establish malicious-secure DKG or VSS. The ideal
+`F_VSS_DKG` route may discharge this obligation for the immediate signing proof
+variant labeled `IdealVSS`, but the concrete production VSS/DKG realization
+remains open and not proven.
 
 ## PO-2: Contribution Proof Soundness and Hiding
 

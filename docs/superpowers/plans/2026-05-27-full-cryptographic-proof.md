@@ -241,3 +241,56 @@ The project may claim "cryptographically proven construction" only after all of 
 - [x] Map external theorem needs to proof documents.
 - [x] Add conservative citation placeholders instead of invented citations.
 - [x] Add a citation closure checklist for reviewer/audit readiness.
+
+## Parallel Batch 5: Proof Closure Assumption Tightening
+
+### Task 16: Citation Closure Pass
+
+**Files:**
+- Modify: `docs/cryptography/proof-bibliography.md`
+
+- [x] Replace high-confidence citation placeholders with primary or
+  authoritative sources for FIPS 204, ACVP ML-DSA vectors, Dilithium design
+  background, Fiat-Shamir with aborts, QROM Fiat-Shamir context, dudect, and
+  ctgrind.
+- [x] Group unresolved threshold-signing, VSS/DKG, commitment, proof-system,
+  and side-channel proof citations under an explicit unresolved list instead
+  of inventing unsupported references.
+
+### Task 17: Ideal VSS Theorem Route
+
+**Files:**
+- Modify: `docs/cryptography/formal-security-theorem.md`
+- Modify: `docs/cryptography/vss-idealization-and-selection.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Add `FST-T1-IdealVSS` as an intermediate theorem path under ideal
+  `F_VSS_DKG`.
+- [x] State that idealization can isolate setup from the signing proof but
+  cannot prove production VSS/DKG security.
+- [x] Keep production `FST-T1` and `FST-T2` blocked until concrete VSS/DKG and
+  real/ideal realization proofs are completed.
+
+### Task 18: Rejection-Sampling Bound Equation
+
+**Files:**
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+
+- [x] Add the conditional bound
+  `Delta_accept <= eps_mask + eps_rej + eps_withhold + eps_ro + eps_commit`.
+- [x] Define sub-lemma obligations for mask distribution, aggregate rejection,
+  and selective withholding.
+- [x] Map H2 through H6 hybrid transitions to the corresponding epsilon terms.
+
+### Task 19: Simulator Advantage Equation
+
+**Files:**
+- Modify: `docs/cryptography/simulator-hybrid-reductions.md`
+- Modify: `docs/cryptography/real-ideal-simulator.md`
+
+- [x] Add named `eps_*` loss terms for the real/ideal simulator worksheet.
+- [x] Tighten S6 to S7 and S7 to S8 transition dependencies.
+- [x] Add a theorem-style consolidated `Adv_real_ideal(A,Z)` bound while
+  keeping `eps_classify` as an explicit unresolved classifier gap.

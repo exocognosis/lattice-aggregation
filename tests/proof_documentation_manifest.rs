@@ -76,6 +76,8 @@ fn full_proof_surface_exposes_stable_anchors() {
             "assumptions",
             "limitations",
             "Theorem FST-T1",
+            "Theorem FST-T1-IdealVSS",
+            "FST-H0-IdealVSS",
             "Proof status: not proved in this repository.",
         ],
     );
@@ -152,6 +154,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_mask",
             "eps_withhold",
             "eps_rej",
+            "## Theorem T1: Conditional Accepted-Distribution Bound",
+            "Delta_accept",
+            "eps_commit",
             "## Top Missing Mathematical Bounds",
         ],
     );
@@ -187,6 +192,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "vss-idealization-and-selection",
             "Ideal Functionality `F_VSS_DKG`",
             "The `F_TMLDSA` proof may cite `F_VSS_DKG`",
+            "## Decision Record: Immediate IdealVSS Route",
             "not a production backend selection",
         ],
     );
@@ -250,6 +256,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "simulator-hybrid-reductions",
             "This is a reduction worksheet, not a completed proof.",
             "## SHR-1. Hybrid Restatement S0..S8",
+            "## SHR-1A. Worksheet Advantage Terms",
+            "Adv_real_ideal(A,Z)",
+            "eps_classify",
             "## SHR-5. Hardest Remaining Reductions",
         ],
     );
@@ -261,6 +270,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "## FIPS 204 / ML-DSA",
             "## Fiat-Shamir With Aborts",
             "## VSS/DKG",
+            "## Unresolved Citation Targets",
             "## Citation Closure Checklist",
             "Citation needed",
         ],

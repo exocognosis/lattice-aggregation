@@ -30,6 +30,14 @@ The current repository does not provide a production threshold ML-DSA protocol,
 malicious-secure DKG, contribution proof relation, abort-bias bound, or final
 distinguishing bounds. Those gaps remain proof blockers.
 
+This file is the simulator implementation skeleton: it records the state,
+interfaces, event mapping, oracle programming points, and hybrid shape that a
+future simulator must implement. The reduction worksheet and symbolic
+advantage ledger live in
+[simulator-hybrid-reductions.md](simulator-hybrid-reductions.md). In
+particular, the S6 to S7 and S7 to S8 equations, epsilon terms, and
+transition dependencies are maintained there, not in this skeleton.
+
 ## RIS-1. Simulator Goal and Interfaces
 
 For every real-world adversary `A`, the simulator `S` must interact with
@@ -388,7 +396,9 @@ separate slashable cryptographic faults from network availability failures.
 
 The realization proof should refine the theorem-level hybrids into the
 following simulator-oriented sequence. Every transition below needs an explicit
-distinguishing bound before this skeleton can become a proof.
+distinguishing bound before this skeleton can become a proof. The corresponding
+worksheet bounds are tracked in
+[simulator-hybrid-reductions.md](simulator-hybrid-reductions.md).
 
 | Hybrid | Description | Required argument |
 | --- | --- | --- |

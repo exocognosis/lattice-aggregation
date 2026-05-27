@@ -265,6 +265,335 @@ eps_withhold    network and adversarial withholding
 
 No current document proves these terms negligible.
 
+<a id="theorem-conditional-accepted-distribution-bound"></a>
+
+## Theorem T1: Conditional Accepted-Distribution Bound
+
+Status: theorem statement and proof-obligation decomposition. This theorem is
+not yet proved.
+
+Let `Dist_T^acc(pk, m)` be the distribution of accepted threshold aggregate
+signatures output by the H6 game in
+[`rejection-sampling-hybrid-proof.md#rsh-h6-accepted-signature-distribution`](rejection-sampling-hybrid-proof.md#rsh-h6-accepted-signature-distribution).
+Let `Dist_0^acc(pk, m)` be the accepted-signature distribution of centralized
+ML-DSA-65 signing in H0 for the same public key and message binding. Define:
+
+```text
+Delta_accept =
+  Delta(Dist_T^acc(pk, m), Dist_0^acc(pk, m))
+```
+
+where `Delta` denotes the distinguishing advantage of the accepted-signature
+distribution experiment for the adversary class fixed by
+`active-adversary-model.md`.
+
+Conditional bound:
+
+```text
+Delta_accept
+  <= eps_mask
+   + eps_rej
+   + eps_withhold
+   + eps_ro
+   + eps_commit
+```
+
+This bound intentionally omits `eps_verify` as a separate summand only under
+the precondition that the aggregate predicate includes unmodified standard
+ML-DSA-65 verification, or that `eps_verify` has been folded into `eps_rej` as
+an encoding-and-predicate mismatch term. If the production theorem keeps a
+separate verifier-compatibility gap, the bound must instead add `eps_verify`.
+
+Definitions:
+
+- `eps_mask = Delta(Y_T, Y_0)` for the pre-challenge aggregate threshold mask
+  distribution `Y_T` and centralized ML-DSA-65 mask distribution `Y_0`,
+  including the public high-bit value used to derive the challenge.
+- `eps_rej = Delta(1[Reject_T], 1[Reject_0])` after fixing the same
+  `pk`, `mu`, `c`, reconstructed algebraic terms, and encoded candidate
+  signature fields.
+- `eps_withhold = Delta(View_with_abort_labels, SimulatedView)` plus the
+  probability that adversarial withholding changes the conditioned challenge
+  view outside the allowed abort leakage.
+- `eps_ro` is the loss from the typed random-oracle game in
+  `random-oracle-game.md`, including prior-query, replay, transcript-collision,
+  and domain-separation bad events.
+- `eps_commit` is the loss from commitment binding, equivocation,
+  non-adaptivity, and mismatch between the commitment set `Com` used for
+  `H_c` and the contribution set accepted by aggregation.
+
+Preconditions:
+
+- The H1 shared-secret decomposition is correct for `s1`, `s2`, and `t0` over
+  the exact active set `A`, as required by `correctness-lemmas.md` Lemma 2,
+  Lemma 3, and Lemma 6.
+- Every attempt uses a fresh, domain-separated retry context and fresh masking
+  material; no accepted attempt reuses a mask, challenge, or commitment tuple
+  from an aborted attempt.
+- Honest commitments are fixed before `H_c` is queried, and every accepted
+  contribution proves consistency with the exact commitment in `Com`.
+- The aggregate rejection predicate is evaluated on the exact `z`, low bits,
+  `ct0`, hint vector, challenge, and signature encoding that are output or
+  verified.
+- Abort observables are exactly the observables modeled in the active
+  adversary game: local abort labels if exposed, aggregate rejection, retry
+  count, timeout or withholding evidence, message sizes, and timing only to the
+  extent included by the side-channel boundary.
+- The random-oracle domains and encodings are the typed domains in
+  `random-oracle-game.md`, and byte-level injectivity or collision losses are
+  accounted for in `eps_ro`.
+
+Proof sketch:
+
+1. Move from H0 to H2 by replacing the centralized mask with the threshold
+   aggregate mask. The distance paid is `eps_mask`, after H1 supplies the same
+   reconstructed secret terms.
+2. Insert commit-before-challenge ordering and contribution-set binding. The
+   distance paid is `eps_commit`, with random-oracle programming losses charged
+   separately to `eps_ro`.
+3. Replace centralized rejection by aggregate rejection over reconstructed
+   threshold values. The distance paid is `eps_rej`.
+4. Condition on accepted attempts while accounting for adversarial withholding,
+   retry limits, and abort-label observables. The distance paid is
+   `eps_withhold`.
+5. Apply the typed random-oracle game for challenge derivation, replay
+   resistance, concurrent sessions, and simulator programming. The distance
+   paid is `eps_ro`.
+6. By the triangle inequality over the hybrid chain, the accepted output
+   distributions differ by at most the sum above.
+
+Formalized in this worksheet:
+
+- The symbolic theorem shape for `Delta_accept`.
+- The precondition list needed before the bound can be invoked.
+- The assignment of mask, rejection, withholding, commitment, and
+  random-oracle losses to specific proof steps.
+
+Open:
+
+- Proving any of `eps_mask`, `eps_rej`, `eps_withhold`, `eps_ro`, or
+  `eps_commit` negligible or giving concrete symbolic upper bounds.
+- Deciding whether the final production theorem keeps `eps_verify` separate or
+  absorbs it into `eps_rej`.
+- Instantiating the adversary class, retry limit, commitment scheme, and
+  production threshold mask protocol.
+
+## Sub-Lemma M: `eps_mask` Mask-Distribution Bound
+
+Statement:
+
+```text
+eps_mask =
+  Delta((Y_T, HighBits(PublicMatrix*Y_T)),
+        (Y_0, HighBits(PublicMatrix*Y_0)))
+```
+
+where `Y_T = CombineMask({y_i}_{i in A})` is the aggregate threshold mask for a
+fixed active set and retry context, and `Y_0` is the centralized ML-DSA-65 mask
+sample before rejection.
+
+Required proof shape:
+
+```text
+eps_mask <= eps_mask_share
+          + eps_mask_combine
+          + eps_mask_corrupt_bias
+          + eps_mask_retry
+```
+
+The terms are symbolic obligations:
+
+- `eps_mask_share` accounts for local `y_i` sampling not matching the chosen
+  threshold protocol's required distribution.
+- `eps_mask_combine` accounts for Lagrange, additive, or MPC combination
+  changing the support or coefficient distribution of the aggregate `y`.
+- `eps_mask_corrupt_bias` accounts for corrupted parties biasing their
+  contributions before the challenge, excluding events charged to withholding.
+- `eps_mask_retry` accounts for retry contexts failing to produce fresh,
+  independent mask material.
+
+Proof sketch:
+
+1. Fix `pk`, `mu`, active set `A`, and an attempt identifier before
+   commitment publication.
+2. Couple honest local mask generation to the production threshold mask
+   protocol.
+3. Prove `CombineMask` maps the coupled local shares to a sample distributed
+   as `Y_0`, or bound the resulting statistical distance by
+   `eps_mask_share + eps_mask_combine`.
+4. Treat maliciously chosen but pre-challenge contributions as public inputs
+   and charge any remaining bias to `eps_mask_corrupt_bias`.
+5. Use retry domain separation to show aborted attempts do not condition future
+   masks except through `eps_mask_retry`.
+
+Current formalization:
+
+- The algebraic shape of `CombineMask` is recorded above for Lagrange-weighted
+  masks and must be replaced if the selected protocol uses additive or MPC
+  mask generation.
+- Hazmat evidence shows `aggregate_mldsa65_masking_contributions` currently
+  sums local `y_i` and `w_i` values, validates duplicate participants, and
+  derives `w1`; the test bridge checks aggregate consistency for selected
+  examples.
+
+Exact remaining missing steps:
+
+- Select the production mask-sharing protocol and state whether
+  `CombineMask` is additive, Lagrange-weighted, or MPC-generated.
+- Prove the aggregate `y` distribution has the centralized ML-DSA-65 support
+  and min-entropy, or state an explicit symbolic statistical-distance bound.
+- Prove the public value used for challenge derivation,
+  `HighBits(PublicMatrix*y)`, is distributed as in centralized ML-DSA-65 under
+  the same coupling.
+- Prove retry identifiers, attempt counters, and masking seeds are injectively
+  encoded and never reused after rejection.
+- Separate corrupted-party bias before challenge from corrupted-party
+  withholding after challenge, so the same event is not charged to both
+  `eps_mask` and `eps_withhold`.
+
+## Sub-Lemma R: `eps_rej` Aggregate-Rejection Bound
+
+Statement:
+
+```text
+eps_rej =
+  Delta(1[Reject_T(pk, mu, A, Com, c, z, h)],
+        1[Reject_0(pk, mu, c, z, h)])
+```
+
+for the same reconstructed candidate values. The goal is to make
+`Reject_T = Reject_0` except on explicitly listed encoding, active-set, or
+verification bad events.
+
+Required proof shape:
+
+```text
+eps_rej <= eps_bound_encoding
+         + eps_hint_encoding
+         + eps_challenge_encoding
+         + eps_active_set_mismatch
+         + eps_verify_mismatch
+```
+
+The term `eps_verify_mismatch` is symbolic and may be set to zero only after
+the theorem proves that aggregate acceptance includes standard ML-DSA-65
+verification on the final wire signature or an exactly equivalent predicate.
+
+Proof sketch:
+
+1. Use H1 and H4 to fix the same algebraic candidate values
+   `z`, `LowBits(w - c*s2)`, `c*t0`, `h`, and `c_tilde`.
+2. Show threshold acceptance checks the same strict inequalities as
+   centralized ML-DSA-65:
+
+```text
+||z||_inf < B_z
+||LowBits(w - c*s2)||_inf < B_low
+||c*t0||_inf < B_ct0
+weight(h) <= B_h
+weight(c) = tau_65
+```
+
+3. Show centered coefficient conversion, low-bit decomposition,
+   `MakeHint`, challenge sampling, and signature packing are canonical and
+   bit-for-bit equal to the centralized verifier inputs.
+4. Charge any mismatch in strictness, encoding, active-set consistency, or
+   verifier equivalence to the listed symbolic terms.
+
+Current formalization:
+
+- The worksheet states all aggregate inequalities and the strict rejection
+  forms used by the hazmat functions.
+- Hazmat evidence shows `finalize_mldsa65_threshold_response` rejects
+  `||z||_inf >= B_z`, and
+  `finalize_mldsa65_threshold_signature_attempt` rejects low-bit, `ct0`, and
+  hint-weight failures before packing.
+
+Exact remaining missing steps:
+
+- Prove the centered representative used by each threshold norm check equals
+  the centered representative in the standard ML-DSA-65 verifier.
+- Prove `LowBits(w - c*s2)`, `c*t0`, and `MakeHint` are computed from exactly
+  the centralized candidate values after reconstruction.
+- Prove malformed hints, noncanonical offsets, challenge-weight mismatches,
+  and signature-packing failures cannot enter accepted outputs.
+- Prove the active set used for reconstructing `cs1`, `cs2`, and `ct0` is the
+  same active set bound into commitments and contribution proofs.
+- Decide whether standard verification is part of `Reject_T`; if not, keep
+  `eps_verify_mismatch` visible in the final theorem.
+
+## Sub-Lemma W: `eps_withhold` Selective-Withholding Bound
+
+Statement:
+
+```text
+eps_withhold =
+  Delta(View_with_abort_labels, SimulatedView)
+```
+
+with additional bad-event probability for corrupted parties changing the
+conditioned challenge or accepted-signature distribution by withholding,
+timing out, or forcing retries after observing allowed public data.
+
+Required proof shape:
+
+```text
+eps_withhold <= eps_withhold_commit
+              + eps_withhold_challenge
+              + eps_abort_labels
+              + eps_retry_limit
+              + eps_timing_boundary
+```
+
+The terms are symbolic obligations:
+
+- `eps_withhold_commit` covers withholding after observing honest commitments
+  but before `H_c`.
+- `eps_withhold_challenge` covers withholding after the challenge or partial
+  contribution phase starts.
+- `eps_abort_labels` covers participant-specific local abort labels and
+  evidence records exposed to the adversary.
+- `eps_retry_limit` covers conditioning introduced by a bounded retry policy.
+- `eps_timing_boundary` covers observable timing and message-size leakage only
+  to the extent included by `side-channel-boundary.md`.
+
+Proof sketch:
+
+1. Fix the corruption option and rushing semantics from
+   `active-adversary-model.md`.
+2. Define the exact abort transcript: missing commitments, missing secret
+   contributions, local abort labels, aggregate rejection, duplicate or stale
+   evidence, retry count, timeout/exclusion records, and final success.
+3. Construct a simulator that emits the same public abort transcript from
+   public data and allowed leakage, without honest secret shares or honest
+   masks.
+4. Show each retry uses fresh mask material and a typed oracle input distinct
+   from every prior attempt.
+5. Bound the difference between real and simulated abort-conditioned views by
+   the symbolic terms above.
+
+Current formalization:
+
+- `active-adversary-model.md` allows rushing and selective aborts after honest
+  commitments.
+- `noise-rejection-proof-plan.md` lists local abort labels, aggregate aborts,
+  retry counts, timing, message sizes, and slashing evidence as observables.
+- Hazmat session tests exercise duplicate, stale, insufficient, rejected, and
+  finalized phases, but do not prove a distributional abort bound.
+
+Exact remaining missing steps:
+
+- Choose static or adaptive corruptions and the production network abstraction
+  before stating the final withholding game.
+- Define retry limits, timeout policy, signer exclusion rules, and whether
+  local honest aborts are hidden until the aggregate decision.
+- Prove corrupted-party withholding is either denial of service only or is
+  charged to a quantified distributional term.
+- Prove evidence and telemetry do not reveal honest mask or secret-share
+  information beyond the allowed abort transcript.
+- Prove bounded retries do not change the accepted-signature distribution
+  except through `eps_retry_limit`.
+
 ## Evidence and Remaining Work
 
 | Bound or term | Current evidence | Remaining proof work |

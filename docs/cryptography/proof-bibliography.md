@@ -32,14 +32,30 @@ External result needed:
 - Scope statement separating FIPS conformance or validation from use of the
   FIPS 204 algorithms in a research threshold construction.
 
-Citation targets:
+Resolved citation targets:
 
-- NIST FIPS 204, Module-Lattice-Based Digital Signature Standard, for the
-  normative ML-DSA algorithm family and ML-DSA-65 parameter set.
-- [Citation needed: exact FIPS 204 section numbers for ML-DSA-65 parameter
-  values, signing, verification, signature encoding, and rejection conditions.]
-- [Citation needed: official ACVP or validation-program reference if the
-  manuscript discusses test vectors, KATs, or non-validation boundaries.]
+- National Institute of Standards and Technology, [FIPS 204,
+  Module-Lattice-Based Digital Signature Standard][fips204], August 13, 2024,
+  DOI: [10.6028/NIST.FIPS.204](https://doi.org/10.6028/NIST.FIPS.204).
+  Use Table 1 for ML-DSA-65 parameters (`q = 8380417`, `tau = 49`,
+  `lambda = 192`, `gamma1 = 2^19`, `gamma2 = (q - 1)/32`, `(k,l) = (6,5)`,
+  `eta = 4`, `beta = 196`, `omega = 55`, claimed NIST security category 3),
+  Table 2 for key and signature sizes, Section 5 and Algorithms 1-3 for
+  external key generation, signing, and verification, Section 6 and Algorithms
+  6-8 for internal key generation, signing, verification, message
+  representative `mu`, challenge derivation, and rejection predicates, Section
+  7.2 and Algorithms 22-29 for key, signature, `w1`, and challenge encodings,
+  and Appendix C for optional loop/output limits and their error-handling
+  boundary.
+- National Institute of Standards and Technology, [ACVP ML-DSA JSON
+  Specification][acvp-mldsa]. Use Section 5 for the advertised ACVP algorithm
+  triples `ML-DSA / keyGen / FIPS204`, `ML-DSA / sigGen / FIPS204`, and
+  `ML-DSA / sigVer / FIPS204`; Sections 6.1.1-6.1.3 for key-generation,
+  signature-generation, and signature-verification test types; Section 6.2 for
+  requirements covered and not covered; Sections 7.3-7.5 for registration
+  properties; and Sections 9.1-9.3 for response objects. This is a test-vector
+  and validation-protocol citation, not evidence of FIPS validation for this
+  repository.
 
 Where it plugs in:
 
@@ -72,14 +88,35 @@ External result needed:
   does not cover, especially for modified threshold signing, altered
   transcripts, and side-channel leakage.
 
-Citation targets:
+Resolved citation targets:
 
-- [Citation needed: Dilithium design/security analysis paper and theorem
-  covering EUF-CMA or SUF-CMA security for the relevant parameter family.]
-- [Citation needed: ML-DSA/FIPS 204 security rationale or transition note
-  connecting Dilithium analysis to ML-DSA-65.]
-- [Citation needed: QROM or random-oracle proof reference accepted for ML-DSA
-  challenge derivation and tightness/security-loss accounting.]
+- Shi Bai, Leo Ducas, Eike Kiltz, Tancrede Lepoint, Vadim Lyubashevsky, Peter
+  Schwabe, Gregor Seiler, and Damien Stehle, [CRYSTALS-Dilithium: Algorithm
+  Specifications and Supporting Documentation, Version 3.1][dilithium-v31],
+  February 8, 2021. Use Section 6 for the security discussion, including
+  UF-CMA/SUF-CMA definitions and the MLWE, SelfTargetMSIS, and MSIS assumption
+  split; Section 6.2.1 for the UF-CMA proof sketch; Section 6.2.2 for the
+  strong-unforgeability addition; Section 6.3 and Appendix C for concrete
+  security analysis; and Table 1 for the Dilithium level-3 parameter/security
+  background. This supports the Dilithium design/security rationale, not the
+  FIPS 204 wire-format details after standardization changes.
+- Leo Ducas, Eike Kiltz, Tancrede Lepoint, Vadim Lyubashevsky, Peter Schwabe,
+  Gregor Seiler, and Damien Stehle, [CRYSTALS-Dilithium: A Lattice-Based
+  Digital Signature Scheme][dilithium-tches], IACR Transactions on
+  Cryptographic Hardware and Embedded Systems, 2018(1):238-268, DOI:
+  [10.13154/tches.v2018.i1.238-268](https://doi.org/10.13154/tches.v2018.i1.238-268).
+  Use as the original peer-reviewed Dilithium design paper.
+- FIPS 204, Section 3 and Appendix D. Section 3 states that ML-DSA is based on
+  CRYSTALS-Dilithium and uses the Fiat-Shamir-with-aborts construction; Appendix
+  D records differences from the CRYSTALS-Dilithium submission and notes that
+  ML-DSA is derived from CRYSTALS-Dilithium Version 3.1.
+- Eike Kiltz, Vadim Lyubashevsky, and Christian Schaffner, [A Concrete
+  Treatment of Fiat-Shamir Signatures in the Quantum Random-Oracle
+  Model][kls-qrom], EUROCRYPT 2018, pp. 552-586, DOI:
+  [10.1007/978-3-319-78372-7_18](https://doi.org/10.1007/978-3-319-78372-7_18).
+  Use for the QROM Fiat-Shamir/Dilithium security-analysis background cited by
+  FIPS 204 and the Dilithium v3.1 specification. It does not by itself prove
+  this repository's threshold transcript or selective-abort games.
 
 Where it plugs in:
 
@@ -115,17 +152,22 @@ External result needed:
   program message-binding, commitment, challenge, VSS, or contribution-proof
   domains.
 
-Citation targets:
+Resolved citation targets:
 
-- [Citation needed: Fiat-Shamir with aborts foundational theorem used by
-  lattice signature proofs.]
-- [Citation needed: Dilithium-specific rejection-sampling and abort analysis,
-  including accepted-signature distribution bounds.]
-- [Citation needed: selective-abort or rushing-adversary analysis for threshold
-  Fiat-Shamir signing, or a proof that the project-specific abort channel is
-  simulatable.]
-- [Citation needed: random-oracle programming lemma for multi-domain
-  Fiat-Shamir transcripts with prior adversarial queries.]
+- Vadim Lyubashevsky, [Fiat-Shamir With Aborts: Applications to Lattice and
+  Factoring-Based Signatures][lyu-fs-aborts], ASIACRYPT 2009, pp. 598-616,
+  DOI: [10.1007/978-3-642-10366-7_35](https://doi.org/10.1007/978-3-642-10366-7_35).
+  Use as the foundational Fiat-Shamir-with-aborts citation for lattice
+  identification/signature proofs and abort-based distribution hiding.
+- Vadim Lyubashevsky, [Lattice Signatures Without Trapdoors][lyu-trapdoors],
+  EUROCRYPT 2012, pp. 738-755, DOI:
+  [10.1007/978-3-642-29011-4_43](https://doi.org/10.1007/978-3-642-29011-4_43).
+  Use for the later lattice-signature-with-aborts framework cited by FIPS 204.
+- Dilithium Version 3.1, Section 3 and Section 6. Use Section 3 for the
+  signing algorithms and rejection conditions, and Section 6 for the proof
+  sketch tying rejection sampling, Fiat-Shamir, UF-CMA/SUF-CMA, and concrete
+  security analysis together for centralized Dilithium. This does not close the
+  threshold selective-abort channel.
 
 Where it plugs in:
 
@@ -163,17 +205,9 @@ External result needed:
   either an ML-DSA forgery, a threshold-share violation, a commitment/proof
   soundness violation, or a transcript-binding violation.
 
-Citation targets:
+Unresolved citation targets:
 
-- [Citation needed: threshold lattice signature or threshold Dilithium/ML-DSA
-  signing theorem matching static active corruption.]
-- [Citation needed: MPC-in-the-head, proof-carrying contribution, or audited
-  MPC signing theorem selected for production partial verification.]
-- [Citation needed: ideal-functionality or UC realization reference for
-  threshold signing with abort and evidence events, if FST-T2 is claimed in a
-  UC-style model.]
-- [Citation needed: partial-signature extractability or knowledge-soundness
-  theorem for the selected contribution-proof relation.]
+- See [Unresolved Citation Targets](#unresolved-citation-targets).
 
 Where it plugs in:
 
@@ -210,16 +244,9 @@ External result needed:
 - If a dealer-based alternative is used, a theorem showing share secrecy and
   binding for the dealer transcript under the same threshold assumptions.
 
-Citation targets:
+Unresolved citation targets:
 
-- [Citation needed: VSS theorem with binding, hiding, complaint soundness, and
-  public verifiability under active corruption.]
-- [Citation needed: DKG theorem with key-bias resistance against rushing and
-  last-mover behavior.]
-- [Citation needed: anti-framing theorem for complaint evidence and private
-  share delivery.]
-- [Citation needed: threshold share secrecy theorem over the exact algebra or
-  ring/module domain used by the selected ML-DSA sharing construction.]
+- See [Unresolved Citation Targets](#unresolved-citation-targets).
 
 Where it plugs in:
 
@@ -253,16 +280,9 @@ External result needed:
   openings, proof statements, complaints, and public-key contribution digests
   to canonical verifier inputs.
 
-Citation targets:
+Unresolved citation targets:
 
-- [Citation needed: named lattice/vector commitment construction selected for
-  production VSS/DKG or signing commitments.]
-- [Citation needed: opening proof system theorem for binding, hiding,
-  extractability, and witness hiding over ML-DSA-compatible vectors.]
-- [Citation needed: parameter-selection analysis for ML-DSA-65 dimensions,
-  modulus `q = 8380417`, norm/range bounds, proof sizes, and concrete security.]
-- [Citation needed: canonical serialization or domain-separation result if the
-  proof relies on composed hash/XOF domains as independent random oracles.]
+- See [Unresolved Citation Targets](#unresolved-citation-targets).
 
 Where it plugs in:
 
@@ -295,19 +315,19 @@ External result needed:
   logging, diagnostics, memory lifetime, and evidence generation as public
   leakage or production blockers.
 
-Citation targets:
+Resolved citation targets:
 
-- [Citation needed: dudect methodology reference for Welch t-test timing
-  leakage detection.]
-- [Citation needed: ctgrind or equivalent dynamic analysis reference for
-  secret-dependent branch and memory-access checks.]
-- [Citation needed: constant-time cryptographic implementation guidance
-  accepted for Rust or comparable systems code.]
-- [Citation needed: zeroization and compiler-output review guidance for
-  production cryptographic implementations.]
-- [Citation needed: leakage-resilient or side-channel-aware proof reference if
-  any future theorem claims more than a constant-time implementation
-  assumption.]
+- Oscar Reparaz, Josep Balasch, and Ingrid Verbauwhede, [dude, is my code
+  constant time?][dudect-paper], DATE 2017 / IACR ePrint 2016/1123, together
+  with the [dudect project documentation][dudect-repo]. Use for the empirical
+  timing-leakage methodology based on repeated measurements of two input
+  classes and statistical testing of timing distributions. Treat a dudect pass
+  as leakage-detection evidence only, not a proof of constant-time behavior.
+- Adam Langley's [ctgrind][ctgrind-repo], "Checking that functions are constant
+  time with Valgrind." Use for the dynamic-analysis technique that marks secret
+  data and checks whether branches or memory addresses depend on tainted secret
+  values. Treat ctgrind or Valgrind-style checks as implementation evidence
+  with platform/tool limitations, not as a formal side-channel proof.
 
 Where it plugs in:
 
@@ -326,15 +346,73 @@ Where it plugs in:
   FIPS/certification boundaries, and production readiness must remain
   non-claims until this methodology package and audit evidence exist.
 
+## Unresolved Citation Targets
+
+The following placeholders remain open because the requested documents do not
+identify a concrete construction, theorem, parameter statement, or proof-system
+instantiation that can be cited without inventing unsupported claims.
+
+Threshold signing and selective aborts:
+
+- [Citation needed: selective-abort or rushing-adversary analysis for threshold
+  Fiat-Shamir signing, or a proof that the project-specific abort channel is
+  simulatable.]
+- [Citation needed: random-oracle programming lemma for multi-domain
+  Fiat-Shamir transcripts with prior adversarial queries.]
+- [Citation needed: threshold lattice signature or threshold Dilithium/ML-DSA
+  signing theorem matching static active corruption.]
+- [Citation needed: MPC-in-the-head, proof-carrying contribution, or audited
+  MPC signing theorem selected for production partial verification.]
+- [Citation needed: ideal-functionality or UC realization reference for
+  threshold signing with abort and evidence events, if FST-T2 is claimed in a
+  UC-style model.]
+- [Citation needed: partial-signature extractability or knowledge-soundness
+  theorem for the selected contribution-proof relation.]
+
+VSS/DKG and share secrecy:
+
+- [Citation needed: VSS theorem with binding, hiding, complaint soundness, and
+  public verifiability under active corruption.]
+- [Citation needed: DKG theorem with key-bias resistance against rushing and
+  last-mover behavior.]
+- [Citation needed: anti-framing theorem for complaint evidence and private
+  share delivery.]
+- [Citation needed: threshold share secrecy theorem over the exact algebra or
+  ring/module domain used by the selected ML-DSA sharing construction.]
+
+Lattice/vector commitments and proof systems:
+
+- [Citation needed: named lattice/vector commitment construction selected for
+  production VSS/DKG or signing commitments.]
+- [Citation needed: opening proof system theorem for binding, hiding,
+  extractability, and witness hiding over ML-DSA-compatible vectors.]
+- [Citation needed: parameter-selection analysis for ML-DSA-65 dimensions,
+  modulus `q = 8380417`, norm/range bounds, proof sizes, and concrete security.]
+- [Citation needed: canonical serialization or domain-separation result if the
+  proof relies on composed hash/XOF domains as independent random oracles.]
+
+Side-channel proof scope beyond dudect and ctgrind:
+
+- [Citation needed: constant-time cryptographic implementation guidance
+  accepted for Rust or comparable systems code.]
+- [Citation needed: zeroization and compiler-output review guidance for
+  production cryptographic implementations.]
+- [Citation needed: leakage-resilient or side-channel-aware proof reference if
+  any future theorem claims more than a constant-time implementation
+  assumption.]
+
 ## Citation Closure Checklist
 
-- Identify exact FIPS 204 section and table citations for ML-DSA-65 algorithms,
-  constants, encodings, rejection predicates, and verifier behavior.
-- Identify the base Dilithium/ML-DSA security theorem used for FST-A1,
-  including model, parameter set, tightness, and security level.
-- Close the Fiat-Shamir-with-aborts citation chain for ML-DSA rejection
-  sampling, challenge derivation, accepted-signature distribution, and
-  random-oracle programmability.
+- FIPS 204 section, table, algorithm, encoding, rejection-predicate, verifier,
+  and ACVP references are identified above.
+- Dilithium design/security references and the FIPS 204 transition from
+  CRYSTALS-Dilithium to ML-DSA are identified above. FST-A1 still needs a final
+  manuscript decision on exactly how to phrase the base ML-DSA-65
+  unforgeability assumption and whether the claim is ROM, QROM, or a
+  FIPS-accepted security-interpretation statement.
+- The centralized Fiat-Shamir-with-aborts citation chain is identified above.
+  Threshold selective-abort simulation and multi-domain random-oracle
+  programming remain unresolved.
 - Select or cite a threshold ML-DSA, threshold Dilithium, or MPC signing theorem
   that supports static active corruption, partial contribution verification,
   aggregation, and real/ideal simulation.
@@ -344,12 +422,24 @@ Where it plugs in:
 - Select the lattice/vector commitment and opening-proof construction, then
   cite its parameter-specific security analysis for the ML-DSA-65 algebra and
   serialization.
-- Define the project leakage model and cite the side-channel methodology used
-  for constant-time review, empirical timing tests, dynamic analysis,
-  zeroization review, and compiler-output inspection.
-- For every `[Citation needed: ...]` placeholder above, either replace it with
-  a precise citation and theorem/section pointer or leave the corresponding
-  theorem document phrased as an open assumption, target, or non-claim.
+- dudect and ctgrind methodology citations are identified above. The broader
+  leakage model, zeroization, compiler-output inspection, and any
+  leakage-resilient proof citation remain unresolved.
+- For every `[Citation needed: ...]` placeholder in the unresolved list, either
+  replace it with a precise citation and theorem/section pointer or leave the
+  corresponding theorem document phrased as an open assumption, target, or
+  non-claim.
 - Re-run the proof-package claim review after citation closure and update
   `claims-matrix.md` only if the external result, local proof mapping, and
   implementation/audit evidence all support stronger wording.
+
+[acvp-mldsa]: https://pages.nist.gov/ACVP/draft-celi-acvp-ml-dsa.html
+[ctgrind-repo]: https://github.com/agl/ctgrind
+[dilithium-tches]: https://doi.org/10.13154/tches.v2018.i1.238-268
+[dilithium-v31]: https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf
+[dudect-paper]: https://eprint.iacr.org/2016/1123
+[dudect-repo]: https://github.com/oreparaz/dudect
+[fips204]: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf
+[kls-qrom]: https://www.iacr.org/archive/eurocrypt2018/10822196/10822196.pdf
+[lyu-fs-aborts]: https://www.iacr.org/archive/asiacrypt2009/59120596/59120596.pdf
+[lyu-trapdoors]: https://doi.org/10.1007/978-3-642-29011-4_43

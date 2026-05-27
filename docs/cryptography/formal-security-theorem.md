@@ -93,6 +93,17 @@ the threshold signing functionality for the target key and validator set.
 
 ## FST-3. Security Assumptions
 
+Assumption FST-A0, ideal VSS/DKG setup. For the theorem variant explicitly
+marked `IdealVSS`, setup is supplied by the ideal functionality `F_VSS_DKG` in
+[vss-idealization-and-selection.md](vss-idealization-and-selection.md).
+`F_VSS_DKG` provides one canonical epoch public key, one canonical
+`dkg_digest`, consistent validator shares for the accepted dealer set, hiding
+below threshold, binding and extractability for accepted dealer contributions,
+output agreement, complaint soundness, anti-framing, and key-bias resistance
+under the static active model. This assumption is a proof-decomposition
+boundary only; it is not a concrete VSS/DKG backend and does not close
+production VSS/DKG security.
+
 Assumption FST-A1, ML-DSA-65 unforgeability. ML-DSA-65 is strongly
 existentially unforgeable under chosen-message attack in the relevant quantum
 random-oracle model or standard-model interpretation accepted for FIPS 204
@@ -206,12 +217,29 @@ capability.
 
 ## FST-6. Theorem Statements
 
+Theorem FST-T1-IdealVSS, threshold unforgeability under ideal VSS/DKG. Assuming
+FST-A0, FST-A1, and FST-A4 through FST-A8, for any probabilistic
+polynomial-time adversary statically corrupting at most `t - 1` validators
+before `F_VSS_DKG` setup, the advantage in Game FST-G1 is negligible in
+`lambda`, provided the remaining signing-side lemmas FST-L1 through FST-L7 are
+proved for the threshold ML-DSA-65 signing protocol and the signing sessions
+consume only the ideal outputs `(pk_epoch, dkg_digest, AcceptedDealers,
+share_i)` and allowed corruption or complaint leakage from `F_VSS_DKG`.
+
+Proof status: immediate theorem path, not proved in this repository. The ideal
+VSS/DKG assumption can discharge the DKG share-soundness and VSS
+binding/hiding/extractability dependencies for this theorem variant only. It
+does not prove a concrete backend realizes `F_VSS_DKG`, does not prove
+production VSS/DKG security, and does not complete the production theorem
+FST-T1 below.
+
 Theorem FST-T1, threshold unforgeability target. Assuming FST-A1 through
 FST-A8, for any probabilistic polynomial-time adversary corrupting at most
 `t - 1` validators, the advantage in Game FST-G1 is negligible in `lambda`.
 
 Proof status: not proved in this repository. Required lemmas include FST-L1
-through FST-L7.
+through FST-L7, and production use requires concrete instantiation of FST-A2
+and FST-A3 by a selected VSS/DKG backend rather than by `F_VSS_DKG`.
 
 Theorem FST-T2, real/ideal threshold-signing realization target. Assuming
 FST-A1 through FST-A9 and the ideal functionality `F_TMLDSA`, the production
@@ -247,6 +275,11 @@ simulator-oriented sequence is S0..S8 in
 
 Hybrid FST-H0. Real production protocol with real DKG, commitments, partial
 shares, aggregation, and network scheduling.
+
+Hybrid FST-H0-IdealVSS. For the immediate FST-T1-IdealVSS path, replace the
+real DKG/VSS setup with `F_VSS_DKG` before the signing hybrids begin. This
+hybrid is allowed only for the idealized theorem variant and leaves the
+concrete DKG realization theorem open.
 
 Hybrid FST-H1. Replace network delivery with ideal scheduling while preserving
 the adversary-visible message trace.
@@ -296,7 +329,8 @@ Limitation FST-X1. No production threshold ML-DSA protocol is selected in the
 available documentation.
 
 Limitation FST-X2. No formal DKG, dealer, or share-verification proof is
-present.
+present. The `FST-T1-IdealVSS` path assumes those properties through
+`F_VSS_DKG`; it does not prove production VSS/DKG.
 
 Limitation FST-X3. No ML-DSA-65 Fiat-Shamir-with-aborts preservation proof is
 present for the threshold setting.

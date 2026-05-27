@@ -86,6 +86,29 @@ Each transition must supply a distinguishing bound. This document records the
 shape of those transitions and marks which parts are proof sketches versus
 open obligations.
 
+The aggregate accepted-distribution loss is stated in
+[`rejection-sampling-bounds.md#theorem-conditional-accepted-distribution-bound`](rejection-sampling-bounds.md#theorem-conditional-accepted-distribution-bound)
+as:
+
+```text
+Delta_accept <= eps_mask + eps_rej + eps_withhold + eps_ro + eps_commit
+```
+
+That theorem is conditional. This hybrid document identifies where each term is
+used; the bounds worksheet records the current sub-lemmas and remaining
+missing steps.
+
+## RSH-2.1. Hybrid-to-Epsilon Map
+
+| Hybrid transition | Epsilon term used | Role in the bound |
+| --- | --- | --- |
+| H1 -> H2 shared mask generation | `eps_mask` | Pays for replacing centralized ML-DSA mask sampling with aggregate threshold mask generation before conditioning on rejection. |
+| H2 -> H3 commit-before-challenge | `eps_commit` and `eps_ro` | Pays for commitment binding/non-adaptivity and for typed random-oracle challenge derivation over `Com`. |
+| H3 -> H4 partial response reconstruction | no new rejection epsilon if H1/H4 algebra holds | Algebraic reconstruction is intended to be exact; failures remain correctness obligations in `correctness-lemmas.md`. |
+| H4 -> H5 aggregate rejection predicate | `eps_rej` | Pays for any mismatch between threshold aggregate rejection and centralized ML-DSA rejection on the same candidate values. |
+| H5 -> H6 accepted-signature distribution | `eps_withhold`, plus carried terms | Pays for conditioning on accepted attempts in the presence of withholding, retries, abort labels, and bounded retry policies. |
+| Random-oracle and replay steps across H2-H6 | `eps_ro` | Pays for prior oracle queries, replay, transcript collision, domain separation, and simulator-programming losses. |
+
 <a id="rsh-h0-centralized-mldsa"></a>
 
 ## H0. Centralized ML-DSA
@@ -145,6 +168,12 @@ Open:
 Change from H1: Replace centralized ML-DSA mask sampling with threshold mask
 generation. The aggregate mask is computed from participant contributions.
 
+Bound term: this transition is charged to `eps_mask` in
+[`rejection-sampling-bounds.md#theorem-conditional-accepted-distribution-bound`](rejection-sampling-bounds.md#theorem-conditional-accepted-distribution-bound).
+The concrete proof obligation is Sub-Lemma M in the bounds worksheet: compare
+`(Y_T, HighBits(PublicMatrix*Y_T))` with the centralized ML-DSA-65
+`(Y_0, HighBits(PublicMatrix*Y_0))` before conditioning on rejection.
+
 Candidate relation:
 
 ```text
@@ -179,6 +208,13 @@ Open:
 Change from H2: Insert explicit commitments to masking material before the
 challenge oracle can be queried.
 
+Bound terms: this transition uses `eps_commit` for commitment binding,
+opening-set equality, and non-adaptivity, and `eps_ro` for the typed
+random-oracle challenge query. Rushing and selective withholding after
+commitment publication are not hidden inside `eps_commit`; they are charged to
+`eps_withhold` in H6 unless the final proof shows they are denial of service
+only.
+
 Required ordering:
 
 ```text
@@ -208,6 +244,12 @@ Open:
 
 Change from H3: Replace centralized response computation with reconstruction
 from challenge-bound partial secret contributions.
+
+Bound term: no additional rejection-sampling epsilon is intended for this
+transition if the reconstruction equations below hold exactly. Algebraic or
+partial-verification failures remain open correctness obligations; if a future
+construction proves them only up to a probability loss, that loss must be added
+to the theorem rather than silently absorbed into `eps_rej`.
 
 Required equation:
 
@@ -246,6 +288,14 @@ Open:
 Change from H4: Replace centralized rejection checks with aggregate checks over
 the reconstructed threshold values.
 
+Bound term: this transition is charged to `eps_rej` as defined in
+[`rejection-sampling-bounds.md#theorem-conditional-accepted-distribution-bound`](rejection-sampling-bounds.md#theorem-conditional-accepted-distribution-bound).
+The intended endpoint is equality between `Reject_T` and `Reject_0` for the
+same candidate `z`, low bits, `ct0`, hint vector, challenge, and signature
+encoding. Until the standard-verifier compatibility question is closed, any
+remaining verifier mismatch must stay visible as part of `eps_rej` or as a
+separate `eps_verify` term.
+
 Required predicate:
 
 ```text
@@ -283,6 +333,12 @@ Open:
 
 Change from H5: Condition on aggregate acceptance and compare the output
 distribution to H0.
+
+Bound terms: H6 consumes the carried `eps_mask`, `eps_commit`, `eps_ro`, and
+`eps_rej` losses from H2 through H5, and adds `eps_withhold` for selective
+withholding, abort-label leakage, retry limits, and timeout or evidence
+observables. This is the point at which the conditional theorem's
+`Delta_accept` statement applies.
 
 Desired statement:
 
@@ -334,17 +390,21 @@ Required proof obligations:
 - State availability and denial-of-service limits separately from distribution
   preservation.
 
+Bound term: these obligations instantiate `eps_withhold`. The current
+documents formalize the observable categories and symbolic decomposition, but
+the simulator and retry-limit bound remain open.
+
 ## RSH-4. Current Classification
 
-| Layer | Current status |
-| --- | --- |
-| H0 centralized ML-DSA | External theorem dependency. |
-| H1 shared secret decomposition | Proof sketch with hazmat reconstruction tests; production VSS/DKG proof open. |
-| H2 shared mask generation | Open distribution proof. |
-| H3 commit-before-challenge | Proof sketch for ordering; real commitment proof open. |
-| H4 partial response reconstruction | Proof sketch for algebra; production partial-verification proof open. |
-| H5 aggregate rejection predicate | Proof sketch with hazmat rejection checks; exact verifier-equivalence proof open. |
-| H6 accepted-signature distribution | Open. Distribution equivalence is not complete. |
+| Layer | Current status | Bound status |
+| --- | --- | --- |
+| H0 centralized ML-DSA | External theorem dependency. | Reference distribution; no threshold epsilon. |
+| H1 shared secret decomposition | Proof sketch with hazmat reconstruction tests; production VSS/DKG proof open. | Algebraic precondition for T1. |
+| H2 shared mask generation | Open distribution proof. | `eps_mask` formalized symbolically; concrete mask bound open. |
+| H3 commit-before-challenge | Proof sketch for ordering; real commitment proof open. | `eps_commit` and `eps_ro` formalized symbolically; commitment instantiation and RO losses open. |
+| H4 partial response reconstruction | Proof sketch for algebra; production partial-verification proof open. | Intended exact step; any probabilistic failure must become an explicit additional term. |
+| H5 aggregate rejection predicate | Proof sketch with hazmat rejection checks; exact verifier-equivalence proof open. | `eps_rej` formalized symbolically; predicate-equivalence proof open. |
+| H6 accepted-signature distribution | Open. Distribution equivalence is not complete. | `Delta_accept` theorem shape and `eps_withhold` decomposition formalized; accepted-distribution proof open. |
 
 ## RSH-5. Links to Other Proof Documents
 

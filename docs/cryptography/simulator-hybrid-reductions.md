@@ -26,6 +26,9 @@ scheduling control from
 [active-adversary-model.md](active-adversary-model.md), random-oracle domains
 from [random-oracle-game.md](random-oracle-game.md), and the ideal functionality
 `F_TMLDSA` from [ideal-functionality.md](ideal-functionality.md).
+For the setup phase it may cite the ideal setup assumption `F_VSS_DKG` from
+[vss-idealization-and-selection.md](vss-idealization-and-selection.md), but only
+as an explicit proof-decomposition placeholder.
 
 ## SHR-1. Hybrid Restatement S0..S8
 
@@ -42,6 +45,50 @@ The simulator proof is organized as the following game sequence.
 | S6 | Challenge derivation is replaced by global lazy random-oracle tables for `H_mu`, `H_w`, `H_c`, `H_vss`, and `H_contrib`, with prior-query conflicts recorded as bad events. | Oracle programming is made explicit. |
 | S7 | Accepting aggregate signatures for authorized messages are replaced by signatures released through `F_TMLDSA`. Abort and retry behavior remains transcript-preserving. | Authorized output is idealized. |
 | S8 | Ideal execution with `F_TMLDSA`, simulated DKG/signing/evidence trace, and extraction or reduction for every unauthorized accepting aggregate output. | Final ideal game. |
+
+## SHR-1A. Worksheet Advantage Terms
+
+The following symbols name the losses used below. They are theorem obligations,
+not established bounds.
+
+```text
+eps_sched(A,Z)      scheduling and authenticated-network trace loss
+eps_evid(A,Z)       evidence soundness, anti-framing, and noninterference loss
+eps_vss_ideal(A,Z)  loss from replacing DKG/VSS with ideal F_VSS_DKG setup
+eps_commit(A,Z)     commitment binding, hiding, equivocation, and H_w loss
+eps_contrib(A,Z)    contribution-proof simulation, soundness, and extraction loss
+eps_ro_prior(A,Z)   prior-query and programming loss for H_mu,H_w,H_c,H_vss,H_contrib
+eps_ro_sep(A,Z)     random-oracle domain separation and transcript-injectivity loss
+eps_reject(A,Z)     accepted-signature distribution loss from rejection sampling
+eps_abort(A,Z)      selective-abort, retry, withholding, and abort-label loss
+eps_release(A,Z)    release-policy, idempotence, timing, and public-leakage mismatch
+eps_collect(A,Z)    canonical collection validation and rogue-signer loss
+eps_threshold(A,Z)  subthreshold-share signing or share-secrecy violation
+eps_mldsa(B)        base ML-DSA-65 SUF/EUF-CMA forgery advantage
+eps_classify(A,Z)   residual extraction-classifier gap not assigned elsewhere
+```
+
+The intended dependencies are:
+
+- `eps_vss_ideal` depends on the ideal VSS/DKG guarantees of `F_VSS_DKG`:
+  binding and extractability, hiding below threshold, output agreement,
+  complaint soundness, anti-framing, key-bias resistance, and transcript
+  binding.
+- `eps_ro_prior` depends on the prior-query events required by
+  [random-oracle-game.md](random-oracle-game.md), especially accepted
+  `H_c` inputs queried before commitment finalization.
+- `eps_reject` expands through
+  [rejection-sampling-bounds.md](rejection-sampling-bounds.md) as
+  `eps_rs_mask + eps_rs_commit + eps_rs_rej + eps_rs_withhold + eps_rs_ro
+  + eps_rs_verify`, corresponding to that worksheet's `eps_mask`,
+  `eps_commit`, `eps_rej`, `eps_withhold`, `eps_ro`, and `eps_verify` terms.
+- `eps_contrib` depends on a production contribution relation that is
+  simulatable for honest shares, sound and extractable for corrupted shares,
+  and bound to `H_contrib`.
+- `eps_evid` depends on the evidence leakage profile of `F_TMLDSA` and the
+  active-adversary evidence model.
+- `eps_mldsa` is the base ML-DSA-65 forgery term for any unauthorized
+  accepting standard signature not explained by a threshold-side violation.
 
 ## SHR-2. Transition Lemmas
 
@@ -65,10 +112,13 @@ Bad events:
 - `BadSchedOrder`: canonical transcript state depends on arrival order rather
   than typed ordered fields.
 
-Transition bound placeholder:
+Worksheet transition bound:
 
 ```text
-|Pr[Z(S0)=1] - Pr[Z(S1)=1]| <= Adv_sched(A,Z) + Pr[BadSchedAuth or BadSchedFairness or BadSchedOrder]
+Delta_01 = |Pr[Exec_0=1] - Pr[Exec_1=1]|
+Delta_01 <= eps_sched(A,Z)
+          <= Adv_sched(A,Z)
+           + Pr[BadSchedAuth or BadSchedFairness or BadSchedOrder]
 ```
 
 ### Lemma SHR-L2, S1 to S2 Evidence Replacement
@@ -93,14 +143,17 @@ Bad events:
 - `BadReplayCredit`: a replayed frame is credited in a distinct session,
   message, validator set, public key, challenge, commitment set, or DKG digest.
 
-Transition bound placeholder:
+Worksheet transition bound:
 
 ```text
-Delta_12 <= Adv_evidence_noninterference(A,Z)
-          + Adv_transcript_binding(A)
-          + Adv_commit_bind(A)
-          + Adv_vss_bind(A)
-          + Adv_contrib_bind(A)
+Delta_12 <= eps_evid(A,Z)
+eps_evid(A,Z) <= Adv_evidence_noninterference(A,Z)
+               + Adv_evidence_soundness(A,Z)
+               + Adv_evidence_antiframe(A,Z)
+               + Adv_transcript_binding(A)
+               + Adv_commit_bind(A)
+               + Adv_vss_bind(A)
+               + Adv_contrib_bind(A)
 ```
 
 ### Lemma SHR-L3, S2 to S3 DKG/VSS Simulation
@@ -110,10 +163,12 @@ Claim target: simulated DKG public transcripts and ideal registration of
 active corruptions below threshold, while preserving corrupted dealer and
 receiver behavior.
 
-Reduction target or assumption: VSS binding, VSS hiding, VSS extractability,
-DKG output agreement, DKG key-bias resistance, complaint soundness,
-anti-framing, and threshold-share secrecy as described in
-[vss-dkg-security-plan.md](vss-dkg-security-plan.md).
+Reduction target or assumption: the ideal VSS/DKG setup functionality
+`F_VSS_DKG`, or a later concrete backend proving VSS binding, VSS hiding, VSS
+extractability, DKG output agreement, DKG key-bias resistance, complaint
+soundness, anti-framing, transcript binding, and threshold-share secrecy as
+described in [vss-dkg-security-plan.md](vss-dkg-security-plan.md) and
+[vss-idealization-and-selection.md](vss-idealization-and-selection.md).
 
 Bad events:
 
@@ -128,13 +183,24 @@ Bad events:
 - `BadDkgBias`: the rushing adversary biases the joint key distribution beyond
   the selected DKG theorem.
 
-Transition bound placeholder:
+Worksheet transition bound:
 
 ```text
-Delta_23 <= Adv_vss_bind(A) + Adv_vss_hide(A) + Adv_vss_extract(A)
-          + Adv_dkg_agreement(A) + Adv_dkg_key_bias(A)
-          + Adv_complaint_soundness(A)
+Delta_23 <= eps_vss_ideal(A,Z)
+eps_vss_ideal(A,Z)
+  <= Adv_F_VSS_DKG_realization(B_vss)
+   + Adv_vss_bind(B_vss)
+   + Adv_vss_hide(B_vss)
+   + Adv_vss_extract(B_vss)
+   + Adv_dkg_agreement(B_vss)
+   + Adv_dkg_key_bias(B_vss)
+   + Adv_complaint_soundness(B_vss)
+   + Adv_vss_antiframe(B_vss)
 ```
+
+If the proof remains inside the ideal setup model, the
+`Adv_F_VSS_DKG_realization` term is not claimed negligible; it is an explicit
+assumption boundary.
 
 ### Lemma SHR-L4, S3 to S4 Commitment Simulation
 
@@ -158,11 +224,14 @@ Bad events:
 - `BadCommitEquiv`: a corrupted signer equivocates in a way accepted as one
   honest-consistent commitment without public evidence.
 
-Transition bound placeholder:
+Worksheet transition bound:
 
 ```text
-Delta_34 <= Adv_commit_hide(A) + Adv_commit_bind(A)
-          + Adv_ro_program_Hw(A) + Pr[BadHwPrior]
+Delta_34 <= eps_commit(A,Z) + eps_ro_prior(A,Z)
+eps_commit(A,Z) <= Adv_commit_hide(B_commit)
+                 + Adv_commit_bind(B_commit)
+                 + Adv_commit_equiv(B_commit)
+eps_ro_prior(A,Z) includes Pr[BadHwPrior]
 ```
 
 ### Lemma SHR-L5, S4 to S5 Partial and Contribution-Proof Simulation
@@ -189,12 +258,16 @@ Bad events:
   verifies in another.
 - `BadHcontribPrior`: a prior `H_contrib` query prevents required programming.
 
-Transition bound placeholder:
+Worksheet transition bound:
 
 ```text
-Delta_45 <= Adv_contrib_zk_or_hiding(A) + Adv_contrib_sound(A)
-          + Adv_contrib_extract(A) + Adv_vss_extract(A)
-          + Adv_ro_program_Hcontrib(A) + Pr[BadHcontribPrior]
+Delta_45 <= eps_contrib(A,Z) + eps_vss_ideal(A,Z) + eps_ro_prior(A,Z)
+eps_contrib(A,Z)
+  <= Adv_contrib_zk_or_hiding(B_contrib)
+   + Adv_contrib_sound(B_contrib)
+   + Adv_contrib_extract(B_contrib)
+   + Adv_contrib_context_bind(B_contrib)
+eps_ro_prior(A,Z) includes Pr[BadHcontribPrior]
 ```
 
 ### Lemma SHR-L6, S5 to S6 Random-Oracle Table Exposure
@@ -221,12 +294,16 @@ Bad events:
 - `BadCrossSession`: a programmed oracle value is reused across concurrent
   sessions, retries, validator sets, public keys, messages, or DKG digests.
 
-Transition bound placeholder:
+Worksheet transition bound:
 
 ```text
-Delta_56 <= Adv_ro_program(A) + Adv_domain_sep(A)
-          + Adv_transcript_injective(A)
-          + Pr[BadHmuPrior or BadHcPrior or BadCrossSession]
+Delta_56 <= eps_ro_prior(A,Z) + eps_ro_sep(A,Z)
+eps_ro_prior(A,Z)
+  <= Adv_ro_program(B_ro)
+   + Pr[BadHmuPrior or BadHwPrior or BadHcPrior
+        or BadHvssPrior or BadHcontribPrior or BadCrossSession]
+eps_ro_sep(A,Z)
+  <= Adv_domain_sep(B_ro) + Adv_transcript_injective(B_ro)
 ```
 
 ### Lemma SHR-L7, S6 to S7 Authorized Signature Replacement
@@ -254,13 +331,55 @@ Bad events:
 - `BadEvidenceReject`: rejection-sampling failure is exposed as slashable
   evidence rather than an ordinary retry or abort condition.
 
-Transition bound placeholder:
+Transition dependencies:
+
+- S6 must already provide global lazy tables for every oracle domain and a
+  canonical `H_c(sid, t, V, pk, m or mu, Com)` value for the accepted
+  commitment set.
+- Any prior-query conflict for `H_c` must have been charged to `eps_ro_prior`
+  in `Delta_56`; S7 does not silently reprogram `H_c`.
+- Contribution frames counted in the aggregate must already be bound to one
+  validator, one session, one commitment, one challenge, one public key, and
+  one DKG digest, or the loss is charged to `eps_contrib`.
+- Ordinary rejection-sampling failures and unattributable timeouts must remain
+  retry or abort leakage, not slashable evidence, or the loss is charged to
+  `eps_evid`.
+
+Define the authorized-release distinguisher `D_67` from `(A,Z)` as the
+distinguisher that receives the accepted real threshold transcript in S6 or the
+`F_TMLDSA` released signature in S7 and outputs `Z`'s bit. The worksheet target
+is:
 
 ```text
-Delta_67 <= Adv_rejection_sampling(A,Z)
-          + Adv_abort_bias(A,Z)
-          + Adv_aggregation_correctness(A)
-          + Adv_evidence_noninterference(A,Z)
+eps_reject(A,Z)
+  := Adv_rej_sampling(D_67)
+eps_reject(A,Z)
+  <= eps_rs_mask + eps_rs_commit + eps_rs_rej
+   + eps_rs_withhold + eps_rs_ro + eps_rs_verify
+```
+
+where the six `eps_rs_*` terms correspond to the rejection-sampling worksheet's
+`eps_mask`, `eps_commit`, `eps_rej`, `eps_withhold`, `eps_ro`, and
+`eps_verify`.
+
+Worksheet transition bound:
+
+```text
+Delta_67 <= eps_reject(A,Z)
+          + eps_abort(A,Z)
+          + eps_release(A,Z)
+          + eps_evid(A,Z)
+          + eps_collect(A,Z)
+
+eps_abort(A,Z)
+  <= Adv_abort_bias(B_abort)
+   + Pr[retry transcript reuses mask or challenge material]
+   + Delta(View_with_abort_labels, SimulatedView)
+
+eps_collect(A,Z)
+  <= Adv_aggregation_correctness(B_agg)
+   + Adv_collection_validation(B_coll)
+   + Adv_challenge_binding(B_ro)
 ```
 
 ### Lemma SHR-L8, S7 to S8 Unauthorized Output Extraction
@@ -270,10 +389,11 @@ for an unauthorized message yields either an ML-DSA EUF-CMA forgery or a
 violation of a listed threshold, VSS, commitment, contribution-proof,
 random-oracle, or evidence assumption.
 
-Reduction target or assumption: ML-DSA EUF-CMA, threshold-share soundness,
-VSS binding/hiding/extractability, commitment binding/hiding,
-contribution-proof soundness/extractability, random-oracle challenge binding,
-canonical collection validation, and evidence noninterference.
+Reduction target or assumption: base ML-DSA EUF-CMA or strong unforgeability,
+threshold-share soundness, ideal-VSS or concrete VSS binding/hiding/
+extractability, commitment binding/hiding, contribution-proof soundness/
+extractability, random-oracle challenge binding, canonical collection
+validation, and evidence noninterference.
 
 Bad events:
 
@@ -288,17 +408,50 @@ Bad events:
 - `BadIdealMismatch`: `F_TMLDSA` rejects a release that the real protocol would
   accept without one of the preceding bad events.
 
-Transition bound placeholder:
+Transition dependencies:
+
+- S7 has already replaced every authorized accepting output with a
+  `ReleaseSignature` result from `F_TMLDSA`, so a remaining accepting
+  `(m*, sigma*)` with unauthorized `m*` is either a base ML-DSA forgery or a
+  threshold-side assumption violation.
+- If `(m*, sigma*)` is byte-identical to a previously released authorized
+  signature for the same message, it is not a forgery; if it verifies for a
+  different message or context, it is charged to ML-DSA strong unforgeability
+  or transcript binding.
+- If the accepting aggregate uses fewer than `t` valid, unique, in-set,
+  contribution-proof-bound shares, the loss is charged to `eps_threshold`,
+  `eps_collect`, `eps_contrib`, or `eps_ro_sep`.
+- If the extractor cannot classify the output into one of the named cases, the
+  residual is `eps_classify`; a completed proof must remove this term.
+
+For `q_out` adversarial aggregate verification attempts in the final game, the
+classifier target is:
 
 ```text
-Delta_78 <= Adv_MLDSA_EUF_CMA(B_mldsa)
-          + Adv_threshold_share(B_share)
-          + Adv_vss_bind_extract(B_vss)
-          + Adv_commit_bind(B_commit)
-          + Adv_contrib_sound_extract(B_contrib)
-          + Adv_ro_challenge_binding(B_ro)
-          + Adv_collection_validation(B_coll)
-          + Adv_evidence_noninterference(B_evid)
+Pr[BadUnauthorizedAccept]
+ <= q_out * eps_mldsa(B_mldsa)
+  + eps_threshold(A,Z)
+  + eps_vss_ideal(A,Z)
+  + eps_commit(A,Z)
+  + eps_contrib(A,Z)
+  + eps_ro_sep(A,Z)
+  + eps_collect(A,Z)
+  + eps_evid(A,Z)
+  + eps_classify(A,Z)
+```
+
+Worksheet transition bound:
+
+```text
+Delta_78 <= q_out * eps_mldsa(B_mldsa)
+          + eps_threshold(A,Z)
+          + eps_vss_ideal(A,Z)
+          + eps_commit(A,Z)
+          + eps_contrib(A,Z)
+          + eps_ro_sep(A,Z)
+          + eps_collect(A,Z)
+          + eps_evid(A,Z)
+          + eps_classify(A,Z)
 ```
 
 ## SHR-3. Explicit Simulator Failure Events
@@ -327,7 +480,7 @@ decomposition when any of the following events occurs.
 | `FailUnauthorizedAccept` | The adversary outputs a valid unauthorized aggregate signature. | ML-DSA EUF-CMA or a threshold-assumption violation. |
 | `FailExtractionGap` | The simulator cannot classify an accepting output as authorized or as one listed assumption break. | Missing reduction. |
 
-## SHR-4. Advantage Decomposition
+## SHR-4. Consolidated Real/Ideal Bound
 
 Let `Exec_i` denote the environment's output bit in hybrid `Si`. The intended
 real/ideal distinguishing advantage is bounded by a telescoping sum:
@@ -339,36 +492,55 @@ Adv_real_ideal(A,Z) =
   + Delta_45 + Delta_56 + Delta_67 + Delta_78.
 ```
 
-The transition terms are placeholders until concrete reductions and theorem
-bounds are supplied:
-
-```text
-Delta_01 = scheduling abstraction and authenticated network equivalence
-Delta_12 = evidence soundness, anti-framing, and noninterference
-Delta_23 = VSS/DKG binding, hiding, extractability, agreement, and key-bias resistance
-Delta_34 = commitment binding/hiding plus H_w programming loss
-Delta_45 = contribution-proof hiding, soundness, extractability, and H_contrib programming loss
-Delta_56 = random-oracle programming, domain separation, transcript injectivity, and prior-query loss
-Delta_67 = rejection-sampling bound, abort compatibility, aggregation correctness, and release leakage
-Delta_78 = ML-DSA EUF-CMA or listed threshold-assumption violations for unauthorized outputs
-```
-
-Equivalently, later proof work should instantiate a bound of the following
-shape:
+Theorem-style worksheet target SHR-T1. For every PPT real-world adversary `A`
+and environment `Z` in the static active corruption model with `|C| < t`, if
+the simulator satisfies the transition dependencies in SHR-L1 through SHR-L8,
+then a completed proof should instantiate reductions such that:
 
 ```text
 Adv_real_ideal(A,Z)
- <= Adv_MLDSA_EUF_CMA(B_mldsa)
-  + Adv_ro_program(B_ro)
-  + Adv_vss_bind_hide_extract(B_vss)
-  + Adv_commit_bind_hide(B_commit)
-  + Adv_contrib_sound_hide_extract(B_contrib)
-  + Adv_rejection_sampling(B_reject)
-  + Adv_evidence_noninterference(B_evid)
-  + Adv_network_sched(B_sched)
-  + Adv_collection_transcript(B_transcript)
+ <= eps_sched(A,Z)
+  + eps_evid(A,Z)
+  + eps_vss_ideal(A,Z)
+  + eps_commit(A,Z)
+  + eps_contrib(A,Z)
+  + eps_ro_prior(A,Z)
+  + eps_ro_sep(A,Z)
+  + eps_reject(A,Z)
+  + eps_abort(A,Z)
+  + eps_release(A,Z)
+  + eps_collect(A,Z)
+  + eps_threshold(A,Z)
+  + q_out * eps_mldsa(B_mldsa)
+  + eps_classify(A,Z)
   + negl(lambda).
 ```
+
+with the main expansion:
+
+```text
+eps_reject(A,Z)
+ <= eps_rs_mask + eps_rs_commit + eps_rs_rej
+  + eps_rs_withhold + eps_rs_ro + eps_rs_verify
+```
+
+This is still a worksheet equation. In particular:
+
+- `eps_vss_ideal` is an explicit ideal setup dependency unless a later DKG/VSS
+  realization theorem replaces `F_VSS_DKG`.
+- `eps_ro_prior` must include every prior-query failure for `H_mu`, `H_w`,
+  `H_c`, `H_vss`, and `H_contrib`; S6 to S7 may rely only on already charged
+  prior-query events.
+- `eps_contrib` must be closed before S6 to S7 can claim that all counted
+  shares are context-bound and simulatable.
+- `eps_reject`, `eps_abort`, and `eps_release` are the core S6 to S7
+  dependencies; they must prove both standard ML-DSA distributional
+  equivalence and no extra release or evidence leakage.
+- `q_out * eps_mldsa(B_mldsa)` is only available for unauthorized accepting
+  outputs not already explained by threshold, collection, oracle, or evidence
+  failures.
+- `eps_classify` must be eliminated, not merely bounded, before the worksheet
+  can become a completed proof.
 
 Every term must be parameterized by the number of sessions, oracle queries,
 validators, corruptions, retries, evidence records, and aggregate verification
