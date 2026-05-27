@@ -7,14 +7,18 @@ const REAL_IDEAL_SIMULATOR: &str = "docs/cryptography/real-ideal-simulator.md";
 const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
 const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
 const REJECTION_HYBRID_PROOF: &str = "docs/cryptography/rejection-sampling-hybrid-proof.md";
+const REJECTION_BOUNDS: &str = "docs/cryptography/rejection-sampling-bounds.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
+const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
 const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
 const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
 const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
 const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
+const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
+const PROOF_BIBLIOGRAPHY: &str = "docs/cryptography/proof-bibliography.md";
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
 
 fn read_doc(path: &str) -> String {
@@ -41,14 +45,18 @@ fn proof_documentation_manifest_tracks_required_docs() {
         CORRECTNESS_LEMMAS,
         NOISE_REJECTION,
         REJECTION_HYBRID_PROOF,
+        REJECTION_BOUNDS,
         VSS_DKG_PLAN,
         VSS_BACKEND_SELECTION,
+        VSS_IDEALIZATION_SELECTION,
         ACTIVE_ADVERSARY,
         RANDOM_ORACLE_GAME,
         SIDE_CHANNEL_BOUNDARY,
         FORMAL_TRANSCRIPT,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
+        SIMULATOR_HYBRID_REDUCTIONS,
+        PROOF_BIBLIOGRAPHY,
         PHASE_1_NOISE_MODEL,
     ] {
         assert!(
@@ -136,6 +144,18 @@ fn full_proof_surface_exposes_stable_anchors() {
         ],
     );
     assert_contains_all(
+        REJECTION_BOUNDS,
+        &[
+            "# Rejection-Sampling Bounds Worksheet",
+            "rejection-sampling-bounds",
+            "Status: bound-oriented proof worksheet, not a completed proof.",
+            "eps_mask",
+            "eps_withhold",
+            "eps_rej",
+            "## Top Missing Mathematical Bounds",
+        ],
+    );
+    assert_contains_all(
         VSS_DKG_PLAN,
         &[
             "vss-security-properties",
@@ -158,6 +178,16 @@ fn full_proof_surface_exposes_stable_anchors() {
             "backend-selection-checklist",
             "vss-backend-decision-record",
             "Current decision: no backend selected.",
+        ],
+    );
+    assert_contains_all(
+        VSS_IDEALIZATION_SELECTION,
+        &[
+            "# VSS Idealization and Backend Selection",
+            "vss-idealization-and-selection",
+            "Ideal Functionality `F_VSS_DKG`",
+            "The `F_TMLDSA` proof may cite `F_VSS_DKG`",
+            "not a production backend selection",
         ],
     );
     assert_contains_all(
@@ -211,6 +241,28 @@ fn full_proof_surface_exposes_stable_anchors() {
             "## Full-Proof Surface Claim Overlay",
             "Threshold EUF-CMA security",
             "Rejection-sampling distribution preservation",
+        ],
+    );
+    assert_contains_all(
+        SIMULATOR_HYBRID_REDUCTIONS,
+        &[
+            "# Simulator Hybrid Reductions Worksheet",
+            "simulator-hybrid-reductions",
+            "This is a reduction worksheet, not a completed proof.",
+            "## SHR-1. Hybrid Restatement S0..S8",
+            "## SHR-5. Hardest Remaining Reductions",
+        ],
+    );
+    assert_contains_all(
+        PROOF_BIBLIOGRAPHY,
+        &[
+            "# Proof Dependency Bibliography and Citation Map",
+            "proof-bibliography",
+            "## FIPS 204 / ML-DSA",
+            "## Fiat-Shamir With Aborts",
+            "## VSS/DKG",
+            "## Citation Closure Checklist",
+            "Citation needed",
         ],
     );
 }

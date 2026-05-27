@@ -200,3 +200,44 @@ The project may claim "cryptographically proven construction" only after all of 
   signing simulation, abort/evidence simulation, and hybrid sequence.
 - [x] Link simulator skeleton from theorem and ideal-functionality documents.
 - [x] Add manifest anchors for the simulator skeleton.
+
+## Parallel Batch 4: Proof Reduction Worksheets
+
+### Task 12: Rejection-Sampling Bounds Worksheet
+
+**Files:**
+- Create: `docs/cryptography/rejection-sampling-bounds.md`
+
+- [x] Define symbolic ML-DSA-65 bounds and inequalities for accepted threshold
+  responses.
+- [x] Decompose selective-abort advantage into masking, commitment, aggregate
+  rejection, and withholding terms.
+- [x] Map each bound to current evidence and remaining proof work.
+
+### Task 13: VSS Idealization And Backend Selection
+
+**Files:**
+- Create: `docs/cryptography/vss-idealization-and-selection.md`
+
+- [x] Define an ideal `F_VSS_DKG` for proof staging.
+- [x] State when `F_TMLDSA` may cite ideal VSS/DKG.
+- [x] Add a decision tree for idealization versus concrete lattice/vector
+  commitment selection.
+
+### Task 14: Simulator Hybrid Reductions
+
+**Files:**
+- Create: `docs/cryptography/simulator-hybrid-reductions.md`
+
+- [x] Convert S0..S8 into transition lemmas.
+- [x] Map each transition to a reduction target or explicit assumption.
+- [x] Decompose simulator failure events and identify hardest reductions.
+
+### Task 15: Proof Bibliography And Citation Map
+
+**Files:**
+- Create: `docs/cryptography/proof-bibliography.md`
+
+- [x] Map external theorem needs to proof documents.
+- [x] Add conservative citation placeholders instead of invented citations.
+- [x] Add a citation closure checklist for reviewer/audit readiness.
