@@ -6,7 +6,7 @@ Date: 2026-05-22
 
 Approved design direction for Phase 1 cryptographic core and Phase 2 public API boundary.
 
-This document specifies a Rust crate, `lattice-aggregation`, that exposes a threshold ML-DSA-65 protocol surface suitable for consensus integration experiments. The crate must be treated as research-grade until the concrete threshold construction, bounds, backend implementation, and test vectors have received external cryptographic review.
+This document specifies a Rust crate, `dytallix-pq-threshold`, that exposes a threshold ML-DSA-65 protocol surface suitable for consensus integration experiments. The crate must be treated as research-grade until the concrete threshold construction, bounds, backend implementation, and test vectors have received external cryptographic review.
 
 ## Scope
 
@@ -98,7 +98,7 @@ pub struct PrivateKeyShare {
 ## Module Layout
 
 ```text
-lattice-aggregation/
+dytallix-pq-threshold/
 ├── Cargo.toml
 ├── src/
 │   ├── lib.rs

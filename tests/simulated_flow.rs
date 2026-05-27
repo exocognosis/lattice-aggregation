@@ -1,4 +1,4 @@
-use lattice_aggregation::{
+use dytallix_pq_threshold::{
     Commitment, CommitmentSet, Mldsa65Backend, PartialShareSet, PartialSignatureShare,
     PrivateKeyShare, SignatureAggregator, SigningSession, SigningTranscript, SimulatedAggregator,
     SimulatedBackend, SimulatedDkg, ThresholdError, ThresholdKeyGeneration, ThresholdPublicKey,

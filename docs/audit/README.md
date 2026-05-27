@@ -1,22 +1,34 @@
 # Audit Packet
 
-Date: 2026-05-26
+Date: 2026-05-27
 
-This packet is a reviewer/security triage aid for the current research
-scaffold and deterministic ML-DSA-65 simulation backend. It does not certify
-production readiness.
+## Purpose
+
+This packet gives reviewers a compact map of the current research scaffold,
+hazmat ML-DSA-65 backend, and publication claim boundary. It supports audit and
+paper review. It does not certify the crate as production-ready and does not
+close the proof obligations required for secure threshold ML-DSA-65.
 
 Start here:
 
-- [Attack Surface Map](attack-surface.md): where untrusted inputs, feature
-  gates, hazmat internals, evidence artifacts, benchmarks, and documentation
-  claims should be inspected first.
-- [Trusted Computing Base](tcb.md): what the current scaffold asks reviewers to
-  trust, dependency assumptions, feature-gate risks, high-priority files, and
-  explicit non-production boundaries.
+- [attack-surface.md](attack-surface.md) maps the main review surfaces and
+  failure modes.
+- [tcb.md](tcb.md) lists the current trusted computing base, dependency
+  assumptions, feature-gate risks, review files, and non-production boundaries.
 
-Related review material:
+Supporting claim-boundary documents:
 
-- [Phase 1 Noise Bound Model](../cryptography/phase-1-noise-bound-model.md)
-- [Threshold ML-DSA Core API Design](../superpowers/specs/2026-05-22-threshold-mldsa-core-api-design.md)
-- [Threshold Adapter Scaffold Design](../superpowers/specs/2026-05-22-threshold-adapter-scaffold-design.md)
+- [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md)
+- [../cryptography/protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md)
+- [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md)
+- [../benchmarks/release-readiness-checklist.md](../benchmarks/release-readiness-checklist.md)
+
+## Review Scope
+
+The current repository may be reviewed as a reproducible research artifact with
+feature-gated hazmat internals, deterministic simulations, transcript/artifact
+checks, and fail-closed production policy boundaries.
+
+It must not be reviewed as a production deployment package. Production security
+requires the proof, implementation, side-channel, operational, and external
+review closures tracked in the documents above.
