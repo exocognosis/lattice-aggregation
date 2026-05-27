@@ -43,6 +43,9 @@ Non-goals:
 
 The intended first security target is static active security for at most `f`
 corrupted validators, as described in `docs/cryptography/security-model.md`.
+Candidate backend families and the current selection decision are tracked in
+[vss-backend-selection.md](vss-backend-selection.md). As of this document date,
+no production VSS/DKG backend is selected.
 
 ## Public Parameters
 
@@ -538,3 +541,26 @@ Before replacing the scaffold backend, implementation work should complete:
 Until this checklist and the proof obligations are closed, the project should
 describe VSS/DKG as a scaffold with a specified production replacement target,
 not as an implemented malicious-secure DKG.
+
+## Selection Decision Record
+<a id="production-vss-selection-decision-record"></a>
+
+Current decision: no production VSS/DKG backend is selected.
+
+Selection gate:
+
+1. Compare candidate backend families using
+   [vss-backend-selection.md](vss-backend-selection.md).
+2. Record the selected backend ID, version, domain separators, public
+   parameters, relation, witness, commitment, opening, proof, and complaint
+   evidence formats.
+3. Show how the selected backend satisfies binding, hiding, extractability,
+   complaint soundness, anti-framing, key-bias resistance, and implementation
+   risk requirements.
+4. Link the complete proof obligations, negative tests, production policy gate,
+   and external cryptographic review.
+
+Recommended path: investigate lattice/vector commitments with opening proofs
+because they can align with ML-DSA's module-lattice algebra and post-quantum
+assumptions. This recommendation is not a selection and does not change the
+current scaffold-only implementation status.

@@ -9,7 +9,8 @@ Date: 2026-05-27
 
 This document defines the ideal threshold ML-DSA-65 signing functionality
 `F_TMLDSA` that the production protocol should realize. It is intended to pair
-with `formal-security-theorem.md`.
+with [formal-security-theorem.md](formal-security-theorem.md) and the simulator
+skeleton in [real-ideal-simulator.md](real-ideal-simulator.md).
 
 `F_TMLDSA` specifies the target behavior for key registration, threshold signing,
 abort handling, signature release, and evidence notification. It does not define
@@ -375,7 +376,9 @@ A simulator for `F_TMLDSA` must:
   random-oracle model
 - maintain consistency across concurrent sessions for the same key epoch
 
-No simulator construction is currently present in the repository.
+The current simulator construction is only a skeleton in
+[real-ideal-simulator.md](real-ideal-simulator.md); it is not a completed proof
+and does not close these obligations.
 
 ## IF-9. Concurrency and Replay Rules
 

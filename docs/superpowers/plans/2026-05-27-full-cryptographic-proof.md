@@ -147,3 +147,56 @@ The project may claim "cryptographically proven construction" only after all of 
 - [ ] VSS/DKG backend is no longer scaffolded or the theorem explicitly assumes an ideal VSS/DKG functionality.
 - [ ] Rejection-sampling distribution equivalence is proven for the threshold protocol.
 - [ ] External lattice/PQ cryptography review has been completed.
+
+## Parallel Batch 3: Proof Body Expansion
+
+### Task 8: Correctness Proof Expansion
+
+**Files:**
+- Modify: `docs/cryptography/correctness-lemmas.md`
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Strengthen field inversion, Lagrange basis, coefficient-lane Shamir
+  reconstruction, canonical collection, transcript binding, aggregation,
+  standard verification, and norm-preservation proof sketches.
+- [x] Add explicit preconditions and current-evidence boundaries.
+- [x] Add manifest anchors for strengthened correctness sections.
+
+### Task 9: Rejection-Sampling Hybrid Proof
+
+**Files:**
+- Create: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/noise-rejection-proof-plan.md`
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Define hybrids from centralized ML-DSA to accepted threshold aggregate
+  output.
+- [x] Track commit-before-challenge, partial response reconstruction, aggregate
+  rejection, and accepted-signature distribution gaps.
+- [x] Add manifest anchors for the hybrid proof.
+
+### Task 10: VSS Backend Selection Framework
+
+**Files:**
+- Create: `docs/cryptography/vss-backend-selection.md`
+- Modify: `docs/cryptography/vss-dkg-security-plan.md`
+- Modify: `docs/cryptography/production-vss-backend.md`
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Compare candidate backend families and their proof assumptions.
+- [x] Add a conservative no-backend-selected decision record unless a candidate
+  is justified.
+- [x] Add manifest anchors for backend-selection criteria.
+
+### Task 11: Real/Ideal Simulator Skeleton
+
+**Files:**
+- Create: `docs/cryptography/real-ideal-simulator.md`
+- Modify: `docs/cryptography/ideal-functionality.md`
+- Modify: `docs/cryptography/formal-security-theorem.md`
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Define simulator state, oracle programming points, DKG simulation,
+  signing simulation, abort/evidence simulation, and hybrid sequence.
+- [x] Link simulator skeleton from theorem and ideal-functionality documents.
+- [x] Add manifest anchors for the simulator skeleton.

@@ -20,7 +20,9 @@ still does not satisfy the theorem below.
 This document is meant to compose with the existing protocol, transcript,
 security-model, and proof-obligation notes in this directory. It should be
 treated as a precise target statement and dependency map, not as evidence that
-a proof has been completed.
+a proof has been completed. The real/ideal simulator outline is tracked in
+[real-ideal-simulator.md](real-ideal-simulator.md) as a simulator skeleton, not
+a completed proof.
 
 ## FST-1. Objects and Notation
 
@@ -217,7 +219,9 @@ threshold protocol UC-realizes `F_TMLDSA` against static Byzantine corruption of
 at most `t - 1` validators in the random-oracle model selected for ML-DSA-65.
 
 Proof status: not proved in this repository. Required lemmas include FST-L1
-through FST-L9 plus a complete simulator construction.
+through FST-L9 plus a complete simulator construction. The current
+[real-ideal-simulator.md](real-ideal-simulator.md) document is only the
+simulator and hybrid skeleton for that future construction.
 
 Theorem FST-T3, transcript non-malleability target. Assuming FST-A7 and
 FST-A8, the advantage of any adversary in Game FST-G3 is negligible.
@@ -237,7 +241,9 @@ not a cryptographic reduction.
 
 ## FST-7. Real-to-Ideal Proof Shape
 
-The intended proof of FST-T2 should proceed through hybrids:
+The intended proof of FST-T2 should proceed through hybrids. The expanded
+simulator-oriented sequence is S0..S8 in
+[real-ideal-simulator.md](real-ideal-simulator.md#ris-9-hybrid-sequence-s0s8).
 
 Hybrid FST-H0. Real production protocol with real DKG, commitments, partial
 shares, aggregation, and network scheduling.

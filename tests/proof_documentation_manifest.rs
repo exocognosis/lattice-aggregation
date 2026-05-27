@@ -3,9 +3,12 @@ use std::{fs, path::Path};
 const PROOF_CROSSWALK: &str = "docs/cryptography/proof-implementation-crosswalk.md";
 const FORMAL_THEOREM: &str = "docs/cryptography/formal-security-theorem.md";
 const IDEAL_FUNCTIONALITY: &str = "docs/cryptography/ideal-functionality.md";
+const REAL_IDEAL_SIMULATOR: &str = "docs/cryptography/real-ideal-simulator.md";
 const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
 const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
+const REJECTION_HYBRID_PROOF: &str = "docs/cryptography/rejection-sampling-hybrid-proof.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
+const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
 const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
 const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
@@ -34,9 +37,12 @@ fn proof_documentation_manifest_tracks_required_docs() {
         PROOF_CROSSWALK,
         FORMAL_THEOREM,
         IDEAL_FUNCTIONALITY,
+        REAL_IDEAL_SIMULATOR,
         CORRECTNESS_LEMMAS,
         NOISE_REJECTION,
+        REJECTION_HYBRID_PROOF,
         VSS_DKG_PLAN,
+        VSS_BACKEND_SELECTION,
         ACTIVE_ADVERSARY,
         RANDOM_ORACLE_GAME,
         SIDE_CHANNEL_BOUNDARY,
@@ -75,12 +81,33 @@ fn full_proof_surface_exposes_stable_anchors() {
         ],
     );
     assert_contains_all(
+        REAL_IDEAL_SIMULATOR,
+        &[
+            "# Real/Ideal Simulator Skeleton for Threshold ML-DSA-65",
+            "real-ideal-simulator-skeleton",
+            "## RIS-2. Simulator State",
+            "## RIS-4. Oracle Programming Points",
+            "## RIS-5. Corruption Handling",
+            "## RIS-6. DKG Simulation",
+            "## RIS-7. Signing Simulation",
+            "## RIS-8. Abort and Evidence Simulation",
+            "## RIS-9. Hybrid Sequence S0..S8",
+            "simulator skeleton, not a completed proof",
+        ],
+    );
+    assert_contains_all(
         CORRECTNESS_LEMMAS,
         &[
             "lemma-lagrange-reconstruction",
+            "lemma-coefficient-lane-shamir",
+            "lemma-transcript-challenge-binding",
+            "lemma-infinity-norm-preservation",
             "lemma-standard-verification",
+            "Current evidence vs remaining proof:",
             "## Lemma 3: Coefficient-Lane Shamir Reconstruction over `R_q`",
+            "## Lemma 5: Transcript Challenge Binding",
             "## Lemma 7: Standard ML-DSA Verification Compatibility",
+            "## Lemma 8: Infinity-Norm Bound Preservation under Accepted Aggregation",
         ],
     );
     assert_contains_all(
@@ -88,8 +115,24 @@ fn full_proof_surface_exposes_stable_anchors() {
         &[
             "noise-bound-obligations",
             "rejection-sampling-gap",
+            "rejection-sampling-hybrid-proof.md",
             "## Lemma D: Infinity-Norm Bound Preservation",
             "## Exactly What Remains to Be Proven",
+        ],
+    );
+    assert_contains_all(
+        REJECTION_HYBRID_PROOF,
+        &[
+            "# Rejection-Sampling Hybrid Proof Skeleton",
+            "rejection-hybrid-proof",
+            "rsh-h0-centralized-mldsa",
+            "rsh-h1-shared-secret-decomposition",
+            "rsh-h2-shared-mask-generation",
+            "rsh-h3-commit-before-challenge",
+            "rsh-h4-partial-response-reconstruction",
+            "rsh-h5-aggregate-rejection-predicate",
+            "rsh-h6-accepted-signature-distribution",
+            "Distribution equivalence is not complete.",
         ],
     );
     assert_contains_all(
@@ -97,8 +140,24 @@ fn full_proof_surface_exposes_stable_anchors() {
         &[
             "vss-security-properties",
             "dkg-key-bias-resistance",
+            "vss-dkg-backend-selection-checklist",
             "production-replacement-obligations",
             "## Current Non-Claims",
+        ],
+    );
+    assert_contains_all(
+        VSS_BACKEND_SELECTION,
+        &[
+            "# VSS/DKG Backend Selection Framework",
+            "vss-backend-selection",
+            "backend-selection-required-properties",
+            "candidate-feldman-pedersen",
+            "candidate-lattice-vector-commitments",
+            "candidate-ideal-functionality-placeholder",
+            "backend-selection-comparison-matrix",
+            "backend-selection-checklist",
+            "vss-backend-decision-record",
+            "Current decision: no backend selected.",
         ],
     );
     assert_contains_all(

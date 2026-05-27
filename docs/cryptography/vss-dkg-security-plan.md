@@ -8,6 +8,11 @@ This plan specifies the VSS/DKG properties and production replacements required
 before the repository can support a full cryptographic proof. It intentionally
 does not claim that the current VSS or DKG code is production proven.
 
+Backend selection is tracked in
+[vss-backend-selection.md](vss-backend-selection.md). No production backend is
+selected yet; the current repository only defines the required properties,
+candidate families, and fail-closed policy boundaries.
+
 The available code reviewed for this plan has deterministic test machinery:
 
 - `src/crypto/vss.rs` evaluates Shamir-style polynomial shares over scaffold
@@ -216,6 +221,30 @@ The following replacements are required before production cryptographic claims.
     dealers, invalid complaints, equivocation, rushing order changes, adaptive
     state exposure where claimed, and key-bias attempts.
 
+## Backend Selection Checklist
+<a id="vss-dkg-backend-selection-checklist"></a>
+
+Before this plan can name a production VSS/DKG backend, the decision record in
+[vss-backend-selection.md](vss-backend-selection.md) must be updated with:
+
+1. A concrete backend family, backend ID, version, domain separators, and
+   parameter set.
+2. A complete `R_vss` statement, witness relation, commitment format, opening
+   format, proof format, and complaint evidence format.
+3. Proof coverage for binding, hiding, extractability, complaint soundness,
+   anti-framing, and key-bias resistance.
+4. A mapping from each public verifier predicate to Rust canonical encodings
+   and tests.
+5. A fail-closed production policy result showing scaffold and candidate
+   placeholders cannot satisfy production configuration.
+6. External cryptographic review of the selected construction and its
+   integration with threshold ML-DSA signing.
+
+Current selection status: no backend is selected. Lattice/vector commitments
+with opening proofs are the recommended investigation path, but they remain
+unselected until a concrete construction, parameterization, proof, tests, and
+review are recorded.
+
 ## Proof Obligations
 
 A full proof package must include:
@@ -245,3 +274,4 @@ repository must continue to state that:
   proofs.
 - Passing tests demonstrates API and transcript behavior, not production
   cryptographic security.
+- No VSS/DKG backend has been selected for production.
