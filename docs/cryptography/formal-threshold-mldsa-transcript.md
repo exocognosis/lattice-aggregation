@@ -1,4 +1,5 @@
 # Formal Threshold ML-DSA-65 Transcript Draft
+<a id="ftmt-0-scope"></a>
 
 Date: 2026-05-26
 
@@ -14,9 +15,12 @@ Adjacent scaffold documents:
 [formal-proof-scaffold.md](formal-proof-scaffold.md),
 [security-model.md](security-model.md),
 [proof-bearing-contribution-boundary.md](proof-bearing-contribution-boundary.md),
+[random-oracle-game.md](random-oracle-game.md),
 [protocol-code-crosswalk.md](protocol-code-crosswalk.md),
 [protocol-lock.md](protocol-lock.md), and
 [claims-matrix.md](claims-matrix.md).
+
+<a id="ftmt-1-notation"></a>
 
 ## Notation
 ```text
@@ -39,6 +43,25 @@ Com            binding commitment; hiding where the production proof requires it
 ```
 All encodings are intended to be canonical and domain separated. Participant
 ordering is by validator index, never by network arrival order.
+
+<a id="ftmt-2-random-oracle-alignment"></a>
+
+## Random Oracle Alignment
+
+The proof model treats challenge derivation as the `H_c` domain defined in
+[random-oracle-game.md](random-oracle-game.md). The current implementation in
+`src/transcript.rs` binds the protocol label
+`lattice-aggregation/threshold-mldsa65`, version `1`, session ID, threshold,
+canonical validator set, threshold public key, message bytes, and ordered
+commitment map before partial signature generation.
+
+A production proof may introduce a separate message representative `mu` through
+the `H_mu` domain, masking commitment digest through `H_w`, VSS relation
+digest through `H_vss`, and contribution proof digest through `H_contrib`.
+If it does, the production transcript must prove that those values are
+canonically encoded and are not interchangeable with the scaffold's raw message
+binding. Regression tests establish useful engineering guardrails, not a
+complete random-oracle simulation proof.
 
 ## Participants And Adversary
 Participants are validators `i in V`, an untrusted aggregator, a proposer or

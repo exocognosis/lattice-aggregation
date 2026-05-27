@@ -29,6 +29,35 @@ out here.
 - **Production Blocker**: this obligation must be closed before production
   security, deployment-readiness, or production slashing claims are made.
 
+## Full-Proof Surface Status Overlay
+
+The full-proof surface introduced on 2026-05-27 uses this more granular review
+language when mapping theorem and lemma targets to current repository evidence:
+
+- **implemented engineering guard**: code or tests enforce a scaffold
+  invariant, but no cryptographic proof follows from the guard alone.
+- **proof sketch only**: the repository states a plausible proof shape or
+  lemma, but has not completed a reduction, simulator, or parameter-specific
+  proof.
+- **external theorem dependency**: a final proof must cite and instantiate an
+  external result, such as the accepted ML-DSA-65 security theorem or a
+  selected commitment/proof-system theorem.
+- **open**: no production-facing claim may rely on the obligation.
+
+| Proof surface | Source | Current status | Closure requirement |
+| --- | --- | --- | --- |
+| FST-T1 threshold unforgeability | [formal-security-theorem.md](formal-security-theorem.md) | open | Complete FST-L1 through FST-L7, instantiate assumptions, and reduce forgeries to ML-DSA-65 or selected backend assumptions. |
+| FST-T2 real/ideal realization | [ideal-functionality.md](ideal-functionality.md) | open | Build simulator hybrids for DKG, commitments, partial shares, aborts, evidence, and final signatures. |
+| FST-T3 transcript non-malleability | [formal-security-theorem.md](formal-security-theorem.md), [random-oracle-game.md](random-oracle-game.md) | proof sketch only | Prove typed byte encodings are injective and domain-separated across `H_mu`, `H_w`, `H_c`, `H_vss`, and `H_contrib`. |
+| FST-T4 implementation conformance | [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md) | implemented engineering guard | Keep tests as necessary traceability gates while preserving the boundary that tests do not prove cryptographic security. |
+| Lagrange and Shamir reconstruction | [correctness-lemmas.md](correctness-lemmas.md) | proof sketch only | Prove all nonzero, duplicate-free active sets reconstruct over `Z_q` coefficient lanes and that callers enforce preconditions. |
+| Standard ML-DSA verification compatibility | [correctness-lemmas.md](correctness-lemmas.md), [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Prove accepted threshold transcripts produce `(c, z, h)` accepted by unmodified ML-DSA-65 verification. |
+| Noise and rejection-sampling preservation | [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Bound accepted-signature distribution and selective-abort leakage for the chosen threshold construction. |
+| VSS binding, hiding, and extractability | [vss-dkg-security-plan.md](vss-dkg-security-plan.md) | open | Select and prove a production VSS/DKG relation with complaint soundness and anti-framing semantics. |
+| Static active adversary model | [active-adversary-model.md](active-adversary-model.md) | proof sketch only | Fix exact corruption, rushing, synchrony, and evidence semantics used by the first production theorem. |
+| Adaptive security with erasures | [active-adversary-model.md](active-adversary-model.md) | open | Add erasure points, state exposure rules, and a separate simulator theorem. |
+| Side-channel and constant-time discipline | [side-channel-boundary.md](side-channel-boundary.md) | open | Add leakage-model closure, empirical timing artifacts, code review, compiler-output review, and external audit. |
+
 ## PO-1: Malicious-Secure DKG/VSS
 
 ### Statement

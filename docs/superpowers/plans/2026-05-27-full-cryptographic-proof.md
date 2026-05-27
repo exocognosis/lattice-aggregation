@@ -24,11 +24,11 @@ The full cryptographic theorem is not yet proven. The next phase must avoid over
 - Create: `docs/cryptography/formal-security-theorem.md`
 - Create: `docs/cryptography/ideal-functionality.md`
 
-- [ ] Define the main threshold ML-DSA-65 theorem.
-- [ ] Define assumptions for ML-DSA EUF-CMA security, random oracle programmability, VSS binding/hiding/extractability, and transcript collision resistance.
-- [ ] Define `F_TMLDSA` with setup, DKG, signing, output, and attributable abort behavior.
-- [ ] State exactly which theorem parts are proven by existing tests and which remain proof obligations.
-- [ ] Include stable anchors for later crosswalk tests:
+- [x] Define the main threshold ML-DSA-65 theorem.
+- [x] Define assumptions for ML-DSA EUF-CMA security, random oracle programmability, VSS binding/hiding/extractability, and transcript collision resistance.
+- [x] Define `F_TMLDSA` with setup, DKG, signing, output, and attributable abort behavior.
+- [x] State exactly which theorem parts are proven by existing tests and which remain proof obligations.
+- [x] Include stable anchors for later crosswalk tests:
   - `theorem-tmldsa-euf-cma`
   - `assumptions`
   - `ideal-functionality-ftmldsa`
@@ -40,12 +40,12 @@ The full cryptographic theorem is not yet proven. The next phase must avoid over
 - Create: `docs/cryptography/correctness-lemmas.md`
 - Create: `docs/cryptography/noise-rejection-proof-plan.md`
 
-- [ ] Formalize Shamir/Lagrange reconstruction over `Z_q`.
-- [ ] Formalize aggregation correctness for threshold response terms.
-- [ ] State the standard-verification compatibility lemma.
-- [ ] State infinity-norm and rejection-sampling proof obligations.
-- [ ] Identify the exact distribution-equivalence gap that must be closed before publication as a proven cryptographic construction.
-- [ ] Include stable anchors:
+- [x] Formalize Shamir/Lagrange reconstruction over `Z_q`.
+- [x] Formalize aggregation correctness for threshold response terms.
+- [x] State the standard-verification compatibility lemma.
+- [x] State infinity-norm and rejection-sampling proof obligations.
+- [x] Identify the exact distribution-equivalence gap that must be closed before publication as a proven cryptographic construction.
+- [x] Include stable anchors:
   - `lemma-lagrange-reconstruction`
   - `lemma-standard-verification`
   - `noise-bound-obligations`
@@ -57,12 +57,12 @@ The full cryptographic theorem is not yet proven. The next phase must avoid over
 - Create: `docs/cryptography/vss-dkg-security-plan.md`
 - Create: `docs/cryptography/active-adversary-model.md`
 
-- [ ] Define static and adaptive adversary variants.
-- [ ] Define rushing behavior and synchrony assumptions.
-- [ ] Define VSS binding, hiding, extractability, complaint, and evidence properties.
-- [ ] Define DKG key-bias resistance and public-key uniqueness obligations.
-- [ ] Identify which current modules are scaffold/backends and which production proofs must replace them.
-- [ ] Include stable anchors:
+- [x] Define static and adaptive adversary variants.
+- [x] Define rushing behavior and synchrony assumptions.
+- [x] Define VSS binding, hiding, extractability, complaint, and evidence properties.
+- [x] Define DKG key-bias resistance and public-key uniqueness obligations.
+- [x] Identify which current modules are scaffold/backends and which production proofs must replace them.
+- [x] Include stable anchors:
   - `active-adversary-model`
   - `vss-security-properties`
   - `dkg-key-bias-resistance`
@@ -74,10 +74,10 @@ The full cryptographic theorem is not yet proven. The next phase must avoid over
 - Create: `docs/cryptography/proof-implementation-crosswalk.md`
 - Create: `tests/proof_documentation_manifest.rs`
 
-- [ ] Map theorem/lemma areas to code modules and integration tests.
-- [ ] Add an integration test that checks proof documents exist and expose required anchors.
-- [ ] Ensure manifest test is robust, text-based, and does not require network access.
-- [ ] Run:
+- [x] Map theorem/lemma areas to code modules and integration tests.
+- [x] Add an integration test that checks proof documents exist and expose required anchors.
+- [x] Ensure manifest test is robust, text-based, and does not require network access.
+- [x] Run:
 
 ```bash
 cargo test -j1 proof_documentation_manifest --all-features
@@ -85,9 +85,9 @@ cargo test -j1 proof_documentation_manifest --all-features
 
 ## Integration Batch 1
 
-- [ ] Review all new proof docs for consistent theorem names and assumptions.
-- [ ] Ensure crosswalk points to all newly created docs.
-- [ ] Run:
+- [x] Review all new proof docs for consistent theorem names and assumptions.
+- [x] Ensure crosswalk points to all newly created docs.
+- [x] Run:
 
 ```bash
 cargo fmt --check
@@ -95,7 +95,7 @@ cargo test -j1 proof_documentation_manifest --all-features
 cargo test -j1 --all-features
 ```
 
-- [ ] Commit:
+- [x] Commit:
 
 ```bash
 git add docs/cryptography docs/superpowers/plans tests/proof_documentation_manifest.rs
@@ -104,7 +104,7 @@ git commit -m "Add full cryptographic proof plan surface"
 
 ## Parallel Batch 2: Proof Hardening
 
-Start Batch 2 only after Batch 1 lands cleanly.
+Started after Batch 1 landed cleanly.
 
 ### Task 5: Proof Obligation Matrix Update
 
@@ -112,9 +112,9 @@ Start Batch 2 only after Batch 1 lands cleanly.
 - Modify: `docs/cryptography/proof-obligations.md`
 - Modify: `docs/cryptography/claims-matrix.md`
 
-- [ ] Add a matrix row for each theorem/lemma from Batch 1.
-- [ ] Mark each row as `Proven by tests`, `Proof sketch only`, `External theorem dependency`, or `Open`.
-- [ ] Prevent any wording that says the active-adversary theorem is complete.
+- [x] Add a matrix row for each theorem/lemma from Batch 1.
+- [x] Mark each row with conservative proof-surface status language.
+- [x] Prevent any wording that says the active-adversary theorem is complete.
 
 ### Task 6: Transcript And Random Oracle Game
 
@@ -122,9 +122,9 @@ Start Batch 2 only after Batch 1 lands cleanly.
 - Create: `docs/cryptography/random-oracle-game.md`
 - Modify: `docs/cryptography/formal-threshold-mldsa-transcript.md`
 
-- [ ] Define the random oracle queries used for `mu`, `w`, challenge `c`, and contribution proofs.
-- [ ] Define transcript collision and domain-separation obligations.
-- [ ] Map each query to concrete Rust transcript encodings.
+- [x] Define the random oracle queries used for `mu`, `w`, challenge `c`, and contribution proofs.
+- [x] Define transcript collision and domain-separation obligations.
+- [x] Map each query to concrete Rust transcript encodings.
 
 ### Task 7: Side-Channel And Constant-Time Boundary
 
@@ -132,9 +132,9 @@ Start Batch 2 only after Batch 1 lands cleanly.
 - Create: `docs/cryptography/side-channel-boundary.md`
 - Modify: `docs/audit/attack-surface.md`
 
-- [ ] Define the leakage model assumed by the proof.
-- [ ] Separate mathematical security claims from implementation side-channel claims.
-- [ ] Identify operations that still need dudect/ctgrind-style empirical validation.
+- [x] Define the leakage model assumed by the proof.
+- [x] Separate mathematical security claims from implementation side-channel claims.
+- [x] Identify operations that still need dudect/ctgrind-style empirical validation.
 
 ## Publication Gate
 

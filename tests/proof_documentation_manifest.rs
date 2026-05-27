@@ -7,6 +7,11 @@ const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
 const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
+const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
+const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
+const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
+const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
+const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
 
 fn read_doc(path: &str) -> String {
@@ -33,6 +38,11 @@ fn proof_documentation_manifest_tracks_required_docs() {
         NOISE_REJECTION,
         VSS_DKG_PLAN,
         ACTIVE_ADVERSARY,
+        RANDOM_ORACLE_GAME,
+        SIDE_CHANNEL_BOUNDARY,
+        FORMAL_TRANSCRIPT,
+        PROOF_OBLIGATIONS,
+        CLAIMS_MATRIX,
         PHASE_1_NOISE_MODEL,
     ] {
         assert!(
@@ -98,6 +108,50 @@ fn full_proof_surface_exposes_stable_anchors() {
             "## Corruption Options",
             "## Rushing Behavior",
             "## Complaint and Evidence Semantics",
+        ],
+    );
+    assert_contains_all(
+        RANDOM_ORACLE_GAME,
+        &[
+            "# Random-Oracle Game for Threshold ML-DSA-65",
+            "ROG-D1. Message-Binding Oracle `H_mu`",
+            "ROG-D2. Commitment and `w`-Binding Oracle `H_w`",
+            "ROG-D3. Signing-Challenge Oracle `H_c`",
+            "ROG-D4. VSS and DKG Proof Oracle `H_vss`",
+            "ROG-D5. Signing Contribution-Proof Oracle `H_contrib`",
+        ],
+    );
+    assert_contains_all(
+        SIDE_CHANNEL_BOUNDARY,
+        &[
+            "# Side-Channel and Constant-Time Boundary",
+            "## Boundary Statement",
+            "## Empirical Obligations",
+            "## Production Gate",
+        ],
+    );
+    assert_contains_all(
+        FORMAL_TRANSCRIPT,
+        &[
+            "ftmt-0-scope",
+            "ftmt-2-random-oracle-alignment",
+            "random-oracle-game.md",
+        ],
+    );
+    assert_contains_all(
+        PROOF_OBLIGATIONS,
+        &[
+            "## Full-Proof Surface Status Overlay",
+            "FST-T1 threshold unforgeability",
+            "Side-channel and constant-time discipline",
+        ],
+    );
+    assert_contains_all(
+        CLAIMS_MATRIX,
+        &[
+            "## Full-Proof Surface Claim Overlay",
+            "Threshold EUF-CMA security",
+            "Rejection-sampling distribution preservation",
         ],
     );
 }

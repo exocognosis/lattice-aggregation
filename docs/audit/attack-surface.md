@@ -9,6 +9,10 @@ reviewer should look for implementation bugs, claim drift, and production
 blockers. It is not a production threat model and does not certify threshold
 ML-DSA-65 security.
 
+Side-channel and constant-time claims are tracked separately in
+[side-channel-boundary.md](../cryptography/side-channel-boundary.md). This map
+lists side-channel risks as open audit obligations, not solved properties.
+
 ## Feature Gates
 
 Primary risk: code behind `hazmat-real-mldsa` and `experimental-vss` can look
@@ -41,6 +45,16 @@ Review focus:
 
 Current tests are regression evidence only. They do not establish FIPS
 validation, constant-time behavior, or production side-channel safety.
+
+Side-channel review focus:
+
+- secret-dependent branches or memory access in polynomial, vector, matrix,
+  NTT, packing, unpacking, interpolation, and rejection-check paths
+- abort, retry, evidence, logging, and error timing that could leak honest
+  secret material beyond the formal leakage model
+- compiler-output and build-profile drift between development tests and any
+  production target
+- absence of dudect, ctgrind, or equivalent timing-leakage artifacts
 
 ## Actor/Network Boundaries
 

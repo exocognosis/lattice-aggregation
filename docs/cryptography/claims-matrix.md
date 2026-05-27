@@ -28,6 +28,26 @@ production-secure threshold ML-DSA implementation.
 - **Not Claimed**: the repository documents the topic only as an exclusion,
   caveat, or future obligation.
 
+## Full-Proof Surface Claim Overlay
+
+This overlay keeps the new formal-proof documents aligned with manuscript
+language. The status words below are deliberately conservative and must not be
+expanded into production-security claims:
+
+| Claim area | Full-proof surface | Status | Publication boundary |
+| --- | --- | --- | --- |
+| Threshold EUF-CMA security | FST-T1 in [formal-security-theorem.md](formal-security-theorem.md) | open | Describe as the target theorem, not as a proved result. |
+| Real/ideal realization of `F_TMLDSA` | FST-T2 and [ideal-functionality.md](ideal-functionality.md) | open | Describe the ideal functionality and simulator obligations, not UC security completion. |
+| Transcript non-malleability | FST-T3, [formal-threshold-mldsa-transcript.md](formal-threshold-mldsa-transcript.md), [random-oracle-game.md](random-oracle-game.md) | proof sketch only | Claim deterministic transcript binding tests and a formal target, not a completed encoding proof. |
+| Implementation conformance gates | FST-T4 and [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md) | implemented engineering guard | Present tests as necessary traceability evidence, not sufficient cryptographic security. |
+| Algebraic reconstruction | [correctness-lemmas.md](correctness-lemmas.md) | proof sketch only | Discuss Shamir/Lagrange obligations and scaffold tests; do not claim production DKG privacy. |
+| Standard verifier compatibility | [correctness-lemmas.md](correctness-lemmas.md), [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Keep full standard ML-DSA-65 compatibility phrasing conditional on a completed threshold proof. |
+| Rejection-sampling distribution preservation | [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Do not claim accepted threshold signatures match the ML-DSA distribution until the abort proof is complete. |
+| Production VSS/DKG security | [vss-dkg-security-plan.md](vss-dkg-security-plan.md) | open | Treat current VSS/DKG as scaffold and production-replacement boundary only. |
+| Static active adversary security | [active-adversary-model.md](active-adversary-model.md) | proof sketch only | Say the model is specified; do not claim the static active theorem is proven. |
+| Adaptive security | [active-adversary-model.md](active-adversary-model.md) | open | Do not claim adaptive security without erasures and a separate proof. |
+| Side-channel resistance | [side-channel-boundary.md](side-channel-boundary.md) | open | Treat constant-time behavior as an audit and production gate, not as current evidence. |
+
 ## Matrix
 
 | Claim | Status | Evidence links | Test or artifact references | Remaining proof, audit, or implementation blockers | Publication wording guidance |
