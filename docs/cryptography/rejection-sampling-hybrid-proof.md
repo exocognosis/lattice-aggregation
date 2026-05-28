@@ -173,6 +173,10 @@ Bound term: this transition is charged to `eps_mask` in
 The concrete proof obligation is Sub-Lemma M in the bounds worksheet: compare
 `(Y_T, HighBits(PublicMatrix*Y_T))` with the centralized ML-DSA-65
 `(Y_0, HighBits(PublicMatrix*Y_0))` before conditioning on rejection.
+The detailed route is separated in
+[mask-distribution-equivalence.md](mask-distribution-equivalence.md), including
+candidate protocol families and the `eps_mask_support`,
+`eps_mask_highbits`, and `eps_mask_corrupt_bias` bad-event surface.
 
 Candidate relation:
 
@@ -393,6 +397,10 @@ Required proof obligations:
 Bound term: these obligations instantiate `eps_withhold`. The current
 documents formalize the observable categories and symbolic decomposition, but
 the simulator and retry-limit bound remain open.
+The detailed route is separated in
+[withholding-abort-bound.md](withholding-abort-bound.md), including the
+abort-observable taxonomy, simulator obligations, and retry/timeout terms that
+must stay visible until a production policy is fixed.
 
 ## RSH-4. Current Classification
 
@@ -414,9 +422,9 @@ formal route details and acceptance criteria are recorded in
 
 | Closure route | Hybrid edge | Required endpoint before invoking T1 |
 | --- | --- | --- |
-| [`eps-mask-closure-route`](rejection-sampling-bounds.md#eps-mask-closure-route) | H1 -> H2 | A theorem or explicit bound comparing the aggregate threshold mask and public high-bit distribution to centralized ML-DSA-65 before rejection conditioning. |
-| [`eps-rej-closure-route`](rejection-sampling-bounds.md#eps-rej-closure-route) | H4 -> H5 | A theorem or explicit bound that `Reject_T` and `Reject_0` differ only on enumerated encoding, active-set, challenge, hint, bound, or verifier-mismatch bad events. |
-| [`eps-withhold-closure-route`](rejection-sampling-bounds.md#eps-withhold-closure-route) | H5 -> H6 | A simulator and retry-conditioning theorem, or explicit bound, for abort labels, withholding, timeout/exclusion behavior, and bounded retries. |
+| [`eps-mask-closure-route`](rejection-sampling-bounds.md#eps-mask-closure-route), [mask-distribution-equivalence.md](mask-distribution-equivalence.md) | H1 -> H2 | A theorem or explicit bound comparing the aggregate threshold mask and public high-bit distribution to centralized ML-DSA-65 before rejection conditioning. |
+| [`eps-rej-closure-route`](rejection-sampling-bounds.md#eps-rej-closure-route), [rejection-predicate-equivalence.md](rejection-predicate-equivalence.md) | H4 -> H5 | A theorem or explicit bound that `Reject_T` and `Reject_0` differ only on enumerated encoding, active-set, challenge, hint, bound, or verifier-mismatch bad events. |
+| [`eps-withhold-closure-route`](rejection-sampling-bounds.md#eps-withhold-closure-route), [withholding-abort-bound.md](withholding-abort-bound.md) | H5 -> H6 | A simulator and retry-conditioning theorem, or explicit bound, for abort labels, withholding, timeout/exclusion behavior, and bounded retries. |
 
 These routes are ordered dependencies for the conditional Theorem T1 bound:
 `eps_mask` must be closed before using H6 conditioning, `eps_rej` must be

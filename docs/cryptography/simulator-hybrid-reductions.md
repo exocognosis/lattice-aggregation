@@ -433,6 +433,8 @@ verification transcript, selected contributors, VSS/DKG references,
 commitments, contribution proofs, random-oracle inputs, collection metadata,
 and evidence frames available to the simulator. The classifier must assign the
 output to exactly one reduction case or leave it in `eps_classify`.
+The dedicated closure route is tracked in
+[unauthorized-output-classifier-closure.md](unauthorized-output-classifier-closure.md).
 
 #### eps-classify-decomposition
 
@@ -510,6 +512,10 @@ Closure checklist for eliminating `eps_classify`:
 - Prove `eps_cls_unmapped = 0` from the production verification relation and
   transcript grammar before setting `eps_classify` to zero. Until that proof is
   supplied, the gap remains open.
+The classifier input tuple, ordered case grammar, reduction map, and
+acceptance criteria are separated in
+[unauthorized-output-classifier-closure.md](unauthorized-output-classifier-closure.md)
+so this worksheet can keep the global S7 -> S8 equation readable.
 
 For `q_out` adversarial aggregate verification attempts in the final game, the
 classifier target is:

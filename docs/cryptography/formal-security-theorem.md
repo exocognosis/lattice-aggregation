@@ -215,6 +215,12 @@ messages, duplicate messages, missing partials, and invalid partials does not
 expose honest secret share material and does not create additional signing
 capability.
 
+Lemma FST-L10, unauthorized-output classifier closure. Every accepting
+aggregate output for an unauthorized message is classified by a deterministic
+ordered classifier as either an ML-DSA forgery or a named threshold-side
+assumption violation. The residual event `eps_cls_unmapped` must be proved
+zero before the final unforgeability theorem removes `eps_classify`.
+
 ## FST-6. Theorem Statements
 
 Theorem FST-T1-IdealVSS, threshold unforgeability under ideal VSS/DKG. Assuming

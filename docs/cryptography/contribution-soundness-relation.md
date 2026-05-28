@@ -325,6 +325,43 @@ current scaffold boundary
 This bridge is directional. The existence of the scaffold and its tests does
 not imply the production relation is satisfied.
 
+The backend-selection route that must instantiate this bridge is tracked in
+[contribution-backend-instantiation.md](contribution-backend-instantiation.md).
+
+## Backend Instantiation Route
+<a id="csr-backend-instantiation-route"></a>
+
+The production route must select one backend family and instantiate the
+relation above with a reviewed theorem. The route is not closed by declaring a
+backend name; it closes only after the backend theorem, code boundary, and
+proof reduction agree on the same public statement and witness relation.
+
+Epsilon accounting for this route is tracked as:
+
+<a id="csr-epsilon-accounting"></a>
+
+```text
+eps_contrib
+  <= eps_contrib_sound
+   + eps_contrib_extract
+   + eps_contrib_hide
+   + eps_contrib_context
+   + eps_contrib_encoding
+   + eps_contrib_leakage.
+```
+
+The acceptance criteria and backend-family split are maintained in
+[contribution-backend-instantiation.md](contribution-backend-instantiation.md).
+The route may be advanced under the ideal `F_VSS_DKG` assumption for signing
+proof work, but that does not close concrete production VSS/DKG security.
+
+<a id="csr-acceptance-criteria"></a>
+
+Before any publication claim treats `eps_contrib` as negligible, the selected
+backend must supply soundness, extraction or an equivalent replacement lemma,
+witness hiding or an explicit leakage theorem, context binding, canonical
+encoding, and external cryptographic review.
+
 ## Non-Claims
 
 Anchor: `csr-non-claims`

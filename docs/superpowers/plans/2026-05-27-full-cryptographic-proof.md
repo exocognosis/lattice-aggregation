@@ -346,3 +346,139 @@ The project may claim "cryptographically proven construction" only after all of 
   manifest.
 - [x] Add stable anchors for epsilon closure routes and unauthorized-output
   classifier obligations.
+
+## Parallel Batch 7: `eps_rej` Predicate Equivalence Route
+
+### Task 24: Rejection Predicate Code Audit
+
+**Files:**
+- Read-only audit of `src/low_level/mldsa65.rs`
+- Read-only audit of hazmat tests
+
+- [x] Map threshold finalization checks for `z`, low bits, `ct0`, hints,
+  challenge sampling, signature packing, standard verification, and active-set
+  consistency to current code and tests.
+- [x] Identify missing boundary coverage for low-bit, `ct0`, active-set, and
+  byte-level equivalence proofs.
+
+### Task 25: Rejection Predicate Equivalence Worksheet
+
+**Files:**
+- Create: `docs/cryptography/rejection-predicate-equivalence.md`
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+
+## Parallel Batch 8: `eps_mask` and `eps_withhold` Route Decomposition
+
+### Task 27: Mask Distribution Equivalence Worksheet
+
+**Files:**
+- Create: `docs/cryptography/mask-distribution-equivalence.md`
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Promote the `eps_mask` closure route into a dedicated worksheet with a
+  theorem target, candidate protocol families, bad-event decomposition, code
+  crosswalk, acceptance criteria, and non-claims.
+- [x] Keep the route explicitly open until a production mask-generation family
+  is selected and proven against centralized ML-DSA-65 mask sampling.
+
+### Task 28: Withholding and Abort Bound Worksheet
+
+**Files:**
+- Create: `docs/cryptography/withholding-abort-bound.md`
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Promote the `eps_withhold` closure route into a dedicated worksheet with
+  a simulator target, abort-observable taxonomy, symbolic decomposition, code
+  crosswalk, acceptance criteria, and non-claims.
+- [x] Keep liveness/availability separate from accepted-signature
+  distribution, and prevent withholding from absorbing `eps_mask` or
+  `eps_rej` gaps.
+
+### Task 29: Manifest Integration for Route Worksheets
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add stable anchors for the mask-distribution and withholding-abort
+  worksheets to the required proof document manifest.
+
+## Parallel Batch 9: Contribution Backend and Classifier Routes
+
+### Task 30: Contribution Backend Instantiation Route
+
+**Files:**
+- Create: `docs/cryptography/contribution-backend-instantiation.md`
+- Modify: `docs/cryptography/contribution-soundness-relation.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Add a backend declaration target, backend-family split, theorem target,
+  epsilon accounting, acceptance criteria, code crosswalk, and non-claims for
+  `eps_contrib`.
+- [x] Preserve the boundary that transcript-hash proofs and backend
+  declarations are not production contribution soundness.
+
+### Task 31: Unauthorized Output Classifier Closure Route
+
+**Files:**
+- Create: `docs/cryptography/unauthorized-output-classifier-closure.md`
+- Modify: `docs/cryptography/simulator-hybrid-reductions.md`
+- Modify: `docs/cryptography/formal-security-theorem.md`
+- Modify: `docs/cryptography/ideal-functionality.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Add a classifier input tuple, ordered case grammar, totality and
+  disjointness targets, reduction map, acceptance criteria, and non-claims for
+  eliminating `eps_cls_unmapped`.
+- [x] Keep `eps_classify` open until the production verifier grammar and
+  per-case reductions prove `eps_cls_unmapped = 0`.
+
+### Task 32: Manifest Integration for Backend and Classifier Routes
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add stable anchors for contribution backend instantiation and
+  unauthorized-output classifier closure routes.
+- Modify: `docs/cryptography/claims-matrix.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+
+- [x] Add the `rpe-theorem-target` for `Reject_T = Reject_0` on the same
+  reconstructed candidate except named bad events.
+- [x] Add `rpe-predicate-map`, `rpe-bad-events`, `rpe-code-fips-crosswalk`,
+  and `rpe-non-claims`.
+- [x] Link the worksheet into the rejection-sampling, claims, proof
+  obligation, and crosswalk surfaces without claiming `eps_rej` is closed.
+
+### Task 26: Hazmat Rejection Boundary Tests
+
+**Files:**
+- Modify: `tests/hazmat_mldsa65.rs`
+
+- [x] Add `z` exact-bound and verifier-boundary tests.
+- [x] Add hint weight at `omega`, weight above `omega`, and noncanonical hint
+  decoding tests.
+- [x] Keep remaining low-bit, `ct0`, and active-set exact-bound coverage as
+  open work unless a future harness makes those candidates easy to construct.
+
+### Task 27: Manifest Integration
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add `rejection-predicate-equivalence.md` to the required proof document
+  manifest.
+- [x] Add stable anchors for the new `rpe-*` sections and crosswalk row.
