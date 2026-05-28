@@ -274,17 +274,24 @@ The next work is theorem closure, not more scaffold construction:
 
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
   distribution using the route in
+  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
+  and
   [mask-distribution-equivalence.md](docs/cryptography/mask-distribution-equivalence.md);
 - prove or explicitly bound `eps_rej` by showing threshold aggregate rejection
-  matches standard ML-DSA-65 rejection on the same candidate values;
+  matches standard ML-DSA-65 rejection on the same candidate values using the
+  [rejection-sampling closure plan](docs/cryptography/rejection-sampling-closure-plan.md);
 - prove or explicitly bound `eps_withhold` for selective aborts, timeout
   behavior, retries, and observable abort labels using the route in
-  [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
+  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
+  and [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
 - instantiate the production contribution proof or MPC relation described in
-  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md)
-  using the route in
+  [contribution-backend-selection.md](docs/cryptography/contribution-backend-selection.md),
+  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md),
+  and
   [contribution-backend-instantiation.md](docs/cryptography/contribution-backend-instantiation.md);
 - eliminate `eps_classify` by mapping every unauthorized accepting output to
   either a base ML-DSA forgery or a named threshold-side assumption violation
-  using the route in
+  using
+  [unauthorized-output-classifier-elimination.md](docs/cryptography/unauthorized-output-classifier-elimination.md)
+  and
   [unauthorized-output-classifier-closure.md](docs/cryptography/unauthorized-output-classifier-closure.md).

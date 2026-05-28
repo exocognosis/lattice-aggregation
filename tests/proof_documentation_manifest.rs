@@ -22,9 +22,18 @@ const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transc
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
+const CONTRIBUTION_BACKEND_SELECTION: &str = "docs/cryptography/contribution-backend-selection.md";
 const UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE: &str =
     "docs/cryptography/unauthorized-output-classifier-closure.md";
+const UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION: &str =
+    "docs/cryptography/unauthorized-output-classifier-elimination.md";
 const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
+const IDEALVSS_SIGNING_THEOREM_CLOSURE: &str =
+    "docs/cryptography/idealvss-signing-theorem-closure.md";
+const REJECTION_SAMPLING_CLOSURE_PLAN: &str =
+    "docs/cryptography/rejection-sampling-closure-plan.md";
+const RANDOM_ORACLE_COMMITMENT_CLOSURE: &str =
+    "docs/cryptography/random-oracle-commitment-closure.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
 const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
 const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
@@ -68,8 +77,13 @@ fn proof_documentation_manifest_tracks_required_docs() {
         FORMAL_TRANSCRIPT,
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
+        CONTRIBUTION_BACKEND_SELECTION,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
+        UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
         PROOF_CLOSURE_LEDGER,
+        IDEALVSS_SIGNING_THEOREM_CLOSURE,
+        REJECTION_SAMPLING_CLOSURE_PLAN,
+        RANDOM_ORACLE_COMMITMENT_CLOSURE,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
         SIMULATOR_HYBRID_REDUCTIONS,
@@ -340,6 +354,33 @@ fn full_proof_surface_exposes_stable_anchors() {
         ],
     );
     assert_contains_all(
+        CONTRIBUTION_BACKEND_SELECTION,
+        &[
+            "# Contribution Backend Selection Framework",
+            "contribution-backend-selection",
+            "cbs-status",
+            "cbs-scope",
+            "cbs-required-backend-declaration",
+            "cbs-backend-candidates",
+            "candidate-nizk-contribution-proof",
+            "candidate-mpc-contribution-verification",
+            "candidate-interactive-contribution-proof",
+            "candidate-ideal-contribution-functionality",
+            "candidate-transcript-hash-scaffold",
+            "cbs-decision-criteria",
+            "cbs-theorem-dependencies",
+            "eps_contrib_sound",
+            "eps_contrib_extract",
+            "eps_contrib_hide",
+            "cbs-acceptance-criteria",
+            "cbs-decision-record",
+            "cbs-safe-status-language",
+            "cbs-production-policy-anchors",
+            "ProductionProofRelation",
+            "not production eligible",
+        ],
+    );
+    assert_contains_all(
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
         &[
             "# Unauthorized Output Classifier Closure Route",
@@ -356,6 +397,27 @@ fn full_proof_surface_exposes_stable_anchors() {
             "classifier-acceptance-criteria",
             "uocc-non-claims",
             "classifier-non-claims",
+        ],
+    );
+    assert_contains_all(
+        UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
+        &[
+            "# Unauthorized Output Classifier Elimination Plan",
+            "unauthorized-output-classifier-elimination",
+            "uoce-production-grammar-prerequisite",
+            "uoce-elimination-sequence",
+            "uoce-case-closure-table",
+            "eps_cls_mldsa",
+            "eps_cls_threshold",
+            "eps_cls_vss_dkg",
+            "eps_cls_commit",
+            "eps_cls_contrib",
+            "eps_cls_ro_transcript",
+            "eps_cls_collect",
+            "eps_cls_evid",
+            "eps_cls_unmapped = 0",
+            "uoce-acceptance-criteria",
+            "uoce-non-claims",
         ],
     );
     assert_contains_all(
@@ -388,7 +450,70 @@ fn full_proof_surface_exposes_stable_anchors() {
             "not production-ready",
             "not a security proof",
             "implementation evidence is not cryptographic proof",
+            "idealvss-signing-theorem-closure.md",
+            "contribution-backend-selection.md",
+            "rejection-sampling-closure-plan.md",
+            "random-oracle-commitment-closure.md",
+            "unauthorized-output-classifier-elimination.md",
             "ledger-non-claims",
+        ],
+    );
+    assert_contains_all(
+        IDEALVSS_SIGNING_THEOREM_CLOSURE,
+        &[
+            "# IdealVSS Signing Theorem Closure",
+            "idealvss-signing-theorem-closure",
+            "IVSTC-0. Scope and Non-Claim",
+            "IVSTC-1. Theorem Under Closure: FST-T1-IdealVSS",
+            "IVSTC-2. Ideal Setup Boundary",
+            "IVSTC-3. Dependency Map",
+            "IVSTC-4. Signing-Side Lemma Closure Plan",
+            "IVSTC-5. Real/Ideal and Hybrid Dependencies",
+            "IVSTC-6. What Can Be Claimed Now",
+            "IVSTC-7. What Remains Open",
+            "IVSTC-8. Links to Source Obligations",
+            "IVSTC-9. Reviewer Checklist",
+            "FST-T1-IdealVSS",
+            "F_VSS_DKG",
+            "FST-L1",
+            "FST-L7",
+            "FST-L10",
+            "eps_cls_unmapped = 0",
+        ],
+    );
+    assert_contains_all(
+        REJECTION_SAMPLING_CLOSURE_PLAN,
+        &[
+            "# Rejection-Sampling Closure Plan",
+            "rejection-sampling-closure-plan",
+            "rscp-dependency-dag",
+            "rscp-term-closure-requirements",
+            "eps_mask",
+            "eps_rej",
+            "eps_withhold",
+            "eps_verify",
+            "Delta_accept",
+            "rscp-acceptance-criteria",
+            "rscp-non-claims",
+        ],
+    );
+    assert_contains_all(
+        RANDOM_ORACLE_COMMITMENT_CLOSURE,
+        &[
+            "# Random-Oracle and Commitment Closure Plan",
+            "random-oracle-commitment-closure",
+            "rocc-random-oracle-closure",
+            "eps_ro_injective_encoding",
+            "eps_ro_domain_separation",
+            "eps_ro_prior_query",
+            "eps_ro_programming",
+            "rocc-commitment-closure",
+            "eps_commit_bind",
+            "eps_commit_hide",
+            "eps_commit_open_set",
+            "rocc-cross-term-dependencies",
+            "rocc-acceptance-criteria",
+            "rocc-non-claims",
         ],
     );
     assert_contains_all(
