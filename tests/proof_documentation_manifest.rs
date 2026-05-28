@@ -20,6 +20,9 @@ const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
 const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
 const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
 const PRODUCTION_TRANSCRIPT_GRAMMAR: &str = "docs/cryptography/production-transcript-grammar.md";
+const FST_L1_TRANSCRIPT_INJECTIVITY: &str = "docs/cryptography/fst-l1-transcript-injectivity.md";
+const FST_L2_CHALLENGE_BINDING: &str = "docs/cryptography/fst-l2-challenge-binding.md";
+const FST_L3_COLLECTION_SOUNDNESS: &str = "docs/cryptography/fst-l3-collection-soundness.md";
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
@@ -78,6 +81,9 @@ fn proof_documentation_manifest_tracks_required_docs() {
         SIDE_CHANNEL_BOUNDARY,
         FORMAL_TRANSCRIPT,
         PRODUCTION_TRANSCRIPT_GRAMMAR,
+        FST_L1_TRANSCRIPT_INJECTIVITY,
+        FST_L2_CHALLENGE_BINDING,
+        FST_L3_COLLECTION_SOUNDNESS,
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
         CONTRIBUTION_BACKEND_SELECTION,
@@ -348,6 +354,97 @@ fn full_proof_surface_exposes_stable_anchors() {
             "AggregateOutputRecord",
             "EvidenceRecord",
             "H_contrib",
+        ],
+    );
+    assert_contains_all(
+        FST_L1_TRANSCRIPT_INJECTIVITY,
+        &[
+            "# FST-L1 Transcript Injectivity Worksheet",
+            "fst-l1-transcript-injectivity",
+            "FSTL1-0. Scope and Non-Claim",
+            "FSTL1-1. Lemma Statement",
+            "FSTL1-2. Source Grammar",
+            "FSTL1-3. Encoding Model",
+            "FSTL1-4. Record Injectivity Obligations",
+            "FSTL1-5. Canonical Ordering Obligations",
+            "FSTL1-6. Optional and Variant Field Obligations",
+            "FSTL1-7. Random-Oracle Domain Separation",
+            "FSTL1-8. ChallengeRecord Injectivity",
+            "FSTL1-9. Cross-Record Replay Exclusion",
+            "FSTL1-10. Residual Terms",
+            "FSTL1-11. Acceptance Criteria",
+            "FSTL1-12. Non-Claims",
+            "FST-L1",
+            "FST-A7",
+            "ChallengeRecord",
+            "SigningContext",
+            "ContributionStatement_i",
+            "AggregateOutputRecord",
+            "Enc(label, version, field_1, ..., field_n)",
+            "eps_ro_sep",
+            "eps_ro_injective_encoding",
+            "eps_ro_domain_separation",
+            "BadTranscriptCollision",
+            "BadRoDomain",
+            "BadCrossSession",
+        ],
+    );
+    assert_contains_all(
+        FST_L2_CHALLENGE_BINDING,
+        &[
+            "# FST-L2 Challenge Binding Worksheet",
+            "fst-l2-challenge-binding",
+            "FSTL2-0. Scope and Non-Claim",
+            "FSTL2-1. Theorem Context",
+            "FSTL2-2. Inputs and Transcript Records",
+            "FSTL2-3. Challenge-Binding Statement",
+            "FSTL2-4. Proof Skeleton",
+            "FSTL2-5. Prior-Query and Replay Accounting",
+            "FSTL2-6. Commitment-Set Equality Obligations",
+            "FSTL2-7. Dependencies",
+            "FSTL2-8. Acceptance Criteria",
+            "FSTL2-9. Non-Claims",
+            "FST-L2",
+            "ChallengeRecord",
+            "SigningContext",
+            "MaskCommitRecord_i",
+            "MaskOpenStatement_i",
+            "SecretCommitRecord_i",
+            "ContributionStatement_i",
+            "H_c",
+            "eps_ro_prior",
+            "eps_ro_replay",
+            "eps_commit_context",
+            "eps_commit_open_set",
+            "BadHcPrior",
+            "FailPriorHc",
+        ],
+    );
+    assert_contains_all(
+        FST_L3_COLLECTION_SOUNDNESS,
+        &[
+            "# FST-L3 Collection Soundness Worksheet",
+            "fst-l3-collection-soundness",
+            "FSTL3-0. Scope and Non-Claim",
+            "FSTL3-1. Theorem Context",
+            "FSTL3-2. Collection Objects",
+            "FSTL3-3. Theorem Statement",
+            "FSTL3-4. Proof Obligations",
+            "FSTL3-5. Implementation Crosswalk",
+            "FSTL3-6. eps_collect Decomposition",
+            "FSTL3-7. Classifier Interaction",
+            "FSTL3-8. Acceptance Criteria",
+            "FSTL3-9. Non-Claims",
+            "FST-L3",
+            "FST-A8",
+            "eps_collect",
+            "eps_cls_collect",
+            "eps_cls_unmapped = 0",
+            "CommitmentSet",
+            "PartialShareSet",
+            "AggregateOutputRecord",
+            "BTreeMap",
+            "BTreeSet",
         ],
     );
     assert_contains_all(

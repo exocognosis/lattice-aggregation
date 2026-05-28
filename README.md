@@ -278,6 +278,10 @@ The next work is theorem closure, not more scaffold construction:
   canonical byte-level input language;
 - turn the IdealVSS route into lemma-by-lemma proof text using
   [idealvss-lemma-skeleton.md](docs/cryptography/idealvss-lemma-skeleton.md);
+- expand the early IdealVSS lemmas through
+  [FST-L1 transcript injectivity](docs/cryptography/fst-l1-transcript-injectivity.md),
+  [FST-L2 challenge binding](docs/cryptography/fst-l2-challenge-binding.md),
+  and [FST-L3 collection soundness](docs/cryptography/fst-l3-collection-soundness.md);
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
   distribution using the route in
   [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
