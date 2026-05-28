@@ -20,7 +20,9 @@ been expanded with:
 - an idealized `F_VSS_DKG` route for isolating setup assumptions from the
   signing proof, while keeping concrete production VSS/DKG security open;
 - rejection-sampling hybrid worksheets with explicit `eps_mask`, `eps_rej`,
-  `eps_withhold`, `eps_ro`, `eps_commit`, and `Delta_accept` closure routes;
+  `eps_withhold`, `eps_ro`, `eps_commit`, and `Delta_accept` closure routes,
+  including dedicated mask-distribution, rejection-predicate, and
+  withholding-abort route worksheets;
 - a contribution soundness relation worksheet for the future production proof
   backend, plus fail-closed production policy gates for scaffold backends;
 - an unauthorized-output classifier route that decomposes `eps_classify` into
@@ -108,11 +110,13 @@ malicious-secure threshold ML-DSA-65 signature scheme.
 The next work is theorem closure, not more scaffold construction:
 
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
-  distribution;
+  distribution using the route in
+  [mask-distribution-equivalence.md](docs/cryptography/mask-distribution-equivalence.md);
 - prove or explicitly bound `eps_rej` by showing threshold aggregate rejection
   matches standard ML-DSA-65 rejection on the same candidate values;
 - prove or explicitly bound `eps_withhold` for selective aborts, timeout
-  behavior, retries, and observable abort labels;
+  behavior, retries, and observable abort labels using the route in
+  [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
 - instantiate the production contribution proof or MPC relation described in
   [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md);
 - eliminate `eps_classify` by mapping every unauthorized accepting output to

@@ -8,8 +8,10 @@ const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
 const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
 const REJECTION_HYBRID_PROOF: &str = "docs/cryptography/rejection-sampling-hybrid-proof.md";
 const REJECTION_BOUNDS: &str = "docs/cryptography/rejection-sampling-bounds.md";
+const MASK_DISTRIBUTION_EQUIVALENCE: &str = "docs/cryptography/mask-distribution-equivalence.md";
 const REJECTION_PREDICATE_EQUIVALENCE: &str =
     "docs/cryptography/rejection-predicate-equivalence.md";
+const WITHHOLDING_ABORT_BOUND: &str = "docs/cryptography/withholding-abort-bound.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
 const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
@@ -49,7 +51,9 @@ fn proof_documentation_manifest_tracks_required_docs() {
         NOISE_REJECTION,
         REJECTION_HYBRID_PROOF,
         REJECTION_BOUNDS,
+        MASK_DISTRIBUTION_EQUIVALENCE,
         REJECTION_PREDICATE_EQUIVALENCE,
+        WITHHOLDING_ABORT_BOUND,
         VSS_DKG_PLAN,
         VSS_BACKEND_SELECTION,
         VSS_IDEALIZATION_SELECTION,
@@ -182,6 +186,44 @@ fn full_proof_surface_exposes_stable_anchors() {
         ],
     );
     assert_contains_all(
+        MASK_DISTRIBUTION_EQUIVALENCE,
+        &[
+            "# Mask Distribution Equivalence Worksheet",
+            "mask-distribution-equivalence",
+            "mde-theorem-target",
+            "theorem-m-close-mask-distribution",
+            "Theorem M-close-mask-distribution",
+            "CombineMask",
+            "eps_mask_bound",
+            "zero only if exact equality",
+            "mde-protocol-families",
+            "mde-bad-events",
+            "mde-code-crosswalk",
+            "mde-acceptance-criteria",
+            "mde-non-claims",
+        ],
+    );
+    assert_contains_all(
+        WITHHOLDING_ABORT_BOUND,
+        &[
+            "# Withholding and Abort Bound Worksheet",
+            "withholding-abort-bound",
+            "wab-theorem-target",
+            "theorem-w-close-static-active",
+            "Theorem W-close-static-active",
+            "O_abort",
+            "eps_retry_limit",
+            "eps_withhold_commit",
+            "eps_withhold_challenge",
+            "wab-abort-taxonomy",
+            "wab-decomposition",
+            "wab-simulator-obligations",
+            "wab-code-crosswalk",
+            "wab-acceptance-criteria",
+            "wab-non-claims",
+        ],
+    );
+    assert_contains_all(
         VSS_DKG_PLAN,
         &[
             "vss-security-properties",
@@ -223,6 +265,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "active-adversary-model",
             "## Corruption Options",
             "## Rushing Behavior",
+            "eps-withhold-production-route-selection",
             "## Complaint and Evidence Semantics",
         ],
     );
@@ -252,6 +295,8 @@ fn full_proof_surface_exposes_stable_anchors() {
             "ftmt-0-scope",
             "ftmt-2-random-oracle-alignment",
             "random-oracle-game.md",
+            "Abort Transcript `O_abort`",
+            "abort-transcript-o-abort",
         ],
     );
     assert_contains_all(
@@ -279,6 +324,8 @@ fn full_proof_surface_exposes_stable_anchors() {
         &[
             "## Full-Proof Surface Claim Overlay",
             "Threshold EUF-CMA security",
+            "`eps_mask` aggregate mask-distribution route",
+            "`eps_withhold` selective-abort route",
             "Rejection-sampling distribution preservation",
         ],
     );
@@ -327,7 +374,9 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
             "Canonical validator, commitment, and partial-share sets",
             "Wire encoding and untrusted-frame rejection",
             "Aggregation boundary and transcript consistency",
+            "Mask distribution equivalence route",
             "Rejection predicate equivalence route",
+            "Withholding and abort bound route",
             "Contribution soundness relation target",
             "Simulation-only backend and production proof gates",
             "`src/transcript.rs`",

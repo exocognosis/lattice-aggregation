@@ -632,6 +632,9 @@ Route objective: instantiate Sub-Lemma M so the H1 -> H2 transition in the
 hybrid map can replace centralized ML-DSA-65 mask sampling with threshold
 mask generation before rejection conditioning.
 
+Detailed theorem target, protocol-family split, and bad-event decomposition:
+see [mask-distribution-equivalence.md](mask-distribution-equivalence.md).
+
 Theorem-style obligation:
 
 ```text
@@ -738,6 +741,10 @@ Exact blockers:
 Route objective: instantiate Sub-Lemma W so the H5 -> H6 transition in the
 hybrid map can condition on accepted aggregate signatures without hiding a
 selective-abort bias in the accepted distribution.
+
+Detailed simulator target, abort-observable taxonomy, and symbolic
+decomposition: see
+[withholding-abort-bound.md](withholding-abort-bound.md).
 
 Theorem-style obligation:
 

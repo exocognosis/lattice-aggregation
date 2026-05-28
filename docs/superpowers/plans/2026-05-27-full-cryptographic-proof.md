@@ -368,6 +368,49 @@ The project may claim "cryptographically proven construction" only after all of 
 - Modify: `docs/cryptography/rejection-sampling-bounds.md`
 - Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
 - Modify: `docs/cryptography/proof-obligations.md`
+
+## Parallel Batch 8: `eps_mask` and `eps_withhold` Route Decomposition
+
+### Task 27: Mask Distribution Equivalence Worksheet
+
+**Files:**
+- Create: `docs/cryptography/mask-distribution-equivalence.md`
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Promote the `eps_mask` closure route into a dedicated worksheet with a
+  theorem target, candidate protocol families, bad-event decomposition, code
+  crosswalk, acceptance criteria, and non-claims.
+- [x] Keep the route explicitly open until a production mask-generation family
+  is selected and proven against centralized ML-DSA-65 mask sampling.
+
+### Task 28: Withholding and Abort Bound Worksheet
+
+**Files:**
+- Create: `docs/cryptography/withholding-abort-bound.md`
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Promote the `eps_withhold` closure route into a dedicated worksheet with
+  a simulator target, abort-observable taxonomy, symbolic decomposition, code
+  crosswalk, acceptance criteria, and non-claims.
+- [x] Keep liveness/availability separate from accepted-signature
+  distribution, and prevent withholding from absorbing `eps_mask` or
+  `eps_rej` gaps.
+
+### Task 29: Manifest Integration for Route Worksheets
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add stable anchors for the mask-distribution and withholding-abort
+  worksheets to the required proof document manifest.
 - Modify: `docs/cryptography/claims-matrix.md`
 - Modify: `docs/cryptography/proof-implementation-crosswalk.md`
 

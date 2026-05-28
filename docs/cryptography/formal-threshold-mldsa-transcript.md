@@ -260,6 +260,21 @@ Evidence soundness must include anti-framing analysis. An aggregator must not
 be able to manufacture evidence against an honest validator by reordering,
 omitting, or rebinding otherwise valid frames.
 
+### Abort Transcript `O_abort`
+<a id="abort-transcript-o-abort"></a>
+
+The selective-abort proof must define the exact abort transcript `O_abort`
+before invoking an accepted-distribution theorem. At minimum, `O_abort` must
+classify retry identifiers, aggregate rejection labels, timeout and exclusion
+records, malformed-frame evidence, proof-invalid evidence, participant indices
+attached to attributable failures, and any timing or message-size buckets that
+remain visible to the adversary.
+
+Anything not included in `O_abort` must either be hidden from the adversary
+until after the aggregate decision or excluded from the theorem as availability
+or side-channel leakage. Ordinary rejection sampling and ambiguous network loss
+remain non-slashable.
+
 ## Explicit Non-Claims
 This draft does not claim production threshold ML-DSA-65 security,
 malicious-secure DKG/VSS, zero-knowledge or knowledge-sound contribution

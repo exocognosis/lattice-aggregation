@@ -55,7 +55,7 @@ language when mapping theorem and lemma targets to current repository evidence:
 | FST-T4 implementation conformance | [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md) | implemented engineering guard | Keep tests as necessary traceability gates while preserving the boundary that tests do not prove cryptographic security. |
 | Lagrange and Shamir reconstruction | [correctness-lemmas.md](correctness-lemmas.md) | proof sketch only | Prove all nonzero, duplicate-free active sets reconstruct over `Z_q` coefficient lanes and that callers enforce preconditions. |
 | Standard ML-DSA verification compatibility | [correctness-lemmas.md](correctness-lemmas.md), [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Prove accepted threshold transcripts produce `(c, z, h)` accepted by unmodified ML-DSA-65 verification. |
-| Noise and rejection-sampling preservation | [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Bound accepted-signature distribution and selective-abort leakage for the chosen threshold construction. |
+| Noise and rejection-sampling preservation | [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md), [mask-distribution-equivalence.md](mask-distribution-equivalence.md), [withholding-abort-bound.md](withholding-abort-bound.md) | open | Bound mask distribution, accepted-signature distribution, and selective-abort leakage for the chosen threshold construction. |
 | VSS binding, hiding, and extractability | [vss-dkg-security-plan.md](vss-dkg-security-plan.md) | open | Select and prove a production VSS/DKG relation with complaint soundness and anti-framing semantics. |
 | Static active adversary model | [active-adversary-model.md](active-adversary-model.md) | proof sketch only | Fix exact corruption, rushing, synchrony, and evidence semantics used by the first production theorem. |
 | Adaptive security with erasures | [active-adversary-model.md](active-adversary-model.md) | open | Add erasure points, state exposure rules, and a separate simulator theorem. |
@@ -196,6 +196,9 @@ sampling attempts.
   isolates the H4 -> H5 `eps_rej` predicate-equivalence target and names the
   centered-bound, low-bit, `ct0`, hint, challenge, active-set, signature
   encoding, and verifier-mismatch bad events.
+- [withholding-abort-bound.md](withholding-abort-bound.md) isolates the H5 ->
+  H6 `eps_withhold` route with `O_abort`, simulator, retry-limit, timeout, and
+  no-double-counting obligations.
 - [security-model.md](security-model.md) names challenge bias through selective
   aborts as an attack surface.
 - [claims-matrix.md](claims-matrix.md) classifies the rejection sampling,
@@ -207,6 +210,14 @@ sampling attempts.
 
 - Define the maximum retry policy, exclusion policy, and attempt transcript
   binding used by production deployments.
+- Define the theorem-level abort transcript `O_abort`, including retry counts,
+  evidence records, timeout/exclusion records, and visible timing or
+  message-size classes.
+- Prove a simulator can emit every included abort observable from public data
+  and allowed leakage, without honest masks or honest secret shares.
+- Prove a retry-conditioning lemma with a concrete `R_max`, acceptance
+  probability lower bound, fresh attempt domains, and visible
+  `eps_retry_limit`.
 - Prove no commitment or masking material is reused across attempts in a way
   that leaks honest shares or increases challenge bias.
 - Bound adversarial conditioning on accepted challenges, rejection predicates,
@@ -220,6 +231,8 @@ sampling attempts.
 
 - Implement explicit production retry limits, attempt identifiers, fresh
   randomness requirements, and deterministic exclusion rules.
+- Pin a production route model in the active-adversary document before any
+  theorem claims a bounded `eps_withhold` term.
 - Add tests for retry exhaustion, contribution withholding, reordered attempts,
   stale commitments, reused attempt data, and quorum replacement.
 - Audit telemetry and evidence labels so retry failures are not treated as
