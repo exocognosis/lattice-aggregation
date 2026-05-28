@@ -618,6 +618,8 @@ The graph is intentionally acyclic at the proof-obligation level. `eps_mask`
 is a pre-rejection distribution term and must be closed before conditioning on
 aggregate acceptance. `eps_rej` is a same-candidate predicate-equivalence term
 and depends on H1/H4 algebra plus H5 encoding and verifier equivalence.
+The predicate-level theorem target is now separated in
+[rejection-predicate-equivalence.md](rejection-predicate-equivalence.md).
 `eps_withhold` is a view and conditioning term at H6 and depends on the H2
 freshness result and the H3 commitment-ordering result, but must not be used
 to hide a mask-distribution or rejection-predicate mismatch.
@@ -679,6 +681,11 @@ Exact blockers:
 Route objective: instantiate Sub-Lemma R so the H4 -> H5 transition in the
 hybrid map can replace centralized rejection by threshold aggregate rejection
 on the same reconstructed candidate values.
+
+Detailed predicate map: see
+[rejection-predicate-equivalence.md](rejection-predicate-equivalence.md), which
+breaks `eps_rej` into centered-bound, low-bit, `ct0`, hint, challenge,
+active-set, signature-encoding, and verifier-mismatch bad events.
 
 Theorem-style obligation:
 

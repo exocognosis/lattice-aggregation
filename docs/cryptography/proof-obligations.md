@@ -192,6 +192,10 @@ sampling attempts.
 
 - [formal-proof-scaffold.md](formal-proof-scaffold.md) identifies
   rejection-sampling and selective-abort as an open hybrid.
+- [rejection-predicate-equivalence.md](rejection-predicate-equivalence.md)
+  isolates the H4 -> H5 `eps_rej` predicate-equivalence target and names the
+  centered-bound, low-bit, `ct0`, hint, challenge, active-set, signature
+  encoding, and verifier-mismatch bad events.
 - [security-model.md](security-model.md) names challenge bias through selective
   aborts as an attack surface.
 - [claims-matrix.md](claims-matrix.md) classifies the rejection sampling,
@@ -225,7 +229,9 @@ sampling attempts.
 ### Claim Status
 
 Production Blocker. Current telemetry and simulations identify retry behavior
-but do not prove a selective-abort or challenge-bias bound.
+but do not prove a selective-abort or challenge-bias bound. The `eps_rej`
+predicate worksheet improves the closure route for one subterm, but it does
+not close mask distribution or selective-abort conditioning.
 
 ## PO-4: Aggregation/Noise Correctness
 

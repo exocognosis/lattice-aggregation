@@ -346,3 +346,54 @@ The project may claim "cryptographically proven construction" only after all of 
   manifest.
 - [x] Add stable anchors for epsilon closure routes and unauthorized-output
   classifier obligations.
+
+## Parallel Batch 7: `eps_rej` Predicate Equivalence Route
+
+### Task 24: Rejection Predicate Code Audit
+
+**Files:**
+- Read-only audit of `src/low_level/mldsa65.rs`
+- Read-only audit of hazmat tests
+
+- [x] Map threshold finalization checks for `z`, low bits, `ct0`, hints,
+  challenge sampling, signature packing, standard verification, and active-set
+  consistency to current code and tests.
+- [x] Identify missing boundary coverage for low-bit, `ct0`, active-set, and
+  byte-level equivalence proofs.
+
+### Task 25: Rejection Predicate Equivalence Worksheet
+
+**Files:**
+- Create: `docs/cryptography/rejection-predicate-equivalence.md`
+- Modify: `docs/cryptography/rejection-sampling-bounds.md`
+- Modify: `docs/cryptography/rejection-sampling-hybrid-proof.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+
+- [x] Add the `rpe-theorem-target` for `Reject_T = Reject_0` on the same
+  reconstructed candidate except named bad events.
+- [x] Add `rpe-predicate-map`, `rpe-bad-events`, `rpe-code-fips-crosswalk`,
+  and `rpe-non-claims`.
+- [x] Link the worksheet into the rejection-sampling, claims, proof
+  obligation, and crosswalk surfaces without claiming `eps_rej` is closed.
+
+### Task 26: Hazmat Rejection Boundary Tests
+
+**Files:**
+- Modify: `tests/hazmat_mldsa65.rs`
+
+- [x] Add `z` exact-bound and verifier-boundary tests.
+- [x] Add hint weight at `omega`, weight above `omega`, and noncanonical hint
+  decoding tests.
+- [x] Keep remaining low-bit, `ct0`, and active-set exact-bound coverage as
+  open work unless a future harness makes those candidates easy to construct.
+
+### Task 27: Manifest Integration
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add `rejection-predicate-equivalence.md` to the required proof document
+  manifest.
+- [x] Add stable anchors for the new `rpe-*` sections and crosswalk row.

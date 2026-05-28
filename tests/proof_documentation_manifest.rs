@@ -8,6 +8,8 @@ const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
 const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
 const REJECTION_HYBRID_PROOF: &str = "docs/cryptography/rejection-sampling-hybrid-proof.md";
 const REJECTION_BOUNDS: &str = "docs/cryptography/rejection-sampling-bounds.md";
+const REJECTION_PREDICATE_EQUIVALENCE: &str =
+    "docs/cryptography/rejection-predicate-equivalence.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
 const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
@@ -47,6 +49,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         NOISE_REJECTION,
         REJECTION_HYBRID_PROOF,
         REJECTION_BOUNDS,
+        REJECTION_PREDICATE_EQUIVALENCE,
         VSS_DKG_PLAN,
         VSS_BACKEND_SELECTION,
         VSS_IDEALIZATION_SELECTION,
@@ -164,6 +167,18 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-rej-closure-route",
             "eps-withhold-closure-route",
             "## Top Missing Mathematical Bounds",
+        ],
+    );
+    assert_contains_all(
+        REJECTION_PREDICATE_EQUIVALENCE,
+        &[
+            "# Rejection Predicate Equivalence Worksheet",
+            "rejection-predicate-equivalence",
+            "rpe-theorem-target",
+            "rpe-predicate-map",
+            "rpe-bad-events",
+            "rpe-code-fips-crosswalk",
+            "rpe-non-claims",
         ],
     );
     assert_contains_all(
@@ -312,6 +327,7 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
             "Canonical validator, commitment, and partial-share sets",
             "Wire encoding and untrusted-frame rejection",
             "Aggregation boundary and transcript consistency",
+            "Rejection predicate equivalence route",
             "Contribution soundness relation target",
             "Simulation-only backend and production proof gates",
             "`src/transcript.rs`",

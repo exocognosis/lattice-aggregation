@@ -11,7 +11,7 @@ use dytallix_pq_threshold::{
         VectorL, MLDSA65_BETA, MLDSA65_CHALLENGE_BYTES, MLDSA65_D, MLDSA65_ETA, MLDSA65_GAMMA1,
         MLDSA65_GAMMA2, MLDSA65_K, MLDSA65_L, MLDSA65_MU_BYTES, MLDSA65_OMEGA,
         MLDSA65_POLYZ_PACKED_BYTES, MLDSA65_PUBLIC_SEED_BYTES, MLDSA65_SECRETKEY_BYTES,
-        MLDSA65_TAU,
+        MLDSA65_TAU, MLDSA65_Z_NORM_BOUND,
     },
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_PUBLICKEY_BYTES,
     MLDSA65_SIGNATURE_BYTES, N, Q,
@@ -320,6 +320,24 @@ fn hazmat_bound_check_rejects_boundary_value() {
 }
 
 #[test]
+fn hazmat_z_norm_bound_rejects_exact_positive_and_negative_boundaries() {
+    let mut poly = Poly::zero();
+    poly.coeffs[0] = MLDSA65_Z_NORM_BOUND - 1;
+    poly.coeffs[1] = -(MLDSA65_Z_NORM_BOUND - 1);
+
+    assert!(check_poly_bound(&poly, MLDSA65_Z_NORM_BOUND));
+
+    poly.coeffs[2] = MLDSA65_Z_NORM_BOUND;
+
+    assert!(!check_poly_bound(&poly, MLDSA65_Z_NORM_BOUND));
+
+    poly.coeffs[2] = 0;
+    poly.coeffs[3] = -MLDSA65_Z_NORM_BOUND;
+
+    assert!(!check_poly_bound(&poly, MLDSA65_Z_NORM_BOUND));
+}
+
+#[test]
 fn hazmat_verifier_accepts_synthetic_zero_equation_signature() {
     let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
     let signature = zero_equation_signature(&public_key, b"message");
@@ -445,6 +463,39 @@ fn hazmat_signature_unpacking_rejects_nonzero_unused_hint_slots() {
 }
 
 #[test]
+fn hazmat_signature_unpacking_rejects_nonmonotonic_hint_offsets() {
+    let mut signature = structurally_valid_zero_z_signature();
+    let hint_start = signature_hint_start();
+    signature.0[hint_start] = 1;
+    signature.0[hint_start + 1] = 2;
+    signature.0[hint_start + MLDSA65_OMEGA] = 2;
+    signature.0[hint_start + MLDSA65_OMEGA + 1] = 1;
+
+    assert_eq!(
+        unpack_signature(&signature.0),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 hint offsets are not monotonic"
+        })
+    );
+}
+
+#[test]
+fn hazmat_signature_unpacking_rejects_noncanonical_hint_index_order() {
+    let mut signature = structurally_valid_zero_z_signature();
+    let hint_start = signature_hint_start();
+    signature.0[hint_start] = 7;
+    signature.0[hint_start + 1] = 7;
+    signature.0[hint_start + MLDSA65_OMEGA] = 2;
+
+    assert_eq!(
+        unpack_signature(&signature.0),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 hint indices are not strictly increasing"
+        })
+    );
+}
+
+#[test]
 fn hazmat_signature_pack_round_trips_challenge_z_and_empty_hint() {
     let challenge = [0x9A; MLDSA65_CHALLENGE_BYTES];
     let z = VectorL::from_polys([z_pattern_poly(); MLDSA65_L]);
@@ -469,6 +520,35 @@ fn hazmat_signature_pack_round_trips_non_empty_hint() {
 
     assert_eq!(unpacked.hint(), &hint);
     assert_eq!(unpacked.hint().weight(), 4);
+}
+
+#[test]
+fn hazmat_hint_construction_accepts_exact_omega_weight() {
+    let positions = (0..MLDSA65_OMEGA)
+        .map(|coeff| (0usize, coeff))
+        .collect::<Vec<_>>();
+    let hint = HintVector::from_positions(&positions).unwrap();
+
+    assert_eq!(hint.weight(), MLDSA65_OMEGA);
+
+    let packed = pack_signature([0x41; MLDSA65_CHALLENGE_BYTES], &VectorL::zero(), &hint).unwrap();
+    let unpacked = unpack_signature(packed.as_bytes()).unwrap();
+
+    assert_eq!(unpacked.hint(), &hint);
+}
+
+#[test]
+fn hazmat_hint_construction_rejects_weight_above_omega() {
+    let positions = (0..=MLDSA65_OMEGA)
+        .map(|coeff| (0usize, coeff))
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        HintVector::from_positions(&positions),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 hint offset exceeds omega"
+        })
+    );
 }
 
 #[test]
@@ -516,6 +596,38 @@ fn hazmat_verifier_rejects_z_outside_mldsa65_norm_bound() {
     assert_eq!(
         verify_standard_mldsa65(&public_key, b"message", &signature),
         Err(ThresholdError::StandardVerificationFailed)
+    );
+}
+
+#[test]
+fn hazmat_verifier_rejects_z_at_mldsa65_norm_boundary() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let mut z = VectorL::zero();
+    z.polys_mut()[0].coeffs[0] = MLDSA65_Z_NORM_BOUND;
+    let signature =
+        pack_signature([0x52; MLDSA65_CHALLENGE_BYTES], &z, &HintVector::empty()).unwrap();
+    let signature = ThresholdSignature(*signature.as_bytes());
+
+    assert_eq!(
+        verify_standard_mldsa65(&public_key, b"message", &signature),
+        Err(ThresholdError::StandardVerificationFailed)
+    );
+}
+
+#[test]
+fn hazmat_verifier_rejects_noncanonical_hint_encoding() {
+    let public_key = ThresholdPublicKey([0; MLDSA65_PUBLICKEY_BYTES]);
+    let mut signature = structurally_valid_zero_z_signature();
+    let hint_start = signature_hint_start();
+    signature.0[hint_start] = 5;
+    signature.0[hint_start + 1] = 5;
+    signature.0[hint_start + MLDSA65_OMEGA] = 2;
+
+    assert_eq!(
+        verify_standard_mldsa65(&public_key, b"message", &signature),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "ML-DSA-65 hint indices are not strictly increasing"
+        })
     );
 }
 
@@ -593,6 +705,10 @@ fn zero_equation_signature(public_key: &ThresholdPublicKey, message: &[u8]) -> T
     pack_signature(challenge, &VectorL::zero(), &HintVector::empty())
         .unwrap()
         .into()
+}
+
+fn signature_hint_start() -> usize {
+    MLDSA65_CHALLENGE_BYTES + (MLDSA65_L * MLDSA65_POLYZ_PACKED_BYTES)
 }
 
 fn t1_pattern_poly() -> Poly {

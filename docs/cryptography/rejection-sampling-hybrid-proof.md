@@ -415,7 +415,7 @@ formal route details and acceptance criteria are recorded in
 | Closure route | Hybrid edge | Required endpoint before invoking T1 |
 | --- | --- | --- |
 | [`eps-mask-closure-route`](rejection-sampling-bounds.md#eps-mask-closure-route) | H1 -> H2 | A theorem or explicit bound comparing the aggregate threshold mask and public high-bit distribution to centralized ML-DSA-65 before rejection conditioning. |
-| [`eps-rej-closure-route`](rejection-sampling-bounds.md#eps-rej-closure-route) | H4 -> H5 | A theorem or explicit bound that `Reject_T` and `Reject_0` differ only on enumerated encoding, active-set, challenge, hint, bound, or verifier-mismatch bad events. |
+| [`eps-rej-closure-route`](rejection-sampling-bounds.md#eps-rej-closure-route), [rejection-predicate-equivalence.md](rejection-predicate-equivalence.md) | H4 -> H5 | A theorem or explicit bound that `Reject_T` and `Reject_0` differ only on enumerated encoding, active-set, challenge, hint, bound, or verifier-mismatch bad events. |
 | [`eps-withhold-closure-route`](rejection-sampling-bounds.md#eps-withhold-closure-route) | H5 -> H6 | A simulator and retry-conditioning theorem, or explicit bound, for abort labels, withholding, timeout/exclusion behavior, and bounded retries. |
 
 These routes are ordered dependencies for the conditional Theorem T1 bound:
