@@ -19,6 +19,11 @@ feature gates are useful engineering evidence. They do not replace the formal
 proofs, backend replacements, audits, and external cryptographic review called
 out here.
 
+For a compact status index of the named theorem-loss terms and residuals, see
+[proof-closure-ledger.md](proof-closure-ledger.md). That ledger is a navigation
+and claim-control artifact; this file remains the detailed proof obligation
+tracker.
+
 ## Claim Status Key
 
 - **Open**: proof work is not complete and no production claim may rely on it.

@@ -15,10 +15,10 @@ code-level guards from obligations that remain open until a concrete threshold
 ML-DSA-65 construction and backend are selected.
 
 This document complements `protocol-code-crosswalk.md`,
-`proof-obligations.md`, and `formal-threshold-mldsa-transcript.md`. Those files
-remain the source of truth for protocol-specific traceability, while this
-crosswalk focuses on the proof surface introduced by the full-cryptographic
-proof phase.
+`proof-obligations.md`, `proof-closure-ledger.md`, and
+`formal-threshold-mldsa-transcript.md`. Those files remain the source of truth
+for protocol-specific traceability and term status, while this crosswalk
+focuses on the proof surface introduced by the full-cryptographic proof phase.
 
 ## Crosswalk
 
@@ -105,6 +105,9 @@ The following obligations remain outside the implemented security claim:
 - Closure of the documented `eps_mask`, `eps_rej`, `eps_withhold`, and
   `eps_classify` routes before claiming the accepted threshold distribution or
   real/ideal theorem is proven.
+- The consolidated status for every visible theorem-loss term in
+  [proof-closure-ledger.md](proof-closure-ledger.md) must remain aligned with
+  this crosswalk and the claims matrix.
 - Constant-time, side-channel, randomness, erasure, and authenticated-transport
   review for a selected production backend.
 

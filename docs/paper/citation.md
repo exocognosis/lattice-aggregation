@@ -57,8 +57,10 @@ Artifact reviewers can start from the reviewer quickstart:
 The reproducibility path and stable artifact checks are documented in
 [../benchmarks/reproducibility-manifest.md](../benchmarks/reproducibility-manifest.md).
 
-The claim boundary and remaining proof obligations are documented in
-[../cryptography/claims-matrix.md](../cryptography/claims-matrix.md) and
+The proof closure ledger, claim boundary, and remaining proof obligations are
+documented in
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md),
+[../cryptography/claims-matrix.md](../cryptography/claims-matrix.md), and
 [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md).
 
 ## Safe Citation Language

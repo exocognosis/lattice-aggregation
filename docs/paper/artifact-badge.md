@@ -55,8 +55,9 @@ Benchmark timings are useful evaluation telemetry, not security evidence.
 
 ## Claim Boundary
 
-Badge materials should point to the claim matrix:
-[../cryptography/claims-matrix.md](../cryptography/claims-matrix.md).
+Badge materials should point to the proof closure ledger and claim matrix:
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
+and [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md).
 
 Open proof, implementation, audit, and review blockers are tracked in
 [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md).

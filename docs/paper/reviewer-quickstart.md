@@ -26,15 +26,17 @@ The script verifies the checked sample bundle:
 
 ## What To Inspect First
 
-1. Claim boundary:
+1. Proof closure ledger:
+   [../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
+2. Claim boundary:
    [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md)
-2. Protocol-to-code map:
+3. Protocol-to-code map:
    [../cryptography/protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md)
-3. Proof blockers:
+4. Proof blockers:
    [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md)
-4. Audit packet:
+5. Audit packet:
    [../audit/README.md](../audit/README.md)
-5. Reproducibility commands:
+6. Reproducibility commands:
    [../benchmarks/reproducibility-manifest.md](../benchmarks/reproducibility-manifest.md)
 
 ## Expected Result

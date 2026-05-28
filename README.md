@@ -88,6 +88,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [Formal security theorem](docs/cryptography/formal-security-theorem.md)
   defines the target threshold ML-DSA security statements and explicitly marks
   them as not yet proved.
+- [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
+  indexes the current status, evidence route, and closure requirement for each
+  visible advantage term.
 - [Ideal functionality](docs/cryptography/ideal-functionality.md) and
   [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
   define how DKG, signing, aborts, evidence, and releases should map into an
@@ -169,6 +172,8 @@ Completed artifact layers:
   proof-to-code crosswalk;
 - dedicated closure routes for `eps_mask`, `eps_rej`, `eps_withhold`,
   `eps_contrib`, and `eps_classify`;
+- a proof closure ledger that keeps every visible theorem-loss term mapped to
+  its current status, evidence route, and remaining closure requirement;
 - fail-closed production policy gates for scaffold VSS and contribution proof
   backend declarations.
 
@@ -222,6 +227,7 @@ cargo test -j1 --all-features
 ## Review Map
 
 - [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
+- [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)

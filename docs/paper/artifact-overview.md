@@ -13,6 +13,8 @@ It is not production-ready. It is not a security proof for threshold ML-DSA-65.
 Production security still requires the malicious-secure DKG, contribution proof
 soundness, selective-abort, aggregation/noise, side-channel, slashing-evidence,
 and external cryptographic review obligations tracked in
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
+and
 [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md).
 
 ## Main Components
@@ -23,7 +25,7 @@ and external cryptographic review obligations tracked in
 | Hazmat ML-DSA-65 backend | Local FIPS 204 parameter work for experiments and verifier compatibility | `src/low_level/mldsa65.rs`, [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md) |
 | Adapter actor and wire protocol | Asynchronous protocol scaffold, canonical frames, evidence shaping | `src/adapter/`, [../cryptography/protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md) |
 | Artifact export pipeline | Section V LaTeX, CSV, transcript JSONL/CSV, and complaint artifacts | `src/utils/`, [../benchmarks/reproducibility-manifest.md](../benchmarks/reproducibility-manifest.md) |
-| Audit and claim boundary | Reviewer map, TCB, attack surface, proof blockers | [../audit/README.md](../audit/README.md) |
+| Audit and claim boundary | Reviewer map, TCB, attack surface, proof blockers | [../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md), [../audit/README.md](../audit/README.md) |
 
 ## Reproducible Outputs
 

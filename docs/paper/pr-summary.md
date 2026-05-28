@@ -47,6 +47,7 @@ RESULT: <paste final verified commit>
   - `docs/paper/archive-manifest.md`
 - Paper and claim-boundary documentation:
   - `docs/paper/*`
+  - `docs/cryptography/proof-closure-ledger.md`
   - `docs/cryptography/claims-matrix.md`
   - `docs/cryptography/protocol-code-crosswalk.md`
   - `docs/cryptography/proof-obligations.md`
@@ -77,6 +78,8 @@ RESULT: <paste final verified commit>
 
 - Start with `docs/paper/reviewer-quickstart.md` for the reproduction path and
   expected outputs.
+- Use `docs/cryptography/proof-closure-ledger.md` as the single status index
+  for visible theorem-loss terms and residuals.
 - Use `docs/cryptography/claims-matrix.md` as the authoritative map from
   publication-facing language to implementation evidence and blockers.
 - Use `docs/cryptography/protocol-code-crosswalk.md` to move from protocol

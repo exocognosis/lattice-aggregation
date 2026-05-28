@@ -24,6 +24,7 @@ const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
 const UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE: &str =
     "docs/cryptography/unauthorized-output-classifier-closure.md";
+const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
 const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
 const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
@@ -68,6 +69,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
+        PROOF_CLOSURE_LEDGER,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
         SIMULATOR_HYBRID_REDUCTIONS,
@@ -354,6 +356,39 @@ fn full_proof_surface_exposes_stable_anchors() {
             "classifier-acceptance-criteria",
             "uocc-non-claims",
             "classifier-non-claims",
+        ],
+    );
+    assert_contains_all(
+        PROOF_CLOSURE_LEDGER,
+        &[
+            "# Proof Closure Ledger",
+            "proof-closure-ledger",
+            "Status: single status index, not a completed proof.",
+            "ledger-status-key",
+            "ledger-term-table",
+            "FST-T1-IdealVSS",
+            "FST-T1 threshold unforgeability",
+            "FST-T2 real/ideal realization",
+            "FST-T3 transcript non-malleability",
+            "FST-T4 implementation conformance",
+            "eps_vss",
+            "eps_vss_ideal",
+            "eps_mask",
+            "eps_commit",
+            "eps_ro",
+            "eps_rej",
+            "eps_withhold",
+            "eps_contrib",
+            "eps_classify",
+            "eps_cls_unmapped = 0",
+            "eps_verify",
+            "implementation_residual",
+            "audit_residual",
+            "research scaffold",
+            "not production-ready",
+            "not a security proof",
+            "implementation evidence is not cryptographic proof",
+            "ledger-non-claims",
         ],
     );
     assert_contains_all(

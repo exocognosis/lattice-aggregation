@@ -12,6 +12,8 @@ production readiness.
 For exact commands and feature gates, use
 [../benchmarks/reproducibility-manifest.md](../benchmarks/reproducibility-manifest.md).
 For claim status, use
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
+and
 [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md).
 
 ## Profiles
@@ -68,5 +70,6 @@ The evaluation does not prove:
 - external cryptographic review.
 
 Those obligations are tracked in
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md),
 [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md)
 and summarized for reviewers in [../audit/README.md](../audit/README.md).
