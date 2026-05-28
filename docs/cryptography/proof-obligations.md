@@ -136,6 +136,9 @@ hiding secret-dependent witness material.
   defines the production public statement, witness relation, soundness game,
   extraction target, witness-hiding target, context-binding requirements, and
   non-claims needed to replace the scaffold.
+- [contribution-backend-instantiation.md](contribution-backend-instantiation.md)
+  defines the backend declaration, backend-family split, theorem target,
+  acceptance criteria, and non-claims needed before `eps_contrib` can close.
 - [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks contribution
   proof soundness as an open hybrid.
 - [security-model.md](security-model.md) explicitly states that the current
@@ -157,6 +160,8 @@ hiding secret-dependent witness material.
   without relying on opaque payload bytes.
 - Show how extractor or verifier outputs plug into the threshold EUF-CMA
   reduction.
+- Select a backend family and bind it to a reviewed soundness, hiding,
+  extraction or substitute, leakage, and context-binding theorem.
 
 ### Implementation/Audit Closure Criteria
 
@@ -178,6 +183,36 @@ Production Blocker. Current contribution proofs provide transcript
 digest-binding only and must not be described as sound, hidden, zero-knowledge,
 or production-ready. The contribution soundness worksheet fixes the target
 relation for a future backend, but it does not close this obligation.
+
+## PO-2A: Unauthorized Output Classification
+
+### Statement
+
+Every accepting aggregate output for an unauthorized message must map to a base
+ML-DSA forgery or to a named threshold-side assumption violation. No final
+theorem may hide an accepting output in `eps_cls_unmapped`.
+
+### Current Evidence
+
+- [simulator-hybrid-reductions.md](simulator-hybrid-reductions.md) decomposes
+  `eps_classify` into named classifier cases.
+- [unauthorized-output-classifier-closure.md](unauthorized-output-classifier-closure.md)
+  defines the classifier input tuple, ordered grammar, totality/disjointness
+  targets, reduction map, acceptance criteria, and non-claims.
+
+### Missing Proof Work
+
+- Fix the production verifier grammar for every accepted aggregate output.
+- Prove the classifier is total and deterministic over the accepted grammar.
+- Provide a concrete reduction algorithm, runtime loss, and success
+  probability for each non-gap case.
+- Prove `eps_cls_unmapped = 0` before removing `eps_classify` from the final
+  theorem.
+
+### Claim Status
+
+Production Blocker. The classifier route is documented, but the zero-unmapped
+proof and per-case reductions remain open.
 
 ## PO-3: Selective-Abort/Retry Bound
 

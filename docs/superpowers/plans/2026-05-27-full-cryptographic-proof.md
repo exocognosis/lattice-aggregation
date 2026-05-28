@@ -411,6 +411,48 @@ The project may claim "cryptographically proven construction" only after all of 
 
 - [x] Add stable anchors for the mask-distribution and withholding-abort
   worksheets to the required proof document manifest.
+
+## Parallel Batch 9: Contribution Backend and Classifier Routes
+
+### Task 30: Contribution Backend Instantiation Route
+
+**Files:**
+- Create: `docs/cryptography/contribution-backend-instantiation.md`
+- Modify: `docs/cryptography/contribution-soundness-relation.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Add a backend declaration target, backend-family split, theorem target,
+  epsilon accounting, acceptance criteria, code crosswalk, and non-claims for
+  `eps_contrib`.
+- [x] Preserve the boundary that transcript-hash proofs and backend
+  declarations are not production contribution soundness.
+
+### Task 31: Unauthorized Output Classifier Closure Route
+
+**Files:**
+- Create: `docs/cryptography/unauthorized-output-classifier-closure.md`
+- Modify: `docs/cryptography/simulator-hybrid-reductions.md`
+- Modify: `docs/cryptography/formal-security-theorem.md`
+- Modify: `docs/cryptography/ideal-functionality.md`
+- Modify: `docs/cryptography/proof-obligations.md`
+- Modify: `docs/cryptography/proof-implementation-crosswalk.md`
+- Modify: `docs/cryptography/claims-matrix.md`
+
+- [x] Add a classifier input tuple, ordered case grammar, totality and
+  disjointness targets, reduction map, acceptance criteria, and non-claims for
+  eliminating `eps_cls_unmapped`.
+- [x] Keep `eps_classify` open until the production verifier grammar and
+  per-case reductions prove `eps_cls_unmapped = 0`.
+
+### Task 32: Manifest Integration for Backend and Classifier Routes
+
+**Files:**
+- Modify: `tests/proof_documentation_manifest.rs`
+
+- [x] Add stable anchors for contribution backend instantiation and
+  unauthorized-output classifier closure routes.
 - Modify: `docs/cryptography/claims-matrix.md`
 - Modify: `docs/cryptography/proof-implementation-crosswalk.md`
 

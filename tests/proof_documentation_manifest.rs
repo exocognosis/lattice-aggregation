@@ -20,6 +20,10 @@ const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
 const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
 const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
+const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
+    "docs/cryptography/contribution-backend-instantiation.md";
+const UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE: &str =
+    "docs/cryptography/unauthorized-output-classifier-closure.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
 const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
 const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
@@ -62,6 +66,8 @@ fn proof_documentation_manifest_tracks_required_docs() {
         SIDE_CHANNEL_BOUNDARY,
         FORMAL_TRANSCRIPT,
         CONTRIBUTION_SOUNDNESS,
+        CONTRIBUTION_BACKEND_INSTANTIATION,
+        UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
         SIMULATOR_HYBRID_REDUCTIONS,
@@ -308,7 +314,46 @@ fn full_proof_surface_exposes_stable_anchors() {
             "csr-soundness-game",
             "csr-extraction-target",
             "csr-witness-hiding-target",
+            "csr-backend-instantiation-route",
+            "csr-epsilon-accounting",
+            "csr-acceptance-criteria",
             "csr-non-claims",
+        ],
+    );
+    assert_contains_all(
+        CONTRIBUTION_BACKEND_INSTANTIATION,
+        &[
+            "# Contribution Backend Instantiation Route",
+            "contribution-backend-instantiation",
+            "cbi-backend-declaration",
+            "theorem-cbi-production-contribution",
+            "Theorem CBI-production-contribution",
+            "eps_contrib_sound",
+            "eps_contrib_extract",
+            "eps_contrib_hide",
+            "cbi-backend-families",
+            "cbi-acceptance-criteria",
+            "cbi-code-crosswalk",
+            "cbi-non-claims",
+        ],
+    );
+    assert_contains_all(
+        UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
+        &[
+            "# Unauthorized Output Classifier Closure Route",
+            "unauthorized-output-classifier-closure",
+            "eps-classify-closure-route",
+            "theorem-c-close-unauthorized-output-classifier",
+            "Theorem C-close-unauthorized-output-classifier",
+            "uocc-input-tuple",
+            "uocc-case-grammar",
+            "uocc-totality-disjointness",
+            "eps_cls_unmapped = 0",
+            "uocc-reduction-map",
+            "uocc-acceptance-criteria",
+            "classifier-acceptance-criteria",
+            "uocc-non-claims",
+            "classifier-non-claims",
         ],
     );
     assert_contains_all(
@@ -326,6 +371,8 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Threshold EUF-CMA security",
             "`eps_mask` aggregate mask-distribution route",
             "`eps_withhold` selective-abort route",
+            "Contribution backend instantiation route",
+            "`eps_classify` unauthorized-output classifier route",
             "Rejection-sampling distribution preservation",
         ],
     );
@@ -378,6 +425,8 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
             "Rejection predicate equivalence route",
             "Withholding and abort bound route",
             "Contribution soundness relation target",
+            "Contribution backend instantiation route",
+            "Unauthorized output classifier closure route",
             "Simulation-only backend and production proof gates",
             "`src/transcript.rs`",
             "`src/adapter/wire.rs`",

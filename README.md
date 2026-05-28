@@ -118,6 +118,10 @@ The next work is theorem closure, not more scaffold construction:
   behavior, retries, and observable abort labels using the route in
   [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
 - instantiate the production contribution proof or MPC relation described in
-  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md);
+  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md)
+  using the route in
+  [contribution-backend-instantiation.md](docs/cryptography/contribution-backend-instantiation.md);
 - eliminate `eps_classify` by mapping every unauthorized accepting output to
-  either a base ML-DSA forgery or a named threshold-side assumption violation.
+  either a base ML-DSA forgery or a named threshold-side assumption violation
+  using the route in
+  [unauthorized-output-classifier-closure.md](docs/cryptography/unauthorized-output-classifier-closure.md).

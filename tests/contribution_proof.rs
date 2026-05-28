@@ -90,13 +90,128 @@ fn production_contribution_statement_canonical_bytes_round_trip() {
 }
 
 #[test]
+fn production_contribution_statement_digest_binds_every_field() {
+    let statement = fixture_production_statement();
+    let baseline = statement.statement_digest().expect("digest baseline");
+
+    let mut cases: Vec<(&str, ProductionContributionStatement)> = Vec::new();
+
+    let mut mutated = statement.clone();
+    mutated.protocol_version = 2;
+    cases.push(("protocol_version", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.epoch_id[0] ^= 0x01;
+    cases.push(("epoch_id", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.session_id[0] ^= 0x01;
+    cases.push(("session_id", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.block_height += 1;
+    cases.push(("block_height", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.attempt += 1;
+    cases.push(("attempt", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.validator_index += 1;
+    cases.push(("validator_index", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.threshold -= 1;
+    cases.push(("threshold", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.total_nodes += 1;
+    cases.push(("total_nodes", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.validator_set_digest[0] ^= 0x01;
+    cases.push(("validator_set_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.public_key_digest[0] ^= 0x01;
+    cases.push(("public_key_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.parameter_set_digest[0] ^= 0x01;
+    cases.push(("parameter_set_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.mu[0] ^= 0x01;
+    cases.push(("mu", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.challenge[0] ^= 0x01;
+    cases.push(("challenge", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.dkg_commitment_digest[0] ^= 0x01;
+    cases.push(("dkg_commitment_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.masking_commitment_digest[0] ^= 0x01;
+    cases.push(("masking_commitment_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.secret_commitment_digest[0] ^= 0x01;
+    cases.push(("secret_commitment_digest", mutated));
+
+    let mut mutated = statement;
+    mutated.contribution_commitment_digest[0] ^= 0x01;
+    cases.push(("contribution_commitment_digest", mutated));
+
+    for (field, mutated) in cases {
+        assert_ne!(
+            mutated.statement_digest().unwrap_or_else(|err| {
+                panic!("mutated {field} should remain structurally valid: {err}")
+            }),
+            baseline,
+            "digest did not bind field {field}"
+        );
+    }
+}
+
+#[test]
 fn production_contribution_statement_rejects_invalid_threshold_or_validator() {
+    let mut zero_protocol = fixture_production_statement();
+    zero_protocol.protocol_version = 0;
+    assert_eq!(
+        zero_protocol.to_canonical_bytes(),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "invalid production contribution statement version"
+        })
+    );
+
     let mut zero_validator = fixture_production_statement();
     zero_validator.validator_index = 0;
     assert_eq!(
         zero_validator.to_canonical_bytes(),
         Err(ThresholdError::UnknownValidator {
             validator: ValidatorId(0)
+        })
+    );
+
+    let mut zero_threshold = fixture_production_statement();
+    zero_threshold.threshold = 0;
+    assert_eq!(
+        zero_threshold.to_canonical_bytes(),
+        Err(ThresholdError::InvalidThresholdParameters {
+            threshold: zero_threshold.threshold,
+            total_nodes: zero_threshold.total_nodes,
+        })
+    );
+
+    let mut zero_total = fixture_production_statement();
+    zero_total.total_nodes = 0;
+    assert_eq!(
+        zero_total.to_canonical_bytes(),
+        Err(ThresholdError::InvalidThresholdParameters {
+            threshold: zero_total.threshold,
+            total_nodes: zero_total.total_nodes,
         })
     );
 
