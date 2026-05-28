@@ -1,36 +1,187 @@
 # ML-DSA Lattice Aggregator
 
-Research scaffold for threshold-style ML-DSA-65 protocol integration in Rust.
-The crate provides typed signing-session boundaries, simulated and hazmat
-backend paths, actor/wire adapters, deterministic Section V artifact exporters,
-and claim-boundary documentation for review.
+Rust research scaffold for threshold-style ML-DSA-65 aggregation on validator
+networks. The project studies whether an L1 can replace a growing set of
+individual post-quantum validator signatures with one standard-size ML-DSA-65
+signature while preserving the verification path expected by unmodified
+ML-DSA verifiers.
+
+## The Problem
+
+BLS signatures made validator aggregation operationally attractive because
+public keys and signatures compose algebraically. ML-DSA, standardized in
+FIPS 204 from the Dilithium family, does not have that property. Its signing
+algorithm uses structured lattice secrets, masking vectors, Fiat-Shamir
+challenges, hints, and rejection sampling. If validator outputs are naively
+added together, the aggregate can leave the distribution and norm bounds that
+standard ML-DSA verification and security arguments rely on.
+
+That creates a practical L1 design problem:
+
+- storing one ML-DSA signature per validator creates state and bandwidth
+  growth with validator count;
+- replacing signatures with a Merkle or bitfield proof compresses some data,
+  but still leaves consensus and state-transition complexity;
+- emitting one flat ML-DSA-65 signature would be operationally ideal, but only
+  if the multi-party signing process preserves the same accepted-signature
+  distribution and verification semantics as ordinary ML-DSA-65.
+
+The thesis explored here is that a threshold or interactive ML-DSA-65 protocol
+can compress a validator quorum into one standard ML-DSA-65 signature, but only
+if the protocol proves five hard properties:
+
+1. aggregate masks match or closely approximate centralized ML-DSA masks;
+2. aggregate rejection checks match centralized ML-DSA rejection checks;
+3. selective aborts and retries do not bias accepted signatures;
+4. every accepted partial contribution is sound, context-bound, and hiding
+   enough for the chosen leakage model;
+5. every unauthorized accepting aggregate output reduces to a base ML-DSA
+   forgery or a named threshold-side assumption violation.
+
+## The Solution Direction
+
+This repository builds the artifact boundary for that thesis. It does not claim
+the full thesis is proven. It provides the Rust crate structure, hazmat
+ML-DSA-65 experimentation path, async protocol scaffold, reproducible telemetry,
+and proof-route documentation needed to evaluate the construction rigorously.
+
+At a high level, the proposed system is:
+
+```text
+Validator set for epoch E
+  -> DKG/VSS or ideal setup for one epoch public key
+  -> per-block threshold signing session
+  -> prechallenge masking commitments
+  -> challenge bound to canonical transcript
+  -> proof-bound partial contribution exchange
+  -> aggregate rejection and standard ML-DSA-65 verification checks
+  -> one standard-size ML-DSA-65 signature in the block header
+```
+
+The operational target is backward-compatible verification: a verifier should
+check the final block signature against the epoch threshold public key with the
+standard ML-DSA-65 verification path. The verifier should not need to know that
+the signature came from a threshold execution.
+
+## What Is Implemented
+
+The crate currently includes:
+
+- typed signing-session and aggregation boundaries for threshold-style flows;
+- simulated backend paths for deterministic protocol testing;
+- feature-gated `hazmat-real-mldsa` ML-DSA-65 internals, KAT-style fixtures,
+  differential checks, threshold bridge tests, and standard-verifying hazmat
+  signing paths for controlled experiments;
+- VSS and interpolation scaffolding, plus production-policy gates that reject
+  scaffold backend families for production-labeled configuration;
+- async actor and wire-format adapters for in-memory P2P simulations,
+  malformed-frame handling, retry telemetry, and evidence-shaped artifacts;
+- deterministic Section V-style exporters for reproducible benchmark tables,
+  transcript artifacts, and sample bundles;
+- proof-route worksheets and manifest tests that keep the claim boundary
+  explicit as the project evolves.
+
+## Theoretical Underpinnings
+
+The proof package is organized around a real/ideal and hybrid proof surface:
+
+- [Formal security theorem](docs/cryptography/formal-security-theorem.md)
+  defines the target threshold ML-DSA security statements and explicitly marks
+  them as not yet proved.
+- [Ideal functionality](docs/cryptography/ideal-functionality.md) and
+  [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
+  define how DKG, signing, aborts, evidence, and releases should map into an
+  ideal threshold signing functionality.
+- [Rejection-sampling bounds worksheet](docs/cryptography/rejection-sampling-bounds.md)
+  decomposes accepted-distribution loss into visible terms.
+- [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
+  tracks `eps_mask`, the distance between aggregate threshold masks and
+  centralized ML-DSA-65 masks.
+- [Rejection predicate equivalence](docs/cryptography/rejection-predicate-equivalence.md)
+  tracks `eps_rej`, the gap between aggregate and centralized rejection
+  predicates over the same candidate values.
+- [Withholding and abort bound](docs/cryptography/withholding-abort-bound.md)
+  tracks `eps_withhold`, the selective-abort, retry, timeout, and observable
+  abort-label route.
+- [Contribution soundness relation](docs/cryptography/contribution-soundness-relation.md)
+  and [contribution backend instantiation](docs/cryptography/contribution-backend-instantiation.md)
+  track `eps_contrib`, the future production proof or MPC relation for partial
+  contribution validity and hiding.
+- [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
+  tracks `eps_classify`, the remaining route for mapping every unauthorized
+  accepting output to a base ML-DSA forgery or a threshold-side assumption
+  violation.
+
+The current top-level advantage shape is intentionally conservative:
+
+```text
+Adv_threshold
+  <= Adv_MLDSA
+   + eps_vss
+   + eps_mask
+   + eps_commit
+   + eps_ro
+   + eps_rej
+   + eps_withhold
+   + eps_contrib
+   + eps_classify
+   + implementation/audit residuals
+```
+
+The repository is valuable precisely because it keeps those terms visible. It
+does not collapse them into a security claim before the required proofs exist.
+
+## Operational Underpinnings
+
+The intended L1 integration model is epoch based:
+
+- at epoch transition, validators run DKG/VSS or a future production setup
+  protocol to derive one epoch threshold public key;
+- during block production, the proposer or aggregator coordinates a threshold
+  signing session over authenticated P2P channels;
+- validators commit to masking material before the challenge is derived;
+- validators return proof-bound partial contribution frames after the challenge;
+- the aggregator accepts a threshold-valid set, performs aggregate rejection
+  checks, and emits one standard-size ML-DSA-65 signature;
+- the state transition verifies only the flat signature against the epoch key,
+  avoiding validator-count signature state growth.
+
+The repository models this operational path with actor simulations, wire
+messages, telemetry, malformed-frame evidence, retry behavior, and deterministic
+benchmark artifacts. These are engineering and reproducibility evidence, not
+cryptographic proof of production network liveness or production slashing
+soundness.
 
 ## Current Status
 
-The repository is now organized as a proof-oriented research artifact, not just
-an implementation sketch. Since the last README update, the proof package has
-been expanded with:
+In practical terms, this is a publishable research scaffold with strong
+reproducibility and review boundaries. It is not yet a cryptographically proven
+threshold ML-DSA-65 construction.
 
-- local `hazmat-real-mldsa` ML-DSA-65 internals, KAT-style fixtures,
-  differential checks, threshold bridge tests, and standard-verifying hazmat
-  signing paths for controlled experiments;
-- formal theorem targets, ideal functionality, real/ideal simulator skeletons,
+Completed artifact layers:
+
+- Rust crate API boundaries, simulated flows, actor/wire adapters, and
+  Section V artifact generation;
+- feature-gated hazmat ML-DSA-65 internals for controlled conformance and
+  threshold-bridge experiments;
+- formal theorem targets, ideal functionality, simulator skeletons,
   random-oracle domains, adversary models, correctness lemmas, and a
   proof-to-code crosswalk;
-- an idealized `F_VSS_DKG` route for isolating setup assumptions from the
-  signing proof, while keeping concrete production VSS/DKG security open;
-- rejection-sampling hybrid worksheets with explicit `eps_mask`, `eps_rej`,
-  `eps_withhold`, `eps_ro`, `eps_commit`, and `Delta_accept` closure routes,
-  including dedicated mask-distribution, rejection-predicate, and
-  withholding-abort route worksheets;
-- a contribution soundness relation worksheet for the future production proof
-  backend, plus fail-closed production policy gates for scaffold backends;
-- an unauthorized-output classifier route that decomposes `eps_classify` into
-  named reduction cases rather than hiding the remaining gap.
+- dedicated closure routes for `eps_mask`, `eps_rej`, `eps_withhold`,
+  `eps_contrib`, and `eps_classify`;
+- fail-closed production policy gates for scaffold VSS and contribution proof
+  backend declarations.
 
-In practical terms, this is approximately a publishable research scaffold with
-strong reproducibility and review boundaries. It is not yet a cryptographically
-proven threshold ML-DSA-65 construction.
+Open proof layers:
+
+- malicious-secure DKG/VSS or a reviewed production realization of the ideal
+  `F_VSS_DKG` setup route;
+- production contribution proof soundness and witness hiding;
+- accepted-distribution proof for aggregate masks, rejection sampling, retries,
+  and selective aborts;
+- final unauthorized-output classifier proof with `eps_cls_unmapped = 0`;
+- side-channel review, constant-time audit, randomness review, external
+  cryptographic review, and production operational review.
 
 ## Warning
 
@@ -40,6 +191,7 @@ threshold ML-DSA-65. The current code and tests provide engineering evidence for
 the documented artifact boundary only. Production security still depends on the
 open proof, backend replacement, audit, side-channel, and external review work
 tracked in the linked proof obligations.
+
 Those obligations include malicious-secure DKG, contribution proof soundness,
 rejection-sampling distribution preservation, selective-abort bounds,
 side-channel review, and external cryptographic review.
@@ -77,7 +229,12 @@ cargo test -j1 --all-features
 - [Ideal functionality](docs/cryptography/ideal-functionality.md)
 - [Real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
 - [Rejection-sampling bounds worksheet](docs/cryptography/rejection-sampling-bounds.md)
+- [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
+- [Rejection predicate equivalence](docs/cryptography/rejection-predicate-equivalence.md)
+- [Withholding and abort bound](docs/cryptography/withholding-abort-bound.md)
 - [Contribution soundness relation](docs/cryptography/contribution-soundness-relation.md)
+- [Contribution backend instantiation](docs/cryptography/contribution-backend-instantiation.md)
+- [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
 - [Reproducibility manifest](docs/benchmarks/reproducibility-manifest.md)
 - [Section V sample bundle](docs/benchmarks/artifacts/section-v-sample-output.txt)
 - [Section V sample checksum](docs/benchmarks/artifacts/SHA256SUMS)
