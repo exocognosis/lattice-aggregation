@@ -15,6 +15,9 @@ without selecting a concrete malicious-secure VSS/DKG backend:
 is provided by the ideal functionality `F_VSS_DKG`, and the proof focuses only
 on the signing-side threshold ML-DSA-65 obligations.
 
+The lemma-by-lemma proof skeleton is tracked in
+[idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md).
+
 This document does not prove `FST-T1-IdealVSS`. It also does not prove concrete
 production VSS/DKG security, production deployment readiness, side-channel
 resistance, or final threshold unforgeability without the ideal setup
@@ -59,7 +62,7 @@ concrete `eps_vss` theorem and audit record.
 | Dependency | Closure requirement | Current source |
 | --- | --- | --- |
 | `F_VSS_DKG` interface | Fix exact setup leakage, corruption leakage, complaint leakage, and public digest semantics. | [vss-idealization-and-selection.md](vss-idealization-and-selection.md), [ideal-functionality.md](ideal-functionality.md) |
-| Transcript injectivity | Prove typed encodings are injective for session, validator set, key, message, commitments, shares, and evidence references. | [formal-threshold-mldsa-transcript.md](formal-threshold-mldsa-transcript.md), [random-oracle-game.md](random-oracle-game.md) |
+| Transcript injectivity | Prove typed encodings are injective for session, validator set, key, message, commitments, shares, and evidence references. | [production-transcript-grammar.md](production-transcript-grammar.md), [formal-threshold-mldsa-transcript.md](formal-threshold-mldsa-transcript.md), [random-oracle-game.md](random-oracle-game.md) |
 | Commitment non-adaptivity | Prove commitments are fixed before `H_c` and that opened sets equal challenged sets. | [random-oracle-game.md](random-oracle-game.md), [rejection-sampling-hybrid-proof.md](rejection-sampling-hybrid-proof.md) |
 | Contribution validity | Select or idealize the contribution relation used by accepted partial shares. | [contribution-backend-selection.md](contribution-backend-selection.md), [contribution-backend-instantiation.md](contribution-backend-instantiation.md) |
 | Rejection preservation | Close or keep visible `eps_mask`, `eps_rej`, `eps_withhold`, and `eps_verify`. | [rejection-sampling-closure-plan.md](rejection-sampling-closure-plan.md) |
@@ -127,6 +130,8 @@ production VSS/DKG, or proves full threshold ML-DSA-65 unforgeability.
 <a id="idealvss-source-obligations"></a>
 
 - [formal-security-theorem.md](formal-security-theorem.md)
+- [idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md)
+- [production-transcript-grammar.md](production-transcript-grammar.md)
 - [vss-idealization-and-selection.md](vss-idealization-and-selection.md)
 - [ideal-functionality.md](ideal-functionality.md)
 - [real-ideal-simulator.md](real-ideal-simulator.md)

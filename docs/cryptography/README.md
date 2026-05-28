@@ -8,7 +8,9 @@ Available notes:
 
 - [Phase 1 Noise Bound Model](phase-1-noise-bound-model.md)
 - [Proof Closure Ledger](proof-closure-ledger.md)
+- [Production Transcript Grammar](production-transcript-grammar.md)
 - [IdealVSS Signing Theorem Closure](idealvss-signing-theorem-closure.md)
+- [IdealVSS Lemma Skeleton](idealvss-lemma-skeleton.md)
 - [Contribution Backend Selection Framework](contribution-backend-selection.md)
 - [Rejection-Sampling Closure Plan](rejection-sampling-closure-plan.md)
 - [Random-Oracle and Commitment Closure Plan](random-oracle-commitment-closure.md)

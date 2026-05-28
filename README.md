@@ -272,6 +272,12 @@ malicious-secure threshold ML-DSA-65 signature scheme.
 
 The next work is theorem closure, not more scaffold construction:
 
+- lock the production transcript grammar in
+  [production-transcript-grammar.md](docs/cryptography/production-transcript-grammar.md)
+  so random-oracle, contribution, evidence, and classifier proofs share one
+  canonical byte-level input language;
+- turn the IdealVSS route into lemma-by-lemma proof text using
+  [idealvss-lemma-skeleton.md](docs/cryptography/idealvss-lemma-skeleton.md);
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
   distribution using the route in
   [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)

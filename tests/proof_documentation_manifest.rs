@@ -19,6 +19,7 @@ const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
 const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
 const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
+const PRODUCTION_TRANSCRIPT_GRAMMAR: &str = "docs/cryptography/production-transcript-grammar.md";
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
@@ -30,6 +31,7 @@ const UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION: &str =
 const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
 const IDEALVSS_SIGNING_THEOREM_CLOSURE: &str =
     "docs/cryptography/idealvss-signing-theorem-closure.md";
+const IDEALVSS_LEMMA_SKELETON: &str = "docs/cryptography/idealvss-lemma-skeleton.md";
 const REJECTION_SAMPLING_CLOSURE_PLAN: &str =
     "docs/cryptography/rejection-sampling-closure-plan.md";
 const RANDOM_ORACLE_COMMITMENT_CLOSURE: &str =
@@ -75,6 +77,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         RANDOM_ORACLE_GAME,
         SIDE_CHANNEL_BOUNDARY,
         FORMAL_TRANSCRIPT,
+        PRODUCTION_TRANSCRIPT_GRAMMAR,
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
         CONTRIBUTION_BACKEND_SELECTION,
@@ -82,6 +85,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
         PROOF_CLOSURE_LEDGER,
         IDEALVSS_SIGNING_THEOREM_CLOSURE,
+        IDEALVSS_LEMMA_SKELETON,
         REJECTION_SAMPLING_CLOSURE_PLAN,
         RANDOM_ORACLE_COMMITMENT_CLOSURE,
         PROOF_OBLIGATIONS,
@@ -322,6 +326,31 @@ fn full_proof_surface_exposes_stable_anchors() {
         ],
     );
     assert_contains_all(
+        PRODUCTION_TRANSCRIPT_GRAMMAR,
+        &[
+            "# Production Transcript Grammar for Threshold ML-DSA-65",
+            "production-transcript-grammar",
+            "ptg-scope-non-claim",
+            "ptg-input-tuple",
+            "ptg-canonical-encoding",
+            "ptg-random-oracle-domains",
+            "ptg-signing-attempt-grammar",
+            "ptg-contribution-frame-grammar",
+            "ptg-collection-release-grammar",
+            "ptg-evidence-abort-grammar",
+            "ptg-classifier-interface",
+            "ptg-totality-disjointness-obligations",
+            "ptg-acceptance-criteria",
+            "ptg-non-claims",
+            "eps_cls_unmapped = 0",
+            "SigningContext",
+            "ContributionStatement_i",
+            "AggregateOutputRecord",
+            "EvidenceRecord",
+            "H_contrib",
+        ],
+    );
+    assert_contains_all(
         CONTRIBUTION_SOUNDNESS,
         &[
             "# Contribution Soundness Relation Worksheet",
@@ -451,6 +480,8 @@ fn full_proof_surface_exposes_stable_anchors() {
             "not a security proof",
             "implementation evidence is not cryptographic proof",
             "idealvss-signing-theorem-closure.md",
+            "idealvss-lemma-skeleton.md",
+            "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
             "random-oracle-commitment-closure.md",
@@ -478,7 +509,44 @@ fn full_proof_surface_exposes_stable_anchors() {
             "FST-L1",
             "FST-L7",
             "FST-L10",
+            "idealvss-lemma-skeleton.md",
+            "production-transcript-grammar.md",
             "eps_cls_unmapped = 0",
+        ],
+    );
+    assert_contains_all(
+        IDEALVSS_LEMMA_SKELETON,
+        &[
+            "# IdealVSS Lemma Skeleton",
+            "idealvss-lemma-skeleton",
+            "IVLS-0. Scope and Non-Claim",
+            "IVLS-1. Theorem Context: FST-T1-IdealVSS",
+            "IVLS-2. Lemma Dependency Table",
+            "IVLS-3. FST-L1 Canonical Transcript Injectivity",
+            "IVLS-4. FST-L2 Challenge Binding",
+            "IVLS-5. FST-L3 Validator-Set Soundness",
+            "IVLS-6. FST-L4 Partial-Share Validity",
+            "IVLS-7. FST-L5 Aggregation Correctness",
+            "IVLS-8. FST-L6 No Subthreshold Signing",
+            "IVLS-9. FST-L7 Abort Compatibility",
+            "IVLS-10. FST-L10 Unauthorized-Output Classifier Closure",
+            "IVLS-11. Cross-Lemma Epsilon Ledger",
+            "IVLS-12. Acceptance Criteria",
+            "IVLS-13. Manifest Anchors",
+            "FST-L1",
+            "FST-L2",
+            "FST-L3",
+            "FST-L4",
+            "FST-L5",
+            "FST-L6",
+            "FST-L7",
+            "FST-L10",
+            "eps_cls_unmapped = 0",
+            "ivls-fst-l1-transcript-injectivity",
+            "ivls-fst-l4-partial-share-validity",
+            "ivls-fst-l7-abort-compatibility",
+            "ivls-epsilon-ledger",
+            "ivls-acceptance-criteria",
         ],
     );
     assert_contains_all(
