@@ -286,6 +286,12 @@ The next work is theorem closure, not more scaffold construction:
   [FST-L4 partial-share validity](docs/cryptography/fst-l4-partial-share-validity.md),
   [FST-L5 aggregation correctness](docs/cryptography/fst-l5-aggregation-correctness.md),
   and [FST-L6 no subthreshold signing](docs/cryptography/fst-l6-no-subthreshold-signing.md);
+- close abort and classifier worksheets for
+  [FST-L7 abort compatibility](docs/cryptography/fst-l7-abort-compatibility.md)
+  and [FST-L10 classifier closure](docs/cryptography/fst-l10-classifier-closure.md);
+- use the immediate
+  [contribution backend decision record](docs/cryptography/contribution-backend-decision-record.md)
+  to keep `F_CONTRIB` idealized until a concrete backend theorem is selected;
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
   distribution using the route in
   [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
