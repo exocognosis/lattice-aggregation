@@ -143,6 +143,9 @@ Controlling source worksheets include:
 - [fst-l4-l7-theorem-closure.md](fst-l4-l7-theorem-closure.md): the
   middle-layer ideal contribution, aggregation, threshold authorization, and
   abort-compatibility closure batch for `FST-L4` through `FST-L7`.
+- [fst-l10-classifier-theorem-closure.md](fst-l10-classifier-theorem-closure.md):
+  the ordered unauthorized-output classifier route for `FST-L10` and the
+  `eps_cls_unmapped = 0` target.
 - [contribution-backend-decision-record.md](contribution-backend-decision-record.md):
   `cbdr-decision`, `cbdr-non-production-idealization-boundary`,
   `cbdr-residual-terms`, and `F_CONTRIB`.

@@ -23,6 +23,7 @@ Available notes:
 - [FST-L5 Aggregation Correctness Worksheet](fst-l5-aggregation-correctness.md)
 - [FST-L6 No Subthreshold Signing Worksheet](fst-l6-no-subthreshold-signing.md)
 - [FST-L7 Abort Compatibility Worksheet](fst-l7-abort-compatibility.md)
+- [FST-L10 Classifier Theorem Closure Batch](fst-l10-classifier-theorem-closure.md)
 - [FST-L10 Classifier Closure Worksheet](fst-l10-classifier-closure.md)
 - [Contribution Backend Selection Framework](contribution-backend-selection.md)
 - [Contribution Backend Decision Record](contribution-backend-decision-record.md)

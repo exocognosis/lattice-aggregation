@@ -131,7 +131,8 @@ The conservative proof-closure order is:
 4. Use the [contribution backend decision record](contribution-backend-decision-record.md)
    to isolate immediate proof work through `F_CONTRIB`.
 5. Close [FST-L7 abort compatibility](fst-l7-abort-compatibility.md) and
-   [FST-L10 classifier closure](fst-l10-classifier-closure.md).
+   [FST-L10 classifier closure](fst-l10-classifier-closure.md), tracked by the
+   [FST-L10 classifier theorem closure batch](fst-l10-classifier-theorem-closure.md).
 6. Select the [contribution backend](contribution-backend-selection.md) and
    close `eps_contrib`.
 7. Lock the [production transcript grammar](production-transcript-grammar.md),
@@ -200,6 +201,7 @@ stable contract for this file:
 - `proof-gap-priority-map.md`
 - `fst-l1-l3-theorem-closure.md`
 - `fst-l4-l7-theorem-closure.md`
+- `fst-l10-classifier-theorem-closure.md`
 - `ledger-non-claims`
 
 Keep these anchors stable when reorganizing this document, or update

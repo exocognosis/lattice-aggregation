@@ -106,6 +106,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
   consolidates the ideal contribution-validity, aggregation, threshold
   authorization, and abort-compatibility layer.
+- [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
+  consolidates the unauthorized-output classifier target and the
+  `eps_cls_unmapped = 0` route.
 - [Ideal functionality](docs/cryptography/ideal-functionality.md) and
   [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
   define how DKG, signing, aborts, evidence, and releases should map into an
@@ -195,6 +198,8 @@ Completed artifact layers:
   transcript, challenge, and collection layer;
 - upgraded FST-L4/FST-L5/FST-L6/FST-L7 theorem-closure text for the middle
   signing layer under ideal setup and ideal contribution boundaries;
+- classifier theorem-closure routing for ordered unauthorized-output cases and
+  the remaining `eps_cls_unmapped = 0` target;
 - fail-closed production policy gates for scaffold VSS and contribution proof
   backend declarations.
 
@@ -254,6 +259,7 @@ cargo test -j1 --all-features
 - [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
 - [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
 - [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
+- [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)

@@ -30,6 +30,8 @@ const FST_L6_NO_SUBTHRESHOLD_SIGNING: &str = "docs/cryptography/fst-l6-no-subthr
 const FST_L7_ABORT_COMPATIBILITY: &str = "docs/cryptography/fst-l7-abort-compatibility.md";
 const FST_L4_L7_THEOREM_CLOSURE: &str = "docs/cryptography/fst-l4-l7-theorem-closure.md";
 const FST_L10_CLASSIFIER_CLOSURE: &str = "docs/cryptography/fst-l10-classifier-closure.md";
+const FST_L10_CLASSIFIER_THEOREM_CLOSURE: &str =
+    "docs/cryptography/fst-l10-classifier-theorem-closure.md";
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
@@ -104,6 +106,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         FST_L7_ABORT_COMPATIBILITY,
         FST_L4_L7_THEOREM_CLOSURE,
         FST_L10_CLASSIFIER_CLOSURE,
+        FST_L10_CLASSIFIER_THEOREM_CLOSURE,
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
         CONTRIBUTION_BACKEND_SELECTION,
@@ -758,6 +761,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "MldsaForgery",
             "ThresholdShareBreak",
             "VssDkgBreak",
+            "CommitmentBreak",
             "ContributionBreak",
             "RoTranscriptBreak",
             "CollectionBreak",
@@ -778,6 +782,42 @@ fn full_proof_surface_exposes_stable_anchors() {
             "classifier-disjointness-obligation",
             "not a completed classifier proof",
             "does not prove final unforgeability",
+        ],
+    );
+    assert_contains_all(
+        FST_L10_CLASSIFIER_THEOREM_CLOSURE,
+        &[
+            "# FST-L10 Classifier Theorem Closure Batch",
+            "fst-l10-classifier-theorem-closure",
+            "Status: classifier theorem-closure batch, not a full cryptographic proof.",
+            "L10C-0. Scope and Non-Claim",
+            "L10C-1. Input Domain",
+            "L10C-2. Ordered Case Grammar",
+            "L10C-3. Totality Target",
+            "L10C-4. Disjointness Target",
+            "L10C-5. Per-Case Reduction Map",
+            "L10C-6. Acceptance Criteria",
+            "L10C-7. Non-Claims",
+            "L10C-8. Manifest Anchors",
+            "FST-L10",
+            "AuthorizedReplay",
+            "MldsaForgery",
+            "ThresholdShareBreak",
+            "VssDkgBreak",
+            "CommitmentBreak",
+            "ContributionBreak",
+            "RoTranscriptBreak",
+            "CollectionBreak",
+            "EvidenceBreak",
+            "Unmapped",
+            "eps_classify",
+            "eps_cls_unmapped = 0",
+            "FST-L1..FST-L7",
+            "F_CONTRIB",
+            "F_VSS_DKG",
+            "implementation evidence is not cryptographic proof",
+            "not a full cryptographic proof",
+            "not production-ready",
         ],
     );
     assert_contains_all(
@@ -951,6 +991,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "proof-gap-priority-map.md",
             "fst-l1-l3-theorem-closure.md",
             "fst-l4-l7-theorem-closure.md",
+            "fst-l10-classifier-theorem-closure.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -985,6 +1026,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_vss_ideal",
             "fst-l1-l3-theorem-closure.md",
             "fst-l4-l7-theorem-closure.md",
+            "fst-l10-classifier-theorem-closure.md",
             "eps_contrib_ideal",
             "eps_commit",
             "eps_ro_prior",
@@ -1049,6 +1091,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "next-proof-work-order",
             "fst-l1-l3-theorem-closure.md",
             "fst-l4-l7-theorem-closure.md",
+            "fst-l10-classifier-theorem-closure.md",
             "production-realization-blockers",
             "audit-blockers",
             "acceptance-criteria",

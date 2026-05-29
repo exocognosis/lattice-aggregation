@@ -124,6 +124,8 @@ concrete `eps_contrib`, production side-channel analysis, and external audit.
 5. Close `FST-L7` through rejection, withholding, abort, evidence, and release
    modeling.
 6. Close `FST-L10` by proving `eps_cls_unmapped = 0`.
+   Use [fst-l10-classifier-theorem-closure.md](fst-l10-classifier-theorem-closure.md)
+   as the classifier batch index.
 7. Only after the ideal theorem is stable, start concrete VSS/DKG and
    contribution backend replacement.
 
