@@ -61,9 +61,11 @@ proof, and production VSS/DKG remains open.
 
 The consolidated theorem target, final residual expression, and priority map
 are tracked in [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md),
+[fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md),
 [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md),
 and [proof-gap-priority-map.md](proof-gap-priority-map.md). These files are
-coordination artifacts only; they do not close any residual by themselves.
+coordination and theorem-assembly artifacts only; they do not close any
+production residual by themselves.
 
 ## Dependency Notes
 
@@ -117,6 +119,8 @@ The conservative proof-closure order is:
    [lemma skeleton](idealvss-lemma-skeleton.md) first, leaving concrete DKG/VSS
    out of scope through `F_VSS_DKG` and carrying the
    [final epsilon residual ledger](epsilon-residual-ledger-final-form.md).
+   The assembled conditional route is tracked in
+   [fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md).
 2. Expand and close the early signing lemmas:
    [FST-L1](fst-l1-transcript-injectivity.md),
    [FST-L2](fst-l2-challenge-binding.md), and
@@ -197,6 +201,7 @@ stable contract for this file:
 - `not a security proof`
 - `implementation evidence is not cryptographic proof`
 - `fst-t1-idealvss-theorem.md`
+- `fst-t1-idealvss-final-proof.md`
 - `epsilon-residual-ledger-final-form.md`
 - `proof-gap-priority-map.md`
 - `fst-l1-l3-theorem-closure.md`

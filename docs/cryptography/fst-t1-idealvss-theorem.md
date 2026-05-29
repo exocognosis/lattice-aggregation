@@ -146,6 +146,9 @@ Controlling source worksheets include:
 - [fst-l10-classifier-theorem-closure.md](fst-l10-classifier-theorem-closure.md):
   the ordered unauthorized-output classifier route for `FST-L10` and the
   `eps_cls_unmapped = 0` target.
+- [fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md): the
+  assembled conditional IdealVSS theorem route that imports `FST-L1` through
+  `FST-L7`, `FST-L10`, and the final-form residual ledger.
 - [contribution-backend-decision-record.md](contribution-backend-decision-record.md):
   `cbdr-decision`, `cbdr-non-production-idealization-boundary`,
   `cbdr-residual-terms`, and `F_CONTRIB`.
@@ -233,6 +236,7 @@ Stable anchors and text markers:
 - `F_VSS_DKG`
 - `F_CONTRIB`
 - `F_contrib`
+- `fst-t1-idealvss-final-proof.md`
 - `eps_vss_ideal`
 - `eps_contrib_ideal`
 - `eps_classify`

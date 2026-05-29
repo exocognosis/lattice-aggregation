@@ -95,6 +95,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   gathers the immediate IdealVSS signing-side theorem target into one
   conservative statement, with ideal `F_VSS_DKG` and `F_CONTRIB` boundaries
   kept explicit.
+- [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
+  joins the upgraded FST-L1..FST-L7 and FST-L10 routes into one conditional
+  IdealVSS theorem path while preserving the non-production claim boundary.
 - [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
   normalizes the publication-facing advantage terms, rejection expansion, and
   classifier expansion without claiming those terms are closed.
@@ -194,6 +197,8 @@ Completed artifact layers:
   its current status, evidence route, and remaining closure requirement;
 - central IdealVSS theorem consolidation, final-form epsilon ledger, and
   proof-gap priority map for reviewer-facing proof closure work;
+- assembled FST-T1-IdealVSS final proof route that connects the upgraded
+  lemma batches without claiming a production cryptographic proof;
 - upgraded FST-L1/FST-L2/FST-L3 theorem-closure text for the canonical
   transcript, challenge, and collection layer;
 - upgraded FST-L4/FST-L5/FST-L6/FST-L7 theorem-closure text for the middle
@@ -255,6 +260,7 @@ cargo test -j1 --all-features
 - [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
 - [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
 - [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
+- [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
 - [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
 - [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
 - [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)

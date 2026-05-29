@@ -21,6 +21,8 @@ The consolidated theorem target is tracked in
 [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md), with the final-form
 residual expression tracked in
 [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md).
+The assembled conditional theorem route is tracked in
+[fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md).
 
 This document does not prove `FST-T1-IdealVSS`. It also does not prove concrete
 production VSS/DKG security, production deployment readiness, side-channel
@@ -179,6 +181,7 @@ Before `FST-T1-IdealVSS` may move from target to proved theorem:
 - `FST-L1`
 - `FST-L7`
 - `FST-L10`
+- `fst-t1-idealvss-final-proof.md`
 - `idealvss-dependency-ledger`
 - `idealvss-hybrid-route`
 - `idealvss-acceptance-criteria`

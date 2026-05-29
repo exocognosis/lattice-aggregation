@@ -33,6 +33,7 @@ idealization, `FST-L1..FST-L7`, `FST-L10`, and the residual ledger.
 Source anchors:
 
 - [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md)
+- [fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md)
 - [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md)
 - [idealvss-signing-theorem-closure.md](idealvss-signing-theorem-closure.md)
 - [idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md)
@@ -109,8 +110,8 @@ concrete `eps_contrib`, production side-channel analysis, and external audit.
 ## PGPM-3. Next Proof Work Order
 <a id="next-proof-work-order"></a>
 
-1. Turn `FST-T1-IdealVSS` and `IVLS` from skeletons into theorem text with all
-   residuals visible.
+1. Use [fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md) as the
+   current assembled IdealVSS theorem route, with all residuals visible.
 2. Close `FST-L1..FST-L3`: transcript injectivity, challenge binding, and
    collection soundness, using
    [fst-l1-l3-theorem-closure.md](fst-l1-l3-theorem-closure.md) as the batch
@@ -172,6 +173,7 @@ Stable anchors and text markers:
 - `acceptance-criteria`
 - `non-claims`
 - `manifest-anchors`
+- `fst-t1-idealvss-final-proof.md`
 - `Tier 0`
 - `Tier 1`
 - `Tier 2`
