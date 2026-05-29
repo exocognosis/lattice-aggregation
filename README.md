@@ -91,6 +91,15 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
   indexes the current status, evidence route, and closure requirement for each
   visible advantage term.
+- [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
+  gathers the immediate IdealVSS signing-side theorem target into one
+  conservative statement, with ideal `F_VSS_DKG` and `F_CONTRIB` boundaries
+  kept explicit.
+- [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
+  normalizes the publication-facing advantage terms, rejection expansion, and
+  classifier expansion without claiming those terms are closed.
+- [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
+  orders the remaining proof, production-realization, and audit blockers.
 - [Ideal functionality](docs/cryptography/ideal-functionality.md) and
   [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
   define how DKG, signing, aborts, evidence, and releases should map into an
@@ -174,6 +183,8 @@ Completed artifact layers:
   `eps_contrib`, and `eps_classify`;
 - a proof closure ledger that keeps every visible theorem-loss term mapped to
   its current status, evidence route, and remaining closure requirement;
+- central IdealVSS theorem consolidation, final-form epsilon ledger, and
+  proof-gap priority map for reviewer-facing proof closure work;
 - fail-closed production policy gates for scaffold VSS and contribution proof
   backend declarations.
 
@@ -228,6 +239,9 @@ cargo test -j1 --all-features
 
 - [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
 - [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
+- [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
+- [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
+- [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)

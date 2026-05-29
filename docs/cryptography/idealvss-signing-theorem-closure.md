@@ -17,6 +17,10 @@ on the signing-side threshold ML-DSA-65 obligations.
 
 The lemma-by-lemma proof skeleton is tracked in
 [idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md).
+The consolidated theorem target is tracked in
+[fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md), with the final-form
+residual expression tracked in
+[epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md).
 
 This document does not prove `FST-T1-IdealVSS`. It also does not prove concrete
 production VSS/DKG security, production deployment readiness, side-channel

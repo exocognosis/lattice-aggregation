@@ -59,6 +59,12 @@ proof, and production VSS/DKG remains open.
 | `implementation_residual` | Residual from code correctness, fail-closed policy, side-channel discipline, randomness quality, compiler behavior, transport identity binding, operational key management, and external review. | Mixed engineering evidence; production blocker. | [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md), [side-channel-boundary.md](side-channel-boundary.md), [claims-matrix.md](claims-matrix.md), [docs/audit/README.md](../audit/README.md), production policy tests. | Complete code review, constant-time and leakage analysis, randomness review, production backend audit, authenticated transport proof assumptions, consensus integration review, and external cryptographic review. | The repository has useful guardrails and reproducible tests. It is not audited or production-ready. |
 | `audit_residual` | External assurance gap after internal tests and documentation manifests pass. | Not claimed as closed. | Audit packet and reproducibility artifacts. | Obtain independent cryptographic review, implementation audit, side-channel audit, and operational review for the selected construction. | Internal tests are review inputs, not independent assurance. |
 
+The consolidated theorem target, final residual expression, and priority map
+are tracked in [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md),
+[epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md),
+and [proof-gap-priority-map.md](proof-gap-priority-map.md). These files are
+coordination artifacts only; they do not close any residual by themselves.
+
 ## Dependency Notes
 
 The most important dependency chain is:
@@ -106,9 +112,11 @@ This ledger maps those worksheet names to the publication-facing names
 
 The conservative proof-closure order is:
 
-1. Close the [IdealVSS signing theorem](idealvss-signing-theorem-closure.md)
-   and [lemma skeleton](idealvss-lemma-skeleton.md) first, leaving concrete
-   DKG/VSS out of scope through `F_VSS_DKG`.
+1. Close the [FST-T1-IdealVSS theorem consolidation](fst-t1-idealvss-theorem.md),
+   [IdealVSS signing theorem](idealvss-signing-theorem-closure.md), and
+   [lemma skeleton](idealvss-lemma-skeleton.md) first, leaving concrete DKG/VSS
+   out of scope through `F_VSS_DKG` and carrying the
+   [final epsilon residual ledger](epsilon-residual-ledger-final-form.md).
 2. Expand and close the early signing lemmas:
    [FST-L1](fst-l1-transcript-injectivity.md),
    [FST-L2](fst-l2-challenge-binding.md), and
@@ -184,6 +192,9 @@ stable contract for this file:
 - `not production-ready`
 - `not a security proof`
 - `implementation evidence is not cryptographic proof`
+- `fst-t1-idealvss-theorem.md`
+- `epsilon-residual-ledger-final-form.md`
+- `proof-gap-priority-map.md`
 - `ledger-non-claims`
 
 Keep these anchors stable when reorganizing this document, or update
