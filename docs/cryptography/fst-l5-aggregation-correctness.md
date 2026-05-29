@@ -3,7 +3,7 @@
 
 Date: 2026-05-28
 
-Status: reduction worksheet for `FST-L5`, not a completed aggregation
+Status: theorem-closure worksheet for `FST-L5`, not a completed aggregation
 correctness proof.
 
 ## FSTL5-0. Scope and Non-Claim
@@ -15,9 +15,10 @@ This worksheet expands the `FST-L5` aggregation correctness lemma from
 threshold recombination, rejection-predicate equivalence, and standard
 ML-DSA-65 verification compatibility.
 
-This document does not prove accepted threshold outputs verify under the
-unmodified ML-DSA-65 verifier. It does not close `eps_rej`, `eps_verify`,
-`eps_mask`, or `eps_collect`.
+This document states a conditional aggregation-correctness route. It is not an
+accepted-distribution proof, not a production verifier proof, and not a claim
+that accepted threshold outputs always verify under every deployment verifier.
+It does not close `eps_rej`, `eps_verify`, `eps_mask`, or `eps_collect`.
 
 ## FSTL5-1. Theorem Context
 <a id="fstl5-theorem-context"></a>
@@ -41,27 +42,65 @@ Inputs include `PartialShareSet`, `AggregateOutputRecord`, the active set,
 Lagrange coefficients, aggregate candidate values, final `c_tilde`, `z`, and
 hint `h`.
 
+Definitions used by the closure route:
+
+- `PartialShareSet` is the canonical, threshold-sufficient set of accepted
+  per-signer contribution records selected for one transcript. Each entry
+  includes the signer identifier, contribution bytes, contribution validity
+  evidence, and bindings to the same `ChallengeRecord`, message representative,
+  `pk_epoch`, `dkg_digest`, and active set.
+- The active set `A` is the ordered set of signer identifiers committed by the
+  accepted transcript and used to compute Lagrange coefficients. Equality of
+  active sets is byte-canonical equality, not set equality after local sorting
+  or deduplication.
+- `AggregatePartial(A, {partial_i}_{i in A})` is the deterministic
+  recombination algorithm that consumes exactly the shares indexed by `A`,
+  applies the Lagrange coefficients for `A`, and emits aggregate candidate
+  values before final byte encoding.
+- `AggregateOutputRecord` is the deterministic aggregate record emitted from an
+  accepted `PartialShareSet` and `ChallengeRecord`. It contains the committed
+  active set, aggregate candidate values, reconstructed `z`, hint `h`,
+  `c_tilde`, encoded signature bytes `sigma`, and enough transcript bindings to
+  re-check the challenge, rejection predicates, and byte layout.
+
 The threshold rejection predicate is written `Reject_T`; the centralized
 ML-DSA predicate is written `Reject_0`. `FST-L5` must prove these predicates
 agree on the same candidate values or carry the mismatch in `eps_rej` and
 `eps_verify`.
 
+`Reject_T` is the threshold-side decision predicate over aggregate candidate
+values and transcript bindings before release. `Reject_0` is the corresponding
+centralized ML-DSA-65 rejection predicate over the reconstructed candidate
+values. Predicate compatibility is conditional on both predicates being
+evaluated on the same challenge, active set, message representative, candidate
+`z`, high-bit value, and hint.
+
 ## FSTL5-3. Aggregation-Correctness Statement
 <a id="fstl5-lemma-statement"></a>
 <a id="fstl5-aggregation-correctness-statement"></a>
 
-Target lemma:
+Conditional theorem statement:
 
 ```text
 FST-L5:
-  If at least t valid partial shares are accepted for the same transcript,
-  aggregation outputs sigma such that
-  MLDSA65.Verify(pk_epoch, M, sigma) = accept,
-  except through eps_rej, eps_verify, eps_collect, or named upstream terms.
+  Given an accepted PartialShareSet P and accepted ChallengeRecord C for
+  pk_epoch and message representative mu, there is a unique
+  AggregateOutputRecord O = AggregatePartial(active(C), P) such that O's
+  reconstructed z, h, challenge c or c_tilde, and signature bytes sigma match
+  the accepted active set and transcript.
+
+  If O does not match the centralized ML-DSA-65 candidate relation for the same
+  pk_epoch, mu, challenge, and active set, then one named bad event fires:
+  BadAggCorrect, BadRejectDist, BadVerifyMismatch, BadActiveSetRebind, or a
+  named residual charged to eps_rej, eps_verify, eps_collect, eps_mask, or
+  eps_verify_mismatch.
 ```
 
 The statement is conditional on `FST-L1` through `FST-L4`, the IdealVSS setup
 boundary, canonical active-set equality, and selected contribution validity.
+It proves a conditional aggregation-correctness route for accepted inputs; it
+does not prove that the accepted-output distribution is identical to centralized
+ML-DSA-65, and it does not certify a production verifier implementation.
 
 ## FSTL5-4. Reconstruction Obligations
 <a id="fstl5-reconstruction-obligations"></a>
@@ -78,6 +117,10 @@ Before aggregation, the proof must establish:
 - the Lagrange active set used in recombination is the active set committed in
   the challenge and aggregate output;
 - malformed encodings and stale attempts are rejected before recombination.
+
+If any item fails for an accepted input, the route exits through
+`BadAggCorrect`, `BadActiveSetRebind`, `eps_collect`, or an upstream collection
+residual rather than continuing as a successful aggregation proof.
 
 ### Recombination Correctness Target
 <a id="fstl5-recombination-correctness-target"></a>
@@ -97,6 +140,14 @@ This requires Lagrange interpolation correctness, coefficient-domain and NTT
 domain consistency where applicable, canonical coefficient reduction, and
 active-set equality across all polynomial and vector components.
 
+Uniqueness follows from deterministic canonicalization: for fixed accepted
+`PartialShareSet`, `ChallengeRecord`, and active set `A`, there is one ordered
+share vector, one Lagrange coefficient vector, one aggregate candidate tuple,
+and one byte encoding. A second accepted `AggregateOutputRecord` for the same
+inputs must therefore have byte-identical `z`, `h`, `c_tilde`, `sigma`, and
+active-set binding, or it triggers `BadAggCorrect` or
+`BadActiveSetRebind`.
+
 ## FSTL5-5. Rejection-Predicate and Bound Obligations
 <a id="fstl5-rejection-predicate-bound-obligations"></a>
 
@@ -104,7 +155,9 @@ active-set equality across all polynomial and vector components.
 <a id="fstl5-rejection-predicate-equivalence"></a>
 
 The accepted aggregate must satisfy the same rejection predicates as
-centralized ML-DSA-65 on the same candidate values. The route is:
+centralized ML-DSA-65 on the same candidate values. The route is conditional:
+prove `Reject_T(candidate) = Reject_0(candidate)`, or charge the mismatch
+explicitly. The accounting route is:
 
 ```text
 eps_rej
@@ -125,17 +178,20 @@ The final theorem must decide whether `eps_verify_mismatch` is absorbed into
 ## FSTL5-6. Standard Verification Compatibility
 <a id="fstl5-standard-verification-compatibility"></a>
 
-The final output must be a standard-size ML-DSA-65 signature and must verify
-through the unmodified verifier:
+The compatibility boundary is the standard ML-DSA-65 verification relation over
+the emitted bytes:
 
 ```text
 MLDSA65.Verify(pk_epoch, M, sigma) = accept
 ```
 
-The proof must fix whether the theorem is stated over an external message `M`,
-internal `mu`, or a proved consistent pair. It must also prove byte-level
-signature layout, challenge encoding, hint encoding, high-bit reconstruction,
-and verifier-side malformed input rejection.
+This worksheet does not prove the production verifier. It requires a theorem
+that the aggregate output bytes are standard-size ML-DSA-65 signature bytes for
+the same `pk_epoch` and a proved-consistent external message `M` or internal
+`mu`. It must also prove byte-level signature layout, challenge encoding, hint
+encoding, high-bit reconstruction, and verifier-side malformed input rejection.
+If those byte-level obligations are not met, the route exits through
+`BadVerifyMismatch`, `eps_verify`, or `eps_verify_mismatch`.
 
 ## FSTL5-7. Implementation Evidence Crosswalk
 <a id="fstl5-implementation-evidence-crosswalk"></a>
@@ -160,8 +216,10 @@ Direct residuals are `eps_rej` and `eps_verify`.
 
 Related prerequisites that must stay visible are `eps_collect`, `eps_contrib`,
 `eps_ro_prior`, `eps_ro_replay`, `eps_commit_context`, `eps_mask`, and
-`implementation_residual`. They cannot be silently absorbed into aggregation
-success.
+`implementation_residual`. The verifier-compatibility residual
+`eps_verify_mismatch` also stays visible until explicitly absorbed by a proved
+predicate-equivalence or verifier-compatibility lemma. These terms cannot be
+silently absorbed into aggregation success.
 
 ### Bad Events and Accounting
 <a id="fstl5-bad-events-accounting"></a>
@@ -179,8 +237,8 @@ The worksheet tracks:
 - `BadMalformedAggregate`: malformed contribution or output bytes are accepted.
 
 Each failure is charged to `eps_rej`, `eps_verify`, `eps_collect`,
-`eps_contrib`, `eps_ro`, or `eps_mask`, not hidden inside implementation
-success tests.
+`eps_contrib`, `eps_ro`, `eps_mask`, or `eps_verify_mismatch`, not hidden
+inside implementation success tests.
 
 ## FSTL5-9. Proof Skeleton
 <a id="fstl5-proof-skeleton"></a>
@@ -193,6 +251,34 @@ The intended proof is:
 3. Prove aggregate candidate values equal the centralized candidate values.
 4. Prove threshold and centralized rejection predicates match on those values.
 5. Prove emitted bytes verify under the unmodified ML-DSA-65 verifier.
+
+Required case split:
+
+- Lagrange coefficient mismatch: if coefficients are not exactly those for the
+  accepted active set, reconstruction is not the theorem target and the run is
+  charged to `BadAggCorrect` or `BadActiveSetRebind`.
+- Duplicate or missing share: if canonical collection accepts two shares for
+  one signer, omits a signer in `A`, or includes an out-of-set signer, the run
+  exits through `eps_collect` or `BadAggCorrect`.
+- Wrong active set: if recombination, challenge binding, output binding, and
+  contribution statements do not name the same ordered `A`, charge
+  `BadActiveSetRebind`.
+- Challenge mismatch: if any accepted contribution or output uses a different
+  `ChallengeRecord`, `c_tilde`, message representative, or transcript digest,
+  charge the challenge-binding residual from `FST-L2` or `BadAggCorrect`.
+- Rejection predicate mismatch: if `Reject_T` and `Reject_0` disagree on the
+  same candidate tuple, charge `eps_rej`, `eps_verify`, or
+  `eps_verify_mismatch`; do not treat the aggregate as closed.
+- Byte-layout mismatch: if the reconstructed tuple does not encode to the
+  claimed standard ML-DSA-65 signature bytes, charge `BadVerifyMismatch` or
+  `eps_verify_mismatch`.
+- High-bit or hint mismatch: if verifier-side high-bit reconstruction or hint
+  decoding differs from threshold-side candidate construction, charge
+  `eps_rej`, `BadVerifyMismatch`, or `eps_verify_mismatch`.
+- Standard verifier mismatch: if the threshold predicate accepts but
+  `MLDSA65.Verify(pk_epoch, M, sigma) = accept` is false for the
+  proved-consistent message, charge `BadVerifyMismatch` and carry
+  `eps_verify`.
 
 ## FSTL5-10. Dependencies
 <a id="fstl5-dependencies"></a>
@@ -213,6 +299,8 @@ The intended proof is:
 Before `FST-L5` can be treated as proved:
 
 - the recombination equation is stated for every ML-DSA-65 module component;
+- uniqueness of `AggregateOutputRecord` is proved for each accepted
+  `PartialShareSet` and `ChallengeRecord`;
 - active-set equality is proved across transcript and interpolation inputs;
 - aggregate and centralized rejection predicates are proved equivalent;
 - the final verifier theorem fixes `M` versus `mu`;
@@ -223,8 +311,9 @@ Before `FST-L5` can be treated as proved:
 <a id="fstl5-non-claims"></a>
 
 This worksheet does not claim aggregation correctness is proved. It does not
-prove distributional equivalence of aggregate masks, rejection-sampling
-preservation, standard-verifier compatibility, or production readiness.
+prove accepted-output distributional equivalence, distributional equivalence of
+aggregate masks, rejection-sampling preservation, standard-verifier
+compatibility, or production readiness.
 
 ## FSTL5-13. Manifest Anchors
 <a id="fstl5-manifest-anchors"></a>

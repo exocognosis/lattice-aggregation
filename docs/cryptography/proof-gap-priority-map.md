@@ -118,7 +118,9 @@ concrete `eps_contrib`, production side-channel analysis, and external audit.
 3. Close `FST-L4` using ideal `F_CONTRIB`, explicitly carrying
    `eps_contrib_ideal`.
 4. Close `FST-L5` with aggregation correctness, `eps_rej`, and `eps_verify`
-   treatment.
+   treatment, using
+   [fst-l4-l7-theorem-closure.md](fst-l4-l7-theorem-closure.md) as the
+   middle-layer batch index.
 5. Close `FST-L7` through rejection, withholding, abort, evidence, and release
    modeling.
 6. Close `FST-L10` by proving `eps_cls_unmapped = 0`.

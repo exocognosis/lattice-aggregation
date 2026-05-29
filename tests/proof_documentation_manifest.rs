@@ -28,6 +28,7 @@ const FST_L4_PARTIAL_SHARE_VALIDITY: &str = "docs/cryptography/fst-l4-partial-sh
 const FST_L5_AGGREGATION_CORRECTNESS: &str = "docs/cryptography/fst-l5-aggregation-correctness.md";
 const FST_L6_NO_SUBTHRESHOLD_SIGNING: &str = "docs/cryptography/fst-l6-no-subthreshold-signing.md";
 const FST_L7_ABORT_COMPATIBILITY: &str = "docs/cryptography/fst-l7-abort-compatibility.md";
+const FST_L4_L7_THEOREM_CLOSURE: &str = "docs/cryptography/fst-l4-l7-theorem-closure.md";
 const FST_L10_CLASSIFIER_CLOSURE: &str = "docs/cryptography/fst-l10-classifier-closure.md";
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
@@ -101,6 +102,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         FST_L5_AGGREGATION_CORRECTNESS,
         FST_L6_NO_SUBTHRESHOLD_SIGNING,
         FST_L7_ABORT_COMPATIBILITY,
+        FST_L4_L7_THEOREM_CLOSURE,
         FST_L10_CLASSIFIER_CLOSURE,
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
@@ -509,7 +511,7 @@ fn full_proof_surface_exposes_stable_anchors() {
         &[
             "# FST-L4 Partial-Share Validity Worksheet",
             "fst-l4-partial-share-validity",
-            "Status: proof worksheet for `FST-L4`, not a completed partial-share validity proof.",
+            "Status: theorem-closure worksheet for `FST-L4` under ideal `F_CONTRIB`,",
             "FSTL4-0. Scope and Non-Claim",
             "FSTL4-1. Theorem Context",
             "FSTL4-2. Accepted Contribution Objects",
@@ -531,6 +533,8 @@ fn full_proof_surface_exposes_stable_anchors() {
             "ProductionContributionStatement",
             "ProductionProofRelation",
             "TranscriptHashScaffold",
+            "F_CONTRIB",
+            "F_contrib",
             "not production eligible",
             "SigningContext",
             "ChallengeRecord",
@@ -539,6 +543,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "R_contrib",
             "H_contrib",
             "Theorem CBI-production-contribution",
+            "eps_contrib_ideal",
             "eps_contrib",
             "eps_vss_ideal",
             "eps_ro_prior",
@@ -602,6 +607,7 @@ fn full_proof_surface_exposes_stable_anchors() {
         &[
             "# FST-L6 No Subthreshold Signing Worksheet",
             "fst-l6-no-subthreshold-signing",
+            "Status: theorem-closure worksheet for `FST-L6` under ideal `F_VSS_DKG`",
             "FSTL6-0. Scope and Non-Claim",
             "FSTL6-1. Theorem Context",
             "FSTL6-2. Adversary and Authorization Model",
@@ -678,6 +684,47 @@ fn full_proof_surface_exposes_stable_anchors() {
             "ledger-non-claims",
             "implementation evidence is not cryptographic proof",
             "selective-abort proof remains open",
+        ],
+    );
+    assert_contains_all(
+        FST_L4_L7_THEOREM_CLOSURE,
+        &[
+            "# FST-L4..FST-L7 Theorem Closure Batch",
+            "fst-l4-l7-theorem-closure",
+            "Status: middle-layer theorem-closure batch, not a full cryptographic proof.",
+            "L47-0. Scope and Non-Claim",
+            "L47-1. Lemma Dependency Chain",
+            "L47-2. Theorem Statements Under Closure",
+            "L47-3. Shared Objects",
+            "L47-4. Residual Ledger",
+            "L47-5. Proof Route",
+            "L47-6. Acceptance Criteria",
+            "L47-7. Non-Claims",
+            "L47-8. Manifest Anchors",
+            "FST-L4",
+            "FST-L5",
+            "FST-L6",
+            "FST-L7",
+            "F_CONTRIB",
+            "F_VSS_DKG",
+            "AggregateOutputRecord",
+            "ContributionStatement_i",
+            "PartialShareSet",
+            "ReleaseSignature",
+            "EvidenceRecord",
+            "O_abort",
+            "eps_contrib_ideal",
+            "eps_rej",
+            "eps_verify",
+            "eps_threshold",
+            "eps_withhold",
+            "eps_abort",
+            "eps_release",
+            "eps_evid",
+            "eps_cls_unmapped = 0",
+            "implementation evidence is not cryptographic proof",
+            "not a full cryptographic proof",
+            "not production-ready",
         ],
     );
     assert_contains_all(
@@ -903,6 +950,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "epsilon-residual-ledger-final-form.md",
             "proof-gap-priority-map.md",
             "fst-l1-l3-theorem-closure.md",
+            "fst-l4-l7-theorem-closure.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -936,6 +984,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "at most t - 1 validators",
             "eps_vss_ideal",
             "fst-l1-l3-theorem-closure.md",
+            "fst-l4-l7-theorem-closure.md",
             "eps_contrib_ideal",
             "eps_commit",
             "eps_ro_prior",
@@ -999,6 +1048,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "blocker-dependencies",
             "next-proof-work-order",
             "fst-l1-l3-theorem-closure.md",
+            "fst-l4-l7-theorem-closure.md",
             "production-realization-blockers",
             "audit-blockers",
             "acceptance-criteria",

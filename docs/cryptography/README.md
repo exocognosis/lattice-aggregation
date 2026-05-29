@@ -18,6 +18,7 @@ Available notes:
 - [FST-L1 Transcript Injectivity Worksheet](fst-l1-transcript-injectivity.md)
 - [FST-L2 Challenge Binding Worksheet](fst-l2-challenge-binding.md)
 - [FST-L3 Collection Soundness Worksheet](fst-l3-collection-soundness.md)
+- [FST-L4..FST-L7 Theorem Closure Batch](fst-l4-l7-theorem-closure.md)
 - [FST-L4 Partial-Share Validity Worksheet](fst-l4-partial-share-validity.md)
 - [FST-L5 Aggregation Correctness Worksheet](fst-l5-aggregation-correctness.md)
 - [FST-L6 No Subthreshold Signing Worksheet](fst-l6-no-subthreshold-signing.md)

@@ -103,6 +103,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
   consolidates the transcript-injectivity, challenge-binding, and
   collection-soundness foundation for the IdealVSS signing theorem route.
+- [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
+  consolidates the ideal contribution-validity, aggregation, threshold
+  authorization, and abort-compatibility layer.
 - [Ideal functionality](docs/cryptography/ideal-functionality.md) and
   [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
   define how DKG, signing, aborts, evidence, and releases should map into an
@@ -190,6 +193,8 @@ Completed artifact layers:
   proof-gap priority map for reviewer-facing proof closure work;
 - upgraded FST-L1/FST-L2/FST-L3 theorem-closure text for the canonical
   transcript, challenge, and collection layer;
+- upgraded FST-L4/FST-L5/FST-L6/FST-L7 theorem-closure text for the middle
+  signing layer under ideal setup and ideal contribution boundaries;
 - fail-closed production policy gates for scaffold VSS and contribution proof
   backend declarations.
 
@@ -248,6 +253,7 @@ cargo test -j1 --all-features
 - [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
 - [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
 - [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
+- [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)

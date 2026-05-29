@@ -125,7 +125,9 @@ The conservative proof-closure order is:
 3. Expand and close the middle signing lemmas:
    [FST-L4](fst-l4-partial-share-validity.md),
    [FST-L5](fst-l5-aggregation-correctness.md), and
-   [FST-L6](fst-l6-no-subthreshold-signing.md).
+   [FST-L6](fst-l6-no-subthreshold-signing.md), then connect
+   [FST-L7](fst-l7-abort-compatibility.md) through the
+   [FST-L4..FST-L7 closure batch](fst-l4-l7-theorem-closure.md).
 4. Use the [contribution backend decision record](contribution-backend-decision-record.md)
    to isolate immediate proof work through `F_CONTRIB`.
 5. Close [FST-L7 abort compatibility](fst-l7-abort-compatibility.md) and
@@ -197,6 +199,7 @@ stable contract for this file:
 - `epsilon-residual-ledger-final-form.md`
 - `proof-gap-priority-map.md`
 - `fst-l1-l3-theorem-closure.md`
+- `fst-l4-l7-theorem-closure.md`
 - `ledger-non-claims`
 
 Keep these anchors stable when reorganizing this document, or update

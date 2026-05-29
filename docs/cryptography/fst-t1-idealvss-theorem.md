@@ -140,6 +140,9 @@ Controlling source worksheets include:
 - [fst-l1-l3-theorem-closure.md](fst-l1-l3-theorem-closure.md): the
   foundational transcript, challenge, and collection closure batch for
   `FST-L1`, `FST-L2`, and `FST-L3`.
+- [fst-l4-l7-theorem-closure.md](fst-l4-l7-theorem-closure.md): the
+  middle-layer ideal contribution, aggregation, threshold authorization, and
+  abort-compatibility closure batch for `FST-L4` through `FST-L7`.
 - [contribution-backend-decision-record.md](contribution-backend-decision-record.md):
   `cbdr-decision`, `cbdr-non-production-idealization-boundary`,
   `cbdr-residual-terms`, and `F_CONTRIB`.
