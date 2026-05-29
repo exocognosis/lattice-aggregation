@@ -120,7 +120,8 @@ The conservative proof-closure order is:
 2. Expand and close the early signing lemmas:
    [FST-L1](fst-l1-transcript-injectivity.md),
    [FST-L2](fst-l2-challenge-binding.md), and
-   [FST-L3](fst-l3-collection-soundness.md).
+   [FST-L3](fst-l3-collection-soundness.md), tracked as the
+   [FST-L1..FST-L3 closure batch](fst-l1-l3-theorem-closure.md).
 3. Expand and close the middle signing lemmas:
    [FST-L4](fst-l4-partial-share-validity.md),
    [FST-L5](fst-l5-aggregation-correctness.md), and
@@ -195,6 +196,7 @@ stable contract for this file:
 - `fst-t1-idealvss-theorem.md`
 - `epsilon-residual-ledger-final-form.md`
 - `proof-gap-priority-map.md`
+- `fst-l1-l3-theorem-closure.md`
 - `ledger-non-claims`
 
 Keep these anchors stable when reorganizing this document, or update

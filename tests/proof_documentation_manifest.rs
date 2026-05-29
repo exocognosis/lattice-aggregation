@@ -23,6 +23,7 @@ const PRODUCTION_TRANSCRIPT_GRAMMAR: &str = "docs/cryptography/production-transc
 const FST_L1_TRANSCRIPT_INJECTIVITY: &str = "docs/cryptography/fst-l1-transcript-injectivity.md";
 const FST_L2_CHALLENGE_BINDING: &str = "docs/cryptography/fst-l2-challenge-binding.md";
 const FST_L3_COLLECTION_SOUNDNESS: &str = "docs/cryptography/fst-l3-collection-soundness.md";
+const FST_L1_L3_THEOREM_CLOSURE: &str = "docs/cryptography/fst-l1-l3-theorem-closure.md";
 const FST_L4_PARTIAL_SHARE_VALIDITY: &str = "docs/cryptography/fst-l4-partial-share-validity.md";
 const FST_L5_AGGREGATION_CORRECTNESS: &str = "docs/cryptography/fst-l5-aggregation-correctness.md";
 const FST_L6_NO_SUBTHRESHOLD_SIGNING: &str = "docs/cryptography/fst-l6-no-subthreshold-signing.md";
@@ -95,6 +96,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         FST_L1_TRANSCRIPT_INJECTIVITY,
         FST_L2_CHALLENGE_BINDING,
         FST_L3_COLLECTION_SOUNDNESS,
+        FST_L1_L3_THEOREM_CLOSURE,
         FST_L4_PARTIAL_SHARE_VALIDITY,
         FST_L5_AGGREGATION_CORRECTNESS,
         FST_L6_NO_SUBTHRESHOLD_SIGNING,
@@ -465,6 +467,41 @@ fn full_proof_surface_exposes_stable_anchors() {
             "AggregateOutputRecord",
             "BTreeMap",
             "BTreeSet",
+        ],
+    );
+    assert_contains_all(
+        FST_L1_L3_THEOREM_CLOSURE,
+        &[
+            "# FST-L1..FST-L3 Theorem Closure Batch",
+            "fst-l1-l3-theorem-closure",
+            "Status: foundational theorem-closure batch, not a full cryptographic proof.",
+            "L13-0. Scope and Non-Claim",
+            "L13-1. Lemma Dependency Chain",
+            "L13-2. Theorem Statements Under Closure",
+            "L13-3. Shared Definitions",
+            "L13-4. Residual Ledger",
+            "L13-5. Proof Route",
+            "L13-6. Acceptance Criteria",
+            "L13-7. Non-Claims",
+            "L13-8. Manifest Anchors",
+            "FST-L1",
+            "FST-L2",
+            "FST-L3",
+            "ChallengeRecord",
+            "CommitmentSet",
+            "PartialShareSet",
+            "AggregateOutputRecord",
+            "EvidenceRecord",
+            "ReleaseSignature",
+            "eps_ro_sep",
+            "eps_ro_prior",
+            "eps_commit_open_set",
+            "eps_collect",
+            "eps_cls_collect",
+            "eps_cls_unmapped = 0",
+            "implementation evidence is not cryptographic proof",
+            "not a full cryptographic proof",
+            "not production-ready",
         ],
     );
     assert_contains_all(
@@ -865,6 +902,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "fst-t1-idealvss-theorem.md",
             "epsilon-residual-ledger-final-form.md",
             "proof-gap-priority-map.md",
+            "fst-l1-l3-theorem-closure.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -897,6 +935,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "static active corruption",
             "at most t - 1 validators",
             "eps_vss_ideal",
+            "fst-l1-l3-theorem-closure.md",
             "eps_contrib_ideal",
             "eps_commit",
             "eps_ro_prior",
@@ -959,6 +998,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "priority-tiers",
             "blocker-dependencies",
             "next-proof-work-order",
+            "fst-l1-l3-theorem-closure.md",
             "production-realization-blockers",
             "audit-blockers",
             "acceptance-criteria",

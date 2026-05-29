@@ -3,21 +3,26 @@
 
 Date: 2026-05-28
 
-Status: reduction worksheet for `FST-L2`, not a completed challenge-binding
-proof.
+Status: theorem-closure route for `FST-L2`, conditional on `FST-L1`
+transcript injectivity and the random-oracle model; not a completed global
+security proof.
 
 ## FSTL2-0. Scope and Non-Claim
 <a id="fstl2-scope-non-claim"></a>
 
-This worksheet expands the `FST-L2` challenge-binding lemma from
+This document upgrades the `FST-L2` challenge-binding worksheet from
 [formal-security-theorem.md](formal-security-theorem.md) and
 [idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md). It depends on
 `FST-L1` transcript injectivity and the closure routes in
 [random-oracle-commitment-closure.md](random-oracle-commitment-closure.md).
 
-This document does not prove random-oracle programmability, commitment
-binding, commitment hiding, challenge unbiasability, or replay resistance. It
-names the bad events and accounting required before `FST-L2` can be proved.
+The claim boundary is deliberately narrow: this is a formal closure route for
+challenge binding under canonical transcript injectivity and the
+random-oracle model. It does not complete the global security proof. It does
+not prove random-oracle programmability, production commitment binding,
+commitment hiding, challenge unbiasability, or replay resistance. It names the
+bad events and accounting required before `FST-L2` can be treated as closed in
+a production theorem.
 
 ## FSTL2-1. Theorem Context
 <a id="fstl2-theorem-context"></a>
@@ -31,27 +36,48 @@ FST-L1 + commitment opening equality + H_c prior-query accounting
   -> FST-L3 active-set and collection soundness dependencies
 ```
 
-The residual term in the IdealVSS lemma skeleton is:
+The residual term in the IdealVSS lemma skeleton remains visible:
 
 ```text
 eps_ro_prior + eps_ro_replay + eps_commit_context
 ```
 
+with the commitment-context component retaining the explicit subterm:
+
+```text
+eps_commit_open_set
+```
+
 ## FSTL2-2. Inputs and Transcript Records
 <a id="fstl2-inputs-transcript-records"></a>
 
-The challenge input is the `ChallengeRecord` from the production grammar:
+The challenge input is the canonical `ChallengeRecord` consumed by the
+random-oracle domain `H_c`. For theorem-closure purposes the record is the
+following injectively encoded tuple:
 
 ```text
 ChallengeRecord = Enc(
-  label,
-  version,
+  H_c,
+  transcript_grammar_version,
   SigningContext,
+  ActiveSet,
   OrderedMaskCommitSet,
   OrderedMaskOpenSet,
-  aggregate_public_w1_or_digest
+  message_digest,
+  epoch_key_or_digest,
+  attempt_id
 )
 ```
+
+where `SigningContext` includes the session and protocol context fields used
+by the production grammar, `ActiveSet` is the canonical active signer set, the
+commitment and opening sets are ordered canonical records, `message_digest`
+is the digest bound into signing, `epoch_key_or_digest` is the epoch public
+key or its canonical digest together with the DKG/epoch digest required by the
+grammar, `attempt_id` distinguishes retries, and `transcript_grammar_version`
+selects the parser and encoding rules. The leading `H_c` field denotes the
+random-oracle domain separation for signing-challenge derivation, not merely
+a free-form label.
 
 Every accepted `ContributionStatement_i` must contain the digest of the same
 challenge and the same `SigningContext`. The binding proof also tracks
@@ -60,23 +86,41 @@ challenge and the same `SigningContext`. The binding proof also tracks
 ## FSTL2-3. Challenge-Binding Statement
 <a id="fstl2-challenge-binding-statement"></a>
 
-Target lemma:
+Theorem statement:
 
 ```text
 FST-L2:
-  Under FST-L1 and the commitment/RO assumptions, an accepted contribution
-  for challenge c is bound to exactly one ChallengeRecord and cannot be reused
-  across different sid, t, V, pk_epoch, message_binding, dkg_digest,
-  attempt, active set, or commitment set except through a listed bad event.
+  Fix the transcript grammar version and the random-oracle domain H_c.
+  Under FST-L1 transcript injectivity, canonical encoding of
+  ChallengeRecord, and the random-oracle model, let View and View' be two
+  accepting transcript views that derive the same signing challenge c from H_c.
+
+  Then either:
+    (1) View and View' contain identical canonical ChallengeRecord inputs to H_c;
+        or
+    (2) the execution triggers a named bad event charged to the FST-L2
+        residual accounting.
 ```
 
-The statement must cover session, message, key, active set, commitment set,
-opening set, attempt, epoch, and validator-set binding.
+The identical-input conclusion covers equality of `SigningContext`,
+commitment set, opening set, active set, message digest, epoch key/digest,
+attempt id, transcript grammar version, and the `H_c` random-oracle domain.
+Equivalently, an accepted contribution for challenge `c` is bound to exactly
+one canonical `ChallengeRecord` and cannot be reused across different session,
+threshold, validator set, epoch key, message digest, DKG/epoch digest, retry
+attempt, active set, commitment set, or opening set except through a listed
+bad event.
+
+The residual events kept visible for this theorem-closure route are
+`BadHcPrior`, `FailPriorHc`, transcript-collision events covered by `FST-L1`,
+replay events charged to `eps_ro_replay`, and commitment-context events
+charged to `eps_commit_context`, including `eps_commit_open_set`.
 
 ## FSTL2-4. Proof Skeleton
 <a id="fstl2-proof-skeleton"></a>
 
-The intended proof uses:
+The proof argues by comparing the two accepting transcript views at the
+canonical `ChallengeRecord` input to `H_c`.
 
 1. `FST-L1` to parse and compare challenge records field by field.
 2. Commitment binding to prevent accepted openings from changing after `H_c`.
@@ -87,6 +131,59 @@ The intended proof uses:
 
 The proof must not silently reprogram `H_c` after the S6 to S7 transition.
 Any prior-query conflict is charged before the challenge is fixed.
+
+Case analysis:
+
+1. Prior-query event. If the adversary queried the exact candidate
+   `ChallengeRecord` input to `H_c` before the commitment/opening context was
+   fixed, the execution is charged to `BadHcPrior`. If the simulator cannot
+   continue while preserving the already-returned oracle value, it raises
+   `FailPriorHc`. The loss remains in `eps_ro_prior`; this document does not
+   instantiate a concrete query-bound parameterization.
+
+2. Transcript collision. If the two views have distinct byte strings that
+   parse to the same canonical fields, or the same bytes that parse to
+   different fields, the event contradicts the `FST-L1` transcript-injectivity
+   premise. This route therefore discharges the case only conditionally on
+   `FST-L1`; any residual from `FST-L1` remains outside this document.
+
+3. Commitment-set mismatch. If the ordered commitment set differs while the
+   challenge is accepted as the same `c`, then either the canonical
+   `ChallengeRecord` inputs differ and the random-oracle equality is a
+   collision/prior-query case, or the commitment backend admits a context
+   rebind/equivocation. The latter is charged to `eps_commit_context`, with
+   open-set equality obligations kept visible as `eps_commit_open_set`.
+
+4. Active-set mismatch. If the active signer set differs, `FST-L1` exposes a
+   different canonical `ActiveSet` field. Acceptance under the same challenge
+   is therefore rejected by active-set validation or routed to the residual
+   dependency that `FST-L3` closes for active-set and collection-soundness
+   equality.
+
+5. Message or context rebinding. If the views differ in `SigningContext`,
+   message digest, session, threshold, validator-set digest, epoch key/digest,
+   DKG digest, contribution backend, relation, or statement schema, then the
+   canonical `ChallengeRecord` inputs differ. An accepting same-challenge use
+   is charged to `eps_commit_context` when the mismatch is mediated by a
+   commitment-context rebind, or to the relevant random-oracle prior/replay
+   accounting otherwise.
+
+6. Stale or replay records. If an old record is reused across `epoch_id`,
+   `sid`, `attempt_id`, validator-set digest, threshold, epoch key/digest,
+   DKG digest, message digest, ordered commitment set, or ordered opening set,
+   the canonical tuple changes. A non-rejected accepting replay is charged to
+   `eps_ro_replay` or, when the replay is enabled by commitment-context
+   ambiguity, `eps_commit_context`.
+
+7. Malformed encoding. If a view relies on non-canonical field order, duplicate
+   entries, ambiguous lengths, an unsupported transcript grammar version, or
+   an incorrect `H_c` domain, it is rejected by the parser. If it is not
+   rejected and still aliases a valid canonical record, the event is a
+   transcript-injectivity failure under `FST-L1`.
+
+Outside the named bad events, both accepting views have the same canonical
+`ChallengeRecord` input to `H_c`, so they bind to the same challenge input
+tuple.
 
 ## FSTL2-5. Prior-Query and Replay Accounting
 <a id="fstl2-prior-query-replay-accounting"></a>
@@ -104,8 +201,9 @@ eps_ro_prior
 ```
 
 For `FST-L2`, the critical event is `BadHcPrior`: the adversary queried the
-exact `H_c` input before the commitment set was fixed. The simulator branch is
-`FailPriorHc` when the proof cannot continue with the existing oracle value.
+exact `H_c` input before the commitment and opening context was fixed. The
+simulator branch is `FailPriorHc` when the proof cannot continue with the
+existing oracle value.
 
 The replay layer must reject or charge replays across:
 
@@ -116,7 +214,7 @@ The replay layer must reject or charge replays across:
 - different `threshold`;
 - different `pk_epoch`;
 - different `dkg_digest`;
-- different `message_binding`;
+- different `message_digest`;
 - different ordered mask commitment or opening set;
 - different contribution backend, relation, or statement schema.
 
@@ -147,6 +245,13 @@ The proof must show:
 - `eps_commit_open_set` is either closed by the backend theorem or remains
   visible.
 
+For theorem closure, the commitment proof must supply two production-facing
+facts that are not established here: the concrete commitment scheme binds
+openings to the challenged commitment records, and the ordered opening-set
+equality check is itself bound to the same `SigningContext`, active set,
+message digest, epoch key/digest, attempt id, grammar version, and `H_c`
+domain.
+
 ## FSTL2-7. Dependencies
 <a id="fstl2-dependencies"></a>
 
@@ -158,6 +263,10 @@ The proof must show:
 - contribution statement context binding;
 - `FST-L3` active-set equality across challenge, contribution, and aggregate
   output records.
+
+The dependencies are used only to close the local challenge-binding route.
+They do not by themselves prove collection soundness, aggregate correctness,
+or end-to-end signature security.
 
 ## FSTL2-8. Acceptance Criteria
 <a id="fstl2-acceptance-criteria"></a>
@@ -172,13 +281,30 @@ Before `FST-L2` can be treated as proved:
 - replay cases are rejected or assigned to exactly one residual term;
 - no claim is made that SHAKE256 labels alone close the ROM proof.
 
+What remains open for production is exact and limited:
+
+- a concrete commitment scheme proof covering binding, context binding, and
+  ordered opening-set equality for the deployed commitment grammar;
+- query-bound parameterization of `eps_ro_prior`, especially `BadHcPrior` and
+  `FailPriorHc`, across sessions, attempts, validators, retries, and
+  random-oracle queries;
+- query-bound parameterization of `eps_ro_replay` for stale records and
+  accepted cross-context replays.
+
 ## FSTL2-9. Non-Claims
 <a id="fstl2-non-claims"></a>
 
-This worksheet does not prove `eps_ro_prior`, `eps_commit`,
-`eps_commit_context`, `eps_commit_open_set`, or `eps_ro_replay` is negligible,
-zero, or bounded. It does not claim scaffold commitment digests are production
-binding or hiding commitments.
+This document does not provide a completed random-oracle-model reduction. It
+does not prove `eps_ro_prior`, `eps_commit`, `eps_commit_context`,
+`eps_commit_open_set`, or `eps_ro_replay` is negligible, zero, or concretely
+bounded. It does not claim scaffold commitment digests are production binding
+or hiding commitments.
+
+Implementation evidence, parser tests, transcript fixtures, and SHAKE256
+domain labels are useful engineering checks, but they are not cryptographic
+proofs. No production commitment proof is claimed here, and no implementation
+test result should be read as closing the commitment or random-oracle
+residuals.
 
 ## FSTL2-10. Manifest Anchors
 <a id="fstl2-manifest-anchors"></a>

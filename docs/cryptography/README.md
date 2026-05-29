@@ -14,6 +14,7 @@ Available notes:
 - [Proof Gap Priority Map](proof-gap-priority-map.md)
 - [IdealVSS Signing Theorem Closure](idealvss-signing-theorem-closure.md)
 - [IdealVSS Lemma Skeleton](idealvss-lemma-skeleton.md)
+- [FST-L1..FST-L3 Theorem Closure Batch](fst-l1-l3-theorem-closure.md)
 - [FST-L1 Transcript Injectivity Worksheet](fst-l1-transcript-injectivity.md)
 - [FST-L2 Challenge Binding Worksheet](fst-l2-challenge-binding.md)
 - [FST-L3 Collection Soundness Worksheet](fst-l3-collection-soundness.md)

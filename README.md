@@ -100,6 +100,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   classifier expansion without claiming those terms are closed.
 - [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
   orders the remaining proof, production-realization, and audit blockers.
+- [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
+  consolidates the transcript-injectivity, challenge-binding, and
+  collection-soundness foundation for the IdealVSS signing theorem route.
 - [Ideal functionality](docs/cryptography/ideal-functionality.md) and
   [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
   define how DKG, signing, aborts, evidence, and releases should map into an
@@ -185,6 +188,8 @@ Completed artifact layers:
   its current status, evidence route, and remaining closure requirement;
 - central IdealVSS theorem consolidation, final-form epsilon ledger, and
   proof-gap priority map for reviewer-facing proof closure work;
+- upgraded FST-L1/FST-L2/FST-L3 theorem-closure text for the canonical
+  transcript, challenge, and collection layer;
 - fail-closed production policy gates for scaffold VSS and contribution proof
   backend declarations.
 
@@ -242,6 +247,7 @@ cargo test -j1 --all-features
 - [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
 - [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
 - [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
+- [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)

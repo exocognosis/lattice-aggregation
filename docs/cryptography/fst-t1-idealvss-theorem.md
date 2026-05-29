@@ -137,6 +137,9 @@ Controlling source worksheets include:
   `idealvss-hybrid-route`, and `idealvss-acceptance-criteria`.
 - [idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md): `IVLS-2`,
   `IVLS-11`, and `ivls-acceptance-criteria`.
+- [fst-l1-l3-theorem-closure.md](fst-l1-l3-theorem-closure.md): the
+  foundational transcript, challenge, and collection closure batch for
+  `FST-L1`, `FST-L2`, and `FST-L3`.
 - [contribution-backend-decision-record.md](contribution-backend-decision-record.md):
   `cbdr-decision`, `cbdr-non-production-idealization-boundary`,
   `cbdr-residual-terms`, and `F_CONTRIB`.

@@ -112,7 +112,9 @@ concrete `eps_contrib`, production side-channel analysis, and external audit.
 1. Turn `FST-T1-IdealVSS` and `IVLS` from skeletons into theorem text with all
    residuals visible.
 2. Close `FST-L1..FST-L3`: transcript injectivity, challenge binding, and
-   collection soundness.
+   collection soundness, using
+   [fst-l1-l3-theorem-closure.md](fst-l1-l3-theorem-closure.md) as the batch
+   index.
 3. Close `FST-L4` using ideal `F_CONTRIB`, explicitly carrying
    `eps_contrib_ideal`.
 4. Close `FST-L5` with aggregation correctness, `eps_rej`, and `eps_verify`
