@@ -33,6 +33,7 @@ fn readme_links_reviewer_evidence_and_reproduction_paths() {
     let readme = read_doc(README);
     for required in [
         "docs/paper/reviewer-quickstart.md",
+        "docs/cryptography/proof-closure-ledger.md",
         "docs/cryptography/claims-matrix.md",
         "docs/cryptography/proof-obligations.md",
         "docs/audit/README.md",
@@ -114,6 +115,7 @@ fn pr_and_reviewer_docs_pin_review_order_and_verification() {
     for required in [
         "README.md",
         "docs/paper/reviewer-quickstart.md",
+        "docs/cryptography/proof-closure-ledger.md",
         "docs/cryptography/claims-matrix.md",
         "docs/cryptography/protocol-code-crosswalk.md",
         "docs/cryptography/proof-obligations.md",

@@ -11,6 +11,7 @@ not a production release procedure.
 The artifact remains a research scaffold. It is not production-ready, and it is
 not a security proof boundary for threshold ML-DSA-65. Production security
 claims remain blocked by the open obligations in
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md),
 [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md)
 and the claim boundaries in
 [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md).
@@ -31,6 +32,7 @@ Paper-facing docs:
 
 Evidence and boundary docs:
 
+- [../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
 - [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md)
 - [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md)
 - [../audit/README.md](../audit/README.md)

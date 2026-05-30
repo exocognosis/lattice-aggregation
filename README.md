@@ -88,6 +88,30 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [Formal security theorem](docs/cryptography/formal-security-theorem.md)
   defines the target threshold ML-DSA security statements and explicitly marks
   them as not yet proved.
+- [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
+  indexes the current status, evidence route, and closure requirement for each
+  visible advantage term.
+- [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
+  gathers the immediate IdealVSS signing-side theorem target into one
+  conservative statement, with ideal `F_VSS_DKG` and `F_CONTRIB` boundaries
+  kept explicit.
+- [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
+  joins the upgraded FST-L1..FST-L7 and FST-L10 routes into one conditional
+  IdealVSS theorem path while preserving the non-production claim boundary.
+- [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
+  normalizes the publication-facing advantage terms, rejection expansion, and
+  classifier expansion without claiming those terms are closed.
+- [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
+  orders the remaining proof, production-realization, and audit blockers.
+- [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
+  consolidates the transcript-injectivity, challenge-binding, and
+  collection-soundness foundation for the IdealVSS signing theorem route.
+- [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
+  consolidates the ideal contribution-validity, aggregation, threshold
+  authorization, and abort-compatibility layer.
+- [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
+  consolidates the unauthorized-output classifier target and the
+  `eps_cls_unmapped = 0` route.
 - [Ideal functionality](docs/cryptography/ideal-functionality.md) and
   [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
   define how DKG, signing, aborts, evidence, and releases should map into an
@@ -169,6 +193,18 @@ Completed artifact layers:
   proof-to-code crosswalk;
 - dedicated closure routes for `eps_mask`, `eps_rej`, `eps_withhold`,
   `eps_contrib`, and `eps_classify`;
+- a proof closure ledger that keeps every visible theorem-loss term mapped to
+  its current status, evidence route, and remaining closure requirement;
+- central IdealVSS theorem consolidation, final-form epsilon ledger, and
+  proof-gap priority map for reviewer-facing proof closure work;
+- assembled FST-T1-IdealVSS final proof route that connects the upgraded
+  lemma batches without claiming a production cryptographic proof;
+- upgraded FST-L1/FST-L2/FST-L3 theorem-closure text for the canonical
+  transcript, challenge, and collection layer;
+- upgraded FST-L4/FST-L5/FST-L6/FST-L7 theorem-closure text for the middle
+  signing layer under ideal setup and ideal contribution boundaries;
+- classifier theorem-closure routing for ordered unauthorized-output cases and
+  the remaining `eps_cls_unmapped = 0` target;
 - fail-closed production policy gates for scaffold VSS and contribution proof
   backend declarations.
 
@@ -222,6 +258,14 @@ cargo test -j1 --all-features
 ## Review Map
 
 - [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
+- [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
+- [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
+- [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
+- [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
+- [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
+- [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
+- [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
+- [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)
@@ -266,19 +310,46 @@ malicious-secure threshold ML-DSA-65 signature scheme.
 
 The next work is theorem closure, not more scaffold construction:
 
+- lock the production transcript grammar in
+  [production-transcript-grammar.md](docs/cryptography/production-transcript-grammar.md)
+  so random-oracle, contribution, evidence, and classifier proofs share one
+  canonical byte-level input language;
+- turn the IdealVSS route into lemma-by-lemma proof text using
+  [idealvss-lemma-skeleton.md](docs/cryptography/idealvss-lemma-skeleton.md);
+- close the early IdealVSS lemma worksheets for
+  [FST-L1 transcript injectivity](docs/cryptography/fst-l1-transcript-injectivity.md),
+  [FST-L2 challenge binding](docs/cryptography/fst-l2-challenge-binding.md),
+  and [FST-L3 collection soundness](docs/cryptography/fst-l3-collection-soundness.md);
+- close the middle IdealVSS lemma worksheets for
+  [FST-L4 partial-share validity](docs/cryptography/fst-l4-partial-share-validity.md),
+  [FST-L5 aggregation correctness](docs/cryptography/fst-l5-aggregation-correctness.md),
+  and [FST-L6 no subthreshold signing](docs/cryptography/fst-l6-no-subthreshold-signing.md);
+- close abort and classifier worksheets for
+  [FST-L7 abort compatibility](docs/cryptography/fst-l7-abort-compatibility.md)
+  and [FST-L10 classifier closure](docs/cryptography/fst-l10-classifier-closure.md);
+- use the immediate
+  [contribution backend decision record](docs/cryptography/contribution-backend-decision-record.md)
+  to keep `F_CONTRIB` idealized until a concrete backend theorem is selected;
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
   distribution using the route in
+  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
+  and
   [mask-distribution-equivalence.md](docs/cryptography/mask-distribution-equivalence.md);
 - prove or explicitly bound `eps_rej` by showing threshold aggregate rejection
-  matches standard ML-DSA-65 rejection on the same candidate values;
+  matches standard ML-DSA-65 rejection on the same candidate values using the
+  [rejection-sampling closure plan](docs/cryptography/rejection-sampling-closure-plan.md);
 - prove or explicitly bound `eps_withhold` for selective aborts, timeout
   behavior, retries, and observable abort labels using the route in
-  [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
+  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
+  and [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
 - instantiate the production contribution proof or MPC relation described in
-  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md)
-  using the route in
+  [contribution-backend-selection.md](docs/cryptography/contribution-backend-selection.md),
+  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md),
+  and
   [contribution-backend-instantiation.md](docs/cryptography/contribution-backend-instantiation.md);
 - eliminate `eps_classify` by mapping every unauthorized accepting output to
   either a base ML-DSA forgery or a named threshold-side assumption violation
-  using the route in
+  using
+  [unauthorized-output-classifier-elimination.md](docs/cryptography/unauthorized-output-classifier-elimination.md)
+  and
   [unauthorized-output-classifier-closure.md](docs/cryptography/unauthorized-output-classifier-closure.md).

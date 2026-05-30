@@ -24,6 +24,11 @@ a proof has been completed. The real/ideal simulator outline is tracked in
 [real-ideal-simulator.md](real-ideal-simulator.md) as a simulator skeleton, not
 a completed proof.
 
+The current status of each visible theorem-loss term is indexed in
+[proof-closure-ledger.md](proof-closure-ledger.md). That ledger does not prove
+the theorem; it keeps `eps_*` terms, implementation residuals, and non-claims
+aligned for review.
+
 ## FST-1. Objects and Notation
 
 Let `lambda` be the security parameter. Let `MLDSA65.KeyGen`,

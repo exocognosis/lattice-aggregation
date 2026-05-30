@@ -639,6 +639,12 @@ Every term must be parameterized by the number of sessions, oracle queries,
 validators, corruptions, retries, evidence records, and aggregate verification
 attempts allowed by the final theorem.
 
+For the consolidated review status of the publication-facing theorem-loss
+terms, see [proof-closure-ledger.md](proof-closure-ledger.md). The ledger maps
+this worksheet's `eps_reject(A,Z)` expansion to `eps_mask`, `eps_commit`,
+`eps_rej`, `eps_withhold`, `eps_ro`, and `eps_verify`; other worksheet terms
+remain governed by the detailed reductions in this file.
+
 ## SHR-5. Hardest Remaining Reductions
 
 The hardest remaining reductions are:

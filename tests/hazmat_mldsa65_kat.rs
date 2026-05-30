@@ -316,7 +316,7 @@ fn expected_valid(value: &Value) -> Result<bool, &'static str> {
 }
 
 fn decode_hex(hex: &str) -> Result<Vec<u8>, &'static str> {
-    if hex.len() % 2 != 0 {
+    if !hex.len().is_multiple_of(2) {
         return Err("odd hex length");
     }
 

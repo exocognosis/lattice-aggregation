@@ -8,6 +8,8 @@ The current artifact is a research scaffold with a feature-gated hazmat
 ML-DSA-65 backend. It is not production-ready and not a security proof for a
 malicious-secure threshold ML-DSA-65 signature scheme.
 
+The proof closure ledger is
+[../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md).
 The authoritative claim matrix is
 [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md). The
 numbered proof blockers are tracked in
@@ -39,6 +41,7 @@ numbered proof blockers are tracked in
 ## Review Links
 
 - Audit packet: [../audit/README.md](../audit/README.md)
+- Proof closure ledger: [../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
 - Protocol crosswalk: [../cryptography/protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md)
 - Release readiness: [../benchmarks/release-readiness-checklist.md](../benchmarks/release-readiness-checklist.md)
 - Reproducibility manifest: [../benchmarks/reproducibility-manifest.md](../benchmarks/reproducibility-manifest.md)

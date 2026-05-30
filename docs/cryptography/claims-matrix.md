@@ -11,6 +11,11 @@ manuscript language conservative: implementation evidence is not a security
 proof, and the current crate must not be described as a production-secure
 threshold ML-DSA-65 system.
 
+For a single reviewer-facing index of the current theorem-loss terms, see
+[proof-closure-ledger.md](proof-closure-ledger.md). The ledger maps each
+visible `eps_*` term to its status, evidence route, closure requirement, and
+safe publication wording.
+
 The current project status is a publishable research scaffold plus a
 feature-gated hazmat ML-DSA-65 backend for experiments. It is not a
 production-secure threshold ML-DSA implementation.

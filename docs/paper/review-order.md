@@ -21,11 +21,13 @@ proof for threshold ML-DSA-65.
      labels, digest fields, and checked fixture hashes. Fresh timing values are
      machine-dependent.
 
-3. Publication claim boundary:
+3. Proof closure and publication claim boundary:
+   - [../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
    - [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md)
-   - Read this before evaluating manuscript or PR language. It separates
-     implemented engineering evidence, experimental support, scaffold-only
-     boundaries, production blockers, and non-claims.
+   - Read the ledger first for the current `eps_*` term status, then use the
+     claims matrix before evaluating manuscript or PR language. Together they
+     separate implemented engineering evidence, experimental support,
+     scaffold-only boundaries, production blockers, and non-claims.
 
 4. Protocol-to-code navigation:
    - [Protocol-to-code crosswalk](../cryptography/protocol-code-crosswalk.md)
@@ -84,7 +86,7 @@ proof for threshold ML-DSA-65.
 
 ## Review Discipline
 
-- Keep the claim boundary tied to the claims matrix.
+- Keep the claim boundary tied to the proof closure ledger and claims matrix.
 - Treat hazmat paths as research instrumentation and regression evidence.
 - Treat deterministic simulations and Section V artifacts as reproducibility
   evidence, not security evidence.

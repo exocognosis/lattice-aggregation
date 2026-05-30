@@ -40,6 +40,7 @@ Paper-facing docs:
 
 Evidence and boundary docs:
 
+- [../cryptography/proof-closure-ledger.md](../cryptography/proof-closure-ledger.md)
 - [../cryptography/claims-matrix.md](../cryptography/claims-matrix.md)
 - [../cryptography/proof-obligations.md](../cryptography/proof-obligations.md)
 - [../cryptography/protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md)
