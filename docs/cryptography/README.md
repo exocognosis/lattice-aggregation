@@ -29,6 +29,7 @@ Available notes:
 - [Contribution Backend Selection Framework](contribution-backend-selection.md)
 - [Contribution Backend Decision Record](contribution-backend-decision-record.md)
 - [Rejection-Sampling Closure Plan](rejection-sampling-closure-plan.md)
+- [Rejection-Sampling Theorem Closure Batch](rejection-sampling-theorem-closure.md)
 - [Random-Oracle and Commitment Closure Plan](random-oracle-commitment-closure.md)
 - [Unauthorized Output Classifier Elimination Plan](unauthorized-output-classifier-elimination.md)
 

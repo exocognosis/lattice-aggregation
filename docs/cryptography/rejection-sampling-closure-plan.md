@@ -17,6 +17,10 @@ prove production liveness or selective-abort resistance.
 The current hazmat tests are implementation evidence for selected arithmetic
 and verification paths. They are not a distributional theorem.
 
+The theorem-closure batch that assembles these routes into a single
+accepted-distribution target is
+[rejection-sampling-theorem-closure.md](rejection-sampling-theorem-closure.md).
+
 ## Dependency DAG
 <a id="rscp-dependency-dag"></a>
 
@@ -75,6 +79,7 @@ This plan does not claim:
 
 - `# Rejection-Sampling Closure Plan`
 - `rejection-sampling-closure-plan`
+- `rejection-sampling-theorem-closure.md`
 - `rscp-dependency-dag`
 - `rscp-term-closure-requirements`
 - `eps_mask`
@@ -84,4 +89,3 @@ This plan does not claim:
 - `Delta_accept`
 - `rscp-acceptance-criteria`
 - `rscp-non-claims`
-

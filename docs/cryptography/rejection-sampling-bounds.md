@@ -11,6 +11,10 @@ that still need proof for threshold ML-DSA-65 rejection sampling. It is not a
 completed proof and must not be read as a claim that the current threshold
 backend preserves the centralized ML-DSA signing distribution.
 
+The consolidated theorem-closure batch for `eps_mask`, `eps_rej`, and
+`eps_withhold` is tracked in
+[rejection-sampling-theorem-closure.md](rejection-sampling-theorem-closure.md).
+
 ## Scope
 
 The target is the H2 through H6 gap in the rejection-sampling hybrid:

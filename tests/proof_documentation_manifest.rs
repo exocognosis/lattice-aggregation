@@ -53,6 +53,8 @@ const IDEALVSS_SIGNING_THEOREM_CLOSURE: &str =
 const IDEALVSS_LEMMA_SKELETON: &str = "docs/cryptography/idealvss-lemma-skeleton.md";
 const REJECTION_SAMPLING_CLOSURE_PLAN: &str =
     "docs/cryptography/rejection-sampling-closure-plan.md";
+const REJECTION_SAMPLING_THEOREM_CLOSURE: &str =
+    "docs/cryptography/rejection-sampling-theorem-closure.md";
 const RANDOM_ORACLE_COMMITMENT_CLOSURE: &str =
     "docs/cryptography/random-oracle-commitment-closure.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
@@ -122,6 +124,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         IDEALVSS_SIGNING_THEOREM_CLOSURE,
         IDEALVSS_LEMMA_SKELETON,
         REJECTION_SAMPLING_CLOSURE_PLAN,
+        REJECTION_SAMPLING_THEOREM_CLOSURE,
         RANDOM_ORACLE_COMMITMENT_CLOSURE,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
@@ -995,6 +998,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "fst-l1-l3-theorem-closure.md",
             "fst-l4-l7-theorem-closure.md",
             "fst-l10-classifier-theorem-closure.md",
+            "rejection-sampling-theorem-closure.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -1031,6 +1035,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "fst-l4-l7-theorem-closure.md",
             "fst-l10-classifier-theorem-closure.md",
             "fst-t1-idealvss-final-proof.md",
+            "rejection-sampling-theorem-closure.md",
             "eps_contrib_ideal",
             "eps_commit",
             "eps_ro_prior",
@@ -1166,6 +1171,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "non-claims",
             "manifest-anchors",
             "fst-t1-idealvss-final-proof.md",
+            "rejection-sampling-theorem-closure.md",
             "Tier 0",
             "Tier 1",
             "Tier 2",
@@ -1259,6 +1265,7 @@ fn full_proof_surface_exposes_stable_anchors() {
         &[
             "# Rejection-Sampling Closure Plan",
             "rejection-sampling-closure-plan",
+            "rejection-sampling-theorem-closure.md",
             "rscp-dependency-dag",
             "rscp-term-closure-requirements",
             "eps_mask",
@@ -1268,6 +1275,44 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Delta_accept",
             "rscp-acceptance-criteria",
             "rscp-non-claims",
+        ],
+    );
+    assert_contains_all(
+        REJECTION_SAMPLING_THEOREM_CLOSURE,
+        &[
+            "# Rejection-Sampling Theorem Closure Batch",
+            "rejection-sampling-theorem-closure",
+            "Status: theorem-closure batch for `eps_mask`, `eps_rej`, and",
+            "RSTC-0. Scope and Non-Claim",
+            "RSTC-1. Theorem Target",
+            "RSTC-2. Dependency Order",
+            "RSTC-3. eps_mask Closure Route",
+            "RSTC-4. eps_rej Closure Route",
+            "RSTC-5. eps_withhold Closure Route",
+            "RSTC-6. Consolidated Bound Route",
+            "RSTC-7. Acceptance Criteria",
+            "RSTC-8. Non-Claims",
+            "RSTC-9. Manifest Anchors",
+            "Delta_accept",
+            "Theorem RSTC-Delta-accept",
+            "Theorem M-close-mask-distribution",
+            "Theorem R-close-rejection-predicate",
+            "Theorem W-close-static-active",
+            "eps_mask",
+            "eps_rej",
+            "eps_withhold",
+            "eps_commit",
+            "eps_ro",
+            "eps_verify",
+            "eps_mask_support",
+            "eps_bound_encoding",
+            "eps_withhold_commit",
+            "mask-distribution-equivalence.md",
+            "rejection-predicate-equivalence.md",
+            "withholding-abort-bound.md",
+            "implementation evidence is not cryptographic proof",
+            "not a completed accepted-distribution proof",
+            "not production-ready",
         ],
     );
     assert_contains_all(

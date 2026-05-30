@@ -149,6 +149,9 @@ Controlling source worksheets include:
 - [fst-t1-idealvss-final-proof.md](fst-t1-idealvss-final-proof.md): the
   assembled conditional IdealVSS theorem route that imports `FST-L1` through
   `FST-L7`, `FST-L10`, and the final-form residual ledger.
+- [rejection-sampling-theorem-closure.md](rejection-sampling-theorem-closure.md):
+  the accepted-distribution closure batch for `eps_mask`, `eps_rej`, and
+  `eps_withhold`.
 - [contribution-backend-decision-record.md](contribution-backend-decision-record.md):
   `cbdr-decision`, `cbdr-non-production-idealization-boundary`,
   `cbdr-residual-terms`, and `F_CONTRIB`.
