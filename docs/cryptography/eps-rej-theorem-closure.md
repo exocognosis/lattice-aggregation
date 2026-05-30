@@ -53,6 +53,11 @@ eps_rej
 The zero form is valid only if every bad event is proved impossible under the
 fixed production transcript and verifier semantics.
 
+Predicate-sublemma route: see
+[eps-rej-predicate-sublemmas.md](eps-rej-predicate-sublemmas.md) for the
+`Theorem R1-reject-predicate-equivalence` roadmap that decomposes this target
+without claiming predicate equality is proved.
+
 ## ERTC-2. Centered Representatives and Bounds
 <a id="ertc-centered-bound-representatives"></a>
 
@@ -249,6 +254,8 @@ Stable anchors and text markers:
 - `ERTC-11. Non-Claims`
 - `ERTC-12. Manifest Anchors`
 - `Theorem R-close-rejection-predicate`
+- `eps-rej-predicate-sublemma-route`
+- `Theorem R1-reject-predicate-equivalence`
 - `Reject_T`
 - `Reject_0`
 - `eps_bound_encoding`

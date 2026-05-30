@@ -161,6 +161,9 @@ Slashing soundness is separate from accepted-distribution preservation.
 ## EWTC-8. Bound Statement
 <a id="ewtc-bound-statement"></a>
 
+Simulator obligations for this route are refined in
+[eps-withhold-simulator-obligations.md](eps-withhold-simulator-obligations.md).
+
 Target statement:
 
 ```text
@@ -250,6 +253,8 @@ Stable anchors and text markers:
 - `EWTC-11. Non-Claims`
 - `EWTC-12. Manifest Anchors`
 - `Theorem W-close-static-active`
+- `eps-withhold-simulator-obligations.md`
+- `eps-withhold-simulator-obligation-route`
 - `eps_withhold_bound`
 - `eps_withhold_commit`
 - `eps_withhold_challenge`

@@ -42,6 +42,11 @@ must not change across retries, active sets, or proof sections.
 ## EMTC-2. Theorem Statement
 <a id="emtc-theorem-statement"></a>
 
+Formalization route: see
+[eps-mask-formalization.md](eps-mask-formalization.md) for the game/interface
+shape and `Theorem M1-combine-mask-game` roadmap that precede this closure
+target.
+
 Target statement:
 
 ```text
@@ -249,6 +254,8 @@ Stable anchors and text markers:
 - `EMTC-10. Acceptance Criteria`
 - `EMTC-11. Non-Claims`
 - `EMTC-12. Manifest Anchors`
+- `eps-mask-formalization-route`
+- `Theorem M1-combine-mask-game`
 - `Theorem M-close-mask-distribution`
 - `CombineMask`
 - `HighBits(A_matrix * Y_T)`

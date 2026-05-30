@@ -126,6 +126,11 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   [eps_withhold](docs/cryptography/eps-withhold-theorem-closure.md) theorem
   closure batches break that accepted-distribution route into focused
   subterm obligations.
+- [eps_mask formalization](docs/cryptography/eps-mask-formalization.md),
+  [eps_rej predicate sublemmas](docs/cryptography/eps-rej-predicate-sublemmas.md),
+  and [eps_withhold simulator obligations](docs/cryptography/eps-withhold-simulator-obligations.md)
+  expand those residuals into theorem-level game, predicate, and simulator
+  obligations.
 - [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
   tracks `eps_mask`, the distance between aggregate threshold masks and
   centralized ML-DSA-65 masks.
