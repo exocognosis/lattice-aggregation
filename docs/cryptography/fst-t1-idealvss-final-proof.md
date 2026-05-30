@@ -87,6 +87,14 @@ The assembled route imports these proof batches:
 - [fst-l10-classifier-theorem-closure.md](fst-l10-classifier-theorem-closure.md):
   `FST-L10` for ordered unauthorized-output classification and the
   `eps_cls_unmapped = 0` target.
+- [eps-contrib-backend-proof-route.md](eps-contrib-backend-proof-route.md):
+  Batch B roadmap for replacing or justifying `F_CONTRIB`.
+- [eps-verify-absorption-decision.md](eps-verify-absorption-decision.md):
+  Batch B route for deciding whether verifier mismatch is absorbed into
+  `eps_rej` or carried as `eps_verify`.
+- [eps-classify-elimination-route.md](eps-classify-elimination-route.md):
+  Batch B route for classifier totality, disjointness, and the
+  `eps_cls_unmapped = 0` target.
 - [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md): the theorem target,
   ideal-boundary statement, dependencies, and simulator route.
 - [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md):
@@ -196,6 +204,10 @@ case. The other classifier cases must still be reduced to the base term
 Therefore `eps_classify` can be expanded through named classifier cases, but it
 must not be deleted by prose unless every case has been accounted for.
 
+The Batch B classifier roadmap is
+[eps-classify-elimination-route.md](eps-classify-elimination-route.md). It
+keeps `eps_cls_unmapped = 0` as a target condition, not a proved fact.
+
 ## FP-7. Residual Terms That Remain
 <a id="fp-residual-terms-remain"></a>
 
@@ -203,10 +215,16 @@ The following terms remain visible in the IdealVSS theorem route:
 
 - `eps_vss_ideal` for ideal setup leakage and semantics.
 - `eps_contrib_ideal` for ideal contribution validation.
+- `eps_contrib` and the
+  [eps_contrib backend proof route](eps-contrib-backend-proof-route.md) until a
+  proof, MPC/interactive, or ideal-realization backend is selected and proved.
 - `eps_commit`, `eps_ro_prior`, and `eps_ro_sep` for commitment and
   random-oracle programming.
 - `eps_mask`, `eps_rej`, `eps_withhold`, and `eps_verify` for mask,
   rejection, selective-abort, and verifier-compatibility gaps.
+- `eps_verify` remains governed by
+  [eps-verify-absorption-decision.md](eps-verify-absorption-decision.md) until
+  the final theorem chooses absorption into `eps_rej` or separate carry.
 - `eps_abort`, `eps_release`, and `eps_evid` for simulator-visible abort,
   release, and evidence transitions.
 - `eps_collect` and `eps_threshold` for canonical active-set handling and
@@ -303,6 +321,9 @@ Stable anchors and text markers:
 - `fst-l1-l3-theorem-closure.md`
 - `fst-l4-l7-theorem-closure.md`
 - `fst-l10-classifier-theorem-closure.md`
+- `eps-contrib-backend-proof-route.md`
+- `eps-verify-absorption-decision.md`
+- `eps-classify-elimination-route.md`
 - `eps_cls_unmapped = 0`
 - `q_out * eps_mldsa(B_mldsa)`
 - `eps_vss_ideal`

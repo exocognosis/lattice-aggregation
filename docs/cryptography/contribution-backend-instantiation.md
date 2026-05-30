@@ -91,6 +91,11 @@ proof-system-native replacement lemma sufficient for the S4 -> S5 simulator.
 If the backend is only verification-sound, the substitute target must be
 spelled out and carried visibly into the real/ideal reduction.
 
+The Batch B roadmap in
+[eps-contrib-backend-proof-route.md](eps-contrib-backend-proof-route.md)
+expands this target into visible `eps_contrib` subterms and keeps `F_CONTRIB`
+as an idealized boundary until a backend is selected and proved.
+
 ## CBI-3. Backend Families
 <a id="cbi-backend-families"></a>
 
