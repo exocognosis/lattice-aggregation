@@ -121,6 +121,16 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [Rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md)
   consolidates the `eps_mask`, `eps_rej`, and `eps_withhold` routes into one
   accepted-distribution theorem target without claiming those terms are closed.
+- [eps_mask](docs/cryptography/eps-mask-theorem-closure.md),
+  [eps_rej](docs/cryptography/eps-rej-theorem-closure.md), and
+  [eps_withhold](docs/cryptography/eps-withhold-theorem-closure.md) theorem
+  closure batches break that accepted-distribution route into focused
+  subterm obligations.
+- [eps_mask formalization](docs/cryptography/eps-mask-formalization.md),
+  [eps_rej predicate sublemmas](docs/cryptography/eps-rej-predicate-sublemmas.md),
+  and [eps_withhold simulator obligations](docs/cryptography/eps-withhold-simulator-obligations.md)
+  expand those residuals into theorem-level game, predicate, and simulator
+  obligations.
 - [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
   tracks `eps_mask`, the distance between aggregate threshold masks and
   centralized ML-DSA-65 masks.

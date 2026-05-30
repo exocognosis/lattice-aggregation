@@ -97,6 +97,10 @@ The order prevents proof-term double counting:
 
 Imported source:
 [mask-distribution-equivalence.md](mask-distribution-equivalence.md).
+Focused closure batch:
+[eps-mask-theorem-closure.md](eps-mask-theorem-closure.md).
+Residual Closure Batch A route:
+[eps-mask-formalization.md](eps-mask-formalization.md).
 
 Closure statement:
 
@@ -143,6 +147,10 @@ the centralized ML-DSA-65 distribution.
 
 Imported source:
 [rejection-predicate-equivalence.md](rejection-predicate-equivalence.md).
+Focused closure batch:
+[eps-rej-theorem-closure.md](eps-rej-theorem-closure.md).
+Residual Closure Batch A route:
+[eps-rej-predicate-sublemmas.md](eps-rej-predicate-sublemmas.md).
 
 Closure statement:
 
@@ -189,6 +197,10 @@ hazmat tests, but not a byte-level theorem that `Reject_T = Reject_0`.
 
 Imported source:
 [withholding-abort-bound.md](withholding-abort-bound.md).
+Focused closure batch:
+[eps-withhold-theorem-closure.md](eps-withhold-theorem-closure.md).
+Residual Closure Batch A route:
+[eps-withhold-simulator-obligations.md](eps-withhold-simulator-obligations.md).
 
 Closure statement:
 
@@ -329,6 +341,12 @@ Stable anchors and text markers:
 - `mask-distribution-equivalence.md`
 - `rejection-predicate-equivalence.md`
 - `withholding-abort-bound.md`
+- `eps-mask-theorem-closure.md`
+- `eps-rej-theorem-closure.md`
+- `eps-withhold-theorem-closure.md`
+- `eps-mask-formalization.md`
+- `eps-rej-predicate-sublemmas.md`
+- `eps-withhold-simulator-obligations.md`
 - `implementation evidence is not cryptographic proof`
 - `not a completed accepted-distribution proof`
 - `not production-ready`

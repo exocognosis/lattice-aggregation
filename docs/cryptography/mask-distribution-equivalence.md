@@ -13,6 +13,9 @@ production construction can either prove exact equality to centralized
 ML-DSA-65 mask sampling or carry an explicit statistical-distance term into
 Theorem T1.
 
+The focused theorem-closure batch for this route is
+[eps-mask-theorem-closure.md](eps-mask-theorem-closure.md).
+
 ## MDE-0. Scope and Non-Claims
 <a id="mde-scope"></a>
 

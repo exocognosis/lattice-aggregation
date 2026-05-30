@@ -175,6 +175,11 @@ eps_rej
 The final theorem must decide whether `eps_verify_mismatch` is absorbed into
 `eps_rej` or carried as a separate `eps_verify` term.
 
+The focused predicate-closure route is
+[eps-rej-theorem-closure.md](eps-rej-theorem-closure.md). It expands these
+subterms into theorem obligations for review, but does not close `eps_rej` or
+set any rejection-predicate residual to zero or negligible.
+
 ## FSTL5-6. Standard Verification Compatibility
 <a id="fstl5-standard-verification-compatibility"></a>
 

@@ -146,6 +146,20 @@ distribution, commitment non-adaptivity, rejection predicate equivalence,
 selective-abort behavior, random-oracle programming, and verifier compatibility
 are each proved or explicitly bounded.
 
+The visible subterms `eps_mask`, `eps_rej`, and `eps_withhold` expand through
+[eps-mask-theorem-closure.md](eps-mask-theorem-closure.md),
+[eps-rej-theorem-closure.md](eps-rej-theorem-closure.md), and
+[eps-withhold-theorem-closure.md](eps-withhold-theorem-closure.md),
+respectively. Those documents are theorem-closure roadmaps for the residuals;
+they do not make any of the terms zero, negligible, or production-ready.
+
+Residual Closure Batch A refines those roadmaps through
+[eps-mask-formalization.md](eps-mask-formalization.md),
+[eps-rej-predicate-sublemmas.md](eps-rej-predicate-sublemmas.md), and
+[eps-withhold-simulator-obligations.md](eps-withhold-simulator-obligations.md).
+Those files expose the game, predicate-sublemma, and simulator-obligation
+surfaces that a later proof must discharge.
+
 ## ERLFF-5. Classifier Expansion
 <a id="erlff-classifier-expansion"></a>
 
@@ -221,6 +235,9 @@ Stable anchors and text markers:
 - `eps_contrib_ideal`
 - `eps_reject(A,Z)`
 - `Delta_accept`
+- `eps-mask-formalization.md`
+- `eps-rej-predicate-sublemmas.md`
+- `eps-withhold-simulator-obligations.md`
 - `eps_cls_unmapped = 0`
 - `implementation evidence is not cryptographic proof`
 - `not a completed proof`
