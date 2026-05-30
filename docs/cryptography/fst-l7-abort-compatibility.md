@@ -54,6 +54,9 @@ Delta_accept
 
 `eps_withhold` is not closed by this worksheet and remains decomposed into
 withholding, abort-label, retry, timeout, release, evidence, and timing terms.
+The focused theorem-closure route for those subterms is
+[eps-withhold-theorem-closure.md](eps-withhold-theorem-closure.md); it is an
+obligation map, not a completed selective-abort bound.
 
 The withholding target from `theorem-w-close-static-active` is:
 

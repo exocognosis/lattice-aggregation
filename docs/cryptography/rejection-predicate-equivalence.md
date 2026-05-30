@@ -15,6 +15,9 @@ the rejection predicate only. Mask distribution, selective aborts, retry
 conditioning, commitment binding, and random-oracle programming remain separate
 proof obligations unless explicitly listed as predicate bad events below.
 
+The focused theorem-closure batch for this route is
+[eps-rej-theorem-closure.md](eps-rej-theorem-closure.md).
+
 ## Theorem Target
 <a id="rpe-theorem-target"></a>
 

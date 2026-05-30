@@ -146,6 +146,13 @@ distribution, commitment non-adaptivity, rejection predicate equivalence,
 selective-abort behavior, random-oracle programming, and verifier compatibility
 are each proved or explicitly bounded.
 
+The visible subterms `eps_mask`, `eps_rej`, and `eps_withhold` expand through
+[eps-mask-theorem-closure.md](eps-mask-theorem-closure.md),
+[eps-rej-theorem-closure.md](eps-rej-theorem-closure.md), and
+[eps-withhold-theorem-closure.md](eps-withhold-theorem-closure.md),
+respectively. Those documents are theorem-closure roadmaps for the residuals;
+they do not make any of the terms zero, negligible, or production-ready.
+
 ## ERLFF-5. Classifier Expansion
 <a id="erlff-classifier-expansion"></a>
 

@@ -12,6 +12,9 @@ const MASK_DISTRIBUTION_EQUIVALENCE: &str = "docs/cryptography/mask-distribution
 const REJECTION_PREDICATE_EQUIVALENCE: &str =
     "docs/cryptography/rejection-predicate-equivalence.md";
 const WITHHOLDING_ABORT_BOUND: &str = "docs/cryptography/withholding-abort-bound.md";
+const EPS_MASK_THEOREM_CLOSURE: &str = "docs/cryptography/eps-mask-theorem-closure.md";
+const EPS_REJ_THEOREM_CLOSURE: &str = "docs/cryptography/eps-rej-theorem-closure.md";
+const EPS_WITHHOLD_THEOREM_CLOSURE: &str = "docs/cryptography/eps-withhold-theorem-closure.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
 const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
@@ -91,6 +94,9 @@ fn proof_documentation_manifest_tracks_required_docs() {
         MASK_DISTRIBUTION_EQUIVALENCE,
         REJECTION_PREDICATE_EQUIVALENCE,
         WITHHOLDING_ABORT_BOUND,
+        EPS_MASK_THEOREM_CLOSURE,
+        EPS_REJ_THEOREM_CLOSURE,
+        EPS_WITHHOLD_THEOREM_CLOSURE,
         VSS_DKG_PLAN,
         VSS_BACKEND_SELECTION,
         VSS_IDEALIZATION_SELECTION,
@@ -247,6 +253,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "rpe-bad-events",
             "rpe-code-fips-crosswalk",
             "rpe-non-claims",
+            "eps-rej-theorem-closure.md",
         ],
     );
     assert_contains_all(
@@ -265,6 +272,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "mde-code-crosswalk",
             "mde-acceptance-criteria",
             "mde-non-claims",
+            "eps-mask-theorem-closure.md",
         ],
     );
     assert_contains_all(
@@ -285,6 +293,38 @@ fn full_proof_surface_exposes_stable_anchors() {
             "wab-code-crosswalk",
             "wab-acceptance-criteria",
             "wab-non-claims",
+            "eps-withhold-theorem-closure.md",
+        ],
+    );
+    assert_contains_all(
+        EPS_MASK_THEOREM_CLOSURE,
+        &[
+            "Theorem M-close-mask-distribution",
+            "eps_mask_bound",
+            "eps_mask_highbits",
+            "implementation evidence is not cryptographic proof",
+            "not production-ready",
+        ],
+    );
+    assert_contains_all(
+        EPS_REJ_THEOREM_CLOSURE,
+        &[
+            "Theorem R-close-rejection-predicate",
+            "eps_bound_encoding",
+            "eps_verify_mismatch",
+            "implementation evidence is not cryptographic proof",
+            "not production-ready",
+        ],
+    );
+    assert_contains_all(
+        EPS_WITHHOLD_THEOREM_CLOSURE,
+        &[
+            "Theorem W-close-static-active",
+            "O_abort",
+            "R_max",
+            "eps_withhold_bound",
+            "implementation evidence is not cryptographic proof",
+            "not production-ready",
         ],
     );
     assert_contains_all(
@@ -607,6 +647,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "BadVerifyMismatch",
             "BadActiveSetRebind",
             "eps_verify_mismatch",
+            "eps-rej-theorem-closure.md",
             "implementation tests are evidence only, not proof",
         ],
     );
@@ -688,6 +729,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "theorem-conditional-accepted-distribution-bound",
             "eps-withhold-closure-route",
             "eps-withhold-production-route-selection",
+            "eps-withhold-theorem-closure.md",
             "abort-transcript-o-abort",
             "ledger-non-claims",
             "implementation evidence is not cryptographic proof",
@@ -999,6 +1041,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "fst-l4-l7-theorem-closure.md",
             "fst-l10-classifier-theorem-closure.md",
             "rejection-sampling-theorem-closure.md",
+            "eps-mask-theorem-closure.md",
+            "eps-rej-theorem-closure.md",
+            "eps-withhold-theorem-closure.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -1310,6 +1355,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "mask-distribution-equivalence.md",
             "rejection-predicate-equivalence.md",
             "withholding-abort-bound.md",
+            "eps-mask-theorem-closure.md",
+            "eps-rej-theorem-closure.md",
+            "eps-withhold-theorem-closure.md",
             "implementation evidence is not cryptographic proof",
             "not a completed accepted-distribution proof",
             "not production-ready",
@@ -1349,6 +1397,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Threshold EUF-CMA security",
             "`eps_mask` aggregate mask-distribution route",
             "`eps_withhold` selective-abort route",
+            "eps-mask-theorem-closure.md",
+            "eps-rej-theorem-closure.md",
+            "eps-withhold-theorem-closure.md",
             "Contribution backend instantiation route",
             "`eps_classify` unauthorized-output classifier route",
             "Rejection-sampling distribution preservation",

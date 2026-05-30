@@ -12,6 +12,9 @@ goal is to specify the simulator, leakage boundary, retry policy, and
 conditioning terms needed before accepted threshold signatures can be compared
 to centralized ML-DSA-65 signatures in the presence of corrupted validators.
 
+The focused theorem-closure batch for this route is
+[eps-withhold-theorem-closure.md](eps-withhold-theorem-closure.md).
+
 ## WAB-0. Scope and Non-Claims
 <a id="wab-scope"></a>
 

@@ -30,6 +30,9 @@ Available notes:
 - [Contribution Backend Decision Record](contribution-backend-decision-record.md)
 - [Rejection-Sampling Closure Plan](rejection-sampling-closure-plan.md)
 - [Rejection-Sampling Theorem Closure Batch](rejection-sampling-theorem-closure.md)
+- [eps_mask Theorem Closure Batch](eps-mask-theorem-closure.md)
+- [eps_rej Theorem Closure Batch](eps-rej-theorem-closure.md)
+- [eps_withhold Theorem Closure Batch](eps-withhold-theorem-closure.md)
 - [Random-Oracle and Commitment Closure Plan](random-oracle-commitment-closure.md)
 - [Unauthorized Output Classifier Elimination Plan](unauthorized-output-classifier-elimination.md)
 
