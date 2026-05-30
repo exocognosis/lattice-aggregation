@@ -50,6 +50,7 @@ Source anchors:
 
 - [random-oracle-commitment-closure.md](random-oracle-commitment-closure.md)
 - [rejection-sampling-closure-plan.md](rejection-sampling-closure-plan.md)
+- [rejection-sampling-theorem-closure.md](rejection-sampling-theorem-closure.md)
 - [unauthorized-output-classifier-elimination.md](unauthorized-output-classifier-elimination.md)
 - [contribution-backend-decision-record.md](contribution-backend-decision-record.md)
 
@@ -127,8 +128,11 @@ concrete `eps_contrib`, production side-channel analysis, and external audit.
 6. Close `FST-L10` by proving `eps_cls_unmapped = 0`.
    Use [fst-l10-classifier-theorem-closure.md](fst-l10-classifier-theorem-closure.md)
    as the classifier batch index.
-7. Only after the ideal theorem is stable, start concrete VSS/DKG and
-   contribution backend replacement.
+7. Consolidate the accepted-distribution route for `eps_mask`, `eps_rej`, and
+   `eps_withhold` through
+   [rejection-sampling-theorem-closure.md](rejection-sampling-theorem-closure.md).
+8. Only after the ideal theorem and rejection-sampling route are stable, start
+   concrete VSS/DKG and contribution backend replacement.
 
 ## PGPM-4. Acceptance Criteria
 <a id="acceptance-criteria"></a>
@@ -174,6 +178,7 @@ Stable anchors and text markers:
 - `non-claims`
 - `manifest-anchors`
 - `fst-t1-idealvss-final-proof.md`
+- `rejection-sampling-theorem-closure.md`
 - `Tier 0`
 - `Tier 1`
 - `Tier 2`

@@ -118,6 +118,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   ideal threshold signing functionality.
 - [Rejection-sampling bounds worksheet](docs/cryptography/rejection-sampling-bounds.md)
   decomposes accepted-distribution loss into visible terms.
+- [Rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md)
+  consolidates the `eps_mask`, `eps_rej`, and `eps_withhold` routes into one
+  accepted-distribution theorem target without claiming those terms are closed.
 - [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
   tracks `eps_mask`, the distance between aggregate threshold masks and
   centralized ML-DSA-65 masks.
@@ -331,16 +334,19 @@ The next work is theorem closure, not more scaffold construction:
   [contribution backend decision record](docs/cryptography/contribution-backend-decision-record.md)
   to keep `F_CONTRIB` idealized until a concrete backend theorem is selected;
 - prove or explicitly bound `eps_mask` for the aggregate threshold mask
-  distribution using the route in
-  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
-  and
-  [mask-distribution-equivalence.md](docs/cryptography/mask-distribution-equivalence.md);
+  distribution using
+  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md),
+  [rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md),
+  and [mask-distribution-equivalence.md](docs/cryptography/mask-distribution-equivalence.md);
 - prove or explicitly bound `eps_rej` by showing threshold aggregate rejection
   matches standard ML-DSA-65 rejection on the same candidate values using the
-  [rejection-sampling closure plan](docs/cryptography/rejection-sampling-closure-plan.md);
+  [rejection-sampling closure plan](docs/cryptography/rejection-sampling-closure-plan.md)
+  and the
+  [rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md);
 - prove or explicitly bound `eps_withhold` for selective aborts, timeout
-  behavior, retries, and observable abort labels using the route in
-  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md)
+  behavior, retries, and observable abort labels using
+  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md),
+  [rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md),
   and [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
 - instantiate the production contribution proof or MPC relation described in
   [contribution-backend-selection.md](docs/cryptography/contribution-backend-selection.md),
