@@ -22,7 +22,7 @@ pub fn modular_inverse(base: i32) -> i32 {
     let q = i64::from(Q);
 
     while exponent > 0 {
-        if exponent % 2 == 1 {
+        if exponent & 1 == 1 {
             result = (result * factor) % q;
         }
         factor = (factor * factor) % q;
