@@ -42,6 +42,8 @@ const FST_L10_CLASSIFIER_THEOREM_CLOSURE: &str =
 const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
 const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
+const EPS_CONTRIB_BACKEND_PROOF_ROUTE: &str =
+    "docs/cryptography/eps-contrib-backend-proof-route.md";
 const CONTRIBUTION_BACKEND_SELECTION: &str = "docs/cryptography/contribution-backend-selection.md";
 const CONTRIBUTION_BACKEND_DECISION_RECORD: &str =
     "docs/cryptography/contribution-backend-decision-record.md";
@@ -49,6 +51,8 @@ const UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE: &str =
     "docs/cryptography/unauthorized-output-classifier-closure.md";
 const UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION: &str =
     "docs/cryptography/unauthorized-output-classifier-elimination.md";
+const EPS_CLASSIFY_ELIMINATION_ROUTE: &str = "docs/cryptography/eps-classify-elimination-route.md";
+const EPS_VERIFY_ABSORPTION_DECISION: &str = "docs/cryptography/eps-verify-absorption-decision.md";
 const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
 const FST_T1_IDEALVSS_THEOREM: &str = "docs/cryptography/fst-t1-idealvss-theorem.md";
 const FST_T1_IDEALVSS_FINAL_PROOF: &str = "docs/cryptography/fst-t1-idealvss-final-proof.md";
@@ -118,6 +122,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         FST_L1_L3_THEOREM_CLOSURE,
         FST_L4_PARTIAL_SHARE_VALIDITY,
         FST_L5_AGGREGATION_CORRECTNESS,
+        EPS_VERIFY_ABSORPTION_DECISION,
         FST_L6_NO_SUBTHRESHOLD_SIGNING,
         FST_L7_ABORT_COMPATIBILITY,
         FST_L4_L7_THEOREM_CLOSURE,
@@ -125,10 +130,12 @@ fn proof_documentation_manifest_tracks_required_docs() {
         FST_L10_CLASSIFIER_THEOREM_CLOSURE,
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
+        EPS_CONTRIB_BACKEND_PROOF_ROUTE,
         CONTRIBUTION_BACKEND_SELECTION,
         CONTRIBUTION_BACKEND_DECISION_RECORD,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
+        EPS_CLASSIFY_ELIMINATION_ROUTE,
         PROOF_CLOSURE_LEDGER,
         FST_T1_IDEALVSS_THEOREM,
         FST_T1_IDEALVSS_FINAL_PROOF,
@@ -730,7 +737,36 @@ fn full_proof_surface_exposes_stable_anchors() {
             "BadActiveSetRebind",
             "eps_verify_mismatch",
             "eps-rej-theorem-closure.md",
+            "eps-verify-absorption-decision.md",
             "implementation tests are evidence only, not proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_VERIFY_ABSORPTION_DECISION,
+        &[
+            "# eps_verify Absorption Decision Route",
+            "eps-verify-absorption-decision-route",
+            "Status: decision roadmap for eps_verify absorption",
+            "Theorem V1-standard-verifier-compatibility",
+            "sigma",
+            "pk",
+            "mu",
+            "challenge bytes",
+            "hint use",
+            "high-bit reconstruction",
+            "aggregate acceptance predicate",
+            "unmodified ML-DSA-65 verification predicate",
+            "eps_verify_encoding",
+            "eps_verify_challenge",
+            "eps_verify_highbits",
+            "eps_verify_hint_use",
+            "eps_verify_message_binding",
+            "eps_verify_reject_absorption",
+            "eps_verify_mismatch",
+            "absorption into `eps_rej`",
+            "no negligible claim",
+            "no zero claim",
+            "not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1014,6 +1050,38 @@ fn full_proof_surface_exposes_stable_anchors() {
             "cbi-acceptance-criteria",
             "cbi-code-crosswalk",
             "cbi-non-claims",
+            "eps-contrib-backend-proof-route.md",
+        ],
+    );
+    assert_contains_all(
+        EPS_CONTRIB_BACKEND_PROOF_ROUTE,
+        &[
+            "# eps_contrib Backend Proof Route",
+            "eps-contrib-backend-proof-route",
+            "Status: backend-proof roadmap for eps_contrib",
+            "Theorem C1-contribution-backend-soundness",
+            "contribution statement",
+            "witness",
+            "context binding",
+            "active set",
+            "relation-validity",
+            "hiding",
+            "extraction",
+            "Simulation Interface",
+            "eps_contrib_relation",
+            "eps_contrib_binding",
+            "eps_contrib_hiding",
+            "eps_contrib_extract",
+            "eps_contrib_sim",
+            "eps_contrib_malleability",
+            "eps_contrib_backend_selection",
+            "proof-system",
+            "MPC or interactive",
+            "F_CONTRIB",
+            "no backend selected",
+            "no contribution soundness proved",
+            "not production-ready",
+            "implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1081,6 +1149,38 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_cls_unmapped = 0",
             "uoce-acceptance-criteria",
             "uoce-non-claims",
+            "eps-classify-elimination-route.md",
+        ],
+    );
+    assert_contains_all(
+        EPS_CLASSIFY_ELIMINATION_ROUTE,
+        &[
+            "# eps_classify Elimination Route",
+            "eps-classify-elimination-route",
+            "classifier-elimination roadmap",
+            "Theorem K1-classifier-totality-disjointness",
+            "unauthorized accepting output",
+            "classifier input tuple",
+            "verifier grammar",
+            "authorized threshold transcript",
+            "base ML-DSA forgery case",
+            "threshold-side violation cases",
+            "unmapped case",
+            "eps_cls_mldsa",
+            "eps_cls_threshold",
+            "eps_cls_vss_dkg",
+            "eps_cls_commit",
+            "eps_cls_contrib",
+            "eps_cls_ro_transcript",
+            "eps_cls_collect",
+            "eps_cls_evid",
+            "eps_cls_unmapped",
+            "eps_cls_unmapped = 0",
+            "Ordered Classifier Table",
+            "classifier totality",
+            "classifier disjointness",
+            "not a completed classifier proof",
+            "Implementation evidence is not",
         ],
     );
     assert_contains_all(
@@ -1129,6 +1229,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-mask-formalization.md",
             "eps-rej-predicate-sublemmas.md",
             "eps-withhold-simulator-obligations.md",
+            "eps-contrib-backend-proof-route.md",
+            "eps-verify-absorption-decision.md",
+            "eps-classify-elimination-route.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -1226,6 +1329,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "fst-l1-l3-theorem-closure.md",
             "fst-l4-l7-theorem-closure.md",
             "fst-l10-classifier-theorem-closure.md",
+            "eps-contrib-backend-proof-route.md",
+            "eps-verify-absorption-decision.md",
+            "eps-classify-elimination-route.md",
             "eps_cls_unmapped = 0",
             "q_out * eps_mldsa(B_mldsa)",
             "eps_vss_ideal",
@@ -1278,6 +1384,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-mask-formalization.md",
             "eps-rej-predicate-sublemmas.md",
             "eps-withhold-simulator-obligations.md",
+            "eps-contrib-backend-proof-route.md",
+            "eps-verify-absorption-decision.md",
+            "eps-classify-elimination-route.md",
             "eps_cls_unmapped = 0",
             "implementation_residual",
             "audit_residual",
@@ -1494,7 +1603,11 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-mask-formalization.md",
             "eps-rej-predicate-sublemmas.md",
             "eps-withhold-simulator-obligations.md",
+            "eps-contrib-backend-proof-route.md",
+            "eps-verify-absorption-decision.md",
+            "eps-classify-elimination-route.md",
             "Contribution backend instantiation route",
+            "`eps_verify` standard-verifier compatibility route",
             "`eps_classify` unauthorized-output classifier route",
             "Rejection-sampling distribution preservation",
         ],

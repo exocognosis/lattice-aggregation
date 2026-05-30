@@ -144,10 +144,19 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   and [contribution backend instantiation](docs/cryptography/contribution-backend-instantiation.md)
   track `eps_contrib`, the future production proof or MPC relation for partial
   contribution validity and hiding.
+- [eps_contrib backend proof route](docs/cryptography/eps-contrib-backend-proof-route.md)
+  expands contribution validity, hiding, extraction, simulation, and backend
+  selection obligations without selecting or proving a production backend.
+- [eps_verify absorption decision](docs/cryptography/eps-verify-absorption-decision.md)
+  states when verifier compatibility can be folded into `eps_rej` versus
+  carried separately as `eps_verify`.
 - [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
   tracks `eps_classify`, the remaining route for mapping every unauthorized
   accepting output to a base ML-DSA forgery or a threshold-side assumption
   violation.
+- [eps_classify elimination route](docs/cryptography/eps-classify-elimination-route.md)
+  expands the ordered classifier table and the `eps_cls_unmapped = 0` target
+  without claiming classifier totality or disjointness is proved.
 
 The current top-level advantage shape is intentionally conservative:
 

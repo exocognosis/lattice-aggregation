@@ -198,6 +198,10 @@ encoding, high-bit reconstruction, and verifier-side malformed input rejection.
 If those byte-level obligations are not met, the route exits through
 `BadVerifyMismatch`, `eps_verify`, or `eps_verify_mismatch`.
 
+The focused decision route for whether this verifier residual is absorbed into
+`eps_rej` or carried separately is
+[eps-verify-absorption-decision.md](eps-verify-absorption-decision.md).
+
 ## FSTL5-7. Implementation Evidence Crosswalk
 <a id="fstl5-implementation-evidence-crosswalk"></a>
 
