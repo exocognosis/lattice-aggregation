@@ -189,6 +189,14 @@ routes through
 files are proof-roadmap artifacts, not completed contribution, verifier, or
 classifier proofs.
 
+Residual Closure Batch C adds decision and narrowing records:
+[eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md),
+[eps-verify-absorption-decision-record.md](eps-verify-absorption-decision-record.md),
+[eps-classify-per-case-reductions.md](eps-classify-per-case-reductions.md), and
+[eps-vss-production-route.md](eps-vss-production-route.md). These records do
+not remove `eps_contrib_ideal`, absorb `eps_verify`, prove
+`eps_cls_unmapped = 0`, or select production VSS/DKG.
+
 ## ERLFF-6. Parameterization Requirements
 <a id="erlff-parameterization-requirements"></a>
 
@@ -249,6 +257,10 @@ Stable anchors and text markers:
 - `eps-contrib-backend-proof-route.md`
 - `eps-verify-absorption-decision.md`
 - `eps-classify-elimination-route.md`
+- `eps-contrib-backend-decision-record.md`
+- `eps-verify-absorption-decision-record.md`
+- `eps-classify-per-case-reductions.md`
+- `eps-vss-production-route.md`
 - `eps_cls_unmapped = 0`
 - `implementation evidence is not cryptographic proof`
 - `not a completed proof`

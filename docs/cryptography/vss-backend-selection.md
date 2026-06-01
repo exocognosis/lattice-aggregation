@@ -9,6 +9,12 @@ This document compares candidate backend families for the production VSS/DKG
 relation described in [production-vss-backend.md](production-vss-backend.md)
 and [vss-dkg-security-plan.md](vss-dkg-security-plan.md).
 
+Batch C narrows the production realization route in
+[eps-vss-production-route.md](eps-vss-production-route.md), which decomposes
+`eps_vss` into backend-selection, binding, hiding, extraction, complaint,
+key-bias, privacy, anti-framing, and public-key derivation obligations without
+selecting a production backend.
+
 No production VSS/DKG backend is selected in this repository yet. The current
 implementation remains the deterministic transcript-hash scaffold in
 `src/crypto/vss.rs`, plus fail-closed production policy gates. This document is

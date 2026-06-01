@@ -145,6 +145,11 @@ requires a complete grammar induction over every verifier acceptance path,
 canonical field parsing, deterministic authorized-release replay, and fixed
 case predicates that cover the full unauthorized acceptance domain.
 
+Batch C expands these rows into per-case reduction obligations in
+[eps-classify-per-case-reductions.md](eps-classify-per-case-reductions.md);
+that roadmap is a prerequisite for proving `eps_cls_unmapped = 0`, not a proof
+of the equality.
+
 ## Acceptance Criteria
 <a id="ecls-acceptance-criteria"></a>
 

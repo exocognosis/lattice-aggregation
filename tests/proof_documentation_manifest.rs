@@ -21,6 +21,7 @@ const EPS_WITHHOLD_SIMULATOR_OBLIGATIONS: &str =
     "docs/cryptography/eps-withhold-simulator-obligations.md";
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
+const EPS_VSS_PRODUCTION_ROUTE: &str = "docs/cryptography/eps-vss-production-route.md";
 const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
 const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
@@ -44,6 +45,8 @@ const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
     "docs/cryptography/contribution-backend-instantiation.md";
 const EPS_CONTRIB_BACKEND_PROOF_ROUTE: &str =
     "docs/cryptography/eps-contrib-backend-proof-route.md";
+const EPS_CONTRIB_BACKEND_DECISION_RECORD: &str =
+    "docs/cryptography/eps-contrib-backend-decision-record.md";
 const CONTRIBUTION_BACKEND_SELECTION: &str = "docs/cryptography/contribution-backend-selection.md";
 const CONTRIBUTION_BACKEND_DECISION_RECORD: &str =
     "docs/cryptography/contribution-backend-decision-record.md";
@@ -52,7 +55,11 @@ const UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE: &str =
 const UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION: &str =
     "docs/cryptography/unauthorized-output-classifier-elimination.md";
 const EPS_CLASSIFY_ELIMINATION_ROUTE: &str = "docs/cryptography/eps-classify-elimination-route.md";
+const EPS_CLASSIFY_PER_CASE_REDUCTIONS: &str =
+    "docs/cryptography/eps-classify-per-case-reductions.md";
 const EPS_VERIFY_ABSORPTION_DECISION: &str = "docs/cryptography/eps-verify-absorption-decision.md";
+const EPS_VERIFY_ABSORPTION_DECISION_RECORD: &str =
+    "docs/cryptography/eps-verify-absorption-decision-record.md";
 const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
 const FST_T1_IDEALVSS_THEOREM: &str = "docs/cryptography/fst-t1-idealvss-theorem.md";
 const FST_T1_IDEALVSS_FINAL_PROOF: &str = "docs/cryptography/fst-t1-idealvss-final-proof.md";
@@ -110,6 +117,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         EPS_WITHHOLD_SIMULATOR_OBLIGATIONS,
         VSS_DKG_PLAN,
         VSS_BACKEND_SELECTION,
+        EPS_VSS_PRODUCTION_ROUTE,
         VSS_IDEALIZATION_SELECTION,
         ACTIVE_ADVERSARY,
         RANDOM_ORACLE_GAME,
@@ -131,11 +139,14 @@ fn proof_documentation_manifest_tracks_required_docs() {
         CONTRIBUTION_SOUNDNESS,
         CONTRIBUTION_BACKEND_INSTANTIATION,
         EPS_CONTRIB_BACKEND_PROOF_ROUTE,
+        EPS_CONTRIB_BACKEND_DECISION_RECORD,
         CONTRIBUTION_BACKEND_SELECTION,
         CONTRIBUTION_BACKEND_DECISION_RECORD,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
         EPS_CLASSIFY_ELIMINATION_ROUTE,
+        EPS_CLASSIFY_PER_CASE_REDUCTIONS,
+        EPS_VERIFY_ABSORPTION_DECISION_RECORD,
         PROOF_CLOSURE_LEDGER,
         FST_T1_IDEALVSS_THEOREM,
         FST_T1_IDEALVSS_FINAL_PROOF,
@@ -439,6 +450,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "backend-selection-checklist",
             "vss-backend-decision-record",
             "Current decision: no backend selected.",
+            "eps-vss-production-route.md",
         ],
     );
     assert_contains_all(
@@ -764,9 +776,35 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_verify_reject_absorption",
             "eps_verify_mismatch",
             "absorption into `eps_rej`",
+            "eps-verify-absorption-decision-record.md",
             "no negligible claim",
             "no zero claim",
             "not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_VERIFY_ABSORPTION_DECISION_RECORD,
+        &[
+            "# eps_verify Absorption Decision Record",
+            "eps-verify-absorption-decision-record",
+            "decision record and roadmap for verifier absorption accounting",
+            "Decision V2-carry-eps-verify-until-byte-proof",
+            "Path A: absorb into `eps_rej`",
+            "Path B: carry separate `eps_verify`",
+            "Theorem V1-standard-verifier-compatibility",
+            "Theorem R1-reject-predicate-equivalence",
+            "byte-level `sigma` equality",
+            "challenge equality",
+            "highbits/hint equality",
+            "message `M` to `mu` binding",
+            "malformed encoding agreement",
+            "no double-counting",
+            "eps_verify_mismatch",
+            "eps_verify_reject_absorption",
+            "eps_rej",
+            "does not prove verifier compatibility",
+            "final absorption into `eps_rej`",
+            "implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1078,9 +1116,37 @@ fn full_proof_surface_exposes_stable_anchors() {
             "proof-system",
             "MPC or interactive",
             "F_CONTRIB",
+            "eps-contrib-backend-decision-record.md",
             "no backend selected",
             "no contribution soundness proved",
             "not production-ready",
+            "implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_CONTRIB_BACKEND_DECISION_RECORD,
+        &[
+            "# eps_contrib Backend Decision Record",
+            "eps-contrib-backend-decision-record",
+            "Status: decision record / roadmap for eps_contrib",
+            "Decision C2-immediate-ideal-contrib-route",
+            "ideal `F_CONTRIB`",
+            "proof system/NIZK",
+            "MPC/interactive proof",
+            "transcript-hash scaffold",
+            "relation coverage",
+            "witness hiding/leakage",
+            "extraction or replacement",
+            "malleability",
+            "implementation maturity",
+            "auditability",
+            "composition with selective abort/classifier",
+            "eps_contrib_ideal",
+            "eps_contrib_backend_selection",
+            "eps_contrib",
+            "no production backend is selected",
+            "no contribution soundness is proved",
+            "no zero/negligible claim",
             "implementation evidence is not cryptographic proof",
         ],
     );
@@ -1109,6 +1175,35 @@ fn full_proof_surface_exposes_stable_anchors() {
             "cbs-production-policy-anchors",
             "ProductionProofRelation",
             "not production eligible",
+        ],
+    );
+    assert_contains_all(
+        EPS_VSS_PRODUCTION_ROUTE,
+        &[
+            "# eps_vss Production Route",
+            "eps-vss-production-route",
+            "Status: production-route roadmap for eps_vss",
+            "Theorem D1-production-vss-dkg-realization",
+            "dealerless DKG or VSS setup",
+            "public commitments",
+            "private share delivery",
+            "complaint resolution",
+            "key-bias resistance",
+            "anti-framing",
+            "deterministic threshold public key derivation",
+            "epoch transition",
+            "eps_vss_binding",
+            "eps_vss_hiding",
+            "eps_vss_extract",
+            "eps_vss_complaint",
+            "eps_vss_key_bias",
+            "eps_vss_privacy",
+            "eps_vss_anti_framing",
+            "eps_vss_pk_derivation",
+            "eps_vss_backend_selection",
+            "no production DKG",
+            "no malicious-secure VSS proof",
+            "implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1177,10 +1272,43 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_cls_unmapped",
             "eps_cls_unmapped = 0",
             "Ordered Classifier Table",
+            "eps-classify-per-case-reductions.md",
             "classifier totality",
             "classifier disjointness",
             "not a completed classifier proof",
             "Implementation evidence is not",
+        ],
+    );
+    assert_contains_all(
+        EPS_CLASSIFY_PER_CASE_REDUCTIONS,
+        &[
+            "# eps_classify Per-Case Reduction Obligations",
+            "eps-classify-per-case-reductions",
+            "Status: Batch C per-case reduction roadmap for eps_classify",
+            "Theorem K2-classifier-case-reductions",
+            "MldsaForgery",
+            "ThresholdAuthorizationBreak",
+            "VssDkgBreak",
+            "CommitmentBreak",
+            "ContributionBreak",
+            "RoTranscriptBreak",
+            "CollectionBreak",
+            "EvidenceBreak",
+            "Unmapped",
+            "eps_cls_mldsa",
+            "eps_cls_threshold",
+            "eps_cls_vss_dkg",
+            "eps_cls_commit",
+            "eps_cls_contrib",
+            "eps_cls_ro_transcript",
+            "eps_cls_collect",
+            "eps_cls_evid",
+            "eps_cls_unmapped",
+            "eps_cls_unmapped = 0",
+            "does not prove any per-case reduction",
+            "does not prove classifier totality",
+            "does not prove classifier disjointness",
+            "Implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1232,6 +1360,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-proof-route.md",
             "eps-verify-absorption-decision.md",
             "eps-classify-elimination-route.md",
+            "eps-contrib-backend-decision-record.md",
+            "eps-verify-absorption-decision-record.md",
+            "eps-classify-per-case-reductions.md",
+            "eps-vss-production-route.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
             "rejection-sampling-closure-plan.md",
@@ -1332,6 +1464,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-proof-route.md",
             "eps-verify-absorption-decision.md",
             "eps-classify-elimination-route.md",
+            "eps-contrib-backend-decision-record.md",
+            "eps-verify-absorption-decision-record.md",
+            "eps-classify-per-case-reductions.md",
+            "eps-vss-production-route.md",
             "eps_cls_unmapped = 0",
             "q_out * eps_mldsa(B_mldsa)",
             "eps_vss_ideal",
@@ -1387,6 +1523,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-proof-route.md",
             "eps-verify-absorption-decision.md",
             "eps-classify-elimination-route.md",
+            "eps-contrib-backend-decision-record.md",
+            "eps-verify-absorption-decision-record.md",
+            "eps-classify-per-case-reductions.md",
+            "eps-vss-production-route.md",
             "eps_cls_unmapped = 0",
             "implementation_residual",
             "audit_residual",
@@ -1606,6 +1746,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-proof-route.md",
             "eps-verify-absorption-decision.md",
             "eps-classify-elimination-route.md",
+            "eps-contrib-backend-decision-record.md",
+            "eps-verify-absorption-decision-record.md",
+            "eps-classify-per-case-reductions.md",
+            "eps-vss-production-route.md",
             "Contribution backend instantiation route",
             "`eps_verify` standard-verifier compatibility route",
             "`eps_classify` unauthorized-output classifier route",

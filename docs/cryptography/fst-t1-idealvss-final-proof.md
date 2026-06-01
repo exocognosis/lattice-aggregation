@@ -95,6 +95,16 @@ The assembled route imports these proof batches:
 - [eps-classify-elimination-route.md](eps-classify-elimination-route.md):
   Batch B route for classifier totality, disjointness, and the
   `eps_cls_unmapped = 0` target.
+- [eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md):
+  Batch C decision to keep immediate theorem work on ideal `F_CONTRIB` while
+  production remains blocked.
+- [eps-verify-absorption-decision-record.md](eps-verify-absorption-decision-record.md):
+  Batch C decision to carry `eps_verify` separately until byte-level verifier
+  and rejection predicate proofs close over the same candidate tuple.
+- [eps-classify-per-case-reductions.md](eps-classify-per-case-reductions.md):
+  Batch C per-case classifier reduction obligations.
+- [eps-vss-production-route.md](eps-vss-production-route.md):
+  Batch C production VSS/DKG realization route for replacing `F_VSS_DKG`.
 - [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md): the theorem target,
   ideal-boundary statement, dependencies, and simulator route.
 - [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md):
@@ -207,6 +217,8 @@ must not be deleted by prose unless every case has been accounted for.
 The Batch B classifier roadmap is
 [eps-classify-elimination-route.md](eps-classify-elimination-route.md). It
 keeps `eps_cls_unmapped = 0` as a target condition, not a proved fact.
+The Batch C per-case route is
+[eps-classify-per-case-reductions.md](eps-classify-per-case-reductions.md).
 
 ## FP-7. Residual Terms That Remain
 <a id="fp-residual-terms-remain"></a>
@@ -218,6 +230,8 @@ The following terms remain visible in the IdealVSS theorem route:
 - `eps_contrib` and the
   [eps_contrib backend proof route](eps-contrib-backend-proof-route.md) until a
   proof, MPC/interactive, or ideal-realization backend is selected and proved.
+  The current Batch C decision record is
+  [eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md).
 - `eps_commit`, `eps_ro_prior`, and `eps_ro_sep` for commitment and
   random-oracle programming.
 - `eps_mask`, `eps_rej`, `eps_withhold`, and `eps_verify` for mask,
@@ -225,6 +239,8 @@ The following terms remain visible in the IdealVSS theorem route:
 - `eps_verify` remains governed by
   [eps-verify-absorption-decision.md](eps-verify-absorption-decision.md) until
   the final theorem chooses absorption into `eps_rej` or separate carry.
+  The current Batch C decision record is
+  [eps-verify-absorption-decision-record.md](eps-verify-absorption-decision-record.md).
 - `eps_abort`, `eps_release`, and `eps_evid` for simulator-visible abort,
   release, and evidence transitions.
 - `eps_collect` and `eps_threshold` for canonical active-set handling and
@@ -324,6 +340,10 @@ Stable anchors and text markers:
 - `eps-contrib-backend-proof-route.md`
 - `eps-verify-absorption-decision.md`
 - `eps-classify-elimination-route.md`
+- `eps-contrib-backend-decision-record.md`
+- `eps-verify-absorption-decision-record.md`
+- `eps-classify-per-case-reductions.md`
+- `eps-vss-production-route.md`
 - `eps_cls_unmapped = 0`
 - `q_out * eps_mldsa(B_mldsa)`
 - `eps_vss_ideal`

@@ -122,6 +122,9 @@ Subterm meanings:
 
 Two accounting paths remain open.
 
+Batch C decision-record details are tracked in
+[eps_verify Absorption Decision Record](eps-verify-absorption-decision-record.md).
+
 Path A: absorb verifier mismatch into `eps_rej`.
 
 This path is available only if the exact predicate-equivalence theorem includes

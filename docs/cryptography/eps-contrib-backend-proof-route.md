@@ -25,6 +25,13 @@ This route is compatible with the immediate ideal `F_CONTRIB` theorem route and
 with a future concrete proof, MPC, or interactive backend. It does not choose
 among those families.
 
+The companion decision record
+[eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md)
+records `Decision C2-immediate-ideal-contrib-route`: continue immediate theorem
+work with ideal `F_CONTRIB` for proof isolation while keeping production
+blocked until a concrete proof, MPC, or interactive backend is selected and
+proved.
+
 ## C1-1. Contribution Statement
 <a id="c1-contribution-statement"></a>
 
