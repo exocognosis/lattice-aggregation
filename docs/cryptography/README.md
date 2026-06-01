@@ -31,7 +31,9 @@ Available notes:
 - [Contribution Backend Decision Record](contribution-backend-decision-record.md)
 - [eps_contrib Backend Proof Route](eps-contrib-backend-proof-route.md)
 - [eps_contrib Backend Decision Record](eps-contrib-backend-decision-record.md)
+- [F_CONTRIB Ideal Functionality](f-contrib-ideal-functionality.md)
 - [eps_vss Production Route](eps-vss-production-route.md)
+- [VSS/DKG Production Obligation Split](vss-dkg-production-obligation-split.md)
 - [Rejection-Sampling Closure Plan](rejection-sampling-closure-plan.md)
 - [Rejection-Sampling Theorem Closure Batch](rejection-sampling-theorem-closure.md)
 - [eps_mask Theorem Closure Batch](eps-mask-theorem-closure.md)
@@ -45,5 +47,7 @@ Available notes:
 - [eps_classify Elimination Route](eps-classify-elimination-route.md)
 - [eps_classify Per-Case Reduction Obligations](eps-classify-per-case-reductions.md)
 - [eps_verify Absorption Decision Record](eps-verify-absorption-decision-record.md)
+- [eps_classify Totality and Disjointness Closure Route](eps-classify-totality-disjointness-closure.md)
+- [eps_verify Rejection Absorption Closure Route](eps-verify-rejection-absorption-closure.md)
 
 When adding cryptographic documentation, keep claims explicit about whether they describe implemented behavior, planned behavior, or open research work.

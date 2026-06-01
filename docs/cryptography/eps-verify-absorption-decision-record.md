@@ -47,6 +47,8 @@ both theorem targets are closed over the same byte-level candidate tuple:
 This recommendation does not claim final absorption. It prevents verifier
 compatibility obligations from being hidden inside `eps_rej` before the byte
 boundary, message boundary, and malformed-input boundary are proved identical.
+The Batch D theorem-closure route for the next absorption target is recorded in
+[`eps-verify-rejection-absorption-closure.md`](eps-verify-rejection-absorption-closure.md).
 
 Decision target:
 

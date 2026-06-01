@@ -150,15 +150,25 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [eps_contrib backend decision record](docs/cryptography/eps-contrib-backend-decision-record.md)
   keeps the immediate theorem route on ideal `F_CONTRIB` while leaving
   production blocked on a concrete proof/MPC/interactive backend.
+- [F_CONTRIB ideal functionality](docs/cryptography/f-contrib-ideal-functionality.md)
+  specifies the ideal contribution oracle, simulator interface, leakage,
+  rejection, extraction/replacement, and transcript binding boundary used by the
+  immediate theorem route.
 - [eps_vss production route](docs/cryptography/eps-vss-production-route.md)
   narrows the malicious-secure VSS/DKG realization obligations without
   selecting or proving a production setup backend.
+- [VSS/DKG production obligation split](docs/cryptography/vss-dkg-production-obligation-split.md)
+  separates ideal `F_VSS_DKG` assumptions from concrete dealerless DKG,
+  complaint, anti-framing, key-bias, and public-key derivation obligations.
 - [eps_verify absorption decision](docs/cryptography/eps-verify-absorption-decision.md)
   states when verifier compatibility can be folded into `eps_rej` versus
   carried separately as `eps_verify`.
 - [eps_verify absorption decision record](docs/cryptography/eps-verify-absorption-decision-record.md)
   recommends carrying `eps_verify` separately until byte-level verifier and
   rejection predicate proofs close over the same candidate tuple.
+- [eps_verify rejection absorption closure](docs/cryptography/eps-verify-rejection-absorption-closure.md)
+  enumerates the byte-level equality obligations required before `eps_verify`
+  can be absorbed into `eps_rej`.
 - [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
   tracks `eps_classify`, the remaining route for mapping every unauthorized
   accepting output to a base ML-DSA forgery or a threshold-side assumption
@@ -168,6 +178,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   without claiming classifier totality or disjointness is proved.
 - [eps_classify per-case reductions](docs/cryptography/eps-classify-per-case-reductions.md)
   enumerate the reduction or residual obligation for each classifier case.
+- [eps_classify totality and disjointness closure](docs/cryptography/eps-classify-totality-disjointness-closure.md)
+  states the theorem route for classifier totality, disjointness, and
+  `eps_cls_unmapped = 0` without claiming those facts are proved.
 
 The current top-level advantage shape is intentionally conservative:
 

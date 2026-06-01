@@ -9,6 +9,10 @@ ML-DSA-65 scaffold. It complements the ideal `F_VSS_DKG` route by spelling out
 what a concrete setup backend must eventually prove before production security,
 slashing, or deployment-readiness claims are available.
 
+Batch D further separates ideal `F_VSS_DKG` assumptions from concrete
+production obligations in
+[VSS/DKG Production Obligation Split](vss-dkg-production-obligation-split.md).
+
 ## D1-0. Scope
 <a id="d1-scope"></a>
 
@@ -181,6 +185,7 @@ production-ready, and implementation evidence is not cryptographic proof.
 Stable strings:
 
 - `# eps_vss Production Route`
+- `vss-dkg-production-obligation-split`
 - `eps-vss-production-route`
 - `Status: production-route roadmap for eps_vss`
 - `D1-0. Scope`

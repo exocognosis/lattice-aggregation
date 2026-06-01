@@ -22,6 +22,8 @@ const EPS_WITHHOLD_SIMULATOR_OBLIGATIONS: &str =
 const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
 const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
 const EPS_VSS_PRODUCTION_ROUTE: &str = "docs/cryptography/eps-vss-production-route.md";
+const VSS_DKG_PRODUCTION_OBLIGATION_SPLIT: &str =
+    "docs/cryptography/vss-dkg-production-obligation-split.md";
 const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
 const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
@@ -47,6 +49,7 @@ const EPS_CONTRIB_BACKEND_PROOF_ROUTE: &str =
     "docs/cryptography/eps-contrib-backend-proof-route.md";
 const EPS_CONTRIB_BACKEND_DECISION_RECORD: &str =
     "docs/cryptography/eps-contrib-backend-decision-record.md";
+const F_CONTRIB_IDEAL_FUNCTIONALITY: &str = "docs/cryptography/f-contrib-ideal-functionality.md";
 const CONTRIBUTION_BACKEND_SELECTION: &str = "docs/cryptography/contribution-backend-selection.md";
 const CONTRIBUTION_BACKEND_DECISION_RECORD: &str =
     "docs/cryptography/contribution-backend-decision-record.md";
@@ -57,9 +60,13 @@ const UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION: &str =
 const EPS_CLASSIFY_ELIMINATION_ROUTE: &str = "docs/cryptography/eps-classify-elimination-route.md";
 const EPS_CLASSIFY_PER_CASE_REDUCTIONS: &str =
     "docs/cryptography/eps-classify-per-case-reductions.md";
+const EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE: &str =
+    "docs/cryptography/eps-classify-totality-disjointness-closure.md";
 const EPS_VERIFY_ABSORPTION_DECISION: &str = "docs/cryptography/eps-verify-absorption-decision.md";
 const EPS_VERIFY_ABSORPTION_DECISION_RECORD: &str =
     "docs/cryptography/eps-verify-absorption-decision-record.md";
+const EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE: &str =
+    "docs/cryptography/eps-verify-rejection-absorption-closure.md";
 const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
 const FST_T1_IDEALVSS_THEOREM: &str = "docs/cryptography/fst-t1-idealvss-theorem.md";
 const FST_T1_IDEALVSS_FINAL_PROOF: &str = "docs/cryptography/fst-t1-idealvss-final-proof.md";
@@ -118,6 +125,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         VSS_DKG_PLAN,
         VSS_BACKEND_SELECTION,
         EPS_VSS_PRODUCTION_ROUTE,
+        VSS_DKG_PRODUCTION_OBLIGATION_SPLIT,
         VSS_IDEALIZATION_SELECTION,
         ACTIVE_ADVERSARY,
         RANDOM_ORACLE_GAME,
@@ -140,13 +148,16 @@ fn proof_documentation_manifest_tracks_required_docs() {
         CONTRIBUTION_BACKEND_INSTANTIATION,
         EPS_CONTRIB_BACKEND_PROOF_ROUTE,
         EPS_CONTRIB_BACKEND_DECISION_RECORD,
+        F_CONTRIB_IDEAL_FUNCTIONALITY,
         CONTRIBUTION_BACKEND_SELECTION,
         CONTRIBUTION_BACKEND_DECISION_RECORD,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
         EPS_CLASSIFY_ELIMINATION_ROUTE,
         EPS_CLASSIFY_PER_CASE_REDUCTIONS,
+        EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
         EPS_VERIFY_ABSORPTION_DECISION_RECORD,
+        EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE,
         PROOF_CLOSURE_LEDGER,
         FST_T1_IDEALVSS_THEOREM,
         FST_T1_IDEALVSS_FINAL_PROOF,
@@ -802,9 +813,39 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_verify_mismatch",
             "eps_verify_reject_absorption",
             "eps_rej",
+            "eps-verify-rejection-absorption-closure.md",
             "does not prove verifier compatibility",
             "final absorption into `eps_rej`",
             "implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE,
+        &[
+            "# eps_verify Rejection Absorption Closure Route",
+            "eps-verify-rejection-absorption-closure",
+            "Status: Batch D theorem-closure route, not a completed proof.",
+            "Theorem V3-verifier-rejection-absorption",
+            "Sigma byte equality",
+            "Challenge equality",
+            "Highbits/hint equality",
+            "Message-to-mu binding",
+            "Public key binding",
+            "Malformed encoding agreement",
+            "Rejection predicate agreement",
+            "No double counting",
+            "eps_verify_byte_eq",
+            "eps_verify_challenge_eq",
+            "eps_verify_hint_eq",
+            "eps_verify_mu_bind",
+            "eps_verify_pk_bind",
+            "eps_verify_malformed",
+            "eps_verify_rej_absorb",
+            "eps_verify",
+            "Carry `eps_verify` separately",
+            "does not prove standard verifier compatibility",
+            "does not absorb `eps_verify` into `eps_rej`",
+            "Implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1144,9 +1185,41 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_contrib_ideal",
             "eps_contrib_backend_selection",
             "eps_contrib",
+            "f-contrib-ideal-functionality.md",
             "no production backend is selected",
             "no contribution soundness is proved",
             "no zero/negligible claim",
+            "implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        F_CONTRIB_IDEAL_FUNCTIONALITY,
+        &[
+            "# F_CONTRIB Ideal Functionality",
+            "f-contrib-ideal-functionality",
+            "Status: Batch D ideal-functionality specification, not a production backend proof.",
+            "F_CONTRIB",
+            "Theorem C3-ideal-contribution-realization-boundary",
+            "theorem-c3-ideal-contribution-realization-boundary",
+            "Parties and Roles",
+            "Inputs",
+            "Outputs",
+            "Leakage Interface",
+            "Rejection Interface",
+            "Extraction and Replacement Interface",
+            "Transcript Binding",
+            "Session and Epoch Binding",
+            "Abort Semantics",
+            "eps_contrib_ideal",
+            "eps_contrib_realize",
+            "eps_contrib_extract",
+            "eps_contrib_leak",
+            "eps_contrib_abort",
+            "eps_contrib_bind",
+            "eps_contrib",
+            "no concrete backend is selected",
+            "no production contribution soundness proof",
+            "no zero or negligible claim",
             "implementation evidence is not cryptographic proof",
         ],
     );
@@ -1183,6 +1256,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "# eps_vss Production Route",
             "eps-vss-production-route",
             "Status: production-route roadmap for eps_vss",
+            "vss-dkg-production-obligation-split.md",
             "Theorem D1-production-vss-dkg-realization",
             "dealerless DKG or VSS setup",
             "public commitments",
@@ -1204,6 +1278,43 @@ fn full_proof_surface_exposes_stable_anchors() {
             "no production DKG",
             "no malicious-secure VSS proof",
             "implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        VSS_DKG_PRODUCTION_OBLIGATION_SPLIT,
+        &[
+            "# VSS/DKG Production Obligation Split",
+            "vss-dkg-production-obligation-split",
+            "Status: Batch D production-obligation split, not a completed DKG proof.",
+            "Theorem D2-production-vss-dkg-obligation-split",
+            "F_VSS_DKG",
+            "eps_vss_ideal",
+            "eps_vss_binding",
+            "eps_vss_hiding",
+            "eps_vss_extract",
+            "eps_vss_complaint",
+            "eps_vss_key_bias",
+            "eps_vss_privacy",
+            "eps_vss_anti_framing",
+            "eps_vss_pk_derivation",
+            "eps_vss_impl",
+            "eps_vss",
+            "Dealerless Setup",
+            "Public Coefficient Commitments",
+            "Private Share Delivery",
+            "Complaint Verification",
+            "Agreement and Extractability",
+            "Key-Bias Resistance",
+            "Privacy and Hiding",
+            "Anti-Framing",
+            "Threshold Public Key Derivation",
+            "Epoch Binding",
+            "Implementation and Audit Obligations",
+            "scaffold/ideal route, not production malicious-secure VSS/DKG",
+            "no production DKG",
+            "no malicious-secure VSS proof",
+            "no zero/negligible claim",
+            "Implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1305,10 +1416,44 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_cls_evid",
             "eps_cls_unmapped",
             "eps_cls_unmapped = 0",
+            "eps-classify-totality-disjointness-closure.md",
             "does not prove any per-case reduction",
             "does not prove classifier totality",
             "does not prove classifier disjointness",
             "Implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
+        &[
+            "# eps_classify Totality and Disjointness Closure Route",
+            "eps-classify-totality-disjointness-closure",
+            "Status: Batch D theorem-closure route, not a completed proof.",
+            "Theorem K3-classifier-totality-disjointness-closure",
+            "Classifier Domain",
+            "Classifier Output Cases",
+            "Totality Obligation",
+            "Disjointness Obligation",
+            "Unmapped-Elimination Obligation",
+            "MldsaForgery",
+            "ThresholdAuthorizationBreak",
+            "VssDkgBreak",
+            "CommitmentBreak",
+            "ContributionBreak",
+            "RoTranscriptBreak",
+            "CollectionBreak",
+            "EvidenceBreak",
+            "Unmapped",
+            "eps_cls_totality",
+            "eps_cls_disjointness",
+            "eps_cls_unmapped",
+            "eps_classify",
+            "eps_cls_unmapped = 0",
+            "theorem target, not proven here",
+            "does not prove classifier totality",
+            "does not prove classifier disjointness",
+            "does not prove unmapped elimination",
+            "not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1363,6 +1508,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-decision-record.md",
             "eps-verify-absorption-decision-record.md",
             "eps-classify-per-case-reductions.md",
+            "f-contrib-ideal-functionality.md",
+            "eps-verify-rejection-absorption-closure.md",
+            "eps-classify-totality-disjointness-closure.md",
+            "vss-dkg-production-obligation-split.md",
             "eps-vss-production-route.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
@@ -1467,7 +1616,15 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-decision-record.md",
             "eps-verify-absorption-decision-record.md",
             "eps-classify-per-case-reductions.md",
+            "f-contrib-ideal-functionality.md",
+            "eps-verify-rejection-absorption-closure.md",
+            "eps-classify-totality-disjointness-closure.md",
+            "vss-dkg-production-obligation-split.md",
             "eps-vss-production-route.md",
+            "f-contrib-ideal-functionality.md",
+            "eps-verify-rejection-absorption-closure.md",
+            "eps-classify-totality-disjointness-closure.md",
+            "vss-dkg-production-obligation-split.md",
             "eps_cls_unmapped = 0",
             "q_out * eps_mldsa(B_mldsa)",
             "eps_vss_ideal",
@@ -1526,6 +1683,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-decision-record.md",
             "eps-verify-absorption-decision-record.md",
             "eps-classify-per-case-reductions.md",
+            "f-contrib-ideal-functionality.md",
+            "eps-verify-rejection-absorption-closure.md",
+            "eps-classify-totality-disjointness-closure.md",
+            "vss-dkg-production-obligation-split.md",
             "eps-vss-production-route.md",
             "eps_cls_unmapped = 0",
             "implementation_residual",
