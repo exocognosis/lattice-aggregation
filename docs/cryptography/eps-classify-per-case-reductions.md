@@ -11,6 +11,9 @@ Each case below records the trigger, reduction target or residual, witness,
 extractor, or simulator output that a proof must produce, and the blocker that
 keeps the case open.
 
+Batch D tightens the totality, disjointness, and unmapped-elimination route in
+[eps-classify-totality-disjointness-closure.md](eps-classify-totality-disjointness-closure.md).
+
 ## Theorem Target
 <a id="epcr-theorem-target"></a>
 

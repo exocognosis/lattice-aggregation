@@ -13,6 +13,12 @@ current proof work: idealized theorem decomposition may continue, but concrete
 production claims remain blocked until a proof, MPC, or interactive backend is
 specified, reviewed, and proved.
 
+The precise Batch D ideal interface is specified in
+[f-contrib-ideal-functionality.md](f-contrib-ideal-functionality.md). That file
+defines `F_CONTRIB`, `Theorem C3-ideal-contribution-realization-boundary`, the
+simulator-facing hooks, leakage, rejection, extraction or replacement,
+binding, abort semantics, and residual terms used by the immediate route.
+
 ## C2-0. Scope
 <a id="c2-scope"></a>
 

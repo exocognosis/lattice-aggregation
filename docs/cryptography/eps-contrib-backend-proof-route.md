@@ -32,6 +32,13 @@ work with ideal `F_CONTRIB` for proof isolation while keeping production
 blocked until a concrete proof, MPC, or interactive backend is selected and
 proved.
 
+The theorem-ready ideal functionality is specified in
+[f-contrib-ideal-functionality.md](f-contrib-ideal-functionality.md). It fixes
+the `F_CONTRIB` interface for `Theorem C3-ideal-contribution-realization-boundary`
+and names the simulator, leakage, rejection, extraction or replacement,
+binding, abort, and residual-accounting obligations that this proof route may
+cite.
+
 ## C1-1. Contribution Statement
 <a id="c1-contribution-statement"></a>
 

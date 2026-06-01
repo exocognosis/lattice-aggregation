@@ -105,6 +105,15 @@ The assembled route imports these proof batches:
   Batch C per-case classifier reduction obligations.
 - [eps-vss-production-route.md](eps-vss-production-route.md):
   Batch C production VSS/DKG realization route for replacing `F_VSS_DKG`.
+- [f-contrib-ideal-functionality.md](f-contrib-ideal-functionality.md):
+  Batch D ideal contribution functionality interface and simulator boundary.
+- [eps-verify-rejection-absorption-closure.md](eps-verify-rejection-absorption-closure.md):
+  Batch D byte-level verifier/rejection absorption theorem interface.
+- [eps-classify-totality-disjointness-closure.md](eps-classify-totality-disjointness-closure.md):
+  Batch D classifier totality, disjointness, and unmapped-elimination route.
+- [vss-dkg-production-obligation-split.md](vss-dkg-production-obligation-split.md):
+  Batch D split between ideal `F_VSS_DKG` assumptions and production DKG
+  obligations.
 - [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md): the theorem target,
   ideal-boundary statement, dependencies, and simulator route.
 - [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md):
@@ -232,6 +241,8 @@ The following terms remain visible in the IdealVSS theorem route:
   proof, MPC/interactive, or ideal-realization backend is selected and proved.
   The current Batch C decision record is
   [eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md).
+  The Batch D ideal functionality interface is
+  [f-contrib-ideal-functionality.md](f-contrib-ideal-functionality.md).
 - `eps_commit`, `eps_ro_prior`, and `eps_ro_sep` for commitment and
   random-oracle programming.
 - `eps_mask`, `eps_rej`, `eps_withhold`, and `eps_verify` for mask,
@@ -241,12 +252,15 @@ The following terms remain visible in the IdealVSS theorem route:
   the final theorem chooses absorption into `eps_rej` or separate carry.
   The current Batch C decision record is
   [eps-verify-absorption-decision-record.md](eps-verify-absorption-decision-record.md).
+  The Batch D closure route is
+  [eps-verify-rejection-absorption-closure.md](eps-verify-rejection-absorption-closure.md).
 - `eps_abort`, `eps_release`, and `eps_evid` for simulator-visible abort,
   release, and evidence transitions.
 - `eps_collect` and `eps_threshold` for canonical active-set handling and
   no-subthreshold authorization.
 - `eps_classify` until classifier totality, disjointness, and all per-case
-  reductions are discharged.
+  reductions are discharged. The Batch D closure route is
+  [eps-classify-totality-disjointness-closure.md](eps-classify-totality-disjointness-closure.md).
 - `implementation_residual` and `audit_residual` until code correctness,
   constant-time behavior, randomness, integration, and external review are
   closed.
@@ -344,6 +358,10 @@ Stable anchors and text markers:
 - `eps-verify-absorption-decision-record.md`
 - `eps-classify-per-case-reductions.md`
 - `eps-vss-production-route.md`
+- `f-contrib-ideal-functionality.md`
+- `eps-verify-rejection-absorption-closure.md`
+- `eps-classify-totality-disjointness-closure.md`
+- `vss-dkg-production-obligation-split.md`
 - `eps_cls_unmapped = 0`
 - `q_out * eps_mldsa(B_mldsa)`
 - `eps_vss_ideal`

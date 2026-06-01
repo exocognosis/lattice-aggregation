@@ -15,6 +15,11 @@ Batch C narrows the production realization route in
 key-bias, privacy, anti-framing, and public-key derivation obligations without
 selecting a production backend.
 
+Batch D records the theorem-ready assumption/obligation split in
+[vss-dkg-production-obligation-split.md](vss-dkg-production-obligation-split.md):
+ideal `F_VSS_DKG` assumptions remain separate from concrete production
+obligations.
+
 No production VSS/DKG backend is selected in this repository yet. The current
 implementation remains the deterministic transcript-hash scaffold in
 `src/crypto/vss.rs`, plus fail-closed production policy gates. This document is

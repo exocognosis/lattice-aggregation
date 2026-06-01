@@ -197,6 +197,15 @@ Residual Closure Batch C adds decision and narrowing records:
 not remove `eps_contrib_ideal`, absorb `eps_verify`, prove
 `eps_cls_unmapped = 0`, or select production VSS/DKG.
 
+Residual Closure Batch D adds theorem-interface records:
+[f-contrib-ideal-functionality.md](f-contrib-ideal-functionality.md),
+[eps-verify-rejection-absorption-closure.md](eps-verify-rejection-absorption-closure.md),
+[eps-classify-totality-disjointness-closure.md](eps-classify-totality-disjointness-closure.md),
+and [vss-dkg-production-obligation-split.md](vss-dkg-production-obligation-split.md).
+These records do not eliminate `eps_contrib_ideal`, absorb `eps_verify`,
+prove `eps_cls_unmapped = 0`, or replace `eps_vss_ideal`; they make the
+interfaces and proof obligations precise enough for the next theorem pass.
+
 ## ERLFF-6. Parameterization Requirements
 <a id="erlff-parameterization-requirements"></a>
 
@@ -260,6 +269,10 @@ Stable anchors and text markers:
 - `eps-contrib-backend-decision-record.md`
 - `eps-verify-absorption-decision-record.md`
 - `eps-classify-per-case-reductions.md`
+- `f-contrib-ideal-functionality.md`
+- `eps-verify-rejection-absorption-closure.md`
+- `eps-classify-totality-disjointness-closure.md`
+- `vss-dkg-production-obligation-split.md`
 - `eps-vss-production-route.md`
 - `eps_cls_unmapped = 0`
 - `implementation evidence is not cryptographic proof`
