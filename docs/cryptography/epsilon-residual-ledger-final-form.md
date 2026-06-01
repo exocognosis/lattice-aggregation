@@ -181,6 +181,22 @@ eps_classify(A,Z)
 The final theorem cannot remove `eps_classify` until classifier totality and
 disjointness are proved and `eps_cls_unmapped = 0`.
 
+Residual Closure Batch B refines the contribution, verifier, and classifier
+routes through
+[eps-contrib-backend-proof-route.md](eps-contrib-backend-proof-route.md),
+[eps-verify-absorption-decision.md](eps-verify-absorption-decision.md), and
+[eps-classify-elimination-route.md](eps-classify-elimination-route.md). These
+files are proof-roadmap artifacts, not completed contribution, verifier, or
+classifier proofs.
+
+Residual Closure Batch C adds decision and narrowing records:
+[eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md),
+[eps-verify-absorption-decision-record.md](eps-verify-absorption-decision-record.md),
+[eps-classify-per-case-reductions.md](eps-classify-per-case-reductions.md), and
+[eps-vss-production-route.md](eps-vss-production-route.md). These records do
+not remove `eps_contrib_ideal`, absorb `eps_verify`, prove
+`eps_cls_unmapped = 0`, or select production VSS/DKG.
+
 ## ERLFF-6. Parameterization Requirements
 <a id="erlff-parameterization-requirements"></a>
 
@@ -238,6 +254,13 @@ Stable anchors and text markers:
 - `eps-mask-formalization.md`
 - `eps-rej-predicate-sublemmas.md`
 - `eps-withhold-simulator-obligations.md`
+- `eps-contrib-backend-proof-route.md`
+- `eps-verify-absorption-decision.md`
+- `eps-classify-elimination-route.md`
+- `eps-contrib-backend-decision-record.md`
+- `eps-verify-absorption-decision-record.md`
+- `eps-classify-per-case-reductions.md`
+- `eps-vss-production-route.md`
 - `eps_cls_unmapped = 0`
 - `implementation evidence is not cryptographic proof`
 - `not a completed proof`

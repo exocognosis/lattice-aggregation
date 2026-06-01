@@ -15,6 +15,11 @@ classifier case with a named residual or reduction and by making
 `eps_cls_unmapped = 0` a theorem target after all production grammar and
 backend choices are fixed.
 
+Residual Closure Batch B refines this route in
+[eps-classify-elimination-route.md](eps-classify-elimination-route.md), which
+names `Theorem K1-classifier-totality-disjointness` as a roadmap target for
+driving `eps_cls_unmapped` to zero without claiming that target is proved.
+
 This document does not prove `eps_cls_unmapped = 0`. It does not prove ML-DSA
 unforgeability, VSS/DKG security, contribution soundness, commitment security,
 random-oracle separation, evidence noninterference, or collection soundness.
