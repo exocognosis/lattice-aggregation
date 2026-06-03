@@ -232,6 +232,30 @@ a production construction must replace those raw terms with a proof-carrying
 commitment protocol and pass the fail-closed
 `require_production_threshold_backends` policy gate.
 
+### Batch G Code-Evidence Anchors
+<a id="hazmat-batch-g-code-evidence-anchors"></a>
+
+Batch G exposes stable Rust names for the hazmat actor's production-shaped
+contribution and VSS complaint bindings:
+
+```text
+production_contribution_statement_canonical_layout_matches_c4_binding_tuple
+hazmat_scaffold_to_production_statement_binds_source_context_and_payload
+PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION
+PRODUCTION_CONTEXT_DOMAIN
+PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID
+EXPERIMENTAL_VSS_COMPLAINT_DOMAIN
+EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID
+PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION
+```
+
+These anchors let reviewers trace the hazmat `ProductionContributionStatement`
+and production-shaped VSS complaint statement material into the proof docs.
+They do not make `TranscriptHashScaffold` a production proof, do not select a
+production backend, and do not prove the raw experimental contribution terms
+safe for production. They also do not prove hiding, knowledge soundness, or
+production MPC security. Implementation evidence is not cryptographic proof.
+
 ### Finalization
 
 Once at least `t` valid secret contributions are available, the actor
@@ -350,9 +374,24 @@ Stable strings:
 - `ProductionContributionStatement`
 - `production_statement_digest`
 - `ContributionProof`
+- `hazmat-batch-g-code-evidence-anchors`
+- `production_contribution_statement_canonical_layout_matches_c4_binding_tuple`
+- `hazmat_scaffold_to_production_statement_binds_source_context_and_payload`
+- `PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION`
+- `PRODUCTION_CONTEXT_DOMAIN`
+- `PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID`
+- `EXPERIMENTAL_VSS_COMPLAINT_DOMAIN`
+- `EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID`
+- `PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION`
 - `TranscriptHashScaffold`
 - `raw experimental contribution terms`
 - `not yet a production MPC transcript`
+- `not a production proof`
+- `hiding`
+- `knowledge soundness`
+- `production MPC security`
+- `implementation evidence is not cryptographic proof`
+- `no production backend selected`
 - `proof-carrying commitment protocol`
 - `require_production_threshold_backends`
 - `hazmat-real-mldsa-manifest-anchors`

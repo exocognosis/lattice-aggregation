@@ -229,6 +229,35 @@ These anchors support the `eps_contrib_bind`, `eps_contrib_extract`, and
 `eps_contrib_leak` accounting routes, but implementation evidence is not
 cryptographic proof.
 
+## C4-10B. Batch G Code-Evidence Anchors
+<a id="c4-batch-g-code-evidence-anchors"></a>
+
+Batch G adds code-evidence anchors for the production-target contribution
+statement layout and actor-derived context labels. These are implementation
+traceability anchors for reviewers; they are not a production proof and do not
+establish the simulator theorem.
+
+| Evidence target | Rust anchor |
+| --- | --- |
+| Canonical C4 binding tuple layout regression | `production_contribution_statement_canonical_layout_matches_c4_binding_tuple` |
+| Hazmat scaffold context and payload binding regression | `hazmat_scaffold_to_production_statement_binds_source_context_and_payload` |
+| Production statement byte length | `PRODUCTION_CONTRIBUTION_STATEMENT_BYTES` |
+| Production statement schema version | `PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION` |
+| Production statement digest domain | `PRODUCTION_CONTRIBUTION_STATEMENT_DOMAIN` |
+| Scaffold contribution proof digest domain | `CONTRIBUTION_PROOF_DOMAIN` |
+| Actor production context root domain | `PRODUCTION_CONTEXT_DOMAIN` |
+| Epoch context label | `PRODUCTION_EPOCH_LABEL` |
+| Validator-set context label | `PRODUCTION_VALIDATOR_SET_LABEL` |
+| Public-key context label | `PRODUCTION_PUBLIC_KEY_LABEL` |
+| Parameter-set context label | `PRODUCTION_PARAMETER_SET_LABEL` |
+| Raw contribution payload binding label | `PRODUCTION_CONTRIBUTION_PAYLOAD_LABEL` |
+| Hazmat ML-DSA-65 parameter-set identifier | `PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID` |
+
+These names show that the current code has stable byte and domain boundaries
+for the future `F_CONTRIB` realization route. Implementation evidence is not
+cryptographic proof, this is not a production proof, and no concrete backend
+selected means `eps_contrib_realize` remains open.
+
 ## C4-11. Hybrid Sequence
 <a id="c4-hybrid-sequence"></a>
 
@@ -328,6 +357,7 @@ This document makes these non-claims:
 - `abort path`
 - `transcript/session/epoch binding`
 - `c4-rust-boundary-crosswalk`
+- `c4-batch-g-code-evidence-anchors`
 - `C4-H0`
 - `C4-H1`
 - `C4-H2`
@@ -345,7 +375,21 @@ This document makes these non-claims:
 - `ProductionContributionStatement`
 - `production_contribution_statement_from_scaffold`
 - `production_contribution_statement_digest_from_scaffold`
+- `production_contribution_statement_canonical_layout_matches_c4_binding_tuple`
+- `hazmat_scaffold_to_production_statement_binds_source_context_and_payload`
+- `PRODUCTION_CONTRIBUTION_STATEMENT_BYTES`
+- `PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION`
+- `PRODUCTION_CONTRIBUTION_STATEMENT_DOMAIN`
+- `CONTRIBUTION_PROOF_DOMAIN`
+- `PRODUCTION_CONTEXT_DOMAIN`
+- `PRODUCTION_EPOCH_LABEL`
+- `PRODUCTION_VALIDATOR_SET_LABEL`
+- `PRODUCTION_PUBLIC_KEY_LABEL`
+- `PRODUCTION_PARAMETER_SET_LABEL`
+- `PRODUCTION_CONTRIBUTION_PAYLOAD_LABEL`
+- `PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID`
 - `ContributionProofSecurityProfile::ProductionProofRelation`
 - `ContributionProofSecurityProfile::ProductionCandidateScaffold`
 - `TranscriptHashContributionProofBackend`
 - `require_production_threshold_backends`
+- `not a production proof`

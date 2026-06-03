@@ -26,11 +26,13 @@ use crate::{
 use crate::crypto::contribution_proof::{
     prove_contribution, verify_contribution_proof, ContributionProof, ContributionStatement,
     ContributionWitness, ProductionContributionStatement,
+    PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION,
 };
 #[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
 use crate::crypto::vss::{
     experimental_vss_statement_digest, ExperimentalVssComplaintEvidence, ExperimentalVssOpening,
     ExperimentalVssProof, ExperimentalVssStatement, ProductionVssRelationStatement,
+    PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION,
 };
 
 #[cfg(feature = "hazmat-real-mldsa")]
@@ -48,6 +50,61 @@ use crate::low_level::mldsa65::{
 };
 #[cfg(feature = "hazmat-real-mldsa")]
 use sha3::{Digest as Sha3Digest, Sha3_256};
+
+/// Root domain separator for production-target context digests derived by the actor.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_CONTEXT_DOMAIN: &[u8] = b"dytallix.threshold.production-context.v1";
+/// Production context label for epoch identifiers.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_EPOCH_LABEL: &[u8] = b"epoch";
+/// Production context label for canonical validator-set digests.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_VALIDATOR_SET_LABEL: &[u8] = b"validator-set";
+/// Production context label for epoch public-key digests.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_PUBLIC_KEY_LABEL: &[u8] = b"public-key";
+/// Production context label for the ML-DSA parameter set digest.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_PARAMETER_SET_LABEL: &[u8] = b"parameter-set";
+/// Production context label for raw scaffold contribution payload binding.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_CONTRIBUTION_PAYLOAD_LABEL: &[u8] = b"contribution-payload";
+/// Parameter-set identifier currently used by the hazmat ML-DSA-65 scaffold.
+#[cfg(feature = "hazmat-real-mldsa")]
+pub const PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID: &[u8] = b"FIPS204-ML-DSA-65/hazmat-real-mldsa";
+
+/// Root domain separator for experimental VSS complaint trace digests.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_COMPLAINT_DOMAIN: &[u8] =
+    b"dytallix.adapter.experimental-vss-complaint.v1";
+/// Experimental VSS complaint label for context material.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_CONTEXT_LABEL: &[u8] = b"context";
+/// Experimental VSS complaint label for dealer commitments.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_DEALER_COMMITMENT_LABEL: &[u8] = b"dealer-commitment";
+/// Experimental VSS complaint label for raw share payloads.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_SHARE_LABEL: &[u8] = b"share";
+/// Experimental VSS complaint label for encrypted-share payloads.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_ENCRYPTED_SHARE_LABEL: &[u8] = b"encrypted-share";
+/// Experimental VSS complaint label for opening frames.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_OPENING_LABEL: &[u8] = b"opening";
+/// Experimental VSS complaint label for adapter error payloads.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_ADAPTER_ERROR_LABEL: &[u8] = b"adapter-error";
+/// Experimental VSS complaint label for backend identifiers.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_BACKEND_LABEL: &[u8] = b"backend";
+/// Experimental VSS complaint label for public-key contribution digests.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_PUBLIC_KEY_CONTRIBUTION_LABEL: &[u8] = b"public-key-contribution";
+/// Experimental VSS backend identifier material used for production-shaped statements.
+#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
+pub const EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID: &[u8] =
+    b"experimental-vss-complaint.production-relation-statement";
 
 /// Events consumed by the threshold actor.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -1407,28 +1464,38 @@ where
         context_material.extend_from_slice(&attempt.to_be_bytes());
         context_material.extend_from_slice(&active.session.dkg_commitment_digest());
 
-        let context_digest = experimental_vss_hash(b"context", &context_material);
+        let context_digest =
+            experimental_vss_hash(EXPERIMENTAL_VSS_CONTEXT_LABEL, &context_material);
         let statement = ExperimentalVssStatement {
             context_digest,
             dealer_index: validator_index,
             receiver_index: validator_index,
             threshold: active.session.threshold(),
             total_nodes: active.session.total_nodes(),
-            dealer_commitment_digest: experimental_vss_hash(b"dealer-commitment", wire_frame),
-            share_digest: experimental_vss_hash(b"share", payload),
+            dealer_commitment_digest: experimental_vss_hash(
+                EXPERIMENTAL_VSS_DEALER_COMMITMENT_LABEL,
+                wire_frame,
+            ),
+            share_digest: experimental_vss_hash(EXPERIMENTAL_VSS_SHARE_LABEL, payload),
         };
         let statement_digest = experimental_vss_statement_digest(&statement).ok()?;
         let opening = ExperimentalVssOpening {
             context_digest,
             dealer_index: validator_index,
             receiver_index: validator_index,
-            encrypted_share_digest: experimental_vss_hash(b"encrypted-share", payload),
-            opening_digest: experimental_vss_hash(b"opening", wire_frame),
+            encrypted_share_digest: experimental_vss_hash(
+                EXPERIMENTAL_VSS_ENCRYPTED_SHARE_LABEL,
+                payload,
+            ),
+            opening_digest: experimental_vss_hash(EXPERIMENTAL_VSS_OPENING_LABEL, wire_frame),
             encrypted_share_len: u32::try_from(payload.len()).ok()?,
         };
         let proof = ExperimentalVssProof {
             statement_digest,
-            proof_digest: experimental_vss_hash(b"adapter-error", format!("{err:?}").as_bytes()),
+            proof_digest: experimental_vss_hash(
+                EXPERIMENTAL_VSS_ADAPTER_ERROR_LABEL,
+                format!("{err:?}").as_bytes(),
+            ),
         };
         let complaint_bytes = ExperimentalVssComplaintEvidence {
             statement,
@@ -1438,26 +1505,32 @@ where
         .to_canonical_bytes()
         .ok()?;
         let production_statement = ProductionVssRelationStatement {
-            protocol_version: 1,
-            epoch_id: experimental_vss_hash(b"epoch", &context_material),
+            protocol_version: PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION,
+            epoch_id: experimental_vss_hash(PRODUCTION_EPOCH_LABEL, &context_material),
             session_id,
             validator_set_digest: production_validator_set_digest(
                 active.session.threshold(),
                 active.session.total_nodes(),
             ),
             backend_id: experimental_vss_hash(
-                b"backend",
-                b"experimental-vss-complaint.production-relation-statement",
+                EXPERIMENTAL_VSS_BACKEND_LABEL,
+                EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID,
             ),
             dealer_index: validator_index,
             receiver_index: validator_index,
             threshold: active.session.threshold(),
             total_nodes: active.session.total_nodes(),
-            dealer_commitment_digest: experimental_vss_hash(b"dealer-commitment", wire_frame),
-            encrypted_share_digest: experimental_vss_hash(b"encrypted-share", payload),
-            opening_digest: experimental_vss_hash(b"opening", wire_frame),
+            dealer_commitment_digest: experimental_vss_hash(
+                EXPERIMENTAL_VSS_DEALER_COMMITMENT_LABEL,
+                wire_frame,
+            ),
+            encrypted_share_digest: experimental_vss_hash(
+                EXPERIMENTAL_VSS_ENCRYPTED_SHARE_LABEL,
+                payload,
+            ),
+            opening_digest: experimental_vss_hash(EXPERIMENTAL_VSS_OPENING_LABEL, wire_frame),
             public_key_contribution_digest: experimental_vss_hash(
-                b"public-key-contribution",
+                EXPERIMENTAL_VSS_PUBLIC_KEY_CONTRIBUTION_LABEL,
                 &active.session.dkg_commitment_digest(),
             ),
         };
@@ -1647,7 +1720,7 @@ pub fn production_contribution_statement_from_scaffold(
     payload: &[u8],
 ) -> Result<ProductionContributionStatement, ThresholdError> {
     Ok(ProductionContributionStatement {
-        protocol_version: 1,
+        protocol_version: PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION,
         epoch_id: production_epoch_id(
             statement.session_id,
             statement.block_height,
@@ -1660,17 +1733,23 @@ pub fn production_contribution_statement_from_scaffold(
         threshold,
         total_nodes,
         validator_set_digest: production_validator_set_digest(threshold, total_nodes),
-        public_key_digest: production_hash(b"public-key", &statement.dkg_commitment_digest),
+        public_key_digest: production_hash(
+            PRODUCTION_PUBLIC_KEY_LABEL,
+            &statement.dkg_commitment_digest,
+        ),
         parameter_set_digest: production_hash(
-            b"parameter-set",
-            b"FIPS204-ML-DSA-65/hazmat-real-mldsa",
+            PRODUCTION_PARAMETER_SET_LABEL,
+            PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID,
         ),
         mu: *mu,
         challenge: statement.challenge,
         dkg_commitment_digest: statement.dkg_commitment_digest,
         masking_commitment_digest: statement.masking_commitment_digest,
         secret_commitment_digest: statement.secret_commitment_digest,
-        contribution_commitment_digest: production_hash(b"contribution-payload", payload),
+        contribution_commitment_digest: production_hash(
+            PRODUCTION_CONTRIBUTION_PAYLOAD_LABEL,
+            payload,
+        ),
     })
 }
 
@@ -1697,7 +1776,7 @@ fn production_epoch_id(
     material.extend_from_slice(&session_id);
     material.extend_from_slice(&block_height.to_be_bytes());
     material.extend_from_slice(&dkg_commitment_digest);
-    production_hash(b"epoch", &material)
+    production_hash(PRODUCTION_EPOCH_LABEL, &material)
 }
 
 #[cfg(feature = "hazmat-real-mldsa")]
@@ -1708,13 +1787,13 @@ fn production_validator_set_digest(threshold: u16, total_nodes: u16) -> [u8; 32]
     for validator in 1..=total_nodes {
         material.extend_from_slice(&validator.to_be_bytes());
     }
-    production_hash(b"validator-set", &material)
+    production_hash(PRODUCTION_VALIDATOR_SET_LABEL, &material)
 }
 
 #[cfg(feature = "hazmat-real-mldsa")]
 fn production_hash(domain: &[u8], material: &[u8]) -> [u8; 32] {
     let mut hasher = Sha3_256::new();
-    Sha3Digest::update(&mut hasher, b"dytallix.threshold.production-context.v1");
+    Sha3Digest::update(&mut hasher, PRODUCTION_CONTEXT_DOMAIN);
     Sha3Digest::update(&mut hasher, domain);
     Sha3Digest::update(&mut hasher, material);
     hasher.finalize().into()
@@ -1723,10 +1802,7 @@ fn production_hash(domain: &[u8], material: &[u8]) -> [u8; 32] {
 #[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
 fn experimental_vss_hash(domain: &[u8], payload: &[u8]) -> [u8; 32] {
     let mut hasher = Sha3_256::new();
-    Sha3Digest::update(
-        &mut hasher,
-        b"dytallix.adapter.experimental-vss-complaint.v1",
-    );
+    Sha3Digest::update(&mut hasher, EXPERIMENTAL_VSS_COMPLAINT_DOMAIN);
     Sha3Digest::update(&mut hasher, (domain.len() as u64).to_be_bytes());
     Sha3Digest::update(&mut hasher, domain);
     Sha3Digest::update(&mut hasher, (payload.len() as u64).to_be_bytes());
