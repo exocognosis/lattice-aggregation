@@ -186,8 +186,10 @@ Closure requirements:
   `pack_signature`, and `unpack_signature` are canonical for accepted outputs.
 - Prove the active set used in commitments, challenge derivation,
   contribution validation, reconstruction, and final aggregation is identical.
-- Decide whether `eps_verify_mismatch` is zero by theorem or remains visible
-  as `eps_verify`.
+- Partition `eps_verify_mismatch` through
+  `Theorem V4-eps-verify-to-eps-rej-absorption`: only the
+  `eps_verify_rej_absorb` branch may move into `eps_rej`; every remaining
+  verifier-only branch stays visible as `eps_verify_survive`.
 
 Current status: open proof obligation. The repository has predicate maps and
 hazmat tests, but not a byte-level theorem that `Reject_T = Reject_0`.
@@ -262,6 +264,8 @@ Delta_accept(A,Z)
   + eps_active_set_mismatch
   + eps_signature_encoding
   + eps_verify_mismatch
+  + eps_verify_rej_absorb
+  + eps_verify_survive
   + eps_withhold_commit
   + eps_withhold_challenge
   + eps_abort_labels
@@ -275,6 +279,8 @@ Delta_accept(A,Z)
 This expanded expression is a reviewer checklist, not a final theorem claim.
 Terms can be removed only when the corresponding theorem proves exact equality
 or a negligible/concrete bound under fixed production assumptions.
+This expression does not prove eps_verify_survive = 0; it records the V4
+reviewer checklist split so verifier disagreement is not silently absorbed.
 
 ## RSTC-7. Acceptance Criteria
 <a id="rstc-acceptance-criteria"></a>
@@ -302,6 +308,7 @@ This document does not claim:
 - accepted threshold signatures are distributed as centralized ML-DSA-65
   signatures;
 - `eps_verify` has been absorbed into `eps_rej`;
+- `eps_verify_survive = 0` is proved;
 - the current threshold mask protocol is production selected;
 - the current network timeout and retry model is production selected;
 - the repository is production-ready or externally audited.
@@ -328,6 +335,11 @@ Stable anchors and text markers:
 - `Theorem RSTC-Delta-accept`
 - `Theorem M-close-mask-distribution`
 - `Theorem R-close-rejection-predicate`
+- `Theorem V4-eps-verify-to-eps-rej-absorption`
+- `eps_verify_mismatch`
+- `eps_verify_rej_absorb`
+- `eps_verify_survive`
+- `does not prove eps_verify_survive = 0`
 - `Theorem W-close-static-active`
 - `eps_mask`
 - `eps_rej`

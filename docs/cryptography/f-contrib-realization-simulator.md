@@ -208,6 +208,27 @@ active-set rebinding, challenge rebinding, backend rebinding, relation
 rebinding, transcript forking, and non-canonical statement aliases are charged
 to `eps_contrib_bind`.
 
+## C4-10A. Rust Boundary Crosswalk
+<a id="c4-rust-boundary-crosswalk"></a>
+
+The current Rust boundary gives proof authors stable names for the future
+backend replacement route. These names are traceability anchors only; they do
+not prove the concrete backend realizes `F_CONTRIB`.
+
+| Proof object | Rust boundary |
+| --- | --- |
+| Contribution statement grammar | `ProductionContributionStatement` |
+| Scaffold-to-production statement construction | `production_contribution_statement_from_scaffold` |
+| Statement digest binding | `production_contribution_statement_digest_from_scaffold` |
+| Required production profile | `ContributionProofSecurityProfile::ProductionProofRelation` |
+| Blocked candidate profile | `ContributionProofSecurityProfile::ProductionCandidateScaffold` |
+| Current scaffold backend | `TranscriptHashContributionProofBackend` |
+| Combined fail-closed gate | `require_production_threshold_backends` |
+
+These anchors support the `eps_contrib_bind`, `eps_contrib_extract`, and
+`eps_contrib_leak` accounting routes, but implementation evidence is not
+cryptographic proof.
+
 ## C4-11. Hybrid Sequence
 <a id="c4-hybrid-sequence"></a>
 
@@ -306,6 +327,7 @@ This document makes these non-claims:
 - `rejection path`
 - `abort path`
 - `transcript/session/epoch binding`
+- `c4-rust-boundary-crosswalk`
 - `C4-H0`
 - `C4-H1`
 - `C4-H2`
@@ -320,3 +342,10 @@ This document makes these non-claims:
 - `eps_contrib_bind`
 - `eps_contrib_sim`
 - `eps_contrib`
+- `ProductionContributionStatement`
+- `production_contribution_statement_from_scaffold`
+- `production_contribution_statement_digest_from_scaffold`
+- `ContributionProofSecurityProfile::ProductionProofRelation`
+- `ContributionProofSecurityProfile::ProductionCandidateScaffold`
+- `TranscriptHashContributionProofBackend`
+- `require_production_threshold_backends`

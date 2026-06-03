@@ -215,6 +215,13 @@ These drafts do not prove simulator indistinguishability, absorb
 `eps_verify`, prove `eps_cls_unmapped = 0`, or select a production VSS/DKG
 backend; they assign the next proof skeletons to stable residual routes.
 
+Residual Closure Batch F adds consistency and boundary-traceability locks. It
+does not remove residuals: `ThresholdAuthorizationBreak` is the canonical
+classifier authorization case name, `eps_verify_rej_absorb` and
+`eps_verify_survive` remain visible in the V4 verifier partition, and
+[hazmat-real-mldsa-protocol.md](hazmat-real-mldsa-protocol.md) records the
+proof-bound scaffold frame and fail-closed production policy names.
+
 ## ERLFF-6. Parameterization Requirements
 <a id="erlff-parameterization-requirements"></a>
 
@@ -286,6 +293,10 @@ Stable anchors and text markers:
 - `eps-verify-to-rej-absorption-theorem.md`
 - `eps-classify-unmapped-zero-theorem.md`
 - `vss-dkg-backend-dependency-graph.md`
+- `hazmat-real-mldsa-protocol.md`
+- `ThresholdAuthorizationBreak`
+- `eps_verify_rej_absorb`
+- `eps_verify_survive`
 - `eps-vss-production-route.md`
 - `eps_cls_unmapped = 0`
 - `implementation evidence is not cryptographic proof`

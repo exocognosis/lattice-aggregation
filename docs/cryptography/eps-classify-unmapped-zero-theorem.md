@@ -124,6 +124,22 @@ The theorem does not prove these per-case reductions. It assumes their
 predicates are complete enough that any accepted unauthorized output matching
 their semantic failure modes is consumed before `Unmapped`.
 
+## Premise Discharge Matrix
+<a id="ek4-premise-discharge-matrix"></a>
+
+`Theorem K4-eps-cls-unmapped-zero` may be used only after the following
+premises are discharged. Each row remains open in this draft.
+
+| Premise | Residual guarded | Required discharge |
+| --- | --- | --- |
+| Classifier totality | `eps_cls_totality` | Prove every accepted unauthorized production output is in the classifier coverage domain or is rejected before classification. |
+| First-match disjointness | `eps_cls_disjointness` | Prove deterministic ownership under the ordered case grammar and no double counting between classifier residuals. |
+| Per-case reductions | `eps_cls_mldsa`, `eps_cls_threshold`, `eps_cls_vss_dkg`, `eps_cls_commit`, `eps_cls_contrib`, `eps_cls_ro_transcript`, `eps_cls_collect`, `eps_cls_evid` | Provide the event, runtime, query, and probability loss for each non-`Unmapped` case. |
+| Unmapped contradiction | `eps_cls_unmapped` | Prove every covered accepted unauthorized output that reaches `Unmapped` contradicts at least one earlier predicate or the production verifier grammar. |
+
+Until all rows are complete, `eps_cls_unmapped` remains unproved here and
+`eps_classify` remains visible in downstream theorem statements.
+
 ## Unmapped Contradiction Strategy
 <a id="ek4-unmapped-contradiction-strategy"></a>
 
@@ -215,6 +231,7 @@ ek4-classifier-coverage-grammar
 ek4-totality-premises
 ek4-disjointness-premises
 ek4-per-case-reduction-premises
+ek4-premise-discharge-matrix
 ek4-unmapped-contradiction-strategy
 ek4-proof-skeleton
 ek4-non-claims

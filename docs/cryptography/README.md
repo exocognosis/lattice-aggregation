@@ -36,6 +36,7 @@ Available notes:
 - [eps_vss Production Route](eps-vss-production-route.md)
 - [VSS/DKG Production Obligation Split](vss-dkg-production-obligation-split.md)
 - [VSS/DKG Backend Dependency Graph](vss-dkg-backend-dependency-graph.md)
+- [Hazmat Real ML-DSA-65 Threshold Transcript](hazmat-real-mldsa-protocol.md)
 - [Rejection-Sampling Closure Plan](rejection-sampling-closure-plan.md)
 - [Rejection-Sampling Theorem Closure Batch](rejection-sampling-theorem-closure.md)
 - [eps_mask Theorem Closure Batch](eps-mask-theorem-closure.md)

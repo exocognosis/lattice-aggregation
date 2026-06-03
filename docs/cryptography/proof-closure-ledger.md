@@ -159,6 +159,14 @@ These drafts define simulator hybrids, verifier absorption hybrids, the
 unmapped-zero contradiction route, and the VSS/DKG backend blocker graph
 without proving the corresponding theorems.
 
+Residual Closure Batch F tightens vocabulary and Rust-boundary traceability
+without closing residuals: classifier documents now use the canonical
+`ThresholdAuthorizationBreak` case name and expose reduction-loss requirements;
+the verifier/rejection route carries the V4 partition
+`eps_verify_rej_absorb + eps_verify_survive`; and the hazmat, contribution, and
+VSS/DKG documents pin the proof-bound Rust statement and policy-gate names used
+by the current scaffold.
+
 ## Closure Sequence
 
 The conservative proof-closure order is:
@@ -284,6 +292,10 @@ stable contract for this file:
 - `eps-verify-to-rej-absorption-theorem.md`
 - `eps-classify-unmapped-zero-theorem.md`
 - `vss-dkg-backend-dependency-graph.md`
+- `hazmat-real-mldsa-protocol.md`
+- `ThresholdAuthorizationBreak`
+- `eps_verify_rej_absorb`
+- `eps_verify_survive`
 - `eps-vss-production-route.md`
 - `ledger-non-claims`
 

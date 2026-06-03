@@ -95,6 +95,7 @@ const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
 const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
 const PROOF_BIBLIOGRAPHY: &str = "docs/cryptography/proof-bibliography.md";
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
+const HAZMAT_REAL_MLDSA_PROTOCOL: &str = "docs/cryptography/hazmat-real-mldsa-protocol.md";
 
 fn read_doc(path: &str) -> String {
     fs::read_to_string(path).unwrap_or_else(|err| panic!("failed to read {path}: {err}"))
@@ -107,6 +108,44 @@ fn assert_contains_all(path: &str, required: &[&str]) {
             doc.contains(needle),
             "{path} is missing required text anchor: {needle}"
         );
+    }
+}
+
+fn assert_not_contains(path: &str, forbidden: &str) {
+    let doc = read_doc(path);
+    assert!(
+        !doc.contains(forbidden),
+        "{path} contains forbidden stale text anchor: {forbidden}"
+    );
+}
+
+#[test]
+fn classifier_case_names_are_canonical() {
+    for path in [
+        FST_L10_CLASSIFIER_CLOSURE,
+        FST_L10_CLASSIFIER_THEOREM_CLOSURE,
+        UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
+        UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
+        EPS_CLASSIFY_ELIMINATION_ROUTE,
+        EPS_CLASSIFY_PER_CASE_REDUCTIONS,
+        EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
+        EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM,
+    ] {
+        assert_contains_all(
+            path,
+            &[
+                "MldsaForgery",
+                "ThresholdAuthorizationBreak",
+                "VssDkgBreak",
+                "CommitmentBreak",
+                "ContributionBreak",
+                "RoTranscriptBreak",
+                "CollectionBreak",
+                "EvidenceBreak",
+                "Unmapped",
+            ],
+        );
+        assert_not_contains(path, "ThresholdShareBreak");
     }
 }
 
@@ -185,6 +224,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         SIMULATOR_HYBRID_REDUCTIONS,
         PROOF_BIBLIOGRAPHY,
         PHASE_1_NOISE_MODEL,
+        HAZMAT_REAL_MLDSA_PROTOCOL,
     ] {
         assert!(
             Path::new(path).is_file(),
@@ -300,6 +340,15 @@ fn full_proof_surface_exposes_stable_anchors() {
             "rpe-predicate-map",
             "rpe-bad-events",
             "rpe-code-fips-crosswalk",
+            "rpe-verifier-mismatch-bridge",
+            "B_verify_mismatch",
+            "eps_verify_mismatch",
+            "eps_verify_survive",
+            "eps_verify_rej_absorb",
+            "Reject_pred(C)",
+            "Accept_thr(C)",
+            "Verify_std(C)",
+            "eps-verify-to-rej-absorption-theorem.md",
             "rpe-non-claims",
             "eps-rej-theorem-closure.md",
         ],
@@ -853,7 +902,11 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_verify_pk_bind",
             "eps_verify_malformed",
             "eps_verify_rej_absorb",
+            "eps_verify_survive",
             "eps_verify",
+            "Theorem V4-eps-verify-to-eps-rej-absorption",
+            "V4-H5",
+            "Reject_pred(C) = 1",
             "eps-verify-to-rej-absorption-theorem.md",
             "Carry `eps_verify` separately",
             "does not prove standard verifier compatibility",
@@ -1013,6 +1066,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_contrib_ideal",
             "eps_rej",
             "eps_verify",
+            "eps_verify_rej_absorb",
+            "eps_verify_survive",
+            "BadVerifyMismatch",
             "eps_threshold",
             "eps_withhold",
             "eps_abort",
@@ -1053,7 +1109,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Out*",
             "AuthorizedReplay",
             "MldsaForgery",
-            "ThresholdShareBreak",
+            "ThresholdAuthorizationBreak",
             "VssDkgBreak",
             "CommitmentBreak",
             "ContributionBreak",
@@ -1090,13 +1146,15 @@ fn full_proof_surface_exposes_stable_anchors() {
             "L10C-3. Totality Target",
             "L10C-4. Disjointness Target",
             "L10C-5. Per-Case Reduction Map",
+            "L10C-5A. Case Name Alignment",
             "L10C-6. Acceptance Criteria",
             "L10C-7. Non-Claims",
             "L10C-8. Manifest Anchors",
             "FST-L10",
             "AuthorizedReplay",
             "MldsaForgery",
-            "ThresholdShareBreak",
+            "ThresholdAuthorizationBreak",
+            "l10c-case-name-alignment",
             "VssDkgBreak",
             "CommitmentBreak",
             "ContributionBreak",
@@ -1292,6 +1350,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Ideal Replacement Path",
             "Rejection Path and Abort Path",
             "Transcript, Session, and Epoch Binding",
+            "c4-rust-boundary-crosswalk",
             "C4-H0",
             "C4-H1",
             "C4-H2",
@@ -1306,6 +1365,13 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_contrib_bind",
             "eps_contrib_sim",
             "eps_contrib",
+            "ProductionContributionStatement",
+            "production_contribution_statement_from_scaffold",
+            "production_contribution_statement_digest_from_scaffold",
+            "ContributionProofSecurityProfile::ProductionProofRelation",
+            "ContributionProofSecurityProfile::ProductionCandidateScaffold",
+            "TranscriptHashContributionProofBackend",
+            "require_production_threshold_backends",
             "no concrete backend selected",
             "no simulator indistinguishability proof",
             "no production contribution soundness proof",
@@ -1434,6 +1500,15 @@ fn full_proof_surface_exposes_stable_anchors() {
             "epoch binding",
             "implementation/audit",
             "proof composition into FST-T1",
+            "d3-rust-boundary-anchors",
+            "ProductionVssRelationStatement",
+            "PRODUCTION_VSS_RELATION_STATEMENT_BYTES",
+            "VssCommitmentSecurityProfile::DeterministicTranscriptScaffold",
+            "VssCommitmentSecurityProfile::ProductionCandidateScaffold",
+            "VssCommitmentSecurityProfile::ProductionBindingHiding",
+            "ExperimentalVssCommitmentBackend",
+            "require_production_vss_backend",
+            "require_production_threshold_backends",
             "eps_vss_backend_selection",
             "eps_vss_binding",
             "eps_vss_hiding",
@@ -1553,6 +1628,11 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_cls_unmapped",
             "eps_cls_unmapped = 0",
             "eps-classify-totality-disjointness-closure.md",
+            "epcr-reduction-loss-requirements",
+            "event",
+            "runtime",
+            "query",
+            "probability loss",
             "does not prove any per-case reduction",
             "does not prove classifier totality",
             "does not prove classifier disjointness",
@@ -1606,6 +1686,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Totality Premises",
             "Disjointness Premises",
             "Per-Case Reduction Premises",
+            "Premise Discharge Matrix",
             "Unmapped Contradiction Strategy",
             "Proof Skeleton",
             "MldsaForgery",
@@ -1629,6 +1710,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_cls_evid",
             "eps_cls_unmapped",
             "eps_classify",
+            "ek4-premise-discharge-matrix",
             "eps_cls_unmapped = 0",
             "remains unproved here",
             "does not prove classifier totality",
@@ -1662,6 +1744,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_classify",
             "eps_cls_unmapped = 0",
             "eps_verify",
+            "ThresholdAuthorizationBreak",
+            "eps_verify_rej_absorb",
+            "eps_verify_survive",
+            "hazmat-real-mldsa-protocol.md",
             "implementation_residual",
             "audit_residual",
             "research scaffold",
@@ -1698,6 +1784,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-verify-to-rej-absorption-theorem.md",
             "eps-classify-unmapped-zero-theorem.md",
             "vss-dkg-backend-dependency-graph.md",
+            "hazmat-real-mldsa-protocol.md",
+            "ThresholdAuthorizationBreak",
+            "eps_verify_rej_absorb",
+            "eps_verify_survive",
             "eps-vss-production-route.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
@@ -1902,6 +1992,13 @@ fn full_proof_surface_exposes_stable_anchors() {
             "fst-l1-l3-theorem-closure.md",
             "fst-l4-l7-theorem-closure.md",
             "fst-l10-classifier-theorem-closure.md",
+            "eps-classify-elimination-route.md",
+            "eps-classify-per-case-reductions.md",
+            "eps-classify-totality-disjointness-closure.md",
+            "eps-classify-unmapped-zero-theorem.md",
+            "Theorem K1-classifier-totality-disjointness",
+            "Theorem K2-classifier-case-reductions",
+            "Theorem K4-eps-cls-unmapped-zero",
             "production-realization-blockers",
             "audit-blockers",
             "acceptance-criteria",
@@ -1927,6 +2024,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_withhold",
             "eps_classify",
             "eps_cls_unmapped = 0",
+            "ThresholdAuthorizationBreak",
             "implementation_residual",
             "audit_residual",
             "implementation evidence is not cryptographic proof",
@@ -2034,6 +2132,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Theorem RSTC-Delta-accept",
             "Theorem M-close-mask-distribution",
             "Theorem R-close-rejection-predicate",
+            "Theorem V4-eps-verify-to-eps-rej-absorption",
             "Theorem W-close-static-active",
             "eps_mask",
             "eps_rej",
@@ -2041,6 +2140,9 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_commit",
             "eps_ro",
             "eps_verify",
+            "eps_verify_mismatch",
+            "eps_verify_rej_absorb",
+            "eps_verify_survive",
             "eps_mask_support",
             "eps_bound_encoding",
             "eps_withhold_commit",
@@ -2054,6 +2156,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-rej-predicate-sublemmas.md",
             "eps-withhold-simulator-obligations.md",
             "implementation evidence is not cryptographic proof",
+            "does not prove eps_verify_survive = 0",
             "not a completed accepted-distribution proof",
             "not production-ready",
         ],
@@ -2181,6 +2284,23 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
 
 #[test]
 fn proof_model_states_current_security_boundary() {
+    assert_contains_all(
+        HAZMAT_REAL_MLDSA_PROTOCOL,
+        &[
+            "# Hazmat Real ML-DSA-65 Threshold Transcript",
+            "hazmat-proof-bound-secret-contribution-boundary",
+            "HazmatMldsa65ProofBoundSecretContribution",
+            "ProductionContributionStatement",
+            "production_statement_digest",
+            "ContributionProof",
+            "TranscriptHashScaffold",
+            "raw experimental contribution terms",
+            "not yet a production MPC transcript",
+            "proof-carrying commitment protocol",
+            "require_production_threshold_backends",
+            "hazmat-real-mldsa-manifest-anchors",
+        ],
+    );
     assert_contains_all(
         PHASE_1_NOISE_MODEL,
         &[

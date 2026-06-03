@@ -67,6 +67,24 @@ runtime, query, and probability loss. The final addend is not replaced by a
 reduction; `eps_cls_unmapped` is removed only by a totality and disjointness
 proof that makes the `Unmapped` branch unreachable.
 
+## Reduction-Loss Requirements
+<a id="epcr-reduction-loss-requirements"></a>
+
+Every future non-`Unmapped` reduction must state the loss data below before the
+corresponding classifier summand can be removed or related to a base theorem.
+This table is a checklist for proof authors; it does not prove any per-case
+reduction.
+
+| Requirement | Meaning |
+| --- | --- |
+| `event` | The exact accepted unauthorized event owned by the classifier case, including the production verifier path and authorized-release filter state. |
+| `runtime` | The runtime of the constructed reducer, extractor, simulator, or distinguisher as a function of adversary runtime, validator count, threshold, sessions, attempts, and oracle queries. |
+| `query` | The number and type of signing, random-oracle, DKG/setup, contribution, evidence, and verifier queries made by the reduction. |
+| `probability loss` | The displayed success-probability loss or residual term introduced by guessing, rewinding, extraction failure, abort conditioning, or oracle programming. |
+
+If any row is omitted for a case, that case remains an open residual and must
+not be treated as closed in the final `eps_classify` accounting.
+
 ## Per-Case Obligations
 <a id="epcr-per-case-obligations"></a>
 
@@ -295,6 +313,11 @@ Stable strings for downstream references:
 - `epcr-theorem-target`
 - `Theorem K2-classifier-case-reductions`
 - `epcr-residual-accounting`
+- `epcr-reduction-loss-requirements`
+- `event`
+- `runtime`
+- `query`
+- `probability loss`
 - `eps_cls_mldsa`
 - `eps_cls_threshold`
 - `eps_cls_vss_dkg`

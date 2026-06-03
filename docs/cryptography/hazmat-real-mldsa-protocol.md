@@ -206,6 +206,32 @@ decode_mldsa65_secret_contribution
 submit_mldsa65_secret_contribution
 ```
 
+### Proof-Bound Secret Contribution Boundary
+<a id="hazmat-proof-bound-secret-contribution-boundary"></a>
+
+The actor and wire boundary also support
+`HazmatMldsa65ProofBoundSecretContribution`, which carries the same raw
+experimental contribution terms together with a `ProductionContributionStatement`,
+`production_statement_digest`, and `ContributionProof`. In the current hazmat
+backend, the proof object is a `TranscriptHashScaffold` review boundary, not a
+production proof of contribution validity or hiding.
+
+The proof-bound frame is intended to pin the future replacement surface:
+
+```text
+HazmatMldsa65ProofBoundSecretContribution
+  -> ProductionContributionStatement
+  -> production_statement_digest
+  -> ContributionProof
+  -> require_production_threshold_backends
+```
+
+Passing this boundary does not make the raw experimental contribution terms
+safe for production. The protocol is still not yet a production MPC transcript;
+a production construction must replace those raw terms with a proof-carrying
+commitment protocol and pass the fail-closed
+`require_production_threshold_backends` policy gate.
+
 ### Finalization
 
 Once at least `t` valid secret contributions are available, the actor
@@ -283,6 +309,8 @@ Not yet production secure:
 
 - DKG is deterministic scaffold code, not a cryptographic DKG
 - raw contribution payloads reveal material unsuitable for production MPC
+- `HazmatMldsa65ProofBoundSecretContribution` is scaffold-bound and does not
+  make `TranscriptHashScaffold` a production proof
 - commitment hiding/binding is not yet a formal proof-carrying transcript
 - adaptive corruption and erasure security are not claimed
 - side-channel resistance has not been audited
@@ -310,3 +338,21 @@ a formal adversary model, proof relation, and audited implementation boundary.
 4. Prove final `z` distribution compatibility with ML-DSA-65 rejection
    sampling.
 5. Define a real DKG transcript with VSS commitments and complaint resolution.
+
+## Manifest Anchors
+<a id="hazmat-real-mldsa-manifest-anchors"></a>
+
+Stable strings:
+
+- `# Hazmat Real ML-DSA-65 Threshold Transcript`
+- `hazmat-proof-bound-secret-contribution-boundary`
+- `HazmatMldsa65ProofBoundSecretContribution`
+- `ProductionContributionStatement`
+- `production_statement_digest`
+- `ContributionProof`
+- `TranscriptHashScaffold`
+- `raw experimental contribution terms`
+- `not yet a production MPC transcript`
+- `proof-carrying commitment protocol`
+- `require_production_threshold_backends`
+- `hazmat-real-mldsa-manifest-anchors`

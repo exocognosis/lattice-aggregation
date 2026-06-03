@@ -117,6 +117,29 @@ Close dependencies in this order:
 8. Compose the backend theorem into `FST-T1`, replacing the ideal
    `F_VSS_DKG` dependency with the concrete `eps_vss` residual ledger.
 
+## D3-3A. Rust Boundary Anchors
+<a id="d3-rust-boundary-anchors"></a>
+
+The current Rust crate exposes policy and statement names that future
+production VSS/DKG work must either satisfy or replace. These names are
+traceability anchors, not evidence that a production backend has been selected
+or proved.
+
+| Proof dependency | Rust boundary |
+| --- | --- |
+| Production setup statement | `ProductionVssRelationStatement` |
+| Statement byte contract | `PRODUCTION_VSS_RELATION_STATEMENT_BYTES` |
+| Current deterministic scaffold profile | `VssCommitmentSecurityProfile::DeterministicTranscriptScaffold` |
+| Blocked candidate profile | `VssCommitmentSecurityProfile::ProductionCandidateScaffold` |
+| Required production profile | `VssCommitmentSecurityProfile::ProductionBindingHiding` |
+| Experimental backend family | `ExperimentalVssCommitmentBackend` |
+| VSS-only fail-closed gate | `require_production_vss_backend` |
+| Combined threshold fail-closed gate | `require_production_threshold_backends` |
+
+If a future backend cannot satisfy these anchors or a reviewed replacement, the
+gap remains charged to `eps_vss_impl` and the repository still has no selected
+production VSS/DKG backend.
+
 ## D3-4. Non-Claims
 <a id="d3-non-claims"></a>
 
@@ -165,6 +188,15 @@ Stable strings:
 - `epoch binding`
 - `implementation/audit`
 - `proof composition into FST-T1`
+- `d3-rust-boundary-anchors`
+- `ProductionVssRelationStatement`
+- `PRODUCTION_VSS_RELATION_STATEMENT_BYTES`
+- `VssCommitmentSecurityProfile::DeterministicTranscriptScaffold`
+- `VssCommitmentSecurityProfile::ProductionCandidateScaffold`
+- `VssCommitmentSecurityProfile::ProductionBindingHiding`
+- `ExperimentalVssCommitmentBackend`
+- `require_production_vss_backend`
+- `require_production_threshold_backends`
 - `no selected production VSS/DKG backend`
 - `no production backend selected`
 - `no malicious-secure DKG proof`

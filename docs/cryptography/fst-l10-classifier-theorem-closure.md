@@ -23,7 +23,7 @@ FST-L10:
   Under the fixed production transcript grammar, FST-L1..FST-L7 theorem
   routes, ideal F_VSS_DKG, and ideal F_CONTRIB, every accepting unauthorized
   output Out* is classified into exactly one ordered case:
-  AuthorizedReplay, MldsaForgery, ThresholdShareBreak, VssDkgBreak,
+  AuthorizedReplay, MldsaForgery, ThresholdAuthorizationBreak, VssDkgBreak,
   CommitmentBreak, ContributionBreak, RoTranscriptBreak, CollectionBreak,
   EvidenceBreak, or Unmapped.
 
@@ -60,8 +60,8 @@ The classifier order is:
    a deterministic replay allowed by the release policy.
 2. `MldsaForgery`: the output verifies under standard ML-DSA-65 but was not
    released by the threshold functionality.
-3. `ThresholdShareBreak`: fewer than `t` valid, unique, authorized validators
-   are counted.
+3. `ThresholdAuthorizationBreak`: fewer than `t` valid, unique, authorized
+   validators are counted.
 4. `VssDkgBreak`: the output depends on setup behavior outside ideal
    `F_VSS_DKG`.
 5. `CommitmentBreak`: commitment binding, opening-set equality, or
@@ -127,7 +127,7 @@ with ambiguous meanings.
 | --- | --- | --- |
 | `AuthorizedReplay` | none | Match `authorized_release_log` under deterministic replay policy. |
 | `MldsaForgery` | `eps_cls_mldsa` / `q_out * eps_mldsa(B_mldsa)` | Produce a base ML-DSA-65 forgery. |
-| `ThresholdShareBreak` | `eps_cls_threshold`, `eps_threshold` | Reduce to `FST-L6` threshold authorization failure. |
+| `ThresholdAuthorizationBreak` | `eps_cls_threshold`, `eps_threshold` | Reduce to `FST-L6` threshold authorization failure. |
 | `VssDkgBreak` | `eps_cls_vss_dkg`, `eps_vss_ideal` | Charge ideal setup boundary or future concrete VSS/DKG theorem. |
 | `CommitmentBreak` | `eps_cls_commit`, `eps_commit` | Charge commitment/context/opening failure. |
 | `ContributionBreak` | `eps_cls_contrib`, `eps_contrib_ideal`, `eps_contrib` | Charge ideal `F_CONTRIB` or future production backend theorem. |
@@ -135,6 +135,17 @@ with ambiguous meanings.
 | `CollectionBreak` | `eps_cls_collect`, `eps_collect` | Charge `FST-L3` collection route. |
 | `EvidenceBreak` | `eps_cls_evid`, `eps_evid` | Charge evidence or release-attribution route. |
 | `Unmapped` | `eps_cls_unmapped` | Must be proved impossible for final theorem closure. |
+
+## L10C-5A. Case Name Alignment
+<a id="l10c-case-name-alignment"></a>
+
+The canonical threshold-side authorization case name is
+`ThresholdAuthorizationBreak`. Older proof notes may describe the same semantic
+case as a threshold-share break, but manifest-tracked classifier documents must
+use `ThresholdAuthorizationBreak` for the ordered case grammar. This alignment
+does not prove classifier totality, classifier disjointness, or
+`eps_cls_unmapped = 0`; it only removes a naming ambiguity before the
+unmapped-zero proof route is attempted.
 
 ## L10C-6. Acceptance Criteria
 <a id="l10c-acceptance-criteria"></a>
@@ -172,13 +183,15 @@ Stable anchors and text markers:
 - `L10C-3. Totality Target`
 - `L10C-4. Disjointness Target`
 - `L10C-5. Per-Case Reduction Map`
+- `L10C-5A. Case Name Alignment`
 - `L10C-6. Acceptance Criteria`
 - `L10C-7. Non-Claims`
 - `L10C-8. Manifest Anchors`
 - `FST-L10`
 - `AuthorizedReplay`
 - `MldsaForgery`
-- `ThresholdShareBreak`
+- `ThresholdAuthorizationBreak`
+- `l10c-case-name-alignment`
 - `VssDkgBreak`
 - `CommitmentBreak`
 - `ContributionBreak`

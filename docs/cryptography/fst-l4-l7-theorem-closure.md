@@ -74,6 +74,12 @@ accepted active set and standard-verifier boundary, or eps_rej, eps_verify,
 eps_collect, eps_mask, or a named aggregation bad event is charged.
 ```
 
+The verifier portion of this target follows the V4 partition. `FST-L5` may
+charge verifier disagreement to `eps_rej` only for the proved
+`eps_verify_rej_absorb` branch where `Reject_pred(C) = 1`; otherwise the
+disagreement remains visible as `eps_verify` or `eps_verify_survive`. The
+`BadVerifyMismatch` route is not closed by this document.
+
 `FST-L6` target:
 
 ```text
@@ -126,6 +132,8 @@ eps_l4_l7
   + eps_contrib_leakage
   + eps_rej
   + eps_verify
+  + eps_verify_rej_absorb
+  + eps_verify_survive
   + eps_collect
   + eps_mask
   + eps_threshold
@@ -153,7 +161,9 @@ The proof route is case-based:
    ideal `F_CONTRIB` for the immediate theorem and remains visible for
    production replacement.
 3. Aggregation mismatch is charged to `BadAggCorrect`, `BadRejectDist`,
-   `BadVerifyMismatch`, `BadActiveSetRebind`, `eps_rej`, or `eps_verify`.
+   `BadVerifyMismatch`, `BadActiveSetRebind`, `eps_rej`, `eps_verify`,
+   `eps_verify_rej_absorb`, or `eps_verify_survive`, with absorption into
+   `eps_rej` allowed only through the proved V4 branch.
 4. Any aggregate with fewer than `t` valid validators is charged to
    `BadThresholdShare`, `BadRogueSigner`, `BadIdealMismatch`,
    `eps_threshold`, or `eps_classify`.
@@ -226,6 +236,9 @@ Stable anchors and text markers:
 - `eps_contrib_ideal`
 - `eps_rej`
 - `eps_verify`
+- `eps_verify_rej_absorb`
+- `eps_verify_survive`
+- `BadVerifyMismatch`
 - `eps_threshold`
 - `eps_withhold`
 - `eps_abort`

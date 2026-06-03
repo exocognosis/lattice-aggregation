@@ -20,8 +20,11 @@ is proved.
 The target theorem must show that every verifier disagreement event charged to
 `eps_verify` is either exactly the same event as a rejection-predicate event
 already charged to `eps_rej`, or remains outside absorption as a visible
-residual. No verifier event may be hidden by notation before the byte-level
-candidate tuple is fixed.
+residual. Batch E names this partition in
+`Theorem V4-eps-verify-to-eps-rej-absorption`: only events satisfying
+`Reject_pred(C) = 1` move through `eps_verify_rej_absorb`, while all surviving
+verifier-only events remain as `eps_verify_survive`. No verifier event may be
+hidden by notation before the byte-level candidate tuple is fixed.
 
 ## Byte-Level Equality Obligations
 <a id="eps-verify-rejection-absorption-byte-obligations"></a>
@@ -79,7 +82,8 @@ verification, and rejection-predicate evaluation.
    each bad event must be assigned exactly once. Events absorbed into `eps_rej`
    through `eps_verify_rej_absorb` may not also remain in `eps_verify`, while
    any verifier disagreement not covered by the absorption theorem must remain
-   explicitly charged to `eps_verify`.
+   explicitly charged to `eps_verify` or, after V4 partitioning, to
+   `eps_verify_survive`.
 
 ## Residual Accounting Route
 <a id="eps-verify-rejection-absorption-residual-accounting"></a>
@@ -93,13 +97,16 @@ The closure route tracks the following verifier residual terms:
 - `eps_verify_pk_bind`
 - `eps_verify_malformed`
 - `eps_verify_rej_absorb`
+- `eps_verify_survive`
 - `eps_verify`
 
-Before `Theorem V3-verifier-rejection-absorption` is proved, the final bound
-must carry `eps_verify` visibly and must not replace it with `eps_rej`. After a
-future proof, only the subevents discharged by `eps_verify_rej_absorb` may move
-into `eps_rej`; all surviving verifier disagreement must remain in
-`eps_verify`.
+Before `Theorem V3-verifier-rejection-absorption` and
+`Theorem V4-eps-verify-to-eps-rej-absorption` are proved, the final bound must
+carry `eps_verify` visibly and must not replace it with `eps_rej`. After a
+future V4 proof, only the `Reject_pred(C) = 1` subevents discharged by
+`eps_verify_rej_absorb` may move into `eps_rej`; all surviving verifier
+disagreement must remain in `eps_verify_survive` or another visible verifier
+residual.
 
 ## Conservative Decision
 <a id="eps-verify-rejection-absorption-conservative-decision"></a>
@@ -139,4 +146,8 @@ Stable strings for manifests, cross-references, and residual tracking:
 - `eps_verify_pk_bind`
 - `eps_verify_malformed`
 - `eps_verify_rej_absorb`
+- `eps_verify_survive`
 - `eps_verify`
+- `Theorem V4-eps-verify-to-eps-rej-absorption`
+- `V4-H5`
+- `Reject_pred(C) = 1`
