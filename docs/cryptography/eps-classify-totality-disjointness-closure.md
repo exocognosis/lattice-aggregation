@@ -166,6 +166,10 @@ unauthorized output either matches `MldsaForgery` or matches at least one of
 `EvidenceBreak`, and that first-match disjointness assigns the output to one
 owner.
 
+Batch E records this unmapped-zero target as
+`Theorem K4-eps-cls-unmapped-zero` in
+[`eps-classify-unmapped-zero-theorem.md`](eps-classify-unmapped-zero-theorem.md).
+
 ## Epsilon Accounting
 <a id="ectdc-epsilon-accounting"></a>
 

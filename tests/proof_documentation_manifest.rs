@@ -24,6 +24,8 @@ const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md"
 const EPS_VSS_PRODUCTION_ROUTE: &str = "docs/cryptography/eps-vss-production-route.md";
 const VSS_DKG_PRODUCTION_OBLIGATION_SPLIT: &str =
     "docs/cryptography/vss-dkg-production-obligation-split.md";
+const VSS_DKG_BACKEND_DEPENDENCY_GRAPH: &str =
+    "docs/cryptography/vss-dkg-backend-dependency-graph.md";
 const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
 const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
 const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
@@ -50,6 +52,8 @@ const EPS_CONTRIB_BACKEND_PROOF_ROUTE: &str =
 const EPS_CONTRIB_BACKEND_DECISION_RECORD: &str =
     "docs/cryptography/eps-contrib-backend-decision-record.md";
 const F_CONTRIB_IDEAL_FUNCTIONALITY: &str = "docs/cryptography/f-contrib-ideal-functionality.md";
+const F_CONTRIB_REALIZATION_SIMULATOR: &str =
+    "docs/cryptography/f-contrib-realization-simulator.md";
 const CONTRIBUTION_BACKEND_SELECTION: &str = "docs/cryptography/contribution-backend-selection.md";
 const CONTRIBUTION_BACKEND_DECISION_RECORD: &str =
     "docs/cryptography/contribution-backend-decision-record.md";
@@ -62,11 +66,15 @@ const EPS_CLASSIFY_PER_CASE_REDUCTIONS: &str =
     "docs/cryptography/eps-classify-per-case-reductions.md";
 const EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE: &str =
     "docs/cryptography/eps-classify-totality-disjointness-closure.md";
+const EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM: &str =
+    "docs/cryptography/eps-classify-unmapped-zero-theorem.md";
 const EPS_VERIFY_ABSORPTION_DECISION: &str = "docs/cryptography/eps-verify-absorption-decision.md";
 const EPS_VERIFY_ABSORPTION_DECISION_RECORD: &str =
     "docs/cryptography/eps-verify-absorption-decision-record.md";
 const EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE: &str =
     "docs/cryptography/eps-verify-rejection-absorption-closure.md";
+const EPS_VERIFY_TO_REJ_ABSORPTION_THEOREM: &str =
+    "docs/cryptography/eps-verify-to-rej-absorption-theorem.md";
 const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
 const FST_T1_IDEALVSS_THEOREM: &str = "docs/cryptography/fst-t1-idealvss-theorem.md";
 const FST_T1_IDEALVSS_FINAL_PROOF: &str = "docs/cryptography/fst-t1-idealvss-final-proof.md";
@@ -126,6 +134,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         VSS_BACKEND_SELECTION,
         EPS_VSS_PRODUCTION_ROUTE,
         VSS_DKG_PRODUCTION_OBLIGATION_SPLIT,
+        VSS_DKG_BACKEND_DEPENDENCY_GRAPH,
         VSS_IDEALIZATION_SELECTION,
         ACTIVE_ADVERSARY,
         RANDOM_ORACLE_GAME,
@@ -149,6 +158,7 @@ fn proof_documentation_manifest_tracks_required_docs() {
         EPS_CONTRIB_BACKEND_PROOF_ROUTE,
         EPS_CONTRIB_BACKEND_DECISION_RECORD,
         F_CONTRIB_IDEAL_FUNCTIONALITY,
+        F_CONTRIB_REALIZATION_SIMULATOR,
         CONTRIBUTION_BACKEND_SELECTION,
         CONTRIBUTION_BACKEND_DECISION_RECORD,
         UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
@@ -156,8 +166,10 @@ fn proof_documentation_manifest_tracks_required_docs() {
         EPS_CLASSIFY_ELIMINATION_ROUTE,
         EPS_CLASSIFY_PER_CASE_REDUCTIONS,
         EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
+        EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM,
         EPS_VERIFY_ABSORPTION_DECISION_RECORD,
         EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE,
+        EPS_VERIFY_TO_REJ_ABSORPTION_THEOREM,
         PROOF_CLOSURE_LEDGER,
         FST_T1_IDEALVSS_THEOREM,
         FST_T1_IDEALVSS_FINAL_PROOF,
@@ -842,9 +854,47 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_verify_malformed",
             "eps_verify_rej_absorb",
             "eps_verify",
+            "eps-verify-to-rej-absorption-theorem.md",
             "Carry `eps_verify` separately",
             "does not prove standard verifier compatibility",
             "does not absorb `eps_verify` into `eps_rej`",
+            "Implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_VERIFY_TO_REJ_ABSORPTION_THEOREM,
+        &[
+            "# eps_verify to eps_rej Absorption Theorem Draft",
+            "eps-verify-to-rej-absorption-theorem",
+            "Status: Batch E formal-reduction draft, not a completed verifier absorption proof.",
+            "Theorem V4-eps-verify-to-eps-rej-absorption",
+            "Candidate Tuple",
+            "Standard verifier predicate",
+            "Threshold acceptance predicate",
+            "Rejection predicate",
+            "Byte equality premises",
+            "Malformed-boundary premises",
+            "No-double-counting rule",
+            "Absorption rule",
+            "V4-H0",
+            "V4-H1",
+            "V4-H2",
+            "V4-H3",
+            "V4-H4",
+            "V4-H5",
+            "eps_verify_byte_eq",
+            "eps_verify_challenge_eq",
+            "eps_verify_hint_eq",
+            "eps_verify_mu_bind",
+            "eps_verify_pk_bind",
+            "eps_verify_malformed",
+            "eps_verify_rej_absorb",
+            "eps_verify_survive",
+            "eps_verify",
+            "eps_rej",
+            "does not prove standard verifier compatibility",
+            "does not absorb `eps_verify` today",
+            "does not prove `eps_verify_survive = 0`",
             "Implementation evidence is not cryptographic proof",
         ],
     );
@@ -1217,9 +1267,49 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_contrib_abort",
             "eps_contrib_bind",
             "eps_contrib",
+            "f-contrib-realization-simulator.md",
             "no concrete backend is selected",
             "no production contribution soundness proof",
             "no zero or negligible claim",
+            "implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        F_CONTRIB_REALIZATION_SIMULATOR,
+        &[
+            "# F_CONTRIB Real/Ideal Simulator Draft",
+            "f-contrib-realization-simulator",
+            "Status: Batch E formal-reduction draft, not a completed realization proof.",
+            "Theorem C4-f-contrib-realization-simulator",
+            "theorem-c4-f-contrib-realization-simulator",
+            "Real Experiment",
+            "Ideal Experiment",
+            "Simulator State",
+            "Simulator Inputs",
+            "Simulator Outputs",
+            "Leakage Alignment",
+            "Extraction Path",
+            "Ideal Replacement Path",
+            "Rejection Path and Abort Path",
+            "Transcript, Session, and Epoch Binding",
+            "C4-H0",
+            "C4-H1",
+            "C4-H2",
+            "C4-H3",
+            "C4-H4",
+            "C4-H5",
+            "eps_contrib_realize",
+            "eps_contrib_extract",
+            "eps_contrib_replace",
+            "eps_contrib_leak",
+            "eps_contrib_abort",
+            "eps_contrib_bind",
+            "eps_contrib_sim",
+            "eps_contrib",
+            "no concrete backend selected",
+            "no simulator indistinguishability proof",
+            "no production contribution soundness proof",
+            "no zero/negligible claim",
             "implementation evidence is not cryptographic proof",
         ],
     );
@@ -1299,6 +1389,7 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_vss_pk_derivation",
             "eps_vss_impl",
             "eps_vss",
+            "vss-dkg-backend-dependency-graph.md",
             "Dealerless Setup",
             "Public Coefficient Commitments",
             "Private Share Delivery",
@@ -1315,6 +1406,51 @@ fn full_proof_surface_exposes_stable_anchors() {
             "no malicious-secure VSS proof",
             "no zero/negligible claim",
             "Implementation evidence is not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        VSS_DKG_BACKEND_DEPENDENCY_GRAPH,
+        &[
+            "# VSS/DKG Backend Dependency Graph",
+            "vss-dkg-backend-dependency-graph",
+            "Status: Batch E dependency graph and blocker list, not a backend selection or proof.",
+            "Theorem D3-vss-dkg-backend-dependency-closure",
+            "F_VSS_DKG",
+            "FST-T1",
+            "Dependency Graph",
+            "Blocking Checklist",
+            "Closure Order",
+            "backend selection",
+            "transcript grammar",
+            "dealerless setup",
+            "coefficient commitments",
+            "private share delivery",
+            "complaint verification",
+            "agreement/extractability",
+            "key-bias resistance",
+            "privacy/hiding",
+            "anti-framing",
+            "threshold public key derivation",
+            "epoch binding",
+            "implementation/audit",
+            "proof composition into FST-T1",
+            "eps_vss_backend_selection",
+            "eps_vss_binding",
+            "eps_vss_hiding",
+            "eps_vss_extract",
+            "eps_vss_complaint",
+            "eps_vss_key_bias",
+            "eps_vss_privacy",
+            "eps_vss_anti_framing",
+            "eps_vss_pk_derivation",
+            "eps_vss_impl",
+            "eps_vss_ideal",
+            "eps_vss",
+            "no selected production VSS/DKG backend",
+            "no production backend selected",
+            "no malicious-secure DKG proof",
+            "no zero/negligible claim",
+            "implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1449,11 +1585,57 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps_cls_unmapped",
             "eps_classify",
             "eps_cls_unmapped = 0",
+            "eps-classify-unmapped-zero-theorem.md",
             "theorem target, not proven here",
             "does not prove classifier totality",
             "does not prove classifier disjointness",
             "does not prove unmapped elimination",
             "not cryptographic proof",
+        ],
+    );
+    assert_contains_all(
+        EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM,
+        &[
+            "# eps_classify Unmapped-Zero Theorem Draft",
+            "eps-classify-unmapped-zero-theorem",
+            "Status: Batch E formal-reduction draft, not a completed classifier proof.",
+            "Theorem K4-eps-cls-unmapped-zero",
+            "Accepted Unauthorized Output Domain",
+            "Authorized-Release Complement",
+            "Classifier Coverage Grammar",
+            "Totality Premises",
+            "Disjointness Premises",
+            "Per-Case Reduction Premises",
+            "Unmapped Contradiction Strategy",
+            "Proof Skeleton",
+            "MldsaForgery",
+            "ThresholdAuthorizationBreak",
+            "VssDkgBreak",
+            "CommitmentBreak",
+            "ContributionBreak",
+            "RoTranscriptBreak",
+            "CollectionBreak",
+            "EvidenceBreak",
+            "Unmapped",
+            "eps_cls_totality",
+            "eps_cls_disjointness",
+            "eps_cls_mldsa",
+            "eps_cls_threshold",
+            "eps_cls_vss_dkg",
+            "eps_cls_commit",
+            "eps_cls_contrib",
+            "eps_cls_ro_transcript",
+            "eps_cls_collect",
+            "eps_cls_evid",
+            "eps_cls_unmapped",
+            "eps_classify",
+            "eps_cls_unmapped = 0",
+            "remains unproved here",
+            "does not prove classifier totality",
+            "does not prove classifier disjointness",
+            "does not prove any per-case reduction",
+            "does not prove `eps_cls_unmapped = 0`",
+            "Implementation evidence is not cryptographic proof",
         ],
     );
     assert_contains_all(
@@ -1512,6 +1694,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-verify-rejection-absorption-closure.md",
             "eps-classify-totality-disjointness-closure.md",
             "vss-dkg-production-obligation-split.md",
+            "f-contrib-realization-simulator.md",
+            "eps-verify-to-rej-absorption-theorem.md",
+            "eps-classify-unmapped-zero-theorem.md",
+            "vss-dkg-backend-dependency-graph.md",
             "eps-vss-production-route.md",
             "production-transcript-grammar.md",
             "contribution-backend-selection.md",
@@ -1620,6 +1806,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-verify-rejection-absorption-closure.md",
             "eps-classify-totality-disjointness-closure.md",
             "vss-dkg-production-obligation-split.md",
+            "f-contrib-realization-simulator.md",
+            "eps-verify-to-rej-absorption-theorem.md",
+            "eps-classify-unmapped-zero-theorem.md",
+            "vss-dkg-backend-dependency-graph.md",
             "eps-vss-production-route.md",
             "f-contrib-ideal-functionality.md",
             "eps-verify-rejection-absorption-closure.md",
@@ -1687,6 +1877,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-verify-rejection-absorption-closure.md",
             "eps-classify-totality-disjointness-closure.md",
             "vss-dkg-production-obligation-split.md",
+            "f-contrib-realization-simulator.md",
+            "eps-verify-to-rej-absorption-theorem.md",
+            "eps-classify-unmapped-zero-theorem.md",
+            "vss-dkg-backend-dependency-graph.md",
             "eps-vss-production-route.md",
             "eps_cls_unmapped = 0",
             "implementation_residual",
@@ -1910,6 +2104,10 @@ fn full_proof_surface_exposes_stable_anchors() {
             "eps-contrib-backend-decision-record.md",
             "eps-verify-absorption-decision-record.md",
             "eps-classify-per-case-reductions.md",
+            "f-contrib-realization-simulator.md",
+            "eps-verify-to-rej-absorption-theorem.md",
+            "eps-classify-unmapped-zero-theorem.md",
+            "vss-dkg-backend-dependency-graph.md",
             "eps-vss-production-route.md",
             "Contribution backend instantiation route",
             "`eps_verify` standard-verifier compatibility route",

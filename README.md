@@ -154,12 +154,18 @@ The proof package is organized around a real/ideal and hybrid proof surface:
   specifies the ideal contribution oracle, simulator interface, leakage,
   rejection, extraction/replacement, and transcript binding boundary used by the
   immediate theorem route.
+- [F_CONTRIB real/ideal simulator draft](docs/cryptography/f-contrib-realization-simulator.md)
+  outlines the Batch E hybrid route for proving a future contribution backend
+  realizes the ideal contribution functionality.
 - [eps_vss production route](docs/cryptography/eps-vss-production-route.md)
   narrows the malicious-secure VSS/DKG realization obligations without
   selecting or proving a production setup backend.
 - [VSS/DKG production obligation split](docs/cryptography/vss-dkg-production-obligation-split.md)
   separates ideal `F_VSS_DKG` assumptions from concrete dealerless DKG,
   complaint, anti-framing, key-bias, and public-key derivation obligations.
+- [VSS/DKG backend dependency graph](docs/cryptography/vss-dkg-backend-dependency-graph.md)
+  orders the production backend-selection blockers from transcript grammar and
+  dealerless setup through audit and composition into `FST-T1`.
 - [eps_verify absorption decision](docs/cryptography/eps-verify-absorption-decision.md)
   states when verifier compatibility can be folded into `eps_rej` versus
   carried separately as `eps_verify`.
@@ -169,6 +175,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [eps_verify rejection absorption closure](docs/cryptography/eps-verify-rejection-absorption-closure.md)
   enumerates the byte-level equality obligations required before `eps_verify`
   can be absorbed into `eps_rej`.
+- [eps_verify to eps_rej absorption theorem draft](docs/cryptography/eps-verify-to-rej-absorption-theorem.md)
+  gives the Batch E candidate-tuple and hybrid skeleton for moving only proved
+  verifier subevents into `eps_rej`.
 - [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
   tracks `eps_classify`, the remaining route for mapping every unauthorized
   accepting output to a base ML-DSA forgery or a threshold-side assumption
@@ -181,6 +190,9 @@ The proof package is organized around a real/ideal and hybrid proof surface:
 - [eps_classify totality and disjointness closure](docs/cryptography/eps-classify-totality-disjointness-closure.md)
   states the theorem route for classifier totality, disjointness, and
   `eps_cls_unmapped = 0` without claiming those facts are proved.
+- [eps_classify unmapped-zero theorem draft](docs/cryptography/eps-classify-unmapped-zero-theorem.md)
+  sketches the contradiction route that would eliminate the final `Unmapped`
+  branch once totality, disjointness, and per-case reductions are proved.
 
 The current top-level advantage shape is intentionally conservative:
 

@@ -20,6 +20,10 @@ Batch D records the theorem-ready assumption/obligation split in
 ideal `F_VSS_DKG` assumptions remain separate from concrete production
 obligations.
 
+Batch E records the dependency graph and blocker order in
+[vss-dkg-backend-dependency-graph.md](vss-dkg-backend-dependency-graph.md),
+from ideal `F_VSS_DKG` to future production backend selection.
+
 No production VSS/DKG backend is selected in this repository yet. The current
 implementation remains the deterministic transcript-hash scaffold in
 `src/crypto/vss.rs`, plus fail-closed production policy gates. This document is
