@@ -341,6 +341,11 @@ validity only if they keep `eps_contrib_ideal`, `eps_contrib_realize`, and
 `eps_contrib` visible. Production security still requires a concrete backend
 that specifies and proves:
 
+Batch E simulator route: see
+`docs/cryptography/f-contrib-realization-simulator.md` for
+`Theorem C4-f-contrib-realization-simulator`. That draft may be cited only as a
+route; it does not prove any concrete backend realizes `F_CONTRIB`.
+
 - the exact relation `R_contrib`;
 - statement and witness schemas;
 - soundness or knowledge soundness for accepted corrupted frames;

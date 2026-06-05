@@ -5,6 +5,10 @@ Status: Batch D theorem-closure route, not a completed proof.
 
 Theorem target name: `Theorem V3-verifier-rejection-absorption`
 
+Batch E refines this route into the formal-reduction draft
+[`eps-verify-to-rej-absorption-theorem.md`](eps-verify-to-rej-absorption-theorem.md)
+for `Theorem V4-eps-verify-to-eps-rej-absorption`.
+
 ## Purpose
 <a id="eps-verify-rejection-absorption-purpose"></a>
 

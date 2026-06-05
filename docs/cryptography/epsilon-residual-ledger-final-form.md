@@ -206,6 +206,15 @@ These records do not eliminate `eps_contrib_ideal`, absorb `eps_verify`,
 prove `eps_cls_unmapped = 0`, or replace `eps_vss_ideal`; they make the
 interfaces and proof obligations precise enough for the next theorem pass.
 
+Residual Closure Batch E adds formal-reduction drafts:
+[f-contrib-realization-simulator.md](f-contrib-realization-simulator.md),
+[eps-verify-to-rej-absorption-theorem.md](eps-verify-to-rej-absorption-theorem.md),
+[eps-classify-unmapped-zero-theorem.md](eps-classify-unmapped-zero-theorem.md),
+and [vss-dkg-backend-dependency-graph.md](vss-dkg-backend-dependency-graph.md).
+These drafts do not prove simulator indistinguishability, absorb
+`eps_verify`, prove `eps_cls_unmapped = 0`, or select a production VSS/DKG
+backend; they assign the next proof skeletons to stable residual routes.
+
 ## ERLFF-6. Parameterization Requirements
 <a id="erlff-parameterization-requirements"></a>
 
@@ -273,6 +282,10 @@ Stable anchors and text markers:
 - `eps-verify-rejection-absorption-closure.md`
 - `eps-classify-totality-disjointness-closure.md`
 - `vss-dkg-production-obligation-split.md`
+- `f-contrib-realization-simulator.md`
+- `eps-verify-to-rej-absorption-theorem.md`
+- `eps-classify-unmapped-zero-theorem.md`
+- `vss-dkg-backend-dependency-graph.md`
 - `eps-vss-production-route.md`
 - `eps_cls_unmapped = 0`
 - `implementation evidence is not cryptographic proof`

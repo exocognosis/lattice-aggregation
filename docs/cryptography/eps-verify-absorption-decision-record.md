@@ -49,6 +49,8 @@ compatibility obligations from being hidden inside `eps_rej` before the byte
 boundary, message boundary, and malformed-input boundary are proved identical.
 The Batch D theorem-closure route for the next absorption target is recorded in
 [`eps-verify-rejection-absorption-closure.md`](eps-verify-rejection-absorption-closure.md).
+The Batch E formal-reduction draft is recorded in
+[`eps-verify-to-rej-absorption-theorem.md`](eps-verify-to-rej-absorption-theorem.md).
 
 Decision target:
 

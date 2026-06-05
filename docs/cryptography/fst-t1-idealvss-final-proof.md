@@ -114,6 +114,14 @@ The assembled route imports these proof batches:
 - [vss-dkg-production-obligation-split.md](vss-dkg-production-obligation-split.md):
   Batch D split between ideal `F_VSS_DKG` assumptions and production DKG
   obligations.
+- [f-contrib-realization-simulator.md](f-contrib-realization-simulator.md):
+  Batch E real/ideal simulator draft for future `F_CONTRIB` realization.
+- [eps-verify-to-rej-absorption-theorem.md](eps-verify-to-rej-absorption-theorem.md):
+  Batch E verifier-to-rejection absorption hybrid draft.
+- [eps-classify-unmapped-zero-theorem.md](eps-classify-unmapped-zero-theorem.md):
+  Batch E contradiction route for the `eps_cls_unmapped = 0` theorem target.
+- [vss-dkg-backend-dependency-graph.md](vss-dkg-backend-dependency-graph.md):
+  Batch E backend-selection dependency graph for replacing ideal `F_VSS_DKG`.
 - [fst-t1-idealvss-theorem.md](fst-t1-idealvss-theorem.md): the theorem target,
   ideal-boundary statement, dependencies, and simulator route.
 - [epsilon-residual-ledger-final-form.md](epsilon-residual-ledger-final-form.md):
@@ -243,6 +251,8 @@ The following terms remain visible in the IdealVSS theorem route:
   [eps-contrib-backend-decision-record.md](eps-contrib-backend-decision-record.md).
   The Batch D ideal functionality interface is
   [f-contrib-ideal-functionality.md](f-contrib-ideal-functionality.md).
+  The Batch E simulator draft is
+  [f-contrib-realization-simulator.md](f-contrib-realization-simulator.md).
 - `eps_commit`, `eps_ro_prior`, and `eps_ro_sep` for commitment and
   random-oracle programming.
 - `eps_mask`, `eps_rej`, `eps_withhold`, and `eps_verify` for mask,
@@ -254,6 +264,8 @@ The following terms remain visible in the IdealVSS theorem route:
   [eps-verify-absorption-decision-record.md](eps-verify-absorption-decision-record.md).
   The Batch D closure route is
   [eps-verify-rejection-absorption-closure.md](eps-verify-rejection-absorption-closure.md).
+  The Batch E absorption theorem draft is
+  [eps-verify-to-rej-absorption-theorem.md](eps-verify-to-rej-absorption-theorem.md).
 - `eps_abort`, `eps_release`, and `eps_evid` for simulator-visible abort,
   release, and evidence transitions.
 - `eps_collect` and `eps_threshold` for canonical active-set handling and
@@ -261,6 +273,8 @@ The following terms remain visible in the IdealVSS theorem route:
 - `eps_classify` until classifier totality, disjointness, and all per-case
   reductions are discharged. The Batch D closure route is
   [eps-classify-totality-disjointness-closure.md](eps-classify-totality-disjointness-closure.md).
+  The Batch E unmapped-zero theorem draft is
+  [eps-classify-unmapped-zero-theorem.md](eps-classify-unmapped-zero-theorem.md).
 - `implementation_residual` and `audit_residual` until code correctness,
   constant-time behavior, randomness, integration, and external review are
   closed.
@@ -362,6 +376,10 @@ Stable anchors and text markers:
 - `eps-verify-rejection-absorption-closure.md`
 - `eps-classify-totality-disjointness-closure.md`
 - `vss-dkg-production-obligation-split.md`
+- `f-contrib-realization-simulator.md`
+- `eps-verify-to-rej-absorption-theorem.md`
+- `eps-classify-unmapped-zero-theorem.md`
+- `vss-dkg-backend-dependency-graph.md`
 - `eps_cls_unmapped = 0`
 - `q_out * eps_mldsa(B_mldsa)`
 - `eps_vss_ideal`

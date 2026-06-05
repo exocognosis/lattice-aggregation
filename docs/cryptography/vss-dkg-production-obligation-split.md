@@ -15,6 +15,11 @@ production malicious-secure VSS/DKG.
 ## D2-0. Split Boundary
 <a id="d2-split-boundary"></a>
 
+Batch E records the backend dependency graph and remaining blocker list in
+[VSS/DKG Backend Dependency Graph](vss-dkg-backend-dependency-graph.md). That
+document keeps the D2 obligations ordered from ideal `F_VSS_DKG` assumptions to
+future production backend selection without selecting or proving a backend.
+
 The ideal route may assume that `F_VSS_DKG` returns a well-formed validator
 share vector, one agreed threshold public key, privacy below threshold, and
 deterministic failure outcomes according to the ideal leakage interface. This
