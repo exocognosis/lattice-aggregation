@@ -33,9 +33,13 @@ pub const PRODUCTION_CONTRIBUTION_STATEMENT_BYTES: usize = 2
     + PRODUCTION_CONTRIBUTION_MU_BYTES
     + CONTRIBUTION_CHALLENGE_BYTES;
 
-const CONTRIBUTION_PROOF_DOMAIN: &[u8] = b"dytallix.threshold.contribution.proof.scaffold.v1";
-const PRODUCTION_CONTRIBUTION_STATEMENT_DOMAIN: &[u8] =
+/// Domain separator for deterministic scaffold contribution proof digests.
+pub const CONTRIBUTION_PROOF_DOMAIN: &[u8] = b"dytallix.threshold.contribution.proof.scaffold.v1";
+/// Domain separator for production-target contribution statement digests.
+pub const PRODUCTION_CONTRIBUTION_STATEMENT_DOMAIN: &[u8] =
     b"dytallix.threshold.contribution.production-statement.v1";
+/// Current production-target contribution statement schema version.
+pub const PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION: u16 = 1;
 
 /// Public statement bound into a threshold contribution proof.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -486,7 +490,7 @@ fn validate_statement(statement: &ContributionStatement) -> Result<(), Threshold
 fn validate_production_statement(
     statement: &ProductionContributionStatement,
 ) -> Result<(), ThresholdError> {
-    if statement.protocol_version == 0 {
+    if statement.protocol_version != PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION {
         return Err(ThresholdError::MalformedSerialization {
             reason: "invalid production contribution statement version",
         });

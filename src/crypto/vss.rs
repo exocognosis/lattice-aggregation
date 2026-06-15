@@ -16,10 +16,15 @@ use sha3::{
     Digest as Sha3Digest, Sha3_256, Shake256,
 };
 
-const VSS_SHARE_COMMITMENT_DOMAIN: &[u8] = b"dytallix.vss.share.commitment.scaffold.v1";
-const VSS_SHARE_PROOF_DOMAIN: &[u8] = b"dytallix.vss.share.proof.scaffold.v1";
-const PRODUCTION_VSS_RELATION_STATEMENT_DOMAIN: &[u8] =
+/// Domain separator for deterministic VSS share commitment digests.
+pub const VSS_SHARE_COMMITMENT_DOMAIN: &[u8] = b"dytallix.vss.share.commitment.scaffold.v1";
+/// Domain separator for deterministic VSS share proof digests.
+pub const VSS_SHARE_PROOF_DOMAIN: &[u8] = b"dytallix.vss.share.proof.scaffold.v1";
+/// Domain separator for production-target VSS relation statement digests.
+pub const PRODUCTION_VSS_RELATION_STATEMENT_DOMAIN: &[u8] =
     b"dytallix.threshold.vss.production-relation-statement.v1";
+/// Current production-target VSS relation statement schema version.
+pub const PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION: u16 = 1;
 
 /// Byte length of deterministic VSS commitment and proof transcript digests.
 pub const VSS_SHARE_COMMITMENT_BYTES: usize = 32;
@@ -47,8 +52,9 @@ pub const EXPERIMENTAL_VSS_COMPLAINT_EVIDENCE_BYTES: usize = 1
     + EXPERIMENTAL_VSS_OPENING_BYTES
     + EXPERIMENTAL_VSS_PROOF_BYTES;
 
+/// Current experimental production-shaped VSS object schema version.
 #[cfg(feature = "experimental-vss")]
-const EXPERIMENTAL_VSS_OBJECT_VERSION: u8 = 1;
+pub const EXPERIMENTAL_VSS_OBJECT_VERSION: u8 = 1;
 
 /// Point-evaluation share sent to one validator.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -909,7 +915,7 @@ fn validate_share_receiver(receiver_index: u16, total_nodes: u16) -> Result<(), 
 fn validate_production_vss_relation_statement(
     statement: &ProductionVssRelationStatement,
 ) -> Result<(), ThresholdError> {
-    if statement.protocol_version == 0 {
+    if statement.protocol_version != PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION {
         return malformed("invalid production VSS relation statement version");
     }
     validate_threshold(statement.threshold, statement.total_nodes)?;

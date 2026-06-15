@@ -6,7 +6,8 @@ use dytallix_pq_threshold::{
             try_split_secret_poly, verify_share_contribution_commitment,
             verify_share_contribution_commitments, ProductionVssRelationStatement,
             TranscriptHashVssCommitmentBackend, VssCommitmentBackend, VssCommitmentSecurityProfile,
-            VssShareCommitment, VssShareProof, VSS_SHARE_COMMITMENT_BYTES,
+            VssShareCommitment, VssShareProof, PRODUCTION_VSS_RELATION_STATEMENT_BYTES,
+            PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION, VSS_SHARE_COMMITMENT_BYTES,
         },
     },
     Poly, SessionId, ThresholdError, ValidatorId, Q,
@@ -17,7 +18,8 @@ use dytallix_pq_threshold::crypto::vss::{
     verify_experimental_vss_complaint_evidence, ExperimentalVssCommitmentBackend,
     ExperimentalVssComplaintEvidence, ExperimentalVssOpening, ExperimentalVssProof,
     ExperimentalVssStatement, EXPERIMENTAL_VSS_COMPLAINT_EVIDENCE_BYTES,
-    EXPERIMENTAL_VSS_OPENING_BYTES, EXPERIMENTAL_VSS_PROOF_BYTES, EXPERIMENTAL_VSS_STATEMENT_BYTES,
+    EXPERIMENTAL_VSS_OBJECT_VERSION, EXPERIMENTAL_VSS_OPENING_BYTES, EXPERIMENTAL_VSS_PROOF_BYTES,
+    EXPERIMENTAL_VSS_STATEMENT_BYTES,
 };
 
 #[cfg(feature = "experimental-vss")]
@@ -327,7 +329,7 @@ fn experimental_vss_statement_canonical_bytes_round_trip() {
         .expect("statement should encode");
 
     assert_eq!(bytes.len(), EXPERIMENTAL_VSS_STATEMENT_BYTES);
-    assert_eq!(bytes[0], 1);
+    assert_eq!(bytes[0], EXPERIMENTAL_VSS_OBJECT_VERSION);
     assert_eq!(&bytes[33..35], &3u16.to_be_bytes());
     assert_eq!(&bytes[35..37], &5u16.to_be_bytes());
     assert_eq!(&bytes[37..39], &4u16.to_be_bytes());
@@ -360,7 +362,7 @@ fn experimental_vss_statement_rejects_malformed_context_and_indices() {
     let mut bytes = fixture_experimental_statement()
         .to_canonical_bytes()
         .expect("statement should encode");
-    bytes[0] = 2;
+    bytes[0] = EXPERIMENTAL_VSS_OBJECT_VERSION + 1;
     assert!(matches!(
         ExperimentalVssStatement::from_canonical_bytes(&bytes),
         Err(ThresholdError::MalformedSerialization { .. })
@@ -445,7 +447,7 @@ fn experimental_vss_complaint_evidence_canonical_bytes_round_trip() {
         .expect("complaint evidence should encode");
 
     assert_eq!(bytes.len(), EXPERIMENTAL_VSS_COMPLAINT_EVIDENCE_BYTES);
-    assert_eq!(bytes[0], 1);
+    assert_eq!(bytes[0], EXPERIMENTAL_VSS_OBJECT_VERSION);
     assert_eq!(
         ExperimentalVssComplaintEvidence::from_canonical_bytes(&bytes)
             .expect("decode complaint evidence"),
@@ -514,7 +516,7 @@ fn experimental_vss_complaint_evidence_rejects_malformed_length_and_version() {
     ));
 
     let mut wrong_version = bytes;
-    wrong_version[0] = 2;
+    wrong_version[0] = EXPERIMENTAL_VSS_OBJECT_VERSION + 1;
     assert!(matches!(
         ExperimentalVssComplaintEvidence::from_canonical_bytes(&wrong_version),
         Err(ThresholdError::MalformedSerialization { .. })
@@ -774,7 +776,8 @@ fn production_vss_relation_statement_canonical_bytes_round_trip() {
     assert_ne!(digest, [0; 32]);
 
     let mut tampered = encoded;
-    tampered[0] ^= 0x01;
+    let last = tampered.last_mut().expect("encoded statement is non-empty");
+    *last ^= 0x01;
     assert_ne!(
         ProductionVssRelationStatement::from_canonical_bytes(&tampered)
             .expect("decode tampered statement")
@@ -785,7 +788,162 @@ fn production_vss_relation_statement_canonical_bytes_round_trip() {
 }
 
 #[test]
+fn production_vss_relation_statement_canonical_layout_matches_d3_anchor() {
+    let statement = fixture_production_vss_statement();
+    let encoded = statement.to_canonical_bytes().expect("encode statement");
+
+    assert_eq!(encoded.len(), PRODUCTION_VSS_RELATION_STATEMENT_BYTES);
+
+    let mut offset = 0;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(&encoded[offset..offset + 32], &statement.epoch_id);
+    offset += 32;
+    assert_eq!(&encoded[offset..offset + 32], &statement.session_id);
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.validator_set_digest
+    );
+    offset += 32;
+    assert_eq!(&encoded[offset..offset + 32], &statement.backend_id);
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.dealer_index.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.receiver_index.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.threshold.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.total_nodes.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.dealer_commitment_digest
+    );
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.encrypted_share_digest
+    );
+    offset += 32;
+    assert_eq!(&encoded[offset..offset + 32], &statement.opening_digest);
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.public_key_contribution_digest
+    );
+    offset += 32;
+    assert_eq!(offset, PRODUCTION_VSS_RELATION_STATEMENT_BYTES);
+
+    assert!(matches!(
+        ProductionVssRelationStatement::from_canonical_bytes(&encoded[..encoded.len() - 1]),
+        Err(ThresholdError::MalformedSerialization { .. })
+    ));
+    let mut extended = encoded;
+    extended.push(0);
+    assert!(matches!(
+        ProductionVssRelationStatement::from_canonical_bytes(&extended),
+        Err(ThresholdError::MalformedSerialization { .. })
+    ));
+}
+
+#[test]
+fn production_vss_relation_statement_digest_binds_every_field() {
+    let statement = fixture_production_vss_statement();
+    let baseline = statement.statement_digest().expect("digest baseline");
+
+    let mut cases: Vec<(&str, ProductionVssRelationStatement)> = Vec::new();
+
+    let mut mutated = statement.clone();
+    mutated.epoch_id[0] ^= 0x01;
+    cases.push(("epoch_id", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.session_id[0] ^= 0x01;
+    cases.push(("session_id", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.validator_set_digest[0] ^= 0x01;
+    cases.push(("validator_set_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.backend_id[0] ^= 0x01;
+    cases.push(("backend_id", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.dealer_index += 1;
+    cases.push(("dealer_index", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.receiver_index += 1;
+    cases.push(("receiver_index", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.threshold -= 1;
+    cases.push(("threshold", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.total_nodes += 1;
+    cases.push(("total_nodes", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.dealer_commitment_digest[0] ^= 0x01;
+    cases.push(("dealer_commitment_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.encrypted_share_digest[0] ^= 0x01;
+    cases.push(("encrypted_share_digest", mutated));
+
+    let mut mutated = statement.clone();
+    mutated.opening_digest[0] ^= 0x01;
+    cases.push(("opening_digest", mutated));
+
+    let mut mutated = statement;
+    mutated.public_key_contribution_digest[0] ^= 0x01;
+    cases.push(("public_key_contribution_digest", mutated));
+
+    for (field, mutated) in cases {
+        assert_ne!(
+            mutated.statement_digest().unwrap_or_else(|err| {
+                panic!("mutated {field} should remain structurally valid: {err}")
+            }),
+            baseline,
+            "digest did not bind field {field}"
+        );
+    }
+}
+
+#[test]
 fn production_vss_relation_statement_rejects_invalid_participants() {
+    let mut zero_protocol = fixture_production_vss_statement();
+    zero_protocol.protocol_version = 0;
+    assert!(matches!(
+        zero_protocol.to_canonical_bytes(),
+        Err(ThresholdError::MalformedSerialization { .. })
+    ));
+
+    let mut unknown_protocol = fixture_production_vss_statement();
+    unknown_protocol.protocol_version = PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION + 1;
+    assert!(matches!(
+        unknown_protocol.to_canonical_bytes(),
+        Err(ThresholdError::MalformedSerialization { .. })
+    ));
+
     let mut zero_dealer = fixture_production_vss_statement();
     zero_dealer.dealer_index = 0;
     assert_eq!(
@@ -825,7 +983,7 @@ fn fixture_secret() -> Poly {
 
 fn fixture_production_vss_statement() -> ProductionVssRelationStatement {
     ProductionVssRelationStatement {
-        protocol_version: 1,
+        protocol_version: PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION,
         epoch_id: [0x81; 32],
         session_id: fixture_session_id(37),
         validator_set_digest: [0x82; 32],
