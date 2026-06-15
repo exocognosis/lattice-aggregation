@@ -379,3 +379,105 @@ To complete this theorem package, later work must provide:
   standard ML-DSA-65 verification.
 - An implementation security review covering side channels, zeroization,
   panic/error behavior, serialization, and transcript compatibility.
+
+## Batch H Conditional Main Theorem
+<a id="batch-h-conditional-main-theorem"></a>
+
+Status: conditional theorem, not a production proof.
+
+Batch H adds an explicit conditional theorem wrapper around the existing FST
+surface. It does not replace FST-T1, FST-T1-IdealVSS, or FST-T2. It records the
+claim form that may become publishable only after backend discharge,
+proof-closure, and implementation review are complete.
+
+Required status strings:
+
+- no production backend selected
+- implementation evidence is not cryptographic proof
+- not a production proof
+- malicious-secure MPC backend required
+- simulation-reducible only after backend discharge
+
+The current repository provides implementation evidence, proof drafts,
+manifest-checked traceability, and fail-closed policy boundaries. Those
+artifacts are useful for review, but implementation evidence is not
+cryptographic proof. Tests, deterministic simulations, and hazmat ML-DSA-65
+conformance checks do not instantiate the missing malicious-secure protocol
+arguments.
+
+### Theorem H1
+<a id="theorem-h1"></a>
+
+Theorem H1, conditional theorem for threshold ML-DSA lattice aggregation.
+Assume:
+
+1. ML-DSA-65 is strongly existentially unforgeable under chosen-message attack
+   in the model used by the production proof.
+2. A selected production VSS/DKG backend realizes the setup, agreement,
+   hiding, binding, extractability, anti-framing, and key-bias properties
+   required by FST-A2 and FST-A3.
+3. A malicious-secure MPC backend required for contribution generation,
+   contribution validation, partial signing, partial verification,
+   aggregation, abort handling, and evidence generation realizes the ideal
+   interfaces used by the proof.
+4. Transcript encodings are injective over all security-relevant typed fields,
+   and challenge derivation is domain separated for the protocol version.
+5. Abort behavior, rejection sampling, norm checks, hints, and challenge
+   binding preserve the ML-DSA-65 signing distribution.
+6. The unauthorized-output classifier is total and disjoint.
+7. The implementation conforms to the proved protocol and satisfies the
+   side-channel, randomness, serialization, and secret-erasure assumptions used
+   by the proof.
+
+Then for every probabilistic polynomial-time adversary statically corrupting at
+most `t - 1` validators, its advantage in producing an unauthorized accepting
+threshold ML-DSA aggregate signature is bounded by:
+
+```text
+Adv_TMLDSA(A, lambda)
+  <= Adv_MLDSA65_EUF_CMA(B, lambda)
+   + eps_backend
+   + eps_vss
+   + eps_contrib
+   + eps_verify
+   + eps_classify
+   + eps_side_channel
+   + negl(lambda)
+```
+
+where `B` is the reduction adversary constructed by the completed proof.
+The named residuals have the following Batch H meanings:
+
+- `eps_backend`: failure of the selected production backend stack to realize
+  the ideal threshold signing and setup interfaces.
+- `eps_vss`: failure of VSS/DKG setup soundness, secrecy, binding,
+  extractability, agreement, anti-framing, or key-bias resistance.
+- `eps_contrib`: failure of contribution generation, contribution validation,
+  masking, or partial-share production to match the proved threshold protocol.
+- `eps_verify`: failure of partial verification, aggregate verification, or
+  rejection handling to enforce the modeled validity predicates.
+- `eps_classify`: failure of the unauthorized-output classifier to map every
+  accepting unauthorized output to ML-DSA forgery or a named threshold-side bad
+  event.
+- `eps_side_channel`: leakage from timing, memory access, logging, error paths,
+  serialization, panic behavior, key retention, randomness, compiler behavior,
+  or other implementation channels outside the ideal proof model.
+
+The conditional theorem is simulation-reducible only after backend discharge.
+Until a concrete backend is selected, proved, implemented, audited, and bound
+to the transcript grammar, there is no production backend selected and this is
+not a production proof.
+
+### Batch H Non-Claims
+<a id="batch-h-non-claims"></a>
+
+Batch H does not prove that the current implementation is secure against
+malicious validators. It does not select a production backend. It does not
+prove UC security, adaptive corruption security, proactive refresh security, or
+side-channel resistance. It does not convert deterministic simulation labels,
+test vectors, transcript snapshots, or local conformance tests into a
+cryptographic theorem.
+
+Future production wording must retain the conditional theorem language until
+every visible residual is discharged, bounded, or intentionally retained as an
+explicit assumption.

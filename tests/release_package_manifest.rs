@@ -35,6 +35,8 @@ fn readme_links_reviewer_evidence_and_reproduction_paths() {
         "docs/paper/reviewer-quickstart.md",
         "docs/cryptography/proof-closure-ledger.md",
         "docs/cryptography/claims-matrix.md",
+        "docs/cryptography/proof-dependency-graph.md",
+        "docs/cryptography/claim-hardening-matrix.md",
         "docs/cryptography/proof-obligations.md",
         "docs/audit/README.md",
         "docs/benchmarks/reproducibility-manifest.md",

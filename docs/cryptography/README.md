@@ -6,6 +6,9 @@ The current implementation uses deterministic simulation labels under the `latti
 
 Available notes:
 
+- [Batch H Conditional Main Theorem](formal-security-theorem.md)
+- [Batch H Proof Dependency Graph](proof-dependency-graph.md)
+- [Batch H Claim Hardening Matrix](claim-hardening-matrix.md)
 - [Phase 1 Noise Bound Model](phase-1-noise-bound-model.md)
 - [Proof Closure Ledger](proof-closure-ledger.md)
 - [Production Transcript Grammar](production-transcript-grammar.md)

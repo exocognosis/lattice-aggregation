@@ -92,6 +92,8 @@ const RANDOM_ORACLE_COMMITMENT_CLOSURE: &str =
     "docs/cryptography/random-oracle-commitment-closure.md";
 const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
 const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
+const PROOF_DEPENDENCY_GRAPH: &str = "docs/cryptography/proof-dependency-graph.md";
+const CLAIM_HARDENING_MATRIX: &str = "docs/cryptography/claim-hardening-matrix.md";
 const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
 const PROOF_BIBLIOGRAPHY: &str = "docs/cryptography/proof-bibliography.md";
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
@@ -221,6 +223,8 @@ fn proof_documentation_manifest_tracks_required_docs() {
         RANDOM_ORACLE_COMMITMENT_CLOSURE,
         PROOF_OBLIGATIONS,
         CLAIMS_MATRIX,
+        PROOF_DEPENDENCY_GRAPH,
+        CLAIM_HARDENING_MATRIX,
         SIMULATOR_HYBRID_REDUCTIONS,
         PROOF_BIBLIOGRAPHY,
         PHASE_1_NOISE_MODEL,
@@ -246,6 +250,66 @@ fn full_proof_surface_exposes_stable_anchors() {
             "Theorem FST-T1-IdealVSS",
             "FST-H0-IdealVSS",
             "Proof status: not proved in this repository.",
+            "batch-h-conditional-main-theorem",
+            "Theorem H1",
+            "conditional theorem",
+            "eps_backend",
+            "eps_vss",
+            "eps_contrib",
+            "eps_verify",
+            "eps_classify",
+            "eps_side_channel",
+            "no production backend selected",
+            "implementation evidence is not cryptographic proof",
+            "not a production proof",
+            "malicious-secure MPC backend required",
+            "simulation-reducible only after backend discharge",
+        ],
+    );
+    assert_contains_all(
+        PROOF_DEPENDENCY_GRAPH,
+        &[
+            "batch-h-proof-dependency-graph",
+            "H-DAG-1",
+            "H-DAG-2",
+            "H-DAG-3",
+            "root theorem",
+            "backend discharge",
+            "VSS/DKG proof",
+            "contribution proof relation",
+            "standard ML-DSA verification",
+            "unauthorized-output classifier",
+            "residual epsilon ledger",
+            "eps_backend",
+            "eps_vss",
+            "eps_contrib",
+            "eps_verify",
+            "eps_classify",
+            "eps_side_channel",
+            "implementation evidence is not cryptographic proof",
+            "not a production proof",
+        ],
+    );
+    assert_contains_all(
+        CLAIM_HARDENING_MATRIX,
+        &[
+            r#"<a id="batch-h-claim-hardening-matrix"></a>"#,
+            "H-CLAIM-1",
+            "H-CLAIM-2",
+            "H-CLAIM-3",
+            "H-CLAIM-4",
+            "implemented-and-tested",
+            "documented-proof-draft",
+            "conditional-on-backend",
+            "explicitly-unproven",
+            "standard ML-DSA-65 verification surface",
+            "threshold aggregation architecture",
+            "malicious-secure threshold ML-DSA",
+            "no production backend selected",
+            "not a production proof",
+            "implementation evidence is not cryptographic proof",
+            "do not claim production-ready",
+            "do not claim thesis proven",
         ],
     );
     assert_contains_all(

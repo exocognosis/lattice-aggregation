@@ -317,6 +317,8 @@ cargo test -j1 --all-features
 
 - [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
 - [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
+- [Batch H proof dependency graph](docs/cryptography/proof-dependency-graph.md)
+- [Batch H claim hardening matrix](docs/cryptography/claim-hardening-matrix.md)
 - [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
 - [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
 - [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
@@ -325,6 +327,8 @@ cargo test -j1 --all-features
 - [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
 - [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
 - [Claims matrix](docs/cryptography/claims-matrix.md)
+- [Batch H claim hardening matrix](docs/cryptography/claim-hardening-matrix.md)
+- [Batch H proof dependency graph](docs/cryptography/proof-dependency-graph.md)
 - [Audit packet](docs/audit/README.md)
 - [Proof obligations](docs/cryptography/proof-obligations.md)
 - [Formal security theorem](docs/cryptography/formal-security-theorem.md)
