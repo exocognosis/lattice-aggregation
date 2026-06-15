@@ -148,6 +148,16 @@ corresponding theorem.
 - `uoce-production-grammar-prerequisite`
 - `uoce-elimination-sequence`
 - `uoce-case-closure-table`
+- `AuthorizedReplay`
+- `MldsaForgery`
+- `ThresholdAuthorizationBreak`
+- `VssDkgBreak`
+- `CommitmentBreak`
+- `ContributionBreak`
+- `RoTranscriptBreak`
+- `CollectionBreak`
+- `EvidenceBreak`
+- `Unmapped`
 - `eps_cls_mldsa`
 - `eps_cls_threshold`
 - `eps_cls_vss_dkg`

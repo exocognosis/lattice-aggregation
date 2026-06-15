@@ -57,6 +57,14 @@ expanded into production-security claims:
 | Adaptive security | [active-adversary-model.md](active-adversary-model.md) | open | Do not claim adaptive security without erasures and a separate proof. |
 | Side-channel resistance | [side-channel-boundary.md](side-channel-boundary.md) | open | Treat constant-time behavior as an audit and production gate, not as current evidence. |
 
+Batch F consistency updates align the classifier grammar on
+`ThresholdAuthorizationBreak`, keep `eps_verify_rej_absorb` and
+`eps_verify_survive` visible in verifier/rejection accounting, and link the
+hazmat proof-bound frame to concrete Rust production statement and fail-closed
+policy names. These updates are traceability improvements only; they do not
+close `eps_classify`, absorb `eps_verify`, or make hazmat scaffold backends
+production secure.
+
 ## Matrix
 
 | Claim | Status | Evidence links | Test or artifact references | Remaining proof, audit, or implementation blockers | Publication wording guidance |

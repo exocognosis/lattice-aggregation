@@ -127,7 +127,18 @@ concrete `eps_contrib`, production side-channel analysis, and external audit.
    modeling.
 6. Close `FST-L10` by proving `eps_cls_unmapped = 0`.
    Use [fst-l10-classifier-theorem-closure.md](fst-l10-classifier-theorem-closure.md)
-   as the classifier batch index.
+   as the classifier batch index and follow the K-route documents:
+   [eps-classify-elimination-route.md](eps-classify-elimination-route.md)
+   for `Theorem K1-classifier-totality-disjointness`,
+   [eps-classify-per-case-reductions.md](eps-classify-per-case-reductions.md)
+   for `Theorem K2-classifier-case-reductions`,
+   [eps-classify-totality-disjointness-closure.md](eps-classify-totality-disjointness-closure.md)
+   for the totality/disjointness closure interface, and
+   [eps-classify-unmapped-zero-theorem.md](eps-classify-unmapped-zero-theorem.md)
+   for `Theorem K4-eps-cls-unmapped-zero`.
+   The ordered classifier vocabulary must use the canonical
+   `ThresholdAuthorizationBreak` case name for threshold-side authorization
+   failures.
 7. Consolidate the accepted-distribution route for `eps_mask`, `eps_rej`, and
    `eps_withhold` through
    [rejection-sampling-theorem-closure.md](rejection-sampling-theorem-closure.md).
@@ -197,6 +208,13 @@ Stable anchors and text markers:
 - `eps_withhold`
 - `eps_classify`
 - `eps_cls_unmapped = 0`
+- `eps-classify-elimination-route.md`
+- `eps-classify-per-case-reductions.md`
+- `eps-classify-totality-disjointness-closure.md`
+- `eps-classify-unmapped-zero-theorem.md`
+- `Theorem K1-classifier-totality-disjointness`
+- `Theorem K2-classifier-case-reductions`
+- `Theorem K4-eps-cls-unmapped-zero`
 - `implementation_residual`
 - `audit_residual`
 - `implementation evidence is not cryptographic proof`

@@ -89,7 +89,7 @@ the fixed production verifier grammar, deterministic authorized-release log
 semantics, completed FST-L1 through FST-L7 routes, and the ordered classifier
 grammar, every accepting unauthorized AggregateOutputRecord, ReleaseSignature,
 EvidenceRecord, or Out* is assigned to exactly one ordered classifier case:
-AuthorizedReplay, MldsaForgery, ThresholdShareBreak, VssDkgBreak,
+AuthorizedReplay, MldsaForgery, ThresholdAuthorizationBreak, VssDkgBreak,
 ContributionBreak, RoTranscriptBreak, CollectionBreak, EvidenceBreak, or
 Unmapped.
 
@@ -108,7 +108,7 @@ The ordered classifier cases are:
 
 1. `AuthorizedReplay`.
 2. `MldsaForgery` charged to `eps_cls_mldsa`.
-3. `ThresholdShareBreak` charged to `eps_cls_threshold`.
+3. `ThresholdAuthorizationBreak` charged to `eps_cls_threshold`.
 4. `VssDkgBreak` charged to `eps_cls_vss_dkg`.
 5. `CommitmentBreak` charged to `eps_cls_commit`.
 6. `ContributionBreak` charged to `eps_cls_contrib`.
@@ -157,7 +157,7 @@ ordered classifier branch.
 | --- | --- | --- |
 | `AuthorizedReplay` | none if byte-equal authorization is present | Deterministic `authorized_release_log` lookup under the production transcript grammar and completed S7 replacement route. |
 | `MldsaForgery` | `eps_cls_mldsa` | ML-DSA-65 EUF-CMA or strong unforgeability; depends on the `FST-L1` through `FST-L7` routing that exposes a fresh accepted signature. |
-| `ThresholdShareBreak` | `eps_cls_threshold` | Threshold-share soundness or ideal signing authorization violation; depends on completed `FST-L1` through `FST-L7` extraction routes. |
+| `ThresholdAuthorizationBreak` | `eps_cls_threshold` | Threshold-share soundness or ideal signing authorization violation; depends on completed `FST-L1` through `FST-L7` extraction routes. |
 | `VssDkgBreak` | `eps_cls_vss_dkg` | `F_VSS_DKG` binding, agreement, extractability, privacy, or key-bias theorem; depends on production VSS/DKG references and the completed predecessor routes. |
 | `CommitmentBreak` | `eps_cls_commit` | Commitment binding, opening-set equality, or context-binding failure; depends on production commitment records and `FST-L1` through `FST-L3`. |
 | `ContributionBreak` | `eps_cls_contrib` | `F_CONTRIB` soundness, extraction, replacement, and contribution relation consistency; depends on production contribution frames, contribution proofs, and `FST-L4` through `FST-L7`. |
@@ -270,7 +270,7 @@ not cryptographic proof.
 - `Out*`
 - `AuthorizedReplay`
 - `MldsaForgery`
-- `ThresholdShareBreak`
+- `ThresholdAuthorizationBreak`
 - `VssDkgBreak`
 - `CommitmentBreak`
 - `ContributionBreak`

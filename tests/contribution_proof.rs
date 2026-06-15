@@ -5,8 +5,15 @@ use dytallix_pq_threshold::{
         ContributionProofSecurityProfile, ContributionStatement, ContributionWitness,
         ProductionContributionStatement, TranscriptHashContributionProofBackend,
         CONTRIBUTION_CHALLENGE_BYTES, CONTRIBUTION_PROOF_BYTES, CONTRIBUTION_STATEMENT_BYTES,
+        PRODUCTION_CONTRIBUTION_STATEMENT_BYTES, PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION,
     },
     ThresholdError, ValidatorId,
+};
+
+#[cfg(feature = "hazmat-real-mldsa")]
+use dytallix_pq_threshold::adapter::actor::{
+    production_contribution_statement_digest_from_scaffold,
+    production_contribution_statement_from_scaffold,
 };
 
 #[test]
@@ -90,15 +97,177 @@ fn production_contribution_statement_canonical_bytes_round_trip() {
 }
 
 #[test]
+fn production_contribution_statement_canonical_layout_matches_c4_binding_tuple() {
+    let statement = fixture_production_statement();
+    let encoded = statement.to_canonical_bytes().expect("encode statement");
+
+    assert_eq!(encoded.len(), PRODUCTION_CONTRIBUTION_STATEMENT_BYTES);
+
+    let mut offset = 0;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(&encoded[offset..offset + 32], &statement.epoch_id);
+    offset += 32;
+    assert_eq!(&encoded[offset..offset + 32], &statement.session_id);
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 8],
+        &statement.block_height.to_be_bytes()
+    );
+    offset += 8;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.attempt.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.validator_index.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.threshold.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 2],
+        &statement.total_nodes.to_be_bytes()
+    );
+    offset += 2;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.validator_set_digest
+    );
+    offset += 32;
+    assert_eq!(&encoded[offset..offset + 32], &statement.public_key_digest);
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.parameter_set_digest
+    );
+    offset += 32;
+    assert_eq!(&encoded[offset..offset + 64], &statement.mu);
+    offset += 64;
+    assert_eq!(
+        &encoded[offset..offset + CONTRIBUTION_CHALLENGE_BYTES],
+        &statement.challenge
+    );
+    offset += CONTRIBUTION_CHALLENGE_BYTES;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.dkg_commitment_digest
+    );
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.masking_commitment_digest
+    );
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.secret_commitment_digest
+    );
+    offset += 32;
+    assert_eq!(
+        &encoded[offset..offset + 32],
+        &statement.contribution_commitment_digest
+    );
+    offset += 32;
+    assert_eq!(offset, PRODUCTION_CONTRIBUTION_STATEMENT_BYTES);
+
+    assert!(matches!(
+        ProductionContributionStatement::from_canonical_bytes(&encoded[..encoded.len() - 1]),
+        Err(ThresholdError::MalformedSerialization { .. })
+    ));
+    let mut extended = encoded;
+    extended.push(0);
+    assert!(matches!(
+        ProductionContributionStatement::from_canonical_bytes(&extended),
+        Err(ThresholdError::MalformedSerialization { .. })
+    ));
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[test]
+fn hazmat_scaffold_to_production_statement_binds_source_context_and_payload() {
+    let statement = fixture_statement();
+    let threshold = 5;
+    let total_nodes = 9;
+    let mu = [0xAB; 64];
+    let payload = b"payload-A";
+
+    let production = production_contribution_statement_from_scaffold(
+        &statement,
+        threshold,
+        total_nodes,
+        &mu,
+        payload,
+    )
+    .expect("scaffold statement should derive production public input");
+
+    assert_eq!(
+        production.protocol_version,
+        PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION
+    );
+    assert_eq!(production.session_id, statement.session_id);
+    assert_eq!(production.block_height, statement.block_height);
+    assert_eq!(production.attempt, statement.attempt);
+    assert_eq!(production.validator_index, statement.validator_index);
+    assert_eq!(production.threshold, threshold);
+    assert_eq!(production.total_nodes, total_nodes);
+    assert_eq!(production.mu, mu);
+    assert_eq!(production.challenge, statement.challenge);
+    assert_eq!(
+        production.dkg_commitment_digest,
+        statement.dkg_commitment_digest
+    );
+    assert_eq!(
+        production.masking_commitment_digest,
+        statement.masking_commitment_digest
+    );
+    assert_eq!(
+        production.secret_commitment_digest,
+        statement.secret_commitment_digest
+    );
+
+    let changed_payload = production_contribution_statement_from_scaffold(
+        &statement,
+        threshold,
+        total_nodes,
+        &mu,
+        b"payload-B",
+    )
+    .expect("changed payload should derive production public input");
+    assert_ne!(
+        production.contribution_commitment_digest, changed_payload.contribution_commitment_digest,
+        "production scaffold public input must bind the raw contribution payload"
+    );
+
+    assert_eq!(
+        production
+            .statement_digest()
+            .expect("digest production statement"),
+        production_contribution_statement_digest_from_scaffold(
+            &statement,
+            threshold,
+            total_nodes,
+            &mu,
+            payload
+        )
+        .expect("digest scaffold-derived production statement")
+    );
+}
+
+#[test]
 fn production_contribution_statement_digest_binds_every_field() {
     let statement = fixture_production_statement();
     let baseline = statement.statement_digest().expect("digest baseline");
 
     let mut cases: Vec<(&str, ProductionContributionStatement)> = Vec::new();
-
-    let mut mutated = statement.clone();
-    mutated.protocol_version = 2;
-    cases.push(("protocol_version", mutated));
 
     let mut mutated = statement.clone();
     mutated.epoch_id[0] ^= 0x01;
@@ -181,6 +350,15 @@ fn production_contribution_statement_rejects_invalid_threshold_or_validator() {
     zero_protocol.protocol_version = 0;
     assert_eq!(
         zero_protocol.to_canonical_bytes(),
+        Err(ThresholdError::MalformedSerialization {
+            reason: "invalid production contribution statement version"
+        })
+    );
+
+    let mut unknown_protocol = fixture_production_statement();
+    unknown_protocol.protocol_version = PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION + 1;
+    assert_eq!(
+        unknown_protocol.to_canonical_bytes(),
         Err(ThresholdError::MalformedSerialization {
             reason: "invalid production contribution statement version"
         })
@@ -448,7 +626,7 @@ fn fixture_statement() -> ContributionStatement {
 
 fn fixture_production_statement() -> ProductionContributionStatement {
     ProductionContributionStatement {
-        protocol_version: 1,
+        protocol_version: PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION,
         epoch_id: [0x91; 32],
         session_id: [0xA1; 32],
         block_height: 42,

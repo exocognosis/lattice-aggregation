@@ -124,7 +124,7 @@ the first predicate that holds:
 3. **Threshold-share violation**: fewer than `t` valid in-set contributors are
    needed for the accepting output, or the output is accepted despite not being
    derivable from `threshold` authorized shares after collection closure.
-   Classify as `ThresholdShareBreak` and charge `eps_cls_threshold`.
+   Classify as `ThresholdAuthorizationBreak` and charge `eps_cls_threshold`.
 4. **VSS/DKG violation**: a counted share or epoch public key is inconsistent
    with accepted setup material, epoch references, public commitments, or the
    ideal setup boundary. Classify as `VssDkgBreak` and charge
@@ -161,7 +161,7 @@ For every accepting unauthorized Out*,
   Classify(Out*) in {
     AuthorizedReplay,
     MldsaForgery,
-    ThresholdShareBreak,
+    ThresholdAuthorizationBreak,
     VssDkgBreak,
     CommitmentBreak,
     ContributionBreak,
@@ -195,7 +195,7 @@ breaks.
 | Classifier case | Reduction map |
 | --- | --- |
 | `MldsaForgery` / `eps_cls_mldsa` | Build an ML-DSA-65 EUF-CMA or strong-unforgeability adversary that outputs `(pk_epoch, m*, sigma*)` from the accepted unauthorized output after authorized replays are excluded. |
-| `ThresholdShareBreak` / `eps_cls_threshold` | Build a threshold-share soundness or ideal signing authorization adversary showing that acceptance was obtained with fewer than `threshold` valid authorized in-set contributions. |
+| `ThresholdAuthorizationBreak` / `eps_cls_threshold` | Build a threshold-share soundness or ideal signing authorization adversary showing that acceptance was obtained with fewer than `threshold` valid authorized in-set contributions. |
 | `VssDkgBreak` / `eps_cls_vss_dkg` | Build a VSS/DKG binding, agreement, extractability, or key-bias adversary from the inconsistent `VSS_DKG_references`, share metadata, or epoch key material. |
 | `CommitmentBreak` / `eps_cls_commit` | Build a commitment binding/opening-set equality adversary, or the selected commitment-assumption adversary, from equivocated, rebound, or out-of-statement commitment records. |
 | `ContributionBreak` / `eps_cls_contrib` | Build a production contribution backend soundness or extraction adversary from a counted contribution with no valid relation witness or replacement proof. |

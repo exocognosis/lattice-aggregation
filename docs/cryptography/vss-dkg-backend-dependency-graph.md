@@ -117,6 +117,66 @@ Close dependencies in this order:
 8. Compose the backend theorem into `FST-T1`, replacing the ideal
    `F_VSS_DKG` dependency with the concrete `eps_vss` residual ledger.
 
+## D3-3A. Rust Boundary Anchors
+<a id="d3-rust-boundary-anchors"></a>
+
+The current Rust crate exposes policy and statement names that future
+production VSS/DKG work must either satisfy or replace. These names are
+traceability anchors, not evidence that a production backend has been selected
+or proved.
+
+| Proof dependency | Rust boundary |
+| --- | --- |
+| Production setup statement | `ProductionVssRelationStatement` |
+| Statement byte contract | `PRODUCTION_VSS_RELATION_STATEMENT_BYTES` |
+| Current deterministic scaffold profile | `VssCommitmentSecurityProfile::DeterministicTranscriptScaffold` |
+| Blocked candidate profile | `VssCommitmentSecurityProfile::ProductionCandidateScaffold` |
+| Required production profile | `VssCommitmentSecurityProfile::ProductionBindingHiding` |
+| Experimental backend family | `ExperimentalVssCommitmentBackend` |
+| VSS-only fail-closed gate | `require_production_vss_backend` |
+| Combined threshold fail-closed gate | `require_production_threshold_backends` |
+
+If a future backend cannot satisfy these anchors or a reviewed replacement, the
+gap remains charged to `eps_vss_impl` and the repository still has no selected
+production VSS/DKG backend.
+
+## D3-3B. Batch G Code-Evidence Anchors
+<a id="d3-batch-g-code-evidence-anchors"></a>
+
+Batch G adds code-evidence anchors for production-shaped VSS relation
+statements and hazmat+experimental actor complaint traces. The complaint-domain
+and complaint-label constants listed here are actor anchors behind the combined
+`hazmat-real-mldsa` + `experimental-vss` feature surface, not plain
+`experimental-vss` VSS-backend exports. These anchors support dependency review
+and `eps_vss_impl` bookkeeping only. They are not a production proof, no
+production backend selected, and no selected production VSS/DKG backend is
+changed by these names.
+
+| Evidence target | Rust anchor |
+| --- | --- |
+| Production VSS relation byte length | `PRODUCTION_VSS_RELATION_STATEMENT_BYTES` |
+| Production VSS relation schema version | `PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION` |
+| Production VSS relation digest domain | `PRODUCTION_VSS_RELATION_STATEMENT_DOMAIN` |
+| Experimental production-shaped object version | `EXPERIMENTAL_VSS_OBJECT_VERSION` |
+| Hazmat+experimental actor complaint trace root domain | `EXPERIMENTAL_VSS_COMPLAINT_DOMAIN` |
+| Complaint context label | `EXPERIMENTAL_VSS_CONTEXT_LABEL` |
+| Dealer commitment label | `EXPERIMENTAL_VSS_DEALER_COMMITMENT_LABEL` |
+| Raw share label | `EXPERIMENTAL_VSS_SHARE_LABEL` |
+| Encrypted-share label | `EXPERIMENTAL_VSS_ENCRYPTED_SHARE_LABEL` |
+| Opening label | `EXPERIMENTAL_VSS_OPENING_LABEL` |
+| Adapter-error label | `EXPERIMENTAL_VSS_ADAPTER_ERROR_LABEL` |
+| Backend label | `EXPERIMENTAL_VSS_BACKEND_LABEL` |
+| Public-key contribution label | `EXPERIMENTAL_VSS_PUBLIC_KEY_CONTRIBUTION_LABEL` |
+| Experimental production relation backend ID | `EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID` |
+| Production relation canonical D3 layout regression | `production_vss_relation_statement_canonical_layout_matches_d3_anchor` |
+| Production relation digest field-binding regression | `production_vss_relation_statement_digest_binds_every_field` |
+| Candidate VSS backend policy rejection regression | `combined_production_policy_rejects_candidate_vss_backend_without_experimental_feature` |
+
+Implementation evidence is not cryptographic proof. These constants and tests
+do not prove malicious-secure DKG, malicious-secure VSS, extractability,
+hiding, complaint soundness, key-bias resistance, anti-framing, or production
+public-key derivation.
+
 ## D3-4. Non-Claims
 <a id="d3-non-claims"></a>
 
@@ -165,8 +225,38 @@ Stable strings:
 - `epoch binding`
 - `implementation/audit`
 - `proof composition into FST-T1`
+- `d3-rust-boundary-anchors`
+- `d3-batch-g-code-evidence-anchors`
+- `hazmat+experimental actor complaint traces`
+- `hazmat-real-mldsa`
+- `experimental-vss`
+- `ProductionVssRelationStatement`
+- `PRODUCTION_VSS_RELATION_STATEMENT_BYTES`
+- `PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION`
+- `PRODUCTION_VSS_RELATION_STATEMENT_DOMAIN`
+- `EXPERIMENTAL_VSS_OBJECT_VERSION`
+- `EXPERIMENTAL_VSS_COMPLAINT_DOMAIN`
+- `EXPERIMENTAL_VSS_CONTEXT_LABEL`
+- `EXPERIMENTAL_VSS_DEALER_COMMITMENT_LABEL`
+- `EXPERIMENTAL_VSS_SHARE_LABEL`
+- `EXPERIMENTAL_VSS_ENCRYPTED_SHARE_LABEL`
+- `EXPERIMENTAL_VSS_OPENING_LABEL`
+- `EXPERIMENTAL_VSS_ADAPTER_ERROR_LABEL`
+- `EXPERIMENTAL_VSS_BACKEND_LABEL`
+- `EXPERIMENTAL_VSS_PUBLIC_KEY_CONTRIBUTION_LABEL`
+- `EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID`
+- `production_vss_relation_statement_canonical_layout_matches_d3_anchor`
+- `production_vss_relation_statement_digest_binds_every_field`
+- `combined_production_policy_rejects_candidate_vss_backend_without_experimental_feature`
+- `VssCommitmentSecurityProfile::DeterministicTranscriptScaffold`
+- `VssCommitmentSecurityProfile::ProductionCandidateScaffold`
+- `VssCommitmentSecurityProfile::ProductionBindingHiding`
+- `ExperimentalVssCommitmentBackend`
+- `require_production_vss_backend`
+- `require_production_threshold_backends`
 - `no selected production VSS/DKG backend`
 - `no production backend selected`
+- `not a production proof`
 - `no malicious-secure DKG proof`
 - `no zero/negligible claim`
 - `implementation evidence is not cryptographic proof`

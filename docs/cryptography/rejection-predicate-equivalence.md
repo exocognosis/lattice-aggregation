@@ -133,6 +133,24 @@ The equivalence proof should decompose all remaining gaps into named events:
 | `B_signature_encoding` | `pack_signature` emits bytes that standard `unpack_signature` or an external ML-DSA verifier would reject, or vice versa. | Open. Needs byte-level round-trip and canonicality proof. |
 | `B_verify_mismatch` | The aggregate predicate accepts a signature whose standard ML-DSA-65 verification predicate rejects. | Open. May be set to zero only after final-wire verification equivalence is proved. |
 
+## Verifier-Mismatch Bridge
+<a id="rpe-verifier-mismatch-bridge"></a>
+
+`B_verify_mismatch` is the bridge from rejection-predicate equivalence to the
+separate verifier-compatibility route. It must not be set to zero, hidden in
+`eps_rej`, or absorbed into `eps_verify_rej_absorb` unless
+[eps-verify-to-rej-absorption-theorem.md](eps-verify-to-rej-absorption-theorem.md)
+proves the relevant candidate tuple satisfies:
+
+```text
+Accept_thr(C) = 1 and Verify_std(C) = 0
+  ==> Reject_pred(C) = 1.
+```
+
+Before that V4 proof is complete, `eps_verify_mismatch` remains a visible
+rejection worksheet term and the verifier-only branch remains visible as
+`eps_verify_survive`. The final-wire verification theorem remains open.
+
 ## Code-to-FIPS/Test Crosswalk
 <a id="rpe-code-fips-crosswalk"></a>
 

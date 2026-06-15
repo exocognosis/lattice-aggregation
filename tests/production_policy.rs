@@ -114,6 +114,34 @@ fn combined_production_policy_rejects_candidate_contribution_proof_backend() {
 }
 
 #[test]
+fn combined_production_policy_rejects_candidate_vss_backend_without_experimental_feature() {
+    let report = ProductionBackendPolicyReport::from_backends(
+        &CandidateVssBackend,
+        &DeclaredProductionContributionProofBackend,
+    );
+
+    assert_eq!(
+        report.vss_profile,
+        VssCommitmentSecurityProfile::ProductionCandidateScaffold
+    );
+    assert_eq!(
+        report.contribution_profile,
+        ContributionProofSecurityProfile::ProductionProofRelation
+    );
+    assert!(!report.supports_production_security_claim());
+    assert_eq!(
+        require_production_threshold_backends(
+            &CandidateVssBackend,
+            &DeclaredProductionContributionProofBackend,
+        ),
+        Err(ThresholdError::BackendUnavailable {
+            reason:
+                "threshold production policy requires production VSS and contribution proof backends",
+        })
+    );
+}
+
+#[test]
 fn production_actor_config_constructor_rejects_scaffold_backend_selection() {
     let err = ActorConfig::new_production_checked(
         ValidatorId(1),
@@ -210,6 +238,39 @@ impl VssCommitmentBackend for DeclaredProductionVssBackend {
     ) -> Result<(), ThresholdError> {
         Err(ThresholdError::BackendUnavailable {
             reason: "test production VSS backend does not implement verification",
+        })
+    }
+}
+
+struct CandidateVssBackend;
+
+impl VssCommitmentBackend for CandidateVssBackend {
+    fn security_profile(&self) -> VssCommitmentSecurityProfile {
+        VssCommitmentSecurityProfile::ProductionCandidateScaffold
+    }
+
+    fn commit_share_contribution(
+        &self,
+        _session_id: SessionId,
+        _threshold: u16,
+        _total_nodes: u16,
+        _share: &ShareContribution,
+    ) -> Result<VssShareCommitment, ThresholdError> {
+        Err(ThresholdError::BackendUnavailable {
+            reason: "test candidate VSS backend does not implement commitment",
+        })
+    }
+
+    fn verify_share_contribution_commitment(
+        &self,
+        _session_id: SessionId,
+        _threshold: u16,
+        _total_nodes: u16,
+        _share: &ShareContribution,
+        _commitment: &VssShareCommitment,
+    ) -> Result<(), ThresholdError> {
+        Err(ThresholdError::BackendUnavailable {
+            reason: "test candidate VSS backend does not implement verification",
         })
     }
 }
