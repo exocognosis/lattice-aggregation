@@ -1,76 +1,499 @@
-# Proof Obligations Matrix
+# Proof Obligation Tracker for Threshold ML-DSA-65
 
-Status: traceability matrix for proof targets, not a completed proof.
+Date: 2026-05-26
 
-Date: 2026-05-27
+## Status
 
-## Scope
+This tracker collects the proof, implementation, and audit obligations that
+must be closed before the repository can make production security claims for a
+threshold ML-DSA-65 construction.
 
-This matrix tracks theorem and lemma areas for the threshold ML-DSA-65
-scaffold against the current proof-surface documents. Status values are limited
-to:
+The current repository is a publishable research scaffold with a feature-gated
+hazmat ML-DSA-65 backend for experiments. It is not a production-secure
+threshold ML-DSA implementation. The obligations below are blockers for any
+claim that the protocol is malicious-secure, side-channel resistant,
+production-ready, or suitable for production slashing.
 
-- `implemented engineering guard`
-- `proof sketch only`
-- `external theorem dependency`
-- `open`
+Implementation tests, deterministic simulations, transcript digests, and
+feature gates are useful engineering evidence. They do not replace the formal
+proofs, backend replacements, audits, and external cryptographic review called
+out here.
 
-An `implemented engineering guard` means the repository has a code or test
-invariant that supports the obligation as a scaffold guard. It is not a
-cryptographic proof. Active-adversary security is not complete in this
-repository.
+For a compact status index of the named theorem-loss terms and residuals, see
+[proof-closure-ledger.md](proof-closure-ledger.md). That ledger is a navigation
+and claim-control artifact; this file remains the detailed proof obligation
+tracker.
 
-## Matrix
+## Claim Status Key
 
-| Area | Source surface | Obligation | Current status | Notes |
-| --- | --- | --- | --- | --- |
-| FST-T1 threshold unforgeability | `formal-security-theorem.md` | Prove threshold EUF-CMA security for static corruption of at most `t - 1` validators from FST-A1 through FST-A8 and FST-L1 through FST-L7. | open | The theorem is explicitly not proved; current backend is deterministic simulation. |
-| FST-T2 real/ideal realization | `formal-security-theorem.md`, `ideal-functionality.md` | Construct a simulator and prove UC-style realization of `F_TMLDSA` under the selected network and corruption model. | open | Requires FST-L1 through FST-L9 plus simulator hybrids and concrete bounds. |
-| FST-T3 transcript non-malleability | `formal-security-theorem.md`, `formal-threshold-mldsa-transcript.md`, `random-oracle-game.md`, `proof-implementation-crosswalk.md` | Show canonical transcript encodings cannot bind one challenge to two distinct typed sessions. | proof sketch only | Current tests cover deterministic ordering and challenge changes, but no formal encoding injectivity proof is present. |
-| FST-T4 implementation conformance gate | `formal-security-theorem.md`, `proof-implementation-crosswalk.md` | Keep conformance evidence separate from cryptographic reductions. | implemented engineering guard | Backend boundaries, type-state flow, and tests support traceability only. |
-| FST-L1 canonical transcript injectivity | `formal-security-theorem.md`, `formal-threshold-mldsa-transcript.md`, `correctness-lemmas.md` | Prove exact production byte encoding is injective for all challenge-bearing fields. | proof sketch only | `SigningTranscript` binds explicit fields; formal wire-level injectivity remains missing. |
-| FST-L2 challenge binding | `formal-security-theorem.md`, `formal-threshold-mldsa-transcript.md`, `random-oracle-game.md`, `correctness-lemmas.md`, `noise-rejection-proof-plan.md` | Prove commitments, session ID, threshold, validator set, key, message, and ordered commitment map are fixed before challenge use. | implemented engineering guard | The scaffold constructs transcripts after canonical commitments; real ML-DSA commitment semantics remain open. |
-| FST-L3 validator-set soundness | `formal-security-theorem.md`, `correctness-lemmas.md`, `proof-implementation-crosswalk.md` | Reject duplicate, unknown, insufficient, and mismatched validator collections before transcript or aggregation use. | implemented engineering guard | `CommitmentSet` and `PartialShareSet` enforce scaffold collection validation. |
-| FST-L4 partial-share validity | `formal-security-theorem.md`, `proof-implementation-crosswalk.md` | Verify each partial share against signer metadata, transcript, commitment, and public key with attributable failure evidence. | open | Simulation partials are deterministic fixtures and do not prove real partial-share equations. |
-| FST-L5 aggregation correctness | `formal-security-theorem.md`, `correctness-lemmas.md` | Show at least `t` valid partial shares for one transcript aggregate to a standard-valid ML-DSA signature. | open | Algebraic response aggregation is stated for a future real backend. |
-| FST-L6 no subthreshold signing | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Show fewer than `t` corrupt shares cannot produce unauthorized aggregate signatures except by breaking listed assumptions. | open | Depends on real VSS/DKG sharing soundness and real partial verification. |
-| FST-L7 abort compatibility | `formal-security-theorem.md`, `noise-rejection-proof-plan.md` | Prove threshold abort and rejection behavior preserves the accepted ML-DSA-65 signature distribution. | open | Requires a selected threshold construction and Fiat-Shamir-with-aborts analysis. |
-| FST-L8 ideal extraction | `formal-security-theorem.md`, `ideal-functionality.md` | Extract or simulate real invalid-share, abort, and aggregate-output events into ideal functionality calls. | open | No simulator construction or extraction proof is present. |
-| FST-L9 evidence noninterference | `formal-security-theorem.md`, `active-adversary-model.md`, `vss-dkg-security-plan.md` | Prove evidence generation reveals no honest secret material and adds no signing capability. | proof sketch only | Evidence categories exist as adapter diagnostics; production anti-framing and leakage proofs remain open. |
-| Correctness Lemma 1 field inversion | `correctness-lemmas.md` | Prove `modular_inverse(a)` returns `a^{-1}` for nonzero field elements and callers avoid zero denominators. | proof sketch only | Fermat-based implementation is described; caller preconditions and timing analysis remain. |
-| Correctness Lemma 2 Lagrange basis | `correctness-lemmas.md` | Prove computed coefficients reconstruct degree-bounded polynomials at zero for duplicate-free nonzero indices. | proof sketch only | Formula is implemented; boundary validation proof is incomplete. |
-| Correctness Lemma 3 Shamir reconstruction over `R_q` | `correctness-lemmas.md`, `vss-dkg-security-plan.md` | Prove coefficient-lane reconstruction of polynomial shares and production-random sharing privacy. | proof sketch only | Algebra is scaffolded; deterministic masks are not privacy evidence. |
-| Correctness Lemma 4 canonical collection determinism | `correctness-lemmas.md`, `proof-implementation-crosswalk.md` | Prove valid network multisets produce canonical order independent of arrival order. | implemented engineering guard | BTree-backed validation and tests support the scaffold invariant. |
-| Correctness Lemma 5 transcript challenge binding | `correctness-lemmas.md`, `formal-security-theorem.md` | Prove challenge bytes are determined by exactly the listed transcript fields. | implemented engineering guard | Implemented for simulation transcript construction, not a full ML-DSA proof. |
-| Correctness Lemma 6 threshold response aggregation | `correctness-lemmas.md`, `noise-rejection-proof-plan.md` | Prove partial responses recombine to `z = y + c * s` in the exact ML-DSA module domain. | open | Real response equations and backend are absent. |
-| Correctness Lemma 7 standard verification compatibility | `correctness-lemmas.md`, `noise-rejection-proof-plan.md` | Prove emitted aggregate signatures pass standard ML-DSA-65 verification. | open | `SimulatedBackend::verify_standard` is unavailable. |
-| Correctness Lemma 8 infinity-norm preservation | `correctness-lemmas.md`, `noise-rejection-proof-plan.md` | Prove accepted aggregate responses, hints, and challenges satisfy all ML-DSA-65 verifier bounds. | open | Scalar `Poly` bound checks are not full module-vector ML-DSA checks. |
-| Noise Lemma A mask commitment before challenge | `noise-rejection-proof-plan.md`, `formal-threshold-mldsa-transcript.md`, `random-oracle-game.md` | Define real mask commitments and prove they are fixed before challenge derivation. | proof sketch only | Ordering exists in the scaffold; real commitment binding/hiding is unspecified. |
-| Noise Lemma B aggregate mask distribution | `noise-rejection-proof-plan.md` | Prove aggregate threshold masks match or are acceptably close to the standard ML-DSA mask distribution. | open | Requires selected construction and statistical-distance bound. |
-| Noise Lemma C response algebra and norm bound | `noise-rejection-proof-plan.md`, `correctness-lemmas.md` | Prove response algebra and final `||z||_inf` bound for accepted signatures. | open | Real aggregate response and module-vector bounds are not implemented. |
-| Noise Lemma D aggregate rejection bound preservation | `noise-rejection-proof-plan.md` | Prove final encoded aggregate responses, hints, and challenges satisfy verifier-side predicates. | open | Boundary and malformed-hint tests are listed as future artifacts. |
-| Noise Lemma E local rejection soundness | `noise-rejection-proof-plan.md` | Define and prove a local accept predicate for partial responses. | open | No production `LocalAccept` predicate is specified. |
-| Noise Lemma F aggregate rejection soundness | `noise-rejection-proof-plan.md` | Define and prove aggregate acceptance gates, including standard verification or equivalent checks. | open | Current aggregator delegates to a simulated hash backend. |
-| Noise Lemma G abort distribution | `noise-rejection-proof-plan.md`, `active-adversary-model.md` | Bound observable local and aggregate abort leakage under the chosen adversary view. | open | Requires network, retry, slashing, and leakage model choices. |
-| Noise Lemma H accepted-signature distribution | `noise-rejection-proof-plan.md` | Prove accepted threshold signatures have the standard ML-DSA-65 distribution or quantified distance. | open | Needs external threshold ML-DSA construction and review. |
-| VSS binding | `vss-dkg-security-plan.md` | Prove accepted VSS commitments bind to one degree-`< tau` dealer polynomial and context. | open | Current VSS is deterministic scaffold code. |
-| VSS hiding | `vss-dkg-security-plan.md` | Prove fewer than `tau` corrupt validators learn no useful secret information before reconstruction. | open | Requires production commitments, encrypted shares, and proof system. |
-| VSS extractability | `vss-dkg-security-plan.md` | Extract a unique accepted dealer polynomial or reject with public evidence. | open | No production extractable proof system is selected. |
-| DKG output agreement and robustness | `vss-dkg-security-plan.md`, `active-adversary-model.md` | Prove honest validators finalize one accepted-dealer set, transcript, share relation, and public key. | open | Simulated DKG is not malicious-secure. |
-| DKG key-bias resistance | `vss-dkg-security-plan.md`, `active-adversary-model.md` | Prove rushing adversaries cannot bias the joint key beyond the stated bound. | open | Requires commit-before-share or equivalent production protocol proof. |
-| Complaint evidence anti-framing | `active-adversary-model.md`, `vss-dkg-security-plan.md` | Define public evidence predicates that identify dealer or receiver faults without framing honest validators. | proof sketch only | Evidence semantics are specified as requirements; adapter evidence is not production slashing authority. |
-| Static active adversary model | `active-adversary-model.md`, `formal-security-theorem.md` | Choose and prove static active security for the first production claim. | proof sketch only | The model is described, but no proof is completed. |
-| Adaptive active adversary with erasures | `active-adversary-model.md`, `formal-security-theorem.md` | Prove adaptive security with erasure points, channel assumptions, and state-exposure theorem. | open | The docs explicitly prohibit adaptive claims without these additions. |
-| Standard ML-DSA-65 unforgeability | `formal-security-theorem.md` | Rely on accepted ML-DSA-65 EUF-CMA security for the selected model. | external theorem dependency | Must cite the external FIPS 204/ML-DSA security analysis used by the final proof. |
-| Commitment and proof-system soundness | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Rely on binding, hiding, extractability, and zero-knowledge properties of selected production primitives. | external theorem dependency | No concrete primitive or audited proof backend is selected yet. |
-| Constant-time and side-channel discipline | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Show implementation leakage does not invalidate the proof assumptions. | open | No side-channel audit is complete. |
+- **Open**: proof work is not complete and no production claim may rely on it.
+- **Scaffold Evidence Only**: repository artifacts fix an interface,
+  transcript shape, or test boundary, but do not prove the cryptographic claim.
+- **Idealized Proof Path**: an immediate theorem may assume an ideal
+  functionality, but no production claim may rely on it as an implementation.
+- **Implementation Gate Only**: code rejects unsafe backend declarations or
+  malformed artifacts, but the gate is not a proof of backend security.
+- **Production Blocker**: this obligation must be closed before production
+  security, deployment-readiness, or production slashing claims are made.
 
-## Wording Risks
+## Full-Proof Surface Status Overlay
 
-- Rows marked `implemented engineering guard` must not be quoted as proof of
-  FST-T1, FST-T2, active-adversary security, or production ML-DSA compatibility.
-- Rows marked `proof sketch only` identify proof-plan text or scaffold evidence,
-  not theorem completion.
-- Active-adversary and adaptive-corruption claims remain incomplete until a
-  production VSS/DKG protocol, network model, erasure model, and simulator are
-  selected and proved.
+The full-proof surface introduced on 2026-05-27 uses this more granular review
+language when mapping theorem and lemma targets to current repository evidence:
+
+- **implemented engineering guard**: code or tests enforce a scaffold
+  invariant, but no cryptographic proof follows from the guard alone.
+- **proof sketch only**: the repository states a plausible proof shape or
+  lemma, but has not completed a reduction, simulator, or parameter-specific
+  proof.
+- **external theorem dependency**: a final proof must cite and instantiate an
+  external result, such as the accepted ML-DSA-65 security theorem or a
+  selected commitment/proof-system theorem.
+- **open**: no production-facing claim may rely on the obligation.
+
+| Proof surface | Source | Current status | Closure requirement |
+| --- | --- | --- | --- |
+| FST-T1-IdealVSS threshold unforgeability under `F_VSS_DKG` | [formal-security-theorem.md](formal-security-theorem.md), [vss-idealization-and-selection.md](vss-idealization-and-selection.md) | Idealized Proof Path | Complete FST-L1 through FST-L7 under the explicit ideal setup assumption and reduce unauthorized signing to ML-DSA-65 or remaining signing-side assumption violations. This can unblock the signing proof only, not production VSS/DKG. |
+| FST-T1 threshold unforgeability | [formal-security-theorem.md](formal-security-theorem.md) | open | Complete FST-L1 through FST-L7, instantiate assumptions, and reduce forgeries to ML-DSA-65 or selected backend assumptions. Production FST-T1 remains blocked after idealization until concrete VSS/DKG realizes the setup assumptions. |
+| FST-T2 real/ideal realization | [ideal-functionality.md](ideal-functionality.md) | open | Build simulator hybrids for DKG, commitments, partial shares, aborts, evidence, and final signatures. |
+| FST-T3 transcript non-malleability | [formal-security-theorem.md](formal-security-theorem.md), [random-oracle-game.md](random-oracle-game.md) | proof sketch only | Prove typed byte encodings are injective and domain-separated across `H_mu`, `H_w`, `H_c`, `H_vss`, and `H_contrib`. |
+| FST-T4 implementation conformance | [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md) | implemented engineering guard | Keep tests as necessary traceability gates while preserving the boundary that tests do not prove cryptographic security. |
+| Lagrange and Shamir reconstruction | [correctness-lemmas.md](correctness-lemmas.md) | proof sketch only | Prove all nonzero, duplicate-free active sets reconstruct over `Z_q` coefficient lanes and that callers enforce preconditions. |
+| Standard ML-DSA verification compatibility | [correctness-lemmas.md](correctness-lemmas.md), [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md) | open | Prove accepted threshold transcripts produce `(c, z, h)` accepted by unmodified ML-DSA-65 verification. |
+| Noise and rejection-sampling preservation | [noise-rejection-proof-plan.md](noise-rejection-proof-plan.md), [mask-distribution-equivalence.md](mask-distribution-equivalence.md), [withholding-abort-bound.md](withholding-abort-bound.md) | open | Bound mask distribution, accepted-signature distribution, and selective-abort leakage for the chosen threshold construction. |
+| VSS binding, hiding, and extractability | [vss-dkg-security-plan.md](vss-dkg-security-plan.md) | open | Select and prove a production VSS/DKG relation with complaint soundness and anti-framing semantics. |
+| Static active adversary model | [active-adversary-model.md](active-adversary-model.md) | proof sketch only | Fix exact corruption, rushing, synchrony, and evidence semantics used by the first production theorem. |
+| Adaptive security with erasures | [active-adversary-model.md](active-adversary-model.md) | open | Add erasure points, state exposure rules, and a separate simulator theorem. |
+| Side-channel and constant-time discipline | [side-channel-boundary.md](side-channel-boundary.md) | open | Add leakage-model closure, empirical timing artifacts, code review, compiler-output review, and external audit. |
+
+## PO-1: Malicious-Secure DKG/VSS
+
+### Statement
+
+The DKG/VSS layer must ensure that accepted dealer shares are bound to a single
+degree-`t - 1` secret polynomial per dealer, preserve receiver privacy where
+required, support sound complaint resolution, and derive one epoch public key
+and one consistent set of validator shares for the accepted epoch.
+
+### Current Evidence
+
+- [production-vss-backend.md](production-vss-backend.md) specifies the target
+  production VSS relation, public parameters, statement digest, complaint
+  evidence boundary, and production backend profile.
+- [security-model.md](security-model.md) states DKG share soundness as a
+  required game.
+- [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks setup/DKG
+  idealization as an open hybrid.
+- [vss-idealization-and-selection.md](vss-idealization-and-selection.md)
+  records the immediate `FST-T1-IdealVSS` route through `F_VSS_DKG`; this is an
+  ideal assumption for the signing proof, not production VSS evidence.
+- The current scaffold includes deterministic VSS/interpolation tests and a
+  production policy gate that rejects scaffold VSS backends for
+  production-labeled configuration.
+
+### Missing Proof Work
+
+- Define the concrete commitment, opening, and proof relation for dealer shares.
+- Prove binding to one polynomial per accepted dealer and subset consistency for
+  all accepted honest receivers.
+- Prove receiver privacy for unopened honest shares under the selected
+  transcript and complaint model.
+- Prove complaint resolution is deterministic, sound, anti-framing, and bound
+  to `epoch_id`, validator set, threshold, dealer identity, and receiver
+  identity.
+- Prove public-key derivation is deterministic from accepted commitments and is
+  compatible with the threshold signing proof.
+
+### Implementation/Audit Closure Criteria
+
+- Replace deterministic scaffold VSS with a reviewed production backend
+  declaring `ProductionBindingHiding` only for the final relation.
+- Exercise valid, invalid, equivocated, duplicate, unknown-validator, and
+  complaint-resolution paths with deterministic and randomized tests.
+- Audit canonical encoding, backend identifiers, versioning, randomness,
+  confidential share delivery assumptions, and fail-closed production policy.
+- Obtain external cryptographic review of the VSS/DKG construction and its
+  integration with the signing proof.
+
+### Claim Status
+
+Production Blocker. Current evidence is scaffold evidence and implementation
+gating only; it does not establish malicious-secure DKG or VSS. The ideal
+`F_VSS_DKG` route may discharge this obligation for the immediate signing proof
+variant labeled `IdealVSS`, but the concrete production VSS/DKG realization
+remains open and not proven.
+
+## PO-2: Contribution Proof Soundness and Hiding
+
+### Statement
+
+Each accepted partial contribution must be accompanied by a sound relation that
+binds the contributor, session, challenge, DKG public material, masking
+commitments, claimed contribution encoding, and ML-DSA-65 parameter set while
+hiding secret-dependent witness material.
+
+### Current Evidence
+
+- [proof-bearing-contribution-boundary.md](proof-bearing-contribution-boundary.md)
+  defines the current proof-bearing boundary and the production replacement
+  target.
+- [contribution-soundness-relation.md](contribution-soundness-relation.md)
+  defines the production public statement, witness relation, soundness game,
+  extraction target, witness-hiding target, context-binding requirements, and
+  non-claims needed to replace the scaffold.
+- [contribution-backend-instantiation.md](contribution-backend-instantiation.md)
+  defines the backend declaration, backend-family split, theorem target,
+  acceptance criteria, and non-claims needed before `eps_contrib` can close.
+- [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks contribution
+  proof soundness as an open hybrid.
+- [security-model.md](security-model.md) explicitly states that the current
+  `ContributionProof` is a transcript-hash scaffold, not a sound partial
+  contribution relation.
+- The current wire and actor paths bind production contribution statement
+  digests and reject digest mismatches in tested scaffold paths.
+
+### Missing Proof Work
+
+- Specify the production contribution relation, including public inputs,
+  witness material, accepted encodings, and ML-DSA partial-share predicates.
+- Prove knowledge soundness or equivalent verification soundness for accepted
+  contributions.
+- Prove zero-knowledge, MPC privacy, or an equivalent hiding property for
+  secret-share terms, masking material, and `c*s1`, `c*s2`, or `c*t0`-dependent
+  values.
+- Prove session, attempt, challenge, validator, DKG, and commitment binding
+  without relying on opaque payload bytes.
+- Show how extractor or verifier outputs plug into the threshold EUF-CMA
+  reduction.
+- Select a backend family and bind it to a reviewed soundness, hiding,
+  extraction or substitute, leakage, and context-binding theorem.
+
+### Implementation/Audit Closure Criteria
+
+- Replace transcript-hash payload-digest proofs with a production relation or
+  reviewed MPC verification mechanism.
+- Keep the production policy gate fail-closed for transcript-hash and candidate
+  scaffold backends.
+- Add tests for valid contributions, malformed witnesses, wrong challenge,
+  wrong DKG statement, wrong validator index, replayed session data, and
+  serialization edge cases.
+- Audit witness lifetime, memory exposure, logging, debug formatting, and
+  rejection paths.
+- Obtain external cryptographic review of the proof system or MPC verification
+  relation.
+
+### Claim Status
+
+Production Blocker. Current contribution proofs provide transcript
+digest-binding only and must not be described as sound, hidden, zero-knowledge,
+or production-ready. The contribution soundness worksheet fixes the target
+relation for a future backend, but it does not close this obligation.
+
+## PO-2A: Unauthorized Output Classification
+
+### Statement
+
+Every accepting aggregate output for an unauthorized message must map to a base
+ML-DSA forgery or to a named threshold-side assumption violation. No final
+theorem may hide an accepting output in `eps_cls_unmapped`.
+
+### Current Evidence
+
+- [simulator-hybrid-reductions.md](simulator-hybrid-reductions.md) decomposes
+  `eps_classify` into named classifier cases.
+- [unauthorized-output-classifier-closure.md](unauthorized-output-classifier-closure.md)
+  defines the classifier input tuple, ordered grammar, totality/disjointness
+  targets, reduction map, acceptance criteria, and non-claims.
+
+### Missing Proof Work
+
+- Fix the production verifier grammar for every accepted aggregate output.
+- Prove the classifier is total and deterministic over the accepted grammar.
+- Provide a concrete reduction algorithm, runtime loss, and success
+  probability for each non-gap case.
+- Prove `eps_cls_unmapped = 0` before removing `eps_classify` from the final
+  theorem.
+
+### Claim Status
+
+Production Blocker. The classifier route is documented, but the zero-unmapped
+proof and per-case reductions remain open.
+
+## PO-3: Selective-Abort/Retry Bound
+
+### Statement
+
+The signing protocol must bound the advantage an active adversary gains by
+withholding commitments, openings, or partial contributions after learning
+protocol state, including any bias introduced by retrying ML-DSA rejection
+sampling attempts.
+
+### Current Evidence
+
+- [formal-proof-scaffold.md](formal-proof-scaffold.md) identifies
+  rejection-sampling and selective-abort as an open hybrid.
+- [rejection-predicate-equivalence.md](rejection-predicate-equivalence.md)
+  isolates the H4 -> H5 `eps_rej` predicate-equivalence target and names the
+  centered-bound, low-bit, `ct0`, hint, challenge, active-set, signature
+  encoding, and verifier-mismatch bad events.
+- [withholding-abort-bound.md](withholding-abort-bound.md) isolates the H5 ->
+  H6 `eps_withhold` route with `O_abort`, simulator, retry-limit, timeout, and
+  no-double-counting obligations.
+- [security-model.md](security-model.md) names challenge bias through selective
+  aborts as an attack surface.
+- [claims-matrix.md](claims-matrix.md) classifies the rejection sampling,
+  retry, and selective-abort boundary as research scaffold only.
+- Actor simulations and telemetry distinguish rejection/retry paths from
+  malformed-evidence paths under modeled profiles.
+
+### Missing Proof Work
+
+- Define the maximum retry policy, exclusion policy, and attempt transcript
+  binding used by production deployments.
+- Define the theorem-level abort transcript `O_abort`, including retry counts,
+  evidence records, timeout/exclusion records, and visible timing or
+  message-size classes.
+- Prove a simulator can emit every included abort observable from public data
+  and allowed leakage, without honest masks or honest secret shares.
+- Prove a retry-conditioning lemma with a concrete `R_max`, acceptance
+  probability lower bound, fresh attempt domains, and visible
+  `eps_retry_limit`.
+- Prove no commitment or masking material is reused across attempts in a way
+  that leaks honest shares or increases challenge bias.
+- Bound adversarial conditioning on accepted challenges, rejection predicates,
+  and quorum composition.
+- Separate slashable malformed behavior from non-slashable network loss,
+  timeout, or honest ML-DSA rejection events.
+- State the final statistical or computational distance bound used in the
+  security theorem.
+
+### Implementation/Audit Closure Criteria
+
+- Implement explicit production retry limits, attempt identifiers, fresh
+  randomness requirements, and deterministic exclusion rules.
+- Pin a production route model in the active-adversary document before any
+  theorem claims a bounded `eps_withhold` term.
+- Add tests for retry exhaustion, contribution withholding, reordered attempts,
+  stale commitments, reused attempt data, and quorum replacement.
+- Audit telemetry and evidence labels so retry failures are not treated as
+  cryptographic slashing proof without the production policy.
+- Review liveness and timeout assumptions with the consensus integration.
+
+### Claim Status
+
+Production Blocker. Current telemetry and simulations identify retry behavior
+but do not prove a selective-abort or challenge-bias bound. The `eps_rej`
+predicate worksheet improves the closure route for one subterm, but it does
+not close mask distribution or selective-abort conditioning.
+
+## PO-4: Aggregation/Noise Correctness
+
+### Statement
+
+Every accepted threshold transcript must aggregate to ML-DSA-65 values whose
+response vector, low bits, hint data, challenge, and final encoding satisfy the
+unmodified ML-DSA-65 verification equations and parameter bounds.
+
+### Current Evidence
+
+- [noise-bound-proof-outline.md](noise-bound-proof-outline.md) records the
+  required lemmas and parameter-specific bound obligations.
+- [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks aggregation
+  correctness and standard verification compatibility as open hybrids.
+- [claims-matrix.md](claims-matrix.md) classifies the noise-bound and
+  aggregation correctness proof as production blocked.
+- Hazmat bridge and standard-verification tests show selected current
+  artifacts can verify, but only as implementation evidence.
+
+### Missing Proof Work
+
+- Instantiate the ML-DSA-65 parameters and prove the final `z`, low-bit, hint,
+  and challenge constraints for all accepted transcripts.
+- Define how threshold masking is sampled so the reconstructed masking value
+  has the required ML-DSA distribution or a quantified close distribution.
+- Bound or avoid Lagrange-coefficient growth in reconstructed masking and
+  response vectors.
+- Prove rejection sampling restores the target distribution without violating
+  the selective-abort bound.
+- Prove final byte encoding and public verification semantics match FIPS 204
+  ML-DSA-65 where claimed.
+
+### Implementation/Audit Closure Criteria
+
+- Implement production aggregation checks tied to the proven predicates rather
+  than simulation-only noise checks.
+- Add boundary tests for ML-DSA-65 coefficient limits, hint cardinality, sparse
+  challenge handling, low-bit equations, and invalid encodings.
+- Add differential or KAT-style regression coverage for the final production
+  aggregation path where applicable.
+- Audit serialization and canonical encoding used by the final verifier.
+
+### Claim Status
+
+Production Blocker. Current tests are compatibility and regression evidence;
+they do not prove that every accepted threshold transcript satisfies ML-DSA-65
+noise and aggregation requirements.
+
+## PO-5: Transcript/Challenge Unbiasability
+
+### Statement
+
+The Fiat-Shamir challenge must be derived from a canonical, domain-separated,
+pre-committed transcript that prevents participant ordering, proposer control,
+commitment equivocation, retry selection, or missing context from biasing the
+challenge beyond the stated bound.
+
+### Current Evidence
+
+- [formal-threshold-mldsa-transcript.md](formal-threshold-mldsa-transcript.md)
+  defines the current transcript shape and binding fields.
+- [formal-proof-scaffold.md](formal-proof-scaffold.md) tracks challenge
+  unbiasability as an open hybrid.
+- [security-model.md](security-model.md) identifies challenge unbiasability as
+  a protected asset and security game.
+- Transcript determinism and wire canonicalization tests support current
+  ordering discipline in scaffold paths.
+
+### Missing Proof Work
+
+- Prove challenge derivation occurs only after a binding commitment quorum is
+  fixed.
+- Prove all challenge inputs are canonical, domain-separated, versioned, and
+  bound to epoch, validator set, threshold, session, attempt, message, public
+  key, and relevant DKG state.
+- Prove proposer or aggregator ordering choices cannot influence the challenge.
+- Compose the challenge proof with the selective-abort/retry bound.
+- Specify which consensus context is inside the ML-DSA message or digest and
+  which context is audit metadata outside standard verification.
+
+### Implementation/Audit Closure Criteria
+
+- Freeze canonical transcript encodings and domain labels for production.
+- Add regression tests for field omission, field reordering, duplicate
+  validators, unknown validators, stale attempts, cross-epoch replay, and
+  alternate proposer ordering.
+- Audit transcript versioning, digest inputs, public-key binding, and
+  compatibility with unmodified ML-DSA verification.
+- Obtain external review of the random-oracle programming and transcript
+  binding argument.
+
+### Claim Status
+
+Production Blocker. Current canonicalization tests support the scaffold, but
+they do not establish challenge unbiasability.
+
+## PO-6: Side-Channel and Leakage Boundary
+
+### Statement
+
+Production code must not leak honest secret shares, masking material,
+contribution witnesses, or rejection-sensitive information through timing,
+memory access patterns, logging, serialization, telemetry, debug output,
+benchmark artifacts, or exposed hazmat payloads.
+
+### Current Evidence
+
+- [security-model.md](security-model.md) lists side-channel resistance as an
+  assumption only if timing claims are made.
+- [formal-proof-scaffold.md](formal-proof-scaffold.md) names side-channel
+  resistance as an explicit non-claim for the current backend.
+- [proof-bearing-contribution-boundary.md](proof-bearing-contribution-boundary.md)
+  documents that the current witness still contains raw payload material in
+  memory and that current proofs are not hiding.
+- [claims-matrix.md](claims-matrix.md) marks side-channel and timing resistance
+  as not claimed.
+
+### Missing Proof Work
+
+- Define the leakage model for production arithmetic, proof generation,
+  contribution verification, rejection sampling, and evidence generation.
+- Prove or justify that public transcript data and accepted proof objects do not
+  reveal honest witness material beyond intended public outputs.
+- Define erasure requirements if adaptive-security claims are later added.
+- Show benchmark, tracing, and telemetry artifacts do not expose
+  secret-dependent values or rejection-sensitive correlations.
+
+### Implementation/Audit Closure Criteria
+
+- Replace raw hazmat payload exposure at protocol boundaries with hiding
+  production proofs or MPC verification artifacts.
+- Complete constant-time and leakage audits for arithmetic, proof generation,
+  verification, rejection paths, serialization, logging, and debug formatting.
+- Add leakage-oriented test or measurement coverage where meaningful, such as
+  timing tests for selected critical paths.
+- Document operational controls for randomness, memory handling, telemetry, and
+  artifact retention.
+
+### Claim Status
+
+Production Blocker. Side-channel resistance and leakage freedom are not claimed
+by the current repository.
+
+## PO-7: Production Slashing/Evidence Soundness
+
+### Statement
+
+Production evidence must be sound, canonical, replay-resistant, and
+anti-framing: an adversary must not be able to produce valid-looking slashing
+evidence against an honest validator for behavior the validator did not perform.
+
+### Current Evidence
+
+- [security-model.md](security-model.md) defines evidence soundness as a
+  required game and separates liveness penalties from cryptographic slashing
+  proof.
+- [production-vss-backend.md](production-vss-backend.md) explains that current
+  `ProductionVssRelationStatement` digests bind observed evidence to future
+  public VSS inputs, but are not production slashing evidence.
+- [claims-matrix.md](claims-matrix.md) classifies artifact-to-frame binding and
+  invalid-share evidence shape as research scaffold only.
+- Current adapter evidence binds observed frames to canonical digests in tested
+  scaffold paths.
+
+### Missing Proof Work
+
+- Specify the production evidence relation for malformed DKG shares, invalid
+  contribution proofs, equivocated commitments, replayed frames, and other
+  slashable cryptographic faults.
+- Prove evidence cannot be replayed across epochs, sessions, attempts,
+  validator sets, dealer identities, receiver identities, or backend versions.
+- Prove evidence verification is deterministic and does not depend on honest
+  aggregators, proposers, or network ordering.
+- Prove anti-framing for honest validators under authenticated transport and
+  canonical serialization assumptions.
+- Define which failures are slashable cryptographic faults and which are
+  non-slashable liveness, timeout, or network conditions.
+
+### Implementation/Audit Closure Criteria
+
+- Implement production evidence verifiers for the final VSS and contribution
+  proof relations.
+- Add tests for replay, equivocation, forged identity, malformed canonical
+  encodings, stale backend versions, missing context, and honest-validator
+  anti-framing cases.
+- Audit integration with authenticated transport, consensus identity binding,
+  evidence retention, and slashing policy.
+- Obtain external review of evidence soundness before enabling production
+  slashing or penalty claims.
+
+### Claim Status
+
+Production Blocker. Current evidence artifacts are structured candidates for
+future verifiers; they are not production slashing evidence.
+
+## Production Claim Gate
+
+Before any production security claim, deployment-readiness claim, or production
+slashing claim is made, all seven obligations above must be closed by the
+combination of:
+
+1. a concrete production backend or relation,
+2. a completed proof under the stated security model,
+3. implementation tests that exercise the proven boundary,
+4. side-channel and leakage review where secret-dependent code exists,
+5. operational and consensus assumptions documented in deployment terms, and
+6. external cryptographic review.
+
+Until then, safe wording is limited to research-scaffold, transcript-shape,
+implementation-boundary, simulation, and regression-test claims of the kind
+tracked in [claims-matrix.md](claims-matrix.md).

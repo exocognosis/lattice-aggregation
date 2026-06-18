@@ -10,10 +10,18 @@ security. It complements `correctness-lemmas.md` by focusing on infinity-norm
 bounds, Fiat-Shamir-with-aborts behavior, and rejection-sampling distribution
 preservation.
 
-The current repository contains only simulation and arithmetic scaffolding. The
-real ML-DSA-65 backend, bridge test, noise-bound proof outline, and protocol
-spec requested for review were not present in this checkout. All real-backend
-claims below are obligations, not implemented facts.
+The next proof layer is
+[`rejection-sampling-hybrid-proof.md`](rejection-sampling-hybrid-proof.md),
+which breaks the rejection-sampling argument into H0 through H6 hybrids:
+centralized ML-DSA, shared secret decomposition, shared mask generation,
+commit-before-challenge, partial response reconstruction, aggregate rejection,
+and accepted-signature distribution.
+
+The current repository contains simulation scaffolding plus hazmat ML-DSA-65
+arithmetic, standard verification, and bridge-test surfaces. These are valuable
+implementation evidence, but they do not prove the threshold rejection-sampling
+distribution. All production threshold claims below remain obligations, not
+implemented proof facts.
 
 ## Objects to Specify
 
@@ -30,6 +38,8 @@ The complete proof must first define these objects for ML-DSA-65:
   ML-DSA-65 parameter set.
 - Abort predicate `Reject(...)` and retry/attempt transcript binding.
 
+<a id="noise-bound-obligations"></a>
+
 ## Proof Goal
 
 For any execution that outputs an aggregate signature `sigma`, prove:
@@ -42,6 +52,11 @@ and prove that the distribution of accepted aggregate signatures is
 computationally indistinguishable from the distribution required by standard
 ML-DSA-65 signing with the same public key and message, subject to the chosen
 threshold security model.
+
+This goal is not complete. The current documents provide proof sketches for
+some algebraic and transcript-ordering layers, but leave the shared-mask
+distribution, selective-abort simulation, and accepted-signature distribution
+as open proof obligations.
 
 ## Lemma A: Local Mask Commitment Before Challenge
 
@@ -192,6 +207,8 @@ Remaining proof work:
 - Add standard verifier acceptance as a required backend gate.
 - Prove canonical ordering prevents signature malleability from network order.
 
+<a id="rejection-sampling-gap"></a>
+
 ## Lemma G: Abort Distribution Obligation
 
 Statement: The observable abort behavior of the threshold protocol must not
@@ -223,6 +240,11 @@ Statement: The distribution of accepted threshold signatures is the standard
 ML-DSA-65 accepted-signature distribution, or is within a stated statistical
 distance that the security proof accepts.
 
+Hybrid mapping: This is the H6 target in
+[`rejection-sampling-hybrid-proof.md#rsh-h6-accepted-signature-distribution`](rejection-sampling-hybrid-proof.md#rsh-h6-accepted-signature-distribution).
+The current H6 text is only a proof skeleton. It must not be read as a
+completed equivalence proof.
+
 Proof strategy:
 
 1. Show mask generation is equivalent to standard signing before conditioning.
@@ -239,6 +261,29 @@ Remaining proof work:
 - Select and cite the exact threshold ML-DSA construction being implemented.
 - Prove each hybrid step for ML-DSA-65 parameters.
 - Obtain external cryptographic review before production use.
+
+## Proof Sketch vs Open Status
+
+The repository currently supports these proof-sketch layers:
+
+- Shared-secret reconstruction algebra, as stated in `correctness-lemmas.md`
+  and exercised by hazmat reconstruction tests.
+- Commit-before-challenge ordering, as modeled by the transcript and hazmat
+  threshold-attempt state machine.
+- Aggregate rejection checks for selected hazmat paths, including `z`, low-bit,
+  `ct0`, hint-weight, stale-challenge, and standard internal-`mu` verification
+  examples.
+
+The repository does not yet prove these layers:
+
+- Exact or statistically close shared-mask distribution for threshold signing.
+- Distribution preservation under Lagrange or additive mask combination.
+- Selective-abort simulation and abort-bias bounds.
+- Exact equivalence between the aggregate rejection predicate and the
+  centralized ML-DSA rejection event.
+- Accepted-signature distribution equivalence. Distribution equivalence remains
+  open until the H2, H5, and H6 obligations in
+  `rejection-sampling-hybrid-proof.md` are completed.
 
 ## Required Tests and Artifacts
 

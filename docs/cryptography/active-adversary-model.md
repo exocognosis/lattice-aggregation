@@ -1,4 +1,5 @@
 # Active Adversary Model for Proof-Grade VSS/DKG
+<a id="active-adversary-model"></a>
 
 Date: 2026-05-27
 
@@ -124,6 +125,28 @@ All messages must be signed or otherwise authenticated, domain-separated by
 protocol label, version, epoch, session ID, dealer, receiver when applicable,
 round number, validator set digest, threshold, and message type.
 
+## Current Proof-Closure Route Selection
+<a id="eps-withhold-production-route-selection"></a>
+
+The immediate `eps_withhold` proof route is scoped to Option A, static active
+corruptions, with rushing behavior inside each protocol round. This selection
+is a theorem-planning boundary only; it is not a claim that the current
+implementation proves static active security.
+
+For the H5 -> H6 selective-abort route in
+[withholding-abort-bound.md](withholding-abort-bound.md), the proof must use:
+
+- static corruptions fixed before DKG and before signing commitments;
+- authenticated, context-bound broadcast or an explicitly modeled
+  partially-synchronous transport;
+- a concrete retry cap `R_max`;
+- deterministic timeout and signer-exclusion rules;
+- an explicit abort-observable set `O_abort`;
+- a separate availability statement for denial of service.
+
+Adaptive corruptions, erasure-dependent claims, and production slashing
+soundness remain outside this first route.
+
 ## Complaint and Evidence Semantics
 
 Complaint evidence must be precise enough to support anti-framing. The current
@@ -191,4 +214,3 @@ The current deterministic simulation code does not provide:
 - Bias-resistant DKG.
 - Production slashing predicates.
 - A proof that simulated aggregate signatures are standard ML-DSA signatures.
-
