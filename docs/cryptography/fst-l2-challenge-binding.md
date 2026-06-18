@@ -22,7 +22,7 @@ random-oracle model. It does not complete the global security proof. It does
 not prove random-oracle programmability, production commitment binding,
 commitment hiding, challenge unbiasability, or replay resistance. It names the
 bad events and accounting required before `FST-L2` can be treated as closed in
-a production theorem.
+a production theorem route, conditional on the listed residuals.
 
 ## FSTL2-1. Theorem Context
 <a id="fstl2-theorem-context"></a>
@@ -51,33 +51,31 @@ eps_commit_open_set
 ## FSTL2-2. Inputs and Transcript Records
 <a id="fstl2-inputs-transcript-records"></a>
 
-The challenge input is the canonical `ChallengeRecord` consumed by the
-random-oracle domain `H_c`. For theorem-closure purposes the record is the
-following injectively encoded tuple:
+The challenge input is `H_c(ChallengeRecord)`, where `ChallengeRecord` is the
+canonical record from
+[production-transcript-grammar.md](production-transcript-grammar.md):
 
 ```text
 ChallengeRecord = Enc(
-  H_c,
-  transcript_grammar_version,
+  "lattice-aggregation/threshold-mldsa65/challenge",
+  version,
   SigningContext,
-  ActiveSet,
+  active_set,
   OrderedMaskCommitSet,
   OrderedMaskOpenSet,
-  message_digest,
-  epoch_key_or_digest,
-  attempt_id
+  aggregate_public_w1_or_digest
 )
 ```
 
-where `SigningContext` includes the session and protocol context fields used
-by the production grammar, `ActiveSet` is the canonical active signer set, the
-commitment and opening sets are ordered canonical records, `message_digest`
-is the digest bound into signing, `epoch_key_or_digest` is the epoch public
-key or its canonical digest together with the DKG/epoch digest required by the
-grammar, `attempt_id` distinguishes retries, and `transcript_grammar_version`
-selects the parser and encoding rules. The leading `H_c` field denotes the
-random-oracle domain separation for signing-challenge derivation, not merely
-a free-form label.
+The `H_c` random-oracle domain consumes this canonical record; it is not an
+extra top-level field inside the record. `SigningContext` binds message
+binding, epoch key, DKG digest, threshold, validator-set digest, session, and
+attempt. `version`, `active_set`, the ordered commitment/opening sets, and
+`aggregate_public_w1_or_digest` are the remaining top-level canonical record
+fields. Downstream proof text must refer to those bound fields through
+`SigningContext` or the listed record fields, rather than appending
+`transcript_grammar_version`, `message_digest`, `epoch_key_or_digest`, or
+`attempt_id` as separate free-form challenge inputs.
 
 Every accepted `ContributionStatement_i` must contain the digest of the same
 challenge and the same `SigningContext`. The binding proof also tracks
@@ -103,11 +101,12 @@ FST-L2:
 ```
 
 The identical-input conclusion covers equality of `SigningContext`,
-commitment set, opening set, active set, message digest, epoch key/digest,
-attempt id, transcript grammar version, and the `H_c` random-oracle domain.
+commitment set, opening set, active set, aggregate public `w1` or digest,
+message binding, epoch key/digest, attempt, transcript grammar version, and
+the `H_c` random-oracle domain.
 Equivalently, an accepted contribution for challenge `c` is bound to exactly
 one canonical `ChallengeRecord` and cannot be reused across different session,
-threshold, validator set, epoch key, message digest, DKG/epoch digest, retry
+threshold, validator set, epoch key, message binding, DKG/epoch digest, retry
 attempt, active set, commitment set, or opening set except through a listed
 bad event.
 
@@ -155,13 +154,13 @@ Case analysis:
    open-set equality obligations kept visible as `eps_commit_open_set`.
 
 4. Active-set mismatch. If the active signer set differs, `FST-L1` exposes a
-   different canonical `ActiveSet` field. Acceptance under the same challenge
+   different canonical `active_set` field. Acceptance under the same challenge
    is therefore rejected by active-set validation or routed to the residual
    dependency that `FST-L3` closes for active-set and collection-soundness
    equality.
 
 5. Message or context rebinding. If the views differ in `SigningContext`,
-   message digest, session, threshold, validator-set digest, epoch key/digest,
+   message binding, session, threshold, validator-set digest, epoch key/digest,
    DKG digest, contribution backend, relation, or statement schema, then the
    canonical `ChallengeRecord` inputs differ. An accepting same-challenge use
    is charged to `eps_commit_context` when the mismatch is mediated by a
@@ -169,8 +168,8 @@ Case analysis:
    accounting otherwise.
 
 6. Stale or replay records. If an old record is reused across `epoch_id`,
-   `sid`, `attempt_id`, validator-set digest, threshold, epoch key/digest,
-   DKG digest, message digest, ordered commitment set, or ordered opening set,
+   `sid`, `attempt`, validator-set digest, threshold, epoch key/digest,
+   DKG digest, message binding, ordered commitment set, or ordered opening set,
    the canonical tuple changes. A non-rejected accepting replay is charged to
    `eps_ro_replay` or, when the replay is enabled by commitment-context
    ambiguity, `eps_commit_context`.
@@ -214,7 +213,7 @@ The replay layer must reject or charge replays across:
 - different `threshold`;
 - different `pk_epoch`;
 - different `dkg_digest`;
-- different `message_digest`;
+- different message binding;
 - different ordered mask commitment or opening set;
 - different contribution backend, relation, or statement schema.
 
@@ -248,9 +247,10 @@ The proof must show:
 For theorem closure, the commitment proof must supply two production-facing
 facts that are not established here: the concrete commitment scheme binds
 openings to the challenged commitment records, and the ordered opening-set
-equality check is itself bound to the same `SigningContext`, active set,
-message digest, epoch key/digest, attempt id, grammar version, and `H_c`
-domain.
+equality check is itself bound to the same `SigningContext`, `active_set`,
+grammar version, ordered commitment/opening sets, and `H_c(ChallengeRecord)`
+domain. Message binding, epoch key/digest, and attempt are compared through
+the canonical `SigningContext`, not as separate free-form challenge inputs.
 
 ## FSTL2-7. Dependencies
 <a id="fstl2-dependencies"></a>

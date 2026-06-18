@@ -161,15 +161,20 @@ ChallengeRecord = Enc(
   "lattice-aggregation/threshold-mldsa65/challenge",
   version,
   SigningContext,
+  active_set,
   OrderedMaskCommitSet,
   OrderedMaskOpenSet,
   aggregate_public_w1_or_digest
 )
 ```
 
-`OrderedMaskCommitSet` and `OrderedMaskOpenSet` are canonical validator-index
-maps. If a production path keeps `w_i` hidden and proves only a digest, the
-digest relation must be defined in the contribution backend and commitment
+This `ChallengeRecord` is the canonical input to `H_c`. `SigningContext`
+already binds message binding, epoch key, DKG digest, threshold,
+validator-set digest, session, and attempt, so downstream worksheets must not
+append duplicate free-form context outside this record. `active_set`,
+`OrderedMaskCommitSet`, and `OrderedMaskOpenSet` are canonical validator-index
+collections. If a production path keeps `w_i` hidden and proves only a digest,
+the digest relation must be defined in the contribution backend and commitment
 proof. If a standard-verifying path requires FIPS 204 `mu` and `w1`, the proof
 must reconcile this record with unmodified ML-DSA-65 challenge derivation.
 
@@ -229,6 +234,28 @@ Authorized release logs are deterministic records of signatures released by
 the ideal functionality or accepted production signing path. They must be
 byte-level comparable so replayed authorized outputs are distinguished from
 new unauthorized outputs.
+
+<a id="ptg-release-signature-record"></a>
+
+The release-signature record used by proofs, audit logs, and classifier
+handoff is:
+
+```text
+ReleaseSignature = Enc(
+  "lattice-aggregation/threshold-mldsa65/release-signature",
+  version,
+  SigningContext,
+  active_set,
+  aggregate_output_digest,
+  release_sequence_or_index,
+  release_decision,
+  public_evidence_digest_or_none
+)
+```
+
+`ReleaseSignature` is proof, audit, and release context. It is not an
+additional input to unmodified `MLDSA65.Verify(pk_epoch, M, sigma)`, which
+continues to see only `(pk_epoch, M, sigma)`.
 
 ## PTG-8. Evidence and Abort Grammar
 <a id="ptg-evidence-abort-grammar"></a>
@@ -354,6 +381,8 @@ production readiness.
 - `ptg-aggregate-output-record`
 - `ptg-collection-release-grammar`
 - `AggregateOutputRecord`
+- `ptg-release-signature-record`
+- `ReleaseSignature`
 - `ptg-evidence-abort-records`
 - `ptg-evidence-abort-grammar`
 - `AbortRecord`

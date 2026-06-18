@@ -9,28 +9,29 @@ canonical collection semantics and fixed transcript grammar.
 ## FSTL3-0. Scope and Non-Claim
 <a id="fstl3-scope-non-claim"></a>
 
-This document closes the `FST-L3` validator-set soundness route from
+This document locally closes the `FST-L3` validator-set soundness route from
 [formal-security-theorem.md](formal-security-theorem.md) and
 [idealvss-lemma-skeleton.md](idealvss-lemma-skeleton.md) for accepted
 commitment sets, partial-share sets, aggregate output records, evidence
 records, release signatures, active validator inventories, and classifier input
 records.
 
-The closure is conditional: it holds only under canonical collection semantics
-and a fixed transcript grammar. The grammar must bind the same session id,
-attempt, `dkg_digest`, threshold, active validator inventory, public key,
-message, commitment digest, partial-share digest, aggregate output record,
-evidence record, and release-signature context in every round that consumes the
-collection. This is not the whole security proof. It does not prove production
-P2P liveness, production slashing, contribution validity, threshold-share
-soundness, aggregation correctness, evidence anti-framing, release-log
-noninterference, or classifier totality.
+The local closure is conditional: it holds only under canonical collection
+semantics and a fixed transcript grammar. The grammar must bind the same
+session id, attempt, `dkg_digest`, threshold, active validator inventory,
+public key, message, commitment digest, partial-share digest, aggregate output
+record, evidence record, and release-signature context in every round that
+consumes the collection. This is not the whole security proof. It does not
+prove production P2P liveness, production slashing, contribution validity,
+threshold-share soundness, aggregation correctness, evidence anti-framing,
+release-log noninterference, or classifier totality.
 
 Implementation evidence supports this route, but implementation evidence is
-not a cryptographic proof. The closed claim is that any accepted collection
-outside the canonical route is assigned to one of the named bad events below,
-so the collection residual is exposed as `eps_collect` and the classifier
-handoff remains exposed as `eps_cls_collect` until `FST-L10` discharges it.
+not a cryptographic proof. The local collection-formation claim is that any
+accepted collection outside the canonical route is assigned to one of the
+named bad events below, so the collection residual is exposed as
+`eps_collect` and the classifier handoff remains exposed as `eps_cls_collect`
+until `FST-L10` discharges it.
 
 ## FSTL3-1. Theorem Context
 <a id="fstl3-theorem-context"></a>
@@ -88,7 +89,7 @@ deterministic and transcript-bound.
 ## FSTL3-3. Theorem Statement
 <a id="fstl3-theorem-statement"></a>
 
-The closed lemma is:
+The local collection lemma is:
 
 ```text
 FST-L3:
@@ -114,10 +115,10 @@ FST-L3:
 
 Equivalently, every accepted commitment/partial/evidence/release set is
 canonical, threshold-valid, duplicate-free, session-bound, and
-active-set-consistent, or a named bad event is triggered. This statement closes
-the collection-soundness route only for collection formation and metadata
-binding. It does not assert that the underlying cryptographic shares are valid
-or that the final aggregate signature is unforgeable.
+active-set-consistent, or a named bad event is triggered. This statement
+locally closes the collection-soundness route only for collection formation
+and metadata binding. It does not assert that the underlying cryptographic
+shares are valid or that the final aggregate signature is unforgeable.
 
 ## FSTL3-4. Proof Obligations
 <a id="fstl3-proof-obligations"></a>
@@ -224,7 +225,7 @@ where:
 The classifier-side residual `eps_cls_collect` remains separate until the
 unauthorized-output classifier proof proves totality and disjointness.
 
-For this closure text, the named residuals are visible as:
+For this local closure text, the named residuals are visible as:
 
 ```text
 eps_collect
@@ -274,8 +275,8 @@ though the collection route itself has named all collection failures.
 ## FSTL3-8. Acceptance Criteria
 <a id="fstl3-acceptance-criteria"></a>
 
-For this theorem-closure route, `FST-L3` can be treated as closed only under the
-following criteria:
+For this theorem-closure route, `FST-L3` can be treated as locally closed for
+collection formation and metadata binding only under the following criteria:
 
 - the production grammar defines active-set and collection encodings;
 - the extra-record policy is deterministic and transcript-bound;
@@ -293,10 +294,11 @@ following criteria:
 ## FSTL3-9. Non-Claims
 <a id="fstl3-non-claims"></a>
 
-This closure does not prove `eps_collect = 0`; it names and bounds the route by
-bad events. It does not prove contribution validity, threshold-share soundness,
-aggregation correctness, evidence anti-framing, release-log noninterference, or
-classifier totality.
+This local closure does not prove `eps_collect = 0`; it names and bounds the
+collection-formation and metadata-binding route by bad events. It does not
+prove contribution validity, threshold-share soundness, aggregation
+correctness, evidence anti-framing, release-log noninterference, or classifier
+totality.
 
 It also does not claim production P2P liveness, because no network-delivery,
 peer-scheduling, retry, gossip, or availability model is proved here. It does

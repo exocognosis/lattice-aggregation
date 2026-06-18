@@ -10,10 +10,10 @@ typed grammar, canonical encoding, random-oracle inputs, and deterministic
 collection rules before the harder lattice-distribution and contribution-proof
 terms are reached.
 
-The batch does not prove production threshold ML-DSA-65 security. It closes only
-the local route that says malformed, ambiguous, stale, reordered, or rebound
-transcript material is either rejected by the production grammar or charged to a
-named residual term.
+The batch does not prove production threshold ML-DSA-65 security. It locally
+closes subject to listed residuals: malformed, ambiguous, stale, reordered, or
+rebound transcript material is either rejected by the production grammar or
+charged to a named residual term.
 
 ## L13-0. Scope and Non-Claim
 <a id="l13-scope-non-claim"></a>
@@ -85,6 +85,15 @@ or the execution is charged to eps_collect or a classifier-side collection
 case.
 ```
 
+### Batch I Status Accounting
+<a id="l13-batch-i-status-accounting"></a>
+
+| Lemma | Batch I status | Residuals retained |
+| --- | --- | --- |
+| FST-L1 | Locally closeable under pinned grammar/audit assumptions | Byte-level encoder/parser audit, `eps_ro_sep`, `eps_ro_injective_encoding`, `eps_ro_domain_separation`, `BadTranscriptCollision`, `BadRoDomain`, `BadCrossSession`. |
+| FST-L2 | Conditional local route | Depends on FST-L1, ROM prior-query/replay accounting, commitment/open-set equality, `eps_ro_prior`, `eps_ro_replay`, `eps_commit_context`, and `eps_commit_open_set`. |
+| FST-L3 | Locally closed for collection metadata/canonicalization | Retains `eps_collect`; classifier handoff remains visible as `eps_cls_collect` until `FST-L10` proves totality/disjointness and `eps_cls_unmapped = 0`. |
+
 ## L13-3. Shared Definitions
 <a id="l13-shared-definitions"></a>
 
@@ -93,8 +102,10 @@ The batch shares these objects:
 - `SigningContext`: parameter set, session id, epoch id, block height, attempt,
   threshold, validator-set digest, epoch public key, DKG digest, and message
   binding.
-- `ChallengeRecord`: `SigningContext`, ordered mask commitments, ordered mask
-  openings, aggregate public `w1` or digest, and `H_c` domain label.
+- `ChallengeRecord`: `SigningContext`, `active_set`, ordered mask
+  commitments, ordered mask openings, and aggregate public `w1` or digest;
+  the `H_c` domain consumes this canonical record and is not an extra
+  free-form field inside it.
 - `CommitmentSet`: canonical validator-index map of round-one commitments.
 - `PartialShareSet`: canonical validator-index map of accepted partial
   contributions.
@@ -196,6 +207,7 @@ Stable anchors and text markers:
 - `L13-0. Scope and Non-Claim`
 - `L13-1. Lemma Dependency Chain`
 - `L13-2. Theorem Statements Under Closure`
+- `Batch I Status Accounting`
 - `L13-3. Shared Definitions`
 - `L13-4. Residual Ledger`
 - `L13-5. Proof Route`
