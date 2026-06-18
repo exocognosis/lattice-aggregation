@@ -217,6 +217,49 @@ fn challenge_binds_threshold_validator_set_and_commitment_bytes() {
 }
 
 #[test]
+fn challenge_binds_active_commitment_set_with_same_validator_universe() {
+    let left_commitments = CommitmentSet::new(
+        validators(),
+        2,
+        vec![
+            (ValidatorId(1), Commitment([1; 32])),
+            (ValidatorId(2), Commitment([2; 32])),
+        ],
+    )
+    .unwrap();
+    let right_commitments = CommitmentSet::new(
+        validators(),
+        2,
+        vec![
+            (ValidatorId(1), Commitment([1; 32])),
+            (ValidatorId(3), Commitment([3; 32])),
+        ],
+    )
+    .unwrap();
+
+    let left = SigningTranscript::new(
+        session(7),
+        2,
+        validators(),
+        public_key(),
+        b"block-42",
+        left_commitments,
+    )
+    .unwrap();
+    let right = SigningTranscript::new(
+        session(7),
+        2,
+        validators(),
+        public_key(),
+        b"block-42",
+        right_commitments,
+    )
+    .unwrap();
+
+    assert_ne!(left.challenge(), right.challenge());
+}
+
+#[test]
 fn transcript_rejects_duplicate_validator_set() {
     let commitments = CommitmentSet::new(
         validators(),

@@ -17,10 +17,11 @@ grammar in [production-transcript-grammar.md](production-transcript-grammar.md)
 and the random-oracle separation requirements in
 [random-oracle-game.md](random-oracle-game.md).
 
-The claim boundary is conservative. `FST-L1` closes only as a formal theorem
-over the currently pinned transcript grammar, fixed record labels, fixed
-version field, explicit field tags, canonical validator order, and byte-level
-encoders whose parser/serializer injectivity has been audited. If
+The claim boundary is conservative. `FST-L1` is locally closeable only as a
+formal theorem over the currently pinned transcript grammar, fixed record
+labels, fixed version field, explicit field tags, canonical validator order,
+and byte-level encoders, provided a parser/serializer injectivity audit
+instantiates the assumptions below. If
 [production-transcript-grammar.md](production-transcript-grammar.md) changes,
 or if any production encoder admits an unreviewed byte representation, the
 closure reopens and the residual terms below remain charged.
@@ -77,6 +78,7 @@ The source language is the production transcript grammar:
 - `ChallengeRecord`;
 - `ContributionStatement_i`;
 - `AggregateOutputRecord`;
+- `ReleaseSignature`;
 - `AbortRecord`;
 - `EvidenceRecord`.
 
@@ -131,16 +133,17 @@ injectivity reduces to the following field obligations:
 | `MaskCommitRecord_i` | Bind signer identity and mask commitment digest to one signing context. |
 | `MaskOpenStatement_i` | Bind public mask statement and auxiliary digest to the matching signer and context. |
 | `SecretCommitRecord_i` | Bind challenge digest and secret commitment digest to one signer and context. |
-| `ChallengeRecord` | Bind the ordered commitment set, opened set, and aggregate `w1` or digest. |
+| `ChallengeRecord` | Bind active set, ordered commitment set, opened set, and aggregate `w1` or digest. |
 | `ContributionStatement_i` | Bind signer, challenge, key, DKG digest, commitment digests, contribution encoding, backend, relation, and schema. |
 | `AggregateOutputRecord` | Bind active set, contribution statements, final signature bytes, and verification result. |
+| `ReleaseSignature` | Bind signing context, active set, aggregate output digest, release sequence or index, release decision, and optional public evidence digest. |
 | `AbortRecord` | Bind abort kind, round, validator identity if present, and public evidence digest if present. |
 | `EvidenceRecord` | Bind accused validator, evidence kind, offending frame, verifier context, and error code. |
 
 Nested records are compared structurally. For example, equality of
 `ChallengeRecord` encodings implies equality of the nested `SigningContext`,
-then equality of the ordered commitment and opening collections, then equality
-of the aggregate `w1` value or digest.
+then equality of the active set, ordered commitment and opening collections,
+then equality of the aggregate `w1` value or digest.
 
 ## FSTL1-5. Canonical Ordering Obligations
 <a id="fstl1-canonical-ordering-obligations"></a>
@@ -202,6 +205,7 @@ and remains visible as `eps_ro_domain_separation` inside `eps_ro_sep`.
 For `ChallengeRecord`, identical encoded bytes must imply identical:
 
 - `SigningContext`;
+- `active_set`;
 - ordered commitment set;
 - ordered opening set;
 - aggregate public `w1` or aggregate digest;
@@ -211,11 +215,12 @@ This is the local field-equality step needed by `FST-L2`.
 
 Proof. The `ChallengeRecord` label and version select the challenge record
 domain. The length-delimited nested `SigningContext` then has equal bytes and
-is equal by the `SigningContext` domain lemma. The collection counts and
-canonical validator order identify the commitment and opening elements
-position by position, and each element is equal by its record-domain lemma.
-The final aggregate field is either the tagged public `w1` value or the tagged
-digest variant; equality of the tag fixes the case and equality of the
+is equal by the `SigningContext` domain lemma. The active-set count and
+canonical validator order identify the active participants. The collection
+counts and canonical validator order identify the commitment and opening
+elements position by position, and each element is equal by its record-domain
+lemma. The final aggregate field is either the tagged public `w1` value or the
+tagged digest variant; equality of the tag fixes the case and equality of the
 length-delimited payload fixes the value. Therefore two accepted
 `ChallengeRecord` encodings are equal only for the same challenge object,
 except through `eps_ro_injective_encoding`.
@@ -299,8 +304,8 @@ future byte-level audit proves them zero. The named bad events remain:
 ## FSTL1-11. Acceptance Criteria
 <a id="fstl1-acceptance-criteria"></a>
 
-Before `FST-L1` can be treated as closed in a theorem that depends on this
-document:
+Before `FST-L1` can be treated as locally closed in a theorem that depends on
+this document:
 
 - every record in the production grammar has a byte-level parser definition;
 - parser acceptance is total over valid records and rejects invalid encodings;
@@ -355,6 +360,7 @@ leakage.
 - `SigningContext`
 - `ContributionStatement_i`
 - `AggregateOutputRecord`
+- `ReleaseSignature`
 - `Enc(label, version, field_1, ..., field_n)`
 - `eps_ro_sep`
 - `eps_ro_injective_encoding`
