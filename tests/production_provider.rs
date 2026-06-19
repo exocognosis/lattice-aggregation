@@ -33,3 +33,10 @@ fn hazmat_provider_fails_closed_until_kat_backed() {
         }
     );
 }
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[test]
+#[ignore = "requires checked-in ACVP/FIPS ML-DSA-65 vectors"]
+fn hazmat_provider_verifies_mldsa65_kats() {
+    panic!("ACVP/FIPS ML-DSA-65 vectors must be checked in before production promotion");
+}
