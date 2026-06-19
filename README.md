@@ -8,37 +8,28 @@ ML-DSA verifiers.
 
 ## The Problem
 
-BLS signatures made validator aggregation operationally attractive because
-public keys and signatures compose algebraically. ML-DSA, standardized in
-FIPS 204 from the Dilithium family, does not have that property. Its signing
-algorithm uses structured lattice secrets, masking vectors, Fiat-Shamir
-challenges, hints, and rejection sampling. If validator outputs are naively
-added together, the aggregate can leave the distribution and norm bounds that
-standard ML-DSA verification and security arguments rely on.
+As L1 blockchains prepare for the post-quantum era, migration to
+NIST-standardized lattice-based cryptography such as FIPS 204 ML-DSA introduces
+a severe scalability tax. Unlike legacy BLS signature schemes, ML-DSA
+signatures do not natively compose or aggregate algebraically because of
+structured lattice secrets, masking vectors, Fiat-Shamir challenges, hints, and
+interactive rejection sampling.
 
-That creates a practical L1 design problem:
-
-- storing one ML-DSA signature per validator creates state and bandwidth
-  growth with validator count;
-- replacing signatures with a Merkle or bitfield proof compresses some data,
-  but still leaves consensus and state-transition complexity;
-- emitting one flat ML-DSA-65 signature would be operationally ideal, but only
-  if the multi-party signing process preserves the same accepted-signature
-  distribution and verification semantics as ordinary ML-DSA-65.
+Naively storing one ML-DSA signature per validator produces validator-count
+state and bandwidth growth. For large validator sets, that creates an
+unacceptable design trade-off: cap validator participation to preserve
+performance, or accept network congestion and storage bloat to gain
+post-quantum security.
 
 The thesis explored here is that a threshold or interactive ML-DSA-65 protocol
 can compress a validator quorum into one standard ML-DSA-65 signature, but only
-if the protocol proves five hard properties:
+if the protocol closes the hard distribution, soundness, and abort-resistance
+obligations that ordinary single-signer ML-DSA relies on.
 
-1. aggregate masks match or closely approximate centralized ML-DSA masks;
-2. aggregate rejection checks match centralized ML-DSA rejection checks;
-3. selective aborts and retries do not bias accepted signatures;
-4. every accepted partial contribution is sound, context-bound, and hiding
-   enough for the chosen leakage model;
-5. every unauthorized accepting aggregate output reduces to a base ML-DSA
-   forgery or a named threshold-side assumption violation.
+## The Proposed Framework
 
-## The Solution Direction
+`lattice-aggregation` is a research scaffold for exploring a zero-compromise
+target: interactive threshold ML-DSA-65 signature aggregation.
 
 This repository builds the artifact boundary for that thesis. It does not claim
 the full thesis is proven. It provides the Rust crate structure, hazmat
@@ -62,6 +53,40 @@ The operational target is backward-compatible verification: a verifier should
 check the final block signature against the epoch threshold public key with the
 standard ML-DSA-65 verification path. The verifier should not need to know that
 the signature came from a threshold execution.
+
+To make that target reviewable, the proof package keeps an Epsilon Residual
+Ledger visible instead of collapsing it into a premature security claim. The
+ledger isolates five critical boundaries that must close before production
+cryptography can be claimed:
+
+1. aggregate masks match or closely approximate centralized ML-DSA masks;
+2. aggregate rejection checks match centralized ML-DSA rejection checks;
+3. selective aborts and retries do not bias accepted signatures;
+4. every accepted partial contribution is sound, context-bound, and hiding
+   enough for the chosen leakage model;
+5. every unauthorized accepting aggregate output reduces to a base ML-DSA
+   forgery or a named threshold-side assumption violation.
+
+## Practical Implications Upon Theorem Closure
+
+If the hypothesis is proven, implemented with a reviewed threshold backend, and
+validated against standard ML-DSA verification, the architecture would unlock
+several distributed-system benefits:
+
+- **Validator scalability target (`O(1)` verification footprint).** Compresses
+  the cryptographic proof of consensus for 10,000+ validators into one
+  approximately 3.3 KB ML-DSA-65 signature, decoupling verification and storage
+  cost from validator count.
+- **Zero-overhead quantum-resistance target.** Allows L1 blockchains to adopt
+  post-quantum security without paying the normal lattice multi-signature
+  penalty in network bandwidth and persistent state.
+- **Backward-compatible verification path.** Lets light clients, cross-chain
+  bridges, and hardware wallets verify post-quantum network consensus with
+  off-the-shelf ML-DSA verification code rather than custom threshold-verifier
+  modules.
+- **Hyper-efficient interoperability target.** Replaces large multi-signature
+  verification sets or expensive zero-knowledge wrappers with a single native
+  ML-DSA verification check for bridge and cross-chain consensus proofs.
 
 ## What Is Implemented
 
