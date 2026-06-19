@@ -14,9 +14,9 @@ pub mod crypto;
 pub mod dkg;
 pub mod errors;
 pub mod low_level;
-pub mod protocol;
-#[cfg(feature = "coordinator-assisted")]
+#[cfg(any(feature = "coordinator-assisted", feature = "hazmat-real-mldsa"))]
 pub mod production;
+pub mod protocol;
 pub mod serialization;
 pub mod transcript;
 pub mod types;
