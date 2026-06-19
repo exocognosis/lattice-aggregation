@@ -15,6 +15,8 @@ pub mod dkg;
 pub mod errors;
 pub mod low_level;
 pub mod protocol;
+#[cfg(feature = "coordinator-assisted")]
+pub mod production;
 pub mod serialization;
 pub mod transcript;
 pub mod types;

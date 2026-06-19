@@ -3,7 +3,7 @@ name = "lattice-aggregation"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Research-grade threshold ML-DSA-65 API boundary and simulation backend"
+description = "Audit-oriented threshold ML-DSA-65 protocol boundary and simulation backend"
 repository = "https://github.com/exocognosis/lattice-aggregation"
 homepage = "https://github.com/exocognosis/lattice-aggregation"
 readme = "README.md"
@@ -18,10 +18,13 @@ path = "src/lib.rs"
 default = ["simulated"]
 simulated = []
 hazmat = []
-hazmat-real-mldsa = ["hazmat"]
+hazmat-real-mldsa = ["hazmat", "dep:ml-dsa"]
+coordinator-assisted = []
+production-mldsa65-coordinator = ["coordinator-assisted", "hazmat-real-mldsa"]
 
 [dependencies]
 async-trait = "0.1"
+ml-dsa = { version = "0.1.1", optional = true, default-features = false }
 serde = { version = "1", features = ["derive"] }
 sha3 = "0.10"
 thiserror = "1"
