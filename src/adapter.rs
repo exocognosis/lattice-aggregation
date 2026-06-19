@@ -6,5 +6,7 @@
 
 pub mod actor;
 pub mod evidence;
+#[cfg(feature = "coordinator-assisted")]
+pub mod production_wire;
 pub mod traits;
 pub mod wire;
