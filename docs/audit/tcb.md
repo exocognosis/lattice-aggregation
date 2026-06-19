@@ -5,14 +5,17 @@ Date: 2026-05-26
 ## Scope
 
 This document identifies what a reviewer would need to trust for the current
-research scaffold. The requested feature-gated real ML-DSA-65 backend is not
-present in this checkout. This document is a triage aid, not an audit result,
-certification statement, or production-readiness claim.
+research scaffold and the non-default production-candidate skeleton. The
+production-candidate surfaces exist under `coordinator-assisted` and
+`hazmat-real-mldsa`, but this document is a triage aid, not an audit result,
+certification statement, proof package, or production-readiness claim.
+There is no real ML-DSA verifier, audited production backend, completed proof,
+FIPS validation, or release approval in this checkout.
 
 The authoritative claim boundaries remain in
 [claims-matrix.md](../cryptography/claims-matrix.md),
 [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
-and a release-readiness checklist once one is added.
+and the [release-readiness checklist](../benchmarks/release-readiness-checklist.md).
 
 ## Current TCB
 
@@ -34,6 +37,11 @@ The current TCB for research-review purposes includes:
 - `src/backend.rs`, `src/dkg.rs`, `src/protocol.rs`, and
   `src/aggregation.rs` for simulation backend behavior and signing flow
   validation.
+- `src/production/provider.rs`, `src/production/transcript.rs`,
+  `src/production/preprocess.rs`, `src/production/coordinator.rs`, and
+  `src/adapter/production_wire.rs` for non-default production-candidate
+  skeleton gates, provider boundaries, transcript/preprocessing bindings,
+  final verifier boundary, and production coordinator frames.
 - `src/utils/exporter.rs` and `src/main.rs` for harness output behavior.
 - The cryptography and audit docs that define current claims, non-claims, and
   review boundaries.
@@ -67,8 +75,10 @@ Feature gates are security-relevant because they decide which scaffold and
 hazmat paths are compiled:
 
 - `simulated` is enabled by default and supports scaffold behavior only.
-- `hazmat-real-mldsa` is declared for a future or restored real ML-DSA backend.
-  No `src/low_level/mldsa65.rs` backend is present in this checkout.
+- `coordinator-assisted` exposes a non-default coordinator profile boundary for
+  hazmat conformance and review.
+- `hazmat-real-mldsa` exposes the production-candidate provider boundary and
+  KAT-gated skeleton.
 - `hazmat-real-mldsa` implies `hazmat`; neither gate should be treated as
   production approval.
 - No `experimental-vss` feature is declared in the current `Cargo.toml`.
@@ -93,6 +103,12 @@ Start with these files for security triage:
 | `src/dkg.rs` | Simulated distributed key generation scaffold. |
 | `src/protocol.rs` | Type-state signing flow and validation ordering. |
 | `src/aggregation.rs` | Aggregation boundary and threshold-valid share checks. |
+| `src/production/provider.rs` | Provider contract, provider KAT gate, ignored release-blocking KAT test target, and final verification boundary. |
+| `src/production/transcript.rs` | Production-candidate transcript fields and binding assumptions. |
+| `src/production/preprocess.rs` | Preprocessing attempts, retry context, and nonce/mask claim boundary. |
+| `src/production/coordinator.rs` | Coordinator-assisted profile policy gates, final verifier gate, and non-default production-candidate flow. |
+| `src/adapter/production_wire.rs` | Production coordinator frame parsing, encoding, and context binding. |
+| `tests/ui/production_simulated_backend_rejected.rs` | Compile-fail guard that simulated backends do not satisfy production coordinator contracts. |
 | `src/adapter/evidence.rs` | Evidence payload encoding and fields that could become consensus-facing. |
 | `src/main.rs` | Feature-gated benchmark/export entrypoint and sample artifact generation behavior. |
 
@@ -106,6 +122,8 @@ The following are explicitly outside the production TCB because production trust
 has not been established:
 
 - The deterministic VSS/DKG scaffold as malicious-secure DKG.
+- The production-candidate coordinator skeleton as a real verifier, audited
+  backend, completed threshold proof, or production approval.
 - Any future transcript-hash contribution proofs as sound, hiding,
   zero-knowledge, or valid-share proofs.
 - Any future VSS complaint artifacts as production slashing evidence.
@@ -148,6 +166,9 @@ A future production TCB would require at least:
 
 - a completed formal threshold ML-DSA-65 security proof under an explicit
   adversary, network, and abort model;
+- FIPS/ACVP-style provider KATs, coordinator-assisted threshold KATs, and
+  fuzzing coverage for production coordinator frames with linked release
+  evidence;
 - malicious-secure production DKG/VSS with complaint soundness and anti-framing
   analysis;
 - sound and hiding production contribution proof or audited MPC verification

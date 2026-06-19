@@ -17,11 +17,12 @@ ML-DSA-65 construction and backend are selected.
 The prompt for this work referenced `protocol-code-crosswalk.md`,
 `proof-obligations.md`, and `formal-threshold-mldsa-transcript.md`. The current
 checkout includes `proof-obligations.md` and
-`formal-threshold-mldsa-transcript.md`.
+`formal-threshold-mldsa-transcript.md`; `protocol-code-crosswalk.md` now maps
+the implemented scaffold protocol phases to source files and tests.
 
-`protocol-code-crosswalk.md` is still absent. This document uses the present
-proof-surface docs, available cryptography notes, audit notes, Rust modules,
-and test files as the source of truth for current repository state.
+This document uses the present proof-surface docs, available cryptography
+notes, audit notes, Rust modules, and test files as the source of truth for
+current repository state.
 
 ## Crosswalk
 
@@ -31,6 +32,7 @@ and test files as the source of truth for current repository state.
 | Canonical validator, commitment, and partial-share sets | Set construction must reject duplicate, unknown, insufficient, or mismatched validators so aggregation cannot mix signers or commitments across universes. | `src/collections.rs`, `src/types.rs`, `src/errors.rs` | `tests/validation.rs`, `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Implemented as Rust API validation and error checks. |
 | Wire encoding and untrusted-frame rejection | Network-facing frames must use crate-owned versioned encodings, reject malformed or oversized inputs, and preserve replay-relevant context fields. | `src/adapter/wire.rs`, `src/serialization.rs`, `src/adapter/evidence.rs` | `tests/simulation.rs`, `tests/validation.rs`, `tests/low_level.rs` | Implemented for scaffold adapter frames and commitment payloads. |
 | Aggregation boundary and transcript consistency | Aggregation must receive a bound transcript and a threshold-valid partial-share set, then reject shares that do not match transcript validators or public key context. | `src/aggregation.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/ui/type_state_invalid_aggregate.rs`, `tests/ui/type_state_invalid_partial.rs` | Implemented for deterministic simulation backend and compile-fail state transitions. |
+| Production coordinator candidate boundary | The non-default production-candidate coordinator must fail closed behind profile and policy gates, bind transcript and preprocessing attempts, keep provider KAT status outside proof claims, pass final verifier gates before compatibility language, and reject simulated backends at compile time. | `src/production/provider.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Boundary and gate implementation only; not real ML-DSA verification, not a proof of threshold security, and not production release evidence. |
 | Simulation-only backend and production proof gates | The repository must not present deterministic simulation behavior as production threshold ML-DSA security. Production use requires a selected protocol, completed proof, verifier compatibility, timing review, and external cryptographic review. | `src/backend.rs`, `src/dkg.rs`, `src/crypto/vss.rs`, `docs/cryptography/phase-1-noise-bound-model.md`, `docs/audit/tcb.md` | `tests/simulated_flow.rs`, `tests/simulation.rs`, `tests/low_level.rs`, `tests/proof_documentation_manifest.rs` | Open proof obligation; current code and docs are scoped to research scaffold claims. |
 
 ## Transcript Binding and Fiat-Shamir Challenge Derivation
@@ -87,6 +89,24 @@ aggregation, public-key mismatch rejection, and validator-set mismatch
 rejection. Type-state tests in `tests/type_state.rs` and `tests/ui/` preserve
 the intended ordering of protocol operations at compile time.
 
+## Production Coordinator Candidate Boundary
+
+The production coordinator candidate is a gated implementation boundary, not a
+completed cryptographic implementation. `src/production/provider.rs` defines
+the provider contract and KAT gate; `src/production/transcript.rs` binds the
+coordinator transcript fields; `src/production/preprocess.rs` tracks
+preprocessing attempts; `src/production/coordinator.rs` coordinates the
+non-default profile flow; and `src/adapter/production_wire.rs` carries the
+production-candidate wire frames.
+
+The matching tests are `tests/production_provider.rs`,
+`tests/production_transcript.rs`, `tests/production_preprocess.rs`,
+`tests/production_coordinator.rs`, `tests/production_wire.rs`, and
+`tests/ui/production_simulated_backend_rejected.rs`. These tests are
+conformance and guard evidence. They do not show real ML-DSA verification,
+threshold unforgeability, distributional equivalence, side-channel safety, or
+audit approval.
+
 ## Open Proof Obligations
 
 The following obligations remain outside the implemented security claim:
@@ -120,6 +140,7 @@ stable contract for this file:
 - `Canonical validator, commitment, and partial-share sets`
 - `Wire encoding and untrusted-frame rejection`
 - `Aggregation boundary and transcript consistency`
+- `Production coordinator candidate boundary`
 - `Simulation-only backend and production proof gates`
 
 Keep these anchors stable when reorganizing this document, or update

@@ -5,8 +5,10 @@ use std::{
 };
 
 const PROOF_CROSSWALK: &str = "docs/cryptography/proof-implementation-crosswalk.md";
+const PROTOCOL_CODE_CROSSWALK: &str = "docs/cryptography/protocol-code-crosswalk.md";
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
 const CRYPTOGRAPHY_README: &str = "docs/cryptography/README.md";
+const RELEASE_READINESS_CHECKLIST: &str = "docs/benchmarks/release-readiness-checklist.md";
 
 const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
     "docs/cryptography/active-adversary-model.md",
@@ -18,6 +20,7 @@ const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
     "docs/cryptography/noise-rejection-proof-plan.md",
     "docs/cryptography/phase-1-noise-bound-model.md",
     "docs/cryptography/proof-implementation-crosswalk.md",
+    "docs/cryptography/protocol-code-crosswalk.md",
     "docs/cryptography/proof-obligations.md",
     "docs/cryptography/random-oracle-game.md",
     "docs/cryptography/side-channel-boundary.md",
@@ -88,6 +91,23 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "## Lemma A: Local Mask Commitment Before Challenge",
             "## Lemma H: Accepted-Signature Distribution",
             "## Exactly What Remains to Be Proven",
+        ],
+    ),
+    (
+        "docs/cryptography/protocol-code-crosswalk.md",
+        &[
+            "# Protocol Code Crosswalk",
+            "## Scope",
+            "## Protocol Phase Crosswalk",
+            "## DKG Scaffold",
+            "## Signing State Machine",
+            "## Transcript Binding",
+            "## Aggregation Boundary",
+            "## Adapter Wire and Actor Flow",
+            "## Evidence and Timeout Diagnostics",
+            "## Benchmark and Export Harness",
+            "## Open Production Gaps",
+            "## Manifest Anchors",
         ],
     ),
     (
@@ -307,6 +327,108 @@ fn proof_docs_keep_required_anchor_contract() {
 }
 
 #[test]
+fn release_readiness_checklist_keeps_required_anchor_contract() {
+    assert_contains_all(
+        RELEASE_READINESS_CHECKLIST,
+        &[
+            "# Release Readiness Checklist",
+            "## Scope",
+            "## Required Inputs",
+            "## Cryptography and Proof Gates",
+            "## Implementation and Backend Gates",
+            "## Side-Channel and Constant-Time Gates",
+            "## Benchmark and Artifact Gates",
+            "## Operational and Consensus Gates",
+            "## Documentation and Claim-Drift Gates",
+            "## Explicit Non-Claims",
+            "## Sign-Off Rule",
+            "No release gate is complete until",
+            "deterministic research telemetry",
+            "not security evidence",
+            "standard ML-DSA verifier",
+            "external cryptographic review",
+            "dudect",
+            "ctgrind",
+            "FIPS validation",
+            "production consensus signing",
+        ],
+    );
+}
+
+#[test]
+fn production_coordinator_docs_keep_claim_boundary() {
+    assert_contains_all(
+        "docs/cryptography/claims-matrix.md",
+        &[
+            "coordinator-assisted ML-DSA-65 profile",
+            "hazmat conformance only",
+            "standard-verifier-compatible only after KAT and audit gates",
+        ],
+    );
+    assert_contains_all(
+        "docs/benchmarks/release-readiness-checklist.md",
+        &[
+            "FIPS/ACVP-style ML-DSA-65 provider KATs",
+            "coordinator-assisted threshold KATs",
+            "fuzz targets for production coordinator frames",
+            "ignored KAT release gate",
+            "simulator compile-fail guard",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/proof-implementation-crosswalk.md",
+        &[
+            "Production coordinator candidate boundary",
+            "`src/production/provider.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "`tests/ui/production_simulated_backend_rejected.rs`",
+            "not real ML-DSA verification",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/protocol-code-crosswalk.md",
+        &[
+            "Production coordinator candidate",
+            "`src/production/provider.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "Gated hazmat/conformance boundary only",
+        ],
+    );
+    assert_contains_all(
+        "docs/audit/attack-surface.md",
+        &[
+            "production-candidate skeleton surfaces",
+            "`src/production/provider.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "provider KAT gate",
+            "simulated backend cannot satisfy the production coordinator contract",
+        ],
+    );
+    assert_contains_all(
+        "docs/audit/tcb.md",
+        &[
+            "production-candidate surfaces exist",
+            "`src/production/provider.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "`tests/ui/production_simulated_backend_rejected.rs`",
+            "no real ML-DSA verifier",
+        ],
+    );
+}
+
+#[test]
 fn cryptography_readme_indexes_current_proof_docs() {
     assert_contains_all(
         CRYPTOGRAPHY_README,
@@ -320,6 +442,7 @@ fn cryptography_readme_indexes_current_proof_docs() {
             "noise-rejection-proof-plan.md",
             "phase-1-noise-bound-model.md",
             "proof-implementation-crosswalk.md",
+            "protocol-code-crosswalk.md",
             "proof-obligations.md",
             "random-oracle-game.md",
             "side-channel-boundary.md",
@@ -398,11 +521,43 @@ fn proof_crosswalk_mentions_current_source_docs() {
             "`proof-obligations.md`",
             "`claims-matrix.md`",
             "`side-channel-boundary.md`",
+            "`protocol-code-crosswalk.md`",
         ],
     );
     assert_not_contains_all(
         PROOF_CROSSWALK,
-        &["Those files were not present in this checkout when this crosswalk was written"],
+        &[
+            "Those files were not present in this checkout when this crosswalk was written",
+            "`protocol-code-crosswalk.md` is still absent",
+        ],
+    );
+}
+
+#[test]
+fn protocol_code_crosswalk_maps_protocol_phases_to_code_and_tests() {
+    assert_contains_all(
+        PROTOCOL_CODE_CROSSWALK,
+        &[
+            "# Protocol Code Crosswalk",
+            "deterministic simulation backend",
+            "not a production threshold ML-DSA proof",
+            "does not produce or verify real ML-DSA signatures",
+            "`src/protocol.rs`",
+            "`src/transcript.rs`",
+            "`src/aggregation.rs`",
+            "`src/backend.rs`",
+            "`src/dkg.rs`",
+            "`src/adapter/wire.rs`",
+            "`src/adapter/actor.rs`",
+            "`src/adapter/evidence.rs`",
+            "`src/main.rs`",
+            "`src/utils/exporter.rs`",
+            "`tests/simulated_flow.rs`",
+            "`tests/transcript_determinism.rs`",
+            "`tests/simulation.rs`",
+            "`tests/validation.rs`",
+            "`tests/type_state.rs`",
+        ],
     );
 }
 

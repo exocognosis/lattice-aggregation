@@ -9,32 +9,38 @@ research scaffold. It does not certify production readiness, FIPS validation,
 malicious-secure threshold signing, production slashing soundness, or
 side-channel resistance.
 
-The current checkout exposes a default simulated scaffold and feature names for
-hazmat experiments. The requested real ML-DSA-65 backend path and hazmat
-artifact utilities are not present in this branch, so references to those
-surfaces are future or restored-backend review targets rather than current
-evidence. Reviewers should read this map together with the claim boundaries in
+The current checkout exposes a default simulated scaffold plus non-default
+production-candidate skeleton surfaces under `coordinator-assisted` and
+`hazmat-real-mldsa`. Those skeleton surfaces are hazmat/conformance boundaries
+only; they are not production threshold ML-DSA security, FIPS validation,
+audited backend evidence, or proof evidence. Reviewers should read this map
+together with the claim boundaries in
 [side-channel-boundary.md](../cryptography/side-channel-boundary.md),
 [claims-matrix.md](../cryptography/claims-matrix.md),
 [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
-and a release-readiness checklist once one is added.
+and the [release-readiness checklist](../benchmarks/release-readiness-checklist.md).
 
 ## First-Pass Review Order
 
 1. `Cargo.toml` feature gates: confirm which code exists under `simulated`,
-   `hazmat`, and `hazmat-real-mldsa`.
+   `coordinator-assisted`, `hazmat`, and `hazmat-real-mldsa`.
 2. `src/adapter/wire.rs`: inspect canonical wire encoding, version handling,
    length checks, and message variants.
-3. `src/adapter/actor.rs`: inspect actor state transitions, quorum handling,
+3. `src/production/provider.rs`, `src/production/transcript.rs`,
+   `src/production/preprocess.rs`, `src/production/coordinator.rs`, and
+   `src/adapter/production_wire.rs`: inspect production-candidate policy
+   gates, provider KAT gate, transcript and attempt binding, final verifier
+   gate, production wire frames, and simulator compile-fail rejection.
+4. `src/adapter/actor.rs`: inspect actor state transitions, quorum handling,
    strict precommitment checks, and evidence emission.
-4. `src/low_level/poly.rs`, `src/crypto/interpolation.rs`, and
+5. `src/low_level/poly.rs`, `src/crypto/interpolation.rs`, and
    `src/crypto/vss.rs`: inspect arithmetic and simulated VSS/DKG scaffolding.
-5. `src/dkg.rs`, `src/backend.rs`, `src/protocol.rs`, and
+6. `src/dkg.rs`, `src/backend.rs`, `src/protocol.rs`, and
    `src/aggregation.rs`: inspect simulation backend boundaries and signing
    flow validation.
-6. `src/adapter/evidence.rs`, `src/utils/exporter.rs`, and `src/main.rs`:
+7. `src/adapter/evidence.rs`, `src/utils/exporter.rs`, and `src/main.rs`:
    inspect evidence payload shape, harness assumptions, and exported output.
-7. `docs/cryptography/*`: check for implementation claim drift against the
+8. `docs/cryptography/*`: check for implementation claim drift against the
    code and tests.
 
 ## Feature-Gate Boundary
@@ -42,12 +48,13 @@ and a release-readiness checklist once one is added.
 | Gate | Exposed surface | Review focus | Production boundary |
 | --- | --- | --- | --- |
 | default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure scaffold behavior cannot be described as production cryptography. | Research and simulation only. |
+| `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; not production threshold ML-DSA security. |
 | `hazmat` | Marker gate reserved for hazmat experiments | Ensure no production API silently depends on hazmat behavior. | Not a production assurance boundary. |
-| `hazmat-real-mldsa` | Feature declaration for a future or restored real ML-DSA backend | Confirm whether any real backend code exists in the checkout before making implementation claims. | No production assurance boundary in the current branch. |
+| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, ignored release-blocking KAT test, and final verifier boundary before any compatibility language. | No production assurance boundary until KAT, audit, proof, side-channel, and release gates pass. |
 
 Feature-gate risk is mainly claim confusion and accidental promotion. A reviewer
-should confirm that any future production-labeled constructors fail closed and
-that passing a declaration gate is not treated as a proof.
+should confirm that production-labeled constructors fail closed and that passing
+a declaration or conformance gate is not treated as a proof.
 
 ## Actor And Network Boundaries
 
@@ -80,15 +87,29 @@ Review `src/adapter/wire.rs` for:
   variants;
 - malformed decode error behavior and test coverage.
 
-The requested hazmat contribution payload decoders are not present in this
-branch. If `src/low_level/mldsa65.rs` or equivalent backend code is restored,
-its decoders should become a primary untrusted-byte review target.
+Production-candidate coordinator frames are now present in
+`src/adapter/production_wire.rs`. Reviewers should treat them as untrusted-byte
+inputs for hazmat conformance only and verify that decode success is not
+described as standard-verifier compatibility or production security.
 
-## Future Hazmat ML-DSA-65 Internals
+## Production-Candidate Coordinator And Hazmat Internals
 
-`src/low_level/mldsa65.rs` is not present in this checkout. A future or
-restored real backend would likely become the highest-density cryptographic
-review target because it would contain parameter constants, packing/unpacking,
+The current production-candidate skeleton is concentrated in:
+
+- `src/production/provider.rs`: provider contract, KAT status, and verifier
+  boundary.
+- `src/production/transcript.rs`: production-candidate transcript binding.
+- `src/production/preprocess.rs`: preprocessing attempt and retry binding.
+- `src/production/coordinator.rs`: coordinator policy gates and final verifier
+  gate.
+- `src/adapter/production_wire.rs`: production coordinator wire frames.
+- `tests/production_provider.rs`: provider KAT gate coverage, including an
+  ignored release-blocking test that must be enabled before release claims.
+- `tests/ui/production_simulated_backend_rejected.rs`: compile-fail guard that
+  the simulated backend cannot satisfy the production coordinator contract.
+
+A concrete ML-DSA-65 backend remains a highest-density cryptographic review
+target because it would contain parameter constants, packing/unpacking,
 sampling, NTT arithmetic, share splitting/reconstruction, masking and secret
 contribution derivation, challenge derivation, threshold response finalization,
 and standard verifier paths.
@@ -139,8 +160,7 @@ Review:
 - `src/utils/exporter.rs`: LaTeX and PGFPlots table rendering.
 - `src/main.rs`: feature-gated harness entrypoints and generated output
   sections.
-- Future benchmark manifests and checked-in artifacts if a `docs/benchmarks`
-  packet is added.
+- Future benchmark manifests and checked-in artifacts under `docs/benchmarks`.
 
 Reviewers should verify that benchmark output is described as deterministic
 research telemetry and not as a side-channel, liveness, or cryptographic
@@ -184,9 +204,9 @@ sync when behavior changes:
   claim status and safe wording.
 - [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md):
   proof-obligation-to-source navigation.
-- Release-readiness checklist: no checklist exists under `docs/benchmarks`;
-  do not treat release gates or production blockers as complete until one is
-  added.
+- [Release-readiness checklist](../benchmarks/release-readiness-checklist.md):
+  do not treat release gates or production blockers as complete unless the
+  checklist has linked evidence for the selected backend and release scope.
 - [active-adversary-model.md](../cryptography/active-adversary-model.md),
   [formal-security-theorem.md](../cryptography/formal-security-theorem.md),
   [proof-obligations.md](../cryptography/proof-obligations.md),

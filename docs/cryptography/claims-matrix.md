@@ -17,6 +17,7 @@ by the current proof-surface and traceability documents:
 - `ideal-functionality.md`
 - `noise-rejection-proof-plan.md`
 - `proof-implementation-crosswalk.md`
+- `protocol-code-crosswalk.md`
 - `proof-obligations.md`
 - `random-oracle-game.md`
 - `side-channel-boundary.md`
@@ -25,6 +26,7 @@ by the current proof-surface and traceability documents:
 Allowed status values are:
 
 - `implemented engineering guard`
+- `hazmat conformance only`
 - `proof sketch only`
 - `external theorem dependency`
 - `open`
@@ -41,6 +43,7 @@ production threshold ML-DSA security.
 | Commitment-before-challenge flow | The type-state and transcript flow exercise commitment collection before challenge-dependent partial signing in simulation. | FST-L2, Noise Lemma A | implemented engineering guard | May claim protocol-order guard in the scaffold; real mask commitment binding/hiding remains unproved. |
 | Aggregation boundary validation | Aggregation receives a bound transcript and threshold-valid partial-share set before delegating to the backend. | FST-L5, Correctness Lemma 6, Noise Lemma F | implemented engineering guard | May claim boundary checks; must not claim aggregate signatures are standard ML-DSA signatures. |
 | Wire frame and evidence shape | Adapter frames and local evidence containers are versioned scaffold surfaces. | FST-L9, active-adversary evidence semantics | implemented engineering guard | May claim local diagnostics and malformed-frame rejection; must not claim production slashing or anti-framing. |
+| Coordinator-assisted ML-DSA-65 profile | The non-default coordinator-assisted ML-DSA-65 profile exercises production-candidate skeleton boundaries for profile types, policy gates, transcript bindings, preprocessing attempts, provider boundaries, the final verifier gate, production wire frames, and compile-fail simulator rejection. | FST-T4, FST-L1, FST-L5, Noise Lemmas A, E, and F | hazmat conformance only | The safe claim is coordinator-assisted ML-DSA-65 profile hazmat conformance only; it is standard-verifier-compatible only after KAT and audit gates, and it must not be described as production threshold ML-DSA security. |
 | Field inversion and Lagrange arithmetic | The code implements Fermat inversion and Lagrange coefficient formulas over the scaffold modulus. | Correctness Lemmas 1 and 2 | proof sketch only | May describe algebraic scaffold and tests; caller preconditions and timing analysis remain proof obligations. |
 | Shamir-style reconstruction over `R_q` | Coefficient-lane reconstruction is described and scaffolded for deterministic shares. | Correctness Lemma 3 | proof sketch only | Must not claim sharing privacy because deterministic masks are not production randomness. |
 | Standard ML-DSA verification compatibility | No current aggregate signature is claimed to verify as a standard ML-DSA-65 signature. | Correctness Lemma 7, FST-L5 | open | Keep all standard-verifier compatibility language as future work until real backend and bridge tests exist. |
