@@ -85,6 +85,27 @@ pub enum ThresholdError {
         reason: &'static str,
     },
 
+    /// Production profile is blocked by policy gates.
+    #[error("production policy blocked: {reason}")]
+    ProductionPolicyBlocked {
+        /// Static reason the policy gate blocked the operation.
+        reason: &'static str,
+    },
+
+    /// Coordinator attestation failed.
+    #[error("coordinator attestation failed: {reason}")]
+    CoordinatorAttestationFailed {
+        /// Static reason the attestation was rejected.
+        reason: &'static str,
+    },
+
+    /// Preprocessed attempt was stale, reused, or unknown.
+    #[error("invalid preprocessed attempt: {reason}")]
+    InvalidPreprocessedAttempt {
+        /// Static reason the attempt was rejected.
+        reason: &'static str,
+    },
+
     /// Standard ML-DSA verification rejected the signature.
     #[error("standard ML-DSA verification failed")]
     StandardVerificationFailed,
