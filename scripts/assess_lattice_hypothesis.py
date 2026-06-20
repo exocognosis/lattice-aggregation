@@ -4,6 +4,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -27,6 +28,48 @@ TESTING_STATEMENT = (
     "contribution validity, leakage boundaries, and unforgeability reduction "
     "claims."
 )
+
+RUST_COMMENT_OR_STRING_RE = re.compile(
+    r"""
+    //[^\n]*
+    | /\*.*?\*/
+    | b?r\#{0,16}".*?"\#{0,16}
+    | b?"(?:\\.|[^"\\])*"
+    """,
+    re.DOTALL | re.VERBOSE,
+)
+
+RUST_TEST_FN_RE = re.compile(
+    r"(?m)^\s*#\s*\[\s*test\s*\]\s*"
+    r"(?:#\s*\[[^\]]+\]\s*)*"
+    r"fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+)
+
+
+def rust_code_without_comments_or_strings(text):
+    """Blank Rust comments and string literals before lightweight regex scans."""
+
+    def blank_match(match):
+        return re.sub(r"[^\n]", " ", match.group(0))
+
+    return RUST_COMMENT_OR_STRING_RE.sub(blank_match, text)
+
+
+def has_public_struct(source, name):
+    """Return whether Rust source declares the named public struct."""
+    code = rust_code_without_comments_or_strings(source)
+    pattern = rf"(?m)^\s*pub\s+struct\s+{re.escape(name)}\b"
+    return re.search(pattern, code) is not None
+
+
+def has_acceptance_test_function(source, *required_terms):
+    """Return whether a #[test] function name mentions the required terms."""
+    code = rust_code_without_comments_or_strings(source)
+    for function_name in RUST_TEST_FN_RE.findall(code):
+        lowered = function_name.lower()
+        if all(term.lower() in lowered for term in required_terms):
+            return True
+    return False
 
 
 def default_criteria():
@@ -134,10 +177,65 @@ def scan_documents(root):
 
     combined = "\n".join(texts.values()).lower()
     readme = texts["README.md"].lower()
+    acceptance_source_path = root / "src" / "production" / "acceptance.rs"
+    production_acceptance_test_path = root / "tests" / "production_acceptance.rs"
+    try:
+        acceptance_source = acceptance_source_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        acceptance_source = ""
+    try:
+        production_acceptance_test = production_acceptance_test_path.read_text(
+            encoding="utf-8"
+        )
+    except FileNotFoundError:
+        production_acceptance_test = ""
+
+    acceptance_source_scaffold = all(
+        has_public_struct(acceptance_source, token)
+        for token in [
+            "LocalAccept",
+            "AggregateAccept",
+            "AcceptedPartialContribution",
+            "AggregateAcceptEvidence",
+        ]
+    )
+    local_acceptance_test_scaffold = has_acceptance_test_function(
+        production_acceptance_test,
+        "local",
+        "accept",
+    )
+    aggregate_acceptance_test_scaffold = has_acceptance_test_function(
+        production_acceptance_test,
+        "aggregate",
+        "accept",
+    )
+    production_acceptance_tests_scaffold = (
+        production_acceptance_test_path.is_file()
+        and local_acceptance_test_scaffold
+        and aggregate_acceptance_test_scaffold
+    )
+    local_acceptance_conformance_scaffold = (
+        acceptance_source_scaffold
+        and production_acceptance_tests_scaffold
+        and local_acceptance_test_scaffold
+    )
+    aggregate_acceptance_conformance_scaffold = (
+        acceptance_source_scaffold
+        and production_acceptance_tests_scaffold
+        and aggregate_acceptance_test_scaffold
+    )
 
     return {
         "documents": texts,
         "missing_documents": missing,
+        "acceptance_predicate_source_scaffold": acceptance_source_scaffold,
+        "production_acceptance_tests_scaffold": production_acceptance_tests_scaffold,
+        "local_acceptance_conformance_scaffold": (
+            local_acceptance_conformance_scaffold
+        ),
+        "aggregate_acceptance_conformance_scaffold": (
+            aggregate_acceptance_conformance_scaffold
+        ),
         "readme_research_boundary": (
             "research status" in readme
             and "deterministic simulation" in readme
@@ -209,6 +307,11 @@ def classify_criteria(criteria, scan):
                     "release-readiness blocker."
                 )
         elif criterion["id"] == "aggregate_rejection_equivalence":
+            if scan["aggregate_acceptance_conformance_scaffold"]:
+                observed.append(
+                    "AggregateAccept conformance checks are present as "
+                    "scaffold evidence only."
+                )
             if scan["standard_verifier_blocked"]:
                 blockers.append(
                     "Standard ML-DSA verifier bridge and real aggregate "
@@ -225,6 +328,11 @@ def classify_criteria(criteria, scan):
                 observed.append(
                     "Scaffold evidence supports transcript binding, validator "
                     "universe checks, or context-bound contribution shape."
+                )
+            if scan["local_acceptance_conformance_scaffold"]:
+                observed.append(
+                    "LocalAccept and AcceptedPartialContribution conformance "
+                    "tokens are present as scaffold evidence only."
                 )
             if scan["partial_soundness_blocked"]:
                 blockers.append(
@@ -276,6 +384,8 @@ def default_commands():
             "production_transcript",
             "--test",
             "production_coordinator",
+            "--test",
+            "production_acceptance",
         ],
         ["cargo", "run"],
     ]

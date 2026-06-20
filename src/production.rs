@@ -4,6 +4,8 @@
 //! contains typed boundaries for future reviewed ML-DSA-65 threshold signing.
 
 #[cfg(feature = "coordinator-assisted")]
+pub mod acceptance;
+#[cfg(feature = "coordinator-assisted")]
 pub mod coordinator;
 #[cfg(feature = "coordinator-assisted")]
 pub mod epsilon;

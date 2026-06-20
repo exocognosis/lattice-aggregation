@@ -51,6 +51,17 @@ class VerdictRuleTests(unittest.TestCase):
             "completely_disproven",
         )
 
+    def test_default_commands_run_production_acceptance_checks(self):
+        module = load_module()
+
+        coordinator_command = next(
+            command
+            for command in module.default_commands()
+            if "--features" in command and "coordinator-assisted" in command
+        )
+
+        self.assertIn("production_acceptance", coordinator_command)
+
 
 class DocumentClassificationTests(unittest.TestCase):
     def test_scan_documents_finds_claim_boundaries_and_blockers(self):
@@ -169,6 +180,124 @@ class ReportGenerationTests(unittest.TestCase):
             "signatures.\n",
             encoding="utf-8",
         )
+
+    def write_acceptance_predicate_scaffold(self, root):
+        (root / "src" / "production").mkdir(parents=True)
+        (root / "tests").mkdir(parents=True)
+        (root / "src" / "production" / "acceptance.rs").write_text(
+            "pub struct LocalAccept;\n"
+            "pub struct AggregateAccept;\n"
+            "pub struct AcceptedPartialContribution;\n"
+            "pub struct AggregateAcceptEvidence;\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "production_acceptance.rs").write_text(
+            "#[test]\n"
+            "fn local_accept_conformance_token_is_stable() {\n"
+            "    let _ = \"LocalAccept AcceptedPartialContribution\";\n"
+            "}\n"
+            "#[test]\n"
+            "fn aggregate_accept_conformance_token_is_stable() {\n"
+            "    let _ = \"AggregateAccept AggregateAcceptEvidence\";\n"
+            "}\n",
+            encoding="utf-8",
+        )
+
+    def test_scan_documents_finds_acceptance_predicate_scaffold_anchors(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+
+            scan = module.scan_documents(root)
+
+        self.assertTrue(scan["acceptance_predicate_source_scaffold"])
+        self.assertTrue(scan["production_acceptance_tests_scaffold"])
+
+    def test_acceptance_scaffold_requires_structural_source_and_test_anchors(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            (root / "src" / "production").mkdir(parents=True)
+            (root / "tests").mkdir(parents=True)
+            (root / "src" / "production" / "acceptance.rs").write_text(
+                "// pub struct LocalAccept;\n"
+                "// pub struct AcceptedPartialContribution;\n"
+                "const COMMENTED_AGGREGATE: &str = "
+                "\"pub struct AggregateAccept; pub struct AggregateAcceptEvidence;\";\n",
+                encoding="utf-8",
+            )
+            (root / "tests" / "production_acceptance.rs").write_text(
+                "#[test]\n"
+                "fn unrelated_string_literals_do_not_count() {\n"
+                "    let _ = \"LocalAccept AggregateAccept "
+                "AcceptedPartialContribution AggregateAcceptEvidence\";\n"
+                "}\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        self.assertFalse(scan["acceptance_predicate_source_scaffold"])
+        self.assertFalse(scan["production_acceptance_tests_scaffold"])
+        self.assertFalse(scan["local_acceptance_conformance_scaffold"])
+        self.assertFalse(scan["aggregate_acceptance_conformance_scaffold"])
+        self.assertNotIn(
+            "LocalAccept",
+            "\n".join(
+                criteria_by_id["partial_contribution_soundness"]["observed_evidence"]
+            ),
+        )
+        self.assertNotIn(
+            "AggregateAccept",
+            "\n".join(
+                criteria_by_id["aggregate_rejection_equivalence"]["observed_evidence"]
+            ),
+        )
+        self.assertEqual(
+            [criterion["status"] for criterion in report["criteria"]],
+            ["blocked", "blocked", "blocked", "partially_met", "blocked"],
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+
+    def test_acceptance_predicate_scaffold_updates_evidence_without_unblocking_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        self.assertEqual(
+            [criterion["status"] for criterion in report["criteria"]],
+            ["blocked", "blocked", "blocked", "partially_met", "blocked"],
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+
+        partial_evidence = "\n".join(
+            criteria_by_id["partial_contribution_soundness"]["observed_evidence"]
+        )
+        self.assertIn("LocalAccept", partial_evidence)
+        self.assertIn("AcceptedPartialContribution", partial_evidence)
+
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+        self.assertEqual(aggregate["status"], "blocked")
+        self.assertIn("AggregateAccept", aggregate_evidence)
+        self.assertIn("conformance checks", aggregate_evidence)
+        self.assertIn("Standard ML-DSA verifier bridge", aggregate_blockers)
+        self.assertIn("real aggregate rejection checks", aggregate_blockers)
+
+        self.assertIn("- Evidence: AggregateAccept", markdown)
+        self.assertIn("- Blocker: Standard ML-DSA verifier bridge", markdown)
 
     def test_build_report_writes_json_and_markdown(self):
         module = load_module()

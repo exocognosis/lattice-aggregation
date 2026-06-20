@@ -464,6 +464,53 @@ fn production_coordinator_docs_keep_claim_boundary() {
 }
 
 #[test]
+fn production_acceptance_docs_keep_claim_boundary() {
+    assert_contains_all(
+        "docs/cryptography/proof-implementation-crosswalk.md",
+        &[
+            "coordinator-assisted acceptance predicates",
+            "`src/production/acceptance.rs`",
+            "`tests/production_acceptance.rs`",
+            "`LocalAccept`",
+            "`AggregateAccept`",
+            "conformance-only",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/protocol-code-crosswalk.md",
+        &[
+            "coordinator-assisted acceptance predicates",
+            "`src/production/acceptance.rs`",
+            "`tests/production_acceptance.rs`",
+            "`LocalAccept`",
+            "`AggregateAccept`",
+            "conformance-only",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/claims-matrix.md",
+        &[
+            "Typed acceptance predicates",
+            "`LocalAccept`",
+            "`AggregateAccept`",
+            "hazmat/conformance-only typed acceptance predicates",
+            "must not claim production partial verification",
+            "real aggregate recomputation",
+            "distribution proof",
+        ],
+    );
+    assert_contains_all(
+        "docs/benchmarks/release-readiness-checklist.md",
+        &[
+            "production LocalAccept/AggregateAccept evidence",
+            "standard verifier bridge",
+            "proof/audit linkage",
+            "criterion promotion",
+        ],
+    );
+}
+
+#[test]
 fn cryptography_readme_indexes_current_proof_docs() {
     assert_contains_all(
         CRYPTOGRAPHY_README,

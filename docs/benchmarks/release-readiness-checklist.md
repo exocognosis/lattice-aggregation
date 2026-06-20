@@ -49,6 +49,17 @@ present in this checkout.
   transcript binding, preprocessing attempts, final verifier behavior, and
   production coordinator wire frames.
 - Add standard-verifier bridge tests for accepted aggregate signatures.
+- Provide production LocalAccept/AggregateAccept evidence for the selected
+  backend before any criterion promotion, including rejection cases, logs,
+  reviewer sign-off, and linked `tests/production_acceptance.rs` results.
+- Tie `LocalAccept` and `AggregateAccept` acceptance to a standard verifier bridge
+  and real aggregate recomputation evidence; absent bridge or
+  recomputation evidence keeps the predicates conformance-only.
+- Link proof/audit linkage for acceptance criteria from
+  [claims-matrix.md](../cryptography/claims-matrix.md),
+  [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
+  side-channel review, audit TCB review, and external cryptographic review
+  before criterion promotion.
 - Verify malformed partials, malformed hints, invalid bounds, transcript
   mismatch, key mismatch, duplicate signer, and unknown signer rejection.
 - Link Renyi-divergence proof evidence for any `EpsilonLedger` masking budget

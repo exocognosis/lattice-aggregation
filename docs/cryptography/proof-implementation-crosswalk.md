@@ -33,6 +33,7 @@ current repository state.
 | Wire encoding and untrusted-frame rejection | Network-facing frames must use crate-owned versioned encodings, reject malformed or oversized inputs, and preserve replay-relevant context fields. | `src/adapter/wire.rs`, `src/serialization.rs`, `src/adapter/evidence.rs` | `tests/simulation.rs`, `tests/validation.rs`, `tests/low_level.rs` | Implemented for scaffold adapter frames and commitment payloads. |
 | Aggregation boundary and transcript consistency | Aggregation must receive a bound transcript and a threshold-valid partial-share set, then reject shares that do not match transcript validators or public key context. | `src/aggregation.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/ui/type_state_invalid_aggregate.rs`, `tests/ui/type_state_invalid_partial.rs` | Implemented for deterministic simulation backend and compile-fail state transitions. |
 | Production coordinator candidate boundary | The non-default production-candidate coordinator must fail closed behind profile and policy gates, bind transcript and preprocessing attempts, keep provider KAT status outside proof claims, pass final verifier gates before compatibility language, and reject simulated backends at compile time. `EpsilonLedger`, blinded pre-filter tokens, hint-routing conformance frames, and the DKG setup-only boundary are guardrails for review. | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Boundary and gate implementation only; not real ML-DSA verification, not a proof of threshold security, and not production release evidence. |
+| Coordinator-assisted acceptance predicates | Local and aggregate acceptance decisions must remain typed conformance predicates until a selected backend supplies verifier-bridge, recomputation, proof, and audit evidence. | `src/production/acceptance.rs`, `src/production/provider.rs`, `src/production/coordinator.rs` | `tests/production_acceptance.rs`, `tests/production_coordinator.rs` | coordinator-assisted acceptance predicates are conformance-only tokens: `LocalAccept` and `AggregateAccept` do not prove production partial validity, real aggregate recomputation, or distribution preservation. |
 | Simulation-only backend and production proof gates | The repository must not present deterministic simulation behavior as production threshold ML-DSA security. Production use requires a selected protocol, completed proof, verifier compatibility, timing review, and external cryptographic review. | `src/backend.rs`, `src/dkg.rs`, `src/crypto/vss.rs`, `docs/cryptography/phase-1-noise-bound-model.md`, `docs/audit/tcb.md` | `tests/simulated_flow.rs`, `tests/simulation.rs`, `tests/low_level.rs`, `tests/proof_documentation_manifest.rs` | Open proof obligation; current code and docs are scoped to research scaffold claims. |
 
 ## Transcript Binding and Fiat-Shamir Challenge Derivation
@@ -114,6 +115,14 @@ approval is not publicly mintable in the current API. These tests do not show
 real ML-DSA verification, threshold unforgeability, distributional equivalence,
 side-channel safety, or audit approval.
 
+The coordinator-assisted acceptance predicates in
+`src/production/acceptance.rs` add typed `LocalAccept` and `AggregateAccept`
+conformance tokens. `tests/production_acceptance.rs` is the conformance anchor
+for these tokens. The tokens are useful for wiring future evidence through the
+coordinator path, but they do not establish production partial-share
+verification, real aggregate recomputation, rejection-distribution
+preservation, or release approval.
+
 ## Open Proof Obligations
 
 The following obligations remain outside the implemented security claim:
@@ -148,6 +157,11 @@ stable contract for this file:
 - `Wire encoding and untrusted-frame rejection`
 - `Aggregation boundary and transcript consistency`
 - `Production coordinator candidate boundary`
+- `Coordinator-assisted acceptance predicates`
+- `src/production/acceptance.rs`
+- `tests/production_acceptance.rs`
+- `LocalAccept`
+- `AggregateAccept`
 - `Simulation-only backend and production proof gates`
 
 Keep these anchors stable when reorganizing this document, or update
