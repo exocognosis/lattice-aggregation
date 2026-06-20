@@ -9,9 +9,11 @@ from implementation leakage claims. It is a boundary document, not an audit
 result and not evidence that the current code is constant-time.
 
 The current checkout contains simulation and low-level arithmetic scaffolding,
-including `src/low_level/poly.rs`, `src/low_level/mldsa65.rs`, and
-interpolation helpers used by tests. Those files are implementation evidence
-and review targets, not a completed timing proof.
+including `src/low_level/poly.rs` and interpolation helpers used by tests. The
+requested real ML-DSA-65 backend path, `src/low_level/mldsa65.rs`, is not
+present in this branch. Any references to that file in older audit notes should
+therefore be read as future or restored-backend review targets, not as current
+evidence.
 
 Read this document with:
 
@@ -126,8 +128,6 @@ Current evidence is limited:
   as an assumption for production realization, not as a proved property.
 - `noise-rejection-proof-plan.md` lists abort leakage and side-channel
   properties as remaining proof work.
-- `src/low_level/mldsa65.rs` has KAT and differential coverage for selected
-  arithmetic and verification paths, but no timing-audit artifact.
 - No dudect, ctgrind, compiler-output, or external side-channel audit artifacts
   are present in this checkout.
 

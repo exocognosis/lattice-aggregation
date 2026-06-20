@@ -1,5 +1,3 @@
-#![cfg_attr(feature = "hazmat-real-mldsa", allow(dead_code, unused_imports))]
-
 use std::{
     convert::Infallible,
     sync::{Arc, Mutex},
@@ -7,25 +5,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-#[cfg(all(feature = "hazmat-real-mldsa", feature = "experimental-vss"))]
-use dytallix_pq_threshold::utils::hazmat_artifacts::{
-    generate_experimental_vss_complaint_csv, generate_experimental_vss_complaint_jsonl,
-    verify_experimental_vss_complaint_csv, verify_experimental_vss_complaint_events,
-    verify_experimental_vss_complaint_jsonl,
-};
-#[cfg(feature = "hazmat-real-mldsa")]
-use dytallix_pq_threshold::utils::{
-    hazmat_artifacts::{
-        generate_hazmat_transcript_csv, generate_hazmat_transcript_jsonl,
-        verify_hazmat_transcript_csv, verify_hazmat_transcript_events,
-        verify_hazmat_transcript_jsonl,
-    },
-    hazmat_simulation::run_hazmat_mldsa65_benchmark_suite,
-    hazmat_simulation::{
-        generate_mldsa65_baseline_comparison_csv, run_mldsa65_single_signer_baseline_suite,
-    },
-};
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     adapter::{
         actor::{ActorConfig, ActorEvent, SessionMetrics, ThresholdActor},
         evidence::SlashingEvidence,
@@ -37,14 +17,13 @@ use dytallix_pq_threshold::{
 };
 use tokio::sync::mpsc;
 
+type FinalizedSignatures = Vec<(u64, Vec<u8>)>;
+type Shared<T> = Arc<Mutex<T>>;
+
 #[derive(Clone, Default)]
 struct HarnessNetwork {
-    bytes: Arc<Mutex<usize>>,
+    bytes: Shared<usize>,
 }
-
-type FinalizedRecords = Arc<Mutex<Vec<(u64, Vec<u8>)>>>;
-type EvidenceRecords = Arc<Mutex<Vec<SlashingEvidence>>>;
-type GasUpdates = Arc<Mutex<Vec<u64>>>;
 
 #[async_trait]
 impl P2pNetworkAdapter for HarnessNetwork {
@@ -63,9 +42,9 @@ impl P2pNetworkAdapter for HarnessNetwork {
 
 #[derive(Clone, Default)]
 struct HarnessConsensus {
-    finalized: FinalizedRecords,
-    evidence: EvidenceRecords,
-    gas_updates: GasUpdates,
+    finalized: Shared<FinalizedSignatures>,
+    evidence: Shared<Vec<SlashingEvidence>>,
+    gas_updates: Shared<Vec<u64>>,
 }
 
 #[async_trait]
@@ -115,66 +94,6 @@ struct ExperimentSpec {
     retry_tokens: u32,
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
-#[tokio::main(flavor = "current_thread")]
-async fn main() {
-    let reports = run_hazmat_mldsa65_benchmark_suite().await;
-    let baselines = run_mldsa65_single_signer_baseline_suite(&reports);
-    println!("===== ML-DSA-65 Single-Signer Baseline Comparison CSV =====");
-    print!(
-        "{}",
-        generate_mldsa65_baseline_comparison_csv(&reports, &baselines)
-    );
-    for report in reports {
-        println!("===== {}: LaTeX =====", report.spec.label);
-        print!(
-            "{}",
-            generate_latex_table(report.spec.label, report.spec.validators, &report.metrics)
-        );
-        println!("===== {}: PGFPlots CSV =====", report.spec.label);
-        print!("{}", generate_pgfplots_csv(&report.metrics));
-        verify_hazmat_transcript_events(&report.transcript_events)
-            .expect("hazmat transcript events should verify before export");
-        let transcript_jsonl = generate_hazmat_transcript_jsonl(&report.transcript_events);
-        verify_hazmat_transcript_jsonl(&transcript_jsonl)
-            .expect("hazmat transcript JSONL should verify");
-        println!("===== {}: Transcript JSONL =====", report.spec.label);
-        print!("{transcript_jsonl}");
-        let transcript_csv = generate_hazmat_transcript_csv(&report.transcript_events);
-        verify_hazmat_transcript_csv(&transcript_csv).expect("hazmat transcript CSV should verify");
-        println!("===== {}: Transcript CSV =====", report.spec.label);
-        print!("{transcript_csv}");
-        #[cfg(feature = "experimental-vss")]
-        {
-            if !report.experimental_vss_complaint_events.is_empty() {
-                verify_experimental_vss_complaint_events(&report.experimental_vss_complaint_events)
-                    .expect("experimental VSS complaint events should verify before export");
-                let complaint_jsonl = generate_experimental_vss_complaint_jsonl(
-                    &report.experimental_vss_complaint_events,
-                );
-                verify_experimental_vss_complaint_jsonl(&complaint_jsonl)
-                    .expect("experimental VSS complaint JSONL should verify");
-                println!(
-                    "===== {}: Experimental VSS Complaint JSONL =====",
-                    report.spec.label
-                );
-                print!("{complaint_jsonl}");
-                let complaint_csv = generate_experimental_vss_complaint_csv(
-                    &report.experimental_vss_complaint_events,
-                );
-                verify_experimental_vss_complaint_csv(&complaint_csv)
-                    .expect("experimental VSS complaint CSV should verify");
-                println!(
-                    "===== {}: Experimental VSS Complaint CSV =====",
-                    report.spec.label
-                );
-                print!("{complaint_csv}");
-            }
-        }
-    }
-}
-
-#[cfg(not(feature = "hazmat-real-mldsa"))]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     let experiments = [

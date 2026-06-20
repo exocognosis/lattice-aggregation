@@ -1,5 +1,8 @@
-target/
-dist/
+/target/
+**/*.rs.bk
 .DS_Store
 *.swp
 *.swo
+.env
+.env.*
+!.env.example

@@ -1,0 +1,5 @@
+{
+  "name": "mldsa65-provider-smoke",
+  "message_hex": "6c6174746963652d6167677265676174696f6e2d6d6c64736136352d736d6f6b65",
+  "note": "This smoke fixture is not an ACVP or FIPS KAT. Replace or extend it with ACVP/FIPS vectors before release promotion."
+}

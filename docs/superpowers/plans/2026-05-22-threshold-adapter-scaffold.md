@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a Phase 3/4 adapter scaffold inside `dytallix-pq-threshold` for async P2P-style threshold sessions, consensus callbacks, slashing evidence, and in-memory simulation tests.
+**Goal:** Add a Phase 3/4 adapter scaffold inside `lattice-aggregation` for async P2P-style threshold sessions, consensus callbacks, slashing evidence, and in-memory simulation tests.
 
-**Architecture:** The adapter layer sits above the existing Phase 1/2 threshold API. It defines crate-owned wire framing, async system-boundary traits, an mpsc-driven actor, bounded session state, and simulation-only evidence flows without importing the real Dytallix L1 networking or consensus code.
+**Architecture:** The adapter layer sits above the existing Phase 1/2 threshold API. It defines crate-owned wire framing, async system-boundary traits, an mpsc-driven actor, bounded session state, and simulation-only evidence flows without importing the real production L1 networking or consensus code.
 
 **Tech Stack:** Rust 2021, existing threshold crate, `tokio` for async actor/tests, `async-trait` for async adapter traits, crate-owned byte encoding, existing simulation backend.
 
@@ -33,7 +33,7 @@
 Create `tests/simulation.rs` with:
 
 ```rust
-use dytallix_pq_threshold::adapter;
+use lattice_aggregation::adapter;
 
 #[test]
 fn adapter_module_is_exported() {
@@ -82,7 +82,7 @@ Create `src/adapter.rs`:
 //! Async adapter scaffold for P2P and consensus integration.
 //!
 //! This module is simulation infrastructure. It does not integrate with the
-//! real Dytallix L1 P2P network, state trie, gas runtime, or slashing runtime.
+//! real production L1 P2P network, state trie, gas runtime, or slashing runtime.
 
 pub mod actor;
 pub mod evidence;
@@ -148,7 +148,7 @@ git commit -m "chore: scaffold threshold adapter module"
 Append to `tests/simulation.rs`:
 
 ```rust
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     adapter::evidence::{EvidenceKind, SlashingEvidence},
     ValidatorId,
 };
@@ -271,7 +271,7 @@ git commit -m "feat: add adapter slashing evidence types"
 Append to `tests/simulation.rs`:
 
 ```rust
-use dytallix_pq_threshold::adapter::wire::{
+use lattice_aggregation::adapter::wire::{
     PqcThresholdWireMsg, WireDecodeError, MAX_DKG_SHARE_BYTES, MAX_PARTIAL_SHARE_BYTES,
 };
 
@@ -550,7 +550,7 @@ Append to `tests/simulation.rs`:
 ```rust
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
-use dytallix_pq_threshold::adapter::{
+use lattice_aggregation::adapter::{
     evidence::SlashingEvidence,
     traits::{ConsensusStateAdapter, P2pNetworkAdapter},
 };
@@ -642,7 +642,7 @@ use async_trait::async_trait;
 
 use crate::adapter::{evidence::SlashingEvidence, wire::PqcThresholdWireMsg};
 
-/// Boundary expected from the Dytallix P2P network layer.
+/// Boundary expected from the production P2P network layer.
 #[async_trait]
 pub trait P2pNetworkAdapter: Send + Sync + 'static {
     /// Adapter error.
@@ -655,7 +655,7 @@ pub trait P2pNetworkAdapter: Send + Sync + 'static {
     async fn send_to(&self, target: u16, msg: PqcThresholdWireMsg) -> Result<(), Self::Error>;
 }
 
-/// Boundary expected from the Dytallix consensus and state engine.
+/// Boundary expected from the production consensus and state engine.
 #[async_trait]
 pub trait ConsensusStateAdapter: Send + Sync + 'static {
     /// Adapter error.
@@ -709,7 +709,7 @@ Append to `tests/simulation.rs`:
 ```rust
 use std::time::Duration;
 use tokio::sync::mpsc;
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     adapter::actor::{ActorConfig, ActorEvent, ThresholdActor},
     PrivateKeyShare, ThresholdPublicKey,
 };
@@ -1002,7 +1002,7 @@ Expected: PASS.
 Run:
 
 ```bash
-rg -n "production-ready|production consensus|real Dytallix|Noise_IK_PQC|simulation backend|not production|does not integrate|real ML-DSA" src docs tests
+rg -n "production-ready|production consensus|real |Noise_IK_PQC|simulation backend|not production|does not integrate|real ML-DSA" src docs tests
 ```
 
 Expected: matches are guardrail statements only. No text claims the adapter is the real L1 integration.
@@ -1021,6 +1021,6 @@ If no changes were needed, do not create an empty commit.
 ## Self-Review
 
 - Spec coverage: The plan covers adapter modules, wire messages, async traits, actor session cache, fault evidence, in-memory simulation tests, timeout handling, poisoned-share evidence, gas baseline callback, and final guardrails.
-- Intentional gap: This plan does not integrate real `Noise_IK_PQC`, the real Dytallix consensus engine, the state trie, real slashing transactions, or the gas runtime. It provides the adapter boundary for a future repository integration step.
+- Intentional gap: This plan does not integrate real `Noise_IK_PQC`, the real production consensus engine, the state trie, real slashing transactions, or the gas runtime. It provides the adapter boundary for a future repository integration step.
 - Scope scan: No unresolved marker text or unspecified implementation steps remain.
 - Type consistency: Public names match the design spec: `PqcThresholdWireMsg`, `ActorEvent`, `ThresholdActor`, `ActorConfig`, `P2pNetworkAdapter`, `ConsensusStateAdapter`, `SlashingEvidence`, and `EvidenceKind`.

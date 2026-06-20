@@ -1,146 +1,239 @@
 # Attack Surface Map
 
-Date: 2026-05-27
+Date: 2026-05-26
 
-## Status
+## Scope
 
-This map is for research-scaffold and audit triage. It identifies where a
-reviewer should look for implementation bugs, claim drift, and production
-blockers. It is not a production threat model and does not certify threshold
-ML-DSA-65 security.
+This audit packet supports reviewer and security triage for the current
+research scaffold. It does not certify production readiness, FIPS validation,
+malicious-secure threshold signing, production slashing soundness, or
+side-channel resistance.
 
-Side-channel and constant-time claims are tracked separately in
-[side-channel-boundary.md](../cryptography/side-channel-boundary.md). This map
-lists side-channel risks as open audit obligations, not solved properties.
+The current checkout exposes a default simulated scaffold plus non-default
+production-candidate skeleton surfaces under `coordinator-assisted` and
+`hazmat-real-mldsa`. Those skeleton surfaces are hazmat/conformance boundaries
+only; they are not production threshold ML-DSA security, FIPS validation,
+audited backend evidence, or proof evidence. Reviewers should read this map
+together with the claim boundaries in
+[side-channel-boundary.md](../cryptography/side-channel-boundary.md),
+[claims-matrix.md](../cryptography/claims-matrix.md),
+[proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
+and the [release-readiness checklist](../benchmarks/release-readiness-checklist.md).
 
-## Feature Gates
+## First-Pass Review Order
 
-Primary risk: code behind `hazmat-real-mldsa` and `experimental-vss` can look
-production-shaped while still being explicitly non-production.
+1. `Cargo.toml` feature gates: confirm which code exists under `simulated`,
+   `coordinator-assisted`, `hazmat`, and `hazmat-real-mldsa`.
+2. `src/adapter/wire.rs`: inspect canonical wire encoding, version handling,
+   length checks, and message variants.
+3. `src/production/provider.rs`, `src/production/transcript.rs`,
+   `src/production/preprocess.rs`, `src/production/coordinator.rs`, and
+   `src/adapter/production_wire.rs`: inspect production-candidate policy
+   gates, provider KAT gate, transcript and attempt binding, final verifier
+   gate, production wire frames, `src/production/epsilon.rs`,
+   `src/production/prefilter.rs`, `src/production/hints.rs`, and simulator
+   compile-fail rejection.
+4. `src/adapter/actor.rs`: inspect actor state transitions, quorum handling,
+   strict precommitment checks, and evidence emission.
+5. `src/low_level/poly.rs`, `src/crypto/interpolation.rs`, and
+   `src/crypto/vss.rs`: inspect arithmetic and simulated VSS/DKG scaffolding.
+6. `src/dkg.rs`, `src/backend.rs`, `src/protocol.rs`, and
+   `src/aggregation.rs`: inspect simulation backend boundaries and signing
+   flow validation.
+7. `src/adapter/evidence.rs`, `src/utils/exporter.rs`, and `src/main.rs`:
+   inspect evidence payload shape, harness assumptions, and exported output.
+8. `docs/cryptography/*`: check for implementation claim drift against the
+   code and tests.
 
-Review focus:
+## Feature-Gate Boundary
 
-- `Cargo.toml`
-- `src/utils.rs`
-- `src/crypto/production_policy.rs`
-- `tests/production_policy.rs`
+| Gate | Exposed surface | Review focus | Production boundary |
+| --- | --- | --- | --- |
+| default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure scaffold behavior cannot be described as production cryptography. | Research and simulation only. |
+| `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; not production threshold ML-DSA security. |
+| `hazmat` | Marker gate reserved for hazmat experiments | Ensure no production API silently depends on hazmat behavior. | Not a production assurance boundary. |
+| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, ignored release-blocking KAT test, and final verifier boundary before any compatibility language. | No production assurance boundary until KAT, audit, proof, side-channel, and release gates pass. |
 
-Expected invariant: production-labeled configuration must fail closed for
-scaffold backend families. Passing a feature gate or backend declaration is not
-security proof.
+Feature-gate risk is mainly claim confusion and accidental promotion. A reviewer
+should confirm that production-labeled constructors fail closed and that passing
+a declaration or conformance gate is not treated as a proof.
 
-## Hazmat ML-DSA Internals
+## Actor And Network Boundaries
 
-Primary risk: local FIPS 204 ML-DSA-65 arithmetic, encodings, and contribution
-logic may contain correctness, canonicalization, or leakage bugs.
+The adapter models actors, consensus, and P2P networking through local traits
+and deterministic harnesses rather than a production network. The key surfaces
+are:
 
-Review focus:
+- `src/adapter/traits.rs`: network and consensus adapter contracts.
+- `src/adapter/actor.rs`: session configuration, actor events, quorum handling,
+  inbound frame processing, finalization, and malformed contribution evidence.
+- `src/main.rs`: Section V-style harness orchestration.
 
-- `src/low_level/mldsa65.rs`
-- `src/low_level/poly.rs`
-- `tests/hazmat_mldsa65.rs`
-- `tests/hazmat_mldsa65_kat.rs`
-- `tests/hazmat_mldsa65_differential.rs`
-- `tests/hazmat_mldsa65_threshold_bridge.rs`
+Security triage should treat authenticated transport, validator identity
+binding, replay protection outside the local frame envelope, timeout policy,
+retry limits, consensus penalties, and operational key management as external
+production obligations. The current harness can model some ordering and
+malformed-frame behavior, but it does not establish production network liveness
+or consensus safety.
 
-Current tests are regression evidence only. They do not establish FIPS
-validation, constant-time behavior, or production side-channel safety.
+## Wire Decoding And Transcript Inputs
 
-Side-channel review focus:
+Wire decoding is a primary attack surface because it accepts untrusted bytes.
+Review `src/adapter/wire.rs` for:
 
-- secret-dependent branches or memory access in polynomial, vector, matrix,
-  NTT, packing, unpacking, interpolation, and rejection-check paths
-- abort, retry, evidence, logging, and error timing that could leak honest
-  secret material beyond the formal leakage model
-- compiler-output and build-profile drift between development tests and any
-  production target
-- absence of dudect, ctgrind, or equivalent timing-leakage artifacts
+- wire version and message tag rejection;
+- fixed-width and length-prefixed field parsing;
+- trailing-byte rejection;
+- session, block height, validator index, attempt, and digest binding;
+- DKG commitment, DKG share exchange, signing commitment, and partial-signature
+  variants;
+- malformed decode error behavior and test coverage.
 
-## Actor/Network Boundaries
+Production-candidate coordinator frames are now present in
+`src/adapter/production_wire.rs`. Reviewers should treat them as untrusted-byte
+inputs for hazmat conformance only and verify that decode success is not
+described as standard-verifier compatibility or production security.
 
-Primary risk: asynchronous state transitions may accept out-of-order,
-cross-session, stale, duplicated, or incorrectly attributed messages.
+## Production-Candidate Coordinator And Hazmat Internals
 
-Review focus:
+The current production-candidate skeleton is concentrated in:
 
-- `src/adapter/actor.rs`
-- `src/adapter/traits.rs`
-- `tests/hazmat_mldsa65_actor.rs`
-- `tests/hazmat_mldsa65_fuzzing.rs`
-- `tests/hazmat_mldsa65_wire.rs`
-- `tests/simulation.rs`
+- `src/production/provider.rs`: provider contract, KAT status, and verifier
+  boundary.
+- `src/production/transcript.rs`: production-candidate transcript binding.
+- `src/production/preprocess.rs`: preprocessing attempt and retry binding.
+- `src/production/coordinator.rs`: coordinator policy gates and final verifier
+  gate.
+- `src/adapter/production_wire.rs`: production coordinator wire frames.
+- `tests/production_provider.rs`: provider KAT gate coverage, including an
+  ignored release-blocking test that must be enabled before release claims.
+- `tests/ui/production_simulated_backend_rejected.rs`: compile-fail guard that
+  the simulated backend cannot satisfy the production coordinator contract.
 
-Current actor tests model in-memory and deterministic scenarios. They do not
-prove production network liveness, authenticated transport safety, timeout
-adequacy, or consensus integration safety.
+A concrete ML-DSA-65 backend remains a highest-density cryptographic review
+target because it would contain parameter constants, packing/unpacking,
+sampling, NTT arithmetic, share splitting/reconstruction, masking and secret
+contribution derivation, challenge derivation, threshold response finalization,
+and standard verifier paths.
 
-## Wire Decoding
+Priority review questions:
 
-Primary risk: malformed, oversized, replayed, version-skewed, or
-non-canonical frames may bypass checks or create inconsistent evidence.
+- Are ML-DSA-65 byte layouts, bounds, hints, and verifier compatibility
+  faithfully implemented in tested paths?
+- Does the final verifier receive the original application message, with `mu`
+  kept only as transcript-internal binding material?
+- Is production approval evidence-backed and non-forgeable rather than a public
+  caller-selected switch?
+- Do threshold aggregation and reconstruction paths reject malformed or
+  inconsistent partials before finalization?
+- Are context, `mu`, `w1`, challenge, attempt, and session identifiers bound in
+  the intended places?
+- Are deterministic seeds and benchmark-only derivations impossible to mistake
+  for production randomness?
+- Are secret-dependent arithmetic and encoding paths unaudited for timing and
+  leakage, as documented?
 
-Review focus:
+Current evidence is simulation, arithmetic-scaffold, and regression evidence
+only. It is not a complete correctness proof, distributional equivalence proof,
+constant-time audit, or FIPS validation.
 
-- `src/adapter/wire.rs`
-- `src/serialization.rs`
-- `tests/hazmat_mldsa65_wire.rs`
-- `tests/validation.rs`
+## Evidence And Slashing Artifacts
 
-Expected invariant: canonical encodings bind session, block height, attempt,
-validator identity, challenge, commitments, production statement digests, and
-payload lengths where applicable.
+Evidence generation is security-sensitive because a production system must not
+be able to frame honest validators. Current evidence is an engineering scaffold
+for malformed or proof-invalid frames, not production slashing authority.
 
-## Evidence/Slashing Artifacts
+Review:
 
-Primary risk: structured evidence may be mistaken for production slashing proof
-before production VSS and contribution proof relations are implemented.
+- `src/adapter/evidence.rs`: `EvidenceKind`, `SlashingEvidence`,
+  `SlashingEvidencePayload`, and payload encoding/decoding.
+- `src/adapter/actor.rs`: points where invalid contribution evidence is
+  emitted.
+- `src/crypto/vss.rs`: simulated Shamir-style polynomial sharing scaffold.
 
-Review focus:
+Audit focus should include anti-framing assumptions, canonical serialization,
+digest domain separation, missing-authentication behavior, duplicate frames,
+retry versus slashable violation boundaries, and whether evidence payloads state
+enough public input for a future verifier.
 
-- `src/adapter/evidence.rs`
-- `src/utils/hazmat_artifacts.rs`
-- `tests/hazmat_mldsa65_wire.rs`
-- `tests/section_v_sample_bundle.rs`
-- `docs/cryptography/proof-obligations.md`
+## Benchmark And Export Pipeline
 
-Current evidence is a research scaffold. It is useful for attribution,
-artifact replay, and future verifier inputs. It is not production slashing
-evidence and does not prove anti-framing.
+Benchmark artifacts are useful for reproducibility, not security proof. The
+attack surface is mostly claim drift and artifact verifier fragility.
 
-## Benchmark/Export Pipeline
+Review:
 
-Primary risk: Section V outputs could be interpreted as security evidence or
-could drift from the checked artifact schema.
+- `src/utils/exporter.rs`: LaTeX and PGFPlots table rendering.
+- `src/main.rs`: feature-gated harness entrypoints and generated output
+  sections.
+- Future benchmark manifests and checked-in artifacts under `docs/benchmarks`.
 
-Review focus:
+Reviewers should verify that benchmark output is described as deterministic
+research telemetry and not as a side-channel, liveness, or cryptographic
+security result.
 
-- `src/utils/hazmat_simulation.rs`
-- `src/utils/exporter.rs`
-- `src/main.rs`
-- `scripts/reproduce-section-v.sh`
-- `docs/benchmarks/reproducibility-manifest.md`
-- `tests/reproducibility_manifest.rs`
-- `tests/section_v_sample_bundle.rs`
+## Side-Channel And Constant-Time Risks
 
-Expected invariant: benchmark artifacts support reproducibility and evaluation
-only. They do not prove malicious security, leakage resistance, or production
-readiness.
+The side-channel boundary is documented in
+[side-channel-boundary.md](../cryptography/side-channel-boundary.md). This
+attack-surface map treats timing and leakage resistance as open production
+obligations, not solved properties of the current branch.
 
-## Docs/Claim Drift
+Reviewers should track at least these risks:
 
-Primary risk: manuscript or documentation wording may overclaim beyond the
-implemented and proven boundary.
+- Secret-dependent branches, memory access, table indexing, or early exits in
+  future ML-DSA-65 arithmetic, interpolation, NTT, packing, unpacking, norm
+  checks, and aggregation paths.
+- Public-input parser behavior that becomes secret-dependent after decoded
+  values are mixed with shares, masks, or responses.
+- Abort, retry, evidence, logging, panic, and error behavior that leaks more
+  than the formal model permits.
+- Compiler, target CPU, allocator, and build-profile effects that can change
+  source-level constant-time intent.
+- Treating comments, deterministic tests, benchmark artifacts, or branch-free
+  source snippets as side-channel evidence.
 
-Review focus:
+Required evidence remains separate from the mathematical proof package:
+dudect-style timing tests, ctgrind or equivalent dynamic checks, compiler-output
+review for selected targets, code review of secret-dependent paths, and external
+side-channel audit before production claims.
 
-- `docs/cryptography/claims-matrix.md`
-- `docs/cryptography/proof-obligations.md`
-- `docs/cryptography/protocol-code-crosswalk.md`
-- `docs/benchmarks/release-readiness-checklist.md`
-- `tests/audit_manifest.rs`
-- `tests/protocol_spec_manifest.rs`
-- `tests/reproducibility_manifest.rs`
+## Docs And Claim Drift
 
-Expected invariant: the repository remains described as a research scaffold
-with hazmat internals until proof obligations, production backends,
-side-channel review, and external cryptographic audit are complete.
+Documentation is part of the review surface because unsafe wording can promote
+research scaffolding into unsupported production claims. Keep these files in
+sync when behavior changes:
+
+- [side-channel-boundary.md](../cryptography/side-channel-boundary.md):
+  separates mathematical proof claims from implementation leakage claims.
+- [claims-matrix.md](../cryptography/claims-matrix.md): publication-facing
+  claim status and safe wording.
+- [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md):
+  proof-obligation-to-source navigation.
+- [Release-readiness checklist](../benchmarks/release-readiness-checklist.md):
+  do not treat release gates or production blockers as complete unless the
+  checklist has linked evidence for the selected backend and release scope.
+- [active-adversary-model.md](../cryptography/active-adversary-model.md),
+  [formal-security-theorem.md](../cryptography/formal-security-theorem.md),
+  [proof-obligations.md](../cryptography/proof-obligations.md),
+  [vss-dkg-security-plan.md](../cryptography/vss-dkg-security-plan.md), and
+  [random-oracle-game.md](../cryptography/random-oracle-game.md): open proof,
+  adversary-model, VSS/DKG, contribution-proof, and backend replacement
+  boundaries.
+
+Any new claim should identify the supporting source files, tests or artifacts,
+remaining blockers, and precise non-claims.
+
+## Explicit Non-Claims
+
+The current repository does not claim:
+
+- production-ready threshold ML-DSA-65 security;
+- malicious-secure DKG or production VSS complaint soundness;
+- sound or hiding production contribution proofs;
+- side-channel resistance or constant-time behavior;
+- adaptive security or reliable erasure semantics;
+- FIPS validation or certified module status;
+- production network liveness, transport authentication, or consensus slashing
+  integration;
+- benchmark results as security evidence.

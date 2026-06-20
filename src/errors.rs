@@ -85,6 +85,59 @@ pub enum ThresholdError {
         reason: &'static str,
     },
 
+    /// Production profile is blocked by policy gates.
+    #[error("production policy blocked: {reason}")]
+    ProductionPolicyBlocked {
+        /// Static reason the policy gate blocked the operation.
+        reason: &'static str,
+    },
+
+    /// Coordinator attestation failed.
+    #[error("coordinator attestation failed: {reason}")]
+    CoordinatorAttestationFailed {
+        /// Static reason the attestation was rejected.
+        reason: &'static str,
+    },
+
+    /// Preprocessed attempt was stale, reused, or unknown.
+    #[error("invalid preprocessed attempt: {reason}")]
+    InvalidPreprocessedAttempt {
+        /// Static reason the attempt was rejected.
+        reason: &'static str,
+    },
+
+    /// Noise-flooding parameters failed conformance validation.
+    #[error("invalid noise flooding parameters: {reason}")]
+    InvalidNoiseFloodingParameters {
+        /// Static reason the parameters were rejected.
+        reason: &'static str,
+    },
+
+    /// Blinded pre-filter input failed conformance validation.
+    #[error("invalid pre-filter input: {reason}")]
+    InvalidPreFilter {
+        /// Static reason the input was rejected.
+        reason: &'static str,
+    },
+
+    /// Hint-routing input failed conformance validation.
+    #[error("invalid hint route: {reason}")]
+    InvalidHintRoute {
+        /// Static reason the hint route was rejected.
+        reason: &'static str,
+    },
+
+    /// Blinded aggregate pre-filtering rejected an attempt before share release.
+    #[error("aggregate pre-filter rejected: {reason}; norm={norm}, bound={bound}")]
+    AggregatePreFilterRejected {
+        /// Static reason the pre-filter rejected the attempt.
+        reason: &'static str,
+        /// Observed aggregate infinity norm.
+        norm: i32,
+        /// Configured pre-filter acceptance bound.
+        bound: i32,
+    },
+
     /// Standard ML-DSA verification rejected the signature.
     #[error("standard ML-DSA verification failed")]
     StandardVerificationFailed,
