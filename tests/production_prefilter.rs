@@ -9,7 +9,7 @@ use lattice_aggregation::{
         },
         types::AttemptId,
     },
-    ValidatorId,
+    ThresholdError, ValidatorId,
 };
 
 #[test]
@@ -20,9 +20,14 @@ fn prefilter_pass_returns_share_release_token() {
         BlindedCommitmentSummary::new(ValidatorId(2), [2; 32], 45),
     ];
 
-    let outcome =
-        BlindedPreFilter::evaluate(100, EpsilonUnit::from_units(2), summaries, &mut ledger)
-            .unwrap();
+    let outcome = BlindedPreFilter::evaluate(
+        AttemptId([1; 32]),
+        100,
+        EpsilonUnit::from_units(2),
+        summaries,
+        &mut ledger,
+    )
+    .unwrap();
 
     match outcome {
         PreFilterOutcome::Passed(token) => {
@@ -39,9 +44,14 @@ fn prefilter_abort_increments_rejection_budget() {
     let mut ledger = EpsilonLedger::default();
     let summaries = vec![BlindedCommitmentSummary::new(ValidatorId(1), [1; 32], 101)];
 
-    let outcome =
-        BlindedPreFilter::evaluate(100, EpsilonUnit::from_units(2), summaries, &mut ledger)
-            .unwrap();
+    let outcome = BlindedPreFilter::evaluate(
+        AttemptId([2; 32]),
+        100,
+        EpsilonUnit::from_units(2),
+        summaries,
+        &mut ledger,
+    )
+    .unwrap();
 
     match outcome {
         PreFilterOutcome::Passed(_) => panic!("expected abort"),
@@ -61,9 +71,14 @@ fn prefilter_abort_uses_aggregate_norm_not_per_validator_max() {
         BlindedCommitmentSummary::new(ValidatorId(2), [2; 32], 50),
     ];
 
-    let outcome =
-        BlindedPreFilter::evaluate(100, EpsilonUnit::from_units(3), summaries, &mut ledger)
-            .unwrap();
+    let outcome = BlindedPreFilter::evaluate(
+        AttemptId([3; 32]),
+        100,
+        EpsilonUnit::from_units(3),
+        summaries,
+        &mut ledger,
+    )
+    .unwrap();
 
     match outcome {
         PreFilterOutcome::Passed(_) => panic!("expected aggregate overflow abort"),
@@ -78,6 +93,7 @@ fn prefilter_abort_uses_aggregate_norm_not_per_validator_max() {
 fn share_release_request_requires_prefilter_pass_token() {
     let mut ledger = EpsilonLedger::default();
     let outcome = BlindedPreFilter::evaluate(
+        AttemptId([9; 32]),
         100,
         EpsilonUnit::from_units(1),
         vec![BlindedCommitmentSummary::new(ValidatorId(1), [1; 32], 50)],
@@ -89,9 +105,35 @@ fn share_release_request_requires_prefilter_pass_token() {
         PreFilterOutcome::Aborted(_) => panic!("expected pass"),
     };
 
-    let request = token.into_share_release_authorization(AttemptId([9; 32]));
+    let request = token.into_share_release_authorization();
     assert_eq!(request.attempt_id(), AttemptId([9; 32]));
     assert_eq!(request.prefilter().aggregate_infinity_norm(), 50);
+}
+
+#[test]
+fn prefilter_rejects_aggregate_norm_overflow() {
+    let mut ledger = EpsilonLedger::default();
+    let summaries = vec![
+        BlindedCommitmentSummary::new(ValidatorId(1), [1; 32], u32::MAX),
+        BlindedCommitmentSummary::new(ValidatorId(2), [2; 32], 1),
+    ];
+
+    let err = BlindedPreFilter::evaluate(
+        AttemptId([4; 32]),
+        u32::MAX,
+        EpsilonUnit::from_units(1),
+        summaries,
+        &mut ledger,
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::InvalidPreFilter {
+            reason: "aggregate infinity norm overflow",
+        }
+    );
+    assert_eq!(ledger.epsilon_rej(), EpsilonUnit::ZERO);
 }
 
 #[test]

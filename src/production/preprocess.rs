@@ -6,7 +6,7 @@ use zeroize::Zeroize;
 
 use crate::ThresholdError;
 
-use super::types::AttemptId;
+use super::{prefilter::ShareReleaseAuthorization, types::AttemptId};
 
 /// Single-use preprocessed attempt material.
 pub struct PreprocessedAttempt {
@@ -26,7 +26,31 @@ impl core::fmt::Debug for PreprocessedAttempt {
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        production::{
+            epsilon::{EpsilonLedger, EpsilonUnit},
+            prefilter::{BlindedCommitmentSummary, BlindedPreFilter, PreFilterOutcome},
+        },
+        ValidatorId,
+    };
+
     use super::{AttemptId, PreprocessedAttempt, PreprocessingStore, ThresholdError};
+
+    fn authorization_for(attempt_id: AttemptId) -> super::ShareReleaseAuthorization {
+        let mut ledger = EpsilonLedger::default();
+        match BlindedPreFilter::evaluate(
+            attempt_id,
+            10,
+            EpsilonUnit::from_units(1),
+            vec![BlindedCommitmentSummary::new(ValidatorId(1), [1; 32], 5)],
+            &mut ledger,
+        )
+        .unwrap()
+        {
+            PreFilterOutcome::Passed(token) => token.into_share_release_authorization(),
+            PreFilterOutcome::Aborted(_) => panic!("expected pass"),
+        }
+    }
 
     #[test]
     fn duplicate_attempt_does_not_replace_existing_secret_material() {
@@ -42,7 +66,9 @@ mod tests {
             }
         );
 
-        let consumed = store.consume(AttemptId([9; 32])).unwrap();
+        let consumed = store
+            .consume(authorization_for(AttemptId([9; 32])))
+            .unwrap();
         assert_eq!(consumed.secret_material(), &[1, 2, 3]);
     }
 
@@ -130,8 +156,9 @@ impl PreprocessingStore {
     /// Consume an attempt exactly once.
     pub fn consume(
         &mut self,
-        attempt_id: AttemptId,
+        authorization: ShareReleaseAuthorization,
     ) -> Result<PreprocessedAttempt, ThresholdError> {
+        let attempt_id = authorization.attempt_id();
         self.attempts
             .remove(&attempt_id)
             .ok_or(ThresholdError::InvalidPreprocessedAttempt {

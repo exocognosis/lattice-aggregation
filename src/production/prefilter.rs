@@ -64,11 +64,17 @@ impl BlindedCommitmentSummary {
 /// Capability token proving blinded pre-filter success.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PreFilterPassed {
+    attempt_id: AttemptId,
     clearance_boundary: u32,
     aggregate_infinity_norm: u32,
 }
 
 impl PreFilterPassed {
+    /// Return the attempt bound to this pre-filter pass.
+    pub const fn attempt_id(self) -> AttemptId {
+        self.attempt_id
+    }
+
     /// Return the clearance boundary.
     pub const fn clearance_boundary(self) -> u32 {
         self.clearance_boundary
@@ -79,13 +85,10 @@ impl PreFilterPassed {
         self.aggregate_infinity_norm
     }
 
-    /// Convert the pass token into share-release authorization for one attempt.
-    pub const fn into_share_release_authorization(
-        self,
-        attempt_id: AttemptId,
-    ) -> ShareReleaseAuthorization {
+    /// Convert the pass token into share-release authorization.
+    pub const fn into_share_release_authorization(self) -> ShareReleaseAuthorization {
         ShareReleaseAuthorization {
-            attempt_id,
+            attempt_id: self.attempt_id,
             prefilter: self,
         }
     }
@@ -145,6 +148,7 @@ pub struct BlindedPreFilter;
 impl BlindedPreFilter {
     /// Evaluate public blinded commitment summaries.
     pub fn evaluate(
+        attempt_id: AttemptId,
         clearance_boundary: u32,
         rejection_increment: EpsilonUnit,
         summaries: Vec<BlindedCommitmentSummary>,
@@ -156,9 +160,12 @@ impl BlindedPreFilter {
             });
         }
 
-        let aggregate_infinity_norm = summaries.iter().fold(0u32, |acc, summary| {
-            acc.saturating_add(summary.infinity_norm())
-        });
+        let aggregate_infinity_norm = summaries.iter().try_fold(0u32, |acc, summary| {
+            acc.checked_add(summary.infinity_norm())
+                .ok_or(ThresholdError::InvalidPreFilter {
+                    reason: "aggregate infinity norm overflow",
+                })
+        })?;
 
         if aggregate_infinity_norm > clearance_boundary {
             ledger.increment_rejection(rejection_increment);
@@ -168,6 +175,7 @@ impl BlindedPreFilter {
             }))
         } else {
             Ok(PreFilterOutcome::Passed(PreFilterPassed {
+                attempt_id,
                 clearance_boundary,
                 aggregate_infinity_norm,
             }))

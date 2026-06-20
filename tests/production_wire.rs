@@ -70,17 +70,19 @@ fn prefilter_abort_wire_encoding_is_golden() {
         epoch: 7,
         attempt_id: [2; 32],
         reason_code: 11,
+        clearance_boundary: 100,
         aggregate_infinity_norm: 101,
     };
     let encoded = msg.encode();
     assert_eq!(encoded[0], 2);
     assert_eq!(encoded[1], 5);
-    assert_eq!(encoded.len(), 80);
+    assert_eq!(encoded.len(), 84);
     assert_eq!(&encoded[2..34], &[1; 32]);
     assert_eq!(&encoded[34..42], &7u64.to_be_bytes());
     assert_eq!(&encoded[42..74], &[2; 32]);
     assert_eq!(&encoded[74..76], &11u16.to_be_bytes());
-    assert_eq!(&encoded[76..80], &101u32.to_be_bytes());
+    assert_eq!(&encoded[76..80], &100u32.to_be_bytes());
+    assert_eq!(&encoded[80..84], &101u32.to_be_bytes());
     assert_eq!(ProductionWireMsg::decode(&encoded).unwrap(), msg);
 }
 
