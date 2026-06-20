@@ -9,8 +9,6 @@ use zeroize::Zeroize;
 pub const MLDSA65_PUBLICKEY_BYTES: usize = 1952;
 /// FIPS 204 ML-DSA-65 signature byte length.
 pub const MLDSA65_SIGNATURE_BYTES: usize = 3309;
-/// FIPS 204 ML-DSA-65 expanded secret key byte length.
-pub const MLDSA65_SECRETKEY_BYTES: usize = 4032;
 /// Seed length used by polynomial commitment derivation.
 pub const POLY_SEED_BYTES: usize = 32;
 /// Session identifier byte length.

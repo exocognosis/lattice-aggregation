@@ -1,0 +1,72 @@
+#![cfg(feature = "coordinator-assisted")]
+
+use lattice_aggregation::{
+    production::{
+        coordinator::{AggregateAttemptRequest, CoordinatorAggregateGate},
+        policy::ProductionPolicy,
+        provider::StandardMldsa65Provider,
+        transcript::{CommitmentDigest, ProductionSigningTranscript, ProductionTranscriptInput},
+        types::{
+            ActiveSignerSet, AttemptId, DkgTranscriptDigest, EpochId, KeyId, MessageBinding,
+            ValidatorSetDigest,
+        },
+    },
+    ThresholdError, ThresholdPublicKey, ThresholdSignature, ValidatorId,
+};
+
+struct PanickingProvider;
+
+impl StandardMldsa65Provider for PanickingProvider {
+    fn verify(
+        _public_key: &ThresholdPublicKey,
+        _message: &[u8],
+        _signature: &ThresholdSignature,
+    ) -> Result<bool, ThresholdError> {
+        panic!("provider should not be called when policy blocks finalization");
+    }
+}
+
+fn transcript() -> ProductionSigningTranscript {
+    ProductionSigningTranscript::new(ProductionTranscriptInput {
+        session_id: [1; 32],
+        epoch: EpochId(2),
+        key_id: KeyId([3; 32]),
+        validator_set_digest: ValidatorSetDigest([4; 32]),
+        dkg_transcript_digest: DkgTranscriptDigest([5; 32]),
+        active_signers: ActiveSignerSet::new(vec![ValidatorId(1), ValidatorId(2)]).unwrap(),
+        threshold: 2,
+        public_key: ThresholdPublicKey([6; 1952]),
+        application_message: b"original application message".to_vec(),
+        message_binding: MessageBinding([7; 64]),
+        attempt_id: AttemptId([8; 32]),
+        coordinator_attestation_digest: [9; 32],
+        retry_counter: 0,
+        commitment_digests: vec![
+            (ValidatorId(1), CommitmentDigest([1; 32])),
+            (ValidatorId(2), CommitmentDigest([2; 32])),
+        ],
+    })
+    .unwrap()
+}
+
+fn request(policy: ProductionPolicy) -> AggregateAttemptRequest {
+    AggregateAttemptRequest {
+        transcript: transcript(),
+        candidate_signature: ThresholdSignature([42; 3309]),
+        policy,
+    }
+}
+
+#[test]
+fn aggregate_gate_checks_policy_before_provider_verification() {
+    let err = CoordinatorAggregateGate::<PanickingProvider>::finalize(request(
+        ProductionPolicy::hazmat_unreviewed(),
+    ))
+    .unwrap_err();
+    assert_eq!(
+        err,
+        ThresholdError::ProductionPolicyBlocked {
+            reason: "coordinator profile has not passed production release gates",
+        }
+    );
+}

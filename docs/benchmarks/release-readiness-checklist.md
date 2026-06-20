@@ -1,91 +1,136 @@
 # Release Readiness Checklist
 
-Date: 2026-05-26
+Date: 2026-06-19
 
-## Purpose
+## Scope
 
-This checklist separates the current Section V conformance evidence from the
-work required before any production-security or secure threshold ML-DSA
-aggregation claim. It is intended for manuscript and release review, not as a
-replacement for the cryptographic claims matrix.
+This checklist defines the minimum gates that must be satisfied before any
+release, publication, or deployment language can describe this repository as
+production-ready threshold ML-DSA-65 software. It is intentionally blocking:
+No release gate is complete until the evidence is present, reviewed, and linked
+from the relevant claim document.
 
-Current status: the repository supports a research scaffold plus a
-feature-gated `hazmat-real-mldsa` evaluation backend. It does not yet prove a
-secure threshold ML-DSA-65 aggregation protocol.
+The current repository remains a deterministic research scaffold. Benchmark
+and harness output is deterministic research telemetry, useful for regression
+review and reproducibility, but not security evidence.
 
-## Research Scaffold
+## Required Inputs
 
-These items support publication of a scoped research artifact:
+Every release review must name the exact commit, feature set, target platforms,
+compiler/toolchain, dependency lockfile, backend implementation, proof package,
+test results, benchmark artifacts, audit reports, and claim-boundary docs under
+review.
 
-- [x] Document deterministic Section V benchmark commands and feature gates.
-- [x] Export replayable transcript JSONL and CSV artifacts.
-- [x] Verify transcript artifact shape before printing.
-- [x] Bind transcript artifacts to canonical frame digests.
-- [x] Export populated production contribution statement digests where a
-  production-shaped statement exists.
-- [x] Export experimental VSS complaint evidence under `experimental-vss`.
-- [x] Bind complaint artifacts to canonical production VSS relation statement
-  digests.
-- [x] Maintain a checksum-pinned sample output bundle for structural review.
-- [x] Keep manuscript wording scoped to implementation behavior and
-  reproducibility, not production security.
-- [ ] Update `docs/cryptography/claims-matrix.md` whenever a claim changes
-  status.
+The review must explicitly state whether it covers the default simulated
+backend, the non-default `coordinator-assisted` profile, the
+`hazmat-real-mldsa` production-candidate skeleton, or another backend not
+present in this checkout.
 
-## Hazmat Implementation
+## Cryptography and Proof Gates
 
-These items describe the `hazmat-real-mldsa` backend boundary:
+- Select and document the concrete threshold ML-DSA-65 construction.
+- Complete the threshold unforgeability and real/ideal proof package under the
+  stated adversary, network, abort, and corruption model.
+- Show aggregate output compatibility with a standard ML-DSA verifier.
+- Complete VSS/DKG binding, hiding, extractability, complaint soundness, and
+  anti-framing arguments.
+- Record the external cryptographic review and all unresolved limitations.
 
-- [x] Keep ML-DSA-65 internals feature-gated behind `hazmat-real-mldsa`.
-- [x] Produce standard-sized ML-DSA-65 public keys and signatures in tested
-  paths.
-- [x] Verify finalized signatures with the ordinary internal-`mu` verifier in
-  the benchmark path.
-- [x] Compare each threshold trial with a deterministic single-signer baseline
-  over the same internal `mu`.
-- [x] Reject malformed contribution encodings in the actor path.
-- [x] Emit attributable malformed-contribution evidence when a bad payload is
-  observed.
-- [x] Allow finalization to continue after one malformed contribution when an
-  honest quorum remains.
-- [ ] Complete constant-time review and timing-leakage tests for secret
-  dependent arithmetic and encoding paths.
-- [ ] Complete memory erasure and adaptive-corruption handling if adaptive
-  security is claimed.
-- [ ] Obtain external cryptographic and implementation audit before removing
-  hazmat status or making production-readiness claims.
+## Implementation and Backend Gates
 
-## Production Blockers
+- Implement a production backend behind an explicit feature and policy gate.
+- Prove the default simulated backend cannot be selected accidentally for a
+  production-labeled API.
+- Complete FIPS/ACVP-style ML-DSA-65 provider KATs for the selected provider
+  and link the vectors, logs, tool versions, and reviewer sign-off.
+- Enable and pass the ignored KAT release gate before any
+  `hazmat-real-mldsa` compatibility or release claim is made.
+- Complete coordinator-assisted threshold KATs for profile policy gates,
+  transcript binding, preprocessing attempts, final verifier behavior, and
+  production coordinator wire frames.
+- Add standard-verifier bridge tests for accepted aggregate signatures.
+- Verify malformed partials, malformed hints, invalid bounds, transcript
+  mismatch, key mismatch, duplicate signer, and unknown signer rejection.
+- Link Renyi-divergence proof evidence for any `EpsilonLedger` masking budget
+  increment and keep absent evidence classified as a release blocker.
+- Keep the simulator compile-fail guard active so the deterministic simulated
+  backend cannot satisfy production coordinator contracts.
+- Complete a DKG setup-only hot-path review proving per-block signing does not
+  start DKG, VSS, or share-ceremony work.
+- Isolate `trybuild` compile-fail verification in CI and parallel agent runs
+  with a dedicated `CARGO_TARGET_DIR` so lock contention in
+  `target/tests/trybuild` cannot be mistaken for a type-state regression.
+- Audit randomness, nonce derivation, key handling, zeroization, and error
+  behavior for the selected backend.
 
-No secure threshold ML-DSA aggregation claim should be made until these blockers
-are closed:
+## Side-Channel and Constant-Time Gates
 
-- [ ] Complete a formal threshold ML-DSA-65 protocol specification with exact
-  adversary model, corruption timing, network assumptions, and abort model.
-- [ ] Prove that aggregate outputs preserve ML-DSA-65 challenge, rejection
-  sampling, norm-bound, and distributional requirements.
-- [ ] Replace transcript-hash contribution proofs with a sound production
-  relation, verifier, or audited MPC verification boundary.
-- [ ] Provide hiding and binding guarantees for secret-dependent contribution
-  material.
-- [ ] Replace deterministic VSS/DKG scaffold code with malicious-secure
-  production DKG, private share delivery, complaint resolution, and
-  anti-framing analysis.
-- [ ] Prove production VSS complaint soundness before using complaint evidence
-  for slashing or consensus penalties.
-- [ ] Audit randomness generation, nonce derivation, domain separation,
-  transcript binding, and key-management assumptions.
-- [ ] Validate authenticated transport, replay protection, retry limits, and
-  consensus integration behavior under real faults.
-- [ ] Complete constant-time, side-channel, and leakage review for the selected
-  backend.
-- [ ] Complete external cryptographic review and implementation audit.
-- [ ] Decide whether FIPS validation or other certification is required before
-  deployment claims.
+- Run dudect or an equivalent timing test suite for selected secret-dependent
+  arithmetic and encoding paths.
+- Run ctgrind or an equivalent dynamic leakage check where the target platform
+  supports it.
+- Review generated code or compiler output for the selected targets and build
+  profiles.
+- Confirm logging, panics, retries, aborts, and evidence emission do not leak
+  outside the stated side-channel model.
+- Document remaining side-channel assumptions in
+  [side-channel-boundary.md](../cryptography/side-channel-boundary.md).
 
-## Release Gate
+## Benchmark and Artifact Gates
 
-A release may describe the current artifact as a reproducible research scaffold
-with a hazmat ML-DSA-65 conformance backend. It must not describe the artifact
-as a secure, production-ready, malicious-secure, or audited threshold ML-DSA-65
-aggregation implementation until the production blockers above are complete.
+- Record the harness configuration, cluster scenarios, seeds, dependency
+  versions, hardware, OS, and compiler for every benchmark artifact.
+- Keep benchmark output framed as deterministic research telemetry and not
+  security evidence.
+- Store artifact checksums and regeneration commands.
+- Validate that tables, JSONL, CSV, and rendered figures match the checked-in
+  source data.
+- Add fuzz targets for production coordinator frames, including malformed
+  frame tags, length fields, attempt counters, transcript digests, provider
+  identifiers, and trailing-byte cases.
+- Confirm no benchmark or chart wording implies cryptographic security,
+  production liveness, side-channel resistance, or FIPS validation.
+
+## Operational and Consensus Gates
+
+- Document authenticated transport, validator identity binding, replay policy,
+  timeout policy, retry limits, and session cleanup.
+- Review consensus callbacks, state transitions, finality assumptions, and
+  slashing policy against the production chain design.
+- Prove or externally review public evidence predicates before any slashing
+  integration treats scaffold evidence as authoritative.
+- Complete deployment, key-management, incident-response, and rollback plans.
+- Treat production consensus signing as blocked until the cryptography,
+  implementation, side-channel, operational, and audit gates all pass.
+
+## Documentation and Claim-Drift Gates
+
+- Update [claims-matrix.md](../cryptography/claims-matrix.md),
+  [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
+  [protocol-code-crosswalk.md](../cryptography/protocol-code-crosswalk.md),
+  [attack-surface.md](../audit/attack-surface.md), and
+  [tcb.md](../audit/tcb.md) in the same change that modifies behavior or
+  evidence.
+- Keep README, release notes, benchmark docs, and audit docs aligned on current
+  claims and non-claims.
+- Run documentation link and manifest tests before sign-off.
+- Remove stale missing-artifact wording when the named artifact is added.
+
+## Explicit Non-Claims
+
+Until every applicable gate above has passed, the repository does not claim:
+
+- production-ready threshold ML-DSA-65 security;
+- active-adversary, adaptive-corruption, or real/ideal security;
+- standard ML-DSA verifier compatibility for simulated aggregate signatures;
+- production slashing soundness or anti-framing;
+- side-channel resistance or constant-time behavior;
+- FIPS validation, certification, or certified module status;
+- production network liveness, authenticated transport, or consensus safety.
+
+## Sign-Off Rule
+
+Release sign-off requires all gates to be checked with linked evidence, named
+reviewers, exact commit identifiers, and explicit residual-risk notes. If any
+gate is incomplete, the release must retain research-scaffold wording and must
+not claim production consensus signing readiness.

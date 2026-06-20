@@ -1,103 +1,162 @@
-use std::{fs, path::Path};
+use std::{
+    collections::BTreeSet,
+    fs,
+    path::{Path, PathBuf},
+};
 
 const PROOF_CROSSWALK: &str = "docs/cryptography/proof-implementation-crosswalk.md";
-const FORMAL_THEOREM: &str = "docs/cryptography/formal-security-theorem.md";
-const IDEAL_FUNCTIONALITY: &str = "docs/cryptography/ideal-functionality.md";
-const REAL_IDEAL_SIMULATOR: &str = "docs/cryptography/real-ideal-simulator.md";
-const CORRECTNESS_LEMMAS: &str = "docs/cryptography/correctness-lemmas.md";
-const NOISE_REJECTION: &str = "docs/cryptography/noise-rejection-proof-plan.md";
-const REJECTION_HYBRID_PROOF: &str = "docs/cryptography/rejection-sampling-hybrid-proof.md";
-const REJECTION_BOUNDS: &str = "docs/cryptography/rejection-sampling-bounds.md";
-const MASK_DISTRIBUTION_EQUIVALENCE: &str = "docs/cryptography/mask-distribution-equivalence.md";
-const REJECTION_PREDICATE_EQUIVALENCE: &str =
-    "docs/cryptography/rejection-predicate-equivalence.md";
-const WITHHOLDING_ABORT_BOUND: &str = "docs/cryptography/withholding-abort-bound.md";
-const EPS_MASK_THEOREM_CLOSURE: &str = "docs/cryptography/eps-mask-theorem-closure.md";
-const EPS_REJ_THEOREM_CLOSURE: &str = "docs/cryptography/eps-rej-theorem-closure.md";
-const EPS_WITHHOLD_THEOREM_CLOSURE: &str = "docs/cryptography/eps-withhold-theorem-closure.md";
-const EPS_MASK_FORMALIZATION: &str = "docs/cryptography/eps-mask-formalization.md";
-const EPS_REJ_PREDICATE_SUBLEMMAS: &str = "docs/cryptography/eps-rej-predicate-sublemmas.md";
-const EPS_WITHHOLD_SIMULATOR_OBLIGATIONS: &str =
-    "docs/cryptography/eps-withhold-simulator-obligations.md";
-const VSS_DKG_PLAN: &str = "docs/cryptography/vss-dkg-security-plan.md";
-const VSS_BACKEND_SELECTION: &str = "docs/cryptography/vss-backend-selection.md";
-const EPS_VSS_PRODUCTION_ROUTE: &str = "docs/cryptography/eps-vss-production-route.md";
-const VSS_DKG_PRODUCTION_OBLIGATION_SPLIT: &str =
-    "docs/cryptography/vss-dkg-production-obligation-split.md";
-const VSS_DKG_BACKEND_DEPENDENCY_GRAPH: &str =
-    "docs/cryptography/vss-dkg-backend-dependency-graph.md";
-const VSS_IDEALIZATION_SELECTION: &str = "docs/cryptography/vss-idealization-and-selection.md";
-const ACTIVE_ADVERSARY: &str = "docs/cryptography/active-adversary-model.md";
-const RANDOM_ORACLE_GAME: &str = "docs/cryptography/random-oracle-game.md";
-const SIDE_CHANNEL_BOUNDARY: &str = "docs/cryptography/side-channel-boundary.md";
-const FORMAL_TRANSCRIPT: &str = "docs/cryptography/formal-threshold-mldsa-transcript.md";
-const PRODUCTION_TRANSCRIPT_GRAMMAR: &str = "docs/cryptography/production-transcript-grammar.md";
-const FST_L1_TRANSCRIPT_INJECTIVITY: &str = "docs/cryptography/fst-l1-transcript-injectivity.md";
-const FST_L2_CHALLENGE_BINDING: &str = "docs/cryptography/fst-l2-challenge-binding.md";
-const FST_L3_COLLECTION_SOUNDNESS: &str = "docs/cryptography/fst-l3-collection-soundness.md";
-const FST_L1_L3_THEOREM_CLOSURE: &str = "docs/cryptography/fst-l1-l3-theorem-closure.md";
-const FST_L4_PARTIAL_SHARE_VALIDITY: &str = "docs/cryptography/fst-l4-partial-share-validity.md";
-const FST_L5_AGGREGATION_CORRECTNESS: &str = "docs/cryptography/fst-l5-aggregation-correctness.md";
-const FST_L6_NO_SUBTHRESHOLD_SIGNING: &str = "docs/cryptography/fst-l6-no-subthreshold-signing.md";
-const FST_L7_ABORT_COMPATIBILITY: &str = "docs/cryptography/fst-l7-abort-compatibility.md";
-const FST_L4_L7_THEOREM_CLOSURE: &str = "docs/cryptography/fst-l4-l7-theorem-closure.md";
-const FST_L10_CLASSIFIER_CLOSURE: &str = "docs/cryptography/fst-l10-classifier-closure.md";
-const FST_L10_CLASSIFIER_THEOREM_CLOSURE: &str =
-    "docs/cryptography/fst-l10-classifier-theorem-closure.md";
-const CONTRIBUTION_SOUNDNESS: &str = "docs/cryptography/contribution-soundness-relation.md";
-const CONTRIBUTION_BACKEND_INSTANTIATION: &str =
-    "docs/cryptography/contribution-backend-instantiation.md";
-const EPS_CONTRIB_BACKEND_PROOF_ROUTE: &str =
-    "docs/cryptography/eps-contrib-backend-proof-route.md";
-const EPS_CONTRIB_BACKEND_DECISION_RECORD: &str =
-    "docs/cryptography/eps-contrib-backend-decision-record.md";
-const F_CONTRIB_IDEAL_FUNCTIONALITY: &str = "docs/cryptography/f-contrib-ideal-functionality.md";
-const F_CONTRIB_REALIZATION_SIMULATOR: &str =
-    "docs/cryptography/f-contrib-realization-simulator.md";
-const CONTRIBUTION_BACKEND_SELECTION: &str = "docs/cryptography/contribution-backend-selection.md";
-const CONTRIBUTION_BACKEND_DECISION_RECORD: &str =
-    "docs/cryptography/contribution-backend-decision-record.md";
-const UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE: &str =
-    "docs/cryptography/unauthorized-output-classifier-closure.md";
-const UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION: &str =
-    "docs/cryptography/unauthorized-output-classifier-elimination.md";
-const EPS_CLASSIFY_ELIMINATION_ROUTE: &str = "docs/cryptography/eps-classify-elimination-route.md";
-const EPS_CLASSIFY_PER_CASE_REDUCTIONS: &str =
-    "docs/cryptography/eps-classify-per-case-reductions.md";
-const EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE: &str =
-    "docs/cryptography/eps-classify-totality-disjointness-closure.md";
-const EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM: &str =
-    "docs/cryptography/eps-classify-unmapped-zero-theorem.md";
-const EPS_VERIFY_ABSORPTION_DECISION: &str = "docs/cryptography/eps-verify-absorption-decision.md";
-const EPS_VERIFY_ABSORPTION_DECISION_RECORD: &str =
-    "docs/cryptography/eps-verify-absorption-decision-record.md";
-const EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE: &str =
-    "docs/cryptography/eps-verify-rejection-absorption-closure.md";
-const EPS_VERIFY_TO_REJ_ABSORPTION_THEOREM: &str =
-    "docs/cryptography/eps-verify-to-rej-absorption-theorem.md";
-const PROOF_CLOSURE_LEDGER: &str = "docs/cryptography/proof-closure-ledger.md";
-const FST_T1_IDEALVSS_THEOREM: &str = "docs/cryptography/fst-t1-idealvss-theorem.md";
-const FST_T1_IDEALVSS_FINAL_PROOF: &str = "docs/cryptography/fst-t1-idealvss-final-proof.md";
-const EPSILON_RESIDUAL_LEDGER_FINAL_FORM: &str =
-    "docs/cryptography/epsilon-residual-ledger-final-form.md";
-const PROOF_GAP_PRIORITY_MAP: &str = "docs/cryptography/proof-gap-priority-map.md";
-const IDEALVSS_SIGNING_THEOREM_CLOSURE: &str =
-    "docs/cryptography/idealvss-signing-theorem-closure.md";
-const IDEALVSS_LEMMA_SKELETON: &str = "docs/cryptography/idealvss-lemma-skeleton.md";
-const REJECTION_SAMPLING_CLOSURE_PLAN: &str =
-    "docs/cryptography/rejection-sampling-closure-plan.md";
-const REJECTION_SAMPLING_THEOREM_CLOSURE: &str =
-    "docs/cryptography/rejection-sampling-theorem-closure.md";
-const RANDOM_ORACLE_COMMITMENT_CLOSURE: &str =
-    "docs/cryptography/random-oracle-commitment-closure.md";
-const PROOF_OBLIGATIONS: &str = "docs/cryptography/proof-obligations.md";
-const CLAIMS_MATRIX: &str = "docs/cryptography/claims-matrix.md";
-const PROOF_DEPENDENCY_GRAPH: &str = "docs/cryptography/proof-dependency-graph.md";
-const CLAIM_HARDENING_MATRIX: &str = "docs/cryptography/claim-hardening-matrix.md";
-const SIMULATOR_HYBRID_REDUCTIONS: &str = "docs/cryptography/simulator-hybrid-reductions.md";
-const PROOF_BIBLIOGRAPHY: &str = "docs/cryptography/proof-bibliography.md";
+const PROTOCOL_CODE_CROSSWALK: &str = "docs/cryptography/protocol-code-crosswalk.md";
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
-const HAZMAT_REAL_MLDSA_PROTOCOL: &str = "docs/cryptography/hazmat-real-mldsa-protocol.md";
+const CRYPTOGRAPHY_README: &str = "docs/cryptography/README.md";
+const RELEASE_READINESS_CHECKLIST: &str = "docs/benchmarks/release-readiness-checklist.md";
+
+const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
+    "docs/cryptography/active-adversary-model.md",
+    "docs/cryptography/claims-matrix.md",
+    "docs/cryptography/correctness-lemmas.md",
+    "docs/cryptography/formal-security-theorem.md",
+    "docs/cryptography/formal-threshold-mldsa-transcript.md",
+    "docs/cryptography/ideal-functionality.md",
+    "docs/cryptography/noise-rejection-proof-plan.md",
+    "docs/cryptography/phase-1-noise-bound-model.md",
+    "docs/cryptography/proof-implementation-crosswalk.md",
+    "docs/cryptography/protocol-code-crosswalk.md",
+    "docs/cryptography/proof-obligations.md",
+    "docs/cryptography/random-oracle-game.md",
+    "docs/cryptography/side-channel-boundary.md",
+    "docs/cryptography/vss-dkg-security-plan.md",
+];
+
+const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
+    (
+        "docs/cryptography/active-adversary-model.md",
+        &[
+            "# Active Adversary Model for Proof-Grade VSS/DKG",
+            "## Corruption Options",
+            "## Rushing Behavior",
+            "## Network Model",
+            "## Complaint and Evidence Semantics",
+            "## Output Agreement and Finality",
+        ],
+    ),
+    (
+        "docs/cryptography/claims-matrix.md",
+        &[
+            "# Cryptographic Claims Matrix",
+            "## Matrix",
+            "## Non-Claims",
+        ],
+    ),
+    (
+        "docs/cryptography/correctness-lemmas.md",
+        &[
+            "# Algebraic Correctness Lemmas",
+            "## Lemma 1: Field Inversion Soundness",
+            "## Lemma 5: Transcript Challenge Binding",
+            "## Lemma 8: Infinity-Norm Bound Preservation",
+        ],
+    ),
+    (
+        "docs/cryptography/formal-security-theorem.md",
+        &[
+            "# Formal Security Theorem",
+            "## FST-0. Scope and Reading Notes",
+            "## FST-5. Lemma Targets",
+            "## FST-10. Proof Dependencies for Later Workers",
+        ],
+    ),
+    (
+        "docs/cryptography/formal-threshold-mldsa-transcript.md",
+        &[
+            "# Formal Threshold ML-DSA Transcript",
+            "## FTMT-0. Scope",
+            "## FTMT-3. Binding Invariants",
+            "## FTMT-5. Stable Anchors",
+        ],
+    ),
+    (
+        "docs/cryptography/ideal-functionality.md",
+        &[
+            "# Ideal Functionality F_TMLDSA",
+            "## IF-0. Purpose and Scope",
+            "## IF-8. Simulator Obligations",
+            "## IF-11. Open Proof Dependencies",
+        ],
+    ),
+    (
+        "docs/cryptography/noise-rejection-proof-plan.md",
+        &[
+            "# Noise-Bound and Rejection-Sampling Proof Plan",
+            "## Proof Goal",
+            "## Lemma A: Local Mask Commitment Before Challenge",
+            "## Lemma H: Accepted-Signature Distribution",
+            "## Exactly What Remains to Be Proven",
+        ],
+    ),
+    (
+        "docs/cryptography/protocol-code-crosswalk.md",
+        &[
+            "# Protocol Code Crosswalk",
+            "## Scope",
+            "## Protocol Phase Crosswalk",
+            "## DKG Scaffold",
+            "## Signing State Machine",
+            "## Transcript Binding",
+            "## Aggregation Boundary",
+            "## Adapter Wire and Actor Flow",
+            "## Evidence and Timeout Diagnostics",
+            "## Benchmark and Export Harness",
+            "## Open Production Gaps",
+            "## Manifest Anchors",
+        ],
+    ),
+    (
+        "docs/cryptography/proof-obligations.md",
+        &[
+            "# Proof Obligations Matrix",
+            "## Matrix",
+            "FST-T1 threshold unforgeability",
+            "FST-L8 ideal extraction",
+            "Noise Lemma H accepted-signature distribution",
+            "VSS binding",
+            "Static active adversary model",
+            "## Wording Risks",
+        ],
+    ),
+    (
+        "docs/cryptography/random-oracle-game.md",
+        &[
+            "# Random-Oracle Game",
+            "## ROG-0. Scope",
+            "### ROG-D1. Message-Binding Oracle",
+            "### ROG-D5. Signing Contribution-Proof Oracle",
+            "## ROG-6. Non-Claims",
+        ],
+    ),
+    (
+        "docs/cryptography/side-channel-boundary.md",
+        &[
+            "# Side-Channel and Constant-Time Boundary",
+            "## Boundary Statement",
+            "## Implementation Leakage Claims",
+            "## Constant-Time Expectations",
+            "## Production Gate",
+        ],
+    ),
+    (
+        "docs/cryptography/vss-dkg-security-plan.md",
+        &[
+            "# Proof-Grade VSS/DKG Security Plan",
+            "## Required VSS Relation",
+            "### Binding",
+            "### Hiding",
+            "### Extractability",
+            "## DKG Construction Requirements",
+            "## Key-Bias Resistance",
+            "## Complaint and Evidence Requirements",
+        ],
+    ),
+];
 
 fn read_doc(path: &str) -> String {
     fs::read_to_string(path).unwrap_or_else(|err| panic!("failed to read {path}: {err}"))
@@ -113,123 +172,146 @@ fn assert_contains_all(path: &str, required: &[&str]) {
     }
 }
 
-fn assert_not_contains(path: &str, forbidden: &str) {
+fn assert_not_contains_all(path: &str, forbidden: &[&str]) {
     let doc = read_doc(path);
-    assert!(
-        !doc.contains(forbidden),
-        "{path} contains forbidden stale text anchor: {forbidden}"
-    );
+    for needle in forbidden {
+        assert!(
+            !doc.contains(needle),
+            "{path} still contains stale text anchor: {needle}"
+        );
+    }
 }
 
-#[test]
-fn classifier_case_names_are_canonical() {
-    for path in [
-        FST_L10_CLASSIFIER_CLOSURE,
-        FST_L10_CLASSIFIER_THEOREM_CLOSURE,
-        UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
-        UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
-        EPS_CLASSIFY_ELIMINATION_ROUTE,
-        EPS_CLASSIFY_PER_CASE_REDUCTIONS,
-        EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
-        EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM,
-    ] {
-        assert_contains_all(
-            path,
-            &[
-                "MldsaForgery",
-                "ThresholdAuthorizationBreak",
-                "VssDkgBreak",
-                "CommitmentBreak",
-                "ContributionBreak",
-                "RoTranscriptBreak",
-                "CollectionBreak",
-                "EvidenceBreak",
-                "Unmapped",
-            ],
-        );
-        assert_not_contains(path, "ThresholdShareBreak");
+fn collect_markdown_files(dir: &Path, files: &mut Vec<PathBuf>) {
+    for entry in fs::read_dir(dir).unwrap_or_else(|err| panic!("failed to read {dir:?}: {err}")) {
+        let entry = entry.unwrap_or_else(|err| panic!("failed to read directory entry: {err}"));
+        let path = entry.path();
+        if path.is_dir() {
+            collect_markdown_files(&path, files);
+        } else if path.extension().is_some_and(|ext| ext == "md") {
+            files.push(path);
+        }
     }
+}
+
+fn is_external_or_anchor(target: &str) -> bool {
+    target.starts_with("http://") || target.starts_with("https://") || target.starts_with("mailto:")
+}
+
+fn local_target(markdown_file: &Path, target: &str) -> Option<(PathBuf, Option<String>)> {
+    let target = target.trim();
+    if target.is_empty() || is_external_or_anchor(target) {
+        return None;
+    }
+
+    let (path_part, anchor) = target
+        .split_once('#')
+        .map_or((target, None), |(path, anchor)| {
+            (path, (!anchor.is_empty()).then(|| anchor.to_string()))
+        });
+    let without_query = path_part.split('?').next().unwrap_or(path_part);
+    let path = if without_query.is_empty() {
+        markdown_file.to_path_buf()
+    } else {
+        markdown_file
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join(without_query)
+    };
+
+    Some((path, anchor))
+}
+
+fn artifact_path(markdown_file: &Path, target: &str) -> PathBuf {
+    let target = Path::new(target);
+    if target.starts_with("docs") || target.starts_with("src") || target.starts_with("tests") {
+        target.to_path_buf()
+    } else {
+        markdown_file
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join(target)
+    }
+}
+
+fn backticked_paths(line: &str) -> Vec<&str> {
+    let mut paths = Vec::new();
+    let mut remaining = line;
+    while let Some(start) = remaining.find('`') {
+        let after_start = &remaining[start + 1..];
+        let Some(end) = after_start.find('`') else {
+            break;
+        };
+        let candidate = &after_start[..end];
+        if candidate.ends_with(".md") || candidate.ends_with(".rs") {
+            paths.push(candidate);
+        }
+        remaining = &after_start[end + 1..];
+    }
+    paths
+}
+
+fn heading_slug(heading: &str) -> String {
+    let mut slug = String::new();
+    let mut last_was_dash = false;
+
+    for ch in heading.to_lowercase().chars() {
+        if ch.is_ascii_alphanumeric() {
+            slug.push(ch);
+            last_was_dash = false;
+        } else if (ch.is_ascii_whitespace() || ch == '-') && !last_was_dash && !slug.is_empty() {
+            slug.push('-');
+            last_was_dash = true;
+        }
+    }
+
+    while slug.ends_with('-') {
+        slug.pop();
+    }
+    slug
+}
+
+fn explicit_anchor_ids(line: &str) -> Vec<String> {
+    let mut ids = Vec::new();
+    let mut remaining = line;
+    while let Some(id_start) = remaining.find("id=\"") {
+        let after_start = &remaining[id_start + 4..];
+        let Some(id_end) = after_start.find('"') else {
+            break;
+        };
+        ids.push(after_start[..id_end].to_string());
+        remaining = &after_start[id_end + 1..];
+    }
+    ids
+}
+
+fn markdown_anchors(path: &Path) -> BTreeSet<String> {
+    let doc = fs::read_to_string(path)
+        .unwrap_or_else(|err| panic!("failed to read markdown file {path:?}: {err}"));
+    let mut anchors = BTreeSet::new();
+
+    for line in doc.lines() {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with('#') {
+            let heading = trimmed.trim_start_matches('#').trim();
+            let heading = heading.trim_end_matches('#').trim();
+            let slug = heading_slug(heading);
+            if !slug.is_empty() {
+                anchors.insert(slug);
+            }
+        }
+
+        for id in explicit_anchor_ids(line) {
+            anchors.insert(id);
+        }
+    }
+
+    anchors
 }
 
 #[test]
 fn proof_documentation_manifest_tracks_required_docs() {
-    for path in [
-        PROOF_CROSSWALK,
-        FORMAL_THEOREM,
-        IDEAL_FUNCTIONALITY,
-        REAL_IDEAL_SIMULATOR,
-        CORRECTNESS_LEMMAS,
-        NOISE_REJECTION,
-        REJECTION_HYBRID_PROOF,
-        REJECTION_BOUNDS,
-        MASK_DISTRIBUTION_EQUIVALENCE,
-        REJECTION_PREDICATE_EQUIVALENCE,
-        WITHHOLDING_ABORT_BOUND,
-        EPS_MASK_THEOREM_CLOSURE,
-        EPS_REJ_THEOREM_CLOSURE,
-        EPS_WITHHOLD_THEOREM_CLOSURE,
-        EPS_MASK_FORMALIZATION,
-        EPS_REJ_PREDICATE_SUBLEMMAS,
-        EPS_WITHHOLD_SIMULATOR_OBLIGATIONS,
-        VSS_DKG_PLAN,
-        VSS_BACKEND_SELECTION,
-        EPS_VSS_PRODUCTION_ROUTE,
-        VSS_DKG_PRODUCTION_OBLIGATION_SPLIT,
-        VSS_DKG_BACKEND_DEPENDENCY_GRAPH,
-        VSS_IDEALIZATION_SELECTION,
-        ACTIVE_ADVERSARY,
-        RANDOM_ORACLE_GAME,
-        SIDE_CHANNEL_BOUNDARY,
-        FORMAL_TRANSCRIPT,
-        PRODUCTION_TRANSCRIPT_GRAMMAR,
-        FST_L1_TRANSCRIPT_INJECTIVITY,
-        FST_L2_CHALLENGE_BINDING,
-        FST_L3_COLLECTION_SOUNDNESS,
-        FST_L1_L3_THEOREM_CLOSURE,
-        FST_L4_PARTIAL_SHARE_VALIDITY,
-        FST_L5_AGGREGATION_CORRECTNESS,
-        EPS_VERIFY_ABSORPTION_DECISION,
-        FST_L6_NO_SUBTHRESHOLD_SIGNING,
-        FST_L7_ABORT_COMPATIBILITY,
-        FST_L4_L7_THEOREM_CLOSURE,
-        FST_L10_CLASSIFIER_CLOSURE,
-        FST_L10_CLASSIFIER_THEOREM_CLOSURE,
-        CONTRIBUTION_SOUNDNESS,
-        CONTRIBUTION_BACKEND_INSTANTIATION,
-        EPS_CONTRIB_BACKEND_PROOF_ROUTE,
-        EPS_CONTRIB_BACKEND_DECISION_RECORD,
-        F_CONTRIB_IDEAL_FUNCTIONALITY,
-        F_CONTRIB_REALIZATION_SIMULATOR,
-        CONTRIBUTION_BACKEND_SELECTION,
-        CONTRIBUTION_BACKEND_DECISION_RECORD,
-        UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
-        UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
-        EPS_CLASSIFY_ELIMINATION_ROUTE,
-        EPS_CLASSIFY_PER_CASE_REDUCTIONS,
-        EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
-        EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM,
-        EPS_VERIFY_ABSORPTION_DECISION_RECORD,
-        EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE,
-        EPS_VERIFY_TO_REJ_ABSORPTION_THEOREM,
-        PROOF_CLOSURE_LEDGER,
-        FST_T1_IDEALVSS_THEOREM,
-        FST_T1_IDEALVSS_FINAL_PROOF,
-        EPSILON_RESIDUAL_LEDGER_FINAL_FORM,
-        PROOF_GAP_PRIORITY_MAP,
-        IDEALVSS_SIGNING_THEOREM_CLOSURE,
-        IDEALVSS_LEMMA_SKELETON,
-        REJECTION_SAMPLING_CLOSURE_PLAN,
-        REJECTION_SAMPLING_THEOREM_CLOSURE,
-        RANDOM_ORACLE_COMMITMENT_CLOSURE,
-        PROOF_OBLIGATIONS,
-        CLAIMS_MATRIX,
-        PROOF_DEPENDENCY_GRAPH,
-        CLAIM_HARDENING_MATRIX,
-        SIMULATOR_HYBRID_REDUCTIONS,
-        PROOF_BIBLIOGRAPHY,
-        PHASE_1_NOISE_MODEL,
-        HAZMAT_REAL_MLDSA_PROTOCOL,
-    ] {
+    for path in REQUIRED_CRYPTOGRAPHY_DOCS {
         assert!(
             Path::new(path).is_file(),
             "required proof documentation file is missing: {path}"
@@ -238,2125 +320,203 @@ fn proof_documentation_manifest_tracks_required_docs() {
 }
 
 #[test]
-fn full_proof_surface_exposes_stable_anchors() {
+fn proof_docs_keep_required_anchor_contract() {
+    for (path, required) in PROOF_DOC_ANCHORS {
+        assert_contains_all(path, required);
+    }
+}
+
+#[test]
+fn release_readiness_checklist_keeps_required_anchor_contract() {
     assert_contains_all(
-        FORMAL_THEOREM,
+        RELEASE_READINESS_CHECKLIST,
         &[
-            "# Formal Security Theorem for Threshold ML-DSA-65",
-            "theorem-tmldsa-euf-cma",
-            "assumptions",
-            "limitations",
-            "Theorem FST-T1",
-            "Theorem FST-T1-IdealVSS",
-            "FST-H0-IdealVSS",
-            "Proof status: not proved in this repository.",
-            "batch-h-conditional-main-theorem",
-            "Theorem H1",
-            "conditional theorem",
-            "eps_backend",
-            "eps_vss",
-            "eps_contrib",
-            "eps_verify",
-            "eps_classify",
-            "eps_side_channel",
-            "no production backend selected",
-            "implementation evidence is not cryptographic proof",
-            "not a production proof",
-            "malicious-secure MPC backend required",
-            "simulation-reducible only after backend discharge",
+            "# Release Readiness Checklist",
+            "## Scope",
+            "## Required Inputs",
+            "## Cryptography and Proof Gates",
+            "## Implementation and Backend Gates",
+            "## Side-Channel and Constant-Time Gates",
+            "## Benchmark and Artifact Gates",
+            "## Operational and Consensus Gates",
+            "## Documentation and Claim-Drift Gates",
+            "## Explicit Non-Claims",
+            "## Sign-Off Rule",
+            "No release gate is complete until",
+            "deterministic research telemetry",
+            "not security evidence",
+            "standard ML-DSA verifier",
+            "external cryptographic review",
+            "dudect",
+            "ctgrind",
+            "FIPS validation",
+            "production consensus signing",
+        ],
+    );
+}
+
+#[test]
+fn production_coordinator_docs_keep_claim_boundary() {
+    assert_contains_all(
+        "docs/cryptography/claims-matrix.md",
+        &[
+            "coordinator-assisted ML-DSA-65 profile",
+            "hazmat conformance only",
+            "standard-verifier-compatible only after KAT and audit gates",
+            "EpsilonLedger",
+            "blinded pre-filter",
+            "Renyi divergence",
+            "hint-routing conformance",
+            "DKG setup-only boundary",
         ],
     );
     assert_contains_all(
-        PROOF_DEPENDENCY_GRAPH,
+        "docs/benchmarks/release-readiness-checklist.md",
         &[
-            "batch-h-proof-dependency-graph",
-            "H-DAG-1",
-            "H-DAG-2",
-            "H-DAG-3",
-            "root theorem",
-            "backend discharge",
-            "VSS/DKG proof",
-            "contribution proof relation",
-            "standard ML-DSA verification",
-            "unauthorized-output classifier",
-            "residual epsilon ledger",
-            "eps_backend",
-            "eps_vss",
-            "eps_contrib",
-            "eps_verify",
-            "eps_classify",
-            "eps_side_channel",
-            "implementation evidence is not cryptographic proof",
-            "not a production proof",
+            "FIPS/ACVP-style ML-DSA-65 provider KATs",
+            "coordinator-assisted threshold KATs",
+            "fuzz targets for production coordinator frames",
+            "ignored KAT release gate",
+            "simulator compile-fail guard",
+            "Renyi-divergence proof evidence",
+            "DKG setup-only hot-path review",
         ],
     );
     assert_contains_all(
-        CLAIM_HARDENING_MATRIX,
+        "docs/cryptography/proof-implementation-crosswalk.md",
         &[
-            r#"<a id="batch-h-claim-hardening-matrix"></a>"#,
-            "H-CLAIM-1",
-            "H-CLAIM-2",
-            "H-CLAIM-3",
-            "H-CLAIM-4",
-            "implemented-and-tested",
-            "documented-proof-draft",
-            "conditional-on-backend",
-            "explicitly-unproven",
-            "standard ML-DSA-65 verification surface",
-            "threshold aggregation architecture",
-            "malicious-secure threshold ML-DSA",
-            "no production backend selected",
-            "not a production proof",
-            "implementation evidence is not cryptographic proof",
-            "do not claim production-ready",
-            "do not claim thesis proven",
+            "Production coordinator candidate boundary",
+            "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "`tests/ui/production_simulated_backend_rejected.rs`",
+            "not real ML-DSA verification",
         ],
     );
     assert_contains_all(
-        IDEAL_FUNCTIONALITY,
+        "docs/cryptography/protocol-code-crosswalk.md",
         &[
-            "# Ideal Functionality F_TMLDSA",
-            "ideal-functionality-ftmldsa",
-            "## IF-3. Interfaces",
-            "## IF-8. Simulator Obligations",
+            "Production coordinator candidate",
+            "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "Gated hazmat/conformance boundary only",
         ],
     );
     assert_contains_all(
-        REAL_IDEAL_SIMULATOR,
+        "docs/audit/attack-surface.md",
         &[
-            "# Real/Ideal Simulator Skeleton for Threshold ML-DSA-65",
-            "real-ideal-simulator-skeleton",
-            "## RIS-2. Simulator State",
-            "## RIS-4. Oracle Programming Points",
-            "## RIS-5. Corruption Handling",
-            "## RIS-6. DKG Simulation",
-            "## RIS-7. Signing Simulation",
-            "## RIS-8. Abort and Evidence Simulation",
-            "## RIS-9. Hybrid Sequence S0..S8",
-            "simulator skeleton, not a completed proof",
+            "production-candidate skeleton surfaces",
+            "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "provider KAT gate",
+            "simulated backend cannot satisfy the production coordinator contract",
         ],
     );
     assert_contains_all(
-        CORRECTNESS_LEMMAS,
+        "docs/audit/tcb.md",
         &[
-            "lemma-lagrange-reconstruction",
-            "lemma-coefficient-lane-shamir",
-            "lemma-transcript-challenge-binding",
-            "lemma-infinity-norm-preservation",
-            "lemma-standard-verification",
-            "Current evidence vs remaining proof:",
-            "## Lemma 3: Coefficient-Lane Shamir Reconstruction over `R_q`",
-            "## Lemma 5: Transcript Challenge Binding",
-            "## Lemma 7: Standard ML-DSA Verification Compatibility",
-            "## Lemma 8: Infinity-Norm Bound Preservation under Accepted Aggregation",
+            "production-candidate surfaces exist",
+            "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
+            "`src/production/transcript.rs`",
+            "`src/production/preprocess.rs`",
+            "`src/production/coordinator.rs`",
+            "`src/adapter/production_wire.rs`",
+            "`tests/ui/production_simulated_backend_rejected.rs`",
+            "no real ML-DSA verifier",
         ],
     );
-    assert_contains_all(
-        NOISE_REJECTION,
+    assert_not_contains_all(
+        "docs/cryptography/noise-rejection-proof-plan.md",
         &[
-            "noise-bound-obligations",
-            "rejection-sampling-gap",
-            "rejection-sampling-hybrid-proof.md",
-            "## Lemma D: Infinity-Norm Bound Preservation",
-            "## Exactly What Remains to Be Proven",
+            "statistical distance",
+            "statistical-distance",
+            "quantified distance",
         ],
     );
-    assert_contains_all(
-        REJECTION_HYBRID_PROOF,
+    assert_not_contains_all(
+        "docs/cryptography/proof-obligations.md",
         &[
-            "# Rejection-Sampling Hybrid Proof Skeleton",
-            "rejection-hybrid-proof",
-            "rsh-h0-centralized-mldsa",
-            "rsh-h1-shared-secret-decomposition",
-            "rsh-h2-shared-mask-generation",
-            "rsh-h3-commit-before-challenge",
-            "rsh-h4-partial-response-reconstruction",
-            "rsh-h5-aggregate-rejection-predicate",
-            "rsh-h6-accepted-signature-distribution",
-            "Distribution equivalence is not complete.",
+            "statistical distance",
+            "statistical-distance",
+            "quantified distance",
         ],
     );
+}
+
+#[test]
+fn cryptography_readme_indexes_current_proof_docs() {
     assert_contains_all(
-        REJECTION_BOUNDS,
+        CRYPTOGRAPHY_README,
         &[
-            "# Rejection-Sampling Bounds Worksheet",
-            "rejection-sampling-bounds",
-            "Status: bound-oriented proof worksheet, not a completed proof.",
-            "eps_mask",
-            "eps_withhold",
-            "eps_rej",
-            "## Theorem T1: Conditional Accepted-Distribution Bound",
-            "Delta_accept",
-            "eps_commit",
-            "epsilon-closure-dependency-graph",
-            "eps-mask-closure-route",
-            "eps-rej-closure-route",
-            "eps-withhold-closure-route",
-            "## Top Missing Mathematical Bounds",
-        ],
-    );
-    assert_contains_all(
-        REJECTION_PREDICATE_EQUIVALENCE,
-        &[
-            "# Rejection Predicate Equivalence Worksheet",
-            "rejection-predicate-equivalence",
-            "rpe-theorem-target",
-            "rpe-predicate-map",
-            "rpe-bad-events",
-            "rpe-code-fips-crosswalk",
-            "rpe-verifier-mismatch-bridge",
-            "B_verify_mismatch",
-            "eps_verify_mismatch",
-            "eps_verify_survive",
-            "eps_verify_rej_absorb",
-            "Reject_pred(C)",
-            "Accept_thr(C)",
-            "Verify_std(C)",
-            "eps-verify-to-rej-absorption-theorem.md",
-            "rpe-non-claims",
-            "eps-rej-theorem-closure.md",
-        ],
-    );
-    assert_contains_all(
-        MASK_DISTRIBUTION_EQUIVALENCE,
-        &[
-            "# Mask Distribution Equivalence Worksheet",
-            "mask-distribution-equivalence",
-            "mde-theorem-target",
-            "theorem-m-close-mask-distribution",
-            "Theorem M-close-mask-distribution",
-            "CombineMask",
-            "eps_mask_bound",
-            "zero only if exact equality",
-            "mde-protocol-families",
-            "mde-bad-events",
-            "mde-code-crosswalk",
-            "mde-acceptance-criteria",
-            "mde-non-claims",
-            "eps-mask-theorem-closure.md",
-        ],
-    );
-    assert_contains_all(
-        WITHHOLDING_ABORT_BOUND,
-        &[
-            "# Withholding and Abort Bound Worksheet",
-            "withholding-abort-bound",
-            "wab-theorem-target",
-            "theorem-w-close-static-active",
-            "Theorem W-close-static-active",
-            "O_abort",
-            "eps_retry_limit",
-            "eps_withhold_commit",
-            "eps_withhold_challenge",
-            "wab-abort-taxonomy",
-            "wab-decomposition",
-            "wab-simulator-obligations",
-            "wab-code-crosswalk",
-            "wab-acceptance-criteria",
-            "wab-non-claims",
-            "eps-withhold-theorem-closure.md",
-        ],
-    );
-    assert_contains_all(
-        EPS_MASK_THEOREM_CLOSURE,
-        &[
-            "Theorem M-close-mask-distribution",
-            "eps_mask_bound",
-            "eps_mask_highbits",
-            "eps-mask-formalization.md",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        EPS_MASK_FORMALIZATION,
-        &[
-            "# eps_mask Formalization Route",
-            "eps-mask-formalization-route",
-            "Status: formalization roadmap for eps_mask",
-            "Theorem M1-combine-mask-game",
-            "CombineMask",
-            "Y_T",
-            "HighBits(A_matrix * Y_T)",
-            "retry_index",
-            "eps_mask_support",
-            "eps_mask_entropy",
-            "eps_mask_highbits",
-            "eps_mask_active_set",
-            "eps_mask_retry_freshness",
-            "eps_mask_corrupt_bias",
-            "no centralized-distribution claim",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        EPS_REJ_THEOREM_CLOSURE,
-        &[
-            "Theorem R-close-rejection-predicate",
-            "eps_bound_encoding",
-            "eps_verify_mismatch",
-            "eps-rej-predicate-sublemmas.md",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        EPS_REJ_PREDICATE_SUBLEMMAS,
-        &[
-            "# eps_rej Predicate Sublemma Route",
-            "eps-rej-predicate-sublemma-route",
-            "Status: predicate-equivalence roadmap for eps_rej",
-            "Theorem R1-reject-predicate-equivalence",
-            "Reject_T",
-            "Reject_0",
-            "(z, c, h, w1, mu, pk)",
-            "byte-encoding boundary",
-            "eps_bound_encoding",
-            "eps_lowbits_decomposition",
-            "eps_ct0_reconstruction",
-            "eps_hint_encoding",
-            "eps_challenge_encoding",
-            "eps_active_set_mismatch",
-            "eps_signature_encoding",
-            "eps_verify_mismatch",
-            "no predicate equality proved",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        EPS_WITHHOLD_THEOREM_CLOSURE,
-        &[
-            "Theorem W-close-static-active",
-            "O_abort",
-            "R_max",
-            "eps_withhold_bound",
-            "eps-withhold-simulator-obligations.md",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        EPS_WITHHOLD_SIMULATOR_OBLIGATIONS,
-        &[
-            "# eps_withhold Simulator Obligation Route",
-            "eps-withhold-simulator-obligation-route",
-            "Status: simulator-obligation roadmap for eps_withhold",
-            "Theorem W1-withholding-simulator-obligation",
-            "O_abort",
-            "R_max",
-            "P_timeout",
-            "signer exclusion",
-            "retry transcript",
-            "release/evidence observables",
-            "eps_withhold_commit",
-            "eps_withhold_challenge",
-            "eps_abort_labels",
-            "eps_retry_limit",
-            "eps_timeout_policy",
-            "eps_evid",
-            "eps_release",
-            "eps_timing_boundary",
-            "no selective-abort bound is proved",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        VSS_DKG_PLAN,
-        &[
-            "vss-security-properties",
-            "dkg-key-bias-resistance",
-            "vss-dkg-backend-selection-checklist",
-            "production-replacement-obligations",
-            "## Current Non-Claims",
-        ],
-    );
-    assert_contains_all(
-        VSS_BACKEND_SELECTION,
-        &[
-            "# VSS/DKG Backend Selection Framework",
-            "vss-backend-selection",
-            "backend-selection-required-properties",
-            "candidate-feldman-pedersen",
-            "candidate-lattice-vector-commitments",
-            "candidate-ideal-functionality-placeholder",
-            "backend-selection-comparison-matrix",
-            "backend-selection-checklist",
-            "vss-backend-decision-record",
-            "Current decision: no backend selected.",
-            "eps-vss-production-route.md",
-        ],
-    );
-    assert_contains_all(
-        VSS_IDEALIZATION_SELECTION,
-        &[
-            "# VSS Idealization and Backend Selection",
-            "vss-idealization-and-selection",
-            "Ideal Functionality `F_VSS_DKG`",
-            "The `F_TMLDSA` proof may cite `F_VSS_DKG`",
-            "## Decision Record: Immediate IdealVSS Route",
-            "not a production backend selection",
-        ],
-    );
-    assert_contains_all(
-        ACTIVE_ADVERSARY,
-        &[
-            "active-adversary-model",
-            "## Corruption Options",
-            "## Rushing Behavior",
-            "eps-withhold-production-route-selection",
-            "## Complaint and Evidence Semantics",
-        ],
-    );
-    assert_contains_all(
-        RANDOM_ORACLE_GAME,
-        &[
-            "# Random-Oracle Game for Threshold ML-DSA-65",
-            "ROG-D1. Message-Binding Oracle `H_mu`",
-            "ROG-D2. Commitment and `w`-Binding Oracle `H_w`",
-            "ROG-D3. Signing-Challenge Oracle `H_c`",
-            "ROG-D4. VSS and DKG Proof Oracle `H_vss`",
-            "ROG-D5. Signing Contribution-Proof Oracle `H_contrib`",
-        ],
-    );
-    assert_contains_all(
-        SIDE_CHANNEL_BOUNDARY,
-        &[
-            "# Side-Channel and Constant-Time Boundary",
-            "## Boundary Statement",
-            "## Empirical Obligations",
-            "## Production Gate",
-        ],
-    );
-    assert_contains_all(
-        FORMAL_TRANSCRIPT,
-        &[
-            "ftmt-0-scope",
-            "ftmt-2-random-oracle-alignment",
+            "active-adversary-model.md",
+            "claims-matrix.md",
+            "correctness-lemmas.md",
+            "formal-security-theorem.md",
+            "formal-threshold-mldsa-transcript.md",
+            "ideal-functionality.md",
+            "noise-rejection-proof-plan.md",
+            "phase-1-noise-bound-model.md",
+            "proof-implementation-crosswalk.md",
+            "protocol-code-crosswalk.md",
+            "proof-obligations.md",
             "random-oracle-game.md",
-            "Abort Transcript `O_abort`",
-            "abort-transcript-o-abort",
+            "side-channel-boundary.md",
+            "vss-dkg-security-plan.md",
         ],
     );
-    assert_contains_all(
-        PRODUCTION_TRANSCRIPT_GRAMMAR,
-        &[
-            "# Production Transcript Grammar for Threshold ML-DSA-65",
-            "production-transcript-grammar",
-            "ptg-scope-non-claim",
-            "ptg-input-tuple",
-            "ptg-canonical-encoding",
-            "ptg-random-oracle-domains",
-            "ptg-signing-attempt-grammar",
-            "ptg-contribution-frame-grammar",
-            "ptg-collection-release-grammar",
-            "ptg-release-signature-record",
-            "ptg-evidence-abort-grammar",
-            "ptg-classifier-interface",
-            "ptg-totality-disjointness-obligations",
-            "ptg-acceptance-criteria",
-            "ptg-non-claims",
-            "eps_cls_unmapped = 0",
-            "SigningContext",
-            "ChallengeRecord = Enc(\n  \"lattice-aggregation/threshold-mldsa65/challenge\",\n  version,\n  SigningContext,\n  active_set,",
-            "ReleaseSignature",
-            "ContributionStatement_i",
-            "AggregateOutputRecord",
-            "EvidenceRecord",
-            "H_contrib",
-        ],
-    );
-    assert_contains_all(
-        FST_L1_TRANSCRIPT_INJECTIVITY,
-        &[
-            "# FST-L1 Transcript Injectivity Worksheet",
-            "fst-l1-transcript-injectivity",
-            "FSTL1-0. Scope and Non-Claim",
-            "FSTL1-1. Lemma Statement",
-            "FSTL1-2. Source Grammar",
-            "FSTL1-3. Encoding Model",
-            "FSTL1-4. Record Injectivity Obligations",
-            "FSTL1-5. Canonical Ordering Obligations",
-            "FSTL1-6. Optional and Variant Field Obligations",
-            "FSTL1-7. Random-Oracle Domain Separation",
-            "FSTL1-8. ChallengeRecord Injectivity",
-            "FSTL1-9. Cross-Record Replay Exclusion",
-            "FSTL1-10. Residual Terms",
-            "FSTL1-11. Acceptance Criteria",
-            "FSTL1-12. Non-Claims",
-            "FST-L1",
-            "FST-A7",
-            "ChallengeRecord",
-            "ReleaseSignature",
-            "SigningContext",
-            "ContributionStatement_i",
-            "AggregateOutputRecord",
-            "Enc(label, version, field_1, ..., field_n)",
-            "eps_ro_sep",
-            "eps_ro_injective_encoding",
-            "eps_ro_domain_separation",
-            "BadTranscriptCollision",
-            "BadRoDomain",
-            "BadCrossSession",
-        ],
-    );
-    assert_contains_all(
-        FST_L2_CHALLENGE_BINDING,
-        &[
-            "# FST-L2 Challenge Binding Worksheet",
-            "fst-l2-challenge-binding",
-            "FSTL2-0. Scope and Non-Claim",
-            "FSTL2-1. Theorem Context",
-            "FSTL2-2. Inputs and Transcript Records",
-            "FSTL2-3. Challenge-Binding Statement",
-            "FSTL2-4. Proof Skeleton",
-            "FSTL2-5. Prior-Query and Replay Accounting",
-            "FSTL2-6. Commitment-Set Equality Obligations",
-            "FSTL2-7. Dependencies",
-            "FSTL2-8. Acceptance Criteria",
-            "FSTL2-9. Non-Claims",
-            "FST-L2",
-            "ChallengeRecord",
-            "H_c(ChallengeRecord)",
-            "ChallengeRecord = Enc(\n  \"lattice-aggregation/threshold-mldsa65/challenge\",\n  version,\n  SigningContext,\n  active_set,",
-            "SigningContext",
-            "MaskCommitRecord_i",
-            "MaskOpenStatement_i",
-            "SecretCommitRecord_i",
-            "ContributionStatement_i",
-            "H_c",
-            "eps_ro_prior",
-            "eps_ro_replay",
-            "eps_commit_context",
-            "eps_commit_open_set",
-            "BadHcPrior",
-            "FailPriorHc",
-        ],
-    );
-    assert_contains_all(
-        FST_L3_COLLECTION_SOUNDNESS,
-        &[
-            "# FST-L3 Collection Soundness Worksheet",
-            "fst-l3-collection-soundness",
-            "FSTL3-0. Scope and Non-Claim",
-            "FSTL3-1. Theorem Context",
-            "FSTL3-2. Collection Objects",
-            "FSTL3-3. Theorem Statement",
-            "FSTL3-4. Proof Obligations",
-            "FSTL3-5. Implementation Crosswalk",
-            "FSTL3-6. eps_collect Decomposition",
-            "FSTL3-7. Classifier Interaction",
-            "FSTL3-8. Acceptance Criteria",
-            "FSTL3-9. Non-Claims",
-            "FST-L3",
-            "FST-A8",
-            "eps_collect",
-            "eps_cls_collect",
-            "eps_cls_unmapped = 0",
-            "CommitmentSet",
-            "PartialShareSet",
-            "AggregateOutputRecord",
-            "BTreeMap",
-            "BTreeSet",
-        ],
-    );
-    assert_contains_all(
-        FST_L1_L3_THEOREM_CLOSURE,
-        &[
-            "# FST-L1..FST-L3 Theorem Closure Batch",
-            "fst-l1-l3-theorem-closure",
-            "Status: foundational theorem-closure batch, not a full cryptographic proof.",
-            "L13-0. Scope and Non-Claim",
-            "L13-1. Lemma Dependency Chain",
-            "L13-2. Theorem Statements Under Closure",
-            "Batch I Status Accounting",
-            "L13-3. Shared Definitions",
-            "L13-4. Residual Ledger",
-            "L13-5. Proof Route",
-            "L13-6. Acceptance Criteria",
-            "L13-7. Non-Claims",
-            "L13-8. Manifest Anchors",
-            "FST-L1",
-            "FST-L2",
-            "FST-L3",
-            "ChallengeRecord",
-            "CommitmentSet",
-            "PartialShareSet",
-            "AggregateOutputRecord",
-            "EvidenceRecord",
-            "ReleaseSignature",
-            "| FST-L1 | Locally closeable under pinned grammar/audit assumptions |",
-            "| FST-L2 | Conditional local route |",
-            "| FST-L3 | Locally closed for collection metadata/canonicalization |",
-            "eps_ro_sep",
-            "eps_ro_prior",
-            "eps_commit_open_set",
-            "eps_collect",
-            "eps_cls_collect",
-            "eps_cls_unmapped = 0",
-            "implementation evidence is not cryptographic proof",
-            "not a full cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        FST_L4_PARTIAL_SHARE_VALIDITY,
-        &[
-            "# FST-L4 Partial-Share Validity Worksheet",
-            "fst-l4-partial-share-validity",
-            "Status: theorem-closure worksheet for `FST-L4` under ideal `F_CONTRIB`,",
-            "FSTL4-0. Scope and Non-Claim",
-            "FSTL4-1. Theorem Context",
-            "FSTL4-2. Accepted Contribution Objects",
-            "FSTL4-3. Lemma Statement",
-            "FSTL4-4. Proof Obligations",
-            "FSTL4-5. Residual Terms",
-            "FSTL4-6. Simulator and Classifier Interaction",
-            "FSTL4-7. Implementation Crosswalk",
-            "FSTL4-8. Dependencies",
-            "FSTL4-9. Acceptance Criteria",
-            "FSTL4-10. Non-Claims",
-            "FSTL4-11. Manifest Anchors",
-            "FST-L4",
-            "FST-L4-IdealVSS",
-            "FST-A3",
-            "FST-A4",
-            "FST-A6",
-            "ContributionStatement_i",
-            "ProductionContributionStatement",
-            "ProductionProofRelation",
-            "TranscriptHashScaffold",
-            "F_CONTRIB",
-            "F_contrib",
-            "not production eligible",
-            "SigningContext",
-            "ChallengeRecord",
-            "S_contrib",
-            "W_contrib",
-            "R_contrib",
-            "H_contrib",
-            "Theorem CBI-production-contribution",
-            "eps_contrib_ideal",
-            "eps_contrib",
-            "eps_vss_ideal",
-            "eps_ro_prior",
-            "eps_cls_contrib",
-            "eps_cls_unmapped = 0",
-            "eps_contrib_sound",
-            "eps_contrib_extract",
-            "eps_contrib_hide",
-            "eps_contrib_context",
-            "eps_contrib_encoding",
-            "eps_contrib_leakage",
-            "BadContribSound",
-            "BadContribExtract",
-            "BadContribPortable",
-            "FailContribExtract",
-            "FailContribPortable",
-            "BadHcontribPrior",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        FST_L5_AGGREGATION_CORRECTNESS,
-        &[
-            "# FST-L5 Aggregation Correctness Worksheet",
-            "fst-l5-aggregation-correctness",
-            "FSTL5-0. Scope and Non-Claim",
-            "FSTL5-1. Theorem Context",
-            "FSTL5-2. Inputs and Candidate Values",
-            "FSTL5-3. Aggregation-Correctness Statement",
-            "FSTL5-4. Reconstruction Obligations",
-            "FSTL5-5. Rejection-Predicate and Bound Obligations",
-            "FSTL5-6. Standard Verification Compatibility",
-            "FSTL5-7. Implementation Evidence Crosswalk",
-            "FSTL5-8. Residual Terms",
-            "FSTL5-9. Proof Skeleton",
-            "FSTL5-10. Dependencies",
-            "FSTL5-11. Acceptance Criteria",
-            "FSTL5-12. Non-Claims",
-            "FST-L5",
-            "AggregateOutputRecord",
-            "PartialShareSet",
-            "SimulatedBackend",
-            "Reject_T",
-            "Reject_0",
-            "AggregatePartial",
-            "MLDSA65.Verify(pk_epoch, M, sigma) = accept",
-            "eps_rej",
-            "eps_verify",
-            "eps_collect",
-            "eps_mask",
-            "BadAggCorrect",
-            "BadRejectDist",
-            "BadVerifyMismatch",
-            "BadActiveSetRebind",
-            "eps_verify_mismatch",
-            "eps-rej-theorem-closure.md",
-            "eps-verify-absorption-decision.md",
-            "implementation tests are evidence only, not proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_VERIFY_ABSORPTION_DECISION,
-        &[
-            "# eps_verify Absorption Decision Route",
-            "eps-verify-absorption-decision-route",
-            "Status: decision roadmap for eps_verify absorption",
-            "Theorem V1-standard-verifier-compatibility",
-            "sigma",
-            "pk",
-            "mu",
-            "challenge bytes",
-            "hint use",
-            "high-bit reconstruction",
-            "aggregate acceptance predicate",
-            "unmodified ML-DSA-65 verification predicate",
-            "eps_verify_encoding",
-            "eps_verify_challenge",
-            "eps_verify_highbits",
-            "eps_verify_hint_use",
-            "eps_verify_message_binding",
-            "eps_verify_reject_absorption",
-            "eps_verify_mismatch",
-            "absorption into `eps_rej`",
-            "eps-verify-absorption-decision-record.md",
-            "no negligible claim",
-            "no zero claim",
-            "not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_VERIFY_ABSORPTION_DECISION_RECORD,
-        &[
-            "# eps_verify Absorption Decision Record",
-            "eps-verify-absorption-decision-record",
-            "decision record and roadmap for verifier absorption accounting",
-            "Decision V2-carry-eps-verify-until-byte-proof",
-            "Path A: absorb into `eps_rej`",
-            "Path B: carry separate `eps_verify`",
-            "Theorem V1-standard-verifier-compatibility",
-            "Theorem R1-reject-predicate-equivalence",
-            "byte-level `sigma` equality",
-            "challenge equality",
-            "highbits/hint equality",
-            "message `M` to `mu` binding",
-            "malformed encoding agreement",
-            "no double-counting",
-            "eps_verify_mismatch",
-            "eps_verify_reject_absorption",
-            "eps_rej",
-            "eps-verify-rejection-absorption-closure.md",
-            "does not prove verifier compatibility",
-            "final absorption into `eps_rej`",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_VERIFY_REJECTION_ABSORPTION_CLOSURE,
-        &[
-            "# eps_verify Rejection Absorption Closure Route",
-            "eps-verify-rejection-absorption-closure",
-            "Status: Batch D theorem-closure route, not a completed proof.",
-            "Theorem V3-verifier-rejection-absorption",
-            "Sigma byte equality",
-            "Challenge equality",
-            "Highbits/hint equality",
-            "Message-to-mu binding",
-            "Public key binding",
-            "Malformed encoding agreement",
-            "Rejection predicate agreement",
-            "No double counting",
-            "eps_verify_byte_eq",
-            "eps_verify_challenge_eq",
-            "eps_verify_hint_eq",
-            "eps_verify_mu_bind",
-            "eps_verify_pk_bind",
-            "eps_verify_malformed",
-            "eps_verify_rej_absorb",
-            "eps_verify_survive",
-            "eps_verify",
-            "Theorem V4-eps-verify-to-eps-rej-absorption",
-            "V4-H5",
-            "Reject_pred(C) = 1",
-            "eps-verify-to-rej-absorption-theorem.md",
-            "Carry `eps_verify` separately",
-            "does not prove standard verifier compatibility",
-            "does not absorb `eps_verify` into `eps_rej`",
-            "Implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_VERIFY_TO_REJ_ABSORPTION_THEOREM,
-        &[
-            "# eps_verify to eps_rej Absorption Theorem Draft",
-            "eps-verify-to-rej-absorption-theorem",
-            "Status: Batch E formal-reduction draft, not a completed verifier absorption proof.",
-            "Theorem V4-eps-verify-to-eps-rej-absorption",
-            "Candidate Tuple",
-            "Standard verifier predicate",
-            "Threshold acceptance predicate",
-            "Rejection predicate",
-            "Byte equality premises",
-            "Malformed-boundary premises",
-            "No-double-counting rule",
-            "Absorption rule",
-            "V4-H0",
-            "V4-H1",
-            "V4-H2",
-            "V4-H3",
-            "V4-H4",
-            "V4-H5",
-            "eps_verify_byte_eq",
-            "eps_verify_challenge_eq",
-            "eps_verify_hint_eq",
-            "eps_verify_mu_bind",
-            "eps_verify_pk_bind",
-            "eps_verify_malformed",
-            "eps_verify_rej_absorb",
-            "eps_verify_survive",
-            "eps_verify",
-            "eps_rej",
-            "does not prove standard verifier compatibility",
-            "does not absorb `eps_verify` today",
-            "does not prove `eps_verify_survive = 0`",
-            "Implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        FST_L6_NO_SUBTHRESHOLD_SIGNING,
-        &[
-            "# FST-L6 No Subthreshold Signing Worksheet",
-            "fst-l6-no-subthreshold-signing",
-            "Status: theorem-closure worksheet for `FST-L6` under ideal `F_VSS_DKG`",
-            "FSTL6-0. Scope and Non-Claim",
-            "FSTL6-1. Theorem Context",
-            "FSTL6-2. Adversary and Authorization Model",
-            "FSTL6-3. Theorem Statement",
-            "FSTL6-4. Proof Route",
-            "FSTL6-5. Residual Terms",
-            "FSTL6-6. Dependency Map",
-            "FSTL6-7. Classifier Interaction",
-            "FSTL6-9. Acceptance Criteria",
-            "FSTL6-10. Non-Claims",
-            "FST-L6",
-            "FST-T1-IdealVSS",
-            "F_TMLDSA",
-            "F_VSS_DKG",
-            "AggregateOutputRecord",
-            "ReleaseSignature",
-            "eps_classify",
-            "eps_threshold",
-            "eps_vss_ideal",
-            "eps_cls_threshold",
-            "eps_cls_contrib",
-            "eps_cls_unmapped = 0",
-            "BadUnauthorizedAccept",
-            "BadThresholdShare",
-            "BadRogueSigner",
-            "BadExtractFail",
-            "BadIdealMismatch",
-            "static active corruption of at most t - 1 validators",
-            "This worksheet does not prove the thesis.",
-            "not a completed proof",
-            "not production VSS/DKG security",
-        ],
-    );
-    assert_contains_all(
-        FST_L7_ABORT_COMPATIBILITY,
-        &[
-            "# FST-L7 Abort Compatibility Worksheet",
-            "fst-l7-abort-compatibility",
-            "FST-L7-0. Scope and Non-Claim",
-            "FST-L7-1. Lemma Statement Under Closure",
-            "FST-L7-2. Model and Observable Boundary",
-            "FST-L7-3. Dependency Map",
-            "FST-L7-4. Hybrid Compatibility Route",
-            "FST-L7-5. Residual Term Ledger",
-            "FST-L7-6. Simulator Obligations",
-            "FST-L7-7. Acceptance Criteria",
-            "FST-L7-8. Non-Claims",
-            "FST-L7-9. Manifest Anchors",
-            "FST-L7",
-            "FST-A5",
-            "FST-G5",
-            "Delta_accept",
-            "O_abort",
-            "R_max",
-            "P_timeout",
-            "eps_withhold",
-            "eps_abort",
-            "eps_release",
-            "eps_evid",
-            "eps_retry_limit",
-            "eps_timeout_policy",
-            "eps_timing_boundary",
-            "eps_withhold_commit",
-            "eps_withhold_challenge",
-            "eps_mask",
-            "eps_rej",
-            "eps_verify",
-            "ivls-fst-l7-abort-compatibility",
-            "theorem-w-close-static-active",
-            "theorem-conditional-accepted-distribution-bound",
-            "eps-withhold-closure-route",
-            "eps-withhold-production-route-selection",
-            "eps-withhold-theorem-closure.md",
-            "abort-transcript-o-abort",
-            "ledger-non-claims",
-            "implementation evidence is not cryptographic proof",
-            "selective-abort proof remains open",
-        ],
-    );
-    assert_contains_all(
-        FST_L4_L7_THEOREM_CLOSURE,
-        &[
-            "# FST-L4..FST-L7 Theorem Closure Batch",
-            "fst-l4-l7-theorem-closure",
-            "Status: middle-layer theorem-closure batch, not a full cryptographic proof.",
-            "L47-0. Scope and Non-Claim",
-            "L47-1. Lemma Dependency Chain",
-            "L47-2. Theorem Statements Under Closure",
-            "L47-3. Shared Objects",
-            "L47-4. Residual Ledger",
-            "L47-5. Proof Route",
-            "L47-6. Acceptance Criteria",
-            "L47-7. Non-Claims",
-            "L47-8. Manifest Anchors",
-            "FST-L4",
-            "FST-L5",
-            "FST-L6",
-            "FST-L7",
-            "F_CONTRIB",
-            "F_VSS_DKG",
-            "AggregateOutputRecord",
-            "ContributionStatement_i",
-            "PartialShareSet",
-            "ReleaseSignature",
-            "EvidenceRecord",
-            "O_abort",
-            "eps_contrib_ideal",
-            "eps_rej",
-            "eps_verify",
-            "eps_verify_rej_absorb",
-            "eps_verify_survive",
-            "BadVerifyMismatch",
-            "eps_threshold",
-            "eps_withhold",
-            "eps_abort",
-            "eps_release",
-            "eps_evid",
-            "eps_cls_unmapped = 0",
-            "implementation evidence is not cryptographic proof",
-            "not a full cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        FST_L10_CLASSIFIER_CLOSURE,
-        &[
-            "# FST-L10 Classifier Closure Worksheet",
-            "fst-l10-classifier-closure",
-            "Status: FST-L10 worksheet, not a completed classifier proof.",
-            "FSTL10-0. Scope and Non-Claim",
-            "FSTL10-1. Theorem Context",
-            "FSTL10-2. Input Domain and Production Grammar",
-            "FSTL10-3. Theorem Statement",
-            "FSTL10-4. Ordered Classifier Cases",
-            "FSTL10-5. Totality and Disjointness Obligations",
-            "FSTL10-6. Per-Case Reduction Map",
-            "FSTL10-7. Residual Terms",
-            "FSTL10-8. Dependencies",
-            "FSTL10-9. Proof Skeleton",
-            "FSTL10-10. Acceptance Criteria",
-            "FSTL10-11. Non-Claims",
-            "FSTL10-12. Manifest Anchors",
-            "FST-L10",
-            "FST-T1-IdealVSS",
-            "S7 to S8",
-            "AggregateOutputRecord",
-            "EvidenceRecord",
-            "ReleaseSignature",
-            "authorized_release_log",
-            "Out*",
-            "AuthorizedReplay",
-            "MldsaForgery",
-            "ThresholdAuthorizationBreak",
-            "VssDkgBreak",
-            "CommitmentBreak",
-            "ContributionBreak",
-            "RoTranscriptBreak",
-            "CollectionBreak",
-            "EvidenceBreak",
-            "Unmapped",
-            "eps_classify",
-            "eps_cls_mldsa",
-            "eps_cls_threshold",
-            "eps_cls_vss_dkg",
-            "eps_cls_commit",
-            "eps_cls_contrib",
-            "eps_cls_ro_transcript",
-            "eps_cls_collect",
-            "eps_cls_evid",
-            "eps_cls_unmapped",
-            "eps_cls_unmapped = 0",
-            "classifier-totality-obligation",
-            "classifier-disjointness-obligation",
-            "not a completed classifier proof",
-            "does not prove final unforgeability",
-        ],
-    );
-    assert_contains_all(
-        FST_L10_CLASSIFIER_THEOREM_CLOSURE,
-        &[
-            "# FST-L10 Classifier Theorem Closure Batch",
-            "fst-l10-classifier-theorem-closure",
-            "Status: classifier theorem-closure batch, not a full cryptographic proof.",
-            "L10C-0. Scope and Non-Claim",
-            "L10C-1. Input Domain",
-            "L10C-2. Ordered Case Grammar",
-            "L10C-3. Totality Target",
-            "L10C-4. Disjointness Target",
-            "L10C-5. Per-Case Reduction Map",
-            "L10C-5A. Case Name Alignment",
-            "L10C-6. Acceptance Criteria",
-            "L10C-7. Non-Claims",
-            "L10C-8. Manifest Anchors",
-            "FST-L10",
-            "AuthorizedReplay",
-            "MldsaForgery",
-            "ThresholdAuthorizationBreak",
-            "l10c-case-name-alignment",
-            "VssDkgBreak",
-            "CommitmentBreak",
-            "ContributionBreak",
-            "RoTranscriptBreak",
-            "CollectionBreak",
-            "EvidenceBreak",
-            "Unmapped",
-            "eps_classify",
-            "eps_cls_unmapped = 0",
-            "FST-L1..FST-L7",
-            "F_CONTRIB",
-            "F_VSS_DKG",
-            "implementation evidence is not cryptographic proof",
-            "not a full cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        CONTRIBUTION_BACKEND_DECISION_RECORD,
-        &[
-            "# Contribution Backend Decision Record",
-            "contribution-backend-decision-record",
-            "cbdr-status",
-            "cbdr-decision",
-            "cbdr-immediate-theorem-route",
-            "cbdr-non-production-idealization-boundary",
-            "cbdr-residual-terms",
-            "cbdr-revisit-criteria",
-            "cbdr-evidence-tests",
-            "cbdr-safe-status-language",
-            "F_CONTRIB",
-            "F_contrib",
-            "ideal contribution functionality",
-            "eps_contrib",
-            "eps_contrib_ideal",
-            "eps_contrib_sound",
-            "eps_contrib_extract",
-            "eps_contrib_hide",
-            "Theorem CBI-production-contribution",
-            "csr-production-statement",
-            "csr-soundness-game",
-            "csr-extraction-target",
-            "csr-witness-hiding-target",
-            "ProductionContributionStatement",
-            "ProductionCandidateScaffold",
-            "ProductionProofRelation",
-            "TranscriptHashScaffold",
-            "not production eligible",
-            "not a production backend selection",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        CONTRIBUTION_SOUNDNESS,
-        &[
-            "# Contribution Soundness Relation Worksheet",
-            "contribution-soundness-relation",
-            "csr-production-statement",
-            "csr-soundness-game",
-            "csr-extraction-target",
-            "csr-witness-hiding-target",
-            "csr-backend-instantiation-route",
-            "csr-epsilon-accounting",
-            "csr-acceptance-criteria",
-            "csr-non-claims",
-        ],
-    );
-    assert_contains_all(
-        CONTRIBUTION_BACKEND_INSTANTIATION,
-        &[
-            "# Contribution Backend Instantiation Route",
-            "contribution-backend-instantiation",
-            "cbi-backend-declaration",
-            "theorem-cbi-production-contribution",
-            "Theorem CBI-production-contribution",
-            "eps_contrib_sound",
-            "eps_contrib_extract",
-            "eps_contrib_hide",
-            "cbi-backend-families",
-            "cbi-acceptance-criteria",
-            "cbi-code-crosswalk",
-            "cbi-non-claims",
-            "eps-contrib-backend-proof-route.md",
-        ],
-    );
-    assert_contains_all(
-        EPS_CONTRIB_BACKEND_PROOF_ROUTE,
-        &[
-            "# eps_contrib Backend Proof Route",
-            "eps-contrib-backend-proof-route",
-            "Status: backend-proof roadmap for eps_contrib",
-            "Theorem C1-contribution-backend-soundness",
-            "contribution statement",
-            "witness",
-            "context binding",
-            "active set",
-            "relation-validity",
-            "hiding",
-            "extraction",
-            "Simulation Interface",
-            "eps_contrib_relation",
-            "eps_contrib_binding",
-            "eps_contrib_hiding",
-            "eps_contrib_extract",
-            "eps_contrib_sim",
-            "eps_contrib_malleability",
-            "eps_contrib_backend_selection",
-            "proof-system",
-            "MPC or interactive",
-            "F_CONTRIB",
-            "eps-contrib-backend-decision-record.md",
-            "no backend selected",
-            "no contribution soundness proved",
-            "not production-ready",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_CONTRIB_BACKEND_DECISION_RECORD,
-        &[
-            "# eps_contrib Backend Decision Record",
-            "eps-contrib-backend-decision-record",
-            "Status: decision record / roadmap for eps_contrib",
-            "Decision C2-immediate-ideal-contrib-route",
-            "ideal `F_CONTRIB`",
-            "proof system/NIZK",
-            "MPC/interactive proof",
-            "transcript-hash scaffold",
-            "relation coverage",
-            "witness hiding/leakage",
-            "extraction or replacement",
-            "malleability",
-            "implementation maturity",
-            "auditability",
-            "composition with selective abort/classifier",
-            "eps_contrib_ideal",
-            "eps_contrib_backend_selection",
-            "eps_contrib",
-            "f-contrib-ideal-functionality.md",
-            "no production backend is selected",
-            "no contribution soundness is proved",
-            "no zero/negligible claim",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        F_CONTRIB_IDEAL_FUNCTIONALITY,
-        &[
-            "# F_CONTRIB Ideal Functionality",
-            "f-contrib-ideal-functionality",
-            "Status: Batch D ideal-functionality specification, not a production backend proof.",
-            "F_CONTRIB",
-            "Theorem C3-ideal-contribution-realization-boundary",
-            "theorem-c3-ideal-contribution-realization-boundary",
-            "Parties and Roles",
-            "Inputs",
-            "Outputs",
-            "Leakage Interface",
-            "Rejection Interface",
-            "Extraction and Replacement Interface",
-            "Transcript Binding",
-            "Session and Epoch Binding",
-            "Abort Semantics",
-            "eps_contrib_ideal",
-            "eps_contrib_realize",
-            "eps_contrib_extract",
-            "eps_contrib_leak",
-            "eps_contrib_abort",
-            "eps_contrib_bind",
-            "eps_contrib",
-            "f-contrib-realization-simulator.md",
-            "no concrete backend is selected",
-            "no production contribution soundness proof",
-            "no zero or negligible claim",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        F_CONTRIB_REALIZATION_SIMULATOR,
-        &[
-            "# F_CONTRIB Real/Ideal Simulator Draft",
-            "f-contrib-realization-simulator",
-            "Status: Batch E formal-reduction draft, not a completed realization proof.",
-            "Theorem C4-f-contrib-realization-simulator",
-            "theorem-c4-f-contrib-realization-simulator",
-            "Real Experiment",
-            "Ideal Experiment",
-            "Simulator State",
-            "Simulator Inputs",
-            "Simulator Outputs",
-            "Leakage Alignment",
-            "Extraction Path",
-            "Ideal Replacement Path",
-            "Rejection Path and Abort Path",
-            "Transcript, Session, and Epoch Binding",
-            "c4-rust-boundary-crosswalk",
-            "c4-batch-g-code-evidence-anchors",
-            "C4-H0",
-            "C4-H1",
-            "C4-H2",
-            "C4-H3",
-            "C4-H4",
-            "C4-H5",
-            "eps_contrib_realize",
-            "eps_contrib_extract",
-            "eps_contrib_replace",
-            "eps_contrib_leak",
-            "eps_contrib_abort",
-            "eps_contrib_bind",
-            "eps_contrib_sim",
-            "eps_contrib",
-            "ProductionContributionStatement",
-            "production_contribution_statement_from_scaffold",
-            "production_contribution_statement_digest_from_scaffold",
-            "production_contribution_statement_canonical_layout_matches_c4_binding_tuple",
-            "hazmat_scaffold_to_production_statement_binds_source_context_and_payload",
-            "PRODUCTION_CONTRIBUTION_STATEMENT_BYTES",
-            "PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION",
-            "PRODUCTION_CONTRIBUTION_STATEMENT_DOMAIN",
-            "CONTRIBUTION_PROOF_DOMAIN",
-            "PRODUCTION_CONTEXT_DOMAIN",
-            "PRODUCTION_EPOCH_LABEL",
-            "PRODUCTION_VALIDATOR_SET_LABEL",
-            "PRODUCTION_PUBLIC_KEY_LABEL",
-            "PRODUCTION_PARAMETER_SET_LABEL",
-            "PRODUCTION_CONTRIBUTION_PAYLOAD_LABEL",
-            "PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID",
-            "ContributionProofSecurityProfile::ProductionProofRelation",
-            "ContributionProofSecurityProfile::ProductionCandidateScaffold",
-            "TranscriptHashContributionProofBackend",
-            "require_production_threshold_backends",
-            "not a production proof",
-            "no concrete backend selected",
-            "no simulator indistinguishability proof",
-            "no production contribution soundness proof",
-            "no zero/negligible claim",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        CONTRIBUTION_BACKEND_SELECTION,
-        &[
-            "# Contribution Backend Selection Framework",
-            "contribution-backend-selection",
-            "cbs-status",
-            "cbs-scope",
-            "cbs-required-backend-declaration",
-            "cbs-backend-candidates",
-            "candidate-nizk-contribution-proof",
-            "candidate-mpc-contribution-verification",
-            "candidate-interactive-contribution-proof",
-            "candidate-ideal-contribution-functionality",
-            "candidate-transcript-hash-scaffold",
-            "cbs-decision-criteria",
-            "cbs-theorem-dependencies",
-            "eps_contrib_sound",
-            "eps_contrib_extract",
-            "eps_contrib_hide",
-            "cbs-acceptance-criteria",
-            "cbs-decision-record",
-            "cbs-safe-status-language",
-            "cbs-production-policy-anchors",
-            "ProductionProofRelation",
-            "not production eligible",
-        ],
-    );
-    assert_contains_all(
-        EPS_VSS_PRODUCTION_ROUTE,
-        &[
-            "# eps_vss Production Route",
-            "eps-vss-production-route",
-            "Status: production-route roadmap for eps_vss",
-            "vss-dkg-production-obligation-split.md",
-            "Theorem D1-production-vss-dkg-realization",
-            "dealerless DKG or VSS setup",
-            "public commitments",
-            "private share delivery",
-            "complaint resolution",
-            "key-bias resistance",
-            "anti-framing",
-            "deterministic threshold public key derivation",
-            "epoch transition",
-            "eps_vss_binding",
-            "eps_vss_hiding",
-            "eps_vss_extract",
-            "eps_vss_complaint",
-            "eps_vss_key_bias",
-            "eps_vss_privacy",
-            "eps_vss_anti_framing",
-            "eps_vss_pk_derivation",
-            "eps_vss_backend_selection",
-            "no production DKG",
-            "no malicious-secure VSS proof",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        VSS_DKG_PRODUCTION_OBLIGATION_SPLIT,
-        &[
-            "# VSS/DKG Production Obligation Split",
-            "vss-dkg-production-obligation-split",
-            "Status: Batch D production-obligation split, not a completed DKG proof.",
-            "Theorem D2-production-vss-dkg-obligation-split",
-            "F_VSS_DKG",
-            "eps_vss_ideal",
-            "eps_vss_binding",
-            "eps_vss_hiding",
-            "eps_vss_extract",
-            "eps_vss_complaint",
-            "eps_vss_key_bias",
-            "eps_vss_privacy",
-            "eps_vss_anti_framing",
-            "eps_vss_pk_derivation",
-            "eps_vss_impl",
-            "eps_vss",
-            "vss-dkg-backend-dependency-graph.md",
-            "Dealerless Setup",
-            "Public Coefficient Commitments",
-            "Private Share Delivery",
-            "Complaint Verification",
-            "Agreement and Extractability",
-            "Key-Bias Resistance",
-            "Privacy and Hiding",
-            "Anti-Framing",
-            "Threshold Public Key Derivation",
-            "Epoch Binding",
-            "Implementation and Audit Obligations",
-            "scaffold/ideal route, not production malicious-secure VSS/DKG",
-            "no production DKG",
-            "no malicious-secure VSS proof",
-            "no zero/negligible claim",
-            "Implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        VSS_DKG_BACKEND_DEPENDENCY_GRAPH,
-        &[
-            "# VSS/DKG Backend Dependency Graph",
-            "vss-dkg-backend-dependency-graph",
-            "Status: Batch E dependency graph and blocker list, not a backend selection or proof.",
-            "Theorem D3-vss-dkg-backend-dependency-closure",
-            "F_VSS_DKG",
-            "FST-T1",
-            "Dependency Graph",
-            "Blocking Checklist",
-            "Closure Order",
-            "backend selection",
-            "transcript grammar",
-            "dealerless setup",
-            "coefficient commitments",
-            "private share delivery",
-            "complaint verification",
-            "agreement/extractability",
-            "key-bias resistance",
-            "privacy/hiding",
-            "anti-framing",
-            "threshold public key derivation",
-            "epoch binding",
-            "implementation/audit",
-            "proof composition into FST-T1",
-            "d3-rust-boundary-anchors",
-            "d3-batch-g-code-evidence-anchors",
-            "hazmat+experimental actor complaint traces",
-            "hazmat-real-mldsa",
-            "experimental-vss",
-            "ProductionVssRelationStatement",
-            "PRODUCTION_VSS_RELATION_STATEMENT_BYTES",
-            "PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION",
-            "PRODUCTION_VSS_RELATION_STATEMENT_DOMAIN",
-            "EXPERIMENTAL_VSS_OBJECT_VERSION",
-            "EXPERIMENTAL_VSS_COMPLAINT_DOMAIN",
-            "EXPERIMENTAL_VSS_CONTEXT_LABEL",
-            "EXPERIMENTAL_VSS_DEALER_COMMITMENT_LABEL",
-            "EXPERIMENTAL_VSS_SHARE_LABEL",
-            "EXPERIMENTAL_VSS_ENCRYPTED_SHARE_LABEL",
-            "EXPERIMENTAL_VSS_OPENING_LABEL",
-            "EXPERIMENTAL_VSS_ADAPTER_ERROR_LABEL",
-            "EXPERIMENTAL_VSS_BACKEND_LABEL",
-            "EXPERIMENTAL_VSS_PUBLIC_KEY_CONTRIBUTION_LABEL",
-            "EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID",
-            "production_vss_relation_statement_canonical_layout_matches_d3_anchor",
-            "production_vss_relation_statement_digest_binds_every_field",
-            "combined_production_policy_rejects_candidate_vss_backend_without_experimental_feature",
-            "VssCommitmentSecurityProfile::DeterministicTranscriptScaffold",
-            "VssCommitmentSecurityProfile::ProductionCandidateScaffold",
-            "VssCommitmentSecurityProfile::ProductionBindingHiding",
-            "ExperimentalVssCommitmentBackend",
-            "require_production_vss_backend",
-            "require_production_threshold_backends",
-            "eps_vss_backend_selection",
-            "eps_vss_binding",
-            "eps_vss_hiding",
-            "eps_vss_extract",
-            "eps_vss_complaint",
-            "eps_vss_key_bias",
-            "eps_vss_privacy",
-            "eps_vss_anti_framing",
-            "eps_vss_pk_derivation",
-            "eps_vss_impl",
-            "eps_vss_ideal",
-            "eps_vss",
-            "no selected production VSS/DKG backend",
-            "no production backend selected",
-            "not a production proof",
-            "no malicious-secure DKG proof",
-            "no zero/negligible claim",
-            "implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        UNAUTHORIZED_OUTPUT_CLASSIFIER_CLOSURE,
-        &[
-            "# Unauthorized Output Classifier Closure Route",
-            "unauthorized-output-classifier-closure",
-            "eps-classify-closure-route",
-            "theorem-c-close-unauthorized-output-classifier",
-            "Theorem C-close-unauthorized-output-classifier",
-            "uocc-input-tuple",
-            "uocc-case-grammar",
-            "uocc-totality-disjointness",
-            "eps_cls_unmapped = 0",
-            "uocc-reduction-map",
-            "uocc-acceptance-criteria",
-            "classifier-acceptance-criteria",
-            "uocc-non-claims",
-            "classifier-non-claims",
-        ],
-    );
-    assert_contains_all(
-        UNAUTHORIZED_OUTPUT_CLASSIFIER_ELIMINATION,
-        &[
-            "# Unauthorized Output Classifier Elimination Plan",
-            "unauthorized-output-classifier-elimination",
-            "uoce-production-grammar-prerequisite",
-            "uoce-elimination-sequence",
-            "uoce-case-closure-table",
-            "eps_cls_mldsa",
-            "eps_cls_threshold",
-            "eps_cls_vss_dkg",
-            "eps_cls_commit",
-            "eps_cls_contrib",
-            "eps_cls_ro_transcript",
-            "eps_cls_collect",
-            "eps_cls_evid",
-            "eps_cls_unmapped = 0",
-            "uoce-acceptance-criteria",
-            "uoce-non-claims",
-            "eps-classify-elimination-route.md",
-        ],
-    );
-    assert_contains_all(
-        EPS_CLASSIFY_ELIMINATION_ROUTE,
-        &[
-            "# eps_classify Elimination Route",
-            "eps-classify-elimination-route",
-            "classifier-elimination roadmap",
-            "Theorem K1-classifier-totality-disjointness",
-            "unauthorized accepting output",
-            "classifier input tuple",
-            "verifier grammar",
-            "authorized threshold transcript",
-            "base ML-DSA forgery case",
-            "threshold-side violation cases",
-            "unmapped case",
-            "eps_cls_mldsa",
-            "eps_cls_threshold",
-            "eps_cls_vss_dkg",
-            "eps_cls_commit",
-            "eps_cls_contrib",
-            "eps_cls_ro_transcript",
-            "eps_cls_collect",
-            "eps_cls_evid",
-            "eps_cls_unmapped",
-            "eps_cls_unmapped = 0",
-            "Ordered Classifier Table",
-            "eps-classify-per-case-reductions.md",
-            "classifier totality",
-            "classifier disjointness",
-            "not a completed classifier proof",
-            "Implementation evidence is not",
-        ],
-    );
-    assert_contains_all(
-        EPS_CLASSIFY_PER_CASE_REDUCTIONS,
-        &[
-            "# eps_classify Per-Case Reduction Obligations",
-            "eps-classify-per-case-reductions",
-            "Status: Batch C per-case reduction roadmap for eps_classify",
-            "Theorem K2-classifier-case-reductions",
-            "MldsaForgery",
-            "ThresholdAuthorizationBreak",
-            "VssDkgBreak",
-            "CommitmentBreak",
-            "ContributionBreak",
-            "RoTranscriptBreak",
-            "CollectionBreak",
-            "EvidenceBreak",
-            "Unmapped",
-            "eps_cls_mldsa",
-            "eps_cls_threshold",
-            "eps_cls_vss_dkg",
-            "eps_cls_commit",
-            "eps_cls_contrib",
-            "eps_cls_ro_transcript",
-            "eps_cls_collect",
-            "eps_cls_evid",
-            "eps_cls_unmapped",
-            "eps_cls_unmapped = 0",
-            "eps-classify-totality-disjointness-closure.md",
-            "epcr-reduction-loss-requirements",
-            "event",
-            "runtime",
-            "query",
-            "probability loss",
-            "does not prove any per-case reduction",
-            "does not prove classifier totality",
-            "does not prove classifier disjointness",
-            "Implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_CLASSIFY_TOTALITY_DISJOINTNESS_CLOSURE,
-        &[
-            "# eps_classify Totality and Disjointness Closure Route",
-            "eps-classify-totality-disjointness-closure",
-            "Status: Batch D theorem-closure route, not a completed proof.",
-            "Theorem K3-classifier-totality-disjointness-closure",
-            "Classifier Domain",
-            "Classifier Output Cases",
-            "Totality Obligation",
-            "Disjointness Obligation",
-            "Unmapped-Elimination Obligation",
-            "MldsaForgery",
-            "ThresholdAuthorizationBreak",
-            "VssDkgBreak",
-            "CommitmentBreak",
-            "ContributionBreak",
-            "RoTranscriptBreak",
-            "CollectionBreak",
-            "EvidenceBreak",
-            "Unmapped",
-            "eps_cls_totality",
-            "eps_cls_disjointness",
-            "eps_cls_unmapped",
-            "eps_classify",
-            "eps_cls_unmapped = 0",
-            "eps-classify-unmapped-zero-theorem.md",
-            "theorem target, not proven here",
-            "does not prove classifier totality",
-            "does not prove classifier disjointness",
-            "does not prove unmapped elimination",
-            "not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        EPS_CLASSIFY_UNMAPPED_ZERO_THEOREM,
-        &[
-            "# eps_classify Unmapped-Zero Theorem Draft",
-            "eps-classify-unmapped-zero-theorem",
-            "Status: Batch E formal-reduction draft, not a completed classifier proof.",
-            "Theorem K4-eps-cls-unmapped-zero",
-            "Accepted Unauthorized Output Domain",
-            "Authorized-Release Complement",
-            "Classifier Coverage Grammar",
-            "Totality Premises",
-            "Disjointness Premises",
-            "Per-Case Reduction Premises",
-            "Premise Discharge Matrix",
-            "Unmapped Contradiction Strategy",
-            "Proof Skeleton",
-            "MldsaForgery",
-            "ThresholdAuthorizationBreak",
-            "VssDkgBreak",
-            "CommitmentBreak",
-            "ContributionBreak",
-            "RoTranscriptBreak",
-            "CollectionBreak",
-            "EvidenceBreak",
-            "Unmapped",
-            "eps_cls_totality",
-            "eps_cls_disjointness",
-            "eps_cls_mldsa",
-            "eps_cls_threshold",
-            "eps_cls_vss_dkg",
-            "eps_cls_commit",
-            "eps_cls_contrib",
-            "eps_cls_ro_transcript",
-            "eps_cls_collect",
-            "eps_cls_evid",
-            "eps_cls_unmapped",
-            "eps_classify",
-            "ek4-premise-discharge-matrix",
-            "eps_cls_unmapped = 0",
-            "remains unproved here",
-            "does not prove classifier totality",
-            "does not prove classifier disjointness",
-            "does not prove any per-case reduction",
-            "does not prove `eps_cls_unmapped = 0`",
-            "Implementation evidence is not cryptographic proof",
-        ],
-    );
-    assert_contains_all(
-        PROOF_CLOSURE_LEDGER,
-        &[
-            "# Proof Closure Ledger",
-            "proof-closure-ledger",
-            "Status: single status index, not a completed proof.",
-            "ledger-status-key",
-            "ledger-term-table",
-            "FST-T1-IdealVSS",
-            "FST-T1 threshold unforgeability",
-            "FST-T2 real/ideal realization",
-            "FST-T3 transcript non-malleability",
-            "FST-T4 implementation conformance",
-            "eps_vss",
-            "eps_vss_ideal",
-            "eps_mask",
-            "eps_commit",
-            "eps_ro",
-            "eps_rej",
-            "eps_withhold",
-            "eps_contrib",
-            "eps_classify",
-            "eps_cls_unmapped = 0",
-            "eps_verify",
-            "ThresholdAuthorizationBreak",
-            "eps_verify_rej_absorb",
-            "eps_verify_survive",
-            "hazmat-real-mldsa-protocol.md",
-            "implementation_residual",
-            "audit_residual",
-            "research scaffold",
-            "not production-ready",
-            "not a security proof",
-            "implementation evidence is not cryptographic proof",
-            "idealvss-signing-theorem-closure.md",
-            "idealvss-lemma-skeleton.md",
-            "fst-t1-idealvss-theorem.md",
-            "fst-t1-idealvss-final-proof.md",
-            "epsilon-residual-ledger-final-form.md",
-            "proof-gap-priority-map.md",
-            "fst-l1-l3-theorem-closure.md",
-            "fst-l4-l7-theorem-closure.md",
-            "fst-l10-classifier-theorem-closure.md",
-            "rejection-sampling-theorem-closure.md",
-            "eps-mask-theorem-closure.md",
-            "eps-rej-theorem-closure.md",
-            "eps-withhold-theorem-closure.md",
-            "eps-mask-formalization.md",
-            "eps-rej-predicate-sublemmas.md",
-            "eps-withhold-simulator-obligations.md",
-            "eps-contrib-backend-proof-route.md",
-            "eps-verify-absorption-decision.md",
-            "eps-classify-elimination-route.md",
-            "eps-contrib-backend-decision-record.md",
-            "eps-verify-absorption-decision-record.md",
-            "eps-classify-per-case-reductions.md",
-            "f-contrib-ideal-functionality.md",
-            "eps-verify-rejection-absorption-closure.md",
-            "eps-classify-totality-disjointness-closure.md",
-            "vss-dkg-production-obligation-split.md",
-            "f-contrib-realization-simulator.md",
-            "eps-verify-to-rej-absorption-theorem.md",
-            "eps-classify-unmapped-zero-theorem.md",
-            "vss-dkg-backend-dependency-graph.md",
-            "hazmat-real-mldsa-protocol.md",
-            "ThresholdAuthorizationBreak",
-            "eps_verify_rej_absorb",
-            "eps_verify_survive",
-            "eps-vss-production-route.md",
-            "production-transcript-grammar.md",
-            "contribution-backend-selection.md",
-            "rejection-sampling-closure-plan.md",
-            "random-oracle-commitment-closure.md",
-            "unauthorized-output-classifier-elimination.md",
-            "ledger-non-claims",
-        ],
-    );
-    assert_contains_all(
-        FST_T1_IDEALVSS_THEOREM,
-        &[
-            "# FST-T1-IdealVSS Theorem Consolidation",
-            "fst-t1-idealvss-theorem",
-            "Status: theorem consolidation target, not a completed proof.",
-            "FSTT1-0. Scope and Non-Claim",
-            "FSTT1-1. Theorem Statement Under Ideal Setup",
-            "FSTT1-2. Ideal Functionality Boundaries",
-            "FSTT1-3. Assumptions",
-            "FSTT1-4. Advantage Bound Shape",
-            "FSTT1-5. Lemma and Worksheet Dependencies",
-            "FSTT1-6. Simulator and Hybrid Route",
-            "FSTT1-7. Acceptance Criteria",
-            "FSTT1-8. Non-Claims",
-            "FSTT1-9. Manifest Anchors",
-            "FST-T1-IdealVSS",
-            "F_VSS_DKG",
-            "F_CONTRIB",
-            "F_contrib",
-            "F_TMLDSA",
-            "static active corruption",
-            "at most t - 1 validators",
-            "eps_vss_ideal",
-            "fst-l1-l3-theorem-closure.md",
-            "fst-l4-l7-theorem-closure.md",
-            "fst-l10-classifier-theorem-closure.md",
-            "fst-t1-idealvss-final-proof.md",
-            "rejection-sampling-theorem-closure.md",
-            "eps_contrib_ideal",
-            "eps_commit",
-            "eps_ro_prior",
-            "eps_ro_sep",
-            "eps_mask",
-            "eps_rej",
-            "eps_withhold",
-            "eps_verify",
-            "eps_abort",
-            "eps_release",
-            "eps_evid",
-            "eps_collect",
-            "eps_threshold",
-            "eps_classify",
-            "eps_cls_unmapped = 0",
-            "q_out * eps_mldsa",
-            "implementation_residual",
-            "audit_residual",
-            "not a completed proof",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        FST_T1_IDEALVSS_FINAL_PROOF,
-        &[
-            "# FST-T1-IdealVSS Final Proof Assembly",
-            "fst-t1-idealvss-final-proof",
-            "Status: assembled IdealVSS theorem route, not a production cryptographic proof.",
-            "FP-0. Scope and Non-Claim",
-            "FP-1. Theorem Statement",
-            "FP-2. Ideal Functionality Boundary",
-            "FP-3. Imported Lemmas",
-            "FP-4. Hybrid Proof Assembly",
-            "FP-5. Advantage Bound",
-            "FP-6. Classifier Elimination Condition",
-            "FP-7. Residual Terms That Remain",
-            "FP-8. What This Proves",
-            "FP-9. What This Does Not Prove",
-            "FP-10. Acceptance Criteria",
-            "FP-11. Manifest Anchors",
-            "FST-T1-IdealVSS",
-            "FST-G1",
-            "F_TMLDSA",
-            "F_VSS_DKG",
-            "F_CONTRIB",
-            "F_contrib",
-            "static active corruption",
-            "at most t - 1 validators",
-            "FST-L1",
-            "FST-L2",
-            "FST-L3",
-            "FST-L4",
-            "FST-L5",
-            "FST-L6",
-            "FST-L7",
-            "FST-L10",
-            "fst-l1-l3-theorem-closure.md",
-            "fst-l4-l7-theorem-closure.md",
-            "fst-l10-classifier-theorem-closure.md",
-            "eps-contrib-backend-proof-route.md",
-            "eps-verify-absorption-decision.md",
-            "eps-classify-elimination-route.md",
-            "eps-contrib-backend-decision-record.md",
-            "eps-verify-absorption-decision-record.md",
-            "eps-classify-per-case-reductions.md",
-            "f-contrib-ideal-functionality.md",
-            "eps-verify-rejection-absorption-closure.md",
-            "eps-classify-totality-disjointness-closure.md",
-            "vss-dkg-production-obligation-split.md",
-            "f-contrib-realization-simulator.md",
-            "eps-verify-to-rej-absorption-theorem.md",
-            "eps-classify-unmapped-zero-theorem.md",
-            "vss-dkg-backend-dependency-graph.md",
-            "eps-vss-production-route.md",
-            "f-contrib-ideal-functionality.md",
-            "eps-verify-rejection-absorption-closure.md",
-            "eps-classify-totality-disjointness-closure.md",
-            "vss-dkg-production-obligation-split.md",
-            "eps_cls_unmapped = 0",
-            "q_out * eps_mldsa(B_mldsa)",
-            "eps_vss_ideal",
-            "eps_contrib_ideal",
-            "eps_commit",
-            "eps_ro_prior",
-            "eps_ro_sep",
-            "eps_mask",
-            "eps_rej",
-            "eps_withhold",
-            "eps_verify",
-            "eps_abort",
-            "eps_release",
-            "eps_evid",
-            "eps_collect",
-            "eps_threshold",
-            "eps_classify",
-            "implementation_residual",
-            "audit_residual",
-            "Adv_FST_T1_IdealVSS(A,Z)",
-            "S0 real execution",
-            "S8 unauthorized-output classification",
-            "not a production cryptographic proof",
-            "implementation evidence is not cryptographic proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        EPSILON_RESIDUAL_LEDGER_FINAL_FORM,
-        &[
-            "# Epsilon Residual Ledger Final Form",
-            "epsilon-residual-ledger-final-form",
-            "Status: final-form residual worksheet, not a completed advantage proof.",
-            "ERLFF-0. Scope and Non-Claim",
-            "ERLFF-1. Consolidated Bound",
-            "ERLFF-2. Publication-Facing Term Map",
-            "ERLFF-3. Idealization Terms",
-            "ERLFF-4. Rejection-Sampling Expansion",
-            "ERLFF-5. Classifier Expansion",
-            "ERLFF-6. Parameterization Requirements",
-            "ERLFF-7. Acceptance Criteria",
-            "ERLFF-8. Non-Claims",
-            "ERLFF-9. Manifest Anchors",
-            "Adv_FST_T1_IdealVSS(A,Z)",
-            "Adv_real_ideal(A,Z)",
-            "eps_vss_ideal",
-            "eps_contrib_ideal",
-            "eps_reject(A,Z)",
-            "Delta_accept",
-            "eps-mask-formalization.md",
-            "eps-rej-predicate-sublemmas.md",
-            "eps-withhold-simulator-obligations.md",
-            "eps-contrib-backend-proof-route.md",
-            "eps-verify-absorption-decision.md",
-            "eps-classify-elimination-route.md",
-            "eps-contrib-backend-decision-record.md",
-            "eps-verify-absorption-decision-record.md",
-            "eps-classify-per-case-reductions.md",
-            "f-contrib-ideal-functionality.md",
-            "eps-verify-rejection-absorption-closure.md",
-            "eps-classify-totality-disjointness-closure.md",
-            "vss-dkg-production-obligation-split.md",
-            "f-contrib-realization-simulator.md",
-            "eps-verify-to-rej-absorption-theorem.md",
-            "eps-classify-unmapped-zero-theorem.md",
-            "vss-dkg-backend-dependency-graph.md",
-            "eps-vss-production-route.md",
-            "eps_cls_unmapped = 0",
-            "implementation_residual",
-            "audit_residual",
-            "implementation evidence is not cryptographic proof",
-            "not a completed proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        PROOF_GAP_PRIORITY_MAP,
-        &[
-            "# Proof Gap Priority Map",
-            "proof-gap-priority-map",
-            "Status: priority map, not a completed proof.",
-            "priority-tiers",
-            "blocker-dependencies",
-            "next-proof-work-order",
-            "fst-l1-l3-theorem-closure.md",
-            "fst-l4-l7-theorem-closure.md",
-            "fst-l10-classifier-theorem-closure.md",
-            "eps-classify-elimination-route.md",
-            "eps-classify-per-case-reductions.md",
-            "eps-classify-totality-disjointness-closure.md",
-            "eps-classify-unmapped-zero-theorem.md",
-            "Theorem K1-classifier-totality-disjointness",
-            "Theorem K2-classifier-case-reductions",
-            "Theorem K4-eps-cls-unmapped-zero",
-            "production-realization-blockers",
-            "audit-blockers",
-            "acceptance-criteria",
-            "non-claims",
-            "manifest-anchors",
-            "fst-t1-idealvss-final-proof.md",
-            "rejection-sampling-theorem-closure.md",
-            "Tier 0",
-            "Tier 1",
-            "Tier 2",
-            "Tier 3",
-            "Tier 4",
-            "FST-T1-IdealVSS",
-            "FST-T1 threshold unforgeability",
-            "F_CONTRIB",
-            "F_VSS_DKG",
-            "eps_vss",
-            "eps_vss_ideal",
-            "eps_contrib",
-            "eps_contrib_ideal",
-            "eps_mask",
-            "eps_rej",
-            "eps_withhold",
-            "eps_classify",
-            "eps_cls_unmapped = 0",
-            "ThresholdAuthorizationBreak",
-            "implementation_residual",
-            "audit_residual",
-            "implementation evidence is not cryptographic proof",
-            "not a proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        IDEALVSS_SIGNING_THEOREM_CLOSURE,
-        &[
-            "# IdealVSS Signing Theorem Closure",
-            "idealvss-signing-theorem-closure",
-            "IVSTC-0. Scope and Non-Claim",
-            "IVSTC-1. Theorem Under Closure: FST-T1-IdealVSS",
-            "IVSTC-2. Ideal Setup Boundary",
-            "IVSTC-3. Dependency Map",
-            "IVSTC-4. Signing-Side Lemma Closure Plan",
-            "IVSTC-5. Real/Ideal and Hybrid Dependencies",
-            "IVSTC-6. What Can Be Claimed Now",
-            "IVSTC-7. What Remains Open",
-            "IVSTC-8. Links to Source Obligations",
-            "IVSTC-9. Reviewer Checklist",
-            "FST-T1-IdealVSS",
-            "F_VSS_DKG",
-            "FST-L1",
-            "FST-L7",
-            "FST-L10",
-            "fst-t1-idealvss-theorem.md",
-            "fst-t1-idealvss-final-proof.md",
-            "epsilon-residual-ledger-final-form.md",
-            "idealvss-lemma-skeleton.md",
-            "production-transcript-grammar.md",
-            "eps_cls_unmapped = 0",
-        ],
-    );
-    assert_contains_all(
-        IDEALVSS_LEMMA_SKELETON,
-        &[
-            "# IdealVSS Lemma Skeleton",
-            "idealvss-lemma-skeleton",
-            "IVLS-0. Scope and Non-Claim",
-            "IVLS-1. Theorem Context: FST-T1-IdealVSS",
-            "IVLS-2. Lemma Dependency Table",
-            "IVLS-3. FST-L1 Canonical Transcript Injectivity",
-            "IVLS-4. FST-L2 Challenge Binding",
-            "IVLS-5. FST-L3 Validator-Set Soundness",
-            "IVLS-6. FST-L4 Partial-Share Validity",
-            "IVLS-7. FST-L5 Aggregation Correctness",
-            "IVLS-8. FST-L6 No Subthreshold Signing",
-            "IVLS-9. FST-L7 Abort Compatibility",
-            "IVLS-10. FST-L10 Unauthorized-Output Classifier Closure",
-            "IVLS-11. Cross-Lemma Epsilon Ledger",
-            "IVLS-12. Acceptance Criteria",
-            "IVLS-13. Manifest Anchors",
-            "FST-L1",
-            "FST-L2",
-            "FST-L3",
-            "FST-L4",
-            "FST-L5",
-            "FST-L6",
-            "FST-L7",
-            "FST-L10",
-            "eps_cls_unmapped = 0",
-            "ivls-fst-l1-transcript-injectivity",
-            "ivls-fst-l4-partial-share-validity",
-            "ivls-fst-l7-abort-compatibility",
-            "ivls-epsilon-ledger",
-            "ivls-acceptance-criteria",
-        ],
-    );
-    assert_contains_all(
-        REJECTION_SAMPLING_CLOSURE_PLAN,
-        &[
-            "# Rejection-Sampling Closure Plan",
-            "rejection-sampling-closure-plan",
-            "rejection-sampling-theorem-closure.md",
-            "rscp-dependency-dag",
-            "rscp-term-closure-requirements",
-            "eps_mask",
-            "eps_rej",
-            "eps_withhold",
-            "eps_verify",
-            "Delta_accept",
-            "rscp-acceptance-criteria",
-            "rscp-non-claims",
-        ],
-    );
-    assert_contains_all(
-        REJECTION_SAMPLING_THEOREM_CLOSURE,
-        &[
-            "# Rejection-Sampling Theorem Closure Batch",
-            "rejection-sampling-theorem-closure",
-            "Status: theorem-closure batch for `eps_mask`, `eps_rej`, and",
-            "RSTC-0. Scope and Non-Claim",
-            "RSTC-1. Theorem Target",
-            "RSTC-2. Dependency Order",
-            "RSTC-3. eps_mask Closure Route",
-            "RSTC-4. eps_rej Closure Route",
-            "RSTC-5. eps_withhold Closure Route",
-            "RSTC-6. Consolidated Bound Route",
-            "RSTC-7. Acceptance Criteria",
-            "RSTC-8. Non-Claims",
-            "RSTC-9. Manifest Anchors",
-            "Delta_accept",
-            "Theorem RSTC-Delta-accept",
-            "Theorem M-close-mask-distribution",
-            "Theorem R-close-rejection-predicate",
-            "Theorem V4-eps-verify-to-eps-rej-absorption",
-            "Theorem W-close-static-active",
-            "eps_mask",
-            "eps_rej",
-            "eps_withhold",
-            "eps_commit",
-            "eps_ro",
-            "eps_verify",
-            "eps_verify_mismatch",
-            "eps_verify_rej_absorb",
-            "eps_verify_survive",
-            "eps_mask_support",
-            "eps_bound_encoding",
-            "eps_withhold_commit",
-            "mask-distribution-equivalence.md",
-            "rejection-predicate-equivalence.md",
-            "withholding-abort-bound.md",
-            "eps-mask-theorem-closure.md",
-            "eps-rej-theorem-closure.md",
-            "eps-withhold-theorem-closure.md",
-            "eps-mask-formalization.md",
-            "eps-rej-predicate-sublemmas.md",
-            "eps-withhold-simulator-obligations.md",
-            "implementation evidence is not cryptographic proof",
-            "does not prove eps_verify_survive = 0",
-            "not a completed accepted-distribution proof",
-            "not production-ready",
-        ],
-    );
-    assert_contains_all(
-        RANDOM_ORACLE_COMMITMENT_CLOSURE,
-        &[
-            "# Random-Oracle and Commitment Closure Plan",
-            "random-oracle-commitment-closure",
-            "rocc-random-oracle-closure",
-            "eps_ro_injective_encoding",
-            "eps_ro_domain_separation",
-            "eps_ro_prior_query",
-            "eps_ro_programming",
-            "rocc-commitment-closure",
-            "eps_commit_bind",
-            "eps_commit_hide",
-            "eps_commit_open_set",
-            "rocc-cross-term-dependencies",
-            "rocc-acceptance-criteria",
-            "rocc-non-claims",
-        ],
-    );
-    assert_contains_all(
-        PROOF_OBLIGATIONS,
-        &[
-            "## Full-Proof Surface Status Overlay",
-            "FST-T1 threshold unforgeability",
-            "Side-channel and constant-time discipline",
-        ],
-    );
-    assert_contains_all(
-        CLAIMS_MATRIX,
-        &[
-            "## Full-Proof Surface Claim Overlay",
-            "Threshold EUF-CMA security",
-            "`eps_mask` aggregate mask-distribution route",
-            "`eps_withhold` selective-abort route",
-            "eps-mask-theorem-closure.md",
-            "eps-rej-theorem-closure.md",
-            "eps-withhold-theorem-closure.md",
-            "eps-mask-formalization.md",
-            "eps-rej-predicate-sublemmas.md",
-            "eps-withhold-simulator-obligations.md",
-            "eps-contrib-backend-proof-route.md",
-            "eps-verify-absorption-decision.md",
-            "eps-classify-elimination-route.md",
-            "eps-contrib-backend-decision-record.md",
-            "eps-verify-absorption-decision-record.md",
-            "eps-classify-per-case-reductions.md",
-            "f-contrib-realization-simulator.md",
-            "eps-verify-to-rej-absorption-theorem.md",
-            "eps-classify-unmapped-zero-theorem.md",
-            "vss-dkg-backend-dependency-graph.md",
-            "eps-vss-production-route.md",
-            "Contribution backend instantiation route",
-            "`eps_verify` standard-verifier compatibility route",
-            "`eps_classify` unauthorized-output classifier route",
-            "Rejection-sampling distribution preservation",
-        ],
-    );
-    assert_contains_all(
-        SIMULATOR_HYBRID_REDUCTIONS,
-        &[
-            "# Simulator Hybrid Reductions Worksheet",
-            "simulator-hybrid-reductions",
-            "This is a reduction worksheet, not a completed proof.",
-            "## SHR-1. Hybrid Restatement S0..S8",
-            "## SHR-1A. Worksheet Advantage Terms",
-            "Adv_real_ideal(A,Z)",
-            "eps_classify",
-            "unauthorized-output-classifier",
-            "eps-classify-decomposition",
-            "classifier-totality-obligation",
-            "classifier-disjointness-obligation",
-            "## SHR-5. Hardest Remaining Reductions",
-        ],
-    );
-    assert_contains_all(
-        PROOF_BIBLIOGRAPHY,
-        &[
-            "# Proof Dependency Bibliography and Citation Map",
-            "proof-bibliography",
-            "## FIPS 204 / ML-DSA",
-            "## Fiat-Shamir With Aborts",
-            "## VSS/DKG",
-            "## Unresolved Citation Targets",
-            "## Citation Closure Checklist",
-            "Citation needed",
-        ],
+}
+
+#[test]
+fn missing_artifact_notes_do_not_name_present_files() {
+    let mut markdown_files = Vec::new();
+    collect_markdown_files(Path::new("docs/cryptography"), &mut markdown_files);
+
+    let mut stale = Vec::new();
+    for file in markdown_files {
+        let doc = fs::read_to_string(&file)
+            .unwrap_or_else(|err| panic!("failed to read markdown file {file:?}: {err}"));
+        for paragraph in doc.split("\n\n") {
+            if !(paragraph.contains("not present in this checkout")
+                || paragraph.contains("were not present")
+                || paragraph.contains("missing artifacts")
+                || paragraph.contains("still absent"))
+            {
+                continue;
+            }
+
+            for target in backticked_paths(paragraph) {
+                let path = artifact_path(&file, target);
+                if path.exists() {
+                    stale.push(format!("{} names present file {target}", file.display()));
+                }
+            }
+        }
+    }
+
+    assert!(
+        stale.is_empty(),
+        "missing-artifact notes name files that now exist:\n{}",
+        stale.join("\n")
     );
 }
 
@@ -2373,12 +533,6 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
             "Canonical validator, commitment, and partial-share sets",
             "Wire encoding and untrusted-frame rejection",
             "Aggregation boundary and transcript consistency",
-            "Mask distribution equivalence route",
-            "Rejection predicate equivalence route",
-            "Withholding and abort bound route",
-            "Contribution soundness relation target",
-            "Contribution backend instantiation route",
-            "Unauthorized output classifier closure route",
             "Simulation-only backend and production proof gates",
             "`src/transcript.rs`",
             "`src/adapter/wire.rs`",
@@ -2393,39 +547,57 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
 }
 
 #[test]
-fn proof_model_states_current_security_boundary() {
+fn proof_crosswalk_mentions_current_source_docs() {
     assert_contains_all(
-        HAZMAT_REAL_MLDSA_PROTOCOL,
+        PROOF_CROSSWALK,
         &[
-            "# Hazmat Real ML-DSA-65 Threshold Transcript",
-            "hazmat-proof-bound-secret-contribution-boundary",
-            "HazmatMldsa65ProofBoundSecretContribution",
-            "ProductionContributionStatement",
-            "production_statement_digest",
-            "ContributionProof",
-            "hazmat-batch-g-code-evidence-anchors",
-            "production_contribution_statement_canonical_layout_matches_c4_binding_tuple",
-            "hazmat_scaffold_to_production_statement_binds_source_context_and_payload",
-            "PRODUCTION_CONTRIBUTION_STATEMENT_SCHEMA_VERSION",
-            "PRODUCTION_CONTEXT_DOMAIN",
-            "PRODUCTION_CONTRIBUTION_PARAMETER_SET_ID",
-            "EXPERIMENTAL_VSS_COMPLAINT_DOMAIN",
-            "EXPERIMENTAL_VSS_PRODUCTION_RELATION_BACKEND_ID",
-            "PRODUCTION_VSS_RELATION_STATEMENT_SCHEMA_VERSION",
-            "TranscriptHashScaffold",
-            "raw experimental contribution terms",
-            "not yet a production MPC transcript",
-            "not a production proof",
-            "hiding",
-            "knowledge soundness",
-            "production MPC security",
-            "implementation evidence is not cryptographic proof",
-            "no production backend selected",
-            "proof-carrying commitment protocol",
-            "require_production_threshold_backends",
-            "hazmat-real-mldsa-manifest-anchors",
+            "`formal-security-theorem.md`",
+            "`formal-threshold-mldsa-transcript.md`",
+            "`proof-obligations.md`",
+            "`claims-matrix.md`",
+            "`side-channel-boundary.md`",
+            "`protocol-code-crosswalk.md`",
         ],
     );
+    assert_not_contains_all(
+        PROOF_CROSSWALK,
+        &[
+            "Those files were not present in this checkout when this crosswalk was written",
+            "`protocol-code-crosswalk.md` is still absent",
+        ],
+    );
+}
+
+#[test]
+fn protocol_code_crosswalk_maps_protocol_phases_to_code_and_tests() {
+    assert_contains_all(
+        PROTOCOL_CODE_CROSSWALK,
+        &[
+            "# Protocol Code Crosswalk",
+            "deterministic simulation backend",
+            "not a production threshold ML-DSA proof",
+            "does not produce or verify real ML-DSA signatures",
+            "`src/protocol.rs`",
+            "`src/transcript.rs`",
+            "`src/aggregation.rs`",
+            "`src/backend.rs`",
+            "`src/dkg.rs`",
+            "`src/adapter/wire.rs`",
+            "`src/adapter/actor.rs`",
+            "`src/adapter/evidence.rs`",
+            "`src/main.rs`",
+            "`src/utils/exporter.rs`",
+            "`tests/simulated_flow.rs`",
+            "`tests/transcript_determinism.rs`",
+            "`tests/simulation.rs`",
+            "`tests/validation.rs`",
+            "`tests/type_state.rs`",
+        ],
+    );
+}
+
+#[test]
+fn proof_model_states_current_security_boundary() {
     assert_contains_all(
         PHASE_1_NOISE_MODEL,
         &[
@@ -2436,5 +608,52 @@ fn proof_model_states_current_security_boundary() {
             "## Rejection Requirement",
             "## Production Gates",
         ],
+    );
+}
+
+#[test]
+fn local_markdown_links_resolve() {
+    let mut markdown_files = vec![
+        PathBuf::from("README.md"),
+        PathBuf::from("CONTRIBUTING.md"),
+        PathBuf::from("SECURITY.md"),
+    ];
+    collect_markdown_files(Path::new("docs"), &mut markdown_files);
+
+    let mut missing = Vec::new();
+    for file in markdown_files {
+        let doc = fs::read_to_string(&file)
+            .unwrap_or_else(|err| panic!("failed to read markdown file {file:?}: {err}"));
+
+        for line in doc.lines() {
+            let mut remaining = line;
+            while let Some(link_start) = remaining.find("](") {
+                let after_open = &remaining[link_start + 2..];
+                let Some(link_end) = after_open.find(')') else {
+                    break;
+                };
+                let target = &after_open[..link_end];
+                if let Some((path, anchor)) = local_target(&file, target) {
+                    if !path.exists() {
+                        missing.push(format!("{} -> {target}", file.display()));
+                    } else if let Some(anchor) = anchor {
+                        let anchors = markdown_anchors(&path);
+                        if !anchors.contains(&anchor) {
+                            missing.push(format!(
+                                "{} -> {target} (missing anchor #{anchor})",
+                                file.display()
+                            ));
+                        }
+                    }
+                }
+                remaining = &after_open[link_end + 1..];
+            }
+        }
+    }
+
+    assert!(
+        missing.is_empty(),
+        "local markdown links point to missing files:\n{}",
+        missing.join("\n")
     );
 }

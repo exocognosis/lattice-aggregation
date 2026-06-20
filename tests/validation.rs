@@ -1,4 +1,4 @@
-use dytallix_pq_threshold::{
+use lattice_aggregation::{
     serialization::{decode_commitment_payload, encode_commitment_payload},
     Commitment, CommitmentSet, PartialShareSet, PartialSignatureShare, PrivateKeyShare,
     ThresholdError, ValidatorId, COMMITMENT_BYTES, MLDSA65_PUBLICKEY_BYTES,

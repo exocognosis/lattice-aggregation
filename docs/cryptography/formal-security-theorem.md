@@ -1,5 +1,4 @@
 # Formal Security Theorem for Threshold ML-DSA-65
-<a id="theorem-tmldsa-euf-cma"></a>
 
 Status: proof target, not a completed proof.
 
@@ -11,23 +10,26 @@ This document states the formal security theorem that the project must prove
 before the threshold ML-DSA design can move from research scaffold to production
 cryptography. It is intentionally stronger than the current implementation.
 
-The default threshold backend remains deterministic simulation machinery. It
-exercises API shape, transcript binding, canonical collection validation, and
-aggregation control flow. The `hazmat-real-mldsa` feature adds local ML-DSA-65
-arithmetic and verification surfaces, but the full threshold signing protocol
-still does not satisfy the theorem below.
+The current Rust backend is deterministic simulation machinery. It exercises API
+shape, transcript binding, canonical collection validation, and aggregation
+control flow. It does not instantiate ML-DSA signing, does not verify standard
+ML-DSA signatures, and does not satisfy the theorem below.
 
-This document is meant to compose with the existing protocol, transcript,
-security-model, and proof-obligation notes in this directory. It should be
-treated as a precise target statement and dependency map, not as evidence that
-a proof has been completed. The real/ideal simulator outline is tracked in
-[real-ideal-simulator.md](real-ideal-simulator.md) as a simulator skeleton, not
-a completed proof.
+This document depends on related proof artifacts in two states.
 
-The current status of each visible theorem-loss term is indexed in
-[proof-closure-ledger.md](proof-closure-ledger.md). That ledger does not prove
-the theorem; it keeps `eps_*` terms, implementation residuals, and non-claims
-aligned for review.
+Present in this checkout:
+
+- `docs/cryptography/formal-threshold-mldsa-transcript.md`
+- `docs/cryptography/proof-obligations.md`
+
+Still missing:
+
+- `docs/cryptography/security-model.md`
+- `docs/cryptography/threshold-mldsa-protocol-spec.md`
+
+Until the missing model and protocol inputs are added and the listed proof
+obligations are discharged, this document should be treated as a precise target
+statement and dependency map, not as evidence that a proof has been completed.
 
 ## FST-1. Objects and Notation
 
@@ -94,20 +96,7 @@ Definition FST-D6, target forgery. A forgery is a pair `(m*, sigma*)` such that
 `MLDSA65.Verify(pk, m*, sigma*) = accept`, while `m*` was not authorized through
 the threshold signing functionality for the target key and validator set.
 
-<a id="assumptions"></a>
-
 ## FST-3. Security Assumptions
-
-Assumption FST-A0, ideal VSS/DKG setup. For the theorem variant explicitly
-marked `IdealVSS`, setup is supplied by the ideal functionality `F_VSS_DKG` in
-[vss-idealization-and-selection.md](vss-idealization-and-selection.md).
-`F_VSS_DKG` provides one canonical epoch public key, one canonical
-`dkg_digest`, consistent validator shares for the accepted dealer set, hiding
-below threshold, binding and extractability for accepted dealer contributions,
-output agreement, complaint soundness, anti-framing, and key-bias resistance
-under the static active model. This assumption is a proof-decomposition
-boundary only; it is not a concrete VSS/DKG backend and does not close
-production VSS/DKG security.
 
 Assumption FST-A1, ML-DSA-65 unforgeability. ML-DSA-65 is strongly
 existentially unforgeable under chosen-message attack in the relevant quantum
@@ -220,37 +209,14 @@ messages, duplicate messages, missing partials, and invalid partials does not
 expose honest secret share material and does not create additional signing
 capability.
 
-Lemma FST-L10, unauthorized-output classifier closure. Every accepting
-aggregate output for an unauthorized message is classified by a deterministic
-ordered classifier as either an ML-DSA forgery or a named threshold-side
-assumption violation. The residual event `eps_cls_unmapped` must be proved
-zero before the final unforgeability theorem removes `eps_classify`.
-
 ## FST-6. Theorem Statements
-
-Theorem FST-T1-IdealVSS, threshold unforgeability under ideal VSS/DKG. Assuming
-FST-A0, FST-A1, and FST-A4 through FST-A8, for any probabilistic
-polynomial-time adversary statically corrupting at most `t - 1` validators
-before `F_VSS_DKG` setup, the advantage in Game FST-G1 is negligible in
-`lambda`, provided the remaining signing-side lemmas FST-L1 through FST-L7 are
-proved for the threshold ML-DSA-65 signing protocol and the signing sessions
-consume only the ideal outputs `(pk_epoch, dkg_digest, AcceptedDealers,
-share_i)` and allowed corruption or complaint leakage from `F_VSS_DKG`.
-
-Proof status: immediate theorem path, not proved in this repository. The ideal
-VSS/DKG assumption can discharge the DKG share-soundness and VSS
-binding/hiding/extractability dependencies for this theorem variant only. It
-does not prove a concrete backend realizes `F_VSS_DKG`, does not prove
-production VSS/DKG security, and does not complete the production theorem
-FST-T1 below.
 
 Theorem FST-T1, threshold unforgeability target. Assuming FST-A1 through
 FST-A8, for any probabilistic polynomial-time adversary corrupting at most
 `t - 1` validators, the advantage in Game FST-G1 is negligible in `lambda`.
 
 Proof status: not proved in this repository. Required lemmas include FST-L1
-through FST-L7, and production use requires concrete instantiation of FST-A2
-and FST-A3 by a selected VSS/DKG backend rather than by `F_VSS_DKG`.
+through FST-L7.
 
 Theorem FST-T2, real/ideal threshold-signing realization target. Assuming
 FST-A1 through FST-A9 and the ideal functionality `F_TMLDSA`, the production
@@ -258,9 +224,7 @@ threshold protocol UC-realizes `F_TMLDSA` against static Byzantine corruption of
 at most `t - 1` validators in the random-oracle model selected for ML-DSA-65.
 
 Proof status: not proved in this repository. Required lemmas include FST-L1
-through FST-L9 plus a complete simulator construction. The current
-[real-ideal-simulator.md](real-ideal-simulator.md) document is only the
-simulator and hybrid skeleton for that future construction.
+through FST-L9 plus a complete simulator construction.
 
 Theorem FST-T3, transcript non-malleability target. Assuming FST-A7 and
 FST-A8, the advantage of any adversary in Game FST-G3 is negligible.
@@ -280,17 +244,10 @@ not a cryptographic reduction.
 
 ## FST-7. Real-to-Ideal Proof Shape
 
-The intended proof of FST-T2 should proceed through hybrids. The expanded
-simulator-oriented sequence is S0..S8 in
-[real-ideal-simulator.md](real-ideal-simulator.md#ris-9-hybrid-sequence-s0s8).
+The intended proof of FST-T2 should proceed through hybrids:
 
 Hybrid FST-H0. Real production protocol with real DKG, commitments, partial
 shares, aggregation, and network scheduling.
-
-Hybrid FST-H0-IdealVSS. For the immediate FST-T1-IdealVSS path, replace the
-real DKG/VSS setup with `F_VSS_DKG` before the signing hybrids begin. This
-hybrid is allowed only for the idealized theorem variant and leaves the
-concrete DKG realization theorem open.
 
 Hybrid FST-H1. Replace network delivery with ideal scheduling while preserving
 the adversary-visible message trace.
@@ -332,16 +289,13 @@ The current code has engineering hooks that correspond to proof obligations:
 These hooks are useful for conformance and review, but they do not prove any
 cryptographic theorem.
 
-<a id="limitations"></a>
-
 ## FST-9. Explicit Limitations
 
 Limitation FST-X1. No production threshold ML-DSA protocol is selected in the
 available documentation.
 
 Limitation FST-X2. No formal DKG, dealer, or share-verification proof is
-present. The `FST-T1-IdealVSS` path assumes those properties through
-`F_VSS_DKG`; it does not prove production VSS/DKG.
+present.
 
 Limitation FST-X3. No ML-DSA-65 Fiat-Shamir-with-aborts preservation proof is
 present for the threshold setting.
@@ -368,8 +322,9 @@ To complete this theorem package, later work must provide:
 - A full protocol specification with exact algorithms for DKG, commitment,
   partial signing, partial verification, aggregation, rejection sampling, and
   standard verification.
-- A formal transcript encoding document and machine-checkable injectivity tests
-  or proof.
+- Complete the transcript-encoding proof in
+  `formal-threshold-mldsa-transcript.md`, including machine-checkable
+  injectivity tests or proof.
 - A noise-bound and abort-preservation proof specialized to ML-DSA-65.
 - A reduction from threshold forgery to ML-DSA-65 forgery plus threshold-share
   assumption violations.
@@ -379,105 +334,3 @@ To complete this theorem package, later work must provide:
   standard ML-DSA-65 verification.
 - An implementation security review covering side channels, zeroization,
   panic/error behavior, serialization, and transcript compatibility.
-
-## Batch H Conditional Main Theorem
-<a id="batch-h-conditional-main-theorem"></a>
-
-Status: conditional theorem, not a production proof.
-
-Batch H adds an explicit conditional theorem wrapper around the existing FST
-surface. It does not replace FST-T1, FST-T1-IdealVSS, or FST-T2. It records the
-claim form that may become publishable only after backend discharge,
-proof-closure, and implementation review are complete.
-
-Required status strings:
-
-- no production backend selected
-- implementation evidence is not cryptographic proof
-- not a production proof
-- malicious-secure MPC backend required
-- simulation-reducible only after backend discharge
-
-The current repository provides implementation evidence, proof drafts,
-manifest-checked traceability, and fail-closed policy boundaries. Those
-artifacts are useful for review, but implementation evidence is not
-cryptographic proof. Tests, deterministic simulations, and hazmat ML-DSA-65
-conformance checks do not instantiate the missing malicious-secure protocol
-arguments.
-
-### Theorem H1
-<a id="theorem-h1"></a>
-
-Theorem H1, conditional theorem for threshold ML-DSA lattice aggregation.
-Assume:
-
-1. ML-DSA-65 is strongly existentially unforgeable under chosen-message attack
-   in the model used by the production proof.
-2. A selected production VSS/DKG backend realizes the setup, agreement,
-   hiding, binding, extractability, anti-framing, and key-bias properties
-   required by FST-A2 and FST-A3.
-3. A malicious-secure MPC backend required for contribution generation,
-   contribution validation, partial signing, partial verification,
-   aggregation, abort handling, and evidence generation realizes the ideal
-   interfaces used by the proof.
-4. Transcript encodings are injective over all security-relevant typed fields,
-   and challenge derivation is domain separated for the protocol version.
-5. Abort behavior, rejection sampling, norm checks, hints, and challenge
-   binding preserve the ML-DSA-65 signing distribution.
-6. The unauthorized-output classifier is total and disjoint.
-7. The implementation conforms to the proved protocol and satisfies the
-   side-channel, randomness, serialization, and secret-erasure assumptions used
-   by the proof.
-
-Then for every probabilistic polynomial-time adversary statically corrupting at
-most `t - 1` validators, its advantage in producing an unauthorized accepting
-threshold ML-DSA aggregate signature is bounded by:
-
-```text
-Adv_TMLDSA(A, lambda)
-  <= Adv_MLDSA65_EUF_CMA(B, lambda)
-   + eps_backend
-   + eps_vss
-   + eps_contrib
-   + eps_verify
-   + eps_classify
-   + eps_side_channel
-   + negl(lambda)
-```
-
-where `B` is the reduction adversary constructed by the completed proof.
-The named residuals have the following Batch H meanings:
-
-- `eps_backend`: failure of the selected production backend stack to realize
-  the ideal threshold signing and setup interfaces.
-- `eps_vss`: failure of VSS/DKG setup soundness, secrecy, binding,
-  extractability, agreement, anti-framing, or key-bias resistance.
-- `eps_contrib`: failure of contribution generation, contribution validation,
-  masking, or partial-share production to match the proved threshold protocol.
-- `eps_verify`: failure of partial verification, aggregate verification, or
-  rejection handling to enforce the modeled validity predicates.
-- `eps_classify`: failure of the unauthorized-output classifier to map every
-  accepting unauthorized output to ML-DSA forgery or a named threshold-side bad
-  event.
-- `eps_side_channel`: leakage from timing, memory access, logging, error paths,
-  serialization, panic behavior, key retention, randomness, compiler behavior,
-  or other implementation channels outside the ideal proof model.
-
-The conditional theorem is simulation-reducible only after backend discharge.
-Until a concrete backend is selected, proved, implemented, audited, and bound
-to the transcript grammar, there is no production backend selected and this is
-not a production proof.
-
-### Batch H Non-Claims
-<a id="batch-h-non-claims"></a>
-
-Batch H does not prove that the current implementation is secure against
-malicious validators. It does not select a production backend. It does not
-prove UC security, adaptive corruption security, proactive refresh security, or
-side-channel resistance. It does not convert deterministic simulation labels,
-test vectors, transcript snapshots, or local conformance tests into a
-cryptographic theorem.
-
-Future production wording must retain the conditional theorem language until
-every visible residual is discharged, bounded, or intentionally retained as an
-explicit assumption.

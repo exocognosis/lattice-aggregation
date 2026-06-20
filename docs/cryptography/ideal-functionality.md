@@ -1,5 +1,4 @@
 # Ideal Functionality F_TMLDSA
-<a id="ideal-functionality-ftmldsa"></a>
 
 Status: ideal functionality draft, not a realization proof.
 
@@ -9,8 +8,7 @@ Date: 2026-05-27
 
 This document defines the ideal threshold ML-DSA-65 signing functionality
 `F_TMLDSA` that the production protocol should realize. It is intended to pair
-with [formal-security-theorem.md](formal-security-theorem.md) and the simulator
-skeleton in [real-ideal-simulator.md](real-ideal-simulator.md).
+with `formal-security-theorem.md`.
 
 `F_TMLDSA` specifies the target behavior for key registration, threshold signing,
 abort handling, signature release, and evidence notification. It does not define
@@ -354,15 +352,6 @@ to one `ReleaseSignature` event and one released `(m, sigma)` pair. If a real
 aggregate verifies for an unauthorized message, the simulator must convert that
 event into a forgery against ML-DSA-65 or a violation of a threshold assumption.
 
-Relation IF-R6a, authorized release log. The ideal functionality records every
-released tuple `(key_id, sid, m, sigma, release_context)` in an append-only
-authorization log. The unauthorized-output classifier treats a byte-identical
-replay for the same message and release context as an authorized replay, not as
-a new forgery. A replay under a different message, session, key, validator set,
-or transcript context is charged to ML-DSA unforgeability or transcript
-binding, according to the classifier ordering in
-[unauthorized-output-classifier-closure.md](unauthorized-output-classifier-closure.md).
-
 Relation IF-R7, abort mapping. Each real timeout or adversarial abort maps to
 `Abort`, plus IF-E4 or IF-E6 when the real trace provides attribution.
 
@@ -385,9 +374,7 @@ A simulator for `F_TMLDSA` must:
   random-oracle model
 - maintain consistency across concurrent sessions for the same key epoch
 
-The current simulator construction is only a skeleton in
-[real-ideal-simulator.md](real-ideal-simulator.md); it is not a completed proof
-and does not close these obligations.
+No simulator construction is currently present in the repository.
 
 ## IF-9. Concurrency and Replay Rules
 

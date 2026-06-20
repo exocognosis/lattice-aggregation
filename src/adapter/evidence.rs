@@ -41,18 +41,6 @@ pub struct SlashingEvidence {
     pub wire_frame: Option<Vec<u8>>,
     /// Human-readable detail for logs and diagnostics.
     pub details: String,
-    /// Optional canonical experimental VSS complaint evidence bytes.
-    ///
-    /// This is a structural research scaffold only. It is not an on-chain
-    /// slashing proof and does not imply production VSS relation verification.
-    #[cfg(feature = "experimental-vss")]
-    pub experimental_vss_complaint_evidence: Option<Vec<u8>>,
-    /// Optional digest of the canonical production VSS relation statement.
-    ///
-    /// This binds local evidence to the public inputs a future production VSS
-    /// proof must verify. It is not a proof of the relation by itself.
-    #[cfg(feature = "experimental-vss")]
-    pub production_vss_relation_statement_digest: Option<[u8; 32]>,
 }
 
 impl SlashingEvidence {
@@ -71,25 +59,7 @@ impl SlashingEvidence {
             kind,
             wire_frame,
             details: details.into(),
-            #[cfg(feature = "experimental-vss")]
-            experimental_vss_complaint_evidence: None,
-            #[cfg(feature = "experimental-vss")]
-            production_vss_relation_statement_digest: None,
         }
-    }
-
-    /// Attach canonical experimental VSS complaint evidence bytes.
-    #[cfg(feature = "experimental-vss")]
-    pub fn with_experimental_vss_complaint_evidence(mut self, evidence: Vec<u8>) -> Self {
-        self.experimental_vss_complaint_evidence = Some(evidence);
-        self
-    }
-
-    /// Attach the digest of a canonical production VSS relation statement.
-    #[cfg(feature = "experimental-vss")]
-    pub fn with_production_vss_relation_statement_digest(mut self, digest: [u8; 32]) -> Self {
-        self.production_vss_relation_statement_digest = Some(digest);
-        self
     }
 
     /// Build a deterministic fraud-proof payload from local adapter evidence.

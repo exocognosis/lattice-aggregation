@@ -1,445 +1,181 @@
-# ML-DSA Lattice Aggregator
+# Lattice Aggregation
 
-Rust research scaffold for threshold-style ML-DSA-65 aggregation on validator
-networks. The project studies whether an L1 can replace a growing set of
-individual post-quantum validator signatures with one standard-size ML-DSA-65
-signature while preserving the verification path expected by unmodified
-ML-DSA verifiers.
+Audit-oriented Rust scaffolding for threshold ML-DSA-65 protocol engineering: state machines, transcript binding, wire formats, DKG/signing simulation, and validator-system integration boundaries.
+
+[![CI](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml/badge.svg)](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust 2021](https://img.shields.io/badge/Rust-2021-f74c00.svg)](Cargo.toml)
+[![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](src/lib.rs)
+[![status: research](https://img.shields.io/badge/status-research-orange.svg)](SECURITY.md)
+[![backend: deterministic simulation](https://img.shields.io/badge/backend-deterministic%20simulation-lightgrey.svg)](docs/cryptography/claims-matrix.md)
+
+Lattice Aggregation makes the hard parts of threshold post-quantum signing reviewable before production cryptography is wired in. It models the API boundaries, transcript commitments, validator attribution, aggregation checks, adapter contracts, and audit surface that a distributed validator system would need around threshold ML-DSA.
+
+> Research status: the default backend is deterministic simulation machinery. It produces stable, standard-size byte outputs for testing protocol behavior, but it does not produce or verify real ML-DSA signatures. Treat this repository as protocol scaffolding, integration shape, benchmark shape, and review preparation.
 
 ## The Problem
 
-As L1 blockchains prepare for the post-quantum era, migration to
-NIST-standardized lattice-based cryptography such as FIPS 204 ML-DSA introduces
-a severe scalability tax. Unlike legacy BLS signature schemes, ML-DSA
-signatures do not natively compose or aggregate algebraically because of
-structured lattice secrets, masking vectors, Fiat-Shamir challenges, hints, and
-interactive rejection sampling.
+As L1 blockchains prepare for the post-quantum era, migration to NIST-standardized lattice-based cryptography such as FIPS 204 ML-DSA introduces a severe scalability tax. Unlike legacy BLS signature schemes, ML-DSA signatures do not natively compose or aggregate algebraically because of structured lattice secrets, masking vectors, and interactive rejection sampling.
 
-Naively storing one ML-DSA signature per validator produces validator-count
-state and bandwidth growth. For large validator sets, that creates an
-unacceptable design trade-off: cap validator participation to preserve
-performance, or accept network congestion and storage bloat to gain
-post-quantum security.
-
-The thesis explored here is that a threshold or interactive ML-DSA-65 protocol
-can compress a validator quorum into one standard ML-DSA-65 signature, but only
-if the protocol closes the hard distribution, soundness, and abort-resistance
-obligations that ordinary single-signer ML-DSA relies on.
+Naively storing one ML-DSA signature per validator produces linear `O(N)` state and bandwidth growth. For large validator sets, that creates an unacceptable trade-off: cap validator participation to preserve performance, or accept network congestion and storage bloat to gain post-quantum security.
 
 ## The Proposed Framework
 
-`lattice-aggregation` is a research scaffold for exploring a zero-compromise
-target: interactive threshold ML-DSA-65 signature aggregation.
+`lattice-aggregation` is a research scaffold for exploring a zero-compromise target: interactive threshold ML-DSA-65 signature aggregation.
 
-This repository builds the artifact boundary for that thesis. It does not claim
-the full thesis is proven. It provides the Rust crate structure, hazmat
-ML-DSA-65 experimentation path, async protocol scaffold, reproducible telemetry,
-and proof-route documentation needed to evaluate the construction rigorously.
+The target architecture asks whether a large validator quorum can collectively generate a single, standard-sized ML-DSA-65 signature. If the required theorem obligations close, the verification path remains backward-compatible: an unmodified NIST-style verifier checks one signature under one epoch threshold public key, without needing to know that the signature was produced by a multi-party protocol.
 
-At a high level, the proposed system is:
+To make that claim reviewable, the framework models an "Epsilon Residual Ledger" of five security boundaries that must be isolated before production cryptography can be claimed:
 
-```text
-Validator set for epoch E
-  -> DKG/VSS or ideal setup for one epoch public key
-  -> per-block threshold signing session
-  -> prechallenge masking commitments
-  -> challenge bound to canonical transcript
-  -> proof-bound partial contribution exchange
-  -> aggregate rejection and standard ML-DSA-65 verification checks
-  -> one standard-size ML-DSA-65 signature in the block header
-```
-
-The operational target is backward-compatible verification: a verifier should
-check the final block signature against the epoch threshold public key with the
-standard ML-DSA-65 verification path. The verifier should not need to know that
-the signature came from a threshold execution.
-
-To make that target reviewable, the proof package keeps an Epsilon Residual
-Ledger visible instead of collapsing it into a premature security claim. The
-ledger isolates five critical boundaries that must close before production
-cryptography can be claimed:
-
-1. aggregate masks match or closely approximate centralized ML-DSA masks;
-2. aggregate rejection checks match centralized ML-DSA rejection checks;
-3. selective aborts and retries do not bias accepted signatures;
-4. every accepted partial contribution is sound, context-bound, and hiding
-   enough for the chosen leakage model;
-5. every unauthorized accepting aggregate output reduces to a base ML-DSA
-   forgery or a named threshold-side assumption violation.
+- transcript and Fiat-Shamir challenge binding across validator sets, sessions, and messages
+- masking-vector and rejection-sampling residuals needed to match the single-signer distribution
+- private-key-share isolation across DKG, partial signing, aggregation, and evidence paths
+- selective-abort and liveness bias introduced by interactive participants
+- byte-level verifier compatibility, domain separation, and standard ML-DSA-65 encoding constraints
 
 ## Practical Implications Upon Theorem Closure
 
-If the hypothesis is proven, implemented with a reviewed threshold backend, and
-validated against standard ML-DSA verification, the architecture would unlock
-several distributed-system benefits:
+If the hypothesis is proven, implemented with a reviewed threshold backend, and validated against standard ML-DSA verification, the architecture would unlock several distributed-system benefits:
 
-- **Validator scalability target (`O(1)` verification footprint).** Compresses
-  the cryptographic proof of consensus for 10,000+ validators into one
-  approximately 3.3 KB ML-DSA-65 signature, decoupling verification and storage
-  cost from validator count.
-- **Zero-overhead quantum-resistance target.** Allows L1 blockchains to adopt
-  post-quantum security without paying the normal lattice multi-signature
-  penalty in network bandwidth and persistent state.
-- **Backward-compatible verification path.** Lets light clients, cross-chain
-  bridges, and hardware wallets verify post-quantum network consensus with
-  off-the-shelf ML-DSA verification code rather than custom threshold-verifier
-  modules.
-- **Hyper-efficient interoperability target.** Replaces large multi-signature
-  verification sets or expensive zero-knowledge wrappers with a single native
-  ML-DSA verification check for bridge and cross-chain consensus proofs.
+- **Validator scalability target (`O(1)` verification footprint).** Compresses the cryptographic proof of consensus for 10,000+ validators into a single approximately 3.3 KB ML-DSA-65 signature, decoupling verification and storage cost from validator count.
+- **Zero-overhead quantum-resistance target.** Allows L1 blockchains to adopt post-quantum security without paying the normal lattice multi-signature penalty in network bandwidth and persistent state.
+- **Backward-compatible verification path.** Lets light clients, cross-chain bridges, and hardware wallets verify post-quantum network consensus with off-the-shelf ML-DSA verification code rather than custom threshold-verifier modules.
+- **Hyper-efficient interoperability target.** Replaces large multi-signature verification sets or expensive zero-knowledge wrappers with a single native ML-DSA verification check for bridge and cross-chain consensus proofs.
 
-## What Is Implemented
+## Why This Repo Exists
 
-The crate currently includes:
+Threshold post-quantum signatures are not just a primitive swap. A credible validator integration has to make several boundaries explicit:
 
-- typed signing-session and aggregation boundaries for threshold-style flows;
-- simulated backend paths for deterministic protocol testing;
-- feature-gated `hazmat-real-mldsa` ML-DSA-65 internals, KAT-style fixtures,
-  differential checks, threshold bridge tests, and standard-verifying hazmat
-  signing paths for controlled experiments;
-- VSS and interpolation scaffolding, plus production-policy gates that reject
-  scaffold backend families for production-labeled configuration;
-- async actor and wire-format adapters for in-memory P2P simulations,
-  malformed-frame handling, retry telemetry, and evidence-shaped artifacts;
-- deterministic Section V-style exporters for reproducible benchmark tables,
-  transcript artifacts, and sample bundles;
-- proof-route worksheets and manifest tests that keep the claim boundary
-  explicit as the project evolves.
+- which transcript fields are committed before the Fiat-Shamir challenge
+- which validators contributed commitments and partial shares
+- which malformed, duplicate, stale, or cross-session messages are rejected
+- which state transitions are impossible by construction
+- which networking, consensus, and timeout effects are outside the cryptographic core
+- which claims are implemented today, simulated today, or still proof obligations
 
-## Theoretical Underpinnings
+This repository turns those boundaries into Rust APIs, tests, wire types, actor scaffolding, and audit documentation.
 
-The proof package is organized around a real/ideal and hybrid proof surface:
+## What Is Unique Here
 
-- [Formal security theorem](docs/cryptography/formal-security-theorem.md)
-  defines the target threshold ML-DSA security statements and explicitly marks
-  them as not yet proved.
-- [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
-  indexes the current status, evidence route, and closure requirement for each
-  visible advantage term.
-- [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
-  gathers the immediate IdealVSS signing-side theorem target into one
-  conservative statement, with ideal `F_VSS_DKG` and `F_CONTRIB` boundaries
-  kept explicit.
-- [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
-  joins the upgraded FST-L1..FST-L7 and FST-L10 routes into one conditional
-  IdealVSS theorem path while preserving the non-production claim boundary.
-- [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
-  normalizes the publication-facing advantage terms, rejection expansion, and
-  classifier expansion without claiming those terms are closed.
-- [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
-  orders the remaining proof, production-realization, and audit blockers.
-- [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
-  consolidates the transcript-injectivity, challenge-binding, and
-  collection-soundness foundation for the IdealVSS signing theorem route.
-- [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
-  consolidates the ideal contribution-validity, aggregation, threshold
-  authorization, and abort-compatibility layer.
-- [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
-  consolidates the unauthorized-output classifier target and the
-  `eps_cls_unmapped = 0` route.
-- [Ideal functionality](docs/cryptography/ideal-functionality.md) and
-  [real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
-  define how DKG, signing, aborts, evidence, and releases should map into an
-  ideal threshold signing functionality.
-- [Rejection-sampling bounds worksheet](docs/cryptography/rejection-sampling-bounds.md)
-  decomposes accepted-distribution loss into visible terms.
-- [Rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md)
-  consolidates the `eps_mask`, `eps_rej`, and `eps_withhold` routes into one
-  accepted-distribution theorem target without claiming those terms are closed.
-- [eps_mask](docs/cryptography/eps-mask-theorem-closure.md),
-  [eps_rej](docs/cryptography/eps-rej-theorem-closure.md), and
-  [eps_withhold](docs/cryptography/eps-withhold-theorem-closure.md) theorem
-  closure batches break that accepted-distribution route into focused
-  subterm obligations.
-- [eps_mask formalization](docs/cryptography/eps-mask-formalization.md),
-  [eps_rej predicate sublemmas](docs/cryptography/eps-rej-predicate-sublemmas.md),
-  and [eps_withhold simulator obligations](docs/cryptography/eps-withhold-simulator-obligations.md)
-  expand those residuals into theorem-level game, predicate, and simulator
-  obligations.
-- [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
-  tracks `eps_mask`, the distance between aggregate threshold masks and
-  centralized ML-DSA-65 masks.
-- [Rejection predicate equivalence](docs/cryptography/rejection-predicate-equivalence.md)
-  tracks `eps_rej`, the gap between aggregate and centralized rejection
-  predicates over the same candidate values.
-- [Withholding and abort bound](docs/cryptography/withholding-abort-bound.md)
-  tracks `eps_withhold`, the selective-abort, retry, timeout, and observable
-  abort-label route.
-- [Contribution soundness relation](docs/cryptography/contribution-soundness-relation.md)
-  and [contribution backend instantiation](docs/cryptography/contribution-backend-instantiation.md)
-  track `eps_contrib`, the future production proof or MPC relation for partial
-  contribution validity and hiding.
-- [eps_contrib backend proof route](docs/cryptography/eps-contrib-backend-proof-route.md)
-  expands contribution validity, hiding, extraction, simulation, and backend
-  selection obligations without selecting or proving a production backend.
-- [eps_contrib backend decision record](docs/cryptography/eps-contrib-backend-decision-record.md)
-  keeps the immediate theorem route on ideal `F_CONTRIB` while leaving
-  production blocked on a concrete proof/MPC/interactive backend.
-- [F_CONTRIB ideal functionality](docs/cryptography/f-contrib-ideal-functionality.md)
-  specifies the ideal contribution oracle, simulator interface, leakage,
-  rejection, extraction/replacement, and transcript binding boundary used by the
-  immediate theorem route.
-- [F_CONTRIB real/ideal simulator draft](docs/cryptography/f-contrib-realization-simulator.md)
-  outlines the Batch E hybrid route for proving a future contribution backend
-  realizes the ideal contribution functionality.
-- [eps_vss production route](docs/cryptography/eps-vss-production-route.md)
-  narrows the malicious-secure VSS/DKG realization obligations without
-  selecting or proving a production setup backend.
-- [VSS/DKG production obligation split](docs/cryptography/vss-dkg-production-obligation-split.md)
-  separates ideal `F_VSS_DKG` assumptions from concrete dealerless DKG,
-  complaint, anti-framing, key-bias, and public-key derivation obligations.
-- [VSS/DKG backend dependency graph](docs/cryptography/vss-dkg-backend-dependency-graph.md)
-  orders the production backend-selection blockers from transcript grammar and
-  dealerless setup through audit and composition into `FST-T1`.
-- [eps_verify absorption decision](docs/cryptography/eps-verify-absorption-decision.md)
-  states when verifier compatibility can be folded into `eps_rej` versus
-  carried separately as `eps_verify`.
-- [eps_verify absorption decision record](docs/cryptography/eps-verify-absorption-decision-record.md)
-  recommends carrying `eps_verify` separately until byte-level verifier and
-  rejection predicate proofs close over the same candidate tuple.
-- [eps_verify rejection absorption closure](docs/cryptography/eps-verify-rejection-absorption-closure.md)
-  enumerates the byte-level equality obligations required before `eps_verify`
-  can be absorbed into `eps_rej`.
-- [eps_verify to eps_rej absorption theorem draft](docs/cryptography/eps-verify-to-rej-absorption-theorem.md)
-  gives the Batch E candidate-tuple and hybrid skeleton for moving only proved
-  verifier subevents into `eps_rej`.
-- [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
-  tracks `eps_classify`, the remaining route for mapping every unauthorized
-  accepting output to a base ML-DSA forgery or a threshold-side assumption
-  violation.
-- [eps_classify elimination route](docs/cryptography/eps-classify-elimination-route.md)
-  expands the ordered classifier table and the `eps_cls_unmapped = 0` target
-  without claiming classifier totality or disjointness is proved.
-- [eps_classify per-case reductions](docs/cryptography/eps-classify-per-case-reductions.md)
-  enumerate the reduction or residual obligation for each classifier case.
-- [eps_classify totality and disjointness closure](docs/cryptography/eps-classify-totality-disjointness-closure.md)
-  states the theorem route for classifier totality, disjointness, and
-  `eps_cls_unmapped = 0` without claiming those facts are proved.
-- [eps_classify unmapped-zero theorem draft](docs/cryptography/eps-classify-unmapped-zero-theorem.md)
-  sketches the contradiction route that would eliminate the final `Unmapped`
-  branch once totality, disjointness, and per-case reductions are proved.
+- **Protocol-first threshold ML-DSA shape.** The crate focuses on the reviewer-visible boundary around threshold ML-DSA-65 instead of burying protocol assumptions inside an opaque backend.
+- **Type-state signing sessions.** Session phases are encoded in the API so callers cannot aggregate before commitments, generate partials for invalid sessions, or skip validation paths accidentally.
+- **Deterministic transcript binding.** Tests can assert stable session identifiers, challenge derivation, validator sets, commitments, and partial-share relationships without depending on live cryptographic randomness.
+- **Production-shaped simulation outputs.** The simulation backend preserves ML-DSA-65-sized public keys and signatures, which keeps serialization, storage, adapter, and benchmark paths realistic while avoiding false production-security claims.
+- **Audit packet plus proof crosswalks.** The docs map protocol phases to code, tests, trusted computing base assumptions, attack surface, side-channel boundaries, and open proof obligations.
+- **Distributed-validator adapter boundary.** Async actor, P2P, consensus, evidence, and timeout traits show how a threshold signer could sit inside a larger validator stack without moving network effects into the core protocol model.
 
-The current top-level advantage shape is intentionally conservative:
+## Implemented Today
 
-```text
-Adv_threshold
-  <= Adv_MLDSA
-   + eps_vss
-   + eps_mask
-   + eps_commit
-   + eps_ro
-   + eps_rej
-   + eps_withhold
-   + eps_contrib
-   + eps_classify
-   + implementation/audit residuals
+- `lattice-aggregation` package with Rust library name `lattice_aggregation`
+- threshold signing session state machine in [src/protocol.rs](src/protocol.rs)
+- backend trait and deterministic simulation backend in [src/backend.rs](src/backend.rs)
+- partial-share aggregation boundary in [src/aggregation.rs](src/aggregation.rs)
+- simulated DKG scaffold in [src/dkg.rs](src/dkg.rs)
+- async actor, wire messages, consensus/P2P traits, and evidence types in [src/adapter/](src/adapter/)
+- interpolation, verifiable-secret-sharing support, and polynomial experiments in [src/crypto/](src/crypto/) and [src/low_level/](src/low_level/)
+- regression coverage for simulation flow, validation, transcript determinism, serialization, type-state compile failures, and documentation link integrity in [tests/](tests/)
+- reviewer packet in [docs/audit/](docs/audit/) and cryptographic notes in [docs/cryptography/](docs/cryptography/)
+
+## Explicit Non-Claims
+
+This is not production cryptography.
+
+The repository does not currently claim:
+
+- real ML-DSA signing or verification
+- a production threshold ML-DSA construction
+- side-channel resistance or constant-time production behavior
+- audited distributed key generation
+- FIPS validation
+- consensus safety for production validator keys
+
+The current security boundary is documented in [SECURITY.md](SECURITY.md), the [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md), and the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md).
+
+## Quick Start
+
+```sh
+cargo test
 ```
 
-The repository is valuable precisely because it keeps those terms visible. It
-does not collapse them into a security claim before the required proofs exist.
+Run the included experiment harness:
 
-## Operational Underpinnings
-
-The intended L1 integration model is epoch based:
-
-- at epoch transition, validators run DKG/VSS or a future production setup
-  protocol to derive one epoch threshold public key;
-- during block production, the proposer or aggregator coordinates a threshold
-  signing session over authenticated P2P channels;
-- validators commit to masking material before the challenge is derived;
-- validators return proof-bound partial contribution frames after the challenge;
-- the aggregator accepts a threshold-valid set, performs aggregate rejection
-  checks, and emits one standard-size ML-DSA-65 signature;
-- the state transition verifies only the flat signature against the epoch key,
-  avoiding validator-count signature state growth.
-
-The repository models this operational path with actor simulations, wire
-messages, telemetry, malformed-frame evidence, retry behavior, and deterministic
-benchmark artifacts. These are engineering and reproducibility evidence, not
-cryptographic proof of production network liveness or production slashing
-soundness.
-
-## Current Status
-
-In practical terms, this is a publishable research scaffold with strong
-reproducibility and review boundaries. It is not yet a cryptographically proven
-threshold ML-DSA-65 construction.
-
-Completed artifact layers:
-
-- Rust crate API boundaries, simulated flows, actor/wire adapters, and
-  Section V artifact generation;
-- feature-gated hazmat ML-DSA-65 internals for controlled conformance and
-  threshold-bridge experiments;
-- formal theorem targets, ideal functionality, simulator skeletons,
-  random-oracle domains, adversary models, correctness lemmas, and a
-  proof-to-code crosswalk;
-- dedicated closure routes for `eps_mask`, `eps_rej`, `eps_withhold`,
-  `eps_contrib`, and `eps_classify`;
-- a proof closure ledger that keeps every visible theorem-loss term mapped to
-  its current status, evidence route, and remaining closure requirement;
-- central IdealVSS theorem consolidation, final-form epsilon ledger, and
-  proof-gap priority map for reviewer-facing proof closure work;
-- assembled FST-T1-IdealVSS final proof route that connects the upgraded
-  lemma batches without claiming a production cryptographic proof;
-- upgraded FST-L1/FST-L2/FST-L3 theorem-closure text for the canonical
-  transcript, challenge, and collection layer;
-- upgraded FST-L4/FST-L5/FST-L6/FST-L7 theorem-closure text for the middle
-  signing layer under ideal setup and ideal contribution boundaries;
-- classifier theorem-closure routing for ordered unauthorized-output cases and
-  the remaining `eps_cls_unmapped = 0` target;
-- fail-closed production policy gates for scaffold VSS and contribution proof
-  backend declarations.
-
-Open proof layers:
-
-- malicious-secure DKG/VSS or a reviewed production realization of the ideal
-  `F_VSS_DKG` setup route;
-- production contribution proof soundness and witness hiding;
-- accepted-distribution proof for aggregate masks, rejection sampling, retries,
-  and selective aborts;
-- final unauthorized-output classifier proof with `eps_cls_unmapped = 0`;
-- side-channel review, constant-time audit, randomness review, external
-  cryptographic review, and production operational review.
-
-## Warning
-
-This repository is a publishable research artifact scaffold. It is not
-production-ready, not an audited implementation, and not a security proof for
-threshold ML-DSA-65. The current code and tests provide engineering evidence for
-the documented artifact boundary only. Production security still depends on the
-open proof, backend replacement, audit, side-channel, and external review work
-tracked in the linked proof obligations.
-
-Those obligations include malicious-secure DKG, contribution proof soundness,
-rejection-sampling distribution preservation, selective-abort bounds,
-side-channel review, and external cryptographic review.
-
-## Quickstart
-
-Run from the repository root:
-
-```bash
-export CARGO_TARGET_DIR=/tmp/dytallix-pq-threshold-target
-export CARGO_INCREMENTAL=0
-
-scripts/reproduce-section-v.sh
+```sh
+cargo run
 ```
 
-The reproduction script regenerates Section V output into a temporary file,
-checks the checked-in sample bundle checksum, runs artifact verifier tests, and
-prints a digest for the regenerated output.
+The harness prints LaTeX tables and PGFPlots-compatible CSV for simulated threshold signing sessions across small, mid-scale, and adversarial cluster profiles.
 
-Useful local checks:
+## Verification
 
-```bash
-cargo fmt --check
-cargo clippy -j1 --all-targets --all-features -- -D warnings
-cargo test -j1 --all-features
+The CI workflow runs the same core checks reviewers should start with:
+
+```sh
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test --all-features
 ```
 
-## Review Map
+The documentation manifest test also validates reviewer-facing documentation anchors and local markdown links:
 
-- [Reviewer quickstart](docs/paper/reviewer-quickstart.md)
-- [Proof closure ledger](docs/cryptography/proof-closure-ledger.md)
-- [Batch H proof dependency graph](docs/cryptography/proof-dependency-graph.md)
-- [Batch H claim hardening matrix](docs/cryptography/claim-hardening-matrix.md)
-- [FST-T1-IdealVSS theorem consolidation](docs/cryptography/fst-t1-idealvss-theorem.md)
-- [FST-T1-IdealVSS final proof assembly](docs/cryptography/fst-t1-idealvss-final-proof.md)
-- [Epsilon residual ledger final form](docs/cryptography/epsilon-residual-ledger-final-form.md)
-- [Proof gap priority map](docs/cryptography/proof-gap-priority-map.md)
-- [FST-L1..FST-L3 theorem closure batch](docs/cryptography/fst-l1-l3-theorem-closure.md)
-- [FST-L4..FST-L7 theorem closure batch](docs/cryptography/fst-l4-l7-theorem-closure.md)
-- [FST-L10 classifier theorem closure batch](docs/cryptography/fst-l10-classifier-theorem-closure.md)
-- [Claims matrix](docs/cryptography/claims-matrix.md)
-- [Batch H claim hardening matrix](docs/cryptography/claim-hardening-matrix.md)
-- [Batch H proof dependency graph](docs/cryptography/proof-dependency-graph.md)
-- [Audit packet](docs/audit/README.md)
-- [Proof obligations](docs/cryptography/proof-obligations.md)
-- [Formal security theorem](docs/cryptography/formal-security-theorem.md)
-- [Ideal functionality](docs/cryptography/ideal-functionality.md)
-- [Real/ideal simulator skeleton](docs/cryptography/real-ideal-simulator.md)
-- [Rejection-sampling bounds worksheet](docs/cryptography/rejection-sampling-bounds.md)
-- [Mask distribution equivalence](docs/cryptography/mask-distribution-equivalence.md)
-- [Rejection predicate equivalence](docs/cryptography/rejection-predicate-equivalence.md)
-- [Withholding and abort bound](docs/cryptography/withholding-abort-bound.md)
-- [Contribution soundness relation](docs/cryptography/contribution-soundness-relation.md)
-- [Contribution backend instantiation](docs/cryptography/contribution-backend-instantiation.md)
-- [Unauthorized output classifier closure](docs/cryptography/unauthorized-output-classifier-closure.md)
-- [Reproducibility manifest](docs/benchmarks/reproducibility-manifest.md)
-- [Section V sample bundle](docs/benchmarks/artifacts/section-v-sample-output.txt)
-- [Section V sample checksum](docs/benchmarks/artifacts/SHA256SUMS)
+```sh
+cargo test --test proof_documentation_manifest
+```
+
+## Reviewer Entry Points
+
+- [Audit Packet](docs/audit/README.md): attack surface, trusted computing base, dependency assumptions, and high-priority review paths
+- [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md): what is implemented, simulated, planned, or explicitly not claimed
+- [Protocol Code Crosswalk](docs/cryptography/protocol-code-crosswalk.md): where each protocol phase lives in code and tests
+- [Proof Implementation Crosswalk](docs/cryptography/proof-implementation-crosswalk.md): mapping from proof obligations to current implementation and test coverage
+- [Formal Threshold ML-DSA Transcript](docs/cryptography/formal-threshold-mldsa-transcript.md): transcript fields, binding invariants, and stable anchors
+- [Side-Channel and Constant-Time Boundary](docs/cryptography/side-channel-boundary.md): current leakage claims and production gate
+- [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md): gates before any production-readiness language
+
+## Repository Map
+
+- [src/backend.rs](src/backend.rs): backend trait boundary and deterministic simulation backend
+- [src/protocol.rs](src/protocol.rs): type-state signing session flow
+- [src/aggregation.rs](src/aggregation.rs): partial-share aggregation interface
+- [src/dkg.rs](src/dkg.rs): simulated distributed key generation scaffold
+- [src/adapter/](src/adapter/): async actor, wire messages, consensus and P2P adapter traits, and evidence types
+- [src/crypto/](src/crypto/): interpolation and verifiable-secret-sharing support code
+- [src/low_level/](src/low_level/): polynomial primitives used by lower-level experiments
+- [tests/](tests/): simulation, validation, transcript determinism, type-state, and low-level coverage
+- [docs/audit/](docs/audit/): reviewer packet for attack surface and trusted computing base analysis
+- [docs/cryptography/](docs/cryptography/): cryptographic notes, formal models, and proof-obligation crosswalks
+
+## Design Boundaries
+
+The repository separates protocol shape from cryptographic backend implementation:
+
+- public APIs make transcript, validator set, threshold, commitment, and partial-share relationships explicit
+- deterministic simulation lets tests assert stable behavior without relying on live cryptographic randomness
+- type-state transitions prevent generating partials or aggregates from invalid session states
+- adapter traits keep networking and consensus effects outside the core protocol model
+- audit docs state what reviewers should trust, what is simulated, and what still needs production hardening
 
 ## Feature Gates
 
-- `hazmat-real-mldsa`: enables the local hazmat ML-DSA-65 backend used for
-  experiments, verifier-compatibility checks, actor simulations, and Section V
-  artifact generation. This is implementation evidence only and is not a
-  production cryptographic module or FIPS validation claim.
-- `experimental-vss`: enables experimental VSS complaint-evidence artifacts and
-  structural checks. These artifacts are research scaffolding only and are not a
-  production VSS relation proof, malicious-secure DKG, or production slashing
-  mechanism.
+- `simulated` is enabled by default and provides deterministic protocol-test behavior.
+- `hazmat` marks low-level experimental surfaces that should not be treated as stable production APIs.
+- `hazmat-real-mldsa` is reserved for future production-backend integration work and currently remains behind explicit opt-in.
 
-## Artifact Boundary
+## Roadmap Shape
 
-The supported claim is narrow: this repository demonstrates a reproducible Rust
-research scaffold with feature-gated hazmat ML-DSA-65 conformance paths,
-deterministic simulations, transcript artifacts, evidence-shaping paths, and
-fail-closed production policy boundaries. The formal documents now also define
-the theorem targets, idealized setup boundary, rejection-sampling closure
-routes, contribution-proof replacement relation, and remaining reduction gaps.
+Near-term production-threshold work should move through the documented gates:
 
-Do not describe the current artifact as a secure, production-ready,
-malicious-secure threshold ML-DSA-65 signature scheme.
+- define the production backend boundary and domain-separated transcript contract
+- replace deterministic signing output with externally reviewed threshold ML-DSA machinery
+- add proof-carrying share validation, complaint/evidence handling, and DKG hardening
+- add side-channel review, constant-time gates, and production benchmark artifacts
+- require the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md) before production-readiness claims
 
-## Remaining Cryptographic Gaps
+## Suggested GitHub Topics
 
-The next work is theorem closure, not more scaffold construction:
+`rust`, `post-quantum`, `cryptography`, `threshold-signatures`, `ml-dsa`, `mldsa`, `dilithium`, `lattice-cryptography`, `distributed-systems`, `validator`, `consensus`, `protocol-engineering`, `security-audit`, `research`
 
-- lock the production transcript grammar in
-  [production-transcript-grammar.md](docs/cryptography/production-transcript-grammar.md)
-  so random-oracle, contribution, evidence, and classifier proofs share one
-  canonical byte-level input language;
-- turn the IdealVSS route into lemma-by-lemma proof text using
-  [idealvss-lemma-skeleton.md](docs/cryptography/idealvss-lemma-skeleton.md);
-- close the early IdealVSS lemma worksheets for
-  [FST-L1 transcript injectivity](docs/cryptography/fst-l1-transcript-injectivity.md),
-  [FST-L2 challenge binding](docs/cryptography/fst-l2-challenge-binding.md),
-  and [FST-L3 collection soundness](docs/cryptography/fst-l3-collection-soundness.md);
-- close the middle IdealVSS lemma worksheets for
-  [FST-L4 partial-share validity](docs/cryptography/fst-l4-partial-share-validity.md),
-  [FST-L5 aggregation correctness](docs/cryptography/fst-l5-aggregation-correctness.md),
-  and [FST-L6 no subthreshold signing](docs/cryptography/fst-l6-no-subthreshold-signing.md);
-- close abort and classifier worksheets for
-  [FST-L7 abort compatibility](docs/cryptography/fst-l7-abort-compatibility.md)
-  and [FST-L10 classifier closure](docs/cryptography/fst-l10-classifier-closure.md);
-- use the immediate
-  [contribution backend decision record](docs/cryptography/contribution-backend-decision-record.md)
-  to keep `F_CONTRIB` idealized until a concrete backend theorem is selected;
-- prove or explicitly bound `eps_mask` for the aggregate threshold mask
-  distribution using
-  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md),
-  [rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md),
-  and [mask-distribution-equivalence.md](docs/cryptography/mask-distribution-equivalence.md);
-- prove or explicitly bound `eps_rej` by showing threshold aggregate rejection
-  matches standard ML-DSA-65 rejection on the same candidate values using the
-  [rejection-sampling closure plan](docs/cryptography/rejection-sampling-closure-plan.md)
-  and the
-  [rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md);
-- prove or explicitly bound `eps_withhold` for selective aborts, timeout
-  behavior, retries, and observable abort labels using
-  [rejection-sampling-closure-plan.md](docs/cryptography/rejection-sampling-closure-plan.md),
-  [rejection-sampling theorem closure batch](docs/cryptography/rejection-sampling-theorem-closure.md),
-  and [withholding-abort-bound.md](docs/cryptography/withholding-abort-bound.md);
-- instantiate the production contribution proof or MPC relation described in
-  [contribution-backend-selection.md](docs/cryptography/contribution-backend-selection.md),
-  [contribution-soundness-relation.md](docs/cryptography/contribution-soundness-relation.md),
-  and
-  [contribution-backend-instantiation.md](docs/cryptography/contribution-backend-instantiation.md);
-- eliminate `eps_classify` by mapping every unauthorized accepting output to
-  either a base ML-DSA forgery or a named threshold-side assumption violation
-  using
-  [unauthorized-output-classifier-elimination.md](docs/cryptography/unauthorized-output-classifier-elimination.md)
-  and
-  [unauthorized-output-classifier-closure.md](docs/cryptography/unauthorized-output-classifier-closure.md).
+## Contributing
+
+Contributions should keep claims precise. If a change touches cryptographic behavior, transcript construction, validation logic, or wire formats, include tests and update the relevant audit notes.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md) before opening larger changes.

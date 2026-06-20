@@ -11,7 +11,7 @@ use crate::{
     types::{Challenge, SessionId, ThresholdPublicKey, ValidatorId},
 };
 
-const PROTOCOL_LABEL: &[u8] = b"dytallix-threshold-mldsa65";
+const PROTOCOL_LABEL: &[u8] = b"lattice-aggregation/threshold-mldsa65";
 const PROTOCOL_VERSION: u16 = 1;
 
 /// Fully bound signing transcript.
