@@ -445,6 +445,22 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "no real ML-DSA verifier",
         ],
     );
+    assert_not_contains_all(
+        "docs/cryptography/noise-rejection-proof-plan.md",
+        &[
+            "statistical distance",
+            "statistical-distance",
+            "quantified distance",
+        ],
+    );
+    assert_not_contains_all(
+        "docs/cryptography/proof-obligations.md",
+        &[
+            "statistical distance",
+            "statistical-distance",
+            "quantified distance",
+        ],
+    );
 }
 
 #[test]

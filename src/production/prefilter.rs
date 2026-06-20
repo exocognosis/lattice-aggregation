@@ -23,8 +23,6 @@ pub const GAMMA1: i32 = 1 << 19;
 /// ML-DSA-65 `beta` bound for the profiled parameter set.
 pub const BETA: i32 = 196;
 
-const PRE_FILTER_BOUND: i32 = GAMMA1 - BETA;
-
 /// Public digest and bound summary for one blinded commitment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BlindedCommitmentSummary {
@@ -66,11 +64,17 @@ impl BlindedCommitmentSummary {
 /// Capability token proving blinded pre-filter success.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PreFilterPassed {
+    attempt_id: AttemptId,
     clearance_boundary: u32,
     aggregate_infinity_norm: u32,
 }
 
 impl PreFilterPassed {
+    /// Return the attempt bound to this pre-filter pass.
+    pub const fn attempt_id(self) -> AttemptId {
+        self.attempt_id
+    }
+
     /// Return the clearance boundary.
     pub const fn clearance_boundary(self) -> u32 {
         self.clearance_boundary
@@ -81,13 +85,10 @@ impl PreFilterPassed {
         self.aggregate_infinity_norm
     }
 
-    /// Convert the pass token into share-release authorization for one attempt.
-    pub const fn into_share_release_authorization(
-        self,
-        attempt_id: AttemptId,
-    ) -> ShareReleaseAuthorization {
+    /// Convert the pass token into share-release authorization.
+    pub const fn into_share_release_authorization(self) -> ShareReleaseAuthorization {
         ShareReleaseAuthorization {
-            attempt_id,
+            attempt_id: self.attempt_id,
             prefilter: self,
         }
     }
@@ -147,6 +148,7 @@ pub struct BlindedPreFilter;
 impl BlindedPreFilter {
     /// Evaluate public blinded commitment summaries.
     pub fn evaluate(
+        attempt_id: AttemptId,
         clearance_boundary: u32,
         rejection_increment: EpsilonUnit,
         summaries: Vec<BlindedCommitmentSummary>,
@@ -158,11 +160,12 @@ impl BlindedPreFilter {
             });
         }
 
-        let aggregate_infinity_norm = summaries
-            .iter()
-            .map(|summary| summary.infinity_norm())
-            .max()
-            .unwrap_or(0);
+        let aggregate_infinity_norm = summaries.iter().try_fold(0u32, |acc, summary| {
+            acc.checked_add(summary.infinity_norm())
+                .ok_or(ThresholdError::InvalidPreFilter {
+                    reason: "aggregate infinity norm overflow",
+                })
+        })?;
 
         if aggregate_infinity_norm > clearance_boundary {
             ledger.increment_rejection(rejection_increment);
@@ -172,6 +175,7 @@ impl BlindedPreFilter {
             }))
         } else {
             Ok(PreFilterOutcome::Passed(PreFilterPassed {
+                attempt_id,
                 clearance_boundary,
                 aggregate_infinity_norm,
             }))
@@ -239,31 +243,6 @@ pub type MaskVector = PolyVector<MLDSA65_L>;
 /// Commitment vector shape for ML-DSA-65.
 pub type CommitmentVector = PolyVector<MLDSA65_K>;
 
-/// Tracks deterministic telemetry across pre-filter execution blocks.
-#[derive(Default, Clone, Debug, PartialEq)]
-pub struct PreFilterTelemetryLedger {
-    /// Current accepted aggregate norm as a fraction of `GAMMA1`.
-    pub epsilon_mask: f64,
-    /// Count of aggregate-bound rejection events.
-    pub epsilon_rej: f64,
-    /// Count of withheld attempts caused by missing pre-filter inputs.
-    pub epsilon_withhold: f64,
-}
-
-impl PreFilterTelemetryLedger {
-    fn record_accept(&mut self, norm: i32) {
-        self.epsilon_mask = f64::from(norm) / f64::from(GAMMA1);
-    }
-
-    fn record_rejection(&mut self) {
-        self.epsilon_rej += 1.0;
-    }
-
-    fn record_withhold(&mut self) {
-        self.epsilon_withhold += 1.0;
-    }
-}
-
 /// Noise-flooded commitment that can be checked before share exposure.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BlindedCommitment {
@@ -284,12 +263,21 @@ impl BlindedCommitment {
 }
 
 /// Local validator share used by the pre-filter audit scaffold.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub struct ValidatorShare {
     /// Validator index inside the active signer set.
-    pub index: u32,
+    index: u32,
     /// Simulated secret vector used only after the pre-filter gate.
-    pub secret_s1_share: MaskVector,
+    secret_s1_share: MaskVector,
+}
+
+impl core::fmt::Debug for ValidatorShare {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("ValidatorShare")
+            .field("index", &self.index)
+            .field("secret_s1_share_redacted", &true)
+            .finish()
+    }
 }
 
 impl ValidatorShare {
@@ -299,6 +287,11 @@ impl ValidatorShare {
             index,
             secret_s1_share,
         }
+    }
+
+    /// Return validator index.
+    pub const fn index(self) -> u32 {
+        self.index
     }
 
     /// Generate a deterministic noise-flooded mask and blinded commitment.
@@ -311,36 +304,6 @@ impl ValidatorShare {
         let proof_hash = self.compute_nizk_bounds_proof(&y_i, &w_i);
 
         (y_i, BlindedCommitment::new(w_i, proof_hash))
-    }
-
-    /// Check the blinded aggregate before partial share synthesis.
-    pub fn verify_aggregate_bounds(
-        aggregate_w: &CommitmentVector,
-        commitments: &[BlindedCommitment],
-        ledger: &mut PreFilterTelemetryLedger,
-    ) -> Result<(), ThresholdError> {
-        let norm_w = aggregate_w.infinity_norm();
-
-        if commitments.is_empty() {
-            ledger.record_withhold();
-            return Err(ThresholdError::AggregatePreFilterRejected {
-                reason: "no blinded commitments supplied",
-                norm: norm_w,
-                bound: PRE_FILTER_BOUND,
-            });
-        }
-
-        if norm_w > PRE_FILTER_BOUND {
-            ledger.record_rejection();
-            return Err(ThresholdError::AggregatePreFilterRejected {
-                reason: "aggregate commitment exceeds blinded pre-filter bound",
-                norm: norm_w,
-                bound: PRE_FILTER_BOUND,
-            });
-        }
-
-        ledger.record_accept(norm_w);
-        Ok(())
     }
 
     fn sample_uniform_mask(&self, rng_seed: &[u8; 32]) -> MaskVector {
@@ -402,72 +365,6 @@ impl ValidatorShare {
         update_hasher_with_vector(&mut hasher, w_i);
         hasher.finalize().into()
     }
-}
-
-/// Execute a deterministic aggregation round with pre-filtering before output.
-pub async fn execute_aggregation_round(
-    validators: &[ValidatorShare],
-    msg: &[u8],
-    ledger: &mut PreFilterTelemetryLedger,
-) -> Result<Vec<i32>, ThresholdError> {
-    let seed = aggregation_seed(msg);
-    let mut commitments = Vec::with_capacity(validators.len());
-    let mut individual_masks = Vec::with_capacity(validators.len());
-
-    for validator in validators {
-        let (y_i, commitment) = validator.generate_flooded_mask(&seed);
-        commitments.push(commitment);
-        individual_masks.push(y_i);
-    }
-
-    let mut aggregate_w = CommitmentVector::zero();
-    for commitment in &commitments {
-        aggregate_w.add_assign(&commitment.w_i_committed);
-    }
-
-    ValidatorShare::verify_aggregate_bounds(&aggregate_w, &commitments, ledger)?;
-
-    Ok(synthesize_aggregate_z(validators, &individual_masks, msg))
-}
-
-fn synthesize_aggregate_z(
-    validators: &[ValidatorShare],
-    individual_masks: &[MaskVector],
-    msg: &[u8],
-) -> Vec<i32> {
-    let challenge_weight = i32::from(aggregation_seed(msg)[0] & 1);
-    let mut aggregate_z = vec![0; N * MLDSA65_L];
-
-    for mask in individual_masks {
-        add_mask_to_flattened(&mut aggregate_z, mask, 1);
-    }
-
-    for validator in validators {
-        add_mask_to_flattened(
-            &mut aggregate_z,
-            &validator.secret_s1_share,
-            challenge_weight,
-        );
-    }
-
-    aggregate_z
-}
-
-fn add_mask_to_flattened(out: &mut [i32], mask: &MaskVector, multiplier: i32) {
-    for element_idx in 0..MLDSA65_L {
-        for coeff_idx in 0..N {
-            out[(element_idx * N) + coeff_idx] +=
-                mask.elements[element_idx].coeffs[coeff_idx] * multiplier;
-        }
-    }
-}
-
-fn aggregation_seed(msg: &[u8]) -> [u8; 32] {
-    let mut hasher = Sha3_256::new();
-    hasher.update(b"mldsa65-prefilter-aggregation-seed-v1");
-    hasher.update((msg.len() as u64).to_be_bytes());
-    hasher.update(msg);
-    hasher.finalize().into()
 }
 
 fn sample_open_left_centered(

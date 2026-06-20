@@ -221,8 +221,8 @@ Remaining proof work:
 ## Lemma H: Accepted-Signature Distribution
 
 Statement: The distribution of accepted threshold signatures is the standard
-ML-DSA-65 accepted-signature distribution, or is within a stated statistical
-distance that the security proof accepts.
+ML-DSA-65 accepted-signature distribution, or is within a stated Renyi
+divergence bound that the security proof accepts.
 
 Proof strategy:
 
@@ -269,8 +269,8 @@ Before a production claim can be made, the project still needs proofs of:
 - Standard ML-DSA verifier compatibility for every emitted aggregate
   signature.
 - Preservation of all ML-DSA-65 infinity-norm, hint, and challenge bounds.
-- Rejection-sampling distribution equivalence or a quantified statistical
-  distance bound.
+- Rejection-sampling distribution equivalence or a quantified Renyi divergence
+  bound accepted by the proof.
 - Abort leakage bounds for local and aggregate abort behavior.
 - Canonical encoding and domain separation for all transcript fields and retry
   attempts.

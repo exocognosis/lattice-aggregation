@@ -62,6 +62,8 @@ pub enum ProductionWireMsg {
         attempt_id: [u8; 32],
         /// Public abort reason code.
         reason_code: u16,
+        /// Configured clearance boundary.
+        clearance_boundary: u32,
         /// Declared aggregate infinity norm.
         aggregate_infinity_norm: u32,
     },
@@ -149,15 +151,17 @@ impl ProductionWireMsg {
                 epoch,
                 attempt_id,
                 reason_code,
+                clearance_boundary,
                 aggregate_infinity_norm,
             } => {
-                let mut out = Vec::with_capacity(80);
+                let mut out = Vec::with_capacity(84);
                 out.push(WIRE_VERSION);
                 out.push(MSG_PREFILTER_ABORT);
                 out.extend_from_slice(session_id);
                 out.extend_from_slice(&epoch.to_be_bytes());
                 out.extend_from_slice(attempt_id);
                 out.extend_from_slice(&reason_code.to_be_bytes());
+                out.extend_from_slice(&clearance_boundary.to_be_bytes());
                 out.extend_from_slice(&aggregate_infinity_norm.to_be_bytes());
                 out
             }
@@ -280,7 +284,7 @@ fn decode_abort(bytes: &[u8]) -> Result<ProductionWireMsg, ProductionWireDecodeE
 }
 
 fn decode_prefilter_abort(bytes: &[u8]) -> Result<ProductionWireMsg, ProductionWireDecodeError> {
-    if bytes.len() != 80 {
+    if bytes.len() != 84 {
         return Err(ProductionWireDecodeError::InvalidLength);
     }
     let mut session_id = [0u8; 32];
@@ -290,12 +294,14 @@ fn decode_prefilter_abort(bytes: &[u8]) -> Result<ProductionWireMsg, ProductionW
     let mut attempt_id = [0u8; 32];
     attempt_id.copy_from_slice(&bytes[42..74]);
     let reason_code = u16::from_be_bytes([bytes[74], bytes[75]]);
-    let aggregate_infinity_norm = u32::from_be_bytes([bytes[76], bytes[77], bytes[78], bytes[79]]);
+    let clearance_boundary = u32::from_be_bytes([bytes[76], bytes[77], bytes[78], bytes[79]]);
+    let aggregate_infinity_norm = u32::from_be_bytes([bytes[80], bytes[81], bytes[82], bytes[83]]);
     Ok(ProductionWireMsg::PreFilterAbort {
         session_id,
         epoch: u64::from_be_bytes(epoch),
         attempt_id,
         reason_code,
+        clearance_boundary,
         aggregate_infinity_norm,
     })
 }
