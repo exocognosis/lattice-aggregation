@@ -6,9 +6,15 @@
 #[cfg(feature = "coordinator-assisted")]
 pub mod coordinator;
 #[cfg(feature = "coordinator-assisted")]
+pub mod epsilon;
+#[cfg(feature = "coordinator-assisted")]
 pub mod evidence;
 #[cfg(feature = "coordinator-assisted")]
+pub mod hints;
+#[cfg(feature = "coordinator-assisted")]
 pub mod policy;
+#[cfg(feature = "coordinator-assisted")]
+pub mod prefilter;
 #[cfg(feature = "coordinator-assisted")]
 pub mod preprocess;
 pub mod provider;

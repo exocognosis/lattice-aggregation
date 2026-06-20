@@ -73,7 +73,10 @@ impl DkgTranscriptDigest {
     }
 }
 
-/// ML-DSA message binding, such as `mu`.
+/// Transcript-internal ML-DSA message binding, such as `mu`.
+///
+/// This value binds coordinator transcript state. It is not a substitute for
+/// the original application message required by standard ML-DSA verification.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct MessageBinding(pub [u8; 64]);
 

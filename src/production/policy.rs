@@ -25,8 +25,9 @@ impl ProductionPolicy {
         }
     }
 
-    /// Construct an approved policy for audited release builds.
-    pub fn production_approved() -> Self {
+    /// Construct an approved policy for crate-internal approval-path tests.
+    #[cfg(test)]
+    pub(crate) fn production_approved() -> Self {
         Self {
             status: CoordinatorReleaseStatus::ProductionApproved,
         }
@@ -47,5 +48,18 @@ impl ProductionPolicy {
     /// Return the configured release status.
     pub fn status(self) -> CoordinatorReleaseStatus {
         self.status
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ProductionPolicy;
+
+    #[test]
+    fn internal_production_approved_policy_allows_release_gate() {
+        assert_eq!(
+            ProductionPolicy::production_approved().require_production_release(),
+            Ok(())
+        );
     }
 }

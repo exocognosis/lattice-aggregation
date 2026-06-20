@@ -37,7 +37,9 @@ pub struct ProductionTranscriptInput {
     pub threshold: u16,
     /// Threshold public key.
     pub public_key: ThresholdPublicKey,
-    /// ML-DSA message binding.
+    /// Original application message bytes supplied to standard ML-DSA verification.
+    pub application_message: Vec<u8>,
+    /// Transcript-internal ML-DSA message binding, such as `mu`.
     pub message_binding: MessageBinding,
     /// Single-use attempt ID.
     pub attempt_id: AttemptId,
@@ -117,6 +119,8 @@ fn derive_challenge_digest(input: &ProductionTranscriptInput) -> [u8; 32] {
     }
     hasher.update(&input.threshold.to_be_bytes());
     hasher.update(&input.public_key.0);
+    hasher.update(&(input.application_message.len() as u64).to_be_bytes());
+    hasher.update(&input.application_message);
     hasher.update(input.message_binding.as_bytes());
     hasher.update(input.attempt_id.as_bytes());
     hasher.update(&input.coordinator_attestation_digest);

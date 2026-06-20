@@ -15,6 +15,7 @@ Available notes:
 - [Noise-Bound and Rejection-Sampling Proof Plan](noise-rejection-proof-plan.md)
 - [Phase 1 Noise Bound Model](phase-1-noise-bound-model.md)
 - [Proof Implementation Crosswalk](proof-implementation-crosswalk.md)
+- [Protocol Code Crosswalk](protocol-code-crosswalk.md)
 - [Proof Obligations Matrix](proof-obligations.md)
 - [Random-Oracle Game](random-oracle-game.md)
 - [Side-Channel and Constant-Time Boundary](side-channel-boundary.md)

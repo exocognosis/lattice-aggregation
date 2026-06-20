@@ -363,6 +363,11 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "coordinator-assisted ML-DSA-65 profile",
             "hazmat conformance only",
             "standard-verifier-compatible only after KAT and audit gates",
+            "EpsilonLedger",
+            "blinded pre-filter",
+            "Renyi divergence",
+            "hint-routing conformance",
+            "DKG setup-only boundary",
         ],
     );
     assert_contains_all(
@@ -373,6 +378,8 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "fuzz targets for production coordinator frames",
             "ignored KAT release gate",
             "simulator compile-fail guard",
+            "Renyi-divergence proof evidence",
+            "DKG setup-only hot-path review",
         ],
     );
     assert_contains_all(
@@ -380,6 +387,9 @@ fn production_coordinator_docs_keep_claim_boundary() {
         &[
             "Production coordinator candidate boundary",
             "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
             "`src/production/transcript.rs`",
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",
@@ -393,6 +403,9 @@ fn production_coordinator_docs_keep_claim_boundary() {
         &[
             "Production coordinator candidate",
             "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
             "`src/production/transcript.rs`",
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",
@@ -405,6 +418,9 @@ fn production_coordinator_docs_keep_claim_boundary() {
         &[
             "production-candidate skeleton surfaces",
             "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
             "`src/production/transcript.rs`",
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",
@@ -418,6 +434,9 @@ fn production_coordinator_docs_keep_claim_boundary() {
         &[
             "production-candidate surfaces exist",
             "`src/production/provider.rs`",
+            "`src/production/epsilon.rs`",
+            "`src/production/prefilter.rs`",
+            "`src/production/hints.rs`",
             "`src/production/transcript.rs`",
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",

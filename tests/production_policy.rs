@@ -21,15 +21,6 @@ fn production_policy_rejects_unreviewed_profile() {
     );
 }
 
-#[cfg(feature = "coordinator-assisted")]
-#[test]
-fn production_approved_policy_allows_release_gate() {
-    assert_eq!(
-        ProductionPolicy::production_approved().require_production_release(),
-        Ok(())
-    );
-}
-
 #[cfg(feature = "production-mldsa65-coordinator")]
 #[test]
 fn production_feature_still_requires_runtime_release_gate() {

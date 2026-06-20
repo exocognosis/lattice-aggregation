@@ -43,6 +43,92 @@ fn coordinator_abort_wire_encoding_is_golden() {
 }
 
 #[test]
+fn prefilter_pass_wire_encoding_is_golden() {
+    let msg = ProductionWireMsg::PreFilterPass {
+        session_id: [1; 32],
+        epoch: 7,
+        attempt_id: [2; 32],
+        clearance_boundary: 100,
+        aggregate_infinity_norm: 45,
+    };
+    let encoded = msg.encode();
+    assert_eq!(encoded[0], 2);
+    assert_eq!(encoded[1], 6);
+    assert_eq!(encoded.len(), 82);
+    assert_eq!(&encoded[2..34], &[1; 32]);
+    assert_eq!(&encoded[34..42], &7u64.to_be_bytes());
+    assert_eq!(&encoded[42..74], &[2; 32]);
+    assert_eq!(&encoded[74..78], &100u32.to_be_bytes());
+    assert_eq!(&encoded[78..82], &45u32.to_be_bytes());
+    assert_eq!(ProductionWireMsg::decode(&encoded).unwrap(), msg);
+}
+
+#[test]
+fn prefilter_abort_wire_encoding_is_golden() {
+    let msg = ProductionWireMsg::PreFilterAbort {
+        session_id: [1; 32],
+        epoch: 7,
+        attempt_id: [2; 32],
+        reason_code: 11,
+        aggregate_infinity_norm: 101,
+    };
+    let encoded = msg.encode();
+    assert_eq!(encoded[0], 2);
+    assert_eq!(encoded[1], 5);
+    assert_eq!(encoded.len(), 80);
+    assert_eq!(&encoded[2..34], &[1; 32]);
+    assert_eq!(&encoded[34..42], &7u64.to_be_bytes());
+    assert_eq!(&encoded[42..74], &[2; 32]);
+    assert_eq!(&encoded[74..76], &11u16.to_be_bytes());
+    assert_eq!(&encoded[76..80], &101u32.to_be_bytes());
+    assert_eq!(ProductionWireMsg::decode(&encoded).unwrap(), msg);
+}
+
+#[test]
+fn hint_routing_request_wire_encoding_is_golden() {
+    let msg = ProductionWireMsg::HintRoutingRequest {
+        session_id: [1; 32],
+        epoch: 7,
+        attempt_id: [2; 32],
+        active_set_digest: [3; 32],
+        challenge_digest: [4; 32],
+        near_boundary_commitment_digest: [5; 32],
+    };
+    let encoded = msg.encode();
+    assert_eq!(encoded[0], 2);
+    assert_eq!(encoded[1], 7);
+    assert_eq!(encoded.len(), 170);
+    assert_eq!(&encoded[2..34], &[1; 32]);
+    assert_eq!(&encoded[34..42], &7u64.to_be_bytes());
+    assert_eq!(&encoded[42..74], &[2; 32]);
+    assert_eq!(&encoded[74..106], &[3; 32]);
+    assert_eq!(&encoded[106..138], &[4; 32]);
+    assert_eq!(&encoded[138..170], &[5; 32]);
+    assert_eq!(ProductionWireMsg::decode(&encoded).unwrap(), msg);
+}
+
+#[test]
+fn hint_routing_response_wire_encoding_is_golden() {
+    let msg = ProductionWireMsg::HintRoutingResponse {
+        session_id: [1; 32],
+        epoch: 7,
+        attempt_id: [2; 32],
+        validator_index: 9,
+        response_digest: [8; 32],
+    };
+    let encoded = msg.encode();
+    assert_eq!(encoded[0], 2);
+    assert_eq!(encoded[1], 8);
+    assert_eq!(encoded.len(), 108);
+    assert_eq!(&encoded[2..34], &[1; 32]);
+    assert_eq!(&encoded[34..42], &7u64.to_be_bytes());
+    assert_eq!(&encoded[42..74], &[2; 32]);
+    assert_eq!(&encoded[74..76], &9u16.to_be_bytes());
+    assert_eq!(&encoded[76..108], &[8; 32]);
+    assert_eq!(ProductionWireMsg::decode(&encoded).unwrap(), msg);
+}
+
+#[test]
 fn production_wire_rejects_short_or_unknown_headers() {
     assert_eq!(
         ProductionWireMsg::decode(&[]).unwrap_err(),
@@ -118,6 +204,21 @@ fn production_wire_rejects_trailing_bytes() {
     challenge.push(0);
     assert_eq!(
         ProductionWireMsg::decode(&challenge).unwrap_err(),
+        ProductionWireDecodeError::InvalidLength
+    );
+
+    let mut hint = ProductionWireMsg::HintRoutingRequest {
+        session_id: [1; 32],
+        epoch: 7,
+        attempt_id: [2; 32],
+        active_set_digest: [3; 32],
+        challenge_digest: [4; 32],
+        near_boundary_commitment_digest: [5; 32],
+    }
+    .encode();
+    hint.push(0);
+    assert_eq!(
+        ProductionWireMsg::decode(&hint).unwrap_err(),
         ProductionWireDecodeError::InvalidLength
     );
 }

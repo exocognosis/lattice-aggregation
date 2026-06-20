@@ -52,6 +52,7 @@ fn transcript_input(
         active_signers: ActiveSignerSet::new(vec![ValidatorId(2), ValidatorId(1)]).unwrap(),
         threshold: 2,
         public_key: ThresholdPublicKey([15; 1952]),
+        application_message: b"original application message".to_vec(),
         message_binding: MessageBinding([16; 64]),
         attempt_id: AttemptId([attempt_byte; 32]),
         coordinator_attestation_digest: [17; 32],
@@ -179,9 +180,13 @@ fn production_transcript_binds_representative_context_fields() {
     );
     let base_digest = challenge_digest(base.clone());
 
-    let mut changed_message = base.clone();
-    changed_message.message_binding = MessageBinding([99; 64]);
-    assert_ne!(base_digest, challenge_digest(changed_message));
+    let mut changed_application_message = base.clone();
+    changed_application_message.application_message = b"different application message".to_vec();
+    assert_ne!(base_digest, challenge_digest(changed_application_message));
+
+    let mut changed_message_binding = base.clone();
+    changed_message_binding.message_binding = MessageBinding([99; 64]);
+    assert_ne!(base_digest, challenge_digest(changed_message_binding));
 
     let mut changed_public_key = base.clone();
     changed_public_key.public_key = ThresholdPublicKey([98; 1952]);

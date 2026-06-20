@@ -17,6 +17,7 @@ Start here:
 
 Related review material:
 
+- [Release Readiness Checklist](../benchmarks/release-readiness-checklist.md)
 - [Phase 1 Noise Bound Model](../cryptography/phase-1-noise-bound-model.md)
 - [Threshold ML-DSA Core API Design](../superpowers/specs/2026-05-22-threshold-mldsa-core-api-design.md)
 - [Threshold Adapter Scaffold Design](../superpowers/specs/2026-05-22-threshold-adapter-scaffold-design.md)

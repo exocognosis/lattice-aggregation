@@ -4,7 +4,11 @@ use crate::{ThresholdError, ThresholdPublicKey, ThresholdSignature};
 
 /// Standard ML-DSA-65 verification provider.
 pub trait StandardMldsa65Provider {
-    /// Verify a standard ML-DSA-65 signature.
+    /// Verify a standard ML-DSA-65 signature over the original application message.
+    ///
+    /// The `message` argument is not a transcript-internal `mu` or prehash. A
+    /// provider that verifies a prehashed representative must use a different
+    /// boundary and cannot satisfy this trait.
     fn verify(
         public_key: &ThresholdPublicKey,
         message: &[u8],

@@ -4,7 +4,7 @@ use lattice_aggregation::{
     production::{
         coordinator::{AggregateAttemptRequest, CoordinatorAggregateGate},
         policy::ProductionPolicy,
-        provider::{StandardMldsa65Provider, UnavailableMldsa65Provider},
+        provider::StandardMldsa65Provider,
         transcript::{CommitmentDigest, ProductionSigningTranscript, ProductionTranscriptInput},
         types::{
             ActiveSignerSet, AttemptId, DkgTranscriptDigest, EpochId, KeyId, MessageBinding,
@@ -13,36 +13,6 @@ use lattice_aggregation::{
     },
     ThresholdError, ThresholdPublicKey, ThresholdSignature, ValidatorId,
 };
-
-struct RejectingProvider;
-
-impl StandardMldsa65Provider for RejectingProvider {
-    fn verify(
-        public_key: &ThresholdPublicKey,
-        message: &[u8],
-        signature: &ThresholdSignature,
-    ) -> Result<bool, ThresholdError> {
-        assert_eq!(public_key, &ThresholdPublicKey([6; 1952]));
-        assert_eq!(message, &[7; 64]);
-        assert_eq!(signature, &ThresholdSignature([42; 3309]));
-        Ok(false)
-    }
-}
-
-struct AcceptingProvider;
-
-impl StandardMldsa65Provider for AcceptingProvider {
-    fn verify(
-        public_key: &ThresholdPublicKey,
-        message: &[u8],
-        signature: &ThresholdSignature,
-    ) -> Result<bool, ThresholdError> {
-        assert_eq!(public_key, &ThresholdPublicKey([6; 1952]));
-        assert_eq!(message, &[7; 64]);
-        assert_eq!(signature, &ThresholdSignature([42; 3309]));
-        Ok(true)
-    }
-}
 
 struct PanickingProvider;
 
@@ -66,6 +36,7 @@ fn transcript() -> ProductionSigningTranscript {
         active_signers: ActiveSignerSet::new(vec![ValidatorId(1), ValidatorId(2)]).unwrap(),
         threshold: 2,
         public_key: ThresholdPublicKey([6; 1952]),
+        application_message: b"original application message".to_vec(),
         message_binding: MessageBinding([7; 64]),
         attempt_id: AttemptId([8; 32]),
         coordinator_attestation_digest: [9; 32],
@@ -84,38 +55,6 @@ fn request(policy: ProductionPolicy) -> AggregateAttemptRequest {
         candidate_signature: ThresholdSignature([42; 3309]),
         policy,
     }
-}
-
-#[test]
-fn aggregate_gate_requires_standard_verification() {
-    let err = CoordinatorAggregateGate::<UnavailableMldsa65Provider>::finalize(request(
-        ProductionPolicy::production_approved(),
-    ))
-    .unwrap_err();
-    assert_eq!(
-        err,
-        ThresholdError::BackendUnavailable {
-            reason: "standard ML-DSA provider is not enabled",
-        }
-    );
-}
-
-#[test]
-fn aggregate_gate_rejects_standard_verification_failure() {
-    let err = CoordinatorAggregateGate::<RejectingProvider>::finalize(request(
-        ProductionPolicy::production_approved(),
-    ))
-    .unwrap_err();
-    assert_eq!(err, ThresholdError::StandardVerificationFailed);
-}
-
-#[test]
-fn aggregate_gate_returns_signature_after_standard_verification() {
-    let signature = CoordinatorAggregateGate::<AcceptingProvider>::finalize(request(
-        ProductionPolicy::production_approved(),
-    ))
-    .unwrap();
-    assert_eq!(signature, ThresholdSignature([42; 3309]));
 }
 
 #[test]

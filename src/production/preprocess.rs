@@ -61,6 +61,13 @@ mod tests {
         assert!(!attempt_debug.contains("4, 5, 6"));
         assert!(!store_debug.contains("4, 5, 6"));
     }
+
+    #[test]
+    fn abort_and_zeroize_clears_secret_material() {
+        let mut attempt = PreprocessedAttempt::new(AttemptId([12; 32]), vec![9, 8, 7]).unwrap();
+        attempt.abort_and_zeroize();
+        assert_eq!(attempt.secret_material(), &[0, 0, 0]);
+    }
 }
 
 impl Drop for PreprocessedAttempt {
@@ -86,6 +93,11 @@ impl PreprocessedAttempt {
     /// Return attempt ID.
     pub fn attempt_id(&self) -> AttemptId {
         self.attempt_id
+    }
+
+    /// Zeroize attempt-local secret material after an abort gate.
+    pub fn abort_and_zeroize(&mut self) {
+        self.secret_material.as_mut_slice().zeroize();
     }
 
     /// Borrow secret material for backend use.

@@ -30,7 +30,9 @@ and the [release-readiness checklist](../benchmarks/release-readiness-checklist.
    `src/production/preprocess.rs`, `src/production/coordinator.rs`, and
    `src/adapter/production_wire.rs`: inspect production-candidate policy
    gates, provider KAT gate, transcript and attempt binding, final verifier
-   gate, production wire frames, and simulator compile-fail rejection.
+   gate, production wire frames, `src/production/epsilon.rs`,
+   `src/production/prefilter.rs`, `src/production/hints.rs`, and simulator
+   compile-fail rejection.
 4. `src/adapter/actor.rs`: inspect actor state transitions, quorum handling,
    strict precommitment checks, and evidence emission.
 5. `src/low_level/poly.rs`, `src/crypto/interpolation.rs`, and
@@ -118,6 +120,10 @@ Priority review questions:
 
 - Are ML-DSA-65 byte layouts, bounds, hints, and verifier compatibility
   faithfully implemented in tested paths?
+- Does the final verifier receive the original application message, with `mu`
+  kept only as transcript-internal binding material?
+- Is production approval evidence-backed and non-forgeable rather than a public
+  caller-selected switch?
 - Do threshold aggregation and reconstruction paths reject malformed or
   inconsistent partials before finalization?
 - Are context, `mu`, `w1`, challenge, attempt, and session identifiers bound in

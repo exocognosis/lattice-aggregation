@@ -51,8 +51,12 @@ present in this checkout.
 - Add standard-verifier bridge tests for accepted aggregate signatures.
 - Verify malformed partials, malformed hints, invalid bounds, transcript
   mismatch, key mismatch, duplicate signer, and unknown signer rejection.
+- Link Renyi-divergence proof evidence for any `EpsilonLedger` masking budget
+  increment and keep absent evidence classified as a release blocker.
 - Keep the simulator compile-fail guard active so the deterministic simulated
   backend cannot satisfy production coordinator contracts.
+- Complete a DKG setup-only hot-path review proving per-block signing does not
+  start DKG, VSS, or share-ceremony work.
 - Isolate `trybuild` compile-fail verification in CI and parallel agent runs
   with a dedicated `CARGO_TARGET_DIR` so lock contention in
   `target/tests/trybuild` cannot be mistaken for a type-state regression.

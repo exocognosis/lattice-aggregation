@@ -107,6 +107,9 @@ Start with these files for security triage:
 | `src/production/transcript.rs` | Production-candidate transcript fields and binding assumptions. |
 | `src/production/preprocess.rs` | Preprocessing attempts, retry context, and nonce/mask claim boundary. |
 | `src/production/coordinator.rs` | Coordinator-assisted profile policy gates, final verifier gate, and non-default production-candidate flow. |
+| `src/production/epsilon.rs` | `EpsilonLedger` conformance accounting with open Renyi divergence obligations. |
+| `src/production/prefilter.rs` | Blinded pre-filter pass/abort guardrails before response-share release. |
+| `src/production/hints.rs` | Hint-routing conformance state using public digests only. |
 | `src/adapter/production_wire.rs` | Production coordinator frame parsing, encoding, and context binding. |
 | `tests/ui/production_simulated_backend_rejected.rs` | Compile-fail guard that simulated backends do not satisfy production coordinator contracts. |
 | `src/adapter/evidence.rs` | Evidence payload encoding and fields that could become consensus-facing. |
