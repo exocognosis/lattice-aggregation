@@ -94,6 +94,18 @@ recomputed aggregate signature digest, aggregate-response digest, hint digest,
 transcript-binding digest, and negative mismatch cases used by
 `tests/production_rejection_equivalence.rs`. The fixture-backed bridge evidence package is a stricter blocker-2 release gate and is necessary but not sufficient for criterion-2 promotion. This is conformance evidence only: it is not selected-backend aggregate output evidence, not production threshold ML-DSA recomputation, not CAVP/ACVTS validation, not FIPS validation, and not a completed standard-verifier compatibility proof.
 
+`P1SelectedBackendAggregateArtifactPackage` and
+`assess_p1_selected_backend_aggregate_artifact` add a selected-backend
+aggregate-output artifact gate. The gate binds `LocalAccept`/`AggregateAccept`
+evidence to the production transcript, signer set, attempt ID, provider KAT
+digest, real recomputation digest, and standard-verifier bridge evidence digest
+before the artifact can be reported ready for proof review. The selected-backend
+aggregate-output artifact gate is conformance/proof-review evidence only. It may
+reject drift and bind checked-in artifact digests, but it is
+not production threshold ML-DSA security, not selected-backend proof closure,
+not CAVP/ACVTS or FIPS validation, and not a completed standard-verifier
+compatibility proof.
+
 ## Claim Boundary
 
 This is hazmat/conformance-only evidence. It does not claim production
@@ -117,13 +129,14 @@ standard-verifier bridge drift from closing the P1 recomputation blocker.
 
 To fully close blocker 2 cryptographically, the repo still needs:
 
-- a real threshold aggregate recomputation artifact produced by the selected
-  backend, with digest evidence tied to the package;
-- a selected profile binding digest that ties the artifact package to the exact
-  ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 profile under review;
+- real threshold aggregate recomputation artifacts produced by the selected
+  backend, with reviewed digest evidence tied to the package;
+- reviewed selected profile binding evidence for the exact ML-DSA-65
+  coordinator-assisted Shamir nonce DKG P1 profile under review;
 - a standard-verifier bridge evidence digest backed by real selected-backend
-  accepted aggregate outputs; the current checked-in fixture package is
-  conformance evidence only;
+  accepted aggregate outputs; the current checked-in bridge fixture and
+  selected-backend aggregate-output artifact gate are conformance/proof-review
+  evidence only;
 - full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
   vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,
   and prerequisite validation references if the claim moves beyond sample-vector

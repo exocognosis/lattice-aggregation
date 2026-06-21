@@ -4,17 +4,27 @@ use std::collections::BTreeSet;
 
 use lattice_aggregation::{
     production::{
+        acceptance::{
+            AcceptedAggregateCandidate, AggregateAccept, AggregateAcceptEvidence, LocalAccept,
+            LocalAcceptEvidence, StandardVerifierEvidence,
+        },
         provider::StandardMldsa65Provider,
         rejection_equivalence::{
-            assess_p1_aggregate_recomputation_closure, assess_rejection_equivalence_closure,
+            assess_p1_aggregate_recomputation_closure,
+            assess_p1_selected_backend_aggregate_artifact, assess_rejection_equivalence_closure,
+            derive_p1_selected_backend_attempt_binding_digest,
+            derive_p1_selected_backend_signer_set_digest,
+            derive_p1_selected_backend_transcript_binding_digest,
             derive_standard_verifier_bridge_evidence_digest, AcvpFips204EvidenceSource,
             AggregateRecomputationTranscript, AggregateRejectionClosureAssessment,
             AggregateRejectionClosurePackage, AggregateRejectionClosureStatus,
             AggregateRejectionConformanceBoundary, AggregateRejectionEquivalenceEvidence,
             AggregateRejectionEquivalenceGate, AggregateRejectionEvidenceDigest,
             AggregateRejectionEvidenceStrength, Mldsa65ProviderKatEvidence,
-            P1AggregateRecomputationAssessment, P1AggregateRecomputationClosurePackage,
-            P1RejectionProofArtifacts,
+            P1AggregateRecomputationAssessment, P1AggregateRecomputationClosureCertificate,
+            P1AggregateRecomputationClosurePackage, P1RejectionProofArtifacts,
+            P1SelectedBackendAggregateArtifactAssessment,
+            P1SelectedBackendAggregateArtifactPackage,
         },
         selected_backend::SelectedProductionBackendProfile,
         transcript::{CommitmentDigest, ProductionSigningTranscript, ProductionTranscriptInput},
@@ -1076,6 +1086,101 @@ fn p1_recomputation_package() -> P1AggregateRecomputationClosurePackage {
     )
 }
 
+fn p1_recomputation_certificate() -> P1AggregateRecomputationClosureCertificate {
+    match assess_p1_aggregate_recomputation_closure(Some(p1_recomputation_package())) {
+        P1AggregateRecomputationAssessment::ArtifactReady(certificate) => certificate,
+        other => panic!("expected P1 recomputation certificate, got {other:?}"),
+    }
+}
+
+fn fixture_recomputation_transcript(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> AggregateRecomputationTranscript {
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let recomputed_signature =
+        signature_from_fill_byte(fixture.recomputation.recomputed_signature_fill_byte);
+
+    AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        &decode_hex(&fixture.recomputation.aggregate_response_hex),
+        &decode_hex(&fixture.recomputation.hint_hex),
+        &recomputed_signature,
+    )
+    .unwrap()
+}
+
+fn accepted_aggregate_from_fixture(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> AcceptedAggregateCandidate {
+    accepted_aggregate_from_fixture_with_digests(
+        fixture,
+        fixture.expected.aggregate_response_digest(),
+        fixture.expected.hint_digest(),
+    )
+}
+
+fn accepted_aggregate_from_fixture_with_digests(
+    fixture: &P1StandardVerifierBridgeFixture,
+    aggregate_response_digest: [u8; 32],
+    hint_digest: [u8; 32],
+) -> AcceptedAggregateCandidate {
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let partials = fixture
+        .transcript
+        .commitment_digests
+        .iter()
+        .enumerate()
+        .map(|(index, commitment)| {
+            LocalAccept::accept(
+                &transcript,
+                LocalAcceptEvidence {
+                    signer: ValidatorId(commitment.validator),
+                    commitment_digest: CommitmentDigest([commitment.digest_fill_byte; 32]),
+                    partial_share_digest: [(21 + index) as u8; 32],
+                    local_bounds_proof_digest: [(31 + index) as u8; 32],
+                },
+            )
+            .unwrap()
+        })
+        .collect::<Vec<_>>();
+    let candidate_signature =
+        signature_from_fill_byte(fixture.recomputation.candidate_signature_fill_byte);
+    let evidence = AggregateAcceptEvidence {
+        aggregate_response_digest,
+        hint_digest,
+        standard_verifier: StandardVerifierEvidence::verify::<AcceptingProvider>(
+            &transcript,
+            &candidate_signature,
+        )
+        .unwrap(),
+    };
+
+    AggregateAccept::accept(&transcript, &partials, evidence).unwrap()
+}
+
+fn selected_backend_aggregate_artifact_package(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> P1SelectedBackendAggregateArtifactPackage {
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(fixture);
+
+    P1SelectedBackendAggregateArtifactPackage::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1(),
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        provider_kat_fixture_digest(),
+        standard_verifier_bridge_digest(),
+        digest(41),
+        derive_p1_selected_backend_transcript_binding_digest(&transcript),
+        derive_p1_selected_backend_signer_set_digest(accepted_aggregate.signers()),
+        derive_p1_selected_backend_attempt_binding_digest(&transcript),
+        *accepted_aggregate.aggregate_response_digest(),
+        *accepted_aggregate.hint_digest(),
+        *accepted_aggregate.candidate_signature_digest(),
+        true,
+    )
+}
+
 #[test]
 fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
     let assessment = assess_p1_aggregate_recomputation_closure(Some(p1_recomputation_package()));
@@ -1114,6 +1219,364 @@ fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
     assert!(!certificate.claims_fips_validation());
     assert!(!certificate.claims_production_approval());
     assert!(!certificate.claims_standard_verifier_compatibility());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_accepts_bound_acceptance_and_recomputation() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(selected_backend_aggregate_artifact_package(&fixture)),
+    );
+
+    let certificate = assessment
+        .artifact_certificate()
+        .expect("complete selected-backend aggregate artifact should produce a certificate");
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(
+        certificate.selected_profile(),
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    );
+    assert_eq!(
+        certificate.signer_set_digest(),
+        &derive_p1_selected_backend_signer_set_digest(accepted_aggregate.signers())
+    );
+    assert_eq!(
+        certificate.selected_profile_binding_digest(),
+        &SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest()
+    );
+    assert_eq!(
+        certificate.provider_kat_evidence_digest(),
+        &provider_kat_fixture_digest()
+    );
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        &standard_verifier_bridge_digest()
+    );
+    assert_eq!(
+        certificate.real_recomputation_evidence_digest(),
+        &digest(41)
+    );
+    assert_eq!(
+        certificate.attempt_binding_digest(),
+        &derive_p1_selected_backend_attempt_binding_digest(&transcript)
+    );
+    assert_eq!(
+        certificate.transcript_binding_digest(),
+        &derive_p1_selected_backend_transcript_binding_digest(&transcript)
+    );
+    assert_eq!(
+        certificate.accepted_signature_digest(),
+        accepted_aggregate.candidate_signature_digest()
+    );
+    assert_eq!(
+        certificate.aggregate_response_digest(),
+        accepted_aggregate.aggregate_response_digest()
+    );
+    assert_eq!(certificate.hint_digest(), accepted_aggregate.hint_digest());
+    assert!(!certificate.claims_selected_backend_production());
+    assert!(!certificate.claims_standard_verifier_compatibility());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_missing_package() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        None,
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Missing {
+            reason: "missing P1 selected-backend aggregate artifact package",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_unreviewed_package() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.reviewed = false;
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate artifact must be reviewed before artifact closure",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_stale_bridge_for_changed_outputs() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let alternate_response = b"alternate aggregate response bytes";
+    let alternate_response_digest = Sha3_256::digest(alternate_response).into();
+    let accepted_aggregate = accepted_aggregate_from_fixture_with_digests(
+        &fixture,
+        alternate_response_digest,
+        fixture.expected.hint_digest(),
+    );
+    let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        alternate_response,
+        &decode_hex(&fixture.recomputation.hint_hex),
+        &signature_from_fill_byte(fixture.recomputation.recomputed_signature_fill_byte),
+    )
+    .unwrap();
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.aggregate_response_digest = *accepted_aggregate.aggregate_response_digest();
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate bridge digest does not match accepted aggregate and recomputation evidence",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_acceptance_recomputation_mismatch() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        b"different aggregate response bytes",
+        &decode_hex(&fixture.recomputation.hint_hex),
+        &signature_from_fill_byte(fixture.recomputation.recomputed_signature_fill_byte),
+    )
+    .unwrap();
+    let recomputation_certificate = p1_recomputation_certificate();
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(selected_backend_aggregate_artifact_package(&fixture)),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 accepted aggregate response digest does not match recomputation transcript",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_bridge_digest_mismatch() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.standard_verifier_bridge_evidence_digest = digest(99);
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate bridge digest does not match recomputation certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_provider_kat_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.provider_kat_evidence_digest = digest(97);
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate provider KAT digest does not match recomputation certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_transcript_binding_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.transcript_binding_digest = digest(96);
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate transcript binding digest does not match production transcript",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_attempt_binding_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.attempt_binding_digest = digest(95);
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate attempt binding digest does not match production transcript",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_accepted_signature_mismatch() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        &decode_hex(&fixture.recomputation.aggregate_response_hex),
+        &decode_hex(&fixture.recomputation.hint_hex),
+        &ThresholdSignature([43; 3309]),
+    )
+    .unwrap();
+    let recomputation_certificate = p1_recomputation_certificate();
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(selected_backend_aggregate_artifact_package(&fixture)),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 accepted aggregate signature digest does not match recomputation transcript",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_aggregate_artifact_rejects_signer_set_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.signer_set_digest = digest(98);
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate signer-set digest does not match accepted aggregate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
 }
 
 #[test]
