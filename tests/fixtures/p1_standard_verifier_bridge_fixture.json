@@ -46,12 +46,13 @@
     "candidate_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
     "recomputed_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
     "standard_verifier_bridge_evidence_digest_hex": "dfa42dff5d8c509f9f25298b3e28964db0cdb2987330d73fd2250fcf1eb77127",
-    "negative_test_corpus_digest_hex": "79b86766701330d249d4170edaf3e1857298fef25acb5067f666108d5f42b8ad"
+    "negative_test_corpus_digest_hex": "e75da369c600e2f4976f1bdbe35813cf6d73ec5d3dcbda70c1ef7a543ae2ff7c"
   },
   "negative_cases": [
     {
       "name": "candidate_recomputed_signature_mismatch",
       "expected_error": "StandardVerificationFailed",
+      "provider_kat_evidence_digest_hex": "9336011f37b0fe90f0d52ad37e30c15f8aff488359e0e868c18626787c681e12",
       "candidate_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "recomputed_signature_digest_hex": "1e5c619edb65c81c8d26ed9da69b5d86d9feed86d13a017c4dd2827d00643236",
       "transcript_binding_digest_hex": "5cbe0046d81c20b1f8ef7342f0efcfab21460c05ecc42a0176cbe0357b7c526f",
@@ -60,6 +61,7 @@
     {
       "name": "transcript_mismatch",
       "expected_error": "TranscriptMismatch",
+      "provider_kat_evidence_digest_hex": "9336011f37b0fe90f0d52ad37e30c15f8aff488359e0e868c18626787c681e12",
       "candidate_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "recomputed_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "transcript_binding_digest_hex": "92d6578f9dc097fd87eda9472651058075f020bea130e1007e70dd43801728f6",
@@ -68,6 +70,16 @@
     {
       "name": "provider_rejection",
       "expected_error": "StandardVerificationFailed",
+      "provider_kat_evidence_digest_hex": "9336011f37b0fe90f0d52ad37e30c15f8aff488359e0e868c18626787c681e12",
+      "candidate_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
+      "recomputed_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
+      "transcript_binding_digest_hex": "5cbe0046d81c20b1f8ef7342f0efcfab21460c05ecc42a0176cbe0357b7c526f",
+      "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f"
+    },
+    {
+      "name": "stale_provider_kat_evidence_digest",
+      "expected_error": "P1 provider KAT evidence digest does not match closure package",
+      "provider_kat_evidence_digest_hex": "6363636363636363636363636363636363636363636363636363636363636363",
       "candidate_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "recomputed_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "transcript_binding_digest_hex": "5cbe0046d81c20b1f8ef7342f0efcfab21460c05ecc42a0176cbe0357b7c526f",
@@ -76,6 +88,7 @@
     {
       "name": "stale_selected_profile_binding",
       "expected_error": "P1 selected profile binding digest does not match selected profile",
+      "provider_kat_evidence_digest_hex": "9336011f37b0fe90f0d52ad37e30c15f8aff488359e0e868c18626787c681e12",
       "candidate_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "recomputed_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
       "transcript_binding_digest_hex": "5cbe0046d81c20b1f8ef7342f0efcfab21460c05ecc42a0176cbe0357b7c526f",
