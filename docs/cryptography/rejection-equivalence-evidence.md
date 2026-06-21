@@ -93,6 +93,11 @@ provider/KAT evidence digest, provider-checked candidate signature digest,
 recomputed aggregate signature digest, aggregate-response digest, hint digest,
 transcript-binding digest, and negative mismatch cases used by
 `tests/production_rejection_equivalence.rs`. The fixture-backed bridge evidence package is a stricter blocker-2 release gate and is necessary but not sufficient for criterion-2 promotion. This is conformance evidence only: it is not selected-backend aggregate output evidence, not production threshold ML-DSA recomputation, not CAVP/ACVTS validation, not FIPS validation, and not a completed standard-verifier compatibility proof.
+The P1 recomputation artifact path carries the raw fixture-package digest as
+reviewed evidence, and the checked-in fixture test pins the expected digest so
+fixture-package drift fails loudly during conformance review. This is
+test-pinned drift detection and evidence carriage, not an independent freshness
+proof for arbitrary externally supplied package digests.
 
 `P1SelectedBackendAggregateArtifactPackage` and
 `assess_p1_selected_backend_aggregate_artifact` add a selected-backend

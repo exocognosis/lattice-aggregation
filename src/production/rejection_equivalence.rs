@@ -387,6 +387,7 @@ pub struct P1RejectionProofArtifacts {
     selected_profile_binding_digest: [u8; 32],
     real_recomputation_evidence_digest: [u8; 32],
     standard_verifier_bridge_evidence_digest: [u8; 32],
+    standard_verifier_bridge_fixture_package_digest: [u8; 32],
     norm_bound_evidence_digest: [u8; 32],
     hint_bound_evidence_digest: [u8; 32],
     challenge_bound_evidence_digest: [u8; 32],
@@ -403,6 +404,7 @@ impl P1RejectionProofArtifacts {
         selected_profile_binding_digest: [u8; 32],
         real_recomputation_evidence_digest: [u8; 32],
         standard_verifier_bridge_evidence_digest: [u8; 32],
+        standard_verifier_bridge_fixture_package_digest: [u8; 32],
         norm_bound_evidence_digest: [u8; 32],
         hint_bound_evidence_digest: [u8; 32],
         challenge_bound_evidence_digest: [u8; 32],
@@ -415,6 +417,7 @@ impl P1RejectionProofArtifacts {
             selected_profile_binding_digest,
             real_recomputation_evidence_digest,
             standard_verifier_bridge_evidence_digest,
+            standard_verifier_bridge_fixture_package_digest,
             norm_bound_evidence_digest,
             hint_bound_evidence_digest,
             challenge_bound_evidence_digest,
@@ -438,6 +441,11 @@ impl P1RejectionProofArtifacts {
     /// Borrow the standard-verifier bridge artifact digest.
     pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
         &self.standard_verifier_bridge_evidence_digest
+    }
+
+    /// Borrow the raw standard-verifier bridge fixture/package digest.
+    pub const fn standard_verifier_bridge_fixture_package_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_fixture_package_digest
     }
 
     /// Borrow the norm-bound proof artifact digest.
@@ -556,6 +564,12 @@ impl P1AggregateRecomputationClosureCertificate {
     pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
         self.closure_certificate
             .standard_verifier_bridge_evidence_digest()
+    }
+
+    /// Borrow the raw standard-verifier bridge fixture/package digest.
+    pub const fn standard_verifier_bridge_fixture_package_digest(&self) -> &[u8; 32] {
+        self.proof_artifacts
+            .standard_verifier_bridge_fixture_package_digest()
     }
 
     /// Return true only when the source is a production CAVP/ACVTS certificate.
@@ -1272,6 +1286,15 @@ pub fn assess_p1_aggregate_recomputation_closure(
             reason: "P1 selected profile binding digest does not match selected profile",
         };
     }
+    if is_all_zero(
+        package
+            .proof_artifacts
+            .standard_verifier_bridge_fixture_package_digest(),
+    ) {
+        return P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 standard verifier bridge fixture package digest is all zero",
+        };
+    }
 
     let closure_certificate =
         match assess_rejection_equivalence_closure(Some(package.rejection_closure_package)) {
@@ -1391,6 +1414,54 @@ pub fn assess_p1_selected_backend_aggregate_artifact(
                 "P1 selected-backend aggregate profile does not match recomputation certificate",
         };
     }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 selected-backend aggregate profile binding digest is all zero",
+        ),
+        (
+            &package.provider_kat_evidence_digest,
+            "P1 selected-backend aggregate provider KAT digest is all zero",
+        ),
+        (
+            &package.standard_verifier_bridge_evidence_digest,
+            "P1 selected-backend aggregate bridge digest is all zero",
+        ),
+        (
+            &package.real_recomputation_evidence_digest,
+            "P1 selected-backend aggregate recomputation digest is all zero",
+        ),
+        (
+            &package.transcript_binding_digest,
+            "P1 selected-backend aggregate transcript binding digest is all zero",
+        ),
+        (
+            &package.signer_set_digest,
+            "P1 selected-backend aggregate signer-set digest is all zero",
+        ),
+        (
+            &package.attempt_binding_digest,
+            "P1 selected-backend aggregate attempt binding digest is all zero",
+        ),
+        (
+            &package.aggregate_response_digest,
+            "P1 selected-backend aggregate response digest is all zero",
+        ),
+        (
+            &package.hint_digest,
+            "P1 selected-backend aggregate hint digest is all zero",
+        ),
+        (
+            &package.accepted_signature_digest,
+            "P1 selected-backend aggregate signature digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1SelectedBackendAggregateArtifactAssessment::Invalid { reason };
+        }
+    }
+
     if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
     {
         return P1SelectedBackendAggregateArtifactAssessment::Invalid {
@@ -1518,53 +1589,6 @@ pub fn assess_p1_selected_backend_aggregate_artifact(
         return P1SelectedBackendAggregateArtifactAssessment::Invalid {
             reason: "P1 selected-backend aggregate bridge digest does not match accepted aggregate and recomputation evidence",
         };
-    }
-
-    for (digest, reason) in [
-        (
-            &package.selected_profile_binding_digest,
-            "P1 selected-backend aggregate profile binding digest is all zero",
-        ),
-        (
-            &package.provider_kat_evidence_digest,
-            "P1 selected-backend aggregate provider KAT digest is all zero",
-        ),
-        (
-            &package.standard_verifier_bridge_evidence_digest,
-            "P1 selected-backend aggregate bridge digest is all zero",
-        ),
-        (
-            &package.real_recomputation_evidence_digest,
-            "P1 selected-backend aggregate recomputation digest is all zero",
-        ),
-        (
-            &package.transcript_binding_digest,
-            "P1 selected-backend aggregate transcript binding digest is all zero",
-        ),
-        (
-            &package.signer_set_digest,
-            "P1 selected-backend aggregate signer-set digest is all zero",
-        ),
-        (
-            &package.attempt_binding_digest,
-            "P1 selected-backend aggregate attempt binding digest is all zero",
-        ),
-        (
-            &package.aggregate_response_digest,
-            "P1 selected-backend aggregate response digest is all zero",
-        ),
-        (
-            &package.hint_digest,
-            "P1 selected-backend aggregate hint digest is all zero",
-        ),
-        (
-            &package.accepted_signature_digest,
-            "P1 selected-backend aggregate signature digest is all zero",
-        ),
-    ] {
-        if is_all_zero(digest) {
-            return P1SelectedBackendAggregateArtifactAssessment::Invalid { reason };
-        }
     }
 
     P1SelectedBackendAggregateArtifactAssessment::ArtifactReady(
