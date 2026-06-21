@@ -4,17 +4,47 @@
 
 Interactive threshold aggregation for **ML-DSA-65** (NIST FIPS 204 / Dilithium) that aims to compress thousands of validator contributions into one standard-sized signature.
 
-- ✅ Type-state protocol with deterministic transcripts
-- ✅ Simulation backend with realistic ML-DSA-65-sized outputs
-- ✅ Transparent hypothesis matrix + proof obligations
-- ⚠️ **Research stage** — not production cryptography
+- Type-state protocol with deterministic transcripts
+- Simulation backend with realistic ML-DSA-65-sized outputs
+- Transparent hypothesis matrix, proof obligations, and release gates
+- **Research stage**: publishable as a research artifact, not production cryptography
 
-[Hypothesis Assessment](scripts/assess_lattice_hypothesis.py) • [Security Model](SECURITY.md) • [Claims Matrix](docs/cryptography/claims-matrix.md)
+[Current Status](#current-status) • [Reproduce Evidence](#reproduce-evidence) • [Known Limitations](#known-limitations) • [Hypothesis Assessment](scripts/assess_lattice_hypothesis.py) • [Security Model](SECURITY.md) • [Claims Matrix](docs/cryptography/claims-matrix.md)
 
 ![GitHub stars](https://img.shields.io/github/stars/exocognosis/lattice-aggregation)
 ![Rust](https://img.shields.io/badge/Rust-2021-orange)
 
 ![Lattice Aggregation protocol flow: threshold ML-DSA-65](docs/assets/lattice-aggregation-protocol-flow.png)
+
+## Current Status
+
+This repository is publishable as a research artifact and exploratory implementation. It is suitable as a technical whitepaper companion, audit-oriented prototype, and reproducible evidence scaffold for native threshold ML-DSA-65 aggregation research.
+
+It is not publishable as production cryptography, a completed threshold ML-DSA construction, a FIPS/CAVP/ACVTS-validated implementation, or a finished standard-verifier-compatible aggregate signature scheme.
+
+Current merged-main assessment status: `partially_proven`. The five tracked hypothesis criteria are all `partially_met`; none is currently classified as fully proven or disproven.
+
+## Reproduce Evidence
+
+Use a clean target directory when reproducing evidence so local build artifacts do not mask stale state:
+
+```sh
+cargo fmt --all -- --check
+python3 -m unittest script_tests.test_assess_lattice_hypothesis
+python3 scripts/assess_lattice_hypothesis.py --out artifacts/hypothesis/latest --offline --target-dir /tmp/lattice-aggregation-publish-evidence
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-publish-evidence cargo test --features production-mldsa65-coordinator --test production_provider --test production_rejection_equivalence --test production_selected_backend --test proof_documentation_manifest
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-publish-evidence cargo test --features production-mldsa65-coordinator
+```
+
+These commands reproduce the current scaffold and documentation evidence. Passing them does not close the cryptographic theorem, select a production backend, or establish production ML-DSA security.
+
+## Release Tag
+
+`v0.1.0` remains the historical protocol-conformance tag. The next clean public research tag should be created only after this README status, hypothesis assessment, documentation manifest, and release-boundary wording are merged on `main`.
+
+Recommended next tag name: `v0.2.0-research-preview`.
+
+Tags must point at merged `main` commits, include the assessment output path used for reproduction, and avoid production-readiness language unless the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md) is fully satisfied.
 
 ## The Problem
 
@@ -97,6 +127,16 @@ The repository does not currently claim:
 - consensus safety for production validator keys
 
 The current security boundary is documented in [SECURITY.md](SECURITY.md), the [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md), and the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md).
+
+## Known Limitations
+
+- The native threshold ML-DSA security theorem is not closed.
+- The selected-backend aggregate-output gate is conformance/proof-review evidence only.
+- The repository does not contain a reviewed production threshold backend.
+- The bounded ACVP/FIPS204 fixture is provider-conformance evidence, not CAVP/ACVTS validation.
+- The current benchmarks are deterministic simulation artifacts unless a document explicitly says otherwise.
+- Side-channel resistance, constant-time production behavior, DKG hardening, consensus safety, and external audit sign-off remain release blockers.
+- Falcon/LaBRADOR-style proof-wrapper aggregation is tracked as related work and a fallback architecture to evaluate, not the currently selected backend.
 
 ## Hypothesis Closure Requirements
 
