@@ -231,48 +231,73 @@ class ReportGenerationTests(unittest.TestCase):
         (root / "src" / "production" / "mask_distribution.rs").write_text(
             "pub struct MaskDistributionEvidence;\n"
             "pub struct AcceptedMaskDistributionCertificate;\n"
+            "pub struct MaskDistributionClosurePackage;\n"
+            "pub struct MaskDistributionClosureReport;\n"
             "pub fn assess_mask_distribution() {}\n",
             encoding="utf-8",
         )
         (root / "tests" / "production_mask_distribution.rs").write_text(
             "#[test]\n"
-            "fn mask_distribution_evidence_gate_records_renyi_bound() {}\n",
+            "fn mask_distribution_evidence_gate_records_renyi_bound() {}\n"
+            "#[test]\n"
+            "fn complete_closure_package_reports_ready_without_production_proof_claim() {}\n",
             encoding="utf-8",
         )
         (root / "src" / "production" / "rejection_equivalence.rs").write_text(
             "pub enum AggregateRejectionEvidenceStrength { ScaffoldOnly }\n"
+            "pub enum AggregateRejectionClosureStatus { ClosureReady }\n"
             "pub struct AggregateRejectionEquivalenceGate;\n"
-            "pub struct AggregateRecomputationTranscript;\n",
+            "pub struct AggregateRecomputationTranscript;\n"
+            "pub struct AggregateRejectionClosurePackage;\n"
+            "pub struct AggregateRejectionClosureCertificate;\n"
+            "pub fn assess_rejection_equivalence_closure() {}\n",
             encoding="utf-8",
         )
         (root / "tests" / "production_rejection_equivalence.rs").write_text(
             "#[test]\n"
-            "fn aggregate_rejection_equivalence_bridge_gate_requires_recomputation() {}\n",
+            "fn aggregate_rejection_equivalence_bridge_gate_requires_recomputation() {}\n"
+            "#[test]\n"
+            "fn complete_closure_package_exposes_closure_ready_status_without_production_claims() {}\n",
             encoding="utf-8",
         )
         (root / "src" / "production" / "abort_bias.rs").write_text(
             "pub struct AbortBiasEvidence;\n"
-            "pub struct RetryBiasEvidenceReport;\n",
+            "pub struct RetryBiasEvidenceReport;\n"
+            "pub enum AbortBiasClosureStatus { ClosureReady }\n"
+            "pub struct AbortRetryBiasProofPackage;\n"
+            "pub struct AbortBiasClosureReport;\n",
             encoding="utf-8",
         )
         (root / "tests" / "production_abort_bias.rs").write_text(
             "#[test]\n"
-            "fn abort_retry_bias_evidence_rejects_unbounded_leakage() {}\n",
+            "fn abort_retry_bias_evidence_rejects_unbounded_leakage() {}\n"
+            "#[test]\n"
+            "fn complete_proof_package_reports_closure_ready_status() {}\n",
             encoding="utf-8",
         )
         (root / "src" / "production" / "partial_soundness.rs").write_text(
             "pub struct PartialContributionSoundnessEvidence;\n"
-            "pub struct ProofBackedLocalVerifier;\n",
+            "pub struct ProofBackedLocalVerifier;\n"
+            "pub enum PartialSoundnessClosureStatus { ClosureReady }\n"
+            "pub struct PartialSoundnessClosurePackage;\n",
             encoding="utf-8",
         )
         (root / "tests" / "production_partial_soundness.rs").write_text(
             "#[test]\n"
-            "fn partial_soundness_evidence_rejects_digest_only_when_proof_required() {}\n",
+            "fn partial_soundness_evidence_rejects_digest_only_when_proof_required() {}\n"
+            "#[test]\n"
+            "fn complete_closure_package_marks_partial_evidence_closure_ready() {}\n",
             encoding="utf-8",
         )
         (root / "docs" / "cryptography" / "unauthorized-aggregate-reduction.md").write_text(
             "# Unauthorized Aggregate Reduction Manifest\n"
             "Status: reduction-case manifest, not a completed proof.\n"
+            "## Closure Package Framework\n"
+            "Protocol event grammar.\n"
+            "Deterministic UAR classifier.\n"
+            "Base ML-DSA theorem citation slot.\n"
+            "Hybrid bound table.\n"
+            "External review signoff.\n"
             "UAR-C0 base ML-DSA forgery.\n"
             "UAR-C1 UAR-C2 UAR-C3 UAR-C4 UAR-C5 UAR-C6 UAR-C7 UAR-C8.\n"
             "Do not claim threshold EUF-CMA security from this manifest.\n",
@@ -421,6 +446,26 @@ class ReportGenerationTests(unittest.TestCase):
         )
         self.assertIn(
             "Unauthorized aggregate reduction manifest",
+            "\n".join(criteria_by_id["unauthorized_aggregate_reduction"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "MaskDistributionClosurePackage",
+            "\n".join(criteria_by_id["aggregate_mask_distribution"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "AggregateRejectionClosurePackage",
+            "\n".join(criteria_by_id["aggregate_rejection_equivalence"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "AbortRetryBiasProofPackage",
+            "\n".join(criteria_by_id["abort_retry_bias"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "PartialSoundnessClosurePackage",
+            "\n".join(criteria_by_id["partial_contribution_soundness"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "closure package framework",
             "\n".join(criteria_by_id["unauthorized_aggregate_reduction"]["observed_evidence"]),
         )
         for criterion in report["criteria"]:

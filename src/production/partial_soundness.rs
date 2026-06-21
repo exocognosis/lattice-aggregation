@@ -38,6 +38,24 @@ pub enum PartialEvidenceRequirement {
     ProofBackedOnly,
 }
 
+/// Closure status exposed by a verified partial-soundness evidence token.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PartialSoundnessClosureStatus {
+    /// Evidence passed conformance checks, but no complete closure package was checked.
+    ConformanceOnly,
+    /// Evidence passed the full closure-package framework checks.
+    ClosureReady,
+}
+
+/// Proof-evidence requirement declared by a partial-soundness closure package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ClosureProofRequirement {
+    /// Invalid for closure: included so digest-only evidence is rejected explicitly.
+    DigestOnlyEvidenceAllowed,
+    /// Closure requires proof-backed local verifier evidence.
+    ProofBackedLocalVerifierRequired,
+}
+
 /// Leakage model label for the checked epsilon budget.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LeakageModel {
@@ -287,6 +305,30 @@ impl PartialContextBinding {
 
         Ok(())
     }
+
+    /// Return a digest that binds the closure package to this transcript context.
+    pub fn closure_digest(&self) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation/partial-soundness/context-binding/v1");
+        hasher.update(&self.session_id);
+        hasher.update(self.epoch.to_be_bytes());
+        hasher.update(self.key_id.as_bytes());
+        hasher.update(self.validator_set_digest.as_bytes());
+        hasher.update(self.dkg_transcript_digest.as_bytes());
+        hasher.update((self.active_signers.len() as u64).to_be_bytes());
+        for validator in self.active_signers.as_slice() {
+            hasher.update(validator.0.to_be_bytes());
+        }
+        hasher.update(self.threshold.to_be_bytes());
+        hasher.update(&self.public_key_digest);
+        hasher.update(&self.application_message_digest);
+        hasher.update(self.message_binding.as_bytes());
+        hasher.update(self.attempt_id.as_bytes());
+        hasher.update(&self.coordinator_attestation_digest);
+        hasher.update(self.retry_counter.to_be_bytes());
+        hasher.update(&self.challenge_digest);
+        hasher.finalize().into()
+    }
 }
 
 /// Soundness label for local proof evidence.
@@ -445,6 +487,137 @@ impl LocalProofEvidence {
     }
 }
 
+/// Complete metadata package required before partial soundness can be marked closure-ready.
+///
+/// This package verifies that all proof artifacts needed for closure are named
+/// and context-bound. It does not execute the local proof verifier.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PartialSoundnessClosurePackage {
+    proof_system_label: &'static str,
+    audited_local_verifier_digest: [u8; 32],
+    vss_dkg_binding_proof_digest: [u8; 32],
+    hiding_leakage_proof_digest: [u8; 32],
+    transcript_context_binding_digest: [u8; 32],
+    proof_requirement: ClosureProofRequirement,
+    external_review_digest: [u8; 32],
+}
+
+impl PartialSoundnessClosurePackage {
+    /// Construct a partial-soundness closure package.
+    pub fn new(
+        proof_system_label: &'static str,
+        audited_local_verifier_digest: [u8; 32],
+        vss_dkg_binding_proof_digest: [u8; 32],
+        hiding_leakage_proof_digest: [u8; 32],
+        transcript_context_binding_digest: [u8; 32],
+        proof_requirement: ClosureProofRequirement,
+        external_review_digest: [u8; 32],
+    ) -> Result<Self, ThresholdError> {
+        if proof_system_label.trim().is_empty() {
+            return Err(ThresholdError::ProductionPolicyBlocked {
+                reason: "partial closure proof system label is empty",
+            });
+        }
+
+        if is_all_zero(&audited_local_verifier_digest)
+            || is_all_zero(&vss_dkg_binding_proof_digest)
+            || is_all_zero(&hiding_leakage_proof_digest)
+            || is_all_zero(&transcript_context_binding_digest)
+            || is_all_zero(&external_review_digest)
+        {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "partial closure package digest is all zero",
+            });
+        }
+
+        Ok(Self {
+            proof_system_label,
+            audited_local_verifier_digest,
+            vss_dkg_binding_proof_digest,
+            hiding_leakage_proof_digest,
+            transcript_context_binding_digest,
+            proof_requirement,
+            external_review_digest,
+        })
+    }
+
+    /// Return the proof-system label this closure package reviewed.
+    pub const fn proof_system_label(&self) -> &'static str {
+        self.proof_system_label
+    }
+
+    /// Borrow the audited local verifier digest.
+    pub const fn audited_local_verifier_digest(&self) -> &[u8; 32] {
+        &self.audited_local_verifier_digest
+    }
+
+    /// Borrow the VSS/DKG binding proof digest.
+    pub const fn vss_dkg_binding_proof_digest(&self) -> &[u8; 32] {
+        &self.vss_dkg_binding_proof_digest
+    }
+
+    /// Borrow the hiding and leakage proof digest.
+    pub const fn hiding_leakage_proof_digest(&self) -> &[u8; 32] {
+        &self.hiding_leakage_proof_digest
+    }
+
+    /// Borrow the transcript/context binding digest.
+    pub const fn transcript_context_binding_digest(&self) -> &[u8; 32] {
+        &self.transcript_context_binding_digest
+    }
+
+    /// Return the declared proof-evidence requirement.
+    pub const fn proof_requirement(&self) -> ClosureProofRequirement {
+        self.proof_requirement
+    }
+
+    /// Borrow the external review digest.
+    pub const fn external_review_digest(&self) -> &[u8; 32] {
+        &self.external_review_digest
+    }
+
+    /// Verify that the closure package rejects digest-only proof requirements.
+    pub fn verify_proof_requirement(&self) -> Result<(), ThresholdError> {
+        if self.proof_requirement != ClosureProofRequirement::ProofBackedLocalVerifierRequired {
+            return Err(ThresholdError::ProductionPolicyBlocked {
+                reason: "partial closure package must require proof-backed evidence",
+            });
+        }
+
+        Ok(())
+    }
+
+    fn verify(
+        self,
+        context_binding: &PartialContextBinding,
+        local_proof: LocalProofEvidence,
+    ) -> Result<(), ThresholdError> {
+        self.verify_proof_requirement()?;
+
+        let LocalProofSoundnessLabel::ProofBacked { proof_system, .. } =
+            local_proof.soundness_label()
+        else {
+            return Err(ThresholdError::ProductionPolicyBlocked {
+                reason: "closure package requires proof-backed partial evidence",
+            });
+        };
+
+        if proof_system != self.proof_system_label {
+            return Err(ThresholdError::ProductionPolicyBlocked {
+                reason: "partial closure proof system label mismatch",
+            });
+        }
+
+        if self.transcript_context_binding_digest != context_binding.closure_digest() {
+            return Err(ThresholdError::ProductionPolicyBlocked {
+                reason: "partial closure transcript context digest mismatch",
+            });
+        }
+
+        Ok(())
+    }
+}
+
 /// Verified partial-contribution soundness evidence token.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PartialContributionSoundnessEvidence {
@@ -453,6 +626,8 @@ pub struct PartialContributionSoundnessEvidence {
     local_proof_soundness_label: LocalProofSoundnessLabel,
     leakage_budget: LeakageBudget,
     context_binding: PartialContextBinding,
+    closure_status: PartialSoundnessClosureStatus,
+    closure_package: Option<PartialSoundnessClosurePackage>,
 }
 
 impl PartialContributionSoundnessEvidence {
@@ -485,6 +660,35 @@ impl PartialContributionSoundnessEvidence {
             local_proof_soundness_label: local_proof.soundness_label(),
             leakage_budget,
             context_binding,
+            closure_status: PartialSoundnessClosureStatus::ConformanceOnly,
+            closure_package: None,
+        })
+    }
+
+    /// Verify accepted-partial evidence plus a full closure package.
+    pub fn verify_closure_package(
+        transcript: &ProductionSigningTranscript,
+        partial: &AcceptedPartialContribution,
+        verifier_binding: PartialVerifierBinding,
+        context_binding: PartialContextBinding,
+        local_proof: LocalProofEvidence,
+        leakage_budget: LeakageBudget,
+        closure_package: PartialSoundnessClosurePackage,
+    ) -> Result<Self, ThresholdError> {
+        verifier_binding.verify(transcript, partial)?;
+        context_binding.verify(transcript)?;
+        local_proof.verify(partial)?;
+        leakage_budget.verify()?;
+        closure_package.verify(&context_binding, local_proof)?;
+
+        Ok(Self {
+            signer: partial.signer(),
+            evidence_class: local_proof.evidence_class(),
+            local_proof_soundness_label: local_proof.soundness_label(),
+            leakage_budget,
+            context_binding,
+            closure_status: PartialSoundnessClosureStatus::ClosureReady,
+            closure_package: Some(closure_package),
         })
     }
 
@@ -516,6 +720,24 @@ impl PartialContributionSoundnessEvidence {
     /// Borrow the checked context binding.
     pub const fn context_binding(&self) -> &PartialContextBinding {
         &self.context_binding
+    }
+
+    /// Return the partial-soundness closure status.
+    pub const fn closure_status(&self) -> PartialSoundnessClosureStatus {
+        self.closure_status
+    }
+
+    /// Return true when a full closure package was checked.
+    pub const fn is_closure_ready(&self) -> bool {
+        matches!(
+            self.closure_status,
+            PartialSoundnessClosureStatus::ClosureReady
+        )
+    }
+
+    /// Return the checked closure package, when closure-ready.
+    pub const fn closure_package(&self) -> Option<PartialSoundnessClosurePackage> {
+        self.closure_package
     }
 }
 

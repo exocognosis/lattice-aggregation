@@ -572,6 +572,7 @@ fn blocker_evidence_docs_keep_claim_boundary() {
         "docs/cryptography/claims-matrix.md",
         &[
             "Five-criterion evidence gates",
+            "closure-framework coverage",
             "`mask_distribution`",
             "`rejection_equivalence`",
             "`abort_bias`",
@@ -584,7 +585,7 @@ fn blocker_evidence_docs_keep_claim_boundary() {
     assert_contains_all(
         "docs/cryptography/proof-implementation-crosswalk.md",
         &[
-            "Five-criterion blocker evidence gates",
+            "Five-criterion blocker evidence gates and closure frameworks",
             "`src/production/mask_distribution.rs`",
             "`src/production/rejection_equivalence.rs`",
             "`src/production/abort_bias.rs`",
@@ -595,31 +596,32 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`tests/production_abort_bias.rs`",
             "`tests/production_partial_soundness.rs`",
             "`tests/unauthorized_aggregate_reduction_manifest.rs`",
-            "Evidence gates only",
+            "Evidence gates and closure frameworks only",
         ],
     );
     assert_contains_all(
         "docs/cryptography/protocol-code-crosswalk.md",
         &[
-            "Hypothesis blocker evidence gates",
+            "Hypothesis blocker evidence gates and closure frameworks",
             "`src/production/mask_distribution.rs`",
             "`src/production/rejection_equivalence.rs`",
             "`src/production/abort_bias.rs`",
             "`src/production/partial_soundness.rs`",
             "`docs/cryptography/unauthorized-aggregate-reduction.md`",
-            "Typed assessment evidence only",
+            "Typed assessment evidence and closure-package frameworks only",
         ],
     );
     assert_contains_all(
         "docs/benchmarks/release-readiness-checklist.md",
         &[
-            "five hypothesis blocker evidence gates",
+            "five hypothesis blocker evidence gates and closure frameworks",
             "`tests/production_mask_distribution.rs`",
             "`tests/production_rejection_equivalence.rs`",
             "`tests/production_abort_bias.rs`",
             "`tests/production_partial_soundness.rs`",
             "`tests/unauthorized_aggregate_reduction_manifest.rs`",
-            "partial scaffold progress only",
+            "closure-package frameworks as partial scaffold",
+            "closure does not replace reviewed proof artifacts",
         ],
     );
 }

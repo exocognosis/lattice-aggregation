@@ -35,6 +35,34 @@ Callers that require real proof-backed evidence use
 `PartialEvidenceRequirement::ProofBackedOnly`; digest-only scaffold evidence is
 then rejected with a policy error instead of being silently promoted.
 
+## Closure Package Framework
+
+`PartialSoundnessClosurePackage` records the complete evidence package expected
+before blocker 4 can be treated as closure-ready at the framework level. The
+package carries:
+
+- an audited local verifier digest;
+- the reviewed proof-system label;
+- a VSS/DKG binding proof digest;
+- a hiding/leakage proof digest;
+- a transcript/context binding digest;
+- an explicit proof-backed evidence requirement;
+- an external review digest.
+
+`PartialContributionSoundnessEvidence::verify_closure_package` checks the
+ordinary accepted-partial bindings, rejects digest-only local evidence when a
+closure package is requested, requires the closure package to declare
+`ClosureProofRequirement::ProofBackedLocalVerifierRequired`, checks that the
+closure proof-system label matches the proof-backed local verifier label, and
+checks that the closure package is bound to the exact transcript/context digest.
+
+When all of those framework checks pass, the returned evidence exposes
+`PartialSoundnessClosureStatus::ClosureReady` through `closure_status()` and
+`is_closure_ready()`. This status means the closure metadata package is
+complete and context-bound. It is not a claim that the local verifier, VSS/DKG
+proof, hiding/leakage proof, or external review has been cryptographically
+validated by this repository.
+
 ## Checks Added
 
 Partial verifier binding checks that the accepted partial signer, commitment
@@ -57,6 +85,10 @@ components against caller-selected `LeakageLimits` under a named
 `LeakageModel`. Any component that exceeds its ceiling is rejected with
 `partial leakage budget exceeded`.
 
+Closure package checks reject all-zero closure digests, an empty proof-system
+label, digest-only closure requirements, digest-only local evidence under a
+closure request, proof-system label drift, and transcript/context digest drift.
+
 ## Current Boundary
 
 This is concrete progress from `partially_met` because accepted partial
@@ -66,20 +98,24 @@ evidence now has typed checks for:
 - transcript and retry context binding;
 - local proof class and soundness label;
 - leakage budget accounting.
+- full closure-package metadata presence and binding;
+- closure-ready status exposure when the package checks pass.
 
-It remains conformance-only until the module is wired into the public
-production profile, the proof-backed constructor is fed by a real reviewed proof
-verifier, and the formal proof documents establish that the selected leakage
-model is sufficient for the adversary model.
+It remains framework closure rather than actual proof closure until the
+proof-backed constructor is fed by a real reviewed proof verifier, the VSS/DKG
+binding proof and hiding/leakage proof digests point to validated proof
+artifacts, the external review digest identifies a completed review, and the
+formal proof documents establish that the selected leakage model is sufficient
+for the adversary model.
 
 ## Remaining Work
 
 To fully close blocker 4, later work should:
 
-- export and integrate `partial_soundness` through the production module once
-  ownership allows touching `src/production.rs`;
 - feed `ProofBackedLocalVerifier` from an audited local proof verifier instead
   of test fixtures;
+- replace closure-package test digests with digests of reviewed proof artifacts
+  and external-review records;
 - connect accepted partial soundness evidence to aggregate acceptance so every
   aggregate path requires the selected evidence level;
 - update the claims matrix and proof manifest in the owning documentation batch;

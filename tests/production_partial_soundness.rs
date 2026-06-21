@@ -5,9 +5,11 @@ use lattice_aggregation::{
         acceptance::{AcceptedPartialContribution, LocalAccept, LocalAcceptEvidence},
         epsilon::{EpsilonLedger, EpsilonUnit},
         partial_soundness::{
-            EvidenceClass, LeakageBudget, LeakageLimits, LeakageModel, LocalProofEvidence,
-            LocalProofSoundnessLabel, PartialContextBinding, PartialContributionSoundnessEvidence,
-            PartialEvidenceRequirement, PartialVerifierBinding, ProofBackedLocalVerifier,
+            ClosureProofRequirement, EvidenceClass, LeakageBudget, LeakageLimits, LeakageModel,
+            LocalProofEvidence, LocalProofSoundnessLabel, PartialContextBinding,
+            PartialContributionSoundnessEvidence, PartialEvidenceRequirement,
+            PartialSoundnessClosurePackage, PartialSoundnessClosureStatus, PartialVerifierBinding,
+            ProofBackedLocalVerifier,
         },
         transcript::{CommitmentDigest, ProductionSigningTranscript, ProductionTranscriptInput},
         types::{
@@ -85,6 +87,30 @@ fn leakage_budget() -> LeakageBudget {
     )
 }
 
+fn proof_backed_local_verifier(partial: &AcceptedPartialContribution) -> ProofBackedLocalVerifier {
+    ProofBackedLocalVerifier::new(
+        "zk-local-bounds-v1",
+        [41; 32],
+        [42; 32],
+        *partial.local_bounds_proof_digest(),
+        [44; 32],
+    )
+    .unwrap()
+}
+
+fn closure_package(context: &PartialContextBinding) -> PartialSoundnessClosurePackage {
+    PartialSoundnessClosurePackage::new(
+        "zk-local-bounds-v1",
+        [51; 32],
+        [52; 32],
+        [53; 32],
+        context.closure_digest(),
+        ClosureProofRequirement::ProofBackedLocalVerifierRequired,
+        [54; 32],
+    )
+    .unwrap()
+}
+
 #[test]
 fn digest_scaffold_partial_soundness_records_bindings_without_claiming_real_proof() {
     let transcript = make_transcript(0);
@@ -130,14 +156,7 @@ fn digest_scaffold_partial_soundness_records_bindings_without_claiming_real_proo
 fn proof_backed_partial_soundness_satisfies_proof_backed_requirement() {
     let transcript = make_transcript(0);
     let partial = accepted_partial(&transcript);
-    let proof = ProofBackedLocalVerifier::new(
-        "zk-local-bounds-v1",
-        [41; 32],
-        [42; 32],
-        *partial.local_bounds_proof_digest(),
-        [44; 32],
-    )
-    .unwrap();
+    let proof = proof_backed_local_verifier(&partial);
     assert_eq!(proof.verifier_transcript_digest(), &[44; 32]);
 
     let evidence = PartialContributionSoundnessEvidence::verify(
@@ -161,6 +180,190 @@ fn proof_backed_partial_soundness_satisfies_proof_backed_requirement() {
         }
     );
     assert!(evidence.is_proof_backed());
+    assert_eq!(
+        evidence.closure_status(),
+        PartialSoundnessClosureStatus::ConformanceOnly
+    );
+    assert!(!evidence.is_closure_ready());
+    assert_eq!(evidence.closure_package(), None);
+}
+
+#[test]
+fn complete_closure_package_marks_partial_evidence_closure_ready() {
+    let transcript = make_transcript(0);
+    let partial = accepted_partial(&transcript);
+    let context = PartialContextBinding::from_transcript(&transcript);
+    let package = closure_package(&context);
+
+    let evidence = PartialContributionSoundnessEvidence::verify_closure_package(
+        &transcript,
+        &partial,
+        binding(&transcript, &partial),
+        context,
+        LocalProofEvidence::proof_backed(proof_backed_local_verifier(&partial)),
+        leakage_budget(),
+        package,
+    )
+    .unwrap();
+
+    assert_eq!(evidence.evidence_class(), EvidenceClass::ProofBacked);
+    assert_eq!(
+        evidence.closure_status(),
+        PartialSoundnessClosureStatus::ClosureReady
+    );
+    assert!(evidence.is_closure_ready());
+    assert_eq!(evidence.closure_package(), Some(package));
+    assert_eq!(package.proof_system_label(), "zk-local-bounds-v1");
+    assert_eq!(package.audited_local_verifier_digest(), &[51; 32]);
+    assert_eq!(package.vss_dkg_binding_proof_digest(), &[52; 32]);
+    assert_eq!(package.hiding_leakage_proof_digest(), &[53; 32]);
+    assert_eq!(
+        package.proof_requirement(),
+        ClosureProofRequirement::ProofBackedLocalVerifierRequired
+    );
+    assert_eq!(package.external_review_digest(), &[54; 32]);
+}
+
+#[test]
+fn closure_request_rejects_digest_only_partial_evidence() {
+    let transcript = make_transcript(0);
+    let partial = accepted_partial(&transcript);
+    let context = PartialContextBinding::from_transcript(&transcript);
+    let package = closure_package(&context);
+
+    let err = PartialContributionSoundnessEvidence::verify_closure_package(
+        &transcript,
+        &partial,
+        binding(&transcript, &partial),
+        context,
+        LocalProofEvidence::scaffold_digest_only(*partial.local_bounds_proof_digest()),
+        leakage_budget(),
+        package,
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::ProductionPolicyBlocked {
+            reason: "closure package requires proof-backed partial evidence",
+        }
+    );
+}
+
+#[test]
+fn closure_package_rejects_mismatched_transcript_context_digest() {
+    let transcript = make_transcript(0);
+    let partial = accepted_partial(&transcript);
+    let context = PartialContextBinding::from_transcript(&transcript);
+    let package = PartialSoundnessClosurePackage::new(
+        "zk-local-bounds-v1",
+        [51; 32],
+        [52; 32],
+        [53; 32],
+        [99; 32],
+        ClosureProofRequirement::ProofBackedLocalVerifierRequired,
+        [54; 32],
+    )
+    .unwrap();
+
+    let err = PartialContributionSoundnessEvidence::verify_closure_package(
+        &transcript,
+        &partial,
+        binding(&transcript, &partial),
+        context,
+        LocalProofEvidence::proof_backed(proof_backed_local_verifier(&partial)),
+        leakage_budget(),
+        package,
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::ProductionPolicyBlocked {
+            reason: "partial closure transcript context digest mismatch",
+        }
+    );
+}
+
+#[test]
+fn closure_package_rejects_proof_system_label_mismatch() {
+    let transcript = make_transcript(0);
+    let partial = accepted_partial(&transcript);
+    let context = PartialContextBinding::from_transcript(&transcript);
+    let package = PartialSoundnessClosurePackage::new(
+        "other-local-proof-v1",
+        [51; 32],
+        [52; 32],
+        [53; 32],
+        context.closure_digest(),
+        ClosureProofRequirement::ProofBackedLocalVerifierRequired,
+        [54; 32],
+    )
+    .unwrap();
+
+    let err = PartialContributionSoundnessEvidence::verify_closure_package(
+        &transcript,
+        &partial,
+        binding(&transcript, &partial),
+        context,
+        LocalProofEvidence::proof_backed(proof_backed_local_verifier(&partial)),
+        leakage_budget(),
+        package,
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::ProductionPolicyBlocked {
+            reason: "partial closure proof system label mismatch",
+        }
+    );
+}
+
+#[test]
+fn closure_package_rejects_missing_digest_component() {
+    let context = PartialContextBinding::from_transcript(&make_transcript(0));
+
+    let err = PartialSoundnessClosurePackage::new(
+        "zk-local-bounds-v1",
+        [51; 32],
+        [52; 32],
+        [53; 32],
+        context.closure_digest(),
+        ClosureProofRequirement::ProofBackedLocalVerifierRequired,
+        [0; 32],
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::MalformedSerialization {
+            reason: "partial closure package digest is all zero",
+        }
+    );
+}
+
+#[test]
+fn closure_package_rejects_digest_only_requirement() {
+    let package = PartialSoundnessClosurePackage::new(
+        "zk-local-bounds-v1",
+        [51; 32],
+        [52; 32],
+        [53; 32],
+        [55; 32],
+        ClosureProofRequirement::DigestOnlyEvidenceAllowed,
+        [54; 32],
+    )
+    .unwrap();
+
+    let err = package.verify_proof_requirement().unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::ProductionPolicyBlocked {
+            reason: "partial closure package must require proof-backed evidence",
+        }
+    );
 }
 
 #[test]

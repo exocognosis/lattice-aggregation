@@ -263,6 +263,15 @@ def scan_documents(root):
             "distribution",
         )
     )
+    mask_distribution_closure_framework = (
+        has_public_struct(mask_distribution_source, "MaskDistributionClosurePackage")
+        and has_public_struct(mask_distribution_source, "MaskDistributionClosureReport")
+        and has_acceptance_test_function(
+            mask_distribution_test,
+            "closure",
+            "package",
+        )
+    )
     rejection_equivalence_bridge_gate = (
         has_public_struct(
             rejection_equivalence_source, "AggregateRejectionEquivalenceGate"
@@ -279,10 +288,35 @@ def scan_documents(root):
             "equivalence",
         )
     )
+    rejection_equivalence_closure_framework = (
+        has_public_struct(
+            rejection_equivalence_source, "AggregateRejectionClosurePackage"
+        )
+        and has_public_struct(
+            rejection_equivalence_source, "AggregateRejectionClosureCertificate"
+        )
+        and has_public_enum(
+            rejection_equivalence_source, "AggregateRejectionClosureStatus"
+        )
+        and has_public_function(
+            rejection_equivalence_source, "assess_rejection_equivalence_closure"
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "closure",
+            "package",
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
         and has_acceptance_test_function(abort_bias_test, "bias")
+    )
+    abort_bias_closure_framework = (
+        has_public_struct(abort_bias_source, "AbortRetryBiasProofPackage")
+        and has_public_struct(abort_bias_source, "AbortBiasClosureReport")
+        and has_public_enum(abort_bias_source, "AbortBiasClosureStatus")
+        and has_acceptance_test_function(abort_bias_test, "closure")
     )
     partial_soundness_evidence_gate = (
         has_public_struct(
@@ -295,6 +329,15 @@ def scan_documents(root):
             "soundness",
         )
     )
+    partial_soundness_closure_framework = (
+        has_public_struct(partial_soundness_source, "PartialSoundnessClosurePackage")
+        and has_public_enum(partial_soundness_source, "PartialSoundnessClosureStatus")
+        and has_acceptance_test_function(
+            partial_soundness_test,
+            "closure",
+            "package",
+        )
+    )
     unauthorized_reduction_manifest_gate = (
         "unauthorized aggregate reduction manifest" in reduction_manifest.lower()
         and "uar-c0" in reduction_manifest.lower()
@@ -305,6 +348,15 @@ def scan_documents(root):
             "reduction",
             "manifest",
         )
+    )
+    unauthorized_reduction_closure_framework = (
+        unauthorized_reduction_manifest_gate
+        and "closure package framework" in reduction_manifest.lower()
+        and "protocol event grammar" in reduction_manifest.lower()
+        and "deterministic uar classifier" in reduction_manifest.lower()
+        and "base ml-dsa theorem" in reduction_manifest.lower()
+        and "hybrid bound" in reduction_manifest.lower()
+        and "external review signoff" in reduction_manifest.lower()
     )
 
     return {
@@ -319,10 +371,19 @@ def scan_documents(root):
             aggregate_acceptance_conformance_scaffold
         ),
         "mask_distribution_evidence_gate": mask_distribution_evidence_gate,
+        "mask_distribution_closure_framework": mask_distribution_closure_framework,
         "rejection_equivalence_bridge_gate": rejection_equivalence_bridge_gate,
+        "rejection_equivalence_closure_framework": (
+            rejection_equivalence_closure_framework
+        ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
+        "abort_bias_closure_framework": abort_bias_closure_framework,
         "partial_soundness_evidence_gate": partial_soundness_evidence_gate,
+        "partial_soundness_closure_framework": partial_soundness_closure_framework,
         "unauthorized_reduction_manifest_gate": unauthorized_reduction_manifest_gate,
+        "unauthorized_reduction_closure_framework": (
+            unauthorized_reduction_closure_framework
+        ),
         "readme_research_boundary": (
             "research status" in readme
             and "deterministic simulation" in readme
@@ -394,6 +455,13 @@ def classify_criteria(criteria, scan):
                     "AcceptedMaskDistributionCertificate evidence gates are "
                     "present as scaffold evidence only."
                 )
+            if scan["mask_distribution_closure_framework"]:
+                partial_progress = True
+                observed.append(
+                    "MaskDistributionClosurePackage and "
+                    "MaskDistributionClosureReport framework checks are "
+                    "present for proof-artifact completeness."
+                )
             if scan["readme_research_boundary"]:
                 blockers.append(readme_blocker)
             if scan["renyi_evidence_blocked"]:
@@ -414,6 +482,14 @@ def classify_criteria(criteria, scan):
                     "AggregateRecomputationTranscript bridge gates are present "
                     "as scaffold evidence only."
                 )
+            if scan["rejection_equivalence_closure_framework"]:
+                partial_progress = True
+                observed.append(
+                    "AggregateRejectionClosurePackage and "
+                    "AggregateRejectionClosureCertificate framework checks are "
+                    "present for recomputation, KAT, bound, and review "
+                    "artifacts."
+                )
             if scan["standard_verifier_blocked"]:
                 blockers.append(
                     "Standard ML-DSA verifier bridge and real aggregate "
@@ -426,6 +502,13 @@ def classify_criteria(criteria, scan):
                     "AbortBiasEvidence retry-domain, leakage, and "
                     "accepted-sample checks are present as scaffold evidence "
                     "only."
+                )
+            if scan["abort_bias_closure_framework"]:
+                partial_progress = True
+                observed.append(
+                    "AbortRetryBiasProofPackage and AbortBiasClosureReport "
+                    "framework checks are present for leakage, distribution, "
+                    "threshold, and review artifacts."
                 )
             if scan["abort_bias_blocked"]:
                 blockers.append(
@@ -450,6 +533,13 @@ def classify_criteria(criteria, scan):
                     "ProofBackedLocalVerifier gates are present as scaffold "
                     "evidence only."
                 )
+            if scan["partial_soundness_closure_framework"]:
+                partial_progress = True
+                observed.append(
+                    "PartialSoundnessClosurePackage framework checks are "
+                    "present for proof-backed verifier, VSS/DKG, leakage, "
+                    "context, and review artifacts."
+                )
             if scan["partial_soundness_blocked"]:
                 blockers.append(
                     "Production local acceptance, partial verification, and "
@@ -463,6 +553,13 @@ def classify_criteria(criteria, scan):
                     "Unauthorized aggregate reduction manifest names a base "
                     "ML-DSA forgery case and threshold-side violation cases as "
                     "scaffold evidence only."
+                )
+            if scan["unauthorized_reduction_closure_framework"]:
+                partial_progress = True
+                observed.append(
+                    "Unauthorized aggregate reduction closure package framework "
+                    "records protocol grammar, deterministic classifier, base "
+                    "theorem, hybrid-bound, simulator, and review slots."
                 )
             if scan["unforgeability_reduction_blocked"]:
                 blockers.append(

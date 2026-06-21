@@ -21,6 +21,34 @@ The gate returns `Missing`, `Invalid`, or `Accepted`. `Accepted` records the
 bound and entropy requirements that were satisfied, but still exposes that it
 does not claim a complete ML-DSA security proof.
 
+## Closure Package Framework
+
+`MaskDistributionClosurePackage` is the stronger blocker-1 closure framework.
+It represents the complete set of artifacts that must be present before the
+mask-distribution obligation can be treated as closure-ready at the framework
+level:
+
+- selected aggregate-mask construction id;
+- centralized distribution artifact digest;
+- aggregate distribution artifact digest;
+- Renyi proof artifact digest;
+- accepted `epsilon_mask` bound;
+- aggregate-mask min-entropy threshold;
+- external review artifact digest and accepted signoff;
+- explicit `NonProductionProofFramework` boundary.
+
+`closure_report()` returns missing and invalid closure fields plus convenience
+accessors for the selected construction id, accepted `epsilon_mask` bound,
+min-entropy threshold, and proof boundary. `is_closure_ready()` is true only
+when every required field is present, all supplied digests and thresholds are
+well-formed, external review has signed off, and the package explicitly
+disclaims production proof closure.
+
+Incomplete packages remain rejected. For example, a package without an
+aggregate distribution digest or external review signoff reports those missing
+fields and is not closure-ready. A package that attempts to claim production
+proof closure reports an invalid `NonProductionProofBoundary` field.
+
 ## Accepted Evidence Requirements
 
 Evidence is accepted only when all of the following are true:
@@ -35,7 +63,9 @@ Evidence is accepted only when all of the following are true:
 
 Missing evidence, zero proof digests, divergence above the configured bound,
 and insufficient entropy are rejected by tests in
-`tests/production_mask_distribution.rs`.
+`tests/production_mask_distribution.rs`. The same test file also covers closure
+packages that are incomplete, complete as non-production framework packages,
+and invalid because they claim production proof closure.
 
 ## Claim Boundary
 
@@ -47,4 +77,8 @@ replace external cryptographic review.
 To fully close blocker 1, the repository still needs a reviewed proof or
 measurement-backed evidence package whose digests are fed into this gate, plus
 agreement on the concrete Renyi residual and min-entropy thresholds accepted by
-the security proof.
+the security proof. Turning this framework into actual proof closure still
+requires selecting the construction, producing the centralized and aggregate
+distribution artifacts, proving or measuring the Renyi bound, justifying the
+accepted `epsilon_mask` and min-entropy thresholds, and obtaining external
+review signoff over the exact digests and assumptions.

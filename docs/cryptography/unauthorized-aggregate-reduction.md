@@ -12,9 +12,20 @@ named threshold-side assumption violation.
 
 This manifest does not prove FST-T1 or FST-T2. It is a checklist for a future reduction, not a theorem statement. The deterministic simulation backend is not evidence for this reduction. Conformance tests are necessary traceability gates, not cryptographic proof. Do not claim threshold EUF-CMA security from this manifest.
 
+This closure package is an outline only; it is not an accepted reduction. Placeholders, digest slots, and signoff slots are not citations or proof. No classifier row closes a theorem without its proof/citation slot and bound term. No UAR-C case is closed by this document.
+
 The current repository still lacks the production protocol, partial-verification
 equations, simulator construction, standard-verifier bridge, and concrete bounds
 needed to turn this manifest into a proof.
+
+## Closure Package Framework
+
+The closure package framework for this reduction is the combination of the
+protocol event grammar, deterministic UAR classifier, base ML-DSA theorem
+citation slot, threshold-side assumption proof slots, simulator obligations,
+hybrid bound table, and external review signoff below. Completing this framework
+requires replacing every pending slot with a reviewed proof artifact; the
+framework itself is only a scaffold.
 
 ## Reduction Target
 
@@ -72,6 +83,135 @@ been ruled out for the event.
 | UAR-C7 | Ideal-functionality release mismatch: the real aggregate maps to `ReleaseSignature` even though the ideal functionality lacks `t` valid partial signers or `IF-I3` message authorization. | Threshold-side violation of the simulator, release invariants, or aggregate mapping. | IF-S1, IF-S2, IF-R6, FST-L8. |
 | UAR-C8 | Commitment binding or hiding failure: a commitment is not fixed before challenge derivation, can be opened to two local masks, or leaks enough mask information to invalidate the ML-DSA signing distribution used by UAR-C0. | Threshold-side violation of commitment binding, commitment hiding, or local mask commitment before challenge. | FST-A4, Noise Lemma A. |
 
+## Protocol Event Grammar
+
+The future proof must replace this sketch with a typed grammar tied to the
+production protocol. For now, the grammar fixes the event fields that the
+classifier must inspect and keeps public evidence separate from secret share or
+mask material.
+
+```text
+UnauthorizedAggregateEvent ::= EventEnvelope PublicObjects CommitmentSet PartialSet AggregateOutput VerifierResult EvidenceSet
+EventEnvelope ::= key_id sid epoch_id threshold validator_set corruption_bound
+PublicObjects ::= pk validator_public_keys authorization_policy domain_separation_tag
+CommitmentSet ::= CommitmentRecord*
+CommitmentRecord ::= signer_id commitment commitment_opening_status transcript_binding
+PartialSet ::= PartialRecord*
+PartialRecord ::= signer_id partial_signature partial_verification_result signer_evidence
+AggregateOutput ::= pk message sigma aggregate_metadata
+VerifierResult ::= MLDSA65.Verify(pk, message, sigma)
+EvidenceSet ::= public transcript-bound evidence only
+AbortRecord ::= signer_id abort_reason round transcript_prefix
+```
+
+Grammar closure requires an explicit parse failure rule. A malformed or
+ambiguous event must not fall through to UAR-C0; it is either rejected before the
+reduction input exists or classified as the earliest applicable threshold-side
+case.
+
+## Deterministic UAR Classifier
+
+The classifier must be total, deterministic, and single-valued. First matching case wins; no event may be assigned to more than one case. Unclassified events keep blocker 5 open.
+
+The order below checks threshold-side faults before the base-forgery case. The
+base case is deliberately last: UAR-C0 is only available when all
+threshold-side predicates are false and every pending proof/citation slot has
+been discharged.
+
+| Classifier row | Case | Predicate checked against `UnauthorizedAggregateEvent` | Reduction obligation |
+| --- | --- | --- | --- |
+| UAR-CLASS-C1 | UAR-C1 | The event has fewer than `t` valid contributions after parsing and partial verification. | Reduce to FST-A2 sharing soundness or cite a completed no-subthreshold-signing theorem. |
+| UAR-CLASS-C2 | UAR-C2 | A signer is outside `V`, duplicated, epoch-mismatched, or unbound to `(key_id, V, pk)`. | Reduce to FST-A3/FST-A8 share and collection binding. |
+| UAR-CLASS-C3 | UAR-C3 | A counted partial verification fails against the typed transcript, commitment, signer identity, and public key. | Reduce to FST-A6 partial correctness, extractability, or evidence mapping. |
+| UAR-CLASS-C4 | UAR-C4 | One commitment, partial, challenge, or aggregate validates for two distinct typed tuples. | Reduce to FST-A7 transcript injectivity and random-oracle domain separation. |
+| UAR-CLASS-C5 | UAR-C5 | The collection is duplicate, unknown, insufficient, threshold-mismatched, or validator-set-mismatched. | Reduce to FST-A8 canonical collection validation. |
+| UAR-CLASS-C6 | UAR-C6 | Abort behavior, rejection behavior, hints, norm gates, or malformed commitments change the accepted-signature distribution. | Reduce to FST-A5 abort compatibility and distribution preservation. |
+| UAR-CLASS-C7 | UAR-C7 | The real aggregate maps to an ideal release without IF-S1 threshold authorization, IF-S2 message authorization, or IF-R6 aggregate mapping. | Reduce to the simulator and ideal-functionality invariant slots. |
+| UAR-CLASS-C8 | UAR-C8 | A commitment binding or hiding condition fails before challenge derivation or leaks local mask information. | Reduce to FST-A4 commitment binding/hiding or Noise Lemma A. |
+| UAR-CLASS-C0 | UAR-C0 | `MLDSA65.Verify(pk, m*, sigma*) = accept`, `m*` is unauthorized, all threshold-side predicates are false, and the event has the ML-DSA distribution required by the cited base theorem. | Output `(pk, m*, sigma*)` against FST-A1. |
+
+## Base ML-DSA Theorem Citation Placeholder
+
+Base theorem citation status: PLACEHOLDER - no theorem imported yet.
+
+- Theorem identifier slot: `PENDING-FST-A1-ML-DSA-65-EUF-CMA`
+- Source citation slot: `PENDING`
+- Model compatibility slot: `PENDING`
+- Base ML-DSA theorem digest: `sha256:<pending>`
+- Digest algorithm: SHA-256 over the final cited theorem artifact.
+
+Reviewer must replace this placeholder before FST-A1 can close. The final
+artifact must state the ML-DSA parameter set, adversary model, oracle access,
+message authorization relation, random-oracle assumptions, and any loss terms
+that UAR-C0 imports.
+
+## Threshold-Side Assumption Proof and Citation Slots
+
+Each nonbase case needs either a proof in this repository or a citation to an
+audited theorem artifact. A pending slot is not evidence and does not close the
+case.
+
+| Slot row | Case | Assumptions and hooks | Required closure artifact |
+| --- | --- | --- | --- |
+| SLOT-UAR-C1 | UAR-C1 | FST-A2, FST-L6 | Proof/citation slot: PENDING |
+| SLOT-UAR-C2 | UAR-C2 | FST-A3, FST-A8, FST-G4 | Proof/citation slot: PENDING |
+| SLOT-UAR-C3 | UAR-C3 | FST-A6, FST-L4, IF-E3 | Proof/citation slot: PENDING |
+| SLOT-UAR-C4 | UAR-C4 | FST-A7, FST-L1, FST-L2 | Proof/citation slot: PENDING |
+| SLOT-UAR-C5 | UAR-C5 | FST-A8, FST-L3 | Proof/citation slot: PENDING |
+| SLOT-UAR-C6 | UAR-C6 | FST-A5, FST-L7, Noise Lemma H | Proof/citation slot: PENDING |
+| SLOT-UAR-C7 | UAR-C7 | IF-S1, IF-S2, IF-R6, FST-L8 | Proof/citation slot: PENDING |
+| SLOT-UAR-C8 | UAR-C8 | FST-A4, Noise Lemma A | Proof/citation slot: PENDING |
+
+## Simulator Obligations
+
+The static-corruption simulator must be specified before any closure claim. The
+minimum obligations are:
+
+- SIM-O1 Static corruption schedule: sample, expose, and track corruptions
+  consistently with the real/ideal games and the `t - 1` base corruption model.
+- SIM-O2 Ideal release extraction: extract every accepting aggregate into an
+  ideal `ReleaseSignature`, UAR-C0 forgery, or named threshold-side violation.
+- SIM-O3 Evidence translation: convert real public evidence into ideal evidence
+  without using honest secret shares or one-time mask openings.
+- SIM-O4 Abort scheduling and distribution accounting: schedule aborts and
+  rejection events while preserving the accepted-signature distribution used by
+  UAR-C0.
+- SIM-O5 Random-oracle programming and accounting: account for programmed and
+  observed transcript queries with typed domain separation.
+- SIM-O6 Standard-verifier bridge: connect the aggregate output to
+  `MLDSA65.Verify(pk, message, sigma)` without changing the message,
+  verification key, or signature encoding.
+- SIM-O7 Failure-to-case audit log: record why every simulator failure maps to
+  exactly one UAR-C case or leaves blocker 5 open.
+
+## Hybrid Bound Table
+
+Every bound term is pending and must be replaced with a concrete advantage expression.
+
+| Hybrid | Game transition | Bad event or loss term | Required bound artifact |
+| --- | --- | --- | --- |
+| HYB-0 | Real unauthorized aggregate event | Starting event probability `Pr[UAR]` | PENDING |
+| HYB-1 | Grammar parse and canonicalization | malformed grammar, duplicate/unknown signer, or canonicalization failure mapped to UAR-C5 | PENDING |
+| HYB-2 | Transcript binding and random-oracle programming | collision, rebinding, or programming loss mapped to UAR-C4 | PENDING |
+| HYB-3 | Partial validation and extraction | invalid counted partial or extractor failure mapped to UAR-C3 | PENDING |
+| HYB-4 | Commitment and distribution preservation | commitment failure, abort bias, or distribution gap mapped to UAR-C8/UAR-C6 | PENDING |
+| HYB-5 | Ideal release mapping | simulator release mismatch mapped to UAR-C7 | PENDING |
+| HYB-6 | Base ML-DSA forgery extraction | residual event extracted as `(pk, m*, sigma*)` for UAR-C0/FST-A1 | PENDING |
+
+## External Review Signoff
+
+No external review signoff has been recorded in this repository.
+
+| Review item | Required before closure | Current status |
+| --- | --- | --- |
+| Cryptographer reduction review | reviewer identity, date, scope, verdict | PENDING |
+| Base theorem artifact review | cited theorem digest and model match | PENDING |
+| Threshold assumption review | proof/citation slots for UAR-C1 through UAR-C8 | PENDING |
+| Implementation-binding review | conformance/KAT trace to final interfaces | PENDING |
+
+Blocker 5 remains open until these signoff rows are replaced by reviewed
+artifacts and the hybrid bound table contains concrete, checked loss terms.
+
 ## Manifest Checklist
 
 The future proof should discharge this manifest by producing evidence for each
@@ -82,14 +222,21 @@ item below.
 - A deterministic classifier from every unauthorized accepting aggregate output
   to exactly one UAR-C case, with explicit precedence for overlapping faults.
 - For UAR-C0, a reduction that extracts `(pk, m*, sigma*)` and shows the ML-DSA
-  signing oracle did not authorize `m*` for that key.
+  signing oracle did not authorize `m*` for that key, backed by a cited theorem
+  artifact and digest.
 - For UAR-C1 through UAR-C8, a proof that the event contradicts the named
   assumption, invariant, or lemma, rather than silently becoming another
   unmodeled adversarial capability.
+- Simulator obligations covering corruption scheduling, ideal release
+  extraction, evidence translation, abort scheduling, random-oracle accounting,
+  and the standard-verifier bridge.
 - Concrete bounds for each hybrid transition that turns the real event into
   either the UAR-C0 forgery or a named threshold-side violation.
 - A check that implementation evidence records are public, transcript-bound,
   and noninterfering with honest secret shares and one-time masks.
+- External review signoff with reviewer scope, artifact digests, and explicit
+  disposition for the base theorem, threshold assumptions, simulator, hybrid
+  bounds, and implementation binding.
 
 ## What Remains to Close Blocker 5
 

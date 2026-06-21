@@ -55,15 +55,16 @@ present in this checkout.
 - Tie `LocalAccept` and `AggregateAccept` acceptance to a standard verifier bridge
   and real aggregate recomputation evidence; absent bridge or
   recomputation evidence keeps the predicates conformance-only.
-- Link the five hypothesis blocker evidence gates before any criterion
-  promotion: `tests/production_mask_distribution.rs`,
+- Link the five hypothesis blocker evidence gates and closure frameworks before
+  any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,
   `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`,
   and `tests/unauthorized_aggregate_reduction_manifest.rs`.
-- Treat those evidence gates as partial scaffold progress only until the
-  selected backend supplies reviewed Renyi evidence, real aggregate
-  recomputation, abort-bias analysis, proof-backed partial verification, and a
-  completed unauthorized-aggregate reduction.
+- Treat those evidence gates and closure-package frameworks as partial scaffold
+  progress only until the selected backend supplies reviewed Renyi evidence,
+  real aggregate recomputation, abort-bias analysis, proof-backed partial
+  verification, and a completed unauthorized-aggregate reduction. Framework
+  closure does not replace reviewed proof artifacts.
 - Link proof/audit linkage for acceptance criteria from
   [claims-matrix.md](../cryptography/claims-matrix.md),
   [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
