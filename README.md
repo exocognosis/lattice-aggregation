@@ -1,19 +1,20 @@
-# Lattice Aggregation
+# lattice-aggregation
 
-Audit-oriented Rust scaffolding for threshold ML-DSA-65 protocol engineering: state machines, transcript binding, wire formats, DKG/signing simulation, and validator-system integration boundaries.
+**Audit-oriented research scaffold for threshold post-quantum signature aggregation**
 
-[![CI](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml/badge.svg)](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Rust 2021](https://img.shields.io/badge/Rust-2021-f74c00.svg)](Cargo.toml)
-[![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](src/lib.rs)
-[![status: research](https://img.shields.io/badge/status-research-orange.svg)](SECURITY.md)
-[![backend: deterministic simulation](https://img.shields.io/badge/backend-deterministic%20simulation-lightgrey.svg)](docs/cryptography/claims-matrix.md)
+Interactive threshold aggregation for **ML-DSA-65** (NIST FIPS 204 / Dilithium) that aims to compress thousands of validator contributions into one standard-sized signature.
 
-**README Nav:** [Hypothesis Closure Requirements](#hypothesis-closure-requirements)
+- ✅ Type-state protocol with deterministic transcripts
+- ✅ Simulation backend with realistic ML-DSA-65-sized outputs
+- ✅ Transparent hypothesis matrix + proof obligations
+- ⚠️ **Research stage** — not production cryptography
 
-Lattice Aggregation makes the hard parts of threshold post-quantum signing reviewable before production cryptography is wired in. It models the API boundaries, transcript commitments, validator attribution, aggregation checks, adapter contracts, and audit surface that a distributed validator system would need around threshold ML-DSA.
+[Hypothesis Assessment](scripts/assess_lattice_hypothesis.py) • [Security Model](SECURITY.md) • [Claims Matrix](docs/cryptography/claims-matrix.md)
 
-> Research status: the default backend is deterministic simulation machinery. It produces stable, standard-size byte outputs for testing protocol behavior, but it does not produce or verify real ML-DSA signatures. Treat this repository as protocol scaffolding, integration shape, benchmark shape, and review preparation.
+![GitHub stars](https://img.shields.io/github/stars/exocognosis/lattice-aggregation)
+![Rust](https://img.shields.io/badge/Rust-2021-orange)
+
+![Lattice Aggregation protocol flow: threshold ML-DSA-65](docs/assets/lattice-aggregation-protocol-flow.png)
 
 ## The Problem
 
@@ -142,6 +143,14 @@ cargo run
 
 The harness prints LaTeX tables and PGFPlots-compatible CSV for simulated threshold signing sessions across small, mid-scale, and adversarial cluster profiles.
 
+Run the bounded large-scale deterministic simulation profile:
+
+```sh
+cargo run -- --profile large --format csv --no-wall-sleep
+```
+
+Checked-in large-scale simulation artifacts are indexed in [Simulation Benchmark Results](docs/benchmarks/simulation-results.md). Future real-world benchmark claims must follow the [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md) and remain blocked until a production threshold backend, external validator deployment, and reviewed artifacts exist.
+
 ## Verification
 
 The CI workflow runs the same core checks reviewers should start with:
@@ -167,6 +176,8 @@ cargo test --test proof_documentation_manifest
 - [Formal Threshold ML-DSA Transcript](docs/cryptography/formal-threshold-mldsa-transcript.md): transcript fields, binding invariants, and stable anchors
 - [Side-Channel and Constant-Time Boundary](docs/cryptography/side-channel-boundary.md): current leakage claims and production gate
 - [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md): gates before any production-readiness language
+- [Simulation Benchmark Results](docs/benchmarks/simulation-results.md): checked-in deterministic large-scale simulation telemetry
+- [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md): required inputs before any real-world benchmark claim
 
 ## Repository Map
 
