@@ -619,6 +619,15 @@ fn readme_tracks_hypothesis_closure_requirements() {
     assert_contains_all(
         "README.md",
         &[
+            "## Current Status",
+            "publishable as a research artifact and exploratory implementation",
+            "not publishable as production cryptography",
+            "## Known Limitations",
+            "## Reproduce Evidence",
+            "## Release Tag",
+            "Tags must point at merged `main` commits",
+            "`v0.1.0` remains the historical protocol-conformance tag",
+            "`v0.2.0-research-preview`",
             "## Hypothesis Closure Requirements",
             "The five requirements below are the closure criteria used by",
             "scripts/assess_lattice_hypothesis.py",
