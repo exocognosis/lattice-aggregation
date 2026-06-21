@@ -163,7 +163,7 @@ fn threshold_signature_from(encoded: &[u8]) -> ThresholdSignature {
 #[cfg(feature = "hazmat-real-mldsa")]
 fn decode_hex(hex: &str) -> Vec<u8> {
     assert!(
-        hex.len() % 2 == 0,
+        hex.len().is_multiple_of(2),
         "hex string should contain an even number of characters"
     );
 
