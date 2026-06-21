@@ -62,6 +62,27 @@ class VerdictRuleTests(unittest.TestCase):
 
         self.assertIn("production_acceptance", coordinator_command)
 
+    def test_default_commands_run_all_blocker_evidence_checks(self):
+        module = load_module()
+
+        coordinator_command = next(
+            command
+            for command in module.default_commands()
+            if "--features" in command and "coordinator-assisted" in command
+        )
+        commands = [" ".join(command) for command in module.default_commands()]
+
+        for test_name in [
+            "production_mask_distribution",
+            "production_rejection_equivalence",
+            "production_abort_bias",
+            "production_partial_soundness",
+        ]:
+            self.assertIn(test_name, coordinator_command)
+        self.assertTrue(
+            any("unauthorized_aggregate_reduction_manifest" in command for command in commands)
+        )
+
 
 class DocumentClassificationTests(unittest.TestCase):
     def test_scan_documents_finds_claim_boundaries_and_blockers(self):
@@ -182,8 +203,8 @@ class ReportGenerationTests(unittest.TestCase):
         )
 
     def write_acceptance_predicate_scaffold(self, root):
-        (root / "src" / "production").mkdir(parents=True)
-        (root / "tests").mkdir(parents=True)
+        (root / "src" / "production").mkdir(parents=True, exist_ok=True)
+        (root / "tests").mkdir(parents=True, exist_ok=True)
         (root / "src" / "production" / "acceptance.rs").write_text(
             "pub struct LocalAccept;\n"
             "pub struct AggregateAccept;\n"
@@ -200,6 +221,66 @@ class ReportGenerationTests(unittest.TestCase):
             "fn aggregate_accept_conformance_token_is_stable() {\n"
             "    let _ = \"AggregateAccept AggregateAcceptEvidence\";\n"
             "}\n",
+            encoding="utf-8",
+        )
+
+    def write_blocker_evidence_gates(self, root):
+        (root / "src" / "production").mkdir(parents=True, exist_ok=True)
+        (root / "tests").mkdir(parents=True, exist_ok=True)
+        (root / "docs" / "cryptography").mkdir(parents=True, exist_ok=True)
+        (root / "src" / "production" / "mask_distribution.rs").write_text(
+            "pub struct MaskDistributionEvidence;\n"
+            "pub struct AcceptedMaskDistributionCertificate;\n"
+            "pub fn assess_mask_distribution() {}\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "production_mask_distribution.rs").write_text(
+            "#[test]\n"
+            "fn mask_distribution_evidence_gate_records_renyi_bound() {}\n",
+            encoding="utf-8",
+        )
+        (root / "src" / "production" / "rejection_equivalence.rs").write_text(
+            "pub enum AggregateRejectionEvidenceStrength { ScaffoldOnly }\n"
+            "pub struct AggregateRejectionEquivalenceGate;\n"
+            "pub struct AggregateRecomputationTranscript;\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "production_rejection_equivalence.rs").write_text(
+            "#[test]\n"
+            "fn aggregate_rejection_equivalence_bridge_gate_requires_recomputation() {}\n",
+            encoding="utf-8",
+        )
+        (root / "src" / "production" / "abort_bias.rs").write_text(
+            "pub struct AbortBiasEvidence;\n"
+            "pub struct RetryBiasEvidenceReport;\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "production_abort_bias.rs").write_text(
+            "#[test]\n"
+            "fn abort_retry_bias_evidence_rejects_unbounded_leakage() {}\n",
+            encoding="utf-8",
+        )
+        (root / "src" / "production" / "partial_soundness.rs").write_text(
+            "pub struct PartialContributionSoundnessEvidence;\n"
+            "pub struct ProofBackedLocalVerifier;\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "production_partial_soundness.rs").write_text(
+            "#[test]\n"
+            "fn partial_soundness_evidence_rejects_digest_only_when_proof_required() {}\n",
+            encoding="utf-8",
+        )
+        (root / "docs" / "cryptography" / "unauthorized-aggregate-reduction.md").write_text(
+            "# Unauthorized Aggregate Reduction Manifest\n"
+            "Status: reduction-case manifest, not a completed proof.\n"
+            "UAR-C0 base ML-DSA forgery.\n"
+            "UAR-C1 UAR-C2 UAR-C3 UAR-C4 UAR-C5 UAR-C6 UAR-C7 UAR-C8.\n"
+            "Do not claim threshold EUF-CMA security from this manifest.\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "unauthorized_aggregate_reduction_manifest.rs").write_text(
+            "#[test]\n"
+            "fn unauthorized_aggregate_reduction_manifest_names_cases() {}\n",
             encoding="utf-8",
         )
 
@@ -298,6 +379,52 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertIn("- Evidence: AggregateAccept", markdown)
         self.assertIn("- Blocker: Standard ML-DSA verifier bridge", markdown)
+
+    def test_blocker_evidence_gates_update_partial_progress_without_closing_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_blocker_evidence_gates(root)
+
+            report = module.build_report(root, run_commands=False)
+
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        self.assertEqual(
+            [criterion["status"] for criterion in report["criteria"]],
+            [
+                "partially_met",
+                "partially_met",
+                "partially_met",
+                "partially_met",
+                "partially_met",
+            ],
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+
+        self.assertIn(
+            "MaskDistributionEvidence",
+            "\n".join(criteria_by_id["aggregate_mask_distribution"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "AggregateRejectionEquivalenceGate",
+            "\n".join(criteria_by_id["aggregate_rejection_equivalence"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "AbortBiasEvidence",
+            "\n".join(criteria_by_id["abort_retry_bias"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "PartialContributionSoundnessEvidence",
+            "\n".join(criteria_by_id["partial_contribution_soundness"]["observed_evidence"]),
+        )
+        self.assertIn(
+            "Unauthorized aggregate reduction manifest",
+            "\n".join(criteria_by_id["unauthorized_aggregate_reduction"]["observed_evidence"]),
+        )
+        for criterion in report["criteria"]:
+            self.assertTrue(criterion["blockers"])
 
     def test_build_report_writes_json_and_markdown(self):
         module = load_module()

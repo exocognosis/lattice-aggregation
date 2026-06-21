@@ -62,6 +62,20 @@ def has_public_struct(source, name):
     return re.search(pattern, code) is not None
 
 
+def has_public_enum(source, name):
+    """Return whether Rust source declares the named public enum."""
+    code = rust_code_without_comments_or_strings(source)
+    pattern = rf"(?m)^\s*pub\s+enum\s+{re.escape(name)}\b"
+    return re.search(pattern, code) is not None
+
+
+def has_public_function(source, name):
+    """Return whether Rust source declares the named public function."""
+    code = rust_code_without_comments_or_strings(source)
+    pattern = rf"(?m)^\s*pub\s+(?:const\s+)?fn\s+{re.escape(name)}\b"
+    return re.search(pattern, code) is not None
+
+
 def has_acceptance_test_function(source, *required_terms):
     """Return whether a #[test] function name mentions the required terms."""
     code = rust_code_without_comments_or_strings(source)
@@ -177,18 +191,31 @@ def scan_documents(root):
 
     combined = "\n".join(texts.values()).lower()
     readme = texts["README.md"].lower()
+
+    def read_optional(relative):
+        try:
+            return (root / relative).read_text(encoding="utf-8")
+        except FileNotFoundError:
+            return ""
+
     acceptance_source_path = root / "src" / "production" / "acceptance.rs"
     production_acceptance_test_path = root / "tests" / "production_acceptance.rs"
-    try:
-        acceptance_source = acceptance_source_path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        acceptance_source = ""
-    try:
-        production_acceptance_test = production_acceptance_test_path.read_text(
-            encoding="utf-8"
-        )
-    except FileNotFoundError:
-        production_acceptance_test = ""
+    acceptance_source = read_optional("src/production/acceptance.rs")
+    production_acceptance_test = read_optional("tests/production_acceptance.rs")
+    mask_distribution_source = read_optional("src/production/mask_distribution.rs")
+    mask_distribution_test = read_optional("tests/production_mask_distribution.rs")
+    rejection_equivalence_source = read_optional("src/production/rejection_equivalence.rs")
+    rejection_equivalence_test = read_optional("tests/production_rejection_equivalence.rs")
+    abort_bias_source = read_optional("src/production/abort_bias.rs")
+    abort_bias_test = read_optional("tests/production_abort_bias.rs")
+    partial_soundness_source = read_optional("src/production/partial_soundness.rs")
+    partial_soundness_test = read_optional("tests/production_partial_soundness.rs")
+    reduction_manifest = read_optional(
+        "docs/cryptography/unauthorized-aggregate-reduction.md"
+    )
+    reduction_manifest_test = read_optional(
+        "tests/unauthorized_aggregate_reduction_manifest.rs"
+    )
 
     acceptance_source_scaffold = all(
         has_public_struct(acceptance_source, token)
@@ -224,6 +251,61 @@ def scan_documents(root):
         and production_acceptance_tests_scaffold
         and aggregate_acceptance_test_scaffold
     )
+    mask_distribution_evidence_gate = (
+        has_public_struct(mask_distribution_source, "MaskDistributionEvidence")
+        and has_public_struct(
+            mask_distribution_source, "AcceptedMaskDistributionCertificate"
+        )
+        and has_public_function(mask_distribution_source, "assess_mask_distribution")
+        and has_acceptance_test_function(
+            mask_distribution_test,
+            "mask",
+            "distribution",
+        )
+    )
+    rejection_equivalence_bridge_gate = (
+        has_public_struct(
+            rejection_equivalence_source, "AggregateRejectionEquivalenceGate"
+        )
+        and has_public_struct(
+            rejection_equivalence_source, "AggregateRecomputationTranscript"
+        )
+        and has_public_enum(
+            rejection_equivalence_source, "AggregateRejectionEvidenceStrength"
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "bridge",
+            "equivalence",
+        )
+    )
+    abort_bias_evidence_gate = (
+        has_public_struct(abort_bias_source, "AbortBiasEvidence")
+        and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
+        and has_acceptance_test_function(abort_bias_test, "bias")
+    )
+    partial_soundness_evidence_gate = (
+        has_public_struct(
+            partial_soundness_source, "PartialContributionSoundnessEvidence"
+        )
+        and has_public_struct(partial_soundness_source, "ProofBackedLocalVerifier")
+        and has_acceptance_test_function(
+            partial_soundness_test,
+            "partial",
+            "soundness",
+        )
+    )
+    unauthorized_reduction_manifest_gate = (
+        "unauthorized aggregate reduction manifest" in reduction_manifest.lower()
+        and "uar-c0" in reduction_manifest.lower()
+        and "uar-c8" in reduction_manifest.lower()
+        and "not a completed proof" in reduction_manifest.lower()
+        and has_acceptance_test_function(
+            reduction_manifest_test,
+            "reduction",
+            "manifest",
+        )
+    )
 
     return {
         "documents": texts,
@@ -236,6 +318,11 @@ def scan_documents(root):
         "aggregate_acceptance_conformance_scaffold": (
             aggregate_acceptance_conformance_scaffold
         ),
+        "mask_distribution_evidence_gate": mask_distribution_evidence_gate,
+        "rejection_equivalence_bridge_gate": rejection_equivalence_bridge_gate,
+        "abort_bias_evidence_gate": abort_bias_evidence_gate,
+        "partial_soundness_evidence_gate": partial_soundness_evidence_gate,
+        "unauthorized_reduction_manifest_gate": unauthorized_reduction_manifest_gate,
         "readme_research_boundary": (
             "research status" in readme
             and "deterministic simulation" in readme
@@ -295,10 +382,18 @@ def classify_criteria(criteria, scan):
         observed = []
         blockers = []
         status = "blocked"
+        partial_progress = False
 
         if missing_blocker:
             blockers.append(missing_blocker)
         elif criterion["id"] == "aggregate_mask_distribution":
+            if scan["mask_distribution_evidence_gate"]:
+                partial_progress = True
+                observed.append(
+                    "MaskDistributionEvidence and "
+                    "AcceptedMaskDistributionCertificate evidence gates are "
+                    "present as scaffold evidence only."
+                )
             if scan["readme_research_boundary"]:
                 blockers.append(readme_blocker)
             if scan["renyi_evidence_blocked"]:
@@ -312,12 +407,26 @@ def classify_criteria(criteria, scan):
                     "AggregateAccept conformance checks are present as "
                     "scaffold evidence only."
                 )
+            if scan["rejection_equivalence_bridge_gate"]:
+                partial_progress = True
+                observed.append(
+                    "AggregateRejectionEquivalenceGate and "
+                    "AggregateRecomputationTranscript bridge gates are present "
+                    "as scaffold evidence only."
+                )
             if scan["standard_verifier_blocked"]:
                 blockers.append(
                     "Standard ML-DSA verifier bridge and real aggregate "
                     "rejection checks are not present."
                 )
         elif criterion["id"] == "abort_retry_bias":
+            if scan["abort_bias_evidence_gate"]:
+                partial_progress = True
+                observed.append(
+                    "AbortBiasEvidence retry-domain, leakage, and "
+                    "accepted-sample checks are present as scaffold evidence "
+                    "only."
+                )
             if scan["abort_bias_blocked"]:
                 blockers.append(
                     "Abort leakage and retry-bias distribution analysis remain "
@@ -334,6 +443,13 @@ def classify_criteria(criteria, scan):
                     "LocalAccept and AcceptedPartialContribution conformance "
                     "tokens are present as scaffold evidence only."
                 )
+            if scan["partial_soundness_evidence_gate"]:
+                partial_progress = True
+                observed.append(
+                    "PartialContributionSoundnessEvidence and "
+                    "ProofBackedLocalVerifier gates are present as scaffold "
+                    "evidence only."
+                )
             if scan["partial_soundness_blocked"]:
                 blockers.append(
                     "Production local acceptance, partial verification, and "
@@ -341,6 +457,13 @@ def classify_criteria(criteria, scan):
                 )
             status = "partially_met" if observed and blockers else "blocked"
         elif criterion["id"] == "unauthorized_aggregate_reduction":
+            if scan["unauthorized_reduction_manifest_gate"]:
+                partial_progress = True
+                observed.append(
+                    "Unauthorized aggregate reduction manifest names a base "
+                    "ML-DSA forgery case and threshold-side violation cases as "
+                    "scaffold evidence only."
+                )
             if scan["unforgeability_reduction_blocked"]:
                 blockers.append(
                     "Threshold unforgeability reduction is stated as a target, "
@@ -348,7 +471,9 @@ def classify_criteria(criteria, scan):
                 )
 
         if criterion["id"] != "partial_contribution_soundness":
-            status = "blocked" if blockers else "met"
+            status = "partially_met" if partial_progress and blockers else (
+                "blocked" if blockers else "met"
+            )
 
         item["observed_evidence"] = observed
         item["blockers"] = blockers
@@ -367,6 +492,7 @@ def default_commands():
         ["cargo", "test", "--test", "simulated_flow"],
         ["cargo", "test", "--test", "simulation"],
         ["cargo", "test", "--test", "proof_documentation_manifest"],
+        ["cargo", "test", "--test", "unauthorized_aggregate_reduction_manifest"],
         [
             "cargo",
             "test",
@@ -386,6 +512,14 @@ def default_commands():
             "production_coordinator",
             "--test",
             "production_acceptance",
+            "--test",
+            "production_mask_distribution",
+            "--test",
+            "production_rejection_equivalence",
+            "--test",
+            "production_abort_bias",
+            "--test",
+            "production_partial_soundness",
         ],
         ["cargo", "run"],
     ]

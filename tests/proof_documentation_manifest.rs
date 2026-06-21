@@ -12,18 +12,23 @@ const RELEASE_READINESS_CHECKLIST: &str = "docs/benchmarks/release-readiness-che
 
 const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
     "docs/cryptography/active-adversary-model.md",
+    "docs/cryptography/abort-retry-bias-evidence.md",
     "docs/cryptography/claims-matrix.md",
     "docs/cryptography/correctness-lemmas.md",
     "docs/cryptography/formal-security-theorem.md",
     "docs/cryptography/formal-threshold-mldsa-transcript.md",
     "docs/cryptography/ideal-functionality.md",
+    "docs/cryptography/mask-distribution-evidence.md",
     "docs/cryptography/noise-rejection-proof-plan.md",
+    "docs/cryptography/partial-soundness-evidence.md",
     "docs/cryptography/phase-1-noise-bound-model.md",
     "docs/cryptography/proof-implementation-crosswalk.md",
     "docs/cryptography/protocol-code-crosswalk.md",
     "docs/cryptography/proof-obligations.md",
     "docs/cryptography/random-oracle-game.md",
+    "docs/cryptography/rejection-equivalence-evidence.md",
     "docs/cryptography/side-channel-boundary.md",
+    "docs/cryptography/unauthorized-aggregate-reduction.md",
     "docs/cryptography/vss-dkg-security-plan.md",
 ];
 
@@ -37,6 +42,16 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "## Network Model",
             "## Complaint and Evidence Semantics",
             "## Output Agreement and Finality",
+        ],
+    ),
+    (
+        "docs/cryptography/abort-retry-bias-evidence.md",
+        &[
+            "# Abort/Retry Bias Evidence Checks",
+            "## Scope",
+            "## Evidence Model",
+            "## What This Rejects",
+            "## Claim Boundary",
         ],
     ),
     (
@@ -84,6 +99,15 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
         ],
     ),
     (
+        "docs/cryptography/mask-distribution-evidence.md",
+        &[
+            "# Mask Distribution Evidence",
+            "## Evidence Gate",
+            "## Accepted Evidence Requirements",
+            "## Claim Boundary",
+        ],
+    ),
+    (
         "docs/cryptography/noise-rejection-proof-plan.md",
         &[
             "# Noise-Bound and Rejection-Sampling Proof Plan",
@@ -91,6 +115,17 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "## Lemma A: Local Mask Commitment Before Challenge",
             "## Lemma H: Accepted-Signature Distribution",
             "## Exactly What Remains to Be Proven",
+        ],
+    ),
+    (
+        "docs/cryptography/partial-soundness-evidence.md",
+        &[
+            "# Partial Contribution Soundness Evidence",
+            "## Scope",
+            "## Evidence Classes",
+            "## Checks Added",
+            "## Current Boundary",
+            "## Remaining Work",
         ],
     ),
     (
@@ -134,6 +169,15 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
         ],
     ),
     (
+        "docs/cryptography/rejection-equivalence-evidence.md",
+        &[
+            "# Aggregate Rejection-Equivalence Evidence",
+            "## Implemented Gate",
+            "## Claim Boundary",
+            "## What Remains",
+        ],
+    ),
+    (
         "docs/cryptography/side-channel-boundary.md",
         &[
             "# Side-Channel and Constant-Time Boundary",
@@ -141,6 +185,18 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "## Implementation Leakage Claims",
             "## Constant-Time Expectations",
             "## Production Gate",
+        ],
+    ),
+    (
+        "docs/cryptography/unauthorized-aggregate-reduction.md",
+        &[
+            "# Unauthorized Aggregate Reduction Manifest",
+            "## Scope and Claim Boundary",
+            "## Reduction Target",
+            "## Assumptions Named by Case",
+            "## Reduction Cases",
+            "## Manifest Checklist",
+            "## What Remains to Close Blocker 5",
         ],
     ),
     (
@@ -511,23 +567,86 @@ fn production_acceptance_docs_keep_claim_boundary() {
 }
 
 #[test]
+fn blocker_evidence_docs_keep_claim_boundary() {
+    assert_contains_all(
+        "docs/cryptography/claims-matrix.md",
+        &[
+            "Five-criterion evidence gates",
+            "`mask_distribution`",
+            "`rejection_equivalence`",
+            "`abort_bias`",
+            "`partial_soundness`",
+            "hazmat conformance only",
+            "must not claim completed Renyi proof",
+            "threshold EUF-CMA reduction",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/proof-implementation-crosswalk.md",
+        &[
+            "Five-criterion blocker evidence gates",
+            "`src/production/mask_distribution.rs`",
+            "`src/production/rejection_equivalence.rs`",
+            "`src/production/abort_bias.rs`",
+            "`src/production/partial_soundness.rs`",
+            "`docs/cryptography/unauthorized-aggregate-reduction.md`",
+            "`tests/production_mask_distribution.rs`",
+            "`tests/production_rejection_equivalence.rs`",
+            "`tests/production_abort_bias.rs`",
+            "`tests/production_partial_soundness.rs`",
+            "`tests/unauthorized_aggregate_reduction_manifest.rs`",
+            "Evidence gates only",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/protocol-code-crosswalk.md",
+        &[
+            "Hypothesis blocker evidence gates",
+            "`src/production/mask_distribution.rs`",
+            "`src/production/rejection_equivalence.rs`",
+            "`src/production/abort_bias.rs`",
+            "`src/production/partial_soundness.rs`",
+            "`docs/cryptography/unauthorized-aggregate-reduction.md`",
+            "Typed assessment evidence only",
+        ],
+    );
+    assert_contains_all(
+        "docs/benchmarks/release-readiness-checklist.md",
+        &[
+            "five hypothesis blocker evidence gates",
+            "`tests/production_mask_distribution.rs`",
+            "`tests/production_rejection_equivalence.rs`",
+            "`tests/production_abort_bias.rs`",
+            "`tests/production_partial_soundness.rs`",
+            "`tests/unauthorized_aggregate_reduction_manifest.rs`",
+            "partial scaffold progress only",
+        ],
+    );
+}
+
+#[test]
 fn cryptography_readme_indexes_current_proof_docs() {
     assert_contains_all(
         CRYPTOGRAPHY_README,
         &[
             "active-adversary-model.md",
+            "abort-retry-bias-evidence.md",
             "claims-matrix.md",
             "correctness-lemmas.md",
             "formal-security-theorem.md",
             "formal-threshold-mldsa-transcript.md",
             "ideal-functionality.md",
+            "mask-distribution-evidence.md",
             "noise-rejection-proof-plan.md",
+            "partial-soundness-evidence.md",
             "phase-1-noise-bound-model.md",
             "proof-implementation-crosswalk.md",
             "protocol-code-crosswalk.md",
             "proof-obligations.md",
             "random-oracle-game.md",
+            "rejection-equivalence-evidence.md",
             "side-channel-boundary.md",
+            "unauthorized-aggregate-reduction.md",
             "vss-dkg-security-plan.md",
         ],
     );

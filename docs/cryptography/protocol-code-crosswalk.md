@@ -33,6 +33,7 @@ verification.
 | Aggregation boundary | `src/aggregation.rs`, `src/backend.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs` | Boundary validation before backend aggregation; no standard-verifier claim. |
 | Adapter wire and actor flow | `src/adapter/wire.rs`, `src/adapter/actor.rs`, `src/adapter/traits.rs` | `tests/simulation.rs` | Local async scaffold for P2P and consensus integration experiments. |
 | Production coordinator candidate | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/production/acceptance.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_acceptance.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Gated hazmat/conformance boundary only; coordinator-assisted acceptance predicates are conformance-only and do not establish real ML-DSA verification or production threshold security. |
+| Hypothesis blocker evidence gates | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Typed assessment evidence only; each gate keeps the corresponding criterion partially met until the selected backend, proof, and audit artifacts exist. |
 | Evidence and timeout diagnostics | `src/adapter/evidence.rs`, `src/adapter/actor.rs`, `src/low_level/poly.rs` | `tests/simulation.rs`, `tests/low_level.rs` | Diagnostic evidence packets only; not production slashing authority. |
 | Benchmark and export harness | `src/main.rs`, `src/utils/exporter.rs` | library tests in `src/utils/exporter.rs`, harness review docs | Reproducible research output only; not security evidence. |
 
@@ -186,3 +187,14 @@ anchors:
 - `tests/production_acceptance.rs`
 - `LocalAccept`
 - `AggregateAccept`
+- `Hypothesis blocker evidence gates`
+- `src/production/mask_distribution.rs`
+- `src/production/rejection_equivalence.rs`
+- `src/production/abort_bias.rs`
+- `src/production/partial_soundness.rs`
+- `docs/cryptography/unauthorized-aggregate-reduction.md`
+- `tests/production_mask_distribution.rs`
+- `tests/production_rejection_equivalence.rs`
+- `tests/production_abort_bias.rs`
+- `tests/production_partial_soundness.rs`
+- `tests/unauthorized_aggregate_reduction_manifest.rs`
