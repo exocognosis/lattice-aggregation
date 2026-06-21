@@ -9,11 +9,12 @@ use sha3::{Digest, Sha3_256};
 
 use crate::{
     production::{
-        acceptance::StandardVerifierEvidence, provider::StandardMldsa65Provider,
+        acceptance::{AcceptedAggregateCandidate, StandardVerifierEvidence},
+        provider::StandardMldsa65Provider,
         selected_backend::SelectedProductionBackendProfile,
         transcript::ProductionSigningTranscript,
     },
-    ThresholdError, ThresholdSignature,
+    ThresholdError, ThresholdSignature, ValidatorId,
 };
 
 /// Evidence strength for aggregate rejection-equivalence claims.
@@ -578,6 +579,192 @@ impl P1AggregateRecomputationClosureCertificate {
     }
 }
 
+/// Submitted selected-backend aggregate-output artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1SelectedBackendAggregateArtifactPackage {
+    /// Selected backend profile this aggregate artifact claims to bind.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Provider KAT evidence digest bound to the recomputation gate.
+    pub provider_kat_evidence_digest: [u8; 32],
+    /// Standard-verifier bridge evidence digest bound to the recomputation gate.
+    pub standard_verifier_bridge_evidence_digest: [u8; 32],
+    /// Real aggregate recomputation evidence digest bound to the recomputation gate.
+    pub real_recomputation_evidence_digest: [u8; 32],
+    /// Digest binding this aggregate artifact to the production signing transcript.
+    pub transcript_binding_digest: [u8; 32],
+    /// Digest binding the accepted aggregate signer set.
+    pub signer_set_digest: [u8; 32],
+    /// Digest binding the single-use attempt ID and retry domain.
+    pub attempt_binding_digest: [u8; 32],
+    /// Accepted aggregate-response digest from `AggregateAccept`.
+    pub aggregate_response_digest: [u8; 32],
+    /// Accepted hint digest from `AggregateAccept`.
+    pub hint_digest: [u8; 32],
+    /// Provider-verified accepted aggregate signature digest.
+    pub accepted_signature_digest: [u8; 32],
+    /// Whether this artifact package has a named review signoff.
+    pub reviewed: bool,
+}
+
+impl P1SelectedBackendAggregateArtifactPackage {
+    /// Construct a selected-backend aggregate-output artifact package.
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        selected_profile: SelectedProductionBackendProfile,
+        selected_profile_binding_digest: [u8; 32],
+        provider_kat_evidence_digest: [u8; 32],
+        standard_verifier_bridge_evidence_digest: [u8; 32],
+        real_recomputation_evidence_digest: [u8; 32],
+        transcript_binding_digest: [u8; 32],
+        signer_set_digest: [u8; 32],
+        attempt_binding_digest: [u8; 32],
+        aggregate_response_digest: [u8; 32],
+        hint_digest: [u8; 32],
+        accepted_signature_digest: [u8; 32],
+        reviewed: bool,
+    ) -> Self {
+        Self {
+            selected_profile,
+            selected_profile_binding_digest,
+            provider_kat_evidence_digest,
+            standard_verifier_bridge_evidence_digest,
+            real_recomputation_evidence_digest,
+            transcript_binding_digest,
+            signer_set_digest,
+            attempt_binding_digest,
+            aggregate_response_digest,
+            hint_digest,
+            accepted_signature_digest,
+            reviewed,
+        }
+    }
+}
+
+/// Accepted selected-backend aggregate-output artifact-gate certificate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1SelectedBackendAggregateArtifactCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    provider_kat_evidence_digest: [u8; 32],
+    standard_verifier_bridge_evidence_digest: [u8; 32],
+    real_recomputation_evidence_digest: [u8; 32],
+    transcript_binding_digest: [u8; 32],
+    signer_set_digest: [u8; 32],
+    attempt_binding_digest: [u8; 32],
+    aggregate_response_digest: [u8; 32],
+    hint_digest: [u8; 32],
+    accepted_signature_digest: [u8; 32],
+}
+
+impl P1SelectedBackendAggregateArtifactCertificate {
+    /// Return the selected backend profile bound to the artifact.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Borrow the provider KAT evidence digest.
+    pub const fn provider_kat_evidence_digest(&self) -> &[u8; 32] {
+        &self.provider_kat_evidence_digest
+    }
+
+    /// Borrow the standard-verifier bridge evidence digest.
+    pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_evidence_digest
+    }
+
+    /// Borrow the real recomputation evidence digest.
+    pub const fn real_recomputation_evidence_digest(&self) -> &[u8; 32] {
+        &self.real_recomputation_evidence_digest
+    }
+
+    /// Borrow the transcript binding digest.
+    pub const fn transcript_binding_digest(&self) -> &[u8; 32] {
+        &self.transcript_binding_digest
+    }
+
+    /// Borrow the signer-set binding digest.
+    pub const fn signer_set_digest(&self) -> &[u8; 32] {
+        &self.signer_set_digest
+    }
+
+    /// Borrow the attempt binding digest.
+    pub const fn attempt_binding_digest(&self) -> &[u8; 32] {
+        &self.attempt_binding_digest
+    }
+
+    /// Borrow the accepted aggregate-response digest.
+    pub const fn aggregate_response_digest(&self) -> &[u8; 32] {
+        &self.aggregate_response_digest
+    }
+
+    /// Borrow the accepted hint digest.
+    pub const fn hint_digest(&self) -> &[u8; 32] {
+        &self.hint_digest
+    }
+
+    /// Borrow the accepted aggregate signature digest.
+    pub const fn accepted_signature_digest(&self) -> &[u8; 32] {
+        &self.accepted_signature_digest
+    }
+
+    /// Artifact readiness does not claim a deployed production backend.
+    pub const fn claims_selected_backend_production(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim completed standard-verifier compatibility proof.
+    pub const fn claims_standard_verifier_compatibility(self) -> bool {
+        false
+    }
+
+    /// This certificate gates artifacts; it does not replace cryptographic proof.
+    pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
+/// Result of assessing a selected-backend aggregate-output artifact package.
+#[allow(clippy::large_enum_variant)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1SelectedBackendAggregateArtifactAssessment {
+    /// No package or required evidence digest was supplied.
+    Missing {
+        /// Static reason for the missing-evidence assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The selected-backend aggregate artifact is ready for proof review.
+    ArtifactReady(P1SelectedBackendAggregateArtifactCertificate),
+}
+
+impl P1SelectedBackendAggregateArtifactAssessment {
+    /// Return true when the selected-backend aggregate artifact is ready for proof review.
+    pub const fn is_artifact_ready(self) -> bool {
+        matches!(self, Self::ArtifactReady(_))
+    }
+
+    /// Borrow the artifact certificate when present.
+    pub const fn artifact_certificate(
+        &self,
+    ) -> Option<&P1SelectedBackendAggregateArtifactCertificate> {
+        match self {
+            Self::ArtifactReady(certificate) => Some(certificate),
+            Self::Missing { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
 /// Result of assessing a P1 aggregate recomputation artifact package.
 #[allow(clippy::large_enum_variant)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -846,6 +1033,52 @@ pub fn derive_standard_verifier_bridge_evidence_digest(
     hasher.update(evidence.candidate_signature_digest());
     hasher.update(recomputed_signature_digest);
     Ok(hasher.finalize().into())
+}
+
+/// Derive the digest binding a selected-backend aggregate artifact to a transcript.
+pub fn derive_p1_selected_backend_transcript_binding_digest(
+    transcript: &ProductionSigningTranscript,
+) -> [u8; 32] {
+    let input = transcript.input();
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-selected-backend-transcript-binding:v1");
+    hasher.update(transcript.challenge_digest());
+    hasher.update(&input.session_id);
+    hasher.update(input.key_id.as_bytes());
+    hasher.update(input.validator_set_digest.as_bytes());
+    hasher.update(input.dkg_transcript_digest.as_bytes());
+    hasher.update(&input.threshold.to_be_bytes());
+    hasher.update(&input.public_key.0);
+    hasher.update(&(input.application_message.len() as u64).to_be_bytes());
+    hasher.update(&input.application_message);
+    hasher.update(input.message_binding.as_bytes());
+    hasher.update(&input.coordinator_attestation_digest);
+    hasher.finalize().into()
+}
+
+/// Derive the digest binding a selected-backend aggregate artifact to signers.
+pub fn derive_p1_selected_backend_signer_set_digest(signers: &[ValidatorId]) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-selected-backend-signer-set:v1");
+    hasher.update(&(signers.len() as u16).to_be_bytes());
+    for signer in signers {
+        hasher.update(&signer.0.to_be_bytes());
+    }
+    hasher.finalize().into()
+}
+
+/// Derive the digest binding a selected-backend aggregate artifact to an attempt.
+pub fn derive_p1_selected_backend_attempt_binding_digest(
+    transcript: &ProductionSigningTranscript,
+) -> [u8; 32] {
+    let input = transcript.input();
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-selected-backend-attempt-binding:v1");
+    hasher.update(transcript.challenge_digest());
+    hasher.update(&input.session_id);
+    hasher.update(input.attempt_id.as_bytes());
+    hasher.update(&input.retry_counter.to_be_bytes());
+    hasher.finalize().into()
 }
 
 /// Assess whether a submitted package is ready for rejection-equivalence proof closure.
@@ -1123,6 +1356,233 @@ pub fn assess_p1_aggregate_recomputation_closure(
         provider_kat_evidence: package.provider_kat_evidence,
         proof_artifacts: package.proof_artifacts,
     })
+}
+
+/// Assess whether selected-backend aggregate acceptance is bound to recomputation evidence.
+pub fn assess_p1_selected_backend_aggregate_artifact(
+    transcript: &ProductionSigningTranscript,
+    accepted_aggregate: &AcceptedAggregateCandidate,
+    recomputation: &AggregateRecomputationTranscript,
+    recomputation_certificate: &P1AggregateRecomputationClosureCertificate,
+    package: Option<P1SelectedBackendAggregateArtifactPackage>,
+) -> P1SelectedBackendAggregateArtifactAssessment {
+    let Some(package) = package else {
+        return P1SelectedBackendAggregateArtifactAssessment::Missing {
+            reason: "missing P1 selected-backend aggregate artifact package",
+        };
+    };
+
+    if !package.reviewed {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate artifact must be reviewed before artifact closure",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate artifact must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != recomputation_certificate.selected_profile() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate profile does not match recomputation certificate",
+        };
+    }
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != recomputation_certificate.selected_profile_binding_digest()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate profile binding digest does not match recomputation certificate",
+        };
+    }
+    if &package.provider_kat_evidence_digest
+        != recomputation_certificate.provider_kat_evidence_digest()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate provider KAT digest does not match recomputation certificate",
+        };
+    }
+    if &package.real_recomputation_evidence_digest
+        != recomputation_certificate.real_recomputation_evidence_digest()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate recomputation digest does not match recomputation certificate",
+        };
+    }
+    if &package.standard_verifier_bridge_evidence_digest
+        != recomputation_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate bridge digest does not match recomputation certificate",
+        };
+    }
+
+    if accepted_aggregate.challenge_digest() != transcript.challenge_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 accepted aggregate transcript binding does not match production transcript",
+        };
+    }
+    if recomputation.challenge_digest() != transcript.challenge_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 aggregate recomputation transcript does not match production transcript",
+        };
+    }
+    if accepted_aggregate.aggregate_response_digest() != recomputation.aggregate_response_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 accepted aggregate response digest does not match recomputation transcript",
+        };
+    }
+    if accepted_aggregate.hint_digest() != recomputation.hint_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 accepted aggregate hint digest does not match recomputation transcript",
+        };
+    }
+    if accepted_aggregate.candidate_signature_digest()
+        != recomputation.recomputed_signature_digest()
+    {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 accepted aggregate signature digest does not match recomputation transcript",
+        };
+    }
+
+    let transcript_binding_digest =
+        derive_p1_selected_backend_transcript_binding_digest(transcript);
+    if package.transcript_binding_digest != transcript_binding_digest {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate transcript binding digest does not match production transcript",
+        };
+    }
+    let signer_set_digest =
+        derive_p1_selected_backend_signer_set_digest(accepted_aggregate.signers());
+    if package.signer_set_digest != signer_set_digest {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate signer-set digest does not match accepted aggregate",
+        };
+    }
+    let attempt_binding_digest = derive_p1_selected_backend_attempt_binding_digest(transcript);
+    if package.attempt_binding_digest != attempt_binding_digest {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate attempt binding digest does not match production transcript",
+        };
+    }
+    if package.aggregate_response_digest != *accepted_aggregate.aggregate_response_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate response digest does not match accepted aggregate",
+        };
+    }
+    if package.hint_digest != *accepted_aggregate.hint_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate hint digest does not match accepted aggregate",
+        };
+    }
+    if package.accepted_signature_digest != *accepted_aggregate.candidate_signature_digest() {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend aggregate signature digest does not match accepted aggregate",
+        };
+    }
+
+    let bridge_evidence = AggregateRejectionEquivalenceEvidence {
+        strength: AggregateRejectionEvidenceStrength::ProviderRecomputedBridge,
+        challenge_digest: *accepted_aggregate.challenge_digest(),
+        aggregate_response_digest: *accepted_aggregate.aggregate_response_digest(),
+        hint_digest: *accepted_aggregate.hint_digest(),
+        candidate_signature_digest: *accepted_aggregate.candidate_signature_digest(),
+        recomputed_signature_digest: Some(*recomputation.recomputed_signature_digest()),
+    };
+    let bound_bridge_digest = match derive_standard_verifier_bridge_evidence_digest(
+        &package.selected_profile_binding_digest,
+        &package.provider_kat_evidence_digest,
+        &bridge_evidence,
+    ) {
+        Ok(digest) => digest,
+        Err(_) => {
+            return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+                reason: "P1 selected-backend aggregate bridge evidence is not provider/recomputation bound",
+            };
+        }
+    };
+    if package.standard_verifier_bridge_evidence_digest != bound_bridge_digest {
+        return P1SelectedBackendAggregateArtifactAssessment::Invalid {
+            reason: "P1 selected-backend aggregate bridge digest does not match accepted aggregate and recomputation evidence",
+        };
+    }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 selected-backend aggregate profile binding digest is all zero",
+        ),
+        (
+            &package.provider_kat_evidence_digest,
+            "P1 selected-backend aggregate provider KAT digest is all zero",
+        ),
+        (
+            &package.standard_verifier_bridge_evidence_digest,
+            "P1 selected-backend aggregate bridge digest is all zero",
+        ),
+        (
+            &package.real_recomputation_evidence_digest,
+            "P1 selected-backend aggregate recomputation digest is all zero",
+        ),
+        (
+            &package.transcript_binding_digest,
+            "P1 selected-backend aggregate transcript binding digest is all zero",
+        ),
+        (
+            &package.signer_set_digest,
+            "P1 selected-backend aggregate signer-set digest is all zero",
+        ),
+        (
+            &package.attempt_binding_digest,
+            "P1 selected-backend aggregate attempt binding digest is all zero",
+        ),
+        (
+            &package.aggregate_response_digest,
+            "P1 selected-backend aggregate response digest is all zero",
+        ),
+        (
+            &package.hint_digest,
+            "P1 selected-backend aggregate hint digest is all zero",
+        ),
+        (
+            &package.accepted_signature_digest,
+            "P1 selected-backend aggregate signature digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1SelectedBackendAggregateArtifactAssessment::Invalid { reason };
+        }
+    }
+
+    P1SelectedBackendAggregateArtifactAssessment::ArtifactReady(
+        P1SelectedBackendAggregateArtifactCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            provider_kat_evidence_digest: package.provider_kat_evidence_digest,
+            standard_verifier_bridge_evidence_digest: package
+                .standard_verifier_bridge_evidence_digest,
+            real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
+            transcript_binding_digest,
+            signer_set_digest,
+            attempt_binding_digest,
+            aggregate_response_digest: package.aggregate_response_digest,
+            hint_digest: package.hint_digest,
+            accepted_signature_digest: package.accepted_signature_digest,
+        },
+    )
 }
 
 #[allow(clippy::result_large_err)]

@@ -84,6 +84,14 @@ migration candidates that require separate review.
   norm/hint/challenge/transcript proof artifact digests, negative corpus digest,
   and external review digest must all agree. The P1 gate is framework evidence
   until the real threshold artifacts and reviewed proofs are checked in.
+- Require the selected-backend aggregate-output artifact gate before criterion-2
+  promotion: `LocalAccept`/`AggregateAccept` evidence, signer-set digest,
+  attempt-binding digest, transcript-binding digest, provider KAT digest,
+  recomputation digest, and standard-verifier bridge evidence digest must agree.
+  This gate is necessary but not sufficient, criterion-2 remains partial, and
+  the selected-backend aggregate-output artifact gate is
+  not selected-backend proof closure, not production threshold ML-DSA security,
+  not CAVP/ACVTS validation, and not FIPS validation.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,

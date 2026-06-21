@@ -262,14 +262,19 @@ fn aggregate_accept_returns_candidate_for_threshold_partials() {
         accepted_partial(&transcript, ValidatorId(1), [11; 32]),
         accepted_partial(&transcript, ValidatorId(2), [12; 32]),
     ];
+    let evidence = aggregate_evidence(&transcript);
+    let expected_signature_digest = *evidence.standard_verifier.candidate_signature_digest();
 
-    let accepted =
-        AggregateAccept::accept(&transcript, &partials, aggregate_evidence(&transcript)).unwrap();
+    let accepted = AggregateAccept::accept(&transcript, &partials, evidence).unwrap();
 
     assert_eq!(accepted.signers(), &[ValidatorId(1), ValidatorId(2)]);
     assert_eq!(accepted.aggregate_response_digest(), &[31; 32]);
     assert_eq!(accepted.hint_digest(), &[32; 32]);
     assert_eq!(accepted.challenge_digest(), transcript.challenge_digest());
+    assert_eq!(
+        accepted.candidate_signature_digest(),
+        &expected_signature_digest
+    );
 }
 
 #[test]
