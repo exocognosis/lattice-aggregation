@@ -9,6 +9,8 @@ Audit-oriented Rust scaffolding for threshold ML-DSA-65 protocol engineering: st
 [![status: research](https://img.shields.io/badge/status-research-orange.svg)](SECURITY.md)
 [![backend: deterministic simulation](https://img.shields.io/badge/backend-deterministic%20simulation-lightgrey.svg)](docs/cryptography/claims-matrix.md)
 
+**README Nav:** [Hypothesis Closure Requirements](#hypothesis-closure-requirements)
+
 Lattice Aggregation makes the hard parts of threshold post-quantum signing reviewable before production cryptography is wired in. It models the API boundaries, transcript commitments, validator attribution, aggregation checks, adapter contracts, and audit surface that a distributed validator system would need around threshold ML-DSA.
 
 > Research status: the default backend is deterministic simulation machinery. It produces stable, standard-size byte outputs for testing protocol behavior, but it does not produce or verify real ML-DSA signatures. Treat this repository as protocol scaffolding, integration shape, benchmark shape, and review preparation.
