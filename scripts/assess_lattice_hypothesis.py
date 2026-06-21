@@ -17,7 +17,35 @@ REQUIRED_DOCUMENTS = [
     "docs/cryptography/noise-rejection-proof-plan.md",
     "docs/cryptography/formal-security-theorem.md",
     "docs/cryptography/ideal-functionality.md",
+    "docs/cryptography/proof-implementation-crosswalk.md",
+    "docs/cryptography/protocol-code-crosswalk.md",
     "docs/benchmarks/release-readiness-checklist.md",
+]
+
+SELECTED_BACKEND_DOCUMENTS = [
+    "docs/cryptography/proof-implementation-crosswalk.md",
+    "docs/cryptography/protocol-code-crosswalk.md",
+]
+
+SELECTED_BACKEND_PROFILE = {
+    "direction": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "assumption": "TEE/HSM",
+    "output": "standard-verifier-compatible output",
+    "migration_candidates": ["P2/MPC", "TALUS"],
+    "claim_boundary": (
+        "selection artifact only; not proof closure or production approval"
+    ),
+}
+
+SELECTED_BACKEND_REQUIRED_TOKENS = [
+    "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "TEE/HSM coordinator assumption",
+    "standard-verifier-compatible output",
+    "P2/MPC",
+    "TALUS",
+    "selection artifact",
+    "not proof closure",
+    "not production approval",
 ]
 
 TESTING_STATEMENT = (
@@ -84,6 +112,64 @@ def has_acceptance_test_function(source, *required_terms):
         if all(term.lower() in lowered for term in required_terms):
             return True
     return False
+
+
+def normalize_whitespace(text):
+    """Normalize text for phrase scans across Markdown line wrapping."""
+    return re.sub(r"\s+", " ", text).strip().lower()
+
+
+def selected_backend_direction(texts):
+    """Return selected-backend traceability observed in docs."""
+    selected_text = "\n".join(
+        texts.get(relative, "") for relative in SELECTED_BACKEND_DOCUMENTS
+    )
+    normalized = normalize_whitespace(selected_text)
+    missing_tokens = [
+        token
+        for token in SELECTED_BACKEND_REQUIRED_TOKENS
+        if token.lower() not in normalized
+    ]
+    profile = dict(SELECTED_BACKEND_PROFILE)
+    profile["status"] = (
+        "observed_selection_artifact" if not missing_tokens else "not_observed"
+    )
+    profile["evidence_documents"] = [
+        relative
+        for relative in SELECTED_BACKEND_DOCUMENTS
+        if texts.get(relative, "").strip()
+    ]
+    profile["missing_evidence"] = missing_tokens
+    return profile
+
+
+def selected_backend_observed(scan):
+    """Return whether the selected backend direction is fully observed."""
+    return (
+        scan.get("selected_backend_direction", {}).get("status")
+        == "observed_selection_artifact"
+    )
+
+
+def selected_backend_observation(selected_backend):
+    """Return the criterion evidence sentence for selected backend traceability."""
+    candidates = ", ".join(selected_backend["migration_candidates"])
+    return (
+        "Selected backend direction is documented as "
+        f"{selected_backend['direction']} under a "
+        f"{selected_backend['assumption']} coordinator assumption with "
+        f"{selected_backend['output']}; later migration candidates remain "
+        f"{candidates}."
+    )
+
+
+def selected_backend_boundary_blocker():
+    """Return the blocker that preserves claim boundaries for backend selection."""
+    return (
+        "Selected backend direction is a selection artifact only; proof "
+        "artifacts, backend implementation evidence, and production approval "
+        "remain open."
+    )
 
 
 def default_criteria():
@@ -202,6 +288,8 @@ def scan_documents(root):
     production_acceptance_test_path = root / "tests" / "production_acceptance.rs"
     acceptance_source = read_optional("src/production/acceptance.rs")
     production_acceptance_test = read_optional("tests/production_acceptance.rs")
+    provider_source = read_optional("src/production/provider.rs")
+    provider_test = read_optional("tests/production_provider.rs")
     mask_distribution_source = read_optional("src/production/mask_distribution.rs")
     mask_distribution_test = read_optional("tests/production_mask_distribution.rs")
     rejection_equivalence_source = read_optional("src/production/rejection_equivalence.rs")
@@ -358,10 +446,30 @@ def scan_documents(root):
         and "hybrid bound" in reduction_manifest.lower()
         and "external review signoff" in reduction_manifest.lower()
     )
+    hazmat_standard_verifier_bridge = (
+        has_public_struct(provider_source, "HazmatMldsa65Provider")
+        and "StandardMldsa65Provider" in provider_source
+        and has_acceptance_test_function(
+            provider_test,
+            "hazmat",
+            "provider",
+            "verifies",
+            "mldsa65",
+            "signature",
+        )
+        and has_acceptance_test_function(
+            provider_test,
+            "hazmat",
+            "provider",
+            "rejects",
+            "mutated",
+        )
+    )
 
     return {
         "documents": texts,
         "missing_documents": missing,
+        "selected_backend_direction": selected_backend_direction(texts),
         "acceptance_predicate_source_scaffold": acceptance_source_scaffold,
         "production_acceptance_tests_scaffold": production_acceptance_tests_scaffold,
         "local_acceptance_conformance_scaffold": (
@@ -373,6 +481,7 @@ def scan_documents(root):
         "mask_distribution_evidence_gate": mask_distribution_evidence_gate,
         "mask_distribution_closure_framework": mask_distribution_closure_framework,
         "rejection_equivalence_bridge_gate": rejection_equivalence_bridge_gate,
+        "hazmat_standard_verifier_bridge": hazmat_standard_verifier_bridge,
         "rejection_equivalence_closure_framework": (
             rejection_equivalence_closure_framework
         ),
@@ -444,9 +553,18 @@ def classify_criteria(criteria, scan):
         blockers = []
         status = "blocked"
         partial_progress = False
+        selected_backend = scan.get("selected_backend_direction", {})
 
         if missing_blocker:
             blockers.append(missing_blocker)
+        else:
+            if selected_backend_observed(scan):
+                partial_progress = True
+                observed.append(selected_backend_observation(selected_backend))
+                blockers.append(selected_backend_boundary_blocker())
+
+        if missing_blocker:
+            pass
         elif criterion["id"] == "aggregate_mask_distribution":
             if scan["mask_distribution_evidence_gate"]:
                 partial_progress = True
@@ -490,11 +608,26 @@ def classify_criteria(criteria, scan):
                     "present for recomputation, KAT, bound, and review "
                     "artifacts."
                 )
-            if scan["standard_verifier_blocked"]:
-                blockers.append(
-                    "Standard ML-DSA verifier bridge and real aggregate "
-                    "rejection checks are not present."
+            if scan["hazmat_standard_verifier_bridge"]:
+                partial_progress = True
+                observed.append(
+                    "HazmatMldsa65Provider standard-verifier smoke bridge is "
+                    "present for fixed-seed ML-DSA-65 signatures and mutated "
+                    "message/signature rejection; ACVP/FIPS KAT promotion "
+                    "remains separately gated."
                 )
+            if scan["standard_verifier_blocked"]:
+                if scan["hazmat_standard_verifier_bridge"]:
+                    blockers.append(
+                        "Real aggregate recomputation and aggregate rejection "
+                        "checks are not present; the hazmat standard-verifier "
+                        "smoke bridge is not threshold aggregate evidence."
+                    )
+                else:
+                    blockers.append(
+                        "Standard ML-DSA verifier bridge and real aggregate "
+                        "rejection checks are not present."
+                    )
         elif criterion["id"] == "abort_retry_bias":
             if scan["abort_bias_evidence_gate"]:
                 partial_progress = True
@@ -726,6 +859,7 @@ def build_report(
         "commit": git_value(root, ["rev-parse", "HEAD"]),
         "branch": git_value(root, ["branch", "--show-current"]),
         "claim_boundary": "research scaffold only",
+        "selected_backend": scan["selected_backend_direction"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
         "commands": command_results,
@@ -800,6 +934,26 @@ def render_markdown(report):
     ]
     for item in report["readme_comparison"]:
         lines.append(f"- {item}")
+
+    selected_backend = report.get("selected_backend", {})
+    lines.extend(["", "## Selected Backend Direction", ""])
+    lines.append(f"- Status: `{selected_backend.get('status', 'not_observed')}`")
+    if selected_backend.get("status") == "observed_selection_artifact":
+        lines.append(f"- Direction: {selected_backend['direction']}")
+        lines.append(
+            f"- Assumption: {selected_backend['assumption']} coordinator assumption"
+        )
+        lines.append(f"- Output target: {selected_backend['output']}")
+        lines.append(
+            "- Later migration candidates: "
+            + ", ".join(selected_backend["migration_candidates"])
+        )
+        lines.append(f"- Boundary: {selected_backend['claim_boundary']}")
+    elif selected_backend.get("missing_evidence"):
+        lines.append(
+            "- Missing evidence tokens: "
+            + ", ".join(selected_backend["missing_evidence"])
+        )
 
     lines.extend(["", "## Criteria", ""])
     for criterion in report["criteria"]:

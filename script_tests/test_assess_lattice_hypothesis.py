@@ -126,6 +126,26 @@ class DocumentClassificationTests(unittest.TestCase):
             (
                 root
                 / "docs"
+                / "cryptography"
+                / "proof-implementation-crosswalk.md"
+            ).write_text(
+                "# Proof Implementation Crosswalk\n\n"
+                "Current proof implementation crosswalk placeholder.\n",
+                encoding="utf-8",
+            )
+            (
+                root
+                / "docs"
+                / "cryptography"
+                / "protocol-code-crosswalk.md"
+            ).write_text(
+                "# Protocol Code Crosswalk\n\n"
+                "Current protocol code crosswalk placeholder.\n",
+                encoding="utf-8",
+            )
+            (
+                root
+                / "docs"
                 / "benchmarks"
                 / "release-readiness-checklist.md"
             ).write_text(
@@ -196,9 +216,58 @@ class ReportGenerationTests(unittest.TestCase):
             "ML-DSA-65 or a violation of a threshold assumption.\n",
             encoding="utf-8",
         )
+        (
+            root
+            / "docs"
+            / "cryptography"
+            / "proof-implementation-crosswalk.md"
+        ).write_text(
+            "# Proof Implementation Crosswalk\n\n"
+            "Current proof implementation crosswalk placeholder.\n",
+            encoding="utf-8",
+        )
+        (
+            root
+            / "docs"
+            / "cryptography"
+            / "protocol-code-crosswalk.md"
+        ).write_text(
+            "# Protocol Code Crosswalk\n\n"
+            "Current protocol code crosswalk placeholder.\n",
+            encoding="utf-8",
+        )
         (root / "docs" / "benchmarks" / "release-readiness-checklist.md").write_text(
             "Add standard-verifier bridge tests for accepted aggregate "
             "signatures.\n",
+            encoding="utf-8",
+        )
+
+    def write_selected_backend_docs(self, root):
+        selected_backend_text = (
+            "## Selected Backend Direction\n\n"
+            "The selected real-backend direction is ML-DSA-65 "
+            "coordinator-assisted Shamir nonce DKG P1 with a TEE/HSM "
+            "coordinator assumption and standard-verifier-compatible output. "
+            "Later migration candidates remain P2/MPC and TALUS.\n\n"
+            "This is a selection artifact only, not proof closure, not a "
+            "completed backend implementation, and not production approval.\n"
+        )
+        (
+            root
+            / "docs"
+            / "cryptography"
+            / "proof-implementation-crosswalk.md"
+        ).write_text(
+            "# Proof Implementation Crosswalk\n\n" + selected_backend_text,
+            encoding="utf-8",
+        )
+        (
+            root
+            / "docs"
+            / "cryptography"
+            / "protocol-code-crosswalk.md"
+        ).write_text(
+            "# Protocol Code Crosswalk\n\n" + selected_backend_text,
             encoding="utf-8",
         )
 
@@ -221,6 +290,25 @@ class ReportGenerationTests(unittest.TestCase):
             "fn aggregate_accept_conformance_token_is_stable() {\n"
             "    let _ = \"AggregateAccept AggregateAcceptEvidence\";\n"
             "}\n",
+            encoding="utf-8",
+        )
+
+    def write_hazmat_standard_verifier_bridge(self, root):
+        (root / "src" / "production").mkdir(parents=True, exist_ok=True)
+        (root / "tests").mkdir(parents=True, exist_ok=True)
+        (root / "src" / "production" / "provider.rs").write_text(
+            "pub trait StandardMldsa65Provider {}\n"
+            "pub struct HazmatMldsa65Provider;\n",
+            encoding="utf-8",
+        )
+        (root / "tests" / "production_provider.rs").write_text(
+            "#[test]\n"
+            "fn hazmat_provider_verifies_mldsa65_signature_from_fixed_seed() {}\n"
+            "#[test]\n"
+            "fn hazmat_provider_rejects_mutated_message_and_signature() {}\n"
+            "#[test]\n"
+            "#[ignore = \"requires checked-in ACVP/FIPS ML-DSA-65 vectors\"]\n"
+            "fn hazmat_provider_verifies_mldsa65_kats() {}\n",
             encoding="utf-8",
         )
 
@@ -470,6 +558,70 @@ class ReportGenerationTests(unittest.TestCase):
         )
         for criterion in report["criteria"]:
             self.assertTrue(criterion["blockers"])
+
+    def test_selected_backend_direction_updates_report_without_closing_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertEqual(
+            report["selected_backend"]["status"],
+            "observed_selection_artifact",
+        )
+        self.assertEqual(
+            report["selected_backend"]["direction"],
+            "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        )
+        self.assertEqual(report["selected_backend"]["assumption"], "TEE/HSM")
+        self.assertEqual(
+            report["selected_backend"]["output"],
+            "standard-verifier-compatible output",
+        )
+        self.assertEqual(
+            report["selected_backend"]["migration_candidates"],
+            ["P2/MPC", "TALUS"],
+        )
+        self.assertEqual(
+            [criterion["status"] for criterion in report["criteria"]],
+            [
+                "partially_met",
+                "partially_met",
+                "partially_met",
+                "partially_met",
+                "partially_met",
+            ],
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        for criterion in report["criteria"]:
+            self.assertIn(
+                "Selected backend direction",
+                "\n".join(criterion["observed_evidence"]),
+            )
+            self.assertIn(
+                "selection artifact",
+                "\n".join(criterion["blockers"]),
+            )
+        self.assertIn("## Selected Backend Direction", markdown)
+        self.assertIn("ML-DSA-65 coordinator-assisted Shamir nonce DKG P1", markdown)
+        self.assertIn("not proof closure or production approval", markdown)
+        aggregate = next(
+            criterion
+            for criterion in report["criteria"]
+            if criterion["id"] == "aggregate_rejection_equivalence"
+        )
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+        self.assertIn("HazmatMldsa65Provider", aggregate_evidence)
+        self.assertIn("real aggregate recomputation", aggregate_blockers.lower())
+        self.assertNotIn("Standard ML-DSA verifier bridge and real aggregate", aggregate_blockers)
 
     def test_build_report_writes_json_and_markdown(self):
         module = load_module()

@@ -139,6 +139,8 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "## Transcript Binding",
             "## Aggregation Boundary",
             "## Adapter Wire and Actor Flow",
+            "## Production Coordinator Candidate",
+            "## Selected Backend Direction",
             "## Evidence and Timeout Diagnostics",
             "## Benchmark and Export Harness",
             "## Open Production Gaps",
@@ -416,9 +418,10 @@ fn production_coordinator_docs_keep_claim_boundary() {
     assert_contains_all(
         "docs/cryptography/claims-matrix.md",
         &[
-            "coordinator-assisted ML-DSA-65 profile",
+            "Profile P1 coordinator-assisted ML-DSA-65 direction",
             "hazmat conformance only",
-            "standard-verifier-compatible only after KAT and audit gates",
+            "standard-verifier compatibility remains a target until KAT",
+            "bridge-test, proof, and audit gates pass",
             "EpsilonLedger",
             "blinded pre-filter",
             "Renyi divergence",
@@ -451,7 +454,8 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "`src/production/coordinator.rs`",
             "`src/adapter/production_wire.rs`",
             "`tests/ui/production_simulated_backend_rejected.rs`",
-            "not real ML-DSA verification",
+            "optional hazmat provider smoke covers ordinary ML-DSA-65 verification",
+            "not aggregate threshold verification",
         ],
     );
     assert_contains_all(
@@ -465,6 +469,10 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "`src/production/transcript.rs`",
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",
+            "`HazmatMldsa65Provider`",
+            "optional ML-DSA-65 verifier smoke checks",
+            "not threshold proof",
+            "aggregate threshold verification",
             "`src/adapter/production_wire.rs`",
             "Gated hazmat/conformance boundary only",
         ],
@@ -564,6 +572,26 @@ fn production_acceptance_docs_keep_claim_boundary() {
             "criterion promotion",
         ],
     );
+}
+
+#[test]
+fn selected_backend_direction_docs_keep_claim_boundary() {
+    let selected_backend_anchors = &[
+        "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "TEE/HSM coordinator assumption",
+        "standard-verifier-compatible output",
+        "P2/MPC",
+        "TALUS",
+        "selection artifact",
+        "not proof closure",
+        "not production approval",
+        "`scripts/assess_lattice_hypothesis.py`",
+        "`script_tests/test_assess_lattice_hypothesis.py`",
+        "`tests/proof_documentation_manifest.rs`",
+        "five hypothesis criteria remain partial",
+    ];
+    assert_contains_all(PROOF_CROSSWALK, selected_backend_anchors);
+    assert_contains_all(PROTOCOL_CODE_CROSSWALK, selected_backend_anchors);
 }
 
 #[test]
@@ -696,12 +724,14 @@ fn proof_crosswalk_maps_obligations_to_code_and_tests() {
             "# Proof Implementation Crosswalk",
             "## Scope",
             "## Crosswalk",
+            "## Selected Backend Direction",
             "## Manifest Anchors",
             "Transcript binding and Fiat-Shamir challenge derivation",
             "Canonical validator, commitment, and partial-share sets",
             "Wire encoding and untrusted-frame rejection",
             "Aggregation boundary and transcript consistency",
             "Simulation-only backend and production proof gates",
+            "Selected backend direction artifact",
             "`src/transcript.rs`",
             "`src/adapter/wire.rs`",
             "`src/aggregation.rs`",

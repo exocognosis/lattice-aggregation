@@ -62,7 +62,7 @@ repository.
 | Static active adversary model | `active-adversary-model.md`, `formal-security-theorem.md` | Choose and prove static active security for the first production claim. | proof sketch only | The model is described, but no proof is completed. |
 | Adaptive active adversary with erasures | `active-adversary-model.md`, `formal-security-theorem.md` | Prove adaptive security with erasure points, channel assumptions, and state-exposure theorem. | open | The docs explicitly prohibit adaptive claims without these additions. |
 | Standard ML-DSA-65 unforgeability | `formal-security-theorem.md` | Rely on accepted ML-DSA-65 EUF-CMA security for the selected model. | external theorem dependency | Must cite the external FIPS 204/ML-DSA security analysis used by the final proof. |
-| Commitment and proof-system soundness | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Rely on binding, hiding, extractability, and zero-knowledge properties of selected production primitives. | external theorem dependency | No concrete primitive or audited proof backend is selected yet. |
+| Commitment and proof-system soundness | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Rely on binding, hiding, extractability, and zero-knowledge properties of selected production primitives. | external theorem dependency | Profile P1 selects the coordinator-assisted Shamir nonce DKG direction, but concrete audited commitment, encryption, and proof-system primitives remain unselected. |
 | Constant-time and side-channel discipline | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Show implementation leakage does not invalidate the proof assumptions. | open | No side-channel audit is complete. |
 
 ## Wording Risks

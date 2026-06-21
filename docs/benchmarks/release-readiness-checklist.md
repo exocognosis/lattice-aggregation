@@ -26,9 +26,20 @@ backend, the non-default `coordinator-assisted` profile, the
 `hazmat-real-mldsa` production-candidate skeleton, or another backend not
 present in this checkout.
 
+For construction-selection review, the current selected production-candidate
+backend direction is Profile P1: ML-DSA-65 coordinator-assisted Shamir nonce
+DKG with a TEE/HSM-backed coordinator assumption and a standard-verifier
+compatibility target. This selection is not evidence of production security,
+FIPS validation, completed proof, or release readiness. Profile P2 fully
+distributed MPC and TALUS-style optimized threshold ML-DSA remain later
+migration candidates that require separate review.
+
 ## Cryptography and Proof Gates
 
-- Select and document the concrete threshold ML-DSA-65 construction.
+- Keep the concrete threshold ML-DSA-65 construction documented as Profile P1:
+  coordinator-assisted Shamir nonce DKG with the TEE/HSM coordinator
+  assumption, standard-verifier compatibility target, and P2/MPC plus TALUS
+  migration candidates.
 - Complete the threshold unforgeability and real/ideal proof package under the
   stated adversary, network, abort, and corruption model.
 - Show aggregate output compatibility with a standard ML-DSA verifier.

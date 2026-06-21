@@ -2,6 +2,9 @@
 
 use crate::{ThresholdError, ThresholdPublicKey, ThresholdSignature};
 
+#[cfg(feature = "hazmat-real-mldsa")]
+use ml_dsa::{EncodedVerifyingKey, KeyInit, MlDsa65, Signature, Verifier, VerifyingKey};
+
 /// Standard ML-DSA-65 verification provider.
 pub trait StandardMldsa65Provider {
     /// Verify a standard ML-DSA-65 signature over the original application message.
@@ -32,7 +35,7 @@ impl StandardMldsa65Provider for UnavailableMldsa65Provider {
     }
 }
 
-/// Hazmat provider wrapper for the optional ML-DSA implementation.
+/// Hazmat provider wrapper for optional ML-DSA-65 KAT and smoke compatibility checks.
 #[cfg(feature = "hazmat-real-mldsa")]
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct HazmatMldsa65Provider;
@@ -40,12 +43,19 @@ pub struct HazmatMldsa65Provider;
 #[cfg(feature = "hazmat-real-mldsa")]
 impl StandardMldsa65Provider for HazmatMldsa65Provider {
     fn verify(
-        _public_key: &ThresholdPublicKey,
-        _message: &[u8],
-        _signature: &ThresholdSignature,
+        public_key: &ThresholdPublicKey,
+        message: &[u8],
+        signature: &ThresholdSignature,
     ) -> Result<bool, ThresholdError> {
-        Err(ThresholdError::BackendUnavailable {
-            reason: "hazmat ML-DSA provider wrapper requires KAT-backed implementation",
-        })
+        let Ok(encoded_key) = EncodedVerifyingKey::<MlDsa65>::try_from(public_key.0.as_slice())
+        else {
+            return Ok(false);
+        };
+        let Ok(signature) = Signature::<MlDsa65>::try_from(signature.0.as_slice()) else {
+            return Ok(false);
+        };
+
+        let verifying_key = VerifyingKey::<MlDsa65>::new(&encoded_key);
+        Ok(verifying_key.verify(message, &signature).is_ok())
     }
 }

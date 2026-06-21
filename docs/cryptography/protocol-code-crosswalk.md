@@ -19,9 +19,18 @@ continue to use the stricter claim boundaries in
 
 The repository also contains a non-default production coordinator candidate
 behind `coordinator-assisted` and `hazmat-real-mldsa` gates. That surface is a
-hazmat/conformance profile boundary only: it is not a production threshold
-ML-DSA security claim and does not by itself establish real ML-DSA
+hazmat/conformance profile boundary only: the optional provider bridge can run
+standard ML-DSA-65 verification smoke checks, but it is not a production
+threshold ML-DSA security claim and does not establish aggregate threshold
 verification.
+
+The selected real-backend direction is ML-DSA-65 coordinator-assisted Shamir
+nonce DKG P1 with a TEE/HSM coordinator assumption and
+standard-verifier-compatible output. Later migration candidates remain P2/MPC
+and TALUS. This is a selection artifact only; it is not proof closure or
+production approval, and it does not promote any hypothesis criterion beyond
+partial status without selected-backend implementation, proof, and audit
+artifacts.
 
 ## Protocol Phase Crosswalk
 
@@ -32,7 +41,8 @@ verification.
 | Transcript binding | `src/transcript.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Deterministic challenge binding for scaffold tests; no distributional proof. |
 | Aggregation boundary | `src/aggregation.rs`, `src/backend.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs` | Boundary validation before backend aggregation; no standard-verifier claim. |
 | Adapter wire and actor flow | `src/adapter/wire.rs`, `src/adapter/actor.rs`, `src/adapter/traits.rs` | `tests/simulation.rs` | Local async scaffold for P2P and consensus integration experiments. |
-| Production coordinator candidate | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/production/acceptance.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_acceptance.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Gated hazmat/conformance boundary only; coordinator-assisted acceptance predicates are conformance-only and do not establish real ML-DSA verification or production threshold security. |
+| Production coordinator candidate | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/production/acceptance.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_acceptance.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Gated hazmat/conformance boundary only; optional provider smoke verifies ordinary ML-DSA-65 signatures, but coordinator-assisted acceptance predicates are conformance-only and do not establish aggregate threshold verification or production threshold security. |
+| Selected backend direction artifact | `docs/cryptography/proof-implementation-crosswalk.md`, `docs/cryptography/protocol-code-crosswalk.md`, `scripts/assess_lattice_hypothesis.py` | `script_tests/test_assess_lattice_hypothesis.py`, `tests/proof_documentation_manifest.rs` | ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 direction selection only; not proof closure, backend implementation evidence, or production approval. |
 | Hypothesis blocker evidence gates and closure frameworks | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Typed assessment evidence and closure-package frameworks only; each gate keeps the corresponding criterion partially met until the selected backend, proof, and audit artifacts exist. |
 | Evidence and timeout diagnostics | `src/adapter/evidence.rs`, `src/adapter/actor.rs`, `src/low_level/poly.rs` | `tests/simulation.rs`, `tests/low_level.rs` | Diagnostic evidence packets only; not production slashing authority. |
 | Benchmark and export harness | `src/main.rs`, `src/utils/exporter.rs` | library tests in `src/utils/exporter.rs`, harness review docs | Reproducible research output only; not security evidence. |
@@ -116,14 +126,32 @@ shapes.
 `tests/production_acceptance.rs`, and `tests/production_wire.rs` exercise the
 coordinator boundary, acceptance predicates, and wire conformance.
 `tests/ui/production_simulated_backend_rejected.rs` guards that the simulated
-backend cannot satisfy the production coordinator backend contract. The
-standard-verifier trait receives the original application message, while
-`MessageBinding`/`mu` remains transcript-internal. The current public API
-exposes only the blocked hazmat policy; approved release policy is
-crate-internal until real release evidence exists. These are gate and
-conformance tests only; they are not a real ML-DSA verifier, threshold proof,
-real aggregate recomputation, distribution proof, side-channel audit, FIPS
-validation, or release approval.
+backend cannot satisfy the production coordinator backend contract.
+`HazmatMldsa65Provider` runs optional ML-DSA-65 verifier smoke checks over
+ordinary provider-generated signatures; the ignored KAT test remains the
+release-promotion gate. The standard-verifier trait receives the original
+application message, while `MessageBinding`/`mu` remains transcript-internal.
+The current public API exposes only the blocked hazmat policy; approved release
+policy is crate-internal until real release evidence exists. These are gate and
+conformance tests only; they are not threshold proof, real aggregate
+recomputation, aggregate threshold verification, distribution proof,
+side-channel audit, FIPS validation, or release approval.
+
+## Selected Backend Direction
+
+The selected real threshold backend direction is ML-DSA-65
+coordinator-assisted Shamir nonce DKG P1. P1 assumes a TEE/HSM coordinator
+assumption for nonce DKG coordination and targets standard-verifier-compatible
+output. Later migration candidates remain P2/MPC and TALUS.
+
+This crosswalk is the protocol-side anchor consumed by
+`scripts/assess_lattice_hypothesis.py`; the proof-side anchor is
+`docs/cryptography/proof-implementation-crosswalk.md`. The selected direction
+narrows the next implementation path, but it is a selection artifact only. It
+is not proof closure or production approval, not completed backend
+implementation evidence, not standard-verifier KAT evidence, and not external
+cryptographic review. All five hypothesis criteria remain partial until
+selected-backend proof, implementation, and audit artifacts exist.
 
 ## Evidence and Timeout Diagnostics
 
@@ -151,7 +179,8 @@ for production consensus signing.
 
 The following remain outside the current implementation claim:
 
-- a selected concrete threshold ML-DSA-65 construction and backend;
+- implementation artifacts for the selected ML-DSA-65 coordinator-assisted
+  Shamir nonce DKG P1 backend direction;
 - a completed active-adversary security proof;
 - malicious-secure VSS/DKG with complaint soundness and anti-framing;
 - standard ML-DSA verifier compatibility for aggregate signatures beyond the
@@ -175,6 +204,7 @@ anchors:
 - `## Aggregation Boundary`
 - `## Adapter Wire and Actor Flow`
 - `## Production Coordinator Candidate`
+- `## Selected Backend Direction`
 - `## Evidence and Timeout Diagnostics`
 - `## Benchmark and Export Harness`
 - `## Open Production Gaps`
@@ -182,6 +212,16 @@ anchors:
 - `deterministic simulation backend`
 - `not a production threshold ML-DSA proof`
 - `does not produce or verify real ML-DSA signatures`
+- `ML-DSA-65 coordinator-assisted Shamir nonce DKG P1`
+- `TEE/HSM coordinator assumption`
+- `standard-verifier-compatible output`
+- `P2/MPC`
+- `TALUS`
+- `selection artifact`
+- `not proof closure`
+- `not production approval`
+- `scripts/assess_lattice_hypothesis.py`
+- `script_tests/test_assess_lattice_hypothesis.py`
 - `coordinator-assisted acceptance predicates`
 - `src/production/acceptance.rs`
 - `tests/production_acceptance.rs`

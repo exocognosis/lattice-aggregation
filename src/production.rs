@@ -29,6 +29,8 @@ pub mod provider;
 #[cfg(feature = "coordinator-assisted")]
 pub mod rejection_equivalence;
 #[cfg(feature = "coordinator-assisted")]
+pub mod selected_backend;
+#[cfg(feature = "coordinator-assisted")]
 pub mod transcript;
 #[cfg(feature = "coordinator-assisted")]
 pub mod types;
