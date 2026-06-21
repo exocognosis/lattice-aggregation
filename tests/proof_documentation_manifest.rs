@@ -627,11 +627,13 @@ fn readme_tracks_hypothesis_closure_requirements() {
             "overall hypothesis verdict was `partially_proven`",
             "Aggregate masks match or closely approximate centralized ML-DSA masks.",
             "Aggregate rejection checks match centralized ML-DSA rejection checks.",
+            "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
+            "fixture-backed bridge evidence package",
             "Selective aborts and retries do not bias accepted signatures.",
             "Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model.",
             "Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation.",
             "`epsilon_mask` remains a release blocker",
-            "P1 aggregate recomputation artifact gate and bounded ACVP/FIPS204 sample-vector provider conformance are present",
+            "P1 aggregate recomputation artifact gate, bounded ACVP/FIPS204 sample-vector provider conformance, and a fixture-backed bridge evidence package are present",
             "abort leakage and retry-bias distribution analysis remain proof obligations",
             "production local acceptance, partial verification, and hiding proof evidence are not complete",
             "the threshold unforgeability reduction remains a target",
@@ -719,8 +721,12 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`rejection_equivalence`",
             "`abort_bias`",
             "`partial_soundness`",
+            "checked-in standard-verifier bridge fixture package",
+            "bridge fixture conformance evidence",
+            "fixture-backed bridge digest drift rejection",
             "hazmat conformance only",
             "must not claim completed Renyi proof",
+            "must not claim completed standard-verifier compatibility proof",
             "threshold EUF-CMA reduction",
         ],
     );
@@ -741,6 +747,8 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "Evidence gates, sample-vector provider conformance, and closure frameworks only",
             "P1 aggregate recomputation artifact gate",
             "sample-vector provider conformance",
+            "`tests/fixtures/p1_standard_verifier_bridge_fixture.json`",
+            "fixture-backed bridge conformance evidence",
         ],
     );
     assert_contains_all(
@@ -755,6 +763,8 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "Typed assessment evidence, a P1 aggregate recomputation artifact gate",
             "P1 aggregate recomputation artifact gate",
             "sample-vector provider conformance",
+            "`tests/fixtures/p1_standard_verifier_bridge_fixture.json`",
+            "fixture-backed bridge conformance evidence",
         ],
     );
     assert_contains_all(
@@ -764,6 +774,12 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`assess_p1_aggregate_recomputation_closure`",
             "selected profile binding digest",
             "standard-verifier bridge evidence digest",
+            "checked-in standard-verifier bridge fixture package",
+            "fixture-backed bridge evidence package",
+            "`tests/fixtures/p1_standard_verifier_bridge_fixture.json`",
+            "conformance evidence only",
+            "not production threshold ML-DSA recomputation",
+            "not a completed standard-verifier compatibility proof",
             "ACVP-Server FIPS204",
             "sample-vector conformance",
             "not CAVP/ACVTS production validation",
@@ -786,6 +802,9 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "sample-vector conformance",
             "selected profile binding digest",
             "standard-verifier bridge evidence digest",
+            "checked-in standard-verifier bridge fixture package",
+            "accepted aggregate signatures from the selected backend remain a release blocker",
+            "not production threshold ML-DSA recomputation",
         ],
     );
 }

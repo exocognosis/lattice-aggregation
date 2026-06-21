@@ -816,6 +816,38 @@ impl AggregateRejectionEquivalenceGate {
     }
 }
 
+/// Derive the digest used to bind a P1 standard-verifier bridge evidence package.
+///
+/// The digest is an artifact identifier for reviewed conformance evidence. It
+/// requires provider/recomputation bridge evidence that already passed
+/// `AggregateRejectionEquivalenceGate`, but it does not claim production
+/// threshold recomputation, FIPS validation, or completed standard-verifier
+/// compatibility proof.
+pub fn derive_standard_verifier_bridge_evidence_digest(
+    selected_profile_binding_digest: &[u8; 32],
+    provider_kat_evidence_digest: &[u8; 32],
+    evidence: &AggregateRejectionEquivalenceEvidence,
+) -> Result<[u8; 32], ThresholdError> {
+    AggregateRejectionEquivalenceGate::require_verified_bridge(evidence)?;
+    let recomputed_signature_digest =
+        evidence
+            .recomputed_signature_digest()
+            .ok_or(ThresholdError::BackendUnavailable {
+                reason: "standard verifier bridge evidence is missing recomputed signature digest",
+            })?;
+
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-standard-verifier-bridge-evidence:v1");
+    hasher.update(selected_profile_binding_digest);
+    hasher.update(provider_kat_evidence_digest);
+    hasher.update(evidence.challenge_digest());
+    hasher.update(evidence.aggregate_response_digest());
+    hasher.update(evidence.hint_digest());
+    hasher.update(evidence.candidate_signature_digest());
+    hasher.update(recomputed_signature_digest);
+    Ok(hasher.finalize().into())
+}
+
 /// Assess whether a submitted package is ready for rejection-equivalence proof closure.
 pub fn assess_rejection_equivalence_closure(
     package: Option<AggregateRejectionClosurePackage>,
