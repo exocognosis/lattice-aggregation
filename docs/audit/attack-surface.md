@@ -52,7 +52,7 @@ and the [release-readiness checklist](../benchmarks/release-readiness-checklist.
 | default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure scaffold behavior cannot be described as production cryptography. | Research and simulation only. |
 | `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; not production threshold ML-DSA security. |
 | `hazmat` | Marker gate reserved for hazmat experiments | Ensure no production API silently depends on hazmat behavior. | Not a production assurance boundary. |
-| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, ignored release-blocking KAT test, and final verifier boundary before any compatibility language. | No production assurance boundary until KAT, audit, proof, side-channel, and release gates pass. |
+| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, bounded ACVP sample fixture, context-aware hazmat verifier, and final verifier boundary before any compatibility language. | No production assurance boundary until full KAT, audit, proof, side-channel, validation, and release gates pass. |
 
 Feature-gate risk is mainly claim confusion and accidental promotion. A reviewer
 should confirm that production-labeled constructors fail closed and that passing
@@ -105,8 +105,10 @@ The current production-candidate skeleton is concentrated in:
 - `src/production/coordinator.rs`: coordinator policy gates and final verifier
   gate.
 - `src/adapter/production_wire.rs`: production coordinator wire frames.
-- `tests/production_provider.rs`: provider KAT gate coverage, including an
-  ignored release-blocking test that must be enabled before release claims.
+- `tests/production_provider.rs`: provider KAT gate coverage, including bounded
+  NIST ACVP-Server FIPS204 sample-vector conformance for ordinary ML-DSA-65
+  verification. This is not aggregate threshold verification or validation
+  evidence.
 - `tests/ui/production_simulated_backend_rejected.rs`: compile-fail guard that
   the simulated backend cannot satisfy the production coordinator contract.
 

@@ -1,0 +1,116 @@
+# Aggregate Rejection-Equivalence Evidence
+
+This note records a bounded conformance artifact for blocker 2:
+aggregate rejection checks should match centralized ML-DSA rejection checks.
+The current artifact does not close the blocker. It separates scaffold-only
+digest evidence from evidence that is tied to both a standard-verifier bridge
+and a public aggregate recomputation transcript. It also defines a stronger
+closure-package framework for the evidence that must exist before blocker 2 can
+move from conformance plumbing to proof closure.
+
+## Implemented Gate
+
+`src/production/rejection_equivalence.rs` defines:
+
+- `AggregateRejectionEvidenceStrength::ScaffoldOnly`, for digest-only evidence
+  that can support conformance plumbing but cannot satisfy the equivalence gate.
+- `AggregateRejectionEvidenceStrength::ProviderRecomputedBridge`, for evidence
+  minted only after `StandardVerifierEvidence::verify::<P>` accepts the
+  candidate signature and the recomputed aggregate signature digest matches the
+  verifier-checked candidate signature digest.
+- `AggregateRecomputationTranscript`, a public-output transcript that binds the
+  production challenge digest, aggregate-response digest, hint digest, and
+  recomputed aggregate-signature digest.
+- `AggregateRejectionEquivalenceGate`, which rejects scaffold-only evidence and
+  returns bridge evidence only when the standard provider and recomputation
+  transcript agree on the candidate signature.
+- `AggregateRejectionEvidenceDigest`, which tags each digest by artifact class
+  so scaffold-only placeholders cannot be supplied where real recomputation or
+  KAT evidence is required.
+- `AggregateRejectionClosurePackage`, which represents the complete blocker-2
+  closure package: real aggregate recomputation evidence, standard verifier
+  provider/KAT evidence, norm-bound evidence, hint-bound evidence,
+  challenge-bound evidence, transcript-binding evidence, negative test corpus
+  evidence, external review evidence, and an explicit conformance boundary.
+- `assess_rejection_equivalence_closure`, which returns
+  `AggregateRejectionClosureAssessment::ClosureReady` only when the package uses
+  the `ClosureCandidate` boundary and every required digest is present,
+  non-zero, and classified as the expected non-scaffold artifact.
+- `AcvpFips204EvidenceSource`, `Mldsa65ProviderKatEvidence`,
+  `P1RejectionProofArtifacts`, `P1AggregateRecomputationClosurePackage`, and
+  `assess_p1_aggregate_recomputation_closure`, which bind the selected
+  ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 profile to
+  ACVP/FIPS204-backed provider KAT evidence, aggregate recomputation evidence,
+  bound/proof artifact digests, negative-corpus evidence, and external review
+  digests. The P1 gate rejects smoke-only KATs, unreviewed proof artifacts, and
+  digest drift between the P1 package and the underlying closure package.
+
+The targeted conformance tests in `tests/production_rejection_equivalence.rs`
+cover the red/green behavior:
+
+- scaffold-only evidence is classified but does not satisfy the gate;
+- provider-verified recomputation evidence satisfies the gate;
+- failed standard verification is rejected;
+- recomputed aggregate-signature mismatch is rejected.
+- complete closure packages expose closure-ready status without claiming a
+  production verifier;
+- missing real recomputation evidence is rejected;
+- missing standard provider/KAT evidence is rejected;
+- scaffold-only recomputation or KAT evidence is rejected;
+- missing bound evidence, zero external review digests, and scaffold-only
+  conformance boundaries are rejected.
+- P1 aggregate recomputation packages expose artifact-ready status only when the
+  selected P1 profile, ACVP/FIPS204-backed provider evidence, reviewed proof
+  artifacts, and closure-package digests agree;
+- smoke-only provider evidence, unreviewed proof artifacts, and mismatched P1
+  KAT digests are rejected.
+
+`tests/production_provider.rs` also includes a checked-in, bounded NIST
+ACVP-Server FIPS204 `ML-DSA-sigVer` sample-vector fixture at
+`tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json`. The fixture is pinned
+to upstream commit `15c0f3deeefbfa8cb6cd32a99e1ca3b738c66bf0` with SHA-256
+digests for the upstream `prompt.json` and `expectedResults.json`. It exercises
+one expected-accept and one expected-reject ML-DSA-65 external/pure sigVer case
+through `HazmatMldsa65Provider::verify_with_context`. This is provider
+sample-vector conformance evidence only; it is not CAVP/ACVTS production validation.
+
+## Claim Boundary
+
+This is hazmat/conformance-only evidence. It does not claim production
+threshold ML-DSA security, real threshold aggregate recomputation, CAVP/ACVTS
+validation, FIPS 140 module status, or rejection-sampling distribution
+preservation. `ClosureReady` and `ArtifactReady` mean the relevant framework has
+all typed evidence digests needed for proof review; they do not mean those
+artifacts have been independently validated in this repository.
+
+The safe claim is narrower: the coordinator-assisted profile now has a typed
+gate that prevents digest-only scaffold evidence from being mistaken for
+standard-verifier/recomputation bridge evidence, a closure-package assessor that
+prevents missing or scaffold-only recomputation/KAT evidence from being reported
+as ready for blocker closure, an ACVP sample-vector provider conformance test,
+and a selected-P1 artifact gate that prevents smoke-only KATs or unreviewed
+proof artifacts from closing the P1 recomputation blocker.
+
+## What Remains
+
+To fully close blocker 2 cryptographically, the repo still needs:
+
+- a real threshold aggregate recomputation artifact produced by the selected
+  backend, with digest evidence tied to the package;
+- full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
+  vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,
+  and prerequisite validation references if the claim moves beyond sample-vector
+  conformance;
+- reviewed norm, hint, and challenge bound artifacts whose digests match the
+  closure package;
+- a transcript-binding artifact showing the package is bound to the production
+  signing transcript, original application message, signer set, and attempt;
+- a negative test corpus showing scaffold/provider mismatch cases fail closed;
+- external review evidence for the recomputation, KAT, bounds, transcript, and
+  negative-corpus artifacts;
+- broader coordinator/proof wiring after write-scope review, so closure-ready
+  packages become an explicit release gate instead of a standalone assessor;
+- crosswalk and proof-manifest updates once the artifact is promoted beyond
+  this owned-file slice;
+- proof work showing accepted aggregate rejection behavior matches centralized
+  ML-DSA rejection checks, including distribution-preservation analysis.

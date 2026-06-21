@@ -26,9 +26,20 @@ backend, the non-default `coordinator-assisted` profile, the
 `hazmat-real-mldsa` production-candidate skeleton, or another backend not
 present in this checkout.
 
+For construction-selection review, the current selected production-candidate
+backend direction is Profile P1: ML-DSA-65 coordinator-assisted Shamir nonce
+DKG with a TEE/HSM-backed coordinator assumption and a standard-verifier
+compatibility target. This selection is not evidence of production security,
+FIPS validation, completed proof, or release readiness. Profile P2 fully
+distributed MPC and TALUS-style optimized threshold ML-DSA remain later
+migration candidates that require separate review.
+
 ## Cryptography and Proof Gates
 
-- Select and document the concrete threshold ML-DSA-65 construction.
+- Keep the concrete threshold ML-DSA-65 construction documented as Profile P1:
+  coordinator-assisted Shamir nonce DKG with the TEE/HSM coordinator
+  assumption, standard-verifier compatibility target, and P2/MPC plus TALUS
+  migration candidates.
 - Complete the threshold unforgeability and real/ideal proof package under the
   stated adversary, network, abort, and corruption model.
 - Show aggregate output compatibility with a standard ML-DSA verifier.
@@ -43,12 +54,43 @@ present in this checkout.
   production-labeled API.
 - Complete FIPS/ACVP-style ML-DSA-65 provider KATs for the selected provider
   and link the vectors, logs, tool versions, and reviewer sign-off.
-- Enable and pass the ignored KAT release gate before any
-  `hazmat-real-mldsa` compatibility or release claim is made.
+- Keep the checked-in NIST ACVP-Server FIPS204 `ML-DSA-sigVer` ML-DSA-65 sample
+  fixture passing under `hazmat-real-mldsa`, with source commit and SHA-256
+  digests recorded. Treat this as sample-vector conformance only; CAVP/ACVTS
+  validation claims require lab/Prod-server vector sets, validation transcripts,
+  certificate identifiers, prerequisite validation references, and reviewer
+  sign-off.
 - Complete coordinator-assisted threshold KATs for profile policy gates,
   transcript binding, preprocessing attempts, final verifier behavior, and
   production coordinator wire frames.
 - Add standard-verifier bridge tests for accepted aggregate signatures.
+- Provide production LocalAccept/AggregateAccept evidence for the selected
+  backend before any criterion promotion, including rejection cases, logs,
+  reviewer sign-off, and linked `tests/production_acceptance.rs` results.
+- Tie `LocalAccept` and `AggregateAccept` acceptance to a standard verifier bridge
+  and real aggregate recomputation evidence; absent bridge or
+  recomputation evidence keeps the predicates conformance-only.
+- Require the P1 aggregate recomputation artifact gate before criterion-2
+  promotion: selected ML-DSA-65 coordinator-assisted profile binding,
+  ACVP/FIPS204-backed provider evidence, real threshold recomputation digest,
+  norm/hint/challenge/transcript proof artifact digests, negative corpus digest,
+  and external review digest must all agree. The P1 gate is framework evidence
+  until the real threshold artifacts and reviewed proofs are checked in.
+- Link the five hypothesis blocker evidence gates and closure frameworks before
+  any criterion promotion: `tests/production_mask_distribution.rs`,
+  `tests/production_rejection_equivalence.rs`,
+  `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`,
+  and `tests/unauthorized_aggregate_reduction_manifest.rs`.
+- Treat those evidence gates and closure-package frameworks as partial scaffold
+  progress only until the selected backend supplies reviewed Renyi evidence,
+  real aggregate recomputation, abort-bias analysis, proof-backed partial
+  verification, and a completed unauthorized-aggregate reduction. Framework
+  closure does not replace reviewed proof artifacts.
+- Link proof/audit linkage for acceptance criteria from
+  [claims-matrix.md](../cryptography/claims-matrix.md),
+  [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
+  side-channel review, audit TCB review, and external cryptographic review
+  before criterion promotion.
 - Verify malformed partials, malformed hints, invalid bounds, transcript
   mismatch, key mismatch, duplicate signer, and unknown signer rejection.
 - Link Renyi-divergence proof evidence for any `EpsilonLedger` masking budget

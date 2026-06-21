@@ -9,8 +9,11 @@ research scaffold and the non-default production-candidate skeleton. The
 production-candidate surfaces exist under `coordinator-assisted` and
 `hazmat-real-mldsa`, but this document is a triage aid, not an audit result,
 certification statement, proof package, or production-readiness claim.
-There is no real ML-DSA verifier, audited production backend, completed proof,
-FIPS validation, or release approval in this checkout.
+There is an opt-in hazmat ML-DSA-65 provider verifier for ordinary signature
+conformance, including a bounded NIST ACVP-Server FIPS204 sample fixture. There
+is no production aggregate verifier, audited production backend, completed
+proof, CAVP/ACVTS validation, FIPS validation, or release approval in this
+checkout.
 
 The authoritative claim boundaries remain in
 [claims-matrix.md](../cryptography/claims-matrix.md),
@@ -103,7 +106,7 @@ Start with these files for security triage:
 | `src/dkg.rs` | Simulated distributed key generation scaffold. |
 | `src/protocol.rs` | Type-state signing flow and validation ordering. |
 | `src/aggregation.rs` | Aggregation boundary and threshold-valid share checks. |
-| `src/production/provider.rs` | Provider contract, provider KAT gate, ignored release-blocking KAT test target, and final verification boundary. |
+| `src/production/provider.rs` | Provider contract, bounded ACVP sample KAT gate, context-aware hazmat verifier, and final verification boundary. |
 | `src/production/transcript.rs` | Production-candidate transcript fields and binding assumptions. |
 | `src/production/preprocess.rs` | Preprocessing attempts, retry context, and nonce/mask claim boundary. |
 | `src/production/coordinator.rs` | Coordinator-assisted profile policy gates, final verifier gate, and non-default production-candidate flow. |

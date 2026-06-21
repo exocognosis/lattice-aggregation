@@ -13,6 +13,13 @@ coordinator-assisted, TEE/HSM-assisted Shamir nonce DKG profile that produces
 FIPS 204-compatible ML-DSA-65 signatures verified by an unmodified standard
 ML-DSA verifier.
 
+The selected construction is **Profile P1: ML-DSA-65 coordinator-assisted
+Shamir nonce DKG with a TEE/HSM-backed coordinator assumption**. This is the
+current production-candidate backend direction, not a production claim. Later
+migration candidates are **Profile P2**, a fully distributed MPC profile, and
+TALUS-style optimized threshold ML-DSA, each requiring separate proof, audit,
+KAT, and implementation evidence before promotion.
+
 This document is a design spec, not an implementation plan, cryptographic
 proof, audit result, FIPS validation claim, or production-readiness statement.
 
@@ -26,7 +33,8 @@ The design is grounded in:
   rejection sampling, and side-channel discipline.
 - The current FIPS 204-compatible threshold ML-DSA research direction based on
   masked Lagrange reconstruction and Shamir nonce DKG.
-- TALUS as a later optimization candidate, not the first implementation target.
+- Profile P2 fully distributed MPC and TALUS-style optimized threshold ML-DSA
+  as later migration candidates, not the first implementation target.
 - The current repository architecture and claim boundaries in
   `docs/cryptography/*`, `docs/audit/*`, and the scaffold Rust modules.
 
@@ -86,7 +94,8 @@ The first profile must not claim:
 
 ## Recommended Profile
 
-Target **ML-DSA-65, coordinator-assisted Shamir nonce DKG** first.
+Target **Profile P1: ML-DSA-65, coordinator-assisted Shamir nonce DKG** first,
+under a TEE/HSM-backed coordinator assumption.
 
 The profile has three practical advantages for this repository:
 
@@ -95,7 +104,8 @@ The profile has three practical advantages for this repository:
 2. It fits the current actor, adapter, transcript, partial-share, and evidence
    scaffold.
 3. It isolates the hardest trusted step in a coordinator component that can be
-   replaced later by a stronger distributed MPC profile.
+   replaced later by Profile P2 fully distributed MPC or TALUS-style optimized
+   threshold ML-DSA.
 
 The first narrow implementation claim, after evidence exists, should be:
 
@@ -467,7 +477,8 @@ Before any production label is allowed:
 7. Add negative vectors, fuzzing, side-channel gates, and audit evidence.
 8. Only after external review, consider promoting a `production-*` feature.
 9. Later, replace externally provisioned shares with proof-grade VSS/DKG.
-10. Later, add a fully distributed MPC profile or TALUS-style optimized profile.
+10. Later, evaluate Profile P2 fully distributed MPC and TALUS-style optimized
+    threshold ML-DSA as separate migration candidates.
 
 ## Documentation Updates Required During Implementation
 
