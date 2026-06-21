@@ -762,6 +762,8 @@ fn blocker_evidence_docs_keep_claim_boundary() {
         &[
             "`P1AggregateRecomputationClosurePackage`",
             "`assess_p1_aggregate_recomputation_closure`",
+            "selected profile binding digest",
+            "standard-verifier bridge evidence digest",
             "ACVP-Server FIPS204",
             "sample-vector conformance",
             "not CAVP/ACVTS production validation",
@@ -782,6 +784,8 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "P1 aggregate recomputation artifact gate",
             "NIST ACVP-Server FIPS204",
             "sample-vector conformance",
+            "selected profile binding digest",
+            "standard-verifier bridge evidence digest",
         ],
     );
 }
