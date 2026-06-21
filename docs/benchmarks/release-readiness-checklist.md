@@ -78,7 +78,8 @@ migration candidates that require separate review.
   recomputation evidence keeps the predicates conformance-only.
 - Require the P1 aggregate recomputation artifact gate before criterion-2
   promotion: selected ML-DSA-65 coordinator-assisted profile binding,
-  ACVP/FIPS204-backed provider evidence, real threshold recomputation digest,
+  selected profile binding digest, ACVP/FIPS204-backed provider evidence,
+  standard-verifier bridge evidence digest, real threshold recomputation digest,
   norm/hint/challenge/transcript proof artifact digests, negative corpus digest,
   and external review digest must all agree. The P1 gate is framework evidence
   until the real threshold artifacts and reviewed proofs are checked in.

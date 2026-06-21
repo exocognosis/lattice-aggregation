@@ -40,10 +40,12 @@ move from conformance plumbing to proof closure.
   `P1RejectionProofArtifacts`, `P1AggregateRecomputationClosurePackage`, and
   `assess_p1_aggregate_recomputation_closure`, which bind the selected
   ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 profile to
-  ACVP/FIPS204-backed provider KAT evidence, aggregate recomputation evidence,
+  a selected profile binding digest, ACVP/FIPS204-backed provider KAT evidence,
+  aggregate recomputation evidence, a standard-verifier bridge evidence digest,
   bound/proof artifact digests, negative-corpus evidence, and external review
-  digests. The P1 gate rejects smoke-only KATs, unreviewed proof artifacts, and
-  digest drift between the P1 package and the underlying closure package.
+  digests. The P1 gate rejects smoke-only KATs, unreviewed proof artifacts,
+  selected-profile drift, standard-verifier bridge drift, and digest drift
+  between the P1 package and the underlying closure package.
 
 The targeted conformance tests in `tests/production_rejection_equivalence.rs`
 cover the red/green behavior:
@@ -60,10 +62,12 @@ cover the red/green behavior:
 - missing bound evidence, zero external review digests, and scaffold-only
   conformance boundaries are rejected.
 - P1 aggregate recomputation packages expose artifact-ready status only when the
-  selected P1 profile, ACVP/FIPS204-backed provider evidence, reviewed proof
+  selected P1 profile, selected profile binding digest, ACVP/FIPS204-backed
+  provider evidence, standard-verifier bridge evidence digest, reviewed proof
   artifacts, and closure-package digests agree;
-- smoke-only provider evidence, unreviewed proof artifacts, and mismatched P1
-  KAT digests are rejected.
+- smoke-only provider evidence, unreviewed proof artifacts, mismatched selected
+  profile binding digests, mismatched standard-verifier bridge evidence digests,
+  and mismatched P1 KAT digests are rejected.
 
 `tests/production_provider.rs` also includes a checked-in, bounded NIST
 ACVP-Server FIPS204 `ML-DSA-sigVer` sample-vector fixture at
@@ -89,7 +93,8 @@ standard-verifier/recomputation bridge evidence, a closure-package assessor that
 prevents missing or scaffold-only recomputation/KAT evidence from being reported
 as ready for blocker closure, an ACVP sample-vector provider conformance test,
 and a selected-P1 artifact gate that prevents smoke-only KATs or unreviewed
-proof artifacts from closing the P1 recomputation blocker.
+proof artifacts, selected-profile drift, or standard-verifier bridge drift from
+closing the P1 recomputation blocker.
 
 ## What Remains
 
@@ -97,6 +102,10 @@ To fully close blocker 2 cryptographically, the repo still needs:
 
 - a real threshold aggregate recomputation artifact produced by the selected
   backend, with digest evidence tied to the package;
+- a selected profile binding digest that ties the artifact package to the exact
+  ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 profile under review;
+- a standard-verifier bridge evidence digest proving the provider-checked
+  candidate and recomputed aggregate digest agree under the bridge conditions;
 - full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
   vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,
   and prerequisite validation references if the claim moves beyond sample-vector
