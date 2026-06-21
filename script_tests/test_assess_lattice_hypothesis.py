@@ -405,6 +405,7 @@ class ReportGenerationTests(unittest.TestCase):
             "pub struct P1RejectionProofArtifacts;\n"
             "pub struct P1AggregateRecomputationClosurePackage;\n"
             "pub enum P1AggregateRecomputationAssessment { ArtifactReady }\n"
+            "pub fn standard_verifier_bridge_fixture_package_digest() {}\n"
             "pub fn assess_rejection_equivalence_closure() {}\n"
             "pub fn assess_p1_aggregate_recomputation_closure() {}\n",
             encoding="utf-8",
@@ -415,7 +416,9 @@ class ReportGenerationTests(unittest.TestCase):
             "#[test]\n"
             "fn complete_closure_package_exposes_closure_ready_status_without_production_claims() {}\n"
             "#[test]\n"
-            "fn p1_recomputation_closure_rejects_smoke_only_kat_evidence() {}\n",
+            "fn p1_recomputation_closure_rejects_smoke_only_kat_evidence() {}\n"
+            "#[test]\n"
+            "fn standard_verifier_bridge_fixture_package_digest_fails_loudly_on_drift() {}\n",
             encoding="utf-8",
         )
         (root / "src" / "production" / "abort_bias.rs").write_text(
@@ -464,6 +467,35 @@ class ReportGenerationTests(unittest.TestCase):
         (root / "tests" / "unauthorized_aggregate_reduction_manifest.rs").write_text(
             "#[test]\n"
             "fn unauthorized_aggregate_reduction_manifest_names_cases() {}\n",
+            encoding="utf-8",
+        )
+
+    def write_selected_backend_aggregate_artifact_gate(self, root):
+        rejection_equivalence_path = (
+            root / "src" / "production" / "rejection_equivalence.rs"
+        )
+        rejection_equivalence_path.write_text(
+            rejection_equivalence_path.read_text(encoding="utf-8")
+            + "pub struct P1SelectedBackendAggregateArtifactPackage;\n"
+            + "pub struct P1SelectedBackendAggregateArtifactCertificate;\n"
+            + "pub enum P1SelectedBackendAggregateArtifactAssessment { ArtifactReady }\n"
+            + "pub fn assess_p1_selected_backend_aggregate_artifact() {}\n"
+            + "pub fn derive_p1_selected_backend_transcript_binding_digest() {}\n"
+            + "pub fn derive_p1_selected_backend_signer_set_digest() {}\n"
+            + "pub fn derive_p1_selected_backend_attempt_binding_digest() {}\n",
+            encoding="utf-8",
+        )
+        production_rejection_test_path = (
+            root / "tests" / "production_rejection_equivalence.rs"
+        )
+        production_rejection_test_path.write_text(
+            production_rejection_test_path.read_text(encoding="utf-8")
+            + "#[test]\n"
+            + "fn p1_selected_backend_aggregate_artifact_accepts_bound_acceptance_and_recomputation() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_aggregate_artifact_rejects_stale_bridge_for_changed_outputs() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_aggregate_artifact_rejects_unreviewed_package() {}\n",
             encoding="utf-8",
         )
 
@@ -628,6 +660,37 @@ class ReportGenerationTests(unittest.TestCase):
         )
         for criterion in report["criteria"]:
             self.assertTrue(criterion["blockers"])
+
+    def test_selected_backend_aggregate_artifact_gate_updates_report_without_closing_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_selected_backend_aggregate_artifact_gate"])
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        self.assertIn("Selected-backend aggregate-output artifact gate", aggregate_evidence)
+        self.assertIn("conformance/proof-review", aggregate_evidence)
+        self.assertIn("not selected-backend proof closure", aggregate_evidence)
+        self.assertIn("Real selected-backend aggregate outputs", aggregate_blockers)
+        self.assertIn("selected-backend proof closure", aggregate_blockers)
+        self.assertIn("selected-backend aggregate-output artifact gate", markdown)
+        self.assertNotIn("completely_proven", markdown)
 
     def test_selected_backend_direction_updates_report_without_closing_proofs(self):
         module = load_module()

@@ -411,6 +411,10 @@ def scan_documents(root):
         )
         and has_public_function(
             rejection_equivalence_source,
+            "standard_verifier_bridge_fixture_package_digest",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
             "assess_p1_aggregate_recomputation_closure",
         )
         and has_acceptance_test_function(
@@ -423,6 +427,61 @@ def scan_documents(root):
             rejection_equivalence_test,
             "smoke",
             "kat",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "fixture",
+            "package",
+            "digest",
+        )
+    )
+    p1_selected_backend_aggregate_artifact_gate = (
+        p1_aggregate_recomputation_artifact_gate
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1SelectedBackendAggregateArtifactPackage",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1SelectedBackendAggregateArtifactCertificate",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1SelectedBackendAggregateArtifactAssessment",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_selected_backend_aggregate_artifact",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_transcript_binding_digest",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_signer_set_digest",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_attempt_binding_digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "p1",
+            "selected",
+            "backend",
+            "aggregate",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "stale",
+            "bridge",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "unreviewed",
+            "package",
         )
     )
     abort_bias_evidence_gate = (
@@ -537,6 +596,9 @@ def scan_documents(root):
         ),
         "p1_aggregate_recomputation_artifact_gate": (
             p1_aggregate_recomputation_artifact_gate
+        ),
+        "p1_selected_backend_aggregate_artifact_gate": (
+            p1_selected_backend_aggregate_artifact_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -686,11 +748,35 @@ def classify_criteria(criteria, scan):
                     "selected ML-DSA-65 coordinator-assisted profile; it binds "
                     "ACVP/FIPS204-backed provider KAT evidence, recomputation "
                     "digests, bound/proof artifacts, negative corpus evidence, "
-                    "and external review digests without claiming FIPS "
-                    "validation or production approval."
+                    "raw fixture-package digest, and external review digests "
+                    "without claiming FIPS validation or production approval."
+                )
+            if scan.get("p1_selected_backend_aggregate_artifact_gate"):
+                partial_progress = True
+                observed.append(
+                    "Selected-backend aggregate-output artifact gate is present "
+                    "for P1; it binds LocalAccept/AggregateAccept evidence, "
+                    "signer-set, attempt, transcript, provider KAT, "
+                    "recomputation, and standard-verifier bridge digests as "
+                    "conformance/proof-review evidence only, "
+                    "not selected-backend proof closure, "
+                    "not production threshold ML-DSA security, "
+                    "not CAVP/ACVTS validation, not FIPS validation, and "
+                    "not a completed standard-verifier compatibility proof."
                 )
             if scan["standard_verifier_blocked"]:
-                if scan.get("p1_aggregate_recomputation_artifact_gate"):
+                if scan.get("p1_selected_backend_aggregate_artifact_gate"):
+                    blockers.append(
+                        "Real selected-backend aggregate outputs, real P1 "
+                        "aggregate recomputation artifacts, selected-backend "
+                        "proof closure, full ACVP/FIPS KAT coverage, reviewed "
+                        "proof artifacts, and CAVP/ACVTS validation artifacts "
+                        "are still not checked in; the P1 recomputation gate, "
+                        "selected-backend aggregate-output artifact gate, and "
+                        "bounded sample-vector KAT are framework/conformance "
+                        "evidence only."
+                    )
+                elif scan.get("p1_aggregate_recomputation_artifact_gate"):
                     blockers.append(
                         "Real P1 aggregate recomputation artifacts, full "
                         "ACVP/FIPS KAT coverage, reviewed proof artifacts, and "

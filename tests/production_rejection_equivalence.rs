@@ -396,6 +396,18 @@ fn assert_p1_invalid_reason(assessment: P1AggregateRecomputationAssessment, expe
     }
 }
 
+fn assert_selected_artifact_invalid_reason(
+    assessment: P1SelectedBackendAggregateArtifactAssessment,
+    expected: &str,
+) {
+    match assessment {
+        P1SelectedBackendAggregateArtifactAssessment::Invalid { reason } => {
+            assert_eq!(reason, expected);
+        }
+        other => panic!("expected invalid selected-backend artifact assessment, got {other:?}"),
+    }
+}
+
 fn decode_hex_array<const N: usize>(hex: &str) -> [u8; N] {
     let bytes = decode_hex(hex);
     assert_eq!(bytes.len(), N, "hex value should decode to {N} bytes");
@@ -770,6 +782,7 @@ fn standard_verifier_bridge_fixture_negative_cases_execute_expected_rejections()
                     case.selected_profile_binding_digest(),
                     digest(41),
                     standard_verifier_bridge_digest(),
+                    standard_verifier_bridge_fixture_package_digest(),
                     digest(43),
                     digest(44),
                     digest(45),
@@ -953,6 +966,24 @@ fn closure_package_rejects_missing_standard_provider_kat_evidence() {
 }
 
 #[test]
+fn closure_package_rejects_wrong_kind_standard_provider_kat_evidence() {
+    let mut package = closure_package();
+    package.standard_provider_kat_evidence = Some(
+        AggregateRejectionEvidenceDigest::real_recomputation(provider_kat_fixture_digest()),
+    );
+
+    let assessment = assess_rejection_equivalence_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        AggregateRejectionClosureAssessment::Invalid {
+            reason: "standard verifier provider KAT evidence has wrong artifact kind",
+        }
+    );
+    assert!(!assessment.is_closure_ready());
+}
+
+#[test]
 fn closure_package_rejects_missing_standard_verifier_bridge_evidence() {
     let mut package = closure_package();
     package.standard_verifier_bridge_evidence = None;
@@ -1067,6 +1098,7 @@ fn proof_artifacts() -> P1RejectionProofArtifacts {
             .profile_binding_digest(),
         digest(41),
         standard_verifier_bridge_digest(),
+        standard_verifier_bridge_fixture_package_digest(),
         digest(43),
         digest(44),
         digest(45),
@@ -1216,9 +1248,37 @@ fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
         certificate.standard_verifier_bridge_evidence_digest(),
         &standard_verifier_bridge_digest()
     );
+    assert_eq!(
+        certificate.standard_verifier_bridge_fixture_package_digest(),
+        &standard_verifier_bridge_fixture_package_digest()
+    );
     assert!(!certificate.claims_fips_validation());
     assert!(!certificate.claims_production_approval());
     assert!(!certificate.claims_standard_verifier_compatibility());
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_zero_bridge_fixture_package_digest() {
+    let mut package = p1_recomputation_package();
+    package.proof_artifacts = P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        digest(41),
+        standard_verifier_bridge_digest(),
+        [0; 32],
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(46),
+        negative_test_corpus_digest(),
+        digest(48),
+        true,
+    );
+
+    assert_p1_invalid_reason(
+        assess_p1_aggregate_recomputation_closure(Some(package)),
+        "P1 standard verifier bridge fixture package digest is all zero",
+    );
 }
 
 #[test]
@@ -1466,6 +1526,30 @@ fn p1_selected_backend_aggregate_artifact_rejects_provider_kat_drift() {
 }
 
 #[test]
+fn p1_selected_backend_aggregate_artifact_rejects_zero_provider_kat_digest() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&fixture);
+    let recomputation = fixture_recomputation_transcript(&fixture);
+    let recomputation_certificate = p1_recomputation_certificate();
+    let mut package = selected_backend_aggregate_artifact_package(&fixture);
+    package.provider_kat_evidence_digest = [0; 32];
+
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    assert_selected_artifact_invalid_reason(
+        assessment,
+        "P1 selected-backend aggregate provider KAT digest is all zero",
+    );
+}
+
+#[test]
 fn p1_selected_backend_aggregate_artifact_rejects_transcript_binding_drift() {
     let fixture = standard_verifier_bridge_fixture();
     let transcript = transcript_from_fixture(&fixture.transcript);
@@ -1597,6 +1681,74 @@ fn p1_recomputation_closure_rejects_smoke_only_kat_evidence() {
 }
 
 #[test]
+fn p1_recomputation_closure_rejects_unreviewed_provider_kat_evidence() {
+    let mut package = p1_recomputation_package();
+    package.provider_kat_evidence = Mldsa65ProviderKatEvidence::new(
+        AcvpFips204EvidenceSource::NistAcvpServerFips204,
+        provider_kat_fixture_digest(),
+        digest(49),
+        digest(50),
+        false,
+    );
+
+    assert_p1_invalid_reason(
+        assess_p1_aggregate_recomputation_closure(Some(package)),
+        "P1 provider KAT evidence must be reviewed before artifact closure",
+    );
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_zero_provider_kat_digest() {
+    let mut package = p1_recomputation_package();
+    package.provider_kat_evidence = Mldsa65ProviderKatEvidence::new(
+        AcvpFips204EvidenceSource::NistAcvpServerFips204,
+        [0; 32],
+        digest(49),
+        digest(50),
+        true,
+    );
+
+    assert_p1_invalid_reason(
+        assess_p1_aggregate_recomputation_closure(Some(package)),
+        "P1 provider KAT evidence digest is all zero",
+    );
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_zero_acvp_vector_set_digest() {
+    let mut package = p1_recomputation_package();
+    package.provider_kat_evidence = Mldsa65ProviderKatEvidence::new(
+        AcvpFips204EvidenceSource::NistAcvpServerFips204,
+        provider_kat_fixture_digest(),
+        [0; 32],
+        digest(50),
+        true,
+    );
+
+    assert_p1_invalid_reason(
+        assess_p1_aggregate_recomputation_closure(Some(package)),
+        "P1 ACVP/FIPS204 vector-set digest is all zero",
+    );
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_zero_provider_identity_digest() {
+    let mut package = p1_recomputation_package();
+    package.provider_kat_evidence = Mldsa65ProviderKatEvidence::new(
+        AcvpFips204EvidenceSource::NistAcvpServerFips204,
+        provider_kat_fixture_digest(),
+        digest(49),
+        [0; 32],
+        true,
+    );
+
+    assert_p1_invalid_reason(
+        assess_p1_aggregate_recomputation_closure(Some(package)),
+        "P1 provider identity digest is all zero",
+    );
+}
+
+#[test]
 fn p1_recomputation_closure_rejects_unreviewed_proof_artifacts() {
     let mut package = p1_recomputation_package();
     package.proof_artifacts = P1RejectionProofArtifacts::new(
@@ -1604,6 +1756,7 @@ fn p1_recomputation_closure_rejects_unreviewed_proof_artifacts() {
             .profile_binding_digest(),
         digest(41),
         standard_verifier_bridge_digest(),
+        standard_verifier_bridge_fixture_package_digest(),
         digest(43),
         digest(44),
         digest(45),
@@ -1631,6 +1784,7 @@ fn p1_recomputation_closure_rejects_profile_binding_digest_mismatch() {
         digest(99),
         digest(41),
         standard_verifier_bridge_digest(),
+        standard_verifier_bridge_fixture_package_digest(),
         digest(43),
         digest(44),
         digest(45),
@@ -1659,6 +1813,7 @@ fn p1_recomputation_closure_rejects_verifier_bridge_digest_mismatch() {
             .profile_binding_digest(),
         digest(41),
         digest(99),
+        standard_verifier_bridge_fixture_package_digest(),
         digest(43),
         digest(44),
         digest(45),
