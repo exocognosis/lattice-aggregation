@@ -3,7 +3,7 @@
 use crate::{ThresholdError, ThresholdPublicKey, ThresholdSignature};
 
 #[cfg(feature = "hazmat-real-mldsa")]
-use ml_dsa::{EncodedVerifyingKey, KeyInit, MlDsa65, Signature, Verifier, VerifyingKey};
+use ml_dsa::{EncodedVerifyingKey, KeyInit, MlDsa65, Signature, VerifyingKey};
 
 /// Standard ML-DSA-65 verification provider.
 pub trait StandardMldsa65Provider {
@@ -47,15 +47,35 @@ impl StandardMldsa65Provider for HazmatMldsa65Provider {
         message: &[u8],
         signature: &ThresholdSignature,
     ) -> Result<bool, ThresholdError> {
-        let Ok(encoded_key) = EncodedVerifyingKey::<MlDsa65>::try_from(public_key.0.as_slice())
-        else {
-            return Ok(false);
-        };
-        let Ok(signature) = Signature::<MlDsa65>::try_from(signature.0.as_slice()) else {
+        Self::verify_with_context(public_key, message, &[], signature)
+    }
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+impl HazmatMldsa65Provider {
+    /// Verify a standard ML-DSA-65 signature over an application message and
+    /// FIPS 204 context string.
+    pub fn verify_with_context(
+        public_key: &ThresholdPublicKey,
+        message: &[u8],
+        context: &[u8],
+        signature: &ThresholdSignature,
+    ) -> Result<bool, ThresholdError> {
+        let Some((verifying_key, signature)) = decode_verifier_inputs(public_key, signature) else {
             return Ok(false);
         };
 
-        let verifying_key = VerifyingKey::<MlDsa65>::new(&encoded_key);
-        Ok(verifying_key.verify(message, &signature).is_ok())
+        Ok(verifying_key.verify_with_context(message, context, &signature))
     }
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn decode_verifier_inputs(
+    public_key: &ThresholdPublicKey,
+    signature: &ThresholdSignature,
+) -> Option<(VerifyingKey<MlDsa65>, Signature<MlDsa65>)> {
+    let encoded_key = EncodedVerifyingKey::<MlDsa65>::try_from(public_key.0.as_slice()).ok()?;
+    let signature = Signature::<MlDsa65>::try_from(signature.0.as_slice()).ok()?;
+
+    Some((VerifyingKey::<MlDsa65>::new(&encoded_key), signature))
 }

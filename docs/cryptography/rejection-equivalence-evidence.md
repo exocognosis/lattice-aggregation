@@ -36,6 +36,14 @@ move from conformance plumbing to proof closure.
   `AggregateRejectionClosureAssessment::ClosureReady` only when the package uses
   the `ClosureCandidate` boundary and every required digest is present,
   non-zero, and classified as the expected non-scaffold artifact.
+- `AcvpFips204EvidenceSource`, `Mldsa65ProviderKatEvidence`,
+  `P1RejectionProofArtifacts`, `P1AggregateRecomputationClosurePackage`, and
+  `assess_p1_aggregate_recomputation_closure`, which bind the selected
+  ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 profile to
+  ACVP/FIPS204-backed provider KAT evidence, aggregate recomputation evidence,
+  bound/proof artifact digests, negative-corpus evidence, and external review
+  digests. The P1 gate rejects smoke-only KATs, unreviewed proof artifacts, and
+  digest drift between the P1 package and the underlying closure package.
 
 The targeted conformance tests in `tests/production_rejection_equivalence.rs`
 cover the red/green behavior:
@@ -51,29 +59,48 @@ cover the red/green behavior:
 - scaffold-only recomputation or KAT evidence is rejected;
 - missing bound evidence, zero external review digests, and scaffold-only
   conformance boundaries are rejected.
+- P1 aggregate recomputation packages expose artifact-ready status only when the
+  selected P1 profile, ACVP/FIPS204-backed provider evidence, reviewed proof
+  artifacts, and closure-package digests agree;
+- smoke-only provider evidence, unreviewed proof artifacts, and mismatched P1
+  KAT digests are rejected.
+
+`tests/production_provider.rs` also includes a checked-in, bounded NIST
+ACVP-Server FIPS204 `ML-DSA-sigVer` sample-vector fixture at
+`tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json`. The fixture is pinned
+to upstream commit `15c0f3deeefbfa8cb6cd32a99e1ca3b738c66bf0` with SHA-256
+digests for the upstream `prompt.json` and `expectedResults.json`. It exercises
+one expected-accept and one expected-reject ML-DSA-65 external/pure sigVer case
+through `HazmatMldsa65Provider::verify_with_context`. This is provider
+sample-vector conformance evidence only; it is not CAVP/ACVTS production validation.
 
 ## Claim Boundary
 
 This is hazmat/conformance-only evidence. It does not claim production
-threshold ML-DSA security, real aggregate recomputation, or rejection-sampling
-distribution preservation. `ClosureReady` means the closure framework has all
-typed evidence digests needed for proof review; it does not mean those artifacts
-have been independently validated in this repository.
+threshold ML-DSA security, real threshold aggregate recomputation, CAVP/ACVTS
+validation, FIPS 140 module status, or rejection-sampling distribution
+preservation. `ClosureReady` and `ArtifactReady` mean the relevant framework has
+all typed evidence digests needed for proof review; they do not mean those
+artifacts have been independently validated in this repository.
 
 The safe claim is narrower: the coordinator-assisted profile now has a typed
 gate that prevents digest-only scaffold evidence from being mistaken for
-standard-verifier/recomputation bridge evidence, and a closure-package assessor
-that prevents missing or scaffold-only recomputation/KAT evidence from being
-reported as ready for blocker closure.
+standard-verifier/recomputation bridge evidence, a closure-package assessor that
+prevents missing or scaffold-only recomputation/KAT evidence from being reported
+as ready for blocker closure, an ACVP sample-vector provider conformance test,
+and a selected-P1 artifact gate that prevents smoke-only KATs or unreviewed
+proof artifacts from closing the P1 recomputation blocker.
 
 ## What Remains
 
-To fully close blocker 2, the repo still needs:
+To fully close blocker 2 cryptographically, the repo still needs:
 
-- a selected real ML-DSA-65 provider with provider identity and KAT evidence
-  digests backed by FIPS/ACVP-style vectors;
 - a real threshold aggregate recomputation artifact produced by the selected
   backend, with digest evidence tied to the package;
+- full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
+  vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,
+  and prerequisite validation references if the claim moves beyond sample-vector
+  conformance;
 - reviewed norm, hint, and challenge bound artifacts whose digests match the
   closure package;
 - a transcript-binding artifact showing the package is bound to the production

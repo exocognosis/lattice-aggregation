@@ -420,8 +420,9 @@ fn production_coordinator_docs_keep_claim_boundary() {
         &[
             "Profile P1 coordinator-assisted ML-DSA-65 direction",
             "hazmat conformance only",
-            "standard-verifier compatibility remains a target until KAT",
-            "bridge-test, proof, and audit gates pass",
+            "ordinary provider conformance evidence",
+            "aggregate standard-verifier compatibility remains a target",
+            "real threshold recomputation, full KAT, bridge-test, proof, and audit gates pass",
             "EpsilonLedger",
             "blinded pre-filter",
             "Renyi divergence",
@@ -435,7 +436,8 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "FIPS/ACVP-style ML-DSA-65 provider KATs",
             "coordinator-assisted threshold KATs",
             "fuzz targets for production coordinator frames",
-            "ignored KAT release gate",
+            "NIST ACVP-Server FIPS204",
+            "validation claims require lab/Prod-server vector sets",
             "simulator compile-fail guard",
             "Renyi-divergence proof evidence",
             "DKG setup-only hot-path review",
@@ -454,7 +456,7 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "`src/production/coordinator.rs`",
             "`src/adapter/production_wire.rs`",
             "`tests/ui/production_simulated_backend_rejected.rs`",
-            "optional hazmat provider smoke covers ordinary ML-DSA-65 verification",
+            "bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture",
             "not aggregate threshold verification",
         ],
     );
@@ -470,7 +472,7 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",
             "`HazmatMldsa65Provider`",
-            "optional ML-DSA-65 verifier smoke checks",
+            "checked-in NIST ACVP-Server FIPS204",
             "not threshold proof",
             "aggregate threshold verification",
             "`src/adapter/production_wire.rs`",
@@ -489,7 +491,7 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "`src/production/preprocess.rs`",
             "`src/production/coordinator.rs`",
             "`src/adapter/production_wire.rs`",
-            "provider KAT gate",
+            "bounded ACVP sample fixture",
             "simulated backend cannot satisfy the production coordinator contract",
         ],
     );
@@ -506,7 +508,8 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "`src/production/coordinator.rs`",
             "`src/adapter/production_wire.rs`",
             "`tests/ui/production_simulated_backend_rejected.rs`",
-            "no real ML-DSA verifier",
+            "opt-in hazmat ML-DSA-65 provider verifier",
+            "no production aggregate verifier",
         ],
     );
     assert_not_contains_all(
@@ -523,6 +526,33 @@ fn production_coordinator_docs_keep_claim_boundary() {
             "statistical distance",
             "statistical-distance",
             "quantified distance",
+        ],
+    );
+}
+
+#[test]
+fn readme_tracks_hypothesis_closure_requirements() {
+    assert_contains_all(
+        "README.md",
+        &[
+            "## Hypothesis Closure Requirements",
+            "The five requirements below are the closure criteria used by",
+            "scripts/assess_lattice_hypothesis.py",
+            "Latest local assessment run:",
+            "Latest verification commands:",
+            "overall hypothesis verdict was `partially_proven`",
+            "Aggregate masks match or closely approximate centralized ML-DSA masks.",
+            "Aggregate rejection checks match centralized ML-DSA rejection checks.",
+            "Selective aborts and retries do not bias accepted signatures.",
+            "Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model.",
+            "Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation.",
+            "`epsilon_mask` remains a release blocker",
+            "P1 aggregate recomputation artifact gate and bounded ACVP/FIPS204 sample-vector provider conformance are present",
+            "abort leakage and retry-bias distribution analysis remain proof obligations",
+            "production local acceptance, partial verification, and hiding proof evidence are not complete",
+            "the threshold unforgeability reduction remains a target",
+            "Current closure determination: `partially_proven`",
+            "Partially proven.",
         ],
     );
 }
@@ -588,7 +618,7 @@ fn selected_backend_direction_docs_keep_claim_boundary() {
         "`scripts/assess_lattice_hypothesis.py`",
         "`script_tests/test_assess_lattice_hypothesis.py`",
         "`tests/proof_documentation_manifest.rs`",
-        "five hypothesis criteria remain partial",
+        "five hypothesis criteria",
     ];
     assert_contains_all(PROOF_CROSSWALK, selected_backend_anchors);
     assert_contains_all(PROTOCOL_CODE_CROSSWALK, selected_backend_anchors);
@@ -624,7 +654,9 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`tests/production_abort_bias.rs`",
             "`tests/production_partial_soundness.rs`",
             "`tests/unauthorized_aggregate_reduction_manifest.rs`",
-            "Evidence gates and closure frameworks only",
+            "Evidence gates, sample-vector provider conformance, and closure frameworks only",
+            "P1 aggregate recomputation artifact gate",
+            "sample-vector provider conformance",
         ],
     );
     assert_contains_all(
@@ -636,7 +668,20 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`src/production/abort_bias.rs`",
             "`src/production/partial_soundness.rs`",
             "`docs/cryptography/unauthorized-aggregate-reduction.md`",
-            "Typed assessment evidence and closure-package frameworks only",
+            "Typed assessment evidence, a P1 aggregate recomputation artifact gate",
+            "P1 aggregate recomputation artifact gate",
+            "sample-vector provider conformance",
+        ],
+    );
+    assert_contains_all(
+        "docs/cryptography/rejection-equivalence-evidence.md",
+        &[
+            "`P1AggregateRecomputationClosurePackage`",
+            "`assess_p1_aggregate_recomputation_closure`",
+            "ACVP-Server FIPS204",
+            "sample-vector conformance",
+            "not CAVP/ACVTS production validation",
+            "real threshold aggregate recomputation",
         ],
     );
     assert_contains_all(
@@ -650,6 +695,9 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`tests/unauthorized_aggregate_reduction_manifest.rs`",
             "closure-package frameworks as partial scaffold",
             "closure does not replace reviewed proof artifacts",
+            "P1 aggregate recomputation artifact gate",
+            "NIST ACVP-Server FIPS204",
+            "sample-vector conformance",
         ],
     );
 }

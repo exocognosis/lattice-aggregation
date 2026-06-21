@@ -54,8 +54,12 @@ migration candidates that require separate review.
   production-labeled API.
 - Complete FIPS/ACVP-style ML-DSA-65 provider KATs for the selected provider
   and link the vectors, logs, tool versions, and reviewer sign-off.
-- Enable and pass the ignored KAT release gate before any
-  `hazmat-real-mldsa` compatibility or release claim is made.
+- Keep the checked-in NIST ACVP-Server FIPS204 `ML-DSA-sigVer` ML-DSA-65 sample
+  fixture passing under `hazmat-real-mldsa`, with source commit and SHA-256
+  digests recorded. Treat this as sample-vector conformance only; CAVP/ACVTS
+  validation claims require lab/Prod-server vector sets, validation transcripts,
+  certificate identifiers, prerequisite validation references, and reviewer
+  sign-off.
 - Complete coordinator-assisted threshold KATs for profile policy gates,
   transcript binding, preprocessing attempts, final verifier behavior, and
   production coordinator wire frames.
@@ -66,6 +70,12 @@ migration candidates that require separate review.
 - Tie `LocalAccept` and `AggregateAccept` acceptance to a standard verifier bridge
   and real aggregate recomputation evidence; absent bridge or
   recomputation evidence keeps the predicates conformance-only.
+- Require the P1 aggregate recomputation artifact gate before criterion-2
+  promotion: selected ML-DSA-65 coordinator-assisted profile binding,
+  ACVP/FIPS204-backed provider evidence, real threshold recomputation digest,
+  norm/hint/challenge/transcript proof artifact digests, negative corpus digest,
+  and external review digest must all agree. The P1 gate is framework evidence
+  until the real threshold artifacts and reviewed proofs are checked in.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,

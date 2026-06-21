@@ -4,12 +4,16 @@ use lattice_aggregation::{
     production::{
         provider::StandardMldsa65Provider,
         rejection_equivalence::{
-            assess_rejection_equivalence_closure, AggregateRecomputationTranscript,
+            assess_p1_aggregate_recomputation_closure, assess_rejection_equivalence_closure,
+            AcvpFips204EvidenceSource, AggregateRecomputationTranscript,
             AggregateRejectionClosureAssessment, AggregateRejectionClosurePackage,
             AggregateRejectionClosureStatus, AggregateRejectionConformanceBoundary,
             AggregateRejectionEquivalenceEvidence, AggregateRejectionEquivalenceGate,
             AggregateRejectionEvidenceDigest, AggregateRejectionEvidenceStrength,
+            Mldsa65ProviderKatEvidence, P1AggregateRecomputationAssessment,
+            P1AggregateRecomputationClosurePackage, P1RejectionProofArtifacts,
         },
+        selected_backend::SelectedProductionBackendProfile,
         transcript::{CommitmentDigest, ProductionSigningTranscript, ProductionTranscriptInput},
         types::{
             ActiveSignerSet, AttemptId, DkgTranscriptDigest, EpochId, KeyId, MessageBinding,
@@ -358,4 +362,121 @@ fn closure_package_rejects_scaffold_conformance_boundary() {
         }
     );
     assert!(!assessment.is_closure_ready());
+}
+
+fn provider_kat_evidence(source: AcvpFips204EvidenceSource) -> Mldsa65ProviderKatEvidence {
+    Mldsa65ProviderKatEvidence::new(source, digest(42), digest(49), digest(50), true)
+}
+
+fn proof_artifacts() -> P1RejectionProofArtifacts {
+    P1RejectionProofArtifacts::new(
+        digest(41),
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(46),
+        digest(47),
+        digest(48),
+        true,
+    )
+}
+
+fn p1_recomputation_package() -> P1AggregateRecomputationClosurePackage {
+    P1AggregateRecomputationClosurePackage::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1(),
+        closure_package(),
+        provider_kat_evidence(AcvpFips204EvidenceSource::NistAcvpServerFips204),
+        proof_artifacts(),
+    )
+}
+
+#[test]
+fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
+    let assessment = assess_p1_aggregate_recomputation_closure(Some(p1_recomputation_package()));
+
+    let certificate = assessment
+        .closure_certificate()
+        .expect("complete P1 artifact package should produce a certificate");
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(
+        certificate.selected_profile(),
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    );
+    assert_eq!(
+        certificate.provider_kat_source(),
+        AcvpFips204EvidenceSource::NistAcvpServerFips204
+    );
+    assert_eq!(certificate.provider_kat_evidence_digest(), &digest(42));
+    assert_eq!(certificate.acvp_vector_set_digest(), &digest(49));
+    assert_eq!(certificate.provider_identity_digest(), &digest(50));
+    assert_eq!(
+        certificate.real_recomputation_evidence_digest(),
+        &digest(41)
+    );
+    assert!(!certificate.claims_fips_validation());
+    assert!(!certificate.claims_production_approval());
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_smoke_only_kat_evidence() {
+    let mut package = p1_recomputation_package();
+    package.provider_kat_evidence =
+        provider_kat_evidence(AcvpFips204EvidenceSource::NonAcvpSmokeOnly);
+
+    let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 provider KAT evidence must be ACVP/FIPS204-backed, not smoke-only",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_unreviewed_proof_artifacts() {
+    let mut package = p1_recomputation_package();
+    package.proof_artifacts = P1RejectionProofArtifacts::new(
+        digest(41),
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(46),
+        digest(47),
+        digest(48),
+        false,
+    );
+
+    let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 proof artifacts must be reviewed before artifact closure",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_closure_digest_mismatch() {
+    let mut package = p1_recomputation_package();
+    package.provider_kat_evidence = Mldsa65ProviderKatEvidence::new(
+        AcvpFips204EvidenceSource::NistAcvpServerFips204,
+        digest(99),
+        digest(49),
+        digest(50),
+        true,
+    );
+
+    let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 provider KAT evidence digest does not match closure package",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
 }

@@ -290,6 +290,9 @@ def scan_documents(root):
     production_acceptance_test = read_optional("tests/production_acceptance.rs")
     provider_source = read_optional("src/production/provider.rs")
     provider_test = read_optional("tests/production_provider.rs")
+    acvp_mldsa65_sigver_fixture = read_optional(
+        "tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json"
+    )
     mask_distribution_source = read_optional("src/production/mask_distribution.rs")
     mask_distribution_test = read_optional("tests/production_mask_distribution.rs")
     rejection_equivalence_source = read_optional("src/production/rejection_equivalence.rs")
@@ -395,6 +398,33 @@ def scan_documents(root):
             "package",
         )
     )
+    p1_aggregate_recomputation_artifact_gate = (
+        rejection_equivalence_closure_framework
+        and has_public_enum(rejection_equivalence_source, "AcvpFips204EvidenceSource")
+        and has_public_struct(rejection_equivalence_source, "Mldsa65ProviderKatEvidence")
+        and has_public_struct(rejection_equivalence_source, "P1RejectionProofArtifacts")
+        and has_public_struct(
+            rejection_equivalence_source, "P1AggregateRecomputationClosurePackage"
+        )
+        and has_public_enum(
+            rejection_equivalence_source, "P1AggregateRecomputationAssessment"
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_aggregate_recomputation_closure",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "p1",
+            "recomputation",
+            "closure",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "smoke",
+            "kat",
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -465,6 +495,25 @@ def scan_documents(root):
             "mutated",
         )
     )
+    acvp_mldsa65_sample_kat = (
+        hazmat_standard_verifier_bridge
+        and "verify_with_context" in provider_source
+        and has_acceptance_test_function(
+            provider_test,
+            "hazmat",
+            "provider",
+            "verifies",
+            "mldsa65",
+            "kats",
+        )
+        and "requires checked-in ACVP/FIPS ML-DSA-65 vectors" not in provider_test
+        and "nist-acvp-server-mldsa65-sigver-fips204-sample"
+        in acvp_mldsa65_sigver_fixture
+        and "source_prompt_sha256" in acvp_mldsa65_sigver_fixture
+        and "source_expected_results_sha256" in acvp_mldsa65_sigver_fixture
+        and '"testPassed": true' in acvp_mldsa65_sigver_fixture
+        and '"testPassed": false' in acvp_mldsa65_sigver_fixture
+    )
 
     return {
         "documents": texts,
@@ -482,8 +531,12 @@ def scan_documents(root):
         "mask_distribution_closure_framework": mask_distribution_closure_framework,
         "rejection_equivalence_bridge_gate": rejection_equivalence_bridge_gate,
         "hazmat_standard_verifier_bridge": hazmat_standard_verifier_bridge,
+        "acvp_mldsa65_sample_kat": acvp_mldsa65_sample_kat,
         "rejection_equivalence_closure_framework": (
             rejection_equivalence_closure_framework
+        ),
+        "p1_aggregate_recomputation_artifact_gate": (
+            p1_aggregate_recomputation_artifact_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -610,14 +663,42 @@ def classify_criteria(criteria, scan):
                 )
             if scan["hazmat_standard_verifier_bridge"]:
                 partial_progress = True
+                if scan.get("acvp_mldsa65_sample_kat"):
+                    observed.append(
+                        "HazmatMldsa65Provider standard-verifier bridge is "
+                        "present for fixed-seed ML-DSA-65 signatures, mutated "
+                        "message/signature rejection, and a bounded "
+                        "ACVP/FIPS204 sample-vector KAT under "
+                        "hazmat-real-mldsa; full KAT coverage and validation "
+                        "remain separately gated."
+                    )
+                else:
+                    observed.append(
+                        "HazmatMldsa65Provider standard-verifier smoke bridge "
+                        "is present for fixed-seed ML-DSA-65 signatures and "
+                        "mutated message/signature rejection; ACVP/FIPS KAT "
+                        "promotion remains separately gated."
+                    )
+            if scan.get("p1_aggregate_recomputation_artifact_gate"):
+                partial_progress = True
                 observed.append(
-                    "HazmatMldsa65Provider standard-verifier smoke bridge is "
-                    "present for fixed-seed ML-DSA-65 signatures and mutated "
-                    "message/signature rejection; ACVP/FIPS KAT promotion "
-                    "remains separately gated."
+                    "P1 aggregate recomputation artifact gate is present for the "
+                    "selected ML-DSA-65 coordinator-assisted profile; it binds "
+                    "ACVP/FIPS204-backed provider KAT evidence, recomputation "
+                    "digests, bound/proof artifacts, negative corpus evidence, "
+                    "and external review digests without claiming FIPS "
+                    "validation or production approval."
                 )
             if scan["standard_verifier_blocked"]:
-                if scan["hazmat_standard_verifier_bridge"]:
+                if scan.get("p1_aggregate_recomputation_artifact_gate"):
+                    blockers.append(
+                        "Real P1 aggregate recomputation artifacts, full "
+                        "ACVP/FIPS KAT coverage, reviewed proof artifacts, and "
+                        "CAVP/ACVTS validation artifacts are still not checked "
+                        "in; the P1 gate and bounded sample-vector KAT are "
+                        "framework/conformance evidence only."
+                    )
+                elif scan["hazmat_standard_verifier_bridge"]:
                     blockers.append(
                         "Real aggregate recomputation and aggregate rejection "
                         "checks are not present; the hazmat standard-verifier "

@@ -36,10 +36,10 @@ current repository state.
 | Canonical validator, commitment, and partial-share sets | Set construction must reject duplicate, unknown, insufficient, or mismatched validators so aggregation cannot mix signers or commitments across universes. | `src/collections.rs`, `src/types.rs`, `src/errors.rs` | `tests/validation.rs`, `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Implemented as Rust API validation and error checks. |
 | Wire encoding and untrusted-frame rejection | Network-facing frames must use crate-owned versioned encodings, reject malformed or oversized inputs, and preserve replay-relevant context fields. | `src/adapter/wire.rs`, `src/serialization.rs`, `src/adapter/evidence.rs` | `tests/simulation.rs`, `tests/validation.rs`, `tests/low_level.rs` | Implemented for scaffold adapter frames and commitment payloads. |
 | Aggregation boundary and transcript consistency | Aggregation must receive a bound transcript and a threshold-valid partial-share set, then reject shares that do not match transcript validators or public key context. | `src/aggregation.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/ui/type_state_invalid_aggregate.rs`, `tests/ui/type_state_invalid_partial.rs` | Implemented for deterministic simulation backend and compile-fail state transitions. |
-| Production coordinator candidate boundary | The non-default production-candidate coordinator must fail closed behind profile and policy gates, bind transcript and preprocessing attempts, keep provider KAT status outside proof claims, pass final verifier gates before compatibility language, and reject simulated backends at compile time. `EpsilonLedger`, blinded pre-filter tokens, hint-routing conformance frames, and the DKG setup-only boundary are guardrails for review. | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Boundary and gate implementation only; optional hazmat provider smoke covers ordinary ML-DSA-65 verification, not aggregate threshold verification, not a proof of threshold security, and not production release evidence. |
+| Production coordinator candidate boundary | The non-default production-candidate coordinator must fail closed behind profile and policy gates, bind transcript and preprocessing attempts, keep provider KAT status outside proof claims, pass final verifier gates before compatibility language, and reject simulated backends at compile time. `EpsilonLedger`, blinded pre-filter tokens, hint-routing conformance frames, and the DKG setup-only boundary are guardrails for review. | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Boundary and gate implementation only; hazmat provider smoke plus a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture cover ordinary provider verification, not aggregate threshold verification, not CAVP/ACVTS validation, not a proof of threshold security, and not production release evidence. |
 | Selected backend direction artifact | The assessment and proof docs must name the selected real-backend direction while preserving the five open proof criteria. | `docs/cryptography/proof-implementation-crosswalk.md`, `docs/cryptography/protocol-code-crosswalk.md`, `scripts/assess_lattice_hypothesis.py` | `script_tests/test_assess_lattice_hypothesis.py`, `tests/proof_documentation_manifest.rs` | Selection artifact only; not proof closure, not completed backend implementation evidence, and not production approval. |
 | Coordinator-assisted acceptance predicates | Local and aggregate acceptance decisions must remain typed conformance predicates until a selected backend supplies verifier-bridge, recomputation, proof, and audit evidence. | `src/production/acceptance.rs`, `src/production/provider.rs`, `src/production/coordinator.rs` | `tests/production_acceptance.rs`, `tests/production_coordinator.rs` | coordinator-assisted acceptance predicates are conformance-only tokens: `LocalAccept` and `AggregateAccept` do not prove production partial validity, real aggregate recomputation, or distribution preservation. |
-| Five-criterion blocker evidence gates and closure frameworks | The five hypothesis blockers now have typed conformance evidence gates, closure-package frameworks, and a reduction-case manifest, but each remains proof-blocked until selected-backend artifacts, reviewed proofs, and external audit evidence exist. | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Evidence gates and closure frameworks only; not completed Renyi evidence, not real aggregate recomputation, not an abort-bias theorem, not production partial verification, and not threshold EUF-CMA proof. |
+| Five-criterion blocker evidence gates and closure frameworks | The five hypothesis blockers now have typed conformance evidence gates, closure-package frameworks, a P1 aggregate recomputation artifact gate, and a reduction-case manifest, but each remains proof-blocked until selected-backend artifacts, reviewed proofs, and external audit evidence exist. | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Evidence gates, sample-vector provider conformance, and closure frameworks only; not completed Renyi evidence, not real threshold aggregate recomputation, not an abort-bias theorem, not production partial verification, and not threshold EUF-CMA proof. |
 | Simulation-only backend and production proof gates | The repository must not present deterministic simulation behavior as production threshold ML-DSA security. Production use requires a selected protocol, completed proof, verifier compatibility, timing review, and external cryptographic review. | `src/backend.rs`, `src/dkg.rs`, `src/crypto/vss.rs`, `docs/cryptography/phase-1-noise-bound-model.md`, `docs/audit/tcb.md` | `tests/simulated_flow.rs`, `tests/simulation.rs`, `tests/low_level.rs`, `tests/proof_documentation_manifest.rs` | Open proof obligation; current code and docs are scoped to research scaffold claims. |
 
 ## Transcript Binding and Fiat-Shamir Challenge Derivation
@@ -116,9 +116,11 @@ The matching tests are `tests/production_provider.rs`,
 `tests/production_wire.rs`, and
 `tests/ui/production_simulated_backend_rejected.rs`. These tests are conformance
 and guard evidence. `HazmatMldsa65Provider` provides an optional ML-DSA-65
-standard-verifier smoke bridge for ordinary provider-generated signatures; it
-does not provide aggregate threshold verification, ACVP/FIPS KAT evidence, or
-threshold recomputation evidence. The final verifier boundary is defined over
+standard-verifier smoke bridge for ordinary provider-generated signatures and a
+context-aware verifier path for the checked-in NIST ACVP-Server FIPS204
+ML-DSA-65 sigVer sample fixture. This is provider conformance evidence, not
+aggregate threshold verification, CAVP/ACVTS validation, FIPS 140 module status,
+or threshold recomputation evidence. The final verifier boundary is defined over
 the original application message; the `MessageBinding`/`mu` value is
 transcript-internal and is not a substitute verifier message. Production
 approval is not publicly mintable in the current API. These tests do not show
@@ -148,10 +150,19 @@ report the selected direction. The matching unit coverage is
 `tests/proof_documentation_manifest.rs` protects the documentation anchors.
 
 This is a selection artifact only. It is not proof closure or production
-approval, not completed backend implementation evidence, not standard-verifier
-KAT evidence, and not external cryptographic review. The five hypothesis criteria remain partial
+approval, not completed backend implementation evidence, not complete
+standard-verifier KAT or validation evidence, and not external cryptographic
+review. The five hypothesis criteria remain partial
 until the corresponding selected-backend proof, implementation, and audit
 artifacts exist.
+
+For blocker 2, `src/production/rejection_equivalence.rs` now adds a P1 aggregate
+recomputation artifact gate that binds the selected profile to
+ACVP/FIPS204-backed provider evidence, recomputation evidence, proof-artifact
+digests, negative-corpus evidence, and external review digests. The gate rejects
+smoke-only KAT evidence and digest drift, but it remains a framework gate until
+real threshold aggregate recomputation artifacts and reviewed proof artifacts are
+checked in.
 
 ## Open Proof Obligations
 
@@ -207,6 +218,7 @@ stable contract for this file:
 - `LocalAccept`
 - `AggregateAccept`
 - `Five-criterion blocker evidence gates and closure frameworks`
+- `P1 aggregate recomputation artifact gate`
 - `src/production/mask_distribution.rs`
 - `src/production/rejection_equivalence.rs`
 - `src/production/abort_bias.rs`

@@ -179,6 +179,53 @@ class DocumentClassificationTests(unittest.TestCase):
         self.assertTrue(all(criterion["status"] == "blocked" for criterion in classified))
         self.assertIn("README.md", scan["missing_documents"])
 
+    def test_p1_aggregate_recomputation_gate_is_reported_without_promoting_claim(self):
+        module = load_module()
+        criteria = module.default_criteria()
+        scan = {
+            "missing_documents": [],
+            "selected_backend_direction": {
+                "status": "observed_selection_artifact",
+                "direction": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+                "assumption": "TEE/HSM",
+                "output": "standard-verifier-compatible output",
+                "migration_candidates": ["P2/MPC", "TALUS"],
+            },
+            "aggregate_acceptance_conformance_scaffold": True,
+            "rejection_equivalence_bridge_gate": True,
+            "rejection_equivalence_closure_framework": True,
+            "p1_aggregate_recomputation_artifact_gate": True,
+            "hazmat_standard_verifier_bridge": True,
+            "acvp_mldsa65_sample_kat": True,
+            "standard_verifier_blocked": True,
+            "mask_distribution_evidence_gate": False,
+            "mask_distribution_closure_framework": False,
+            "readme_research_boundary": False,
+            "renyi_evidence_blocked": False,
+            "abort_bias_evidence_gate": False,
+            "abort_bias_closure_framework": False,
+            "abort_bias_blocked": False,
+            "partial_soundness_scaffold": False,
+            "local_acceptance_conformance_scaffold": False,
+            "partial_soundness_evidence_gate": False,
+            "partial_soundness_closure_framework": False,
+            "partial_soundness_blocked": False,
+            "unauthorized_reduction_manifest_gate": False,
+            "unauthorized_reduction_closure_framework": False,
+            "unforgeability_reduction_blocked": False,
+        }
+
+        classified = module.classify_criteria(criteria, scan)
+        rejection = classified[1]
+
+        self.assertEqual(rejection["status"], "partially_met")
+        self.assertTrue(
+            any("P1 aggregate recomputation artifact gate" in item for item in rejection["observed_evidence"])
+        )
+        self.assertTrue(
+            any("Real P1 aggregate recomputation artifacts" in item for item in rejection["blockers"])
+        )
+
 
 class ReportGenerationTests(unittest.TestCase):
     def write_minimal_repo_docs(self, root):
@@ -296,9 +343,11 @@ class ReportGenerationTests(unittest.TestCase):
     def write_hazmat_standard_verifier_bridge(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
+        (root / "tests" / "fixtures").mkdir(parents=True, exist_ok=True)
         (root / "src" / "production" / "provider.rs").write_text(
             "pub trait StandardMldsa65Provider {}\n"
-            "pub struct HazmatMldsa65Provider;\n",
+            "pub struct HazmatMldsa65Provider;\n"
+            "impl HazmatMldsa65Provider { pub fn verify_with_context() {} }\n",
             encoding="utf-8",
         )
         (root / "tests" / "production_provider.rs").write_text(
@@ -307,8 +356,21 @@ class ReportGenerationTests(unittest.TestCase):
             "#[test]\n"
             "fn hazmat_provider_rejects_mutated_message_and_signature() {}\n"
             "#[test]\n"
-            "#[ignore = \"requires checked-in ACVP/FIPS ML-DSA-65 vectors\"]\n"
             "fn hazmat_provider_verifies_mldsa65_kats() {}\n",
+            encoding="utf-8",
+        )
+        (
+            root / "tests" / "fixtures" / "acvp_mldsa65_sigver_fips204_sample.json"
+        ).write_text(
+            "{\n"
+            "  \"name\": \"nist-acvp-server-mldsa65-sigver-fips204-sample\",\n"
+            "  \"source_prompt_sha256\": \"abc\",\n"
+            "  \"source_expected_results_sha256\": \"def\",\n"
+            "  \"tests\": [\n"
+            "    {\"testPassed\": true},\n"
+            "    {\"testPassed\": false}\n"
+            "  ]\n"
+            "}\n",
             encoding="utf-8",
         )
 
@@ -338,14 +400,22 @@ class ReportGenerationTests(unittest.TestCase):
             "pub struct AggregateRecomputationTranscript;\n"
             "pub struct AggregateRejectionClosurePackage;\n"
             "pub struct AggregateRejectionClosureCertificate;\n"
-            "pub fn assess_rejection_equivalence_closure() {}\n",
+            "pub enum AcvpFips204EvidenceSource { NistAcvpServerFips204 }\n"
+            "pub struct Mldsa65ProviderKatEvidence;\n"
+            "pub struct P1RejectionProofArtifacts;\n"
+            "pub struct P1AggregateRecomputationClosurePackage;\n"
+            "pub enum P1AggregateRecomputationAssessment { ArtifactReady }\n"
+            "pub fn assess_rejection_equivalence_closure() {}\n"
+            "pub fn assess_p1_aggregate_recomputation_closure() {}\n",
             encoding="utf-8",
         )
         (root / "tests" / "production_rejection_equivalence.rs").write_text(
             "#[test]\n"
             "fn aggregate_rejection_equivalence_bridge_gate_requires_recomputation() {}\n"
             "#[test]\n"
-            "fn complete_closure_package_exposes_closure_ready_status_without_production_claims() {}\n",
+            "fn complete_closure_package_exposes_closure_ready_status_without_production_claims() {}\n"
+            "#[test]\n"
+            "fn p1_recomputation_closure_rejects_smoke_only_kat_evidence() {}\n",
             encoding="utf-8",
         )
         (root / "src" / "production" / "abort_bias.rs").write_text(
@@ -620,7 +690,8 @@ class ReportGenerationTests(unittest.TestCase):
         aggregate_evidence = "\n".join(aggregate["observed_evidence"])
         aggregate_blockers = "\n".join(aggregate["blockers"])
         self.assertIn("HazmatMldsa65Provider", aggregate_evidence)
-        self.assertIn("real aggregate recomputation", aggregate_blockers.lower())
+        self.assertIn("bounded ACVP/FIPS204 sample-vector KAT", aggregate_evidence)
+        self.assertIn("real p1 aggregate recomputation", aggregate_blockers.lower())
         self.assertNotIn("Standard ML-DSA verifier bridge and real aggregate", aggregate_blockers)
 
     def test_build_report_writes_json_and_markdown(self):
