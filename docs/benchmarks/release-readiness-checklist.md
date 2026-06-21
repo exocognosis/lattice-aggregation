@@ -46,6 +46,12 @@ migration candidates that require separate review.
 - Complete VSS/DKG binding, hiding, extractability, complaint soundness, and
   anti-framing arguments.
 - Record the external cryptographic review and all unresolved limitations.
+- If native threshold ML-DSA proof closure stalls, treat Falcon/LaBRADOR-style
+  proof-wrapper aggregation only as a fallback architecture to evaluate. It is
+  not a selected backend, not a production release path, and not a claim about
+  this repository's current implementation. Any pivot requires separate scheme
+  selection, prover and verifier benchmarks, consensus-latency analysis, audit
+  review, and updated claim-boundary docs.
 
 ## Implementation and Backend Gates
 

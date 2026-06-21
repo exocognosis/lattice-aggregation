@@ -70,6 +70,31 @@ production threshold ML-DSA security.
 | Commitment, encryption, and proof-system assumptions | A final VSS/DKG proof must rely on selected primitive assumptions. | FST-A3, FST-A4, `vss-dkg-security-plan.md` | external theorem dependency | No concrete audited primitive stack is selected in this repository. |
 | Constant-time, randomness, and erasure discipline | Production implementations must satisfy leakage, randomness, and erasure assumptions. | FST-A9, `active-adversary-model.md`, `vss-dkg-security-plan.md` | open | No constant-time or state-exposure audit is complete. |
 
+## Related Work Comparator
+
+Falcon/LaBRADOR-style proof-wrapper aggregation is related work and an
+external comparator, not an implemented repository path. In that model, the
+system proves that many independent Falcon signatures satisfy their verifier
+relations and compresses the proof object around those already-formed
+signatures. See the Ethereum Research discussion,
+[Lattice-based signature aggregation](https://ethresear.ch/t/lattice-based-signature-aggregation/22282),
+for one public benchmark and protocol comparison.
+
+This repository targets a different and riskier construction: native threshold
+ML-DSA-65 signing that would, if all theorem, backend, bridge-test, and audit
+gates close, emit one standard-verifier-compatible ML-DSA-65 signature under an
+epoch threshold public key. That path is higher-risk because it must preserve
+mask distribution, rejection behavior, partial contribution soundness,
+selective-abort bounds, and threshold unforgeability inside the signing
+protocol itself. Its upside is also higher: a successful construction would use
+the ordinary ML-DSA verifier and a standard-sized aggregate instead of a
+separate proof-wrapper verifier and larger proof artifact.
+
+The safe publication boundary is therefore comparative only. The repository may
+contrast proof-wrapper aggregation with native threshold signatures, but must
+not claim that the native threshold ML-DSA path is proven, implemented for
+production, standard-verifier compatible, or superior in deployed performance.
+
 ## Non-Claims
 
 The repository must continue to avoid these claims until the corresponding
