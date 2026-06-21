@@ -178,7 +178,10 @@ or partial-share validity.
 
 `src/main.rs` runs the deterministic harness used to produce simulation output.
 `src/utils/exporter.rs` formats LaTeX table rows and PGFPlots-compatible CSV
-for review artifacts.
+for review artifacts. `scripts/run_simulation_benchmarks.py` runs the bounded
+large profile and writes checked-in deterministic simulation artifacts under
+`docs/benchmarks/generated/latest-simulation/`, with the review index in
+`docs/benchmarks/simulation-results.md`.
 
 The harness and exporter are useful for reproducibility and comparison of
 research scenarios. They must not be used as side-channel evidence, liveness

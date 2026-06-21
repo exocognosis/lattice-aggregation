@@ -9,6 +9,8 @@ const PROTOCOL_CODE_CROSSWALK: &str = "docs/cryptography/protocol-code-crosswalk
 const PHASE_1_NOISE_MODEL: &str = "docs/cryptography/phase-1-noise-bound-model.md";
 const CRYPTOGRAPHY_README: &str = "docs/cryptography/README.md";
 const RELEASE_READINESS_CHECKLIST: &str = "docs/benchmarks/release-readiness-checklist.md";
+const SIMULATION_RESULTS: &str = "docs/benchmarks/simulation-results.md";
+const REAL_WORLD_BENCHMARK_PROTOCOL: &str = "docs/benchmarks/real-world-benchmark-protocol.md";
 
 const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
     "docs/cryptography/active-adversary-model.md",
@@ -410,6 +412,46 @@ fn release_readiness_checklist_keeps_required_anchor_contract() {
             "FIPS validation",
             "production consensus signing",
         ],
+    );
+}
+
+#[test]
+fn benchmark_docs_keep_simulation_and_real_world_boundaries() {
+    assert_contains_all(
+        SIMULATION_RESULTS,
+        &[
+            "# Simulation Benchmark Results",
+            "deterministic research telemetry",
+            "not security evidence",
+            "not real-world validator performance",
+            "docs/benchmarks/generated/latest-simulation/manifest.json",
+            "10,000",
+            "cargo run -- --profile large --format csv --no-wall-sleep",
+        ],
+    );
+    assert_contains_all(
+        REAL_WORLD_BENCHMARK_PROTOCOL,
+        &[
+            "# Real-World Benchmark Protocol",
+            "## Required Inputs",
+            "## Collection Procedure",
+            "## Claim Boundary",
+            "production threshold backend",
+            "must not claim real-world benchmark results",
+            "FIPS validation",
+            "external validator deployment",
+        ],
+    );
+    assert_contains_all(
+        "README.md",
+        &[
+            "[Simulation Benchmark Results](docs/benchmarks/simulation-results.md)",
+            "[Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md)",
+        ],
+    );
+    assert_contains_all(
+        RELEASE_READINESS_CHECKLIST,
+        &["simulation-results.md", "real-world-benchmark-protocol.md"],
     );
 }
 
