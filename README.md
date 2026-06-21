@@ -140,6 +140,14 @@ cargo run
 
 The harness prints LaTeX tables and PGFPlots-compatible CSV for simulated threshold signing sessions across small, mid-scale, and adversarial cluster profiles.
 
+Run the bounded large-scale deterministic simulation profile:
+
+```sh
+cargo run -- --profile large --format csv --no-wall-sleep
+```
+
+Checked-in large-scale simulation artifacts are indexed in [Simulation Benchmark Results](docs/benchmarks/simulation-results.md). Future real-world benchmark claims must follow the [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md) and remain blocked until a production threshold backend, external validator deployment, and reviewed artifacts exist.
+
 ## Verification
 
 The CI workflow runs the same core checks reviewers should start with:
@@ -165,6 +173,8 @@ cargo test --test proof_documentation_manifest
 - [Formal Threshold ML-DSA Transcript](docs/cryptography/formal-threshold-mldsa-transcript.md): transcript fields, binding invariants, and stable anchors
 - [Side-Channel and Constant-Time Boundary](docs/cryptography/side-channel-boundary.md): current leakage claims and production gate
 - [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md): gates before any production-readiness language
+- [Simulation Benchmark Results](docs/benchmarks/simulation-results.md): checked-in deterministic large-scale simulation telemetry
+- [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md): required inputs before any real-world benchmark claim
 
 ## Repository Map
 

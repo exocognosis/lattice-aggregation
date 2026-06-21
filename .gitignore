@@ -1,5 +1,6 @@
 /target/
 /artifacts/hypothesis/
+/artifacts/benchmarks/
 **/*.rs.bk
 .DS_Store
 *.swp
