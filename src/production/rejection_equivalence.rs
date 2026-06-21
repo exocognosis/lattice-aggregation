@@ -34,6 +34,8 @@ pub enum AggregateRejectionEvidenceKind {
     RealRecomputation,
     /// Digest of standard-verifier provider identity plus KAT evidence.
     StandardProviderKat,
+    /// Digest of standard-verifier bridge evidence for the recomputed aggregate.
+    StandardVerifierBridge,
     /// Digest of aggregate norm-bound evidence.
     NormBound,
     /// Digest of hint-bound evidence.
@@ -76,6 +78,14 @@ impl AggregateRejectionEvidenceDigest {
     pub const fn standard_provider_kat(digest: [u8; 32]) -> Self {
         Self {
             kind: AggregateRejectionEvidenceKind::StandardProviderKat,
+            digest,
+        }
+    }
+
+    /// Record standard-verifier bridge evidence for the recomputed aggregate.
+    pub const fn standard_verifier_bridge(digest: [u8; 32]) -> Self {
+        Self {
+            kind: AggregateRejectionEvidenceKind::StandardVerifierBridge,
             digest,
         }
     }
@@ -164,6 +174,8 @@ pub struct AggregateRejectionClosurePackage {
     pub real_recomputation_evidence: Option<AggregateRejectionEvidenceDigest>,
     /// Digest of standard verifier provider identity and KAT evidence.
     pub standard_provider_kat_evidence: Option<AggregateRejectionEvidenceDigest>,
+    /// Digest of standard-verifier bridge evidence for the recomputed aggregate.
+    pub standard_verifier_bridge_evidence: Option<AggregateRejectionEvidenceDigest>,
     /// Digest of aggregate norm-bound evidence.
     pub norm_bound_evidence: Option<AggregateRejectionEvidenceDigest>,
     /// Digest of hint-bound evidence.
@@ -185,6 +197,7 @@ impl AggregateRejectionClosurePackage {
         boundary: AggregateRejectionConformanceBoundary,
         real_recomputation_evidence: Option<AggregateRejectionEvidenceDigest>,
         standard_provider_kat_evidence: Option<AggregateRejectionEvidenceDigest>,
+        standard_verifier_bridge_evidence: Option<AggregateRejectionEvidenceDigest>,
         norm_bound_evidence: Option<AggregateRejectionEvidenceDigest>,
         hint_bound_evidence: Option<AggregateRejectionEvidenceDigest>,
         challenge_bound_evidence: Option<AggregateRejectionEvidenceDigest>,
@@ -196,6 +209,7 @@ impl AggregateRejectionClosurePackage {
             boundary,
             real_recomputation_evidence,
             standard_provider_kat_evidence,
+            standard_verifier_bridge_evidence,
             norm_bound_evidence,
             hint_bound_evidence,
             challenge_bound_evidence,
@@ -212,6 +226,7 @@ pub struct AggregateRejectionClosureCertificate {
     boundary: AggregateRejectionConformanceBoundary,
     real_recomputation_evidence_digest: [u8; 32],
     standard_provider_kat_evidence_digest: [u8; 32],
+    standard_verifier_bridge_evidence_digest: [u8; 32],
     norm_bound_evidence_digest: [u8; 32],
     hint_bound_evidence_digest: [u8; 32],
     challenge_bound_evidence_digest: [u8; 32],
@@ -239,6 +254,11 @@ impl AggregateRejectionClosureCertificate {
     /// Borrow the standard provider/KAT evidence digest.
     pub const fn standard_provider_kat_evidence_digest(&self) -> &[u8; 32] {
         &self.standard_provider_kat_evidence_digest
+    }
+
+    /// Borrow the standard-verifier bridge evidence digest.
+    pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_evidence_digest
     }
 
     /// Borrow the norm-bound evidence digest.
@@ -363,7 +383,9 @@ impl Mldsa65ProviderKatEvidence {
 /// Reviewed P1 rejection-equivalence proof artifact digests.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1RejectionProofArtifacts {
+    selected_profile_binding_digest: [u8; 32],
     real_recomputation_evidence_digest: [u8; 32],
+    standard_verifier_bridge_evidence_digest: [u8; 32],
     norm_bound_evidence_digest: [u8; 32],
     hint_bound_evidence_digest: [u8; 32],
     challenge_bound_evidence_digest: [u8; 32],
@@ -377,7 +399,9 @@ impl P1RejectionProofArtifacts {
     /// Construct the proof artifact digest bundle required by the P1 gate.
     #[allow(clippy::too_many_arguments)]
     pub const fn new(
+        selected_profile_binding_digest: [u8; 32],
         real_recomputation_evidence_digest: [u8; 32],
+        standard_verifier_bridge_evidence_digest: [u8; 32],
         norm_bound_evidence_digest: [u8; 32],
         hint_bound_evidence_digest: [u8; 32],
         challenge_bound_evidence_digest: [u8; 32],
@@ -387,7 +411,9 @@ impl P1RejectionProofArtifacts {
         reviewed: bool,
     ) -> Self {
         Self {
+            selected_profile_binding_digest,
             real_recomputation_evidence_digest,
+            standard_verifier_bridge_evidence_digest,
             norm_bound_evidence_digest,
             hint_bound_evidence_digest,
             challenge_bound_evidence_digest,
@@ -398,9 +424,19 @@ impl P1RejectionProofArtifacts {
         }
     }
 
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
     /// Borrow the real aggregate recomputation artifact digest.
     pub const fn real_recomputation_evidence_digest(&self) -> &[u8; 32] {
         &self.real_recomputation_evidence_digest
+    }
+
+    /// Borrow the standard-verifier bridge artifact digest.
+    pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_evidence_digest
     }
 
     /// Borrow the norm-bound proof artifact digest.
@@ -510,6 +546,17 @@ impl P1AggregateRecomputationClosureCertificate {
             .real_recomputation_evidence_digest()
     }
 
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        self.proof_artifacts.selected_profile_binding_digest()
+    }
+
+    /// Borrow the standard-verifier bridge evidence digest.
+    pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
+        self.closure_certificate
+            .standard_verifier_bridge_evidence_digest()
+    }
+
     /// Return true only when the source is a production CAVP/ACVTS certificate.
     pub const fn claims_fips_validation(self) -> bool {
         self.provider_kat_evidence.source().claims_fips_validation()
@@ -518,6 +565,11 @@ impl P1AggregateRecomputationClosureCertificate {
     /// Return true only after the selected profile itself is production approved.
     pub const fn claims_production_approval(self) -> bool {
         self.selected_profile.production_approved()
+    }
+
+    /// Artifact readiness does not claim deployed standard-verifier compatibility.
+    pub const fn claims_standard_verifier_compatibility(self) -> bool {
+        false
     }
 
     /// This certificate gates artifacts; it does not replace cryptographic review.
@@ -800,6 +852,17 @@ pub fn assess_rejection_equivalence_closure(
         Ok(digest) => digest,
         Err(assessment) => return assessment,
     };
+    let standard_verifier_bridge_evidence_digest = match require_closure_digest(
+        package.standard_verifier_bridge_evidence,
+        AggregateRejectionEvidenceKind::StandardVerifierBridge,
+        "missing standard verifier bridge evidence digest",
+        "standard verifier bridge evidence must not be scaffold-only",
+        "standard verifier bridge evidence has wrong artifact kind",
+        "standard verifier bridge evidence digest is all zero",
+    ) {
+        Ok(digest) => digest,
+        Err(assessment) => return assessment,
+    };
     let norm_bound_evidence_digest = match require_closure_digest(
         package.norm_bound_evidence,
         AggregateRejectionEvidenceKind::NormBound,
@@ -871,6 +934,7 @@ pub fn assess_rejection_equivalence_closure(
         boundary: package.boundary,
         real_recomputation_evidence_digest,
         standard_provider_kat_evidence_digest,
+        standard_verifier_bridge_evidence_digest,
         norm_bound_evidence_digest,
         hint_bound_evidence_digest,
         challenge_bound_evidence_digest,
@@ -934,6 +998,13 @@ pub fn assess_p1_aggregate_recomputation_closure(
             reason: "P1 proof artifacts must be reviewed before artifact closure",
         };
     }
+    if *package.proof_artifacts.selected_profile_binding_digest()
+        != package.selected_profile.profile_binding_digest()
+    {
+        return P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 selected profile binding digest does not match selected profile",
+        };
+    }
 
     let closure_certificate =
         match assess_rejection_equivalence_closure(Some(package.rejection_closure_package)) {
@@ -958,6 +1029,15 @@ pub fn assess_p1_aggregate_recomputation_closure(
     {
         return P1AggregateRecomputationAssessment::Invalid {
             reason: "P1 real recomputation evidence digest does not match closure package",
+        };
+    }
+    if closure_certificate.standard_verifier_bridge_evidence_digest()
+        != package
+            .proof_artifacts
+            .standard_verifier_bridge_evidence_digest()
+    {
+        return P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 standard verifier bridge evidence digest does not match closure package",
         };
     }
     if closure_certificate.norm_bound_evidence_digest()

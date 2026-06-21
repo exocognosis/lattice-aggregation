@@ -63,6 +63,15 @@ fn selected_profile_requires_standard_verifier_compatibility() {
 }
 
 #[test]
+fn selected_profile_binding_digest_is_stable_and_nonzero() {
+    let profile = SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1();
+    let digest = profile.profile_binding_digest();
+
+    assert_eq!(digest, profile.profile_binding_digest());
+    assert_ne!(digest, [0; 32]);
+}
+
+#[test]
 fn simulated_backend_is_not_the_selected_production_backend() {
     let status = SimulatedBackend::selection_status();
 

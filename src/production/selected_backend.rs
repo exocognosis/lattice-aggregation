@@ -4,6 +4,8 @@
 //! is selection metadata only and does not implement signing, DKG, attestation,
 //! or proof logic.
 
+use sha3::{Digest, Sha3_256};
+
 use crate::SimulatedBackend;
 
 /// ML-DSA parameter set selected for the production-candidate profile.
@@ -186,5 +188,33 @@ impl SelectedProductionBackendProfile {
     /// Return the selected profile classification.
     pub const fn backend_status(self) -> BackendSelectionStatus {
         BackendSelectionStatus::SelectedProductionCandidate
+    }
+
+    /// Return a stable digest binding the selected production-candidate profile.
+    pub fn profile_binding_digest(self) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:selected-production-backend-profile:v1");
+        hasher.update(self.parameter_set.name().as_bytes());
+        hasher.update(self.threshold_construction.name().as_bytes());
+        hasher.update(self.deployment_profile.name().as_bytes());
+        hasher.update(match self.standard_verifier_compatibility {
+            StandardVerifierCompatibility::Required => b"standard-verifier-required".as_slice(),
+        });
+        hasher.update(self.feature_gate.as_bytes());
+        hasher.update(match self.proof_status {
+            ProofStatus::NotProvedHazmatCandidate => b"not-proved-hazmat-candidate".as_slice(),
+        });
+        hasher.update(if self.production_approved {
+            b"production-approved".as_slice()
+        } else {
+            b"production-not-approved".as_slice()
+        });
+        for candidate in self.migration_candidates {
+            hasher.update(match candidate {
+                MigrationCandidate::P2Mpc => b"migration:p2-mpc".as_slice(),
+                MigrationCandidate::Talus => b"migration:talus".as_slice(),
+            });
+        }
+        hasher.finalize().into()
     }
 }

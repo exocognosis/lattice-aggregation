@@ -51,6 +51,9 @@ fn closure_package() -> AggregateRejectionClosurePackage {
         Some(AggregateRejectionEvidenceDigest::standard_provider_kat(
             digest(42),
         )),
+        Some(AggregateRejectionEvidenceDigest::standard_verifier_bridge(
+            digest(51),
+        )),
         Some(AggregateRejectionEvidenceDigest::norm_bound(digest(43))),
         Some(AggregateRejectionEvidenceDigest::hint_bound(digest(44))),
         Some(AggregateRejectionEvidenceDigest::challenge_bound(digest(
@@ -237,6 +240,10 @@ fn complete_closure_package_exposes_closure_ready_status_without_production_clai
         certificate.standard_provider_kat_evidence_digest(),
         &digest(42)
     );
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        &digest(51)
+    );
     assert_eq!(certificate.norm_bound_evidence_digest(), &digest(43));
     assert_eq!(certificate.hint_bound_evidence_digest(), &digest(44));
     assert_eq!(certificate.challenge_bound_evidence_digest(), &digest(45));
@@ -276,6 +283,22 @@ fn closure_package_rejects_missing_standard_provider_kat_evidence() {
         assessment,
         AggregateRejectionClosureAssessment::Missing {
             reason: "missing standard verifier provider KAT evidence digest",
+        }
+    );
+    assert!(!assessment.is_closure_ready());
+}
+
+#[test]
+fn closure_package_rejects_missing_standard_verifier_bridge_evidence() {
+    let mut package = closure_package();
+    package.standard_verifier_bridge_evidence = None;
+
+    let assessment = assess_rejection_equivalence_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        AggregateRejectionClosureAssessment::Missing {
+            reason: "missing standard verifier bridge evidence digest",
         }
     );
     assert!(!assessment.is_closure_ready());
@@ -370,7 +393,10 @@ fn provider_kat_evidence(source: AcvpFips204EvidenceSource) -> Mldsa65ProviderKa
 
 fn proof_artifacts() -> P1RejectionProofArtifacts {
     P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
         digest(41),
+        digest(51),
         digest(43),
         digest(44),
         digest(45),
@@ -413,8 +439,18 @@ fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
         certificate.real_recomputation_evidence_digest(),
         &digest(41)
     );
+    assert_eq!(
+        certificate.selected_profile_binding_digest(),
+        &SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest()
+    );
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        &digest(51)
+    );
     assert!(!certificate.claims_fips_validation());
     assert!(!certificate.claims_production_approval());
+    assert!(!certificate.claims_standard_verifier_compatibility());
 }
 
 #[test]
@@ -438,7 +474,10 @@ fn p1_recomputation_closure_rejects_smoke_only_kat_evidence() {
 fn p1_recomputation_closure_rejects_unreviewed_proof_artifacts() {
     let mut package = p1_recomputation_package();
     package.proof_artifacts = P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
         digest(41),
+        digest(51),
         digest(43),
         digest(44),
         digest(45),
@@ -454,6 +493,61 @@ fn p1_recomputation_closure_rejects_unreviewed_proof_artifacts() {
         assessment,
         P1AggregateRecomputationAssessment::Invalid {
             reason: "P1 proof artifacts must be reviewed before artifact closure",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_profile_binding_digest_mismatch() {
+    let mut package = p1_recomputation_package();
+    package.proof_artifacts = P1RejectionProofArtifacts::new(
+        digest(99),
+        digest(41),
+        digest(51),
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(46),
+        digest(47),
+        digest(48),
+        true,
+    );
+
+    let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 selected profile binding digest does not match selected profile",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_recomputation_closure_rejects_verifier_bridge_digest_mismatch() {
+    let mut package = p1_recomputation_package();
+    package.proof_artifacts = P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        digest(41),
+        digest(99),
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(46),
+        digest(47),
+        digest(48),
+        true,
+    );
+
+    let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+
+    assert_eq!(
+        assessment,
+        P1AggregateRecomputationAssessment::Invalid {
+            reason: "P1 standard verifier bridge evidence digest does not match closure package",
         }
     );
     assert!(!assessment.is_artifact_ready());
