@@ -122,6 +122,12 @@ migration candidates that require separate review.
 
 - Record the harness configuration, cluster scenarios, seeds, dependency
   versions, hardware, OS, and compiler for every benchmark artifact.
+- Keep checked-in deterministic simulation results indexed from
+  [simulation-results.md](simulation-results.md), and keep real-world benchmark
+  claims blocked by
+  [real-world-benchmark-protocol.md](real-world-benchmark-protocol.md) until a
+  production backend, external validator deployment, raw logs, checksums, and
+  reviewer sign-off exist.
 - Keep benchmark output framed as deterministic research telemetry and not
   security evidence.
 - Store artifact checksums and regeneration commands.

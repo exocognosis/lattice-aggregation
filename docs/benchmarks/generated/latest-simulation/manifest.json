@@ -1,0 +1,32 @@
+{
+  "artifacts": {
+    "summary_md": "summary.md",
+    "summary_md_sha256": "3a8ebc5c0dcae970c8175d5934d772ffaef6317fb931032729561c2d53623aae",
+    "trials_csv": "trials.csv",
+    "trials_csv_sha256": "d81947bc708546abb0d7a6a9a3e85acf1df3076549e08da5ca9658ced5e7127a"
+  },
+  "claim_boundary": "deterministic research telemetry; not security evidence",
+  "command": [
+    "cargo",
+    "run",
+    "--quiet",
+    "--",
+    "--profile",
+    "large",
+    "--format",
+    "csv",
+    "--no-wall-sleep"
+  ],
+  "command_duration_seconds": 6.741,
+  "generated_at": "2026-06-21T14:19:32Z",
+  "metadata": {
+    "branch": "codex/epsilon-prefilter-guardrails",
+    "cargo_version": "cargo 1.88.0 (873a06493 2025-05-10)",
+    "commit": "7eff8011a16d042d9233c8b13a62dbe214c4f2fa",
+    "os": "macOS-26.3-arm64-arm-64bit",
+    "python_version": "3.12.8",
+    "rustc_version": "rustc 1.88.0 (6b00bc388 2025-06-23)"
+  },
+  "profile": "large",
+  "trial_count": 28
+}

@@ -310,7 +310,7 @@ impl PartialContextBinding {
     pub fn closure_digest(&self) -> [u8; 32] {
         let mut hasher = Sha3_256::new();
         hasher.update(b"lattice-aggregation/partial-soundness/context-binding/v1");
-        hasher.update(&self.session_id);
+        hasher.update(self.session_id);
         hasher.update(self.epoch.to_be_bytes());
         hasher.update(self.key_id.as_bytes());
         hasher.update(self.validator_set_digest.as_bytes());
@@ -320,13 +320,13 @@ impl PartialContextBinding {
             hasher.update(validator.0.to_be_bytes());
         }
         hasher.update(self.threshold.to_be_bytes());
-        hasher.update(&self.public_key_digest);
-        hasher.update(&self.application_message_digest);
+        hasher.update(self.public_key_digest);
+        hasher.update(self.application_message_digest);
         hasher.update(self.message_binding.as_bytes());
         hasher.update(self.attempt_id.as_bytes());
-        hasher.update(&self.coordinator_attestation_digest);
+        hasher.update(self.coordinator_attestation_digest);
         hasher.update(self.retry_counter.to_be_bytes());
-        hasher.update(&self.challenge_digest);
+        hasher.update(self.challenge_digest);
         hasher.finalize().into()
     }
 }
