@@ -69,7 +69,10 @@ migration candidates that require separate review.
 - Complete coordinator-assisted threshold KATs for profile policy gates,
   transcript binding, preprocessing attempts, final verifier behavior, and
   production coordinator wire frames.
-- Add standard-verifier bridge tests for accepted aggregate signatures.
+- Keep the checked-in standard-verifier bridge fixture package at
+  `tests/fixtures/p1_standard_verifier_bridge_fixture.json` passing. The
+  standard-verifier bridge fixture package is conformance evidence only; it is
+  not production threshold ML-DSA recomputation, and accepted aggregate signatures from the selected backend remain a release blocker.
 - Provide production LocalAccept/AggregateAccept evidence for the selected
   backend before any criterion promotion, including rejection cases, logs,
   reviewer sign-off, and linked `tests/production_acceptance.rs` results.

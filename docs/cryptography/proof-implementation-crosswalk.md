@@ -158,8 +158,11 @@ artifacts exist.
 
 For blocker 2, `src/production/rejection_equivalence.rs` now adds a P1 aggregate
 recomputation artifact gate that binds the selected profile to
-ACVP/FIPS204-backed provider evidence, recomputation evidence, proof-artifact
-digests, negative-corpus evidence, and external review digests. The gate rejects
+ACVP/FIPS204-backed provider evidence, recomputation evidence, selected profile
+binding digest, standard-verifier bridge evidence digest, proof-artifact
+digests, negative-corpus evidence, and external review digests. The checked-in
+standard-verifier bridge fixture package at
+`tests/fixtures/p1_standard_verifier_bridge_fixture.json` is fixture-backed bridge conformance evidence for drift rejection only. The gate rejects
 smoke-only KAT evidence and digest drift, but it remains a framework gate until
 real threshold aggregate recomputation artifacts and reviewed proof artifacts are
 checked in.
