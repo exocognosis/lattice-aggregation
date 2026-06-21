@@ -28,6 +28,9 @@ use lattice_aggregation::{
 use serde::Deserialize;
 use sha3::{Digest, Sha3_256};
 
+const EXPECTED_P1_STANDARD_VERIFIER_BRIDGE_FIXTURE_PACKAGE_DIGEST_HEX: &str =
+    "28a59ad2845dc0e6694c997ed106c23f09966efb6028431dd55ac8ccdb9639fa";
+
 struct AcceptingProvider;
 
 impl StandardMldsa65Provider for AcceptingProvider {
@@ -63,6 +66,15 @@ fn standard_verifier_bridge_digest() -> [u8; 32] {
         &evidence,
     )
     .expect("fixture bridge evidence should satisfy the bridge gate")
+}
+
+fn standard_verifier_bridge_fixture_package_digest() -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-standard-verifier-bridge-fixture-package:v1");
+    hasher.update(include_bytes!(
+        "fixtures/p1_standard_verifier_bridge_fixture.json"
+    ));
+    hasher.finalize().into()
 }
 
 fn negative_test_corpus_digest() -> [u8; 32] {
@@ -216,10 +228,33 @@ impl BridgeExpectedDigests {
 struct BridgeNegativeCase {
     name: String,
     expected_error: String,
+    provider_kat_evidence_digest_hex: String,
     candidate_signature_digest_hex: String,
     recomputed_signature_digest_hex: String,
     transcript_binding_digest_hex: String,
     selected_profile_binding_digest_hex: String,
+}
+
+impl BridgeNegativeCase {
+    fn provider_kat_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.provider_kat_evidence_digest_hex)
+    }
+
+    fn candidate_signature_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.candidate_signature_digest_hex)
+    }
+
+    fn recomputed_signature_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.recomputed_signature_digest_hex)
+    }
+
+    fn transcript_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.transcript_binding_digest_hex)
+    }
+
+    fn selected_profile_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.selected_profile_binding_digest_hex)
+    }
 }
 
 fn transcript() -> ProductionSigningTranscript {
@@ -303,6 +338,10 @@ fn signature_from_fill_byte(byte: u8) -> ThresholdSignature {
     ThresholdSignature([byte; 3309])
 }
 
+fn signature_digest(signature: &ThresholdSignature) -> [u8; 32] {
+    Sha3_256::digest(signature.0).into()
+}
+
 fn provider_kat_fixture_digest() -> [u8; 32] {
     let mut hasher = Sha3_256::new();
     hasher.update(b"lattice-aggregation:mldsa65-provider-kat-fixture:v1");
@@ -320,16 +359,31 @@ fn derive_negative_test_corpus_digest(fixture: &P1StandardVerifierBridgeFixture)
         hasher.update(b"\0");
         hasher.update(case.expected_error.as_bytes());
         hasher.update(b"\0");
-        hasher.update(decode_hex_array::<32>(&case.candidate_signature_digest_hex));
-        hasher.update(decode_hex_array::<32>(
-            &case.recomputed_signature_digest_hex,
-        ));
-        hasher.update(decode_hex_array::<32>(&case.transcript_binding_digest_hex));
-        hasher.update(decode_hex_array::<32>(
-            &case.selected_profile_binding_digest_hex,
-        ));
+        hasher.update(case.candidate_signature_digest());
+        hasher.update(case.recomputed_signature_digest());
+        hasher.update(case.transcript_binding_digest());
+        hasher.update(case.selected_profile_binding_digest());
+        hasher.update(case.provider_kat_evidence_digest());
     }
     hasher.finalize().into()
+}
+
+fn error_label(error: &ThresholdError) -> &'static str {
+    match error {
+        ThresholdError::TranscriptMismatch => "TranscriptMismatch",
+        ThresholdError::StandardVerificationFailed => "StandardVerificationFailed",
+        ThresholdError::BackendUnavailable { reason } => reason,
+        ThresholdError::MalformedSerialization { reason } => reason,
+        ThresholdError::InvalidHintRoute { reason } => reason,
+        _ => "unexpected ThresholdError variant",
+    }
+}
+
+fn assert_p1_invalid_reason(assessment: P1AggregateRecomputationAssessment, expected: &str) {
+    match assessment {
+        P1AggregateRecomputationAssessment::Invalid { reason } => assert_eq!(reason, expected),
+        other => panic!("expected invalid P1 assessment, got {other:?}"),
+    }
 }
 
 fn decode_hex_array<const N: usize>(hex: &str) -> [u8; N] {
@@ -501,6 +555,15 @@ fn standard_verifier_bridge_fixture_digest_is_deterministic_nonzero_and_not_plac
 }
 
 #[test]
+fn standard_verifier_bridge_fixture_package_digest_fails_loudly_on_drift() {
+    assert_eq!(
+        standard_verifier_bridge_fixture_package_digest(),
+        decode_hex_array::<32>(EXPECTED_P1_STANDARD_VERIFIER_BRIDGE_FIXTURE_PACKAGE_DIGEST_HEX),
+        "P1 standard-verifier bridge fixture package drifted; review fixture inputs, negative corpus, provider KAT/profile bindings, and non-claim docs before updating the digest"
+    );
+}
+
+#[test]
 fn standard_verifier_bridge_fixture_negative_corpus_pins_expected_cases() {
     let fixture = standard_verifier_bridge_fixture();
     let names = fixture
@@ -515,6 +578,7 @@ fn standard_verifier_bridge_fixture_negative_corpus_pins_expected_cases() {
             "candidate_recomputed_signature_mismatch",
             "provider_rejection",
             "stale_selected_profile_binding",
+            "stale_provider_kat_evidence_digest",
             "transcript_mismatch",
         ])
     );
@@ -527,6 +591,212 @@ fn standard_verifier_bridge_fixture_negative_corpus_pins_expected_cases() {
         fixture.expected.negative_test_corpus_digest()
     );
     assert_ne!(derive_negative_test_corpus_digest(&fixture), digest(47));
+}
+
+#[test]
+fn standard_verifier_bridge_fixture_negative_cases_execute_expected_rejections() {
+    let fixture = standard_verifier_bridge_fixture();
+    for case in &fixture.negative_cases {
+        match case.name.as_str() {
+            "candidate_recomputed_signature_mismatch" => {
+                let transcript = transcript_from_fixture(&fixture.transcript);
+                let candidate_signature = ThresholdSignature([42; 3309]);
+                let recomputed_signature = ThresholdSignature([43; 3309]);
+                let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+                    &transcript,
+                    &decode_hex(&fixture.recomputation.aggregate_response_hex),
+                    &decode_hex(&fixture.recomputation.hint_hex),
+                    &recomputed_signature,
+                )
+                .unwrap();
+
+                assert_eq!(
+                    case.candidate_signature_digest(),
+                    signature_digest(&candidate_signature)
+                );
+                assert_eq!(
+                    case.recomputed_signature_digest(),
+                    *recomputation.recomputed_signature_digest()
+                );
+                assert_eq!(
+                    case.transcript_binding_digest(),
+                    *transcript.challenge_digest()
+                );
+                assert_eq!(
+                    case.selected_profile_binding_digest(),
+                    SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                        .profile_binding_digest()
+                );
+                assert_eq!(
+                    case.provider_kat_evidence_digest(),
+                    provider_kat_fixture_digest()
+                );
+
+                let err = AggregateRejectionEquivalenceGate::verify_recomputed_bridge::<
+                    AcceptingProvider,
+                >(&transcript, &candidate_signature, &recomputation)
+                .unwrap_err();
+                assert_eq!(error_label(&err), case.expected_error);
+            }
+            "transcript_mismatch" => {
+                let transcript = transcript_from_fixture(&fixture.transcript);
+                let mismatched_transcript = transcript_with_session_id_fill_byte(10);
+                let candidate_signature =
+                    signature_from_fill_byte(fixture.recomputation.candidate_signature_fill_byte);
+                let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+                    &mismatched_transcript,
+                    &decode_hex(&fixture.recomputation.aggregate_response_hex),
+                    &decode_hex(&fixture.recomputation.hint_hex),
+                    &candidate_signature,
+                )
+                .unwrap();
+
+                assert_eq!(
+                    case.candidate_signature_digest(),
+                    signature_digest(&candidate_signature)
+                );
+                assert_eq!(
+                    case.recomputed_signature_digest(),
+                    *recomputation.recomputed_signature_digest()
+                );
+                assert_eq!(
+                    case.transcript_binding_digest(),
+                    *mismatched_transcript.challenge_digest()
+                );
+                assert_eq!(
+                    case.selected_profile_binding_digest(),
+                    SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                        .profile_binding_digest()
+                );
+                assert_eq!(
+                    case.provider_kat_evidence_digest(),
+                    provider_kat_fixture_digest()
+                );
+
+                let err = AggregateRejectionEquivalenceGate::verify_recomputed_bridge::<
+                    AcceptingProvider,
+                >(&transcript, &candidate_signature, &recomputation)
+                .unwrap_err();
+                assert_eq!(error_label(&err), case.expected_error);
+            }
+            "provider_rejection" => {
+                let transcript = transcript_from_fixture(&fixture.transcript);
+                let candidate_signature =
+                    signature_from_fill_byte(fixture.recomputation.candidate_signature_fill_byte);
+                let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+                    &transcript,
+                    &decode_hex(&fixture.recomputation.aggregate_response_hex),
+                    &decode_hex(&fixture.recomputation.hint_hex),
+                    &candidate_signature,
+                )
+                .unwrap();
+
+                assert_eq!(
+                    case.candidate_signature_digest(),
+                    signature_digest(&candidate_signature)
+                );
+                assert_eq!(
+                    case.recomputed_signature_digest(),
+                    *recomputation.recomputed_signature_digest()
+                );
+                assert_eq!(
+                    case.transcript_binding_digest(),
+                    *transcript.challenge_digest()
+                );
+                assert_eq!(
+                    case.selected_profile_binding_digest(),
+                    SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                        .profile_binding_digest()
+                );
+                assert_eq!(
+                    case.provider_kat_evidence_digest(),
+                    provider_kat_fixture_digest()
+                );
+
+                let err = AggregateRejectionEquivalenceGate::verify_recomputed_bridge::<
+                    RejectingProvider,
+                >(&transcript, &candidate_signature, &recomputation)
+                .unwrap_err();
+                assert_eq!(error_label(&err), case.expected_error);
+            }
+            "stale_provider_kat_evidence_digest" => {
+                let mut package = p1_recomputation_package();
+                package.provider_kat_evidence = Mldsa65ProviderKatEvidence::new(
+                    AcvpFips204EvidenceSource::NistAcvpServerFips204,
+                    case.provider_kat_evidence_digest(),
+                    digest(49),
+                    digest(50),
+                    true,
+                );
+
+                assert_ne!(
+                    case.provider_kat_evidence_digest(),
+                    provider_kat_fixture_digest()
+                );
+                assert_eq!(
+                    case.candidate_signature_digest(),
+                    fixture.expected.candidate_signature_digest()
+                );
+                assert_eq!(
+                    case.recomputed_signature_digest(),
+                    fixture.expected.recomputed_signature_digest()
+                );
+                assert_eq!(
+                    case.transcript_binding_digest(),
+                    fixture.expected.challenge_digest()
+                );
+                assert_eq!(
+                    case.selected_profile_binding_digest(),
+                    SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                        .profile_binding_digest()
+                );
+
+                let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+                assert_p1_invalid_reason(assessment, &case.expected_error);
+            }
+            "stale_selected_profile_binding" => {
+                let mut package = p1_recomputation_package();
+                package.proof_artifacts = P1RejectionProofArtifacts::new(
+                    case.selected_profile_binding_digest(),
+                    digest(41),
+                    standard_verifier_bridge_digest(),
+                    digest(43),
+                    digest(44),
+                    digest(45),
+                    digest(46),
+                    negative_test_corpus_digest(),
+                    digest(48),
+                    true,
+                );
+
+                assert_eq!(
+                    case.provider_kat_evidence_digest(),
+                    provider_kat_fixture_digest()
+                );
+                assert_eq!(
+                    case.candidate_signature_digest(),
+                    fixture.expected.candidate_signature_digest()
+                );
+                assert_eq!(
+                    case.recomputed_signature_digest(),
+                    fixture.expected.recomputed_signature_digest()
+                );
+                assert_eq!(
+                    case.transcript_binding_digest(),
+                    fixture.expected.challenge_digest()
+                );
+                assert_ne!(
+                    case.selected_profile_binding_digest(),
+                    SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                        .profile_binding_digest()
+                );
+
+                let assessment = assess_p1_aggregate_recomputation_closure(Some(package));
+                assert_p1_invalid_reason(assessment, &case.expected_error);
+            }
+            unknown => panic!("fixture contains unhandled negative case: {unknown}"),
+        }
+    }
 }
 
 #[test]

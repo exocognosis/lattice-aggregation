@@ -92,9 +92,7 @@ package that binds the selected profile binding digest, ACVP sample-vector
 provider/KAT evidence digest, provider-checked candidate signature digest,
 recomputed aggregate signature digest, aggregate-response digest, hint digest,
 transcript-binding digest, and negative mismatch cases used by
-`tests/production_rejection_equivalence.rs`. This is conformance evidence only:
-it is not production threshold ML-DSA recomputation, not CAVP/ACVTS validation,
-and not a completed standard-verifier compatibility proof.
+`tests/production_rejection_equivalence.rs`. The fixture-backed bridge evidence package is a stricter blocker-2 release gate and is necessary but not sufficient for criterion-2 promotion. This is conformance evidence only: it is not selected-backend aggregate output evidence, not production threshold ML-DSA recomputation, not CAVP/ACVTS validation, not FIPS validation, and not a completed standard-verifier compatibility proof.
 
 ## Claim Boundary
 
