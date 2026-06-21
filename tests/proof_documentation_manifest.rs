@@ -427,6 +427,14 @@ fn benchmark_docs_keep_simulation_and_real_world_boundaries() {
             "docs/benchmarks/generated/latest-simulation/manifest.json",
             "10,000",
             "cargo run -- --profile large --format csv --no-wall-sleep",
+            "## External Comparator Baseline",
+            "LaBRADOR",
+            "Falcon",
+            "74.07 KB",
+            "2.65s",
+            "proof-wrapper aggregation",
+            "not a benchmark",
+            "produced by this repository",
         ],
     );
     assert_contains_all(
@@ -452,6 +460,40 @@ fn benchmark_docs_keep_simulation_and_real_world_boundaries() {
     assert_contains_all(
         RELEASE_READINESS_CHECKLIST,
         &["simulation-results.md", "real-world-benchmark-protocol.md"],
+    );
+}
+
+#[test]
+fn related_work_comparator_docs_keep_claim_boundary() {
+    assert_contains_all(
+        "docs/cryptography/claims-matrix.md",
+        &[
+            "## Related Work Comparator",
+            "Falcon/LaBRADOR-style proof-wrapper aggregation",
+            "many independent Falcon signatures",
+            "native threshold",
+            "ML-DSA-65 signing",
+            "standard-verifier-compatible ML-DSA-65 signature",
+            "higher-risk",
+            "ordinary ML-DSA verifier",
+            "standard-sized aggregate",
+            "comparative only",
+        ],
+    );
+    assert_contains_all(
+        RELEASE_READINESS_CHECKLIST,
+        &[
+            "fallback architecture to evaluate",
+            "Falcon/LaBRADOR-style",
+            "proof-wrapper aggregation",
+            "not a selected backend",
+            "not a production release path",
+            "separate scheme",
+            "selection",
+            "prover and verifier benchmarks",
+            "consensus-latency analysis",
+            "updated claim-boundary docs",
+        ],
     );
 }
 
