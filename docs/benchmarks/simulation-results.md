@@ -38,6 +38,23 @@ Real-world benchmark claims require the separate
 production threshold backend, hardware and network topology, dependency
 versions, raw logs, checksums, reviewer sign-off, and claim-boundary review.
 
+## External Comparator Baseline
+
+The Ethereum Research post
+[Lattice-based signature aggregation](https://ethresear.ch/t/lattice-based-signature-aggregation/22282)
+reports an external LaBRADOR + Falcon proof-wrapper aggregation benchmark for
+10,000 Falcon-512 signatures: 74.07 KB proof size, 5.95s proof generation, and
+2.65s proof verification in a single-threaded run. That result is useful as an
+external baseline for proof-wrapper aggregation, but it is not a benchmark
+produced by this repository and does not validate this repository's simulated
+backend.
+
+The comparison point is architectural. LaBRADOR + Falcon proves many
+independent signatures behind a proof-wrapper verifier. This repository's
+native threshold ML-DSA-65 target is higher-risk and not yet proven, but if its
+theorem, backend, bridge-test, and audit gates close, the intended output is one
+standard-sized ML-DSA-65 signature checked by a standard ML-DSA verifier.
+
 ## Regeneration
 
 To regenerate the checked-in benchmark evidence:
