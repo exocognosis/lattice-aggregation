@@ -580,6 +580,7 @@ impl P1AggregateRecomputationClosureCertificate {
 
 /// Result of assessing a P1 aggregate recomputation artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum P1AggregateRecomputationAssessment {
     /// No package or required evidence digest was supplied.
     Missing {
@@ -612,6 +613,7 @@ impl P1AggregateRecomputationAssessment {
 
 /// Result of assessing a rejection-equivalence closure package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum AggregateRejectionClosureAssessment {
     /// No package or required evidence digest was supplied.
     Missing {
@@ -1091,6 +1093,7 @@ pub fn assess_p1_aggregate_recomputation_closure(
     })
 }
 
+#[allow(clippy::result_large_err)]
 fn require_closure_digest(
     evidence: Option<AggregateRejectionEvidenceDigest>,
     expected_kind: AggregateRejectionEvidenceKind,
