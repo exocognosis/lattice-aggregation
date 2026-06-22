@@ -69,7 +69,15 @@ migration candidates that require separate review.
 - Complete coordinator-assisted threshold KATs for profile policy gates,
   transcript binding, preprocessing attempts, final verifier behavior, and
   production coordinator wire frames.
-- Add standard-verifier bridge tests for accepted aggregate signatures.
+- Treat the checked-in standard-verifier bridge fixture package at
+  `tests/fixtures/p1_standard_verifier_bridge_fixture.json` as a
+  mandatory criterion-2 release gate. Fixture-backed bridge evidence,
+  negative-corpus cases, selected profile binding digest, standard-verifier bridge evidence
+  digest, and test-pinned raw fixture-package digest must remain stable before criterion
+  promotion. This gate is necessary but not sufficient; it is
+  not selected-backend aggregate recomputation,
+  not production threshold ML-DSA recomputation, and
+  real reviewed selected-backend accepted aggregate signatures remain a release blocker.
 - Provide production LocalAccept/AggregateAccept evidence for the selected
   backend before any criterion promotion, including rejection cases, logs,
   reviewer sign-off, and linked `tests/production_acceptance.rs` results.
@@ -83,6 +91,18 @@ migration candidates that require separate review.
   norm/hint/challenge/transcript proof artifact digests, negative corpus digest,
   and external review digest must all agree. The P1 gate is framework evidence
   until the real threshold artifacts and reviewed proofs are checked in.
+- Require the selected-backend aggregate-output artifact gate before criterion-2
+  promotion: `P1SelectedBackendAggregateArtifactPackage`,
+  `assess_p1_selected_backend_aggregate_artifact`, and the
+  `p1_selected_backend_aggregate_artifact_gate` assessment/report key must bind
+  `LocalAccept`/`AggregateAccept` evidence, signer-set digest, attempt-binding
+  digest, transcript-binding digest, provider KAT digest, recomputation digest,
+  and standard-verifier bridge evidence digest. This gate is
+  conformance/proof-review evidence only, necessary but not sufficient,
+  criterion-2 remains partial, and the selected-backend aggregate-output
+  artifact gate is not selected-backend proof closure,
+  not production threshold ML-DSA security, not CAVP/ACVTS validation,
+  not FIPS validation, and not a completed standard-verifier compatibility proof.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,

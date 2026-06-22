@@ -4,17 +4,47 @@
 
 Interactive threshold aggregation for **ML-DSA-65** (NIST FIPS 204 / Dilithium) that aims to compress thousands of validator contributions into one standard-sized signature.
 
-- ✅ Type-state protocol with deterministic transcripts
-- ✅ Simulation backend with realistic ML-DSA-65-sized outputs
-- ✅ Transparent hypothesis matrix + proof obligations
-- ⚠️ **Research stage** — not production cryptography
+- Type-state protocol with deterministic transcripts
+- Simulation backend with realistic ML-DSA-65-sized outputs
+- Transparent hypothesis matrix, proof obligations, and release gates
+- **Research stage**: publishable as a research artifact, not production cryptography
 
-[Hypothesis Assessment](scripts/assess_lattice_hypothesis.py) • [Security Model](SECURITY.md) • [Claims Matrix](docs/cryptography/claims-matrix.md)
+[Current Status](#current-status) • [Reproduce Evidence](#reproduce-evidence) • [Known Limitations](#known-limitations) • [Hypothesis Assessment](scripts/assess_lattice_hypothesis.py) • [Security Model](SECURITY.md) • [Claims Matrix](docs/cryptography/claims-matrix.md)
 
 ![GitHub stars](https://img.shields.io/github/stars/exocognosis/lattice-aggregation)
 ![Rust](https://img.shields.io/badge/Rust-2021-orange)
 
 ![Lattice Aggregation protocol flow: threshold ML-DSA-65](docs/assets/lattice-aggregation-protocol-flow.png)
+
+## Current Status
+
+This repository is publishable as a research artifact and exploratory implementation. It is suitable as a technical whitepaper companion, audit-oriented prototype, and reproducible evidence scaffold for native threshold ML-DSA-65 aggregation research.
+
+It is not publishable as production cryptography, a completed threshold ML-DSA construction, a FIPS/CAVP/ACVTS-validated implementation, or a finished standard-verifier-compatible aggregate signature scheme.
+
+Current merged-main assessment status: `partially_proven`. The five tracked hypothesis criteria are all `partially_met`; none is currently classified as fully proven or disproven.
+
+## Reproduce Evidence
+
+Use a clean target directory when reproducing evidence so local build artifacts do not mask stale state:
+
+```sh
+cargo fmt --all -- --check
+python3 -m unittest script_tests.test_assess_lattice_hypothesis
+python3 scripts/assess_lattice_hypothesis.py --out artifacts/hypothesis/latest --offline --target-dir /tmp/lattice-aggregation-publish-evidence
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-publish-evidence cargo test --features production-mldsa65-coordinator --test production_provider --test production_rejection_equivalence --test production_selected_backend --test proof_documentation_manifest
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-publish-evidence cargo test --features production-mldsa65-coordinator
+```
+
+These commands reproduce the current scaffold and documentation evidence. Passing them does not close the cryptographic theorem, select a production backend, or establish production ML-DSA security.
+
+## Release Tag
+
+`v0.1.0` remains the historical protocol-conformance tag. The next clean public research tag should be created only after this README status, hypothesis assessment, documentation manifest, and release-boundary wording are merged on `main`.
+
+Recommended next tag name: `v0.2.0-research-preview`.
+
+Tags must point at merged `main` commits, include the assessment output path used for reproduction, and avoid production-readiness language unless the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md) is fully satisfied.
 
 ## The Problem
 
@@ -79,6 +109,8 @@ This repository turns those boundaries into Rust APIs, tests, wire types, actor 
 - regression coverage for simulation flow, validation, transcript determinism, serialization, type-state compile failures, and documentation link integrity in [tests/](tests/)
 - reviewer packet in [docs/audit/](docs/audit/) and cryptographic notes in [docs/cryptography/](docs/cryptography/)
 - non-default `hazmat-real-mldsa` provider verification conformance, including a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture; this is not threshold aggregate verification or validation evidence
+- fixture-backed bridge conformance evidence for the P1 standard-verifier bridge package; this is not selected-backend aggregate output evidence
+- selected-backend aggregate-output artifact gate for P1; conformance/proof-review evidence only, not selected-backend proof closure, not production, not CAVP/ACVTS or FIPS validation, and not a completed standard-verifier compatibility proof
 
 ## Explicit Non-Claims
 
@@ -88,12 +120,23 @@ The repository does not currently claim:
 
 - production ML-DSA signing, threshold aggregate verification, or CAVP/ACVTS validation
 - a production threshold ML-DSA construction
+- a selected production backend, production release path, or completed standard-verifier compatibility proof
 - side-channel resistance or constant-time production behavior
 - audited distributed key generation
 - FIPS validation
 - consensus safety for production validator keys
 
 The current security boundary is documented in [SECURITY.md](SECURITY.md), the [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md), and the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md).
+
+## Known Limitations
+
+- The native threshold ML-DSA security theorem is not closed.
+- The selected-backend aggregate-output gate is conformance/proof-review evidence only.
+- The repository does not contain a reviewed production threshold backend.
+- The bounded ACVP/FIPS204 fixture is provider-conformance evidence, not CAVP/ACVTS validation.
+- The current benchmarks are deterministic simulation artifacts unless a document explicitly says otherwise.
+- Side-channel resistance, constant-time production behavior, DKG hardening, consensus safety, and external audit sign-off remain release blockers.
+- Falcon/LaBRADOR-style proof-wrapper aggregation is tracked as related work and a fallback architecture to evaluate, not the currently selected backend.
 
 ## Hypothesis Closure Requirements
 
@@ -122,7 +165,7 @@ Latest result: all listed commands passed locally, the assessment command report
 | Requirement | Why this requirement was chosen | Code and test evidence | Latest result | Determination |
 | --- | --- | --- | --- | --- |
 | Aggregate masks match or closely approximate centralized ML-DSA masks. | A threshold signer cannot be verifier-compatible if accepted aggregate masks come from a distinguishable distribution. | [src/production/mask_distribution.rs](src/production/mask_distribution.rs), [tests/production_mask_distribution.rs](tests/production_mask_distribution.rs), [docs/cryptography/mask-distribution-evidence.md](docs/cryptography/mask-distribution-evidence.md), [docs/cryptography/phase-1-noise-bound-model.md](docs/cryptography/phase-1-noise-bound-model.md). | Evidence gates and closure-package checks are present; Renyi-divergence evidence for `epsilon_mask` remains a release blocker. | Partially proven. |
-| Aggregate rejection checks match centralized ML-DSA rejection checks. | ML-DSA security depends on rejection sampling; aggregate acceptance must match centralized rejection behavior rather than accepting threshold-only artifacts. | [src/production/rejection_equivalence.rs](src/production/rejection_equivalence.rs), [src/production/provider.rs](src/production/provider.rs), [tests/production_rejection_equivalence.rs](tests/production_rejection_equivalence.rs), [tests/production_provider.rs](tests/production_provider.rs), [tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json](tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json), [docs/cryptography/rejection-equivalence-evidence.md](docs/cryptography/rejection-equivalence-evidence.md). | P1 aggregate recomputation artifact gate and bounded ACVP/FIPS204 sample-vector provider conformance are present; real P1 recomputation artifacts, full KAT coverage, reviewed proof artifacts, and CAVP/ACVTS validation artifacts remain open. | Partially proven. |
+| Aggregate rejection checks match centralized ML-DSA rejection checks. | ML-DSA security depends on rejection sampling; aggregate acceptance must match centralized rejection behavior rather than accepting threshold-only artifacts. | [src/production/rejection_equivalence.rs](src/production/rejection_equivalence.rs), [src/production/provider.rs](src/production/provider.rs), [tests/production_rejection_equivalence.rs](tests/production_rejection_equivalence.rs), [tests/production_provider.rs](tests/production_provider.rs), [tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json](tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json), [tests/fixtures/p1_standard_verifier_bridge_fixture.json](tests/fixtures/p1_standard_verifier_bridge_fixture.json), [docs/cryptography/rejection-equivalence-evidence.md](docs/cryptography/rejection-equivalence-evidence.md). | P1 aggregate recomputation artifact gate, bounded ACVP/FIPS204 sample-vector provider conformance, a fixture-backed bridge evidence package with fixture-backed bridge conformance evidence, and a selected-backend aggregate-output artifact gate are present as stricter blocker-2/criterion-2 release gates. These gates are necessary but not sufficient for criterion-2 promotion and remain conformance/proof-review evidence only; real P1 recomputation proof artifacts, full KAT coverage, reviewed proof artifacts, CAVP/ACVTS validation artifacts, and external review remain open. | Partially proven. |
 | Selective aborts and retries do not bias accepted signatures. | Interactive threshold signing lets participants influence retries; accepted outputs must not be biased by abort timing or retry-domain reuse. | [src/production/abort_bias.rs](src/production/abort_bias.rs), [tests/production_abort_bias.rs](tests/production_abort_bias.rs), [docs/cryptography/abort-retry-bias-evidence.md](docs/cryptography/abort-retry-bias-evidence.md). | Retry-domain, leakage, accepted-sample, threshold, and review artifact gates are present; abort leakage and retry-bias distribution analysis remain proof obligations. | Partially proven. |
 | Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model. | A valid aggregate is meaningless if accepted partials can be stale, cross-context, malformed, or leaking beyond the chosen model. | [src/production/acceptance.rs](src/production/acceptance.rs), [src/production/partial_soundness.rs](src/production/partial_soundness.rs), [tests/production_acceptance.rs](tests/production_acceptance.rs), [tests/production_partial_soundness.rs](tests/production_partial_soundness.rs), [docs/cryptography/partial-soundness-evidence.md](docs/cryptography/partial-soundness-evidence.md). | Context-binding and proof-backed verifier gates are present; production local acceptance, partial verification, and hiding proof evidence are not complete. | Partially proven. |
 | Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation. | The final security theorem must classify any accepting unauthorized output as either a base ML-DSA break or a precise threshold assumption failure. | [docs/cryptography/unauthorized-aggregate-reduction.md](docs/cryptography/unauthorized-aggregate-reduction.md), [tests/unauthorized_aggregate_reduction_manifest.rs](tests/unauthorized_aggregate_reduction_manifest.rs), [docs/cryptography/formal-security-theorem.md](docs/cryptography/formal-security-theorem.md), [docs/cryptography/proof-obligations.md](docs/cryptography/proof-obligations.md). | The reduction manifest names base-forgery and threshold-side cases and has classifier/simulator/review slots; the threshold unforgeability reduction remains a target, not a completed proof. | Partially proven. |
