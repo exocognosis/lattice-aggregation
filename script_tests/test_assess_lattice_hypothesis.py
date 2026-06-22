@@ -480,6 +480,8 @@ class ReportGenerationTests(unittest.TestCase):
             + "pub struct P1SelectedBackendAggregateArtifactCertificate;\n"
             + "pub enum P1SelectedBackendAggregateArtifactAssessment { ArtifactReady }\n"
             + "pub fn assess_p1_selected_backend_aggregate_artifact() {}\n"
+            + "pub fn derive_p1_selected_backend_aggregate_artifact_package() {}\n"
+            + "pub fn derive_p1_real_recomputation_evidence_digest() {}\n"
             + "pub fn derive_p1_selected_backend_transcript_binding_digest() {}\n"
             + "pub fn derive_p1_selected_backend_signer_set_digest() {}\n"
             + "pub fn derive_p1_selected_backend_attempt_binding_digest() {}\n",
@@ -494,6 +496,10 @@ class ReportGenerationTests(unittest.TestCase):
             + "fn p1_selected_backend_aggregate_artifact_accepts_bound_acceptance_and_recomputation() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_aggregate_artifact_rejects_stale_bridge_for_changed_outputs() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_aggregate_artifact_accepts_real_mldsa_output_package() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_aggregate_artifact_deriver_rejects_stale_recomputation_output() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_aggregate_artifact_rejects_unreviewed_package() {}\n",
             encoding="utf-8",
@@ -677,6 +683,7 @@ class ReportGenerationTests(unittest.TestCase):
             markdown = module.render_markdown(report)
 
         self.assertTrue(scan["p1_selected_backend_aggregate_artifact_gate"])
+        self.assertTrue(scan["p1_selected_backend_real_output_package"])
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
         aggregate_evidence = "\n".join(aggregate["observed_evidence"])
@@ -685,9 +692,12 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertEqual(aggregate["status"], "partially_met")
         self.assertEqual(report["overall_verdict"], "partially_proven")
         self.assertIn("Selected-backend aggregate-output artifact gate", aggregate_evidence)
+        self.assertIn("Real standard-provider selected-backend aggregate-output package", aggregate_evidence)
+        self.assertIn("stronger than fixture-only bridge confidence", aggregate_evidence)
         self.assertIn("conformance/proof-review", aggregate_evidence)
         self.assertIn("not selected-backend proof closure", aggregate_evidence)
-        self.assertIn("Real selected-backend aggregate outputs", aggregate_blockers)
+        self.assertIn("Real threshold selected-backend aggregate outputs", aggregate_blockers)
+        self.assertIn("real standard-provider aggregate-output package", aggregate_blockers)
         self.assertIn("selected-backend proof closure", aggregate_blockers)
         self.assertIn("selected-backend aggregate-output artifact gate", markdown)
         self.assertNotIn("completely_proven", markdown)

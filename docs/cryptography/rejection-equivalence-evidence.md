@@ -111,6 +111,19 @@ not production threshold ML-DSA security, not selected-backend proof closure,
 not CAVP/ACVTS or FIPS validation, and not a completed standard-verifier
 compatibility proof.
 
+`derive_p1_selected_backend_aggregate_artifact_package` and
+`derive_p1_real_recomputation_evidence_digest` add a real standard-provider
+aggregate-output package path for P1. The package is derived from a
+provider-verified ML-DSA-65 candidate signature, `LocalAccept` and
+`AggregateAccept` tokens, a public recomputation transcript, and a
+standard-verifier bridge digest. The positive coverage in
+`tests/production_rejection_equivalence.rs` uses a fixed-seed ML-DSA-65
+signature through `HazmatMldsa65Provider`, and the stale recomputation test
+rejects changed recomputation output before an artifact package can be minted.
+This is stronger than fixture-only bridge confidence, but it remains
+conformance/proof-review evidence only and does not claim a real threshold
+aggregate signer.
+
 ## Claim Boundary
 
 This is hazmat/conformance-only evidence. It does not claim production
@@ -138,9 +151,10 @@ To fully close blocker 2 cryptographically, the repo still needs:
   backend, with reviewed digest evidence tied to the package;
 - reviewed selected profile binding evidence for the exact ML-DSA-65
   coordinator-assisted Shamir nonce DKG P1 profile under review;
-- a standard-verifier bridge evidence digest backed by real selected-backend
-  accepted aggregate outputs; the current checked-in bridge fixture and
-  selected-backend aggregate-output artifact gate are conformance/proof-review
+- a standard-verifier bridge evidence digest backed by real threshold
+  selected-backend accepted aggregate outputs; the current checked-in bridge
+  fixture, selected-backend aggregate-output artifact gate, and real
+  standard-provider aggregate-output package path are conformance/proof-review
   evidence only;
 - full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
   vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,

@@ -1095,6 +1095,109 @@ pub fn derive_p1_selected_backend_attempt_binding_digest(
     hasher.finalize().into()
 }
 
+/// Derive the digest binding P1 real aggregate recomputation evidence.
+///
+/// The digest commits only to public recomputation outputs and transcript
+/// challenge material. It is a release-gate artifact identifier, not a proof
+/// that threshold ML-DSA recomputation is secure or distribution preserving.
+pub fn derive_p1_real_recomputation_evidence_digest(
+    recomputation: &AggregateRecomputationTranscript,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-real-aggregate-recomputation-evidence:v1");
+    hasher.update(recomputation.challenge_digest());
+    hasher.update(recomputation.aggregate_response_digest());
+    hasher.update(recomputation.hint_digest());
+    hasher.update(recomputation.recomputed_signature_digest());
+    hasher.finalize().into()
+}
+
+/// Derive a selected-backend aggregate-output artifact package from live
+/// accepted aggregate, recomputation, and provider-verification evidence.
+///
+/// This constructor is intentionally stricter than `P1SelectedBackendAggregateArtifactPackage::new`:
+/// it verifies the candidate signature with the selected provider boundary,
+/// requires public recomputation to match the accepted aggregate token, derives
+/// the bridge digest from that evidence, and requires the supplied P1
+/// recomputation certificate to bind the same recomputation and bridge digests.
+/// The returned package is still proof-review evidence only; it does not claim
+/// production threshold ML-DSA security, FIPS validation, or completed
+/// standard-verifier compatibility proof.
+pub fn derive_p1_selected_backend_aggregate_artifact_package<P>(
+    transcript: &ProductionSigningTranscript,
+    accepted_aggregate: &AcceptedAggregateCandidate,
+    recomputation: &AggregateRecomputationTranscript,
+    recomputation_certificate: &P1AggregateRecomputationClosureCertificate,
+    candidate_signature: &ThresholdSignature,
+    reviewed: bool,
+) -> Result<P1SelectedBackendAggregateArtifactPackage, ThresholdError>
+where
+    P: StandardMldsa65Provider,
+{
+    if accepted_aggregate.challenge_digest() != transcript.challenge_digest()
+        || recomputation.challenge_digest() != transcript.challenge_digest()
+    {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+    if accepted_aggregate.aggregate_response_digest() != recomputation.aggregate_response_digest()
+        || accepted_aggregate.hint_digest() != recomputation.hint_digest()
+        || accepted_aggregate.candidate_signature_digest()
+            != recomputation.recomputed_signature_digest()
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    let bridge_evidence = AggregateRejectionEquivalenceGate::verify_recomputed_bridge::<P>(
+        transcript,
+        candidate_signature,
+        recomputation,
+    )?;
+    if bridge_evidence.aggregate_response_digest() != accepted_aggregate.aggregate_response_digest()
+        || bridge_evidence.hint_digest() != accepted_aggregate.hint_digest()
+        || bridge_evidence.candidate_signature_digest()
+            != accepted_aggregate.candidate_signature_digest()
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    let selected_profile_binding_digest =
+        *recomputation_certificate.selected_profile_binding_digest();
+    let provider_kat_evidence_digest = *recomputation_certificate.provider_kat_evidence_digest();
+    let real_recomputation_evidence_digest =
+        derive_p1_real_recomputation_evidence_digest(recomputation);
+    if &real_recomputation_evidence_digest
+        != recomputation_certificate.real_recomputation_evidence_digest()
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    let standard_verifier_bridge_evidence_digest = derive_standard_verifier_bridge_evidence_digest(
+        &selected_profile_binding_digest,
+        &provider_kat_evidence_digest,
+        &bridge_evidence,
+    )?;
+    if &standard_verifier_bridge_evidence_digest
+        != recomputation_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    Ok(P1SelectedBackendAggregateArtifactPackage::new(
+        recomputation_certificate.selected_profile(),
+        selected_profile_binding_digest,
+        provider_kat_evidence_digest,
+        standard_verifier_bridge_evidence_digest,
+        real_recomputation_evidence_digest,
+        derive_p1_selected_backend_transcript_binding_digest(transcript),
+        derive_p1_selected_backend_signer_set_digest(accepted_aggregate.signers()),
+        derive_p1_selected_backend_attempt_binding_digest(transcript),
+        *accepted_aggregate.aggregate_response_digest(),
+        *accepted_aggregate.hint_digest(),
+        *accepted_aggregate.candidate_signature_digest(),
+        reviewed,
+    ))
+}
+
 /// Assess whether a submitted package is ready for rejection-equivalence proof closure.
 pub fn assess_rejection_equivalence_closure(
     package: Option<AggregateRejectionClosurePackage>,

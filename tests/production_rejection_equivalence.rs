@@ -38,6 +38,12 @@ use lattice_aggregation::{
 use serde::Deserialize;
 use sha3::{Digest, Sha3_256};
 
+#[cfg(feature = "hazmat-real-mldsa")]
+use lattice_aggregation::production::rejection_equivalence::{
+    derive_p1_real_recomputation_evidence_digest,
+    derive_p1_selected_backend_aggregate_artifact_package,
+};
+
 const EXPECTED_P1_STANDARD_VERIFIER_BRIDGE_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "28a59ad2845dc0e6694c997ed106c23f09966efb6028431dd55ac8ccdb9639fa";
 
@@ -346,6 +352,73 @@ fn fixture_bridge_evidence(
 
 fn signature_from_fill_byte(byte: u8) -> ThresholdSignature {
     ThresholdSignature([byte; 3309])
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn threshold_public_key_from(encoded: &[u8]) -> ThresholdPublicKey {
+    let mut bytes = [0u8; 1952];
+    bytes.copy_from_slice(encoded);
+    ThresholdPublicKey(bytes)
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn threshold_signature_from(encoded: &[u8]) -> ThresholdSignature {
+    let mut bytes = [0u8; 3309];
+    bytes.copy_from_slice(encoded);
+    ThresholdSignature(bytes)
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn real_mldsa_transcript(
+    public_key: ThresholdPublicKey,
+    application_message: &[u8],
+) -> ProductionSigningTranscript {
+    ProductionSigningTranscript::new(ProductionTranscriptInput {
+        session_id: [0x71; 32],
+        epoch: EpochId(7),
+        key_id: KeyId([0x72; 32]),
+        validator_set_digest: ValidatorSetDigest([0x73; 32]),
+        dkg_transcript_digest: DkgTranscriptDigest([0x74; 32]),
+        active_signers: ActiveSignerSet::new(vec![ValidatorId(1), ValidatorId(2), ValidatorId(3)])
+            .unwrap(),
+        threshold: 2,
+        public_key,
+        application_message: application_message.to_vec(),
+        message_binding: MessageBinding([0x75; 64]),
+        attempt_id: AttemptId([0x76; 32]),
+        coordinator_attestation_digest: [0x77; 32],
+        retry_counter: 0,
+        commitment_digests: vec![
+            (ValidatorId(1), CommitmentDigest([0x81; 32])),
+            (ValidatorId(2), CommitmentDigest([0x82; 32])),
+            (ValidatorId(3), CommitmentDigest([0x83; 32])),
+        ],
+    })
+    .unwrap()
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn real_mldsa_accepted_partials(
+    transcript: &ProductionSigningTranscript,
+) -> Vec<lattice_aggregation::production::acceptance::AcceptedPartialContribution> {
+    transcript
+        .input()
+        .commitment_digests
+        .iter()
+        .enumerate()
+        .map(|(index, (signer, commitment_digest))| {
+            LocalAccept::accept(
+                transcript,
+                LocalAcceptEvidence {
+                    signer: *signer,
+                    commitment_digest: *commitment_digest,
+                    partial_share_digest: [(0x91 + index) as u8; 32],
+                    local_bounds_proof_digest: [(0xa1 + index) as u8; 32],
+                },
+            )
+            .unwrap()
+        })
+        .collect()
 }
 
 fn signature_digest(signature: &ThresholdSignature) -> [u8; 32] {
@@ -1125,6 +1198,64 @@ fn p1_recomputation_certificate() -> P1AggregateRecomputationClosureCertificate 
     }
 }
 
+#[cfg(feature = "hazmat-real-mldsa")]
+fn p1_recomputation_certificate_for_output(
+    standard_verifier_bridge_evidence_digest: [u8; 32],
+    real_recomputation_evidence_digest: [u8; 32],
+) -> P1AggregateRecomputationClosureCertificate {
+    let closure_package = AggregateRejectionClosurePackage::new(
+        AggregateRejectionConformanceBoundary::ClosureCandidate,
+        Some(AggregateRejectionEvidenceDigest::real_recomputation(
+            real_recomputation_evidence_digest,
+        )),
+        Some(AggregateRejectionEvidenceDigest::standard_provider_kat(
+            provider_kat_fixture_digest(),
+        )),
+        Some(AggregateRejectionEvidenceDigest::standard_verifier_bridge(
+            standard_verifier_bridge_evidence_digest,
+        )),
+        Some(AggregateRejectionEvidenceDigest::norm_bound(digest(43))),
+        Some(AggregateRejectionEvidenceDigest::hint_bound(digest(44))),
+        Some(AggregateRejectionEvidenceDigest::challenge_bound(digest(
+            45,
+        ))),
+        Some(AggregateRejectionEvidenceDigest::transcript_binding(
+            digest(46),
+        )),
+        Some(AggregateRejectionEvidenceDigest::negative_test_corpus(
+            negative_test_corpus_digest(),
+        )),
+        Some(AggregateRejectionEvidenceDigest::external_review(digest(
+            48,
+        ))),
+    );
+    let proof_artifacts = P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        real_recomputation_evidence_digest,
+        standard_verifier_bridge_evidence_digest,
+        standard_verifier_bridge_fixture_package_digest(),
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(46),
+        negative_test_corpus_digest(),
+        digest(48),
+        true,
+    );
+    let package = P1AggregateRecomputationClosurePackage::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1(),
+        closure_package,
+        provider_kat_evidence(AcvpFips204EvidenceSource::NistAcvpServerFips204),
+        proof_artifacts,
+    );
+
+    match assess_p1_aggregate_recomputation_closure(Some(package)) {
+        P1AggregateRecomputationAssessment::ArtifactReady(certificate) => certificate,
+        other => panic!("expected real-output P1 recomputation certificate, got {other:?}"),
+    }
+}
+
 fn fixture_recomputation_transcript(
     fixture: &P1StandardVerifierBridgeFixture,
 ) -> AggregateRecomputationTranscript {
@@ -1346,6 +1477,156 @@ fn p1_selected_backend_aggregate_artifact_accepts_bound_acceptance_and_recomputa
     assert!(!certificate.claims_selected_backend_production());
     assert!(!certificate.claims_standard_verifier_compatibility());
     assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[test]
+fn p1_selected_backend_aggregate_artifact_accepts_real_mldsa_output_package() {
+    use lattice_aggregation::production::provider::HazmatMldsa65Provider;
+    use ml_dsa::{Keypair, MlDsa65, SignatureEncoding, Signer, SigningKey};
+
+    let seed = [0x5a; 32].into();
+    let signing_key = SigningKey::<MlDsa65>::from_seed(&seed);
+    let message = b"real selected-backend aggregate output package";
+    let public_key = threshold_public_key_from(&signing_key.verifying_key().encode());
+    let signature = threshold_signature_from(&signing_key.sign(message).to_bytes());
+    let transcript = real_mldsa_transcript(public_key, message);
+    let partials = real_mldsa_accepted_partials(&transcript);
+    let verifier =
+        StandardVerifierEvidence::verify::<HazmatMldsa65Provider>(&transcript, &signature)
+            .expect("real ML-DSA signature should verify through the selected provider");
+    let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        b"real selected-backend aggregate response bytes",
+        b"real selected-backend hint bytes",
+        &signature,
+    )
+    .expect("real output recomputation transcript should be derivable from public outputs");
+    let bridge_evidence = AggregateRejectionEquivalenceGate::verify_recomputed_bridge::<
+        HazmatMldsa65Provider,
+    >(&transcript, &signature, &recomputation)
+    .expect("real output should satisfy provider/recomputation bridge evidence");
+    let standard_verifier_bridge_evidence_digest = derive_standard_verifier_bridge_evidence_digest(
+        &SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        &provider_kat_fixture_digest(),
+        &bridge_evidence,
+    )
+    .expect("real output bridge evidence should derive a bridge digest");
+    let real_recomputation_evidence_digest =
+        derive_p1_real_recomputation_evidence_digest(&recomputation);
+    let accepted_aggregate = AggregateAccept::accept(
+        &transcript,
+        &partials,
+        AggregateAcceptEvidence {
+            aggregate_response_digest: *recomputation.aggregate_response_digest(),
+            hint_digest: *recomputation.hint_digest(),
+            standard_verifier: verifier,
+        },
+    )
+    .expect("real selected-backend aggregate output should pass AggregateAccept");
+    let recomputation_certificate = p1_recomputation_certificate_for_output(
+        standard_verifier_bridge_evidence_digest,
+        real_recomputation_evidence_digest,
+    );
+
+    let package = derive_p1_selected_backend_aggregate_artifact_package::<HazmatMldsa65Provider>(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        &signature,
+        true,
+    )
+    .expect("real selected-backend package should derive from verified provider output");
+    let assessment = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(package),
+    );
+
+    let certificate = assessment
+        .artifact_certificate()
+        .expect("real selected-backend artifact package should produce a certificate");
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(
+        certificate.accepted_signature_digest(),
+        verifier.candidate_signature_digest()
+    );
+    assert_eq!(
+        certificate.aggregate_response_digest(),
+        accepted_aggregate.aggregate_response_digest()
+    );
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        &derive_standard_verifier_bridge_evidence_digest(
+            certificate.selected_profile_binding_digest(),
+            certificate.provider_kat_evidence_digest(),
+            &bridge_evidence,
+        )
+        .unwrap()
+    );
+    assert!(!certificate.claims_selected_backend_production());
+    assert!(!certificate.claims_standard_verifier_compatibility());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[test]
+fn p1_selected_backend_aggregate_artifact_deriver_rejects_stale_recomputation_output() {
+    use lattice_aggregation::production::provider::HazmatMldsa65Provider;
+    use ml_dsa::{Keypair, MlDsa65, SignatureEncoding, Signer, SigningKey};
+
+    let seed = [0x6b; 32].into();
+    let signing_key = SigningKey::<MlDsa65>::from_seed(&seed);
+    let message = b"real selected-backend stale recomputation rejection";
+    let public_key = threshold_public_key_from(&signing_key.verifying_key().encode());
+    let signature = threshold_signature_from(&signing_key.sign(message).to_bytes());
+    let mut stale_signature = signature.clone();
+    stale_signature.0[0] ^= 0x01;
+    let transcript = real_mldsa_transcript(public_key, message);
+    let partials = real_mldsa_accepted_partials(&transcript);
+    let verifier =
+        StandardVerifierEvidence::verify::<HazmatMldsa65Provider>(&transcript, &signature)
+            .expect("real ML-DSA signature should verify through the selected provider");
+    let accepted_recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        b"real selected-backend aggregate response bytes",
+        b"real selected-backend hint bytes",
+        &signature,
+    )
+    .unwrap();
+    let stale_recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        b"real selected-backend aggregate response bytes",
+        b"real selected-backend hint bytes",
+        &stale_signature,
+    )
+    .unwrap();
+    let accepted_aggregate = AggregateAccept::accept(
+        &transcript,
+        &partials,
+        AggregateAcceptEvidence {
+            aggregate_response_digest: *accepted_recomputation.aggregate_response_digest(),
+            hint_digest: *accepted_recomputation.hint_digest(),
+            standard_verifier: verifier,
+        },
+    )
+    .expect("real selected-backend aggregate output should pass AggregateAccept");
+
+    let err = derive_p1_selected_backend_aggregate_artifact_package::<HazmatMldsa65Provider>(
+        &transcript,
+        &accepted_aggregate,
+        &stale_recomputation,
+        &p1_recomputation_certificate(),
+        &signature,
+        true,
+    )
+    .unwrap_err();
+
+    assert_eq!(err, ThresholdError::StandardVerificationFailed);
 }
 
 #[test]
