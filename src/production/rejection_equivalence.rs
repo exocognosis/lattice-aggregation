@@ -745,8 +745,8 @@ impl P1SelectedBackendAggregateArtifactCertificate {
 }
 
 /// Result of assessing a selected-backend aggregate-output artifact package.
-#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum P1SelectedBackendAggregateArtifactAssessment {
     /// No package or required evidence digest was supplied.
     Missing {
@@ -780,8 +780,8 @@ impl P1SelectedBackendAggregateArtifactAssessment {
 }
 
 /// Result of assessing a P1 aggregate recomputation artifact package.
-#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum P1AggregateRecomputationAssessment {
     /// No package or required evidence digest was supplied.
     Missing {
@@ -813,8 +813,8 @@ impl P1AggregateRecomputationAssessment {
 }
 
 /// Result of assessing a rejection-equivalence closure package.
-#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
 pub enum AggregateRejectionClosureAssessment {
     /// No package or required evidence digest was supplied.
     Missing {
@@ -1057,16 +1057,16 @@ pub fn derive_p1_selected_backend_transcript_binding_digest(
     let mut hasher = Sha3_256::new();
     hasher.update(b"lattice-aggregation:p1-selected-backend-transcript-binding:v1");
     hasher.update(transcript.challenge_digest());
-    hasher.update(&input.session_id);
+    hasher.update(input.session_id);
     hasher.update(input.key_id.as_bytes());
     hasher.update(input.validator_set_digest.as_bytes());
     hasher.update(input.dkg_transcript_digest.as_bytes());
-    hasher.update(&input.threshold.to_be_bytes());
-    hasher.update(&input.public_key.0);
-    hasher.update(&(input.application_message.len() as u64).to_be_bytes());
+    hasher.update(input.threshold.to_be_bytes());
+    hasher.update(input.public_key.0);
+    hasher.update((input.application_message.len() as u64).to_be_bytes());
     hasher.update(&input.application_message);
     hasher.update(input.message_binding.as_bytes());
-    hasher.update(&input.coordinator_attestation_digest);
+    hasher.update(input.coordinator_attestation_digest);
     hasher.finalize().into()
 }
 
@@ -1074,9 +1074,9 @@ pub fn derive_p1_selected_backend_transcript_binding_digest(
 pub fn derive_p1_selected_backend_signer_set_digest(signers: &[ValidatorId]) -> [u8; 32] {
     let mut hasher = Sha3_256::new();
     hasher.update(b"lattice-aggregation:p1-selected-backend-signer-set:v1");
-    hasher.update(&(signers.len() as u16).to_be_bytes());
+    hasher.update((signers.len() as u16).to_be_bytes());
     for signer in signers {
-        hasher.update(&signer.0.to_be_bytes());
+        hasher.update(signer.0.to_be_bytes());
     }
     hasher.finalize().into()
 }
@@ -1089,9 +1089,9 @@ pub fn derive_p1_selected_backend_attempt_binding_digest(
     let mut hasher = Sha3_256::new();
     hasher.update(b"lattice-aggregation:p1-selected-backend-attempt-binding:v1");
     hasher.update(transcript.challenge_digest());
-    hasher.update(&input.session_id);
+    hasher.update(input.session_id);
     hasher.update(input.attempt_id.as_bytes());
-    hasher.update(&input.retry_counter.to_be_bytes());
+    hasher.update(input.retry_counter.to_be_bytes());
     hasher.finalize().into()
 }
 

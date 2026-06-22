@@ -1,8 +1,8 @@
-error[E0599]: the associated function or constant `finalize` exists for struct `CoordinatorAggregateGate<SimulatedBackend>`, but its trait bounds were not satisfied
+error[E0599]: the function or associated item `finalize` exists for struct `CoordinatorAggregateGate<SimulatedBackend>`, but its trait bounds were not satisfied
  --> tests/ui/production_simulated_backend_rejected.rs:8:59
   |
 8 |     let _ = CoordinatorAggregateGate::<SimulatedBackend>::finalize;
-  |                                                           ^^^^^^^^ associated function or constant cannot be called on `CoordinatorAggregateGate<SimulatedBackend>` due to unsatisfied trait bounds
+  |                                                           ^^^^^^^^ function or associated item cannot be called on `CoordinatorAggregateGate<SimulatedBackend>` due to unsatisfied trait bounds
   |
  ::: src/backend.rs
   |

@@ -405,9 +405,9 @@ fn print_human_report(_profile: BenchmarkProfile, records: &[BenchmarkTrial]) {
             .iter()
             .map(|record| record.metrics)
             .collect();
-        println!("===== {}: LaTeX =====", label);
+        println!("===== {label}: LaTeX =====");
         print!("{}", generate_latex_table(label, validators, &metrics));
-        println!("===== {}: PGFPlots CSV =====", label);
+        println!("===== {label}: PGFPlots CSV =====");
         print!("{}", generate_pgfplots_csv(&metrics));
     }
 }
