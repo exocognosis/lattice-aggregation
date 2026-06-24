@@ -115,6 +115,22 @@ migration candidates that require separate review.
   signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
   validation, rejection-distribution preservation, or completed
   standard-verifier compatibility proof.
+- Require the selected-backend threshold-output artifact gate before claiming
+  that Batch 3 moved beyond real standard-provider aggregate-output package
+  evidence: `P1SelectedBackendThresholdOutputArtifactPackage`,
+  `assess_p1_selected_backend_threshold_output_artifact`,
+  `derive_p1_selected_backend_threshold_output_artifact_package`,
+  `derive_p1_selected_backend_threshold_output_source_digest`,
+  `derive_p1_selected_backend_threshold_output_source_package_digest`,
+  `derive_p1_selected_backend_aggregate_certificate_digest`, and the
+  `p1_selected_backend_threshold_output_artifact_gate` assessment/report key
+  must bind selected-backend threshold-output source evidence to the aggregate
+  artifact certificate, signer-set digest, attempt-binding digest,
+  transcript-binding digest, public recomputation digest, accepted signature
+  digest, standard-verifier bridge evidence digest, and reviewed source-package digest. This is the first Batch 3 threshold-output artifact boundary, not production threshold signing,
+  not selected-backend proof closure, not CAVP/ACVTS validation, not FIPS
+  validation, not rejection-distribution preservation, and not completed
+  standard-verifier compatibility.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,
