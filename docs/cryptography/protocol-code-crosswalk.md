@@ -155,6 +155,14 @@ evidence, and not external cryptographic review. All five hypothesis criteria
 remain partial until selected-backend proof, implementation, and audit artifacts
 exist.
 
+The formal thesis and operating-parameter boundary is pinned in
+`docs/cryptography/thesis-operating-parameters.md` and
+`docs/cryptography/thesis-operating-parameters.json` under thesis id
+`native-threshold-mldsa65-aggregation-p1`. Those files define the P1 operating
+assumptions, promotion criteria, failure criteria, and fallback trigger for
+assessment only; they are not selected-backend proof closure or production
+approval.
+
 For blocker 2, the P1 aggregate recomputation artifact gate in
 `src/production/rejection_equivalence.rs` binds the selected profile to
 ACVP/FIPS204-backed provider evidence, aggregate recomputation evidence,

@@ -82,6 +82,12 @@ class VerdictRuleTests(unittest.TestCase):
         self.assertTrue(
             any("unauthorized_aggregate_reduction_manifest" in command for command in commands)
         )
+        self.assertTrue(
+            any(
+                "thesis_operating_parameters_manifest" in command
+                for command in commands
+            )
+        )
 
 
 class DocumentClassificationTests(unittest.TestCase):
@@ -561,6 +567,149 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_thesis_operating_parameters_formalization(self, root):
+        (root / "docs" / "cryptography" / "thesis-operating-parameters.md").write_text(
+            "# Thesis and Operating Parameters\n\n"
+            "## Thesis Statement\n\n"
+            "Thesis id: native-threshold-mldsa65-aggregation-p1.\n"
+            "Status: partially_proven with all criteria partially_met.\n"
+            "Boundary: research scaffold only; not selected-backend proof closure; "
+            "not production threshold ML-DSA security; not CAVP/ACVTS validation; "
+            "not FIPS validation.\n\n"
+            "## Operating Parameters\n\n"
+            "Profile: ML-DSA-65 coordinator-assisted Shamir nonce DKG P1.\n"
+            "Output shape: one standard-sized ML-DSA-65 signature if proven.\n"
+            "Feature gate: production-mldsa65-coordinator.\n\n"
+            "## Promotion Criteria\n\n"
+            "Each of the five criteria stays partially_met until reviewed proof, "
+            "backend, validation, and audit artifacts are present.\n\n"
+            "## Failure Criteria\n\n"
+            "Failure criteria can disprove the native path or force a fallback "
+            "architecture evaluation.\n\n"
+            "## Fallback Trigger\n\n"
+            "Falcon/LaBRADOR-style proof aggregation is evaluate only.\n",
+            encoding="utf-8",
+        )
+        manifest = {
+            "schema": "lattice-aggregation.thesis-operating-parameters.v1",
+            "thesis_id": "native-threshold-mldsa65-aggregation-p1",
+            "status": "research_scaffold_partially_proven",
+            "claim_boundary": {
+                "scope": "research scaffold only",
+                "claims_production_threshold_mldsa_security": False,
+                "claims_selected_backend_proof_closure": False,
+                "claims_standard_verifier_compatibility_complete": False,
+                "claims_rejection_distribution_preservation": False,
+                "claims_cavp_acvts_validation": False,
+                "claims_fips_validation": False,
+            },
+            "selected_profile": {
+                "name": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+                "parameter_set": "ML-DSA-65",
+                "feature_gate": "production-mldsa65-coordinator",
+                "coordinator_assumption": "TEE/HSM",
+                "standard_verifier_compatibility": "target",
+                "signature_bytes": 3309,
+                "public_key_bytes": 1952,
+                "aggregate_output_shape": "one standard-sized ML-DSA-65 signature if proven",
+            },
+            "operating_parameters": {
+                "security_parameter": "lambda",
+                "validator_count": "n",
+                "threshold": "t",
+                "validator_set": "V",
+                "threshold_range": "1 <= t <= n",
+                "static_corruption_bound": "at most t - 1 validators",
+                "retry_domain": "session_id + attempt_id + retry_counter",
+                "rejection_sampling_domain": "centralized ML-DSA-65 acceptance distribution",
+                "batch4_dependency": "selected-backend proof-closure artifact package gate",
+                "boundary": "conformance/proof-review evidence only",
+            },
+            "criterion_promotion": [
+                {
+                    "id": "aggregate_mask_distribution",
+                    "current_status": "partially_met",
+                    "promotion_requires": [
+                        "selected-backend mask-generation proof artifact",
+                        "reviewed Renyi divergence bound for epsilon_mask",
+                        "distribution comparison evidence linked from the closure package",
+                    ],
+                    "failure_criteria": [
+                        "aggregate mask distribution is distinguishable beyond the reviewed bound",
+                        "selected profile cannot sample masks in the required ML-DSA-65 domain",
+                    ],
+                },
+                {
+                    "id": "aggregate_rejection_equivalence",
+                    "current_status": "partially_met",
+                    "promotion_requires": [
+                        "real threshold aggregate recomputation artifacts",
+                        "standard-verifier compatibility artifact digest and reviewer sign-off",
+                        "accepted-output rejection-distribution review linked to provider evidence",
+                    ],
+                    "failure_criteria": [
+                        "accepted threshold outputs fail standard ML-DSA-65 verification",
+                        "aggregate rejection accepts outputs outside centralized ML-DSA-65 predicates",
+                    ],
+                },
+                {
+                    "id": "abort_retry_bias",
+                    "current_status": "partially_met",
+                    "promotion_requires": [
+                        "retry transcript domain separation proof",
+                        "selective-abort leakage model and bias bound",
+                        "accepted-signature distribution analysis across retries",
+                    ],
+                    "failure_criteria": [
+                        "retry timing can bias accepted signatures beyond the reviewed bound",
+                        "attempt identifiers or retry counters are not transcript-bound",
+                    ],
+                },
+                {
+                    "id": "partial_contribution_soundness",
+                    "current_status": "partially_met",
+                    "promotion_requires": [
+                        "production LocalAccept proof-backed verifier evidence",
+                        "VSS/DKG binding and hiding proof artifacts",
+                        "context-binding and leakage review for accepted partials",
+                    ],
+                    "failure_criteria": [
+                        "stale or cross-context partial contributions can be accepted",
+                        "accepted partial evidence leaks outside the stated model",
+                    ],
+                },
+                {
+                    "id": "unauthorized_aggregate_reduction",
+                    "current_status": "partially_met",
+                    "promotion_requires": [
+                        "threshold unforgeability reduction proof",
+                        "base ML-DSA theorem dependency and concrete assumption mapping",
+                        "simulator and hybrid-bound artifacts with external review",
+                    ],
+                    "failure_criteria": [
+                        "an unauthorized accepting aggregate does not reduce to a named assumption",
+                        "the reduction loses the selected profile or validator-set binding",
+                    ],
+                },
+            ],
+            "fallback": {
+                "architecture": "Falcon/LaBRADOR-style proof aggregation",
+                "status": "evaluate_only",
+                "claims_selected_backend": False,
+                "pivot_requires": [
+                    "scheme selection",
+                    "benchmarks",
+                    "audit review",
+                    "consensus-latency analysis",
+                    "claim-boundary docs",
+                ],
+            },
+        }
+        (root / "docs" / "cryptography" / "thesis-operating-parameters.json").write_text(
+            json.dumps(manifest, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
     def test_scan_documents_finds_acceptance_predicate_scaffold_anchors(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -798,6 +947,101 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertTrue(scan["p1_selected_backend_threshold_output_artifact_gate"])
         self.assertFalse(scan["p1_selected_backend_proof_closure_artifact_gate"])
+
+    def test_thesis_operating_parameters_update_report_without_closing_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_thesis_operating_parameters_formalization(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["thesis_operating_parameters_formalized"])
+        self.assertEqual(
+            report["thesis_operating_parameters"]["status"],
+            "formalized_research_boundary",
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        self.assertIn("native-threshold-mldsa65-aggregation-p1", markdown)
+        self.assertIn("research scaffold only", markdown)
+        self.assertIn("one standard-sized ML-DSA-65 signature if proven", markdown)
+        self.assertIn("Falcon/LaBRADOR-style proof aggregation", markdown)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_thesis_operating_parameters_rejects_selected_fallback_or_claim_drift(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_thesis_operating_parameters_formalization(root)
+            manifest_path = (
+                root
+                / "docs"
+                / "cryptography"
+                / "thesis-operating-parameters.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["claim_boundary"][
+                "claims_selected_backend_proof_closure"
+            ] = True
+            manifest["fallback"]["status"] = "selected_backend"
+            manifest["fallback"]["claims_selected_backend"] = True
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+
+        self.assertFalse(scan["thesis_operating_parameters_formalized"])
+        self.assertEqual(
+            report["thesis_operating_parameters"]["status"],
+            "missing_or_incomplete",
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+
+    def test_thesis_operating_parameters_rejects_operating_parameter_or_anchor_drift(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_thesis_operating_parameters_formalization(root)
+            manifest_path = (
+                root
+                / "docs"
+                / "cryptography"
+                / "thesis-operating-parameters.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["operating_parameters"]["retry_domain"] = "retry_counter"
+            manifest["criterion_promotion"][0]["promotion_requires"] = [
+                "a",
+                "b",
+                "c",
+            ]
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+            thesis = scan["thesis_operating_parameters"]
+
+        self.assertFalse(scan["thesis_operating_parameters_formalized"])
+        self.assertIn("operating_parameters", thesis["missing_evidence"])
+        self.assertIn(
+            "criterion promotion/failure anchors",
+            thesis["missing_evidence"],
+        )
 
     def test_selected_backend_direction_updates_report_without_closing_proofs(self):
         module = load_module()
