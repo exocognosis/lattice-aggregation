@@ -484,6 +484,80 @@ def scan_documents(root):
             "package",
         )
     )
+    p1_selected_backend_real_output_package = (
+        p1_selected_backend_aggregate_artifact_gate
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_aggregate_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_real_recomputation_evidence_digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "mldsa",
+            "output",
+            "package",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "stale",
+            "recomputation",
+            "output",
+        )
+    )
+    p1_selected_backend_threshold_output_artifact_gate = (
+        p1_selected_backend_real_output_package
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1SelectedBackendThresholdOutputArtifactPackage",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1SelectedBackendThresholdOutputArtifactCertificate",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1SelectedBackendThresholdOutputArtifactAssessment",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_selected_backend_threshold_output_artifact",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_threshold_output_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_threshold_output_source_digest",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_threshold_output_source_package_digest",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_aggregate_certificate_digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "p1",
+            "selected",
+            "backend",
+            "threshold",
+            "output",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "mldsa",
+            "package",
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -599,6 +673,12 @@ def scan_documents(root):
         ),
         "p1_selected_backend_aggregate_artifact_gate": (
             p1_selected_backend_aggregate_artifact_gate
+        ),
+        "p1_selected_backend_real_output_package": (
+            p1_selected_backend_real_output_package
+        ),
+        "p1_selected_backend_threshold_output_artifact_gate": (
+            p1_selected_backend_threshold_output_artifact_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -764,18 +844,75 @@ def classify_criteria(criteria, scan):
                     "not CAVP/ACVTS validation, not FIPS validation, and "
                     "not a completed standard-verifier compatibility proof."
                 )
+            if scan.get("p1_selected_backend_real_output_package"):
+                partial_progress = True
+                observed.append(
+                    "Real standard-provider selected-backend aggregate-output package "
+                    "evidence is present for P1; it is derived from a "
+                    "provider-verified ML-DSA-65 candidate signature, "
+                    "LocalAccept/AggregateAccept tokens, public recomputation "
+                    "transcript, and standard-verifier bridge digest evidence. "
+                    "This is stronger than fixture-only bridge confidence, but "
+                    "it remains conformance/proof-review evidence only and does "
+                    "not claim a real threshold aggregate signer, production "
+                    "threshold ML-DSA security, CAVP/ACVTS validation, FIPS "
+                    "validation, rejection-distribution preservation, or "
+                    "completed standard-verifier compatibility proof."
+                )
+            if scan.get("p1_selected_backend_threshold_output_artifact_gate"):
+                partial_progress = True
+                observed.append(
+                    "Selected-backend threshold-output artifact gate is present "
+                    "for P1; it binds selected-backend threshold-output attempt "
+                    "evidence to signer set, attempt, transcript, "
+                    "LocalAccept/AggregateAccept, public recomputation, "
+                    "standard-verifier bridge digest, and reviewed source package digest. This is stronger than real standard-provider aggregate-output package evidence, but it remains "
+                    "conformance/proof-review evidence only and does not claim "
+                    "production threshold ML-DSA security, selected-backend proof "
+                    "closure, CAVP/ACVTS validation, FIPS validation, "
+                    "rejection-distribution preservation, or completed "
+                    "standard-verifier compatibility proof."
+                )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):
-                    blockers.append(
-                        "Real selected-backend aggregate outputs, real P1 "
-                        "aggregate recomputation artifacts, selected-backend "
-                        "proof closure, full ACVP/FIPS KAT coverage, reviewed "
-                        "proof artifacts, and CAVP/ACVTS validation artifacts "
-                        "are still not checked in; the P1 recomputation gate, "
-                        "selected-backend aggregate-output artifact gate, and "
-                        "bounded sample-vector KAT are framework/conformance "
-                        "evidence only."
-                    )
+                    if scan.get("p1_selected_backend_threshold_output_artifact_gate"):
+                        blockers.append(
+                            "Selected-backend threshold-output artifact gating "
+                            "is present, but production threshold ML-DSA "
+                            "security, selected-backend proof closure, full "
+                            "ACVP/FIPS KAT coverage, externally reviewed proof "
+                            "artifacts, CAVP/ACVTS validation artifacts, FIPS "
+                            "validation, rejection-distribution preservation, "
+                            "and completed standard-verifier compatibility remain "
+                            "open; the threshold-output artifact gate, real "
+                            "standard-provider aggregate-output package, P1 "
+                            "recomputation gate, selected-backend aggregate-output "
+                            "artifact gate, and bounded sample-vector KAT are "
+                            "framework/conformance evidence only."
+                        )
+                    elif scan.get("p1_selected_backend_real_output_package"):
+                        blockers.append(
+                            "Real threshold selected-backend aggregate outputs, "
+                            "selected-backend proof closure, full ACVP/FIPS KAT "
+                            "coverage, externally reviewed proof artifacts, and "
+                            "CAVP/ACVTS validation artifacts are still not "
+                            "checked in; the real standard-provider "
+                            "aggregate-output package, P1 recomputation gate, "
+                            "selected-backend aggregate-output artifact gate, "
+                            "and bounded sample-vector KAT are "
+                            "framework/conformance evidence only."
+                        )
+                    else:
+                        blockers.append(
+                            "Real selected-backend aggregate outputs, real P1 "
+                            "aggregate recomputation artifacts, selected-backend "
+                            "proof closure, full ACVP/FIPS KAT coverage, reviewed "
+                            "proof artifacts, and CAVP/ACVTS validation artifacts "
+                            "are still not checked in; the P1 recomputation gate, "
+                            "selected-backend aggregate-output artifact gate, and "
+                            "bounded sample-vector KAT are framework/conformance "
+                            "evidence only."
+                        )
                 elif scan.get("p1_aggregate_recomputation_artifact_gate"):
                     blockers.append(
                         "Real P1 aggregate recomputation artifacts, full "

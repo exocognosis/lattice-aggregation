@@ -100,8 +100,7 @@ test-pinned drift detection and evidence carriage, not an independent freshness
 proof for arbitrary externally supplied package digests.
 
 `P1SelectedBackendAggregateArtifactPackage` and
-`assess_p1_selected_backend_aggregate_artifact` add a selected-backend
-aggregate-output artifact gate. The gate binds `LocalAccept`/`AggregateAccept`
+`assess_p1_selected_backend_aggregate_artifact` add a selected-backend aggregate-output artifact gate. The gate binds `LocalAccept`/`AggregateAccept`
 evidence to the production transcript, signer set, attempt ID, provider KAT
 digest, real recomputation digest, and standard-verifier bridge evidence digest
 before the artifact can be reported ready for proof review. The selected-backend
@@ -110,6 +109,33 @@ reject drift and bind checked-in artifact digests, but it is
 not production threshold ML-DSA security, not selected-backend proof closure,
 not CAVP/ACVTS or FIPS validation, and not a completed standard-verifier
 compatibility proof.
+
+`derive_p1_selected_backend_aggregate_artifact_package` and
+`derive_p1_real_recomputation_evidence_digest` add a real standard-provider
+aggregate-output package path for P1. The package is derived from a
+provider-verified ML-DSA-65 candidate signature, `LocalAccept` and
+`AggregateAccept` tokens, a public recomputation transcript, and a
+standard-verifier bridge digest. The positive coverage in
+`tests/production_rejection_equivalence.rs` uses a fixed-seed ML-DSA-65
+signature through `HazmatMldsa65Provider`, and the stale recomputation test
+rejects changed recomputation output before an artifact package can be minted.
+This is stronger than fixture-only bridge confidence, but it remains
+conformance/proof-review evidence only and does not claim a real threshold
+aggregate signer.
+
+`P1SelectedBackendThresholdOutputArtifactPackage`,
+`derive_p1_selected_backend_threshold_output_artifact_package`, and
+`assess_p1_selected_backend_threshold_output_artifact` add the Batch 3
+selected-backend threshold-output artifact gate. The gate binds a reviewed
+threshold-output source digest and reviewed source-package digest to the
+selected-backend aggregate artifact certificate, signer set, attempt,
+transcript, `LocalAccept`/`AggregateAccept` evidence, public recomputation
+transcript, real recomputation digest, and standard-verifier bridge evidence
+digest. This is stronger than real standard-provider aggregate-output package evidence because it requires a
+successor source artifact to agree with the already accepted aggregate-output
+certificate. It remains conformance/proof-review evidence only: it is not
+selected-backend proof closure, not production threshold ML-DSA security, not
+CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
 
 ## Claim Boundary
 
@@ -134,13 +160,15 @@ standard-verifier bridge drift from closing the P1 recomputation blocker.
 
 To fully close blocker 2 cryptographically, the repo still needs:
 
-- real threshold aggregate recomputation artifacts produced by the selected
-  backend, with reviewed digest evidence tied to the package;
+- reviewed selected-backend proof-closure artifacts tying threshold-output,
+  recomputation, bounds, rejection behavior, and standard verification into one
+  reviewed argument;
 - reviewed selected profile binding evidence for the exact ML-DSA-65
   coordinator-assisted Shamir nonce DKG P1 profile under review;
-- a standard-verifier bridge evidence digest backed by real selected-backend
-  accepted aggregate outputs; the current checked-in bridge fixture and
-  selected-backend aggregate-output artifact gate are conformance/proof-review
+- validation artifacts for the standard-verifier bridge and selected provider;
+  the current checked-in bridge fixture, selected-backend aggregate-output
+  artifact gate, real standard-provider aggregate-output package path, and
+  selected-backend threshold-output artifact gate are conformance/proof-review
   evidence only;
 - full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
   vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,
