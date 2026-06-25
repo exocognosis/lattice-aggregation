@@ -1,0 +1,31 @@
+{
+  "name": "p1-standard-verifier-compatibility-artifact-fixture-v1",
+  "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "verifier_provider_identity": "mock-provider-test-fixture",
+  "verifier_provider_version": "test-fixture-v1",
+  "verifier_result": "accept",
+  "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
+  "note": "Standard-verifier compatibility artifact evidence for Criterion 2 proof review only; not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.",
+  "payload": {
+    "public_key_fill_byte": 6,
+    "application_message_hex": "6f726967696e616c206170706c69636174696f6e206d657373616765",
+    "candidate_signature_fill_byte": 42
+  },
+  "expected": {
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f",
+    "artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
+    "provider_identity_digest_hex": "ecf537d5d78369c56e432e6c8334e619f2eea48716a3bc3ac97beb1e84582aff",
+    "public_key_digest_hex": "a2fa4dcd300b7d5ee082a2ec68f6008e5291fffeb8894a9db28e34fa772983f5",
+    "message_digest_hex": "4e6eaca508443033bd8eea1bd741af0087b79a1412f70aa146966fa4c1e05d02",
+    "transcript_binding_digest_hex": "f46232108fe8566806963154fa76c8b957dee0c7003a10f5ff082c58f94b7f8a",
+    "signer_set_digest_hex": "d33f9166f07c4d1dc3815818dac64200d8d377637ea3d52721ed24dc0ca35a9f",
+    "attempt_binding_digest_hex": "0d11827f6cc9c74ab4c168a2a091d3c3c923674da711b2d5daa1d07a1d14029b",
+    "aggregate_response_digest_hex": "e41c03e1463d24a41c6baa5985e40c73400118a2ead1bb5944671c9d190385b0",
+    "hint_digest_hex": "ce557d7e4188cfd152415e4df57f35d109bbe3c38d23bc0798f9183e790bbc7c",
+    "accepted_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
+    "standard_verifier_bridge_evidence_digest_hex": "dfa42dff5d8c509f9f25298b3e28964db0cdb2987330d73fd2250fcf1eb77127",
+    "real_recomputation_evidence_digest_hex": "2929292929292929292929292929292929292929292929292929292929292929"
+  }
+}

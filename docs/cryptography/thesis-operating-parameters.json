@@ -60,6 +60,11 @@
         "standard-verifier compatibility artifact digest and reviewer sign-off",
         "accepted-output rejection-distribution review linked to provider evidence"
       ],
+      "evidence_status": {
+        "standard_verifier_compatibility_artifact_digest": "evidence_present_unclosed",
+        "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
       "evidence_refs": [
         "docs/cryptography/criterion-2-proof-substance.md",
         "docs/cryptography/criterion-2-proof-substance.json",

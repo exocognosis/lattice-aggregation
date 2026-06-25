@@ -958,6 +958,212 @@ pub enum P1SelectedBackendProofClosureClaimBoundary {
     ProductionClaim,
 }
 
+/// Claim boundary carried by a P1 standard-verifier compatibility artifact.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1StandardVerifierCompatibilityClaimBoundary {
+    /// The artifact is present for conformance and proof review only.
+    ProofReviewOnly,
+    /// Forbidden boundary used to reject packages that try to claim production readiness.
+    ProductionClaim,
+}
+
+/// Standard verifier result bound into a compatibility artifact.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1StandardVerifierCompatibilityResult {
+    /// The selected provider accepted `MLDSA65.Verify(pk, m, sigma)`.
+    Accept,
+    /// Forbidden result for a compatibility artifact.
+    Reject,
+}
+
+/// Submitted P1 standard-verifier compatibility artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1StandardVerifierCompatibilityArtifactPackage {
+    /// Selected backend profile this compatibility artifact binds.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Digest of this compatibility artifact payload.
+    pub artifact_digest: [u8; 32],
+    /// Digest of the predecessor threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Provider KAT evidence digest inherited from the threshold-output certificate.
+    pub provider_kat_evidence_digest: [u8; 32],
+    /// Provider identity, build, and version digest for the standard verifier.
+    pub provider_identity_digest: [u8; 32],
+    /// Digest of the public ML-DSA-65 verification key `pk`.
+    pub public_key_digest: [u8; 32],
+    /// Digest of the original application message `m`.
+    pub message_digest: [u8; 32],
+    /// Digest binding this artifact to the production signing transcript.
+    pub transcript_binding_digest: [u8; 32],
+    /// Digest binding the accepted aggregate signer set.
+    pub signer_set_digest: [u8; 32],
+    /// Digest binding the single-use attempt ID and retry domain.
+    pub attempt_binding_digest: [u8; 32],
+    /// Accepted aggregate-response digest from `AggregateAccept`.
+    pub aggregate_response_digest: [u8; 32],
+    /// Accepted hint digest from `AggregateAccept`.
+    pub hint_digest: [u8; 32],
+    /// Provider-verified accepted signature digest for `sigma`.
+    pub accepted_signature_digest: [u8; 32],
+    /// Standard-verifier bridge evidence digest inherited from the threshold certificate.
+    pub standard_verifier_bridge_evidence_digest: [u8; 32],
+    /// Real recomputation evidence digest inherited from the threshold certificate.
+    pub real_recomputation_evidence_digest: [u8; 32],
+    /// Provider verifier result bound to the payload.
+    pub verifier_result: P1StandardVerifierCompatibilityResult,
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1StandardVerifierCompatibilityClaimBoundary,
+    /// Whether this artifact package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Accepted P1 standard-verifier compatibility artifact certificate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1StandardVerifierCompatibilityArtifactCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    artifact_digest: [u8; 32],
+    threshold_output_certificate_digest: [u8; 32],
+    provider_kat_evidence_digest: [u8; 32],
+    provider_identity_digest: [u8; 32],
+    public_key_digest: [u8; 32],
+    message_digest: [u8; 32],
+    transcript_binding_digest: [u8; 32],
+    signer_set_digest: [u8; 32],
+    attempt_binding_digest: [u8; 32],
+    aggregate_response_digest: [u8; 32],
+    hint_digest: [u8; 32],
+    accepted_signature_digest: [u8; 32],
+    standard_verifier_bridge_evidence_digest: [u8; 32],
+    real_recomputation_evidence_digest: [u8; 32],
+    verifier_result: P1StandardVerifierCompatibilityResult,
+    claim_boundary: P1StandardVerifierCompatibilityClaimBoundary,
+}
+
+impl P1StandardVerifierCompatibilityArtifactCertificate {
+    /// Return the selected backend profile bound to the compatibility artifact.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Borrow the compatibility artifact payload digest.
+    pub const fn artifact_digest(&self) -> &[u8; 32] {
+        &self.artifact_digest
+    }
+
+    /// Borrow the predecessor threshold-output certificate digest.
+    pub const fn threshold_output_certificate_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_digest
+    }
+
+    /// Borrow the provider KAT evidence digest.
+    pub const fn provider_kat_evidence_digest(&self) -> &[u8; 32] {
+        &self.provider_kat_evidence_digest
+    }
+
+    /// Borrow the provider identity/build/version digest.
+    pub const fn provider_identity_digest(&self) -> &[u8; 32] {
+        &self.provider_identity_digest
+    }
+
+    /// Borrow the public key digest for `pk`.
+    pub const fn public_key_digest(&self) -> &[u8; 32] {
+        &self.public_key_digest
+    }
+
+    /// Borrow the message digest for `m`.
+    pub const fn message_digest(&self) -> &[u8; 32] {
+        &self.message_digest
+    }
+
+    /// Borrow the transcript binding digest.
+    pub const fn transcript_binding_digest(&self) -> &[u8; 32] {
+        &self.transcript_binding_digest
+    }
+
+    /// Borrow the signer-set binding digest.
+    pub const fn signer_set_digest(&self) -> &[u8; 32] {
+        &self.signer_set_digest
+    }
+
+    /// Borrow the attempt binding digest.
+    pub const fn attempt_binding_digest(&self) -> &[u8; 32] {
+        &self.attempt_binding_digest
+    }
+
+    /// Borrow the accepted aggregate-response digest.
+    pub const fn aggregate_response_digest(&self) -> &[u8; 32] {
+        &self.aggregate_response_digest
+    }
+
+    /// Borrow the accepted hint digest.
+    pub const fn hint_digest(&self) -> &[u8; 32] {
+        &self.hint_digest
+    }
+
+    /// Borrow the accepted signature digest for `sigma`.
+    pub const fn accepted_signature_digest(&self) -> &[u8; 32] {
+        &self.accepted_signature_digest
+    }
+
+    /// Borrow the standard-verifier bridge evidence digest.
+    pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_evidence_digest
+    }
+
+    /// Borrow the real recomputation evidence digest.
+    pub const fn real_recomputation_evidence_digest(&self) -> &[u8; 32] {
+        &self.real_recomputation_evidence_digest
+    }
+
+    /// Return the provider verifier result bound into the artifact.
+    pub const fn verifier_result(self) -> P1StandardVerifierCompatibilityResult {
+        self.verifier_result
+    }
+
+    /// Return the explicit non-production claim boundary.
+    pub const fn claim_boundary(self) -> P1StandardVerifierCompatibilityClaimBoundary {
+        self.claim_boundary
+    }
+
+    /// Artifact readiness does not claim selected-backend proof closure.
+    pub const fn claims_selected_backend_proof_closure(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim completed standard-verifier compatibility proof.
+    pub const fn claims_standard_verifier_compatibility(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim rejection-distribution preservation.
+    pub const fn claims_rejection_distribution_preservation(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim CAVP/ACVTS validation.
+    pub const fn claims_cavp_acvts_validation(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim FIPS validation.
+    pub const fn claims_fips_validation(self) -> bool {
+        false
+    }
+
+    /// This certificate gates artifacts; it does not replace cryptographic proof.
+    pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
 /// Submitted Batch 4 selected-backend proof-closure artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1SelectedBackendProofClosureArtifactPackage {
@@ -999,6 +1205,9 @@ pub struct P1SelectedBackendProofClosureArtifactPackage {
     pub rejection_distribution_review_digest: [u8; 32],
     /// Digest of standard-verifier compatibility review artifacts.
     pub standard_verifier_compatibility_artifact_digest: [u8; 32],
+    /// Assessed standard-verifier compatibility artifact certificate.
+    pub standard_verifier_compatibility_artifact:
+        P1StandardVerifierCompatibilityArtifactCertificate,
     /// Digest linking implementation evidence to the theorem/proof obligation package.
     pub theorem_linkage_artifact_digest: [u8; 32],
     /// Explicit non-production claim boundary.
@@ -1238,6 +1447,41 @@ impl P1SelectedBackendProofClosureArtifactAssessment {
     pub const fn proof_closure_certificate(
         &self,
     ) -> Option<&P1SelectedBackendProofClosureArtifactCertificate> {
+        match self {
+            Self::ArtifactReady(certificate) => Some(certificate),
+            Self::Missing { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
+/// Result of assessing a P1 standard-verifier compatibility artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
+pub enum P1StandardVerifierCompatibilityArtifactAssessment {
+    /// No package or required evidence digest was supplied.
+    Missing {
+        /// Static reason for the missing-evidence assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The compatibility artifact is ready for proof review.
+    ArtifactReady(P1StandardVerifierCompatibilityArtifactCertificate),
+}
+
+impl P1StandardVerifierCompatibilityArtifactAssessment {
+    /// Return true when the compatibility artifact is ready for proof review.
+    pub const fn is_artifact_ready(self) -> bool {
+        matches!(self, Self::ArtifactReady(_))
+    }
+
+    /// Borrow the compatibility artifact certificate when present.
+    pub const fn standard_verifier_compatibility_certificate(
+        &self,
+    ) -> Option<&P1StandardVerifierCompatibilityArtifactCertificate> {
         match self {
             Self::ArtifactReady(certificate) => Some(certificate),
             Self::Missing { .. } | Self::Invalid { .. } => None,
@@ -1723,6 +1967,84 @@ pub fn derive_p1_real_recomputation_evidence_digest(
     hasher.finalize().into()
 }
 
+/// Derive the digest binding a standard-verifier compatibility artifact.
+///
+/// This digest commits to the selected provider accepting `MLDSA65.Verify(pk,
+/// m, sigma)` for the public key, application message, and accepted aggregate
+/// signature bound by the threshold-output certificate. It remains
+/// conformance/proof-review evidence only.
+pub fn derive_p1_standard_verifier_compatibility_artifact_digest(
+    certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+) -> [u8; 32] {
+    derive_p1_standard_verifier_compatibility_artifact_digest_from_fields(
+        certificate.selected_profile(),
+        certificate.selected_profile_binding_digest(),
+        certificate.threshold_output_certificate_digest(),
+        certificate.provider_kat_evidence_digest(),
+        certificate.provider_identity_digest(),
+        certificate.public_key_digest(),
+        certificate.message_digest(),
+        certificate.transcript_binding_digest(),
+        certificate.signer_set_digest(),
+        certificate.attempt_binding_digest(),
+        certificate.aggregate_response_digest(),
+        certificate.hint_digest(),
+        certificate.accepted_signature_digest(),
+        certificate.standard_verifier_bridge_evidence_digest(),
+        certificate.real_recomputation_evidence_digest(),
+        certificate.verifier_result(),
+        certificate.claim_boundary(),
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn derive_p1_standard_verifier_compatibility_artifact_digest_from_fields(
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: &[u8; 32],
+    threshold_output_certificate_digest: &[u8; 32],
+    provider_kat_evidence_digest: &[u8; 32],
+    provider_identity_digest: &[u8; 32],
+    public_key_digest: &[u8; 32],
+    message_digest: &[u8; 32],
+    transcript_binding_digest: &[u8; 32],
+    signer_set_digest: &[u8; 32],
+    attempt_binding_digest: &[u8; 32],
+    aggregate_response_digest: &[u8; 32],
+    hint_digest: &[u8; 32],
+    accepted_signature_digest: &[u8; 32],
+    standard_verifier_bridge_evidence_digest: &[u8; 32],
+    real_recomputation_evidence_digest: &[u8; 32],
+    verifier_result: P1StandardVerifierCompatibilityResult,
+    claim_boundary: P1StandardVerifierCompatibilityClaimBoundary,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1");
+    hasher.update(selected_profile.profile_binding_digest());
+    hasher.update(selected_profile_binding_digest);
+    hasher.update(threshold_output_certificate_digest);
+    hasher.update(provider_kat_evidence_digest);
+    hasher.update(provider_identity_digest);
+    hasher.update(public_key_digest);
+    hasher.update(message_digest);
+    hasher.update(transcript_binding_digest);
+    hasher.update(signer_set_digest);
+    hasher.update(attempt_binding_digest);
+    hasher.update(aggregate_response_digest);
+    hasher.update(hint_digest);
+    hasher.update(accepted_signature_digest);
+    hasher.update(standard_verifier_bridge_evidence_digest);
+    hasher.update(real_recomputation_evidence_digest);
+    match verifier_result {
+        P1StandardVerifierCompatibilityResult::Accept => hasher.update([0]),
+        P1StandardVerifierCompatibilityResult::Reject => hasher.update([1]),
+    }
+    match claim_boundary {
+        P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly => hasher.update([0]),
+        P1StandardVerifierCompatibilityClaimBoundary::ProductionClaim => hasher.update([1]),
+    }
+    hasher.finalize().into()
+}
+
 /// Derive a Batch 3 selected-backend threshold-output artifact package.
 ///
 /// This constructor binds a reviewed threshold-output source digest to the
@@ -1777,6 +2099,81 @@ pub fn derive_p1_selected_backend_threshold_output_artifact_package(
     })
 }
 
+/// Derive a P1 standard-verifier compatibility artifact package.
+///
+/// The package binds the threshold-output certificate to a provider acceptance
+/// of the transcript public key, original application message, and accepted
+/// aggregate signature. It does not claim FIPS validation, production threshold
+/// ML-DSA security, rejection-distribution preservation, or completed proof
+/// closure.
+pub fn derive_p1_standard_verifier_compatibility_artifact_package<P>(
+    transcript: &ProductionSigningTranscript,
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    candidate_signature: &ThresholdSignature,
+    claim_boundary: P1StandardVerifierCompatibilityClaimBoundary,
+    reviewed: bool,
+) -> Result<P1StandardVerifierCompatibilityArtifactPackage, ThresholdError>
+where
+    P: StandardMldsa65Provider,
+{
+    let verifier = StandardVerifierEvidence::verify::<P>(transcript, candidate_signature)?;
+    if verifier.challenge_digest() != transcript.challenge_digest() {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+    if verifier.candidate_signature_digest() != threshold_certificate.accepted_signature_digest() {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    let public_key_digest = digest_bytes(&transcript.input().public_key.0);
+    let message_digest = digest_bytes(&transcript.input().application_message);
+    let provider_identity_digest = P::provider_identity_digest();
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    let artifact_digest = derive_p1_standard_verifier_compatibility_artifact_digest_from_fields(
+        threshold_certificate.selected_profile(),
+        threshold_certificate.selected_profile_binding_digest(),
+        &threshold_output_certificate_digest,
+        threshold_certificate.provider_kat_evidence_digest(),
+        &provider_identity_digest,
+        &public_key_digest,
+        &message_digest,
+        threshold_certificate.transcript_binding_digest(),
+        threshold_certificate.signer_set_digest(),
+        threshold_certificate.attempt_binding_digest(),
+        threshold_certificate.aggregate_response_digest(),
+        threshold_certificate.hint_digest(),
+        threshold_certificate.accepted_signature_digest(),
+        threshold_certificate.standard_verifier_bridge_evidence_digest(),
+        threshold_certificate.real_recomputation_evidence_digest(),
+        P1StandardVerifierCompatibilityResult::Accept,
+        claim_boundary,
+    );
+
+    Ok(P1StandardVerifierCompatibilityArtifactPackage {
+        selected_profile: threshold_certificate.selected_profile(),
+        selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
+        artifact_digest,
+        threshold_output_certificate_digest,
+        provider_kat_evidence_digest: *threshold_certificate.provider_kat_evidence_digest(),
+        provider_identity_digest,
+        public_key_digest,
+        message_digest,
+        transcript_binding_digest: *threshold_certificate.transcript_binding_digest(),
+        signer_set_digest: *threshold_certificate.signer_set_digest(),
+        attempt_binding_digest: *threshold_certificate.attempt_binding_digest(),
+        aggregate_response_digest: *threshold_certificate.aggregate_response_digest(),
+        hint_digest: *threshold_certificate.hint_digest(),
+        accepted_signature_digest: *threshold_certificate.accepted_signature_digest(),
+        standard_verifier_bridge_evidence_digest: *threshold_certificate
+            .standard_verifier_bridge_evidence_digest(),
+        real_recomputation_evidence_digest: *threshold_certificate
+            .real_recomputation_evidence_digest(),
+        verifier_result: P1StandardVerifierCompatibilityResult::Accept,
+        claim_boundary,
+        reviewed,
+    })
+}
+
 /// Derive a Batch 4 selected-backend proof-closure artifact package.
 ///
 /// The returned package binds the accepted threshold-output artifact
@@ -1790,7 +2187,7 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
     proof_artifacts: P1RejectionProofArtifacts,
     full_kat_validation_artifact_digest: [u8; 32],
     rejection_distribution_review_digest: [u8; 32],
-    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    standard_verifier_compatibility_artifact: &P1StandardVerifierCompatibilityArtifactCertificate,
     theorem_linkage_artifact_digest: [u8; 32],
     claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
     reviewed: bool,
@@ -1818,7 +2215,11 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
         proof_artifacts,
         full_kat_validation_artifact_digest,
         rejection_distribution_review_digest,
-        standard_verifier_compatibility_artifact_digest,
+        standard_verifier_compatibility_artifact_digest:
+            derive_p1_standard_verifier_compatibility_artifact_digest(
+                standard_verifier_compatibility_artifact,
+            ),
+        standard_verifier_compatibility_artifact: *standard_verifier_compatibility_artifact,
         theorem_linkage_artifact_digest,
         claim_boundary,
         reviewed,
@@ -2676,6 +3077,264 @@ pub fn assess_p1_selected_backend_threshold_output_artifact(
     )
 }
 
+/// Assess whether a P1 standard-verifier compatibility artifact is bound to
+/// the threshold-output certificate, transcript public key/message, accepted
+/// signature, provider identity, bridge evidence, and recomputation evidence.
+pub fn assess_p1_standard_verifier_compatibility_artifact(
+    transcript: &ProductionSigningTranscript,
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    package: Option<P1StandardVerifierCompatibilityArtifactPackage>,
+) -> P1StandardVerifierCompatibilityArtifactAssessment {
+    let Some(package) = package else {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Missing {
+            reason: "missing P1 standard-verifier compatibility artifact package",
+        };
+    };
+
+    if !package.reviewed {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility artifact must be reviewed",
+        };
+    }
+    if package.claim_boundary != P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility artifact must remain proof-review-only",
+        };
+    }
+    if threshold_certificate.claim_boundary() != P1ThresholdOutputClaimBoundary::ProofReviewOnly {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility threshold-output certificate must remain proof-review-only",
+        };
+    }
+    if package.verifier_result != P1StandardVerifierCompatibilityResult::Accept {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason:
+                "P1 standard-verifier compatibility artifact must bind an accepted verifier result",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility artifact must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != threshold_certificate.selected_profile() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility selected profile does not match threshold-output certificate",
+        };
+    }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 standard-verifier compatibility profile binding digest is all zero",
+        ),
+        (
+            &package.artifact_digest,
+            "P1 standard-verifier compatibility artifact digest is all zero",
+        ),
+        (
+            &package.threshold_output_certificate_digest,
+            "P1 standard-verifier compatibility threshold-output certificate digest is all zero",
+        ),
+        (
+            &package.provider_kat_evidence_digest,
+            "P1 standard-verifier compatibility provider KAT digest is all zero",
+        ),
+        (
+            &package.provider_identity_digest,
+            "P1 standard-verifier compatibility provider identity digest is all zero",
+        ),
+        (
+            &package.public_key_digest,
+            "P1 standard-verifier compatibility public key digest is all zero",
+        ),
+        (
+            &package.message_digest,
+            "P1 standard-verifier compatibility message digest is all zero",
+        ),
+        (
+            &package.transcript_binding_digest,
+            "P1 standard-verifier compatibility transcript binding digest is all zero",
+        ),
+        (
+            &package.signer_set_digest,
+            "P1 standard-verifier compatibility signer-set digest is all zero",
+        ),
+        (
+            &package.attempt_binding_digest,
+            "P1 standard-verifier compatibility attempt binding digest is all zero",
+        ),
+        (
+            &package.aggregate_response_digest,
+            "P1 standard-verifier compatibility aggregate response digest is all zero",
+        ),
+        (
+            &package.hint_digest,
+            "P1 standard-verifier compatibility hint digest is all zero",
+        ),
+        (
+            &package.accepted_signature_digest,
+            "P1 standard-verifier compatibility accepted signature digest is all zero",
+        ),
+        (
+            &package.standard_verifier_bridge_evidence_digest,
+            "P1 standard-verifier compatibility bridge digest is all zero",
+        ),
+        (
+            &package.real_recomputation_evidence_digest,
+            "P1 standard-verifier compatibility recomputation digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1StandardVerifierCompatibilityArtifactAssessment::Invalid { reason };
+        }
+    }
+
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason:
+                "P1 standard-verifier compatibility profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility profile binding digest does not match threshold-output certificate",
+        };
+    }
+
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility threshold-output certificate digest does not match certificate",
+        };
+    }
+    if &package.provider_kat_evidence_digest != threshold_certificate.provider_kat_evidence_digest()
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility provider KAT digest does not match threshold-output certificate",
+        };
+    }
+    if package.public_key_digest != digest_bytes(&transcript.input().public_key.0) {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason:
+                "P1 standard-verifier compatibility public key digest does not match transcript",
+        };
+    }
+    if package.message_digest != digest_bytes(&transcript.input().application_message) {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility message digest does not match transcript",
+        };
+    }
+    if &package.transcript_binding_digest != threshold_certificate.transcript_binding_digest() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility transcript binding digest does not match threshold-output certificate",
+        };
+    }
+    if package.transcript_binding_digest
+        != derive_p1_selected_backend_transcript_binding_digest(transcript)
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility transcript binding digest does not match transcript",
+        };
+    }
+    if &package.signer_set_digest != threshold_certificate.signer_set_digest() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility signer-set digest does not match threshold-output certificate",
+        };
+    }
+    if &package.attempt_binding_digest != threshold_certificate.attempt_binding_digest() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility attempt binding digest does not match threshold-output certificate",
+        };
+    }
+    if &package.aggregate_response_digest != threshold_certificate.aggregate_response_digest() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility aggregate response digest does not match threshold-output certificate",
+        };
+    }
+    if &package.hint_digest != threshold_certificate.hint_digest() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility hint digest does not match threshold-output certificate",
+        };
+    }
+    if &package.accepted_signature_digest != threshold_certificate.accepted_signature_digest() {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility accepted signature digest does not match threshold-output certificate",
+        };
+    }
+    if &package.standard_verifier_bridge_evidence_digest
+        != threshold_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility bridge digest does not match threshold-output certificate",
+        };
+    }
+    if &package.real_recomputation_evidence_digest
+        != threshold_certificate.real_recomputation_evidence_digest()
+    {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility recomputation digest does not match threshold-output certificate",
+        };
+    }
+
+    let expected_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest_from_fields(
+            package.selected_profile,
+            &package.selected_profile_binding_digest,
+            &package.threshold_output_certificate_digest,
+            &package.provider_kat_evidence_digest,
+            &package.provider_identity_digest,
+            &package.public_key_digest,
+            &package.message_digest,
+            &package.transcript_binding_digest,
+            &package.signer_set_digest,
+            &package.attempt_binding_digest,
+            &package.aggregate_response_digest,
+            &package.hint_digest,
+            &package.accepted_signature_digest,
+            &package.standard_verifier_bridge_evidence_digest,
+            &package.real_recomputation_evidence_digest,
+            package.verifier_result,
+            package.claim_boundary,
+        );
+    if package.artifact_digest != expected_artifact_digest {
+        return P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason:
+                "P1 standard-verifier compatibility artifact digest does not match verifier payload",
+        };
+    }
+
+    P1StandardVerifierCompatibilityArtifactAssessment::ArtifactReady(
+        P1StandardVerifierCompatibilityArtifactCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            artifact_digest: package.artifact_digest,
+            threshold_output_certificate_digest: package.threshold_output_certificate_digest,
+            provider_kat_evidence_digest: package.provider_kat_evidence_digest,
+            provider_identity_digest: package.provider_identity_digest,
+            public_key_digest: package.public_key_digest,
+            message_digest: package.message_digest,
+            transcript_binding_digest: package.transcript_binding_digest,
+            signer_set_digest: package.signer_set_digest,
+            attempt_binding_digest: package.attempt_binding_digest,
+            aggregate_response_digest: package.aggregate_response_digest,
+            hint_digest: package.hint_digest,
+            accepted_signature_digest: package.accepted_signature_digest,
+            standard_verifier_bridge_evidence_digest: package
+                .standard_verifier_bridge_evidence_digest,
+            real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
+            verifier_result: package.verifier_result,
+            claim_boundary: package.claim_boundary,
+        },
+    )
+}
+
 /// Assess whether selected-backend proof-closure artifact evidence is bound to
 /// the accepted threshold-output certificate and remains proof-review-only.
 pub fn assess_p1_selected_backend_proof_closure_artifact(
@@ -2974,6 +3633,113 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
     if &package.accepted_signature_digest != threshold_certificate.accepted_signature_digest() {
         return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason: "P1 proof-closure signature digest does not match threshold-output certificate",
+        };
+    }
+    let compatibility_artifact_digest = derive_p1_standard_verifier_compatibility_artifact_digest(
+        &package.standard_verifier_compatibility_artifact,
+    );
+    if package.standard_verifier_compatibility_artifact_digest != compatibility_artifact_digest {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure standard-verifier compatibility artifact digest does not match compatibility certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .claim_boundary()
+        != P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility artifact must remain proof-review-only",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .threshold_output_certificate_digest()
+        != &threshold_output_certificate_digest
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility threshold-output certificate digest does not match certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .provider_kat_evidence_digest()
+        != threshold_certificate.provider_kat_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility provider KAT digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .standard_verifier_bridge_evidence_digest()
+        != threshold_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility bridge digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .real_recomputation_evidence_digest()
+        != threshold_certificate.real_recomputation_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility recomputation digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .transcript_binding_digest()
+        != threshold_certificate.transcript_binding_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility transcript binding digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .signer_set_digest()
+        != threshold_certificate.signer_set_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility signer-set digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .attempt_binding_digest()
+        != threshold_certificate.attempt_binding_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility attempt binding digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .aggregate_response_digest()
+        != threshold_certificate.aggregate_response_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility aggregate response digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .hint_digest()
+        != threshold_certificate.hint_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility hint digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .standard_verifier_compatibility_artifact
+        .accepted_signature_digest()
+        != threshold_certificate.accepted_signature_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure compatibility signature digest does not match threshold-output certificate",
         };
     }
 

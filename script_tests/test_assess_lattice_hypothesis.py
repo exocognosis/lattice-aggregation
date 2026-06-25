@@ -498,6 +498,7 @@ class ReportGenerationTests(unittest.TestCase):
             + "pub full_kat_validation_artifact_digest: [u8; 32],\n"
             + "pub rejection_distribution_review_digest: [u8; 32],\n"
             + "pub standard_verifier_compatibility_artifact_digest: [u8; 32],\n"
+            + "pub standard_verifier_compatibility_artifact: P1StandardVerifierCompatibilityArtifactCertificate,\n"
             + "pub theorem_linkage_artifact_digest: [u8; 32],\n"
             + "}\n"
             + "pub struct P1SelectedBackendProofClosureArtifactCertificate;\n"
@@ -513,14 +514,46 @@ class ReportGenerationTests(unittest.TestCase):
             + "}\n"
             + "pub enum P1SelectedBackendProofClosureArtifactAssessment { ArtifactReady }\n"
             + "pub enum P1SelectedBackendProofClosureClaimBoundary { ProofReviewOnly, ProductionClaim }\n"
+            + "pub struct P1StandardVerifierCompatibilityArtifactPackage {\n"
+            + "pub artifact_digest: [u8; 32],\n"
+            + "pub threshold_output_certificate_digest: [u8; 32],\n"
+            + "pub provider_identity_digest: [u8; 32],\n"
+            + "pub public_key_digest: [u8; 32],\n"
+            + "pub message_digest: [u8; 32],\n"
+            + "pub accepted_signature_digest: [u8; 32],\n"
+            + "pub standard_verifier_bridge_evidence_digest: [u8; 32],\n"
+            + "pub real_recomputation_evidence_digest: [u8; 32],\n"
+            + "pub transcript_binding_digest: [u8; 32],\n"
+            + "}\n"
+            + "pub struct P1StandardVerifierCompatibilityArtifactCertificate;\n"
+            + "impl P1StandardVerifierCompatibilityArtifactCertificate {\n"
+            + "pub fn public_key_digest(&self) {}\n"
+            + "pub fn message_digest(&self) {}\n"
+            + "pub fn accepted_signature_digest(&self) {}\n"
+            + "pub fn provider_identity_digest(&self) {}\n"
+            + "pub fn verifier_result(&self) {}\n"
+            + "pub fn claims_selected_backend_proof_closure(&self) {}\n"
+            + "pub fn claims_standard_verifier_compatibility(&self) {}\n"
+            + "pub fn claims_rejection_distribution_preservation(&self) {}\n"
+            + "pub fn claims_cavp_acvts_validation(&self) {}\n"
+            + "pub fn claims_fips_validation(&self) {}\n"
+            + "pub fn claims_completed_cryptographic_proof(&self) {}\n"
+            + "}\n"
+            + "pub enum P1StandardVerifierCompatibilityArtifactAssessment { ArtifactReady }\n"
+            + "pub enum P1StandardVerifierCompatibilityClaimBoundary { ProofReviewOnly, ProductionClaim }\n"
+            + "pub enum P1StandardVerifierCompatibilityResult { Accept, Reject }\n"
+            + "pub fn p1_standard_verifier_compatibility_accept_token() { P1StandardVerifierCompatibilityResult::Accept; }\n"
             + "pub struct P1RejectionProofArtifacts;\n"
             + "impl P1RejectionProofArtifacts { pub fn transcript_binding_evidence_digest(&self) {} }\n"
             + "pub fn assess_p1_selected_backend_aggregate_artifact() {}\n"
             + "pub fn assess_p1_selected_backend_threshold_output_artifact() {}\n"
             + "pub fn assess_p1_selected_backend_proof_closure_artifact() {}\n"
+            + "pub fn assess_p1_standard_verifier_compatibility_artifact() {}\n"
             + "pub fn derive_p1_selected_backend_aggregate_artifact_package() {}\n"
             + "pub fn derive_p1_selected_backend_threshold_output_artifact_package() {}\n"
             + "pub fn derive_p1_selected_backend_proof_closure_artifact_package() {}\n"
+            + "pub fn derive_p1_standard_verifier_compatibility_artifact_package() {}\n"
+            + "pub fn derive_p1_standard_verifier_compatibility_artifact_digest() {}\n"
             + "pub fn derive_p1_selected_backend_threshold_output_source_digest() {}\n"
             + "pub fn derive_p1_selected_backend_threshold_output_source_package_digest() {}\n"
             + "pub fn derive_p1_selected_backend_aggregate_certificate_digest() {}\n"
@@ -553,6 +586,20 @@ class ReportGenerationTests(unittest.TestCase):
             + "#[test]\n"
             + "fn p1_selected_backend_threshold_output_artifact_rejects_stale_source_digest() {}\n"
             + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_accepts_bound_verifier_payload() {}\n"
+            + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_rejects_failed_standard_verifier() {}\n"
+            + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_rejects_threshold_certificate_mismatch() {}\n"
+            + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_rejects_bridge_digest_as_artifact_digest() {}\n"
+            + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_rejects_recomputation_digest_drift() {}\n"
+            + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_rejects_bridge_digest_drift() {}\n"
+            + "#[test]\n"
+            + "fn p1_standard_verifier_compatibility_artifact_rejects_production_claim_boundary() {}\n"
+            + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_and_proof_artifacts() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_stale_threshold_certificate_digest() {}\n"
@@ -564,6 +611,8 @@ class ReportGenerationTests(unittest.TestCase):
             + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_distribution_review_artifact() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_standard_verifier_compatibility_artifact() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_stale_standard_verifier_compatibility_artifact_digest() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact() {}\n"
             + "#[test]\n"
@@ -737,6 +786,8 @@ class ReportGenerationTests(unittest.TestCase):
             "or checks proven equivalent to it accept the aggregate output.\n\n"
             "## Required Artifact Slots\n\n"
             "standard_verifier_compatibility_artifact_digest, "
+            "evidence_present_unclosed from "
+            "p1_standard_verifier_compatibility_artifact_gate, "
             "rejection_distribution_review_digest, "
             "theorem_linkage_artifact_digest, "
             "threshold_output_certificate_digest, "
@@ -804,7 +855,21 @@ class ReportGenerationTests(unittest.TestCase):
                     "FST-L7",
                 ],
                 "required_artifact_slots": [
-                    {"id": slot, "current_status": "required_unclosed"}
+                    (
+                        {
+                            "id": slot,
+                            "current_status": "evidence_present_unclosed",
+                            "evidence_source": (
+                                "p1_standard_verifier_compatibility_artifact_gate"
+                            ),
+                            "claim_boundary": (
+                                "conformance/proof-review evidence only"
+                            ),
+                        }
+                        if slot
+                        == "standard_verifier_compatibility_artifact_digest"
+                        else {"id": slot, "current_status": "required_unclosed"}
+                    )
                     for slot in [
                         "threshold_output_certificate_digest",
                         "real_recomputation_evidence_digest",
@@ -1087,6 +1152,36 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_selected_backend_threshold_output_artifact_gate"])
         self.assertFalse(scan["p1_selected_backend_proof_closure_artifact_gate"])
 
+    def test_standard_verifier_compatibility_artifact_gate_requires_bound_payload_tokens(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+
+            scan = module.scan_documents(root)
+            self.assertTrue(scan["p1_standard_verifier_compatibility_artifact_gate"])
+
+            rejection_equivalence_path = (
+                root / "src" / "production" / "rejection_equivalence.rs"
+            )
+            rejection_equivalence_path.write_text(
+                rejection_equivalence_path.read_text(encoding="utf-8").replace(
+                    "public_key_digest",
+                    "public_key_placeholder",
+                ),
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertTrue(scan["p1_selected_backend_proof_closure_artifact_gate"])
+        self.assertFalse(scan["p1_standard_verifier_compatibility_artifact_gate"])
+
     def test_thesis_operating_parameters_update_report_without_closing_proofs(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -1199,9 +1294,16 @@ class ReportGenerationTests(unittest.TestCase):
             markdown = module.render_markdown(report)
 
         self.assertTrue(scan["criterion2_proof_substance_formalized"])
+        self.assertTrue(scan["p1_standard_verifier_compatibility_artifact_gate"])
         self.assertEqual(
             report["criterion2_proof_substance"]["status"],
             "criterion2_proof_payload_formalized",
+        )
+        self.assertEqual(
+            report["criterion2_proof_substance"]["artifact_slot_statuses"][
+                "standard_verifier_compatibility_artifact_digest"
+            ],
+            "evidence_present_unclosed",
         )
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
@@ -1211,6 +1313,8 @@ class ReportGenerationTests(unittest.TestCase):
         )
         self.assertIn("Criterion 2 Proof Substance", markdown)
         self.assertIn("standard_verifier_compatibility_artifact_digest", markdown)
+        self.assertIn("evidence_present_unclosed", markdown)
+        self.assertIn("p1_standard_verifier_compatibility_artifact_gate", markdown)
         self.assertIn("rejection_distribution_review_digest", markdown)
         self.assertIn("theorem_linkage_artifact_digest", markdown)
         self.assertIn("formalized_open_proof_payload", markdown)
