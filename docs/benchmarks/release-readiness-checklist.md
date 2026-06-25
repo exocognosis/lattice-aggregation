@@ -131,6 +131,21 @@ migration candidates that require separate review.
   not selected-backend proof closure, not CAVP/ACVTS validation, not FIPS
   validation, not rejection-distribution preservation, and not completed
   standard-verifier compatibility.
+- Require the selected-backend proof-closure artifact package gate before
+  claiming that Batch 4 moved beyond the threshold-output artifact gate:
+  `P1SelectedBackendProofClosureArtifactPackage`,
+  `assess_p1_selected_backend_proof_closure_artifact`,
+  `derive_p1_selected_backend_proof_closure_artifact_package`,
+  `derive_p1_selected_backend_threshold_output_certificate_digest`, and the
+  `p1_selected_backend_proof_closure_artifact_gate` assessment/report key must
+  bind the accepted threshold-output certificate to selected profile, provider
+  KAT, recomputation, standard-verifier bridge evidence, accepted aggregate
+  output, reviewed proof artifacts, full KAT/validation artifact slots,
+  rejection-distribution review, standard-verifier compatibility evidence, and
+  theorem-linkage artifact digest evidence. This is the Batch 4 proof-closure artifact package boundary, not selected-backend proof closure, not production
+  threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation,
+  not rejection-distribution preservation, and not completed standard-verifier
+  compatibility.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,

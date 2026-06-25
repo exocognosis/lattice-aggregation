@@ -114,6 +114,12 @@ def has_acceptance_test_function(source, *required_terms):
     return False
 
 
+def has_rust_tokens(source, *tokens):
+    """Return whether Rust source contains all code tokens outside comments/strings."""
+    code = rust_code_without_comments_or_strings(source)
+    return all(token in code for token in tokens)
+
+
 def normalize_whitespace(text):
     """Normalize text for phrase scans across Markdown line wrapping."""
     return re.sub(r"\s+", " ", text).strip().lower()
@@ -558,6 +564,106 @@ def scan_documents(root):
             "package",
         )
     )
+    p1_selected_backend_proof_closure_artifact_gate = (
+        p1_selected_backend_threshold_output_artifact_gate
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1SelectedBackendProofClosureArtifactPackage",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1SelectedBackendProofClosureArtifactCertificate",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1SelectedBackendProofClosureArtifactAssessment",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1SelectedBackendProofClosureClaimBoundary",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_selected_backend_proof_closure_artifact",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_proof_closure_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_selected_backend_threshold_output_certificate_digest",
+        )
+        and has_rust_tokens(
+            rejection_equivalence_source,
+            "full_kat_validation_artifact_digest",
+            "rejection_distribution_review_digest",
+            "standard_verifier_compatibility_artifact_digest",
+            "theorem_linkage_artifact_digest",
+            "transcript_binding_evidence_digest",
+            "claims_selected_backend_proof_closure",
+            "claims_rejection_distribution_preservation",
+            "claims_cavp_acvts_validation",
+            "claims_fips_validation",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "p1",
+            "selected",
+            "backend",
+            "proof",
+            "closure",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "stale",
+            "threshold",
+            "certificate",
+            "digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "missing",
+            "validation",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "missing",
+            "distribution",
+            "review",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "stale",
+            "proof",
+            "transcript",
+            "binding",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "missing",
+            "standard",
+            "verifier",
+            "compatibility",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "missing",
+            "theorem",
+            "linkage",
+            "artifact",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "production",
+            "claim",
+            "boundary",
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -679,6 +785,9 @@ def scan_documents(root):
         ),
         "p1_selected_backend_threshold_output_artifact_gate": (
             p1_selected_backend_threshold_output_artifact_gate
+        ),
+        "p1_selected_backend_proof_closure_artifact_gate": (
+            p1_selected_backend_proof_closure_artifact_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -873,9 +982,46 @@ def classify_criteria(criteria, scan):
                     "rejection-distribution preservation, or completed "
                     "standard-verifier compatibility proof."
                 )
+            if scan.get("p1_selected_backend_proof_closure_artifact_gate"):
+                partial_progress = True
+                observed.append(
+                    "Selected-backend proof-closure artifact package gate is "
+                    "present for P1; it binds threshold-output, recomputation, "
+                    "bounds, rejection behavior, and standard verification "
+                    "evidence to the accepted threshold-output certificate, "
+                    "provider KAT digest, reviewed source package digest, "
+                    "full KAT/validation artifact slots, "
+                    "rejection-distribution review digest, "
+                    "standard-verifier compatibility artifact digest, and "
+                    "theorem-linkage artifact digest. This is stronger than "
+                    "the Batch 3 threshold-output artifact gate, but it remains "
+                    "conformance/proof-review evidence only and does not claim "
+                    "production threshold ML-DSA security, selected-backend "
+                    "proof closure, CAVP/ACVTS validation, FIPS validation, "
+                    "rejection-distribution preservation, or completed "
+                    "standard-verifier compatibility proof."
+                )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):
-                    if scan.get("p1_selected_backend_threshold_output_artifact_gate"):
+                    if scan.get(
+                        "p1_selected_backend_proof_closure_artifact_gate"
+                    ):
+                        blockers.append(
+                            "Selected-backend proof-closure artifact package gating "
+                            "is present, but production threshold ML-DSA "
+                            "security, selected-backend proof closure, full "
+                            "ACVP/FIPS KAT coverage, external proof review, "
+                            "CAVP/ACVTS validation artifacts, FIPS validation, "
+                            "rejection-distribution preservation, and completed "
+                            "standard-verifier compatibility remain open; the "
+                            "proof-closure artifact package gate, threshold-output "
+                            "artifact gate, real standard-provider aggregate-output "
+                            "package, P1 recomputation gate, selected-backend "
+                            "aggregate-output artifact gate, and bounded "
+                            "sample-vector KAT are framework/conformance "
+                            "evidence only."
+                        )
+                    elif scan.get("p1_selected_backend_threshold_output_artifact_gate"):
                         blockers.append(
                             "Selected-backend threshold-output artifact gating "
                             "is present, but production threshold ML-DSA "
