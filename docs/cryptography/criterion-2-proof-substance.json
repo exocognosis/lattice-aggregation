@@ -44,39 +44,64 @@
         "id": "standard_verifier_compatibility_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
+        "artifact_package": "p1_standard_verifier_compatibility_artifact_package",
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "rejection_distribution_review_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_rejection_distribution_review_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "theorem_linkage_artifact_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_theorem_linkage_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "full_kat_validation_artifact_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_full_kat_validation_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "norm_bound_artifact_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_norm_bound_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "hint_bound_artifact_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_hint_bound_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "challenge_bound_artifact_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_challenge_bound_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "transcript_binding_evidence_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_transcript_binding_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "external_review_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_external_review_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       }
     ]
   },

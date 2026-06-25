@@ -97,6 +97,25 @@ class VerdictRuleTests(unittest.TestCase):
 
 
 class DocumentClassificationTests(unittest.TestCase):
+    def test_scan_documents_accepts_current_readme_boundary_wording(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "README.md").write_text(
+                "## Current Status\n\n"
+                "This repository is publishable as a research artifact and "
+                "exploratory implementation.\n"
+                "It is not publishable as production cryptography, a completed "
+                "threshold ML-DSA construction, or a finished "
+                "standard-verifier-compatible aggregate signature scheme.\n"
+                "Current merged-main assessment status: `partially_proven`.\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertTrue(scan["readme_research_boundary"])
+
     def test_scan_documents_finds_claim_boundaries_and_blockers(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -788,8 +807,20 @@ class ReportGenerationTests(unittest.TestCase):
             "standard_verifier_compatibility_artifact_digest, "
             "evidence_present_unclosed from "
             "p1_standard_verifier_compatibility_artifact_gate, "
+            "evidence_present_unclosed only, "
+            "typed Criterion 2 proof-slot artifact packages, "
+            "p1_criterion2_proof_slot_artifact_package, "
             "rejection_distribution_review_digest, "
+            "p1_criterion2_rejection_distribution_review_artifact_gate, "
             "theorem_linkage_artifact_digest, "
+            "p1_criterion2_theorem_linkage_artifact_gate, "
+            "p1_criterion2_full_kat_validation_artifact_gate, "
+            "p1_criterion2_norm_bound_artifact_gate, "
+            "p1_criterion2_hint_bound_artifact_gate, "
+            "p1_criterion2_challenge_bound_artifact_gate, "
+            "p1_criterion2_transcript_binding_artifact_gate, "
+            "p1_criterion2_external_review_artifact_gate, "
+            "conformance/proof-review evidence only, "
             "threshold_output_certificate_digest, "
             "real_recomputation_evidence_digest.\n\n"
             "## Theorem Links\n\n"
@@ -808,6 +839,45 @@ class ReportGenerationTests(unittest.TestCase):
             "The overall verdict remains partially_proven.\n",
             encoding="utf-8",
         )
+        evidence_sources = {
+            "standard_verifier_compatibility_artifact_digest": (
+                "p1_standard_verifier_compatibility_artifact_gate"
+            ),
+            "rejection_distribution_review_digest": (
+                "p1_criterion2_rejection_distribution_review_artifact_gate"
+            ),
+            "theorem_linkage_artifact_digest": (
+                "p1_criterion2_theorem_linkage_artifact_gate"
+            ),
+            "full_kat_validation_artifact_digest": (
+                "p1_criterion2_full_kat_validation_artifact_gate"
+            ),
+            "norm_bound_artifact_digest": (
+                "p1_criterion2_norm_bound_artifact_gate"
+            ),
+            "hint_bound_artifact_digest": (
+                "p1_criterion2_hint_bound_artifact_gate"
+            ),
+            "challenge_bound_artifact_digest": (
+                "p1_criterion2_challenge_bound_artifact_gate"
+            ),
+            "transcript_binding_evidence_digest": (
+                "p1_criterion2_transcript_binding_artifact_gate"
+            ),
+            "external_review_digest": (
+                "p1_criterion2_external_review_artifact_gate"
+            ),
+        }
+        artifact_packages = {
+            "standard_verifier_compatibility_artifact_digest": (
+                "p1_standard_verifier_compatibility_artifact_package"
+            ),
+            **{
+                slot: "p1_criterion2_proof_slot_artifact_package"
+                for slot in evidence_sources
+                if slot != "standard_verifier_compatibility_artifact_digest"
+            },
+        }
         manifest = {
             "schema": "lattice-aggregation.criterion-2-proof-substance.v1",
             "criterion_id": "aggregate_rejection_equivalence",
@@ -859,15 +929,13 @@ class ReportGenerationTests(unittest.TestCase):
                         {
                             "id": slot,
                             "current_status": "evidence_present_unclosed",
-                            "evidence_source": (
-                                "p1_standard_verifier_compatibility_artifact_gate"
-                            ),
+                            "evidence_source": evidence_sources[slot],
+                            "artifact_package": artifact_packages[slot],
                             "claim_boundary": (
                                 "conformance/proof-review evidence only"
                             ),
                         }
-                        if slot
-                        == "standard_verifier_compatibility_artifact_digest"
+                        if slot in evidence_sources
                         else {"id": slot, "current_status": "required_unclosed"}
                     )
                     for slot in [

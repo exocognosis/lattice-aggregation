@@ -96,15 +96,63 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "criterion-2 proof payload must require {required}"
         );
     }
+    let evidence_present = [
+        (
+            "standard_verifier_compatibility_artifact_digest",
+            "p1_standard_verifier_compatibility_artifact_gate",
+            "p1_standard_verifier_compatibility_artifact_package",
+        ),
+        (
+            "rejection_distribution_review_digest",
+            "p1_criterion2_rejection_distribution_review_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "theorem_linkage_artifact_digest",
+            "p1_criterion2_theorem_linkage_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "full_kat_validation_artifact_digest",
+            "p1_criterion2_full_kat_validation_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "norm_bound_artifact_digest",
+            "p1_criterion2_norm_bound_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "hint_bound_artifact_digest",
+            "p1_criterion2_hint_bound_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "challenge_bound_artifact_digest",
+            "p1_criterion2_challenge_bound_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "transcript_binding_evidence_digest",
+            "p1_criterion2_transcript_binding_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "external_review_digest",
+            "p1_criterion2_external_review_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+    ];
     let mut evidence_present_slots = Vec::new();
     for slot in slots {
         let slot_id = slot["id"].as_str().expect("slot id");
-        if slot_id == "standard_verifier_compatibility_artifact_digest" {
+        if let Some((_, source, package)) = evidence_present
+            .iter()
+            .find(|(expected_slot, _, _)| expected_slot == &slot_id)
+        {
             assert_eq!(slot["current_status"], "evidence_present_unclosed");
-            assert_eq!(
-                slot["evidence_source"],
-                "p1_standard_verifier_compatibility_artifact_gate"
-            );
+            assert_eq!(slot["evidence_source"], *source);
+            assert_eq!(slot["artifact_package"], *package);
             assert_eq!(
                 slot["claim_boundary"],
                 "conformance/proof-review evidence only"
@@ -119,8 +167,11 @@ fn criterion2_manifest_pins_required_artifact_slots() {
     }
     assert_eq!(
         evidence_present_slots,
-        vec!["standard_verifier_compatibility_artifact_digest"],
-        "only the compatibility slot may have evidence present in Batch 6A"
+        evidence_present
+            .iter()
+            .map(|(slot_id, _, _)| *slot_id)
+            .collect::<Vec<_>>(),
+        "only the typed Criterion 2 slot allowlist may have evidence present"
     );
 }
 

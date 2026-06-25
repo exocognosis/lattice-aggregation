@@ -52,22 +52,49 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `real_recomputation_evidence_digest`
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
-  `p1_standard_verifier_compatibility_artifact_gate`; this is
+  `p1_standard_verifier_compatibility_artifact_gate`
+  (`p1_standard_verifier_compatibility_artifact_package`); this is
   conformance/proof-review evidence only.
   Bounded fixture package:
   `tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json`.
-- `rejection_distribution_review_digest`
-- `theorem_linkage_artifact_digest`
-- `full_kat_validation_artifact_digest`
-- `norm_bound_artifact_digest`
-- `hint_bound_artifact_digest`
-- `challenge_bound_artifact_digest`
-- `transcript_binding_evidence_digest`
-- `external_review_digest`
+- `full_kat_validation_artifact_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_full_kat_validation_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `rejection_distribution_review_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_rejection_distribution_review_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `norm_bound_artifact_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_norm_bound_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `hint_bound_artifact_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_hint_bound_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `challenge_bound_artifact_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_challenge_bound_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `transcript_binding_evidence_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_transcript_binding_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `theorem_linkage_artifact_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_theorem_linkage_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `external_review_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_external_review_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
 
-All other slots remain `required_unclosed`. Batch 4 proof-closure artifact
-packages and the P1 standard-verifier compatibility artifact gate are inputs to
-this payload, not proof closure by themselves.
+Typed Criterion 2 proof-slot artifact packages provide deterministic package
+shape, digest binding, review metadata, and proof-review claim boundaries for
+the listed slots. `evidence_present_unclosed` means the slot has typed evidence
+for review; `evidence_present_unclosed only` does not mean Criterion 2 is met,
+selected-backend proof closure is complete, rejection-distribution preservation
+is proven, or the theorem is closed. The slot claim boundary is
+`conformance/proof-review evidence only`.
+
+`threshold_output_certificate_digest` and `real_recomputation_evidence_digest`
+remain `required_unclosed`. Batch 4 proof-closure artifact packages, typed
+Criterion 2 proof-slot artifact packages, and the P1 standard-verifier
+compatibility artifact gate are inputs to this payload, not proof closure by
+themselves.
 
 ## Theorem Links
 
