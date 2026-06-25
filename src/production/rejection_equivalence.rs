@@ -381,6 +381,123 @@ impl Mldsa65ProviderKatEvidence {
     }
 }
 
+/// Typed Criterion 2 proof-slot artifact classes for P1.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(u8)]
+pub enum P1Criterion2ProofSlotArtifactKind {
+    /// Full KAT or validation package evidence beyond the bounded fixture set.
+    FullKatValidation = 0,
+    /// Rejection-distribution review evidence for accepted P1 outputs.
+    RejectionDistributionReview = 1,
+    /// Norm-bound proof artifact evidence.
+    NormBound = 2,
+    /// Hint-bound proof artifact evidence.
+    HintBound = 3,
+    /// Challenge-bound proof artifact evidence.
+    ChallengeBound = 4,
+    /// Transcript-binding proof artifact evidence.
+    TranscriptBinding = 5,
+    /// Theorem-linkage artifact evidence.
+    TheoremLinkage = 6,
+    /// External proof/audit review evidence.
+    ExternalReview = 7,
+}
+
+impl P1Criterion2ProofSlotArtifactKind {
+    const fn tag(self) -> u8 {
+        self as u8
+    }
+}
+
+/// A reviewed, typed artifact for one unclosed Criterion 2 proof slot.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1Criterion2ProofSlotArtifact {
+    /// Criterion 2 proof-slot class.
+    pub kind: P1Criterion2ProofSlotArtifactKind,
+    /// Selected backend profile the slot is bound to.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Digest of the accepted threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Digest binding the slot to the production signing transcript.
+    pub transcript_binding_digest: [u8; 32],
+    /// Digest of the source evidence for this proof slot.
+    pub source_evidence_digest: [u8; 32],
+    /// Digest of the review evidence for this proof slot.
+    pub review_evidence_digest: [u8; 32],
+    /// Domain-separated digest of this typed slot artifact.
+    pub artifact_digest: [u8; 32],
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    /// Whether this slot artifact has a named review signoff.
+    pub reviewed: bool,
+}
+
+impl P1Criterion2ProofSlotArtifact {
+    /// Return the artifact class.
+    pub const fn kind(self) -> P1Criterion2ProofSlotArtifactKind {
+        self.kind
+    }
+
+    /// Borrow the artifact digest committed by the slot package.
+    pub const fn artifact_digest(&self) -> &[u8; 32] {
+        &self.artifact_digest
+    }
+
+    /// Return whether this slot has a named review signoff.
+    pub const fn reviewed(self) -> bool {
+        self.reviewed
+    }
+}
+
+/// Bundle of typed Criterion 2 artifacts used by the P1 proof-closure gate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1Criterion2ProofSlotArtifacts {
+    /// Full KAT or validation package proof-slot artifact.
+    pub full_kat_validation_artifact: P1Criterion2ProofSlotArtifact,
+    /// Rejection-distribution review proof-slot artifact.
+    pub rejection_distribution_review_artifact: P1Criterion2ProofSlotArtifact,
+    /// Norm-bound proof-slot artifact.
+    pub norm_bound_artifact: P1Criterion2ProofSlotArtifact,
+    /// Hint-bound proof-slot artifact.
+    pub hint_bound_artifact: P1Criterion2ProofSlotArtifact,
+    /// Challenge-bound proof-slot artifact.
+    pub challenge_bound_artifact: P1Criterion2ProofSlotArtifact,
+    /// Transcript-binding proof-slot artifact.
+    pub transcript_binding_artifact: P1Criterion2ProofSlotArtifact,
+    /// Theorem-linkage proof-slot artifact.
+    pub theorem_linkage_artifact: P1Criterion2ProofSlotArtifact,
+    /// External proof/audit review proof-slot artifact.
+    pub external_review_artifact: P1Criterion2ProofSlotArtifact,
+}
+
+impl P1Criterion2ProofSlotArtifacts {
+    /// Construct a typed Criterion 2 proof-slot bundle.
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        full_kat_validation_artifact: P1Criterion2ProofSlotArtifact,
+        rejection_distribution_review_artifact: P1Criterion2ProofSlotArtifact,
+        norm_bound_artifact: P1Criterion2ProofSlotArtifact,
+        hint_bound_artifact: P1Criterion2ProofSlotArtifact,
+        challenge_bound_artifact: P1Criterion2ProofSlotArtifact,
+        transcript_binding_artifact: P1Criterion2ProofSlotArtifact,
+        theorem_linkage_artifact: P1Criterion2ProofSlotArtifact,
+        external_review_artifact: P1Criterion2ProofSlotArtifact,
+    ) -> Self {
+        Self {
+            full_kat_validation_artifact,
+            rejection_distribution_review_artifact,
+            norm_bound_artifact,
+            hint_bound_artifact,
+            challenge_bound_artifact,
+            transcript_binding_artifact,
+            theorem_linkage_artifact,
+            external_review_artifact,
+        }
+    }
+}
+
 /// Reviewed P1 rejection-equivalence proof artifact digests.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1RejectionProofArtifacts {
@@ -1199,6 +1316,8 @@ pub struct P1SelectedBackendProofClosureArtifactPackage {
     pub accepted_signature_digest: [u8; 32],
     /// Reviewed proof artifact digests linked to this selected-backend output.
     pub proof_artifacts: P1RejectionProofArtifacts,
+    /// Typed Criterion 2 proof-slot artifacts linked to this selected-backend output.
+    pub proof_slot_artifacts: P1Criterion2ProofSlotArtifacts,
     /// Digest of full KAT or validation artifacts beyond the bounded fixture set.
     pub full_kat_validation_artifact_digest: [u8; 32],
     /// Digest of rejection-distribution review artifacts for this selected backend.
@@ -1887,6 +2006,172 @@ pub fn derive_p1_selected_backend_threshold_output_certificate_digest(
     hasher.finalize().into()
 }
 
+/// Derive the digest binding one typed Criterion 2 proof-slot artifact.
+///
+/// This is proof-review evidence only. A valid digest records that the slot was
+/// checked against the accepted threshold-output certificate and a named review
+/// artifact; it does not promote Criterion 2 by itself.
+pub fn derive_p1_criterion2_proof_slot_artifact_digest(
+    artifact: &P1Criterion2ProofSlotArtifact,
+) -> [u8; 32] {
+    derive_p1_criterion2_proof_slot_artifact_digest_from_fields(
+        artifact.kind,
+        artifact.selected_profile,
+        &artifact.selected_profile_binding_digest,
+        &artifact.threshold_output_certificate_digest,
+        &artifact.transcript_binding_digest,
+        &artifact.source_evidence_digest,
+        &artifact.review_evidence_digest,
+        artifact.claim_boundary,
+        artifact.reviewed,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn derive_p1_criterion2_proof_slot_artifact_digest_from_fields(
+    kind: P1Criterion2ProofSlotArtifactKind,
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: &[u8; 32],
+    threshold_output_certificate_digest: &[u8; 32],
+    transcript_binding_digest: &[u8; 32],
+    source_evidence_digest: &[u8; 32],
+    review_evidence_digest: &[u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    reviewed: bool,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-criterion2-proof-slot-artifact:v1");
+    hasher.update([kind.tag()]);
+    hasher.update(selected_profile.profile_binding_digest());
+    hasher.update(selected_profile_binding_digest);
+    hasher.update(threshold_output_certificate_digest);
+    hasher.update(transcript_binding_digest);
+    hasher.update(source_evidence_digest);
+    hasher.update(review_evidence_digest);
+    match claim_boundary {
+        P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly => hasher.update([0]),
+        P1SelectedBackendProofClosureClaimBoundary::ProductionClaim => hasher.update([1]),
+    }
+    hasher.update([u8::from(reviewed)]);
+    hasher.finalize().into()
+}
+
+/// Derive one typed Criterion 2 proof-slot artifact package.
+pub fn derive_p1_criterion2_proof_slot_artifact(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    kind: P1Criterion2ProofSlotArtifactKind,
+    source_evidence_digest: [u8; 32],
+    review_evidence_digest: [u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    reviewed: bool,
+) -> P1Criterion2ProofSlotArtifact {
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    let artifact_digest = derive_p1_criterion2_proof_slot_artifact_digest_from_fields(
+        kind,
+        threshold_certificate.selected_profile(),
+        threshold_certificate.selected_profile_binding_digest(),
+        &threshold_output_certificate_digest,
+        threshold_certificate.transcript_binding_digest(),
+        &source_evidence_digest,
+        &review_evidence_digest,
+        claim_boundary,
+        reviewed,
+    );
+
+    P1Criterion2ProofSlotArtifact {
+        kind,
+        selected_profile: threshold_certificate.selected_profile(),
+        selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
+        threshold_output_certificate_digest,
+        transcript_binding_digest: *threshold_certificate.transcript_binding_digest(),
+        source_evidence_digest,
+        review_evidence_digest,
+        artifact_digest,
+        claim_boundary,
+        reviewed,
+    }
+}
+
+/// Derive the typed Criterion 2 proof-slot bundle used by the P1 proof gate.
+pub fn derive_p1_criterion2_proof_slot_artifacts(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    proof_artifacts: &P1RejectionProofArtifacts,
+    full_kat_validation_source_digest: [u8; 32],
+    rejection_distribution_review_source_digest: [u8; 32],
+    theorem_linkage_source_digest: [u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    reviewed: bool,
+) -> P1Criterion2ProofSlotArtifacts {
+    let external_review_digest = *proof_artifacts.external_review_digest();
+    P1Criterion2ProofSlotArtifacts::new(
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::FullKatValidation,
+            full_kat_validation_source_digest,
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::RejectionDistributionReview,
+            rejection_distribution_review_source_digest,
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::NormBound,
+            *proof_artifacts.norm_bound_evidence_digest(),
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::HintBound,
+            *proof_artifacts.hint_bound_evidence_digest(),
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::ChallengeBound,
+            *proof_artifacts.challenge_bound_evidence_digest(),
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::TranscriptBinding,
+            *proof_artifacts.transcript_binding_evidence_digest(),
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::TheoremLinkage,
+            theorem_linkage_source_digest,
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::ExternalReview,
+            external_review_digest,
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+    )
+}
+
 /// Derive the digest of reviewed Batch 3 threshold-output source package bytes.
 pub fn derive_p1_selected_backend_threshold_output_source_package_digest(
     source_package_bytes: &[u8],
@@ -2185,10 +2470,8 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
     provider_kat_evidence_digest: [u8; 32],
     proof_artifacts: P1RejectionProofArtifacts,
-    full_kat_validation_artifact_digest: [u8; 32],
-    rejection_distribution_review_digest: [u8; 32],
+    proof_slot_artifacts: P1Criterion2ProofSlotArtifacts,
     standard_verifier_compatibility_artifact: &P1StandardVerifierCompatibilityArtifactCertificate,
-    theorem_linkage_artifact_digest: [u8; 32],
     claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
     reviewed: bool,
 ) -> P1SelectedBackendProofClosureArtifactPackage {
@@ -2213,14 +2496,21 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
         hint_digest: *threshold_certificate.hint_digest(),
         accepted_signature_digest: *threshold_certificate.accepted_signature_digest(),
         proof_artifacts,
-        full_kat_validation_artifact_digest,
-        rejection_distribution_review_digest,
+        proof_slot_artifacts,
+        full_kat_validation_artifact_digest: *proof_slot_artifacts
+            .full_kat_validation_artifact
+            .artifact_digest(),
+        rejection_distribution_review_digest: *proof_slot_artifacts
+            .rejection_distribution_review_artifact
+            .artifact_digest(),
         standard_verifier_compatibility_artifact_digest:
             derive_p1_standard_verifier_compatibility_artifact_digest(
                 standard_verifier_compatibility_artifact,
             ),
         standard_verifier_compatibility_artifact: *standard_verifier_compatibility_artifact,
-        theorem_linkage_artifact_digest,
+        theorem_linkage_artifact_digest: *proof_slot_artifacts
+            .theorem_linkage_artifact
+            .artifact_digest(),
         claim_boundary,
         reviewed,
     }
@@ -3335,6 +3625,68 @@ pub fn assess_p1_standard_verifier_compatibility_artifact(
     )
 }
 
+fn validate_p1_criterion2_proof_slot_artifact(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    artifact: &P1Criterion2ProofSlotArtifact,
+    expected_kind: P1Criterion2ProofSlotArtifactKind,
+    expected_source_evidence_digest: &[u8; 32],
+    expected_review_evidence_digest: &[u8; 32],
+) -> Result<[u8; 32], &'static str> {
+    if artifact.kind != expected_kind {
+        return Err("P1 proof-closure Criterion 2 slot artifact kind mismatch");
+    }
+    if !artifact.reviewed() {
+        return Err("P1 proof-closure Criterion 2 slot artifact must be reviewed");
+    }
+    if artifact.claim_boundary != P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly {
+        return Err("P1 proof-closure Criterion 2 slot artifact must remain proof-review-only");
+    }
+    if artifact.selected_profile != threshold_certificate.selected_profile() {
+        return Err(
+            "P1 proof-closure Criterion 2 slot artifact selected profile does not match threshold-output certificate",
+        );
+    }
+    if &artifact.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+    {
+        return Err(
+            "P1 proof-closure Criterion 2 slot artifact profile binding does not match threshold-output certificate",
+        );
+    }
+    if artifact.threshold_output_certificate_digest
+        != derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate)
+    {
+        return Err(
+            "P1 proof-closure Criterion 2 slot artifact threshold-output certificate digest does not match certificate",
+        );
+    }
+    if &artifact.transcript_binding_digest != threshold_certificate.transcript_binding_digest() {
+        return Err(
+            "P1 proof-closure Criterion 2 slot artifact transcript binding does not match threshold-output certificate",
+        );
+    }
+    if is_all_zero(&artifact.source_evidence_digest) {
+        return Err("P1 proof-closure Criterion 2 slot artifact source digest is all zero");
+    }
+    if is_all_zero(&artifact.review_evidence_digest) {
+        return Err("P1 proof-closure Criterion 2 slot artifact review digest is all zero");
+    }
+    if &artifact.source_evidence_digest != expected_source_evidence_digest {
+        return Err("P1 proof-closure Criterion 2 slot artifact source digest does not match expected proof evidence");
+    }
+    if &artifact.review_evidence_digest != expected_review_evidence_digest {
+        return Err("P1 proof-closure Criterion 2 slot artifact review digest does not match expected external review evidence");
+    }
+    if is_all_zero(&artifact.artifact_digest) {
+        return Err("P1 proof-closure Criterion 2 slot artifact digest is all zero");
+    }
+    if artifact.artifact_digest != derive_p1_criterion2_proof_slot_artifact_digest(artifact) {
+        return Err("P1 proof-closure Criterion 2 slot artifact digest does not match payload");
+    }
+
+    Ok(artifact.artifact_digest)
+}
+
 /// Assess whether selected-backend proof-closure artifact evidence is bound to
 /// the accepted threshold-output certificate and remains proof-review-only.
 pub fn assess_p1_selected_backend_proof_closure_artifact(
@@ -3380,6 +3732,95 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
             reason: "P1 proof-closure selected profile does not match threshold-output certificate",
         };
     }
+
+    let slot_artifacts = package.proof_slot_artifacts;
+    let expected_review_evidence_digest = package.proof_artifacts.external_review_digest();
+    let full_kat_validation_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.full_kat_validation_artifact,
+        P1Criterion2ProofSlotArtifactKind::FullKatValidation,
+        &slot_artifacts
+            .full_kat_validation_artifact
+            .source_evidence_digest,
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let rejection_distribution_review_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.rejection_distribution_review_artifact,
+        P1Criterion2ProofSlotArtifactKind::RejectionDistributionReview,
+        &slot_artifacts
+            .rejection_distribution_review_artifact
+            .source_evidence_digest,
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let norm_bound_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.norm_bound_artifact,
+        P1Criterion2ProofSlotArtifactKind::NormBound,
+        package.proof_artifacts.norm_bound_evidence_digest(),
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let hint_bound_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.hint_bound_artifact,
+        P1Criterion2ProofSlotArtifactKind::HintBound,
+        package.proof_artifacts.hint_bound_evidence_digest(),
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let challenge_bound_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.challenge_bound_artifact,
+        P1Criterion2ProofSlotArtifactKind::ChallengeBound,
+        package.proof_artifacts.challenge_bound_evidence_digest(),
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let transcript_binding_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.transcript_binding_artifact,
+        P1Criterion2ProofSlotArtifactKind::TranscriptBinding,
+        package.proof_artifacts.transcript_binding_evidence_digest(),
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let theorem_linkage_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.theorem_linkage_artifact,
+        P1Criterion2ProofSlotArtifactKind::TheoremLinkage,
+        &slot_artifacts
+            .theorem_linkage_artifact
+            .source_evidence_digest,
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
+    let external_review_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &slot_artifacts.external_review_artifact,
+        P1Criterion2ProofSlotArtifactKind::ExternalReview,
+        expected_review_evidence_digest,
+        expected_review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
+    };
 
     for (digest, reason) in [
         (
@@ -3600,6 +4041,50 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
         return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason:
                 "P1 proof-closure proof-artifact transcript binding digest does not match threshold-output certificate",
+        };
+    }
+    if package.full_kat_validation_artifact_digest != full_kat_validation_artifact_digest {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure full KAT/validation artifact digest does not match typed Criterion 2 slot artifact",
+        };
+    }
+    if package.rejection_distribution_review_digest != rejection_distribution_review_digest {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure rejection-distribution review digest does not match typed Criterion 2 slot artifact",
+        };
+    }
+    if package.proof_artifacts.norm_bound_evidence_digest()
+        != &slot_artifacts.norm_bound_artifact.source_evidence_digest
+        || package.proof_artifacts.hint_bound_evidence_digest()
+            != &slot_artifacts.hint_bound_artifact.source_evidence_digest
+        || package.proof_artifacts.challenge_bound_evidence_digest()
+            != &slot_artifacts
+                .challenge_bound_artifact
+                .source_evidence_digest
+        || package.proof_artifacts.transcript_binding_evidence_digest()
+            != &slot_artifacts
+                .transcript_binding_artifact
+                .source_evidence_digest
+        || package.proof_artifacts.external_review_digest()
+            != &slot_artifacts
+                .external_review_artifact
+                .source_evidence_digest
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure proof artifact source digest does not match typed Criterion 2 slot artifact",
+        };
+    }
+    if norm_bound_artifact_digest == hint_bound_artifact_digest
+        || norm_bound_artifact_digest == challenge_bound_artifact_digest
+        || transcript_binding_artifact_digest == external_review_artifact_digest
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifacts must be domain-separated",
+        };
+    }
+    if package.theorem_linkage_artifact_digest != theorem_linkage_artifact_digest {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure theorem-linkage artifact digest does not match typed Criterion 2 slot artifact",
         };
     }
     if &package.transcript_binding_digest != threshold_certificate.transcript_binding_digest() {

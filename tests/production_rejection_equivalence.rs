@@ -15,7 +15,8 @@ use lattice_aggregation::{
             assess_p1_selected_backend_proof_closure_artifact,
             assess_p1_selected_backend_threshold_output_artifact,
             assess_p1_standard_verifier_compatibility_artifact,
-            assess_rejection_equivalence_closure,
+            assess_rejection_equivalence_closure, derive_p1_criterion2_proof_slot_artifact_digest,
+            derive_p1_criterion2_proof_slot_artifacts,
             derive_p1_selected_backend_aggregate_certificate_digest,
             derive_p1_selected_backend_attempt_binding_digest,
             derive_p1_selected_backend_proof_closure_artifact_package,
@@ -34,8 +35,8 @@ use lattice_aggregation::{
             AggregateRejectionEquivalenceGate, AggregateRejectionEvidenceDigest,
             AggregateRejectionEvidenceStrength, Mldsa65ProviderKatEvidence,
             P1AggregateRecomputationAssessment, P1AggregateRecomputationClosureCertificate,
-            P1AggregateRecomputationClosurePackage, P1RejectionProofArtifacts,
-            P1SelectedBackendAggregateArtifactAssessment,
+            P1AggregateRecomputationClosurePackage, P1Criterion2ProofSlotArtifactKind,
+            P1RejectionProofArtifacts, P1SelectedBackendAggregateArtifactAssessment,
             P1SelectedBackendAggregateArtifactCertificate,
             P1SelectedBackendAggregateArtifactPackage,
             P1SelectedBackendProofClosureArtifactAssessment,
@@ -1708,15 +1709,22 @@ fn selected_backend_proof_closure_artifact_package(
         digest(48),
         true,
     );
+    let proof_slot_artifacts = derive_p1_criterion2_proof_slot_artifacts(
+        &threshold_certificate,
+        &proof_artifacts,
+        digest(51),
+        digest(52),
+        digest(54),
+        P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly,
+        true,
+    );
 
     derive_p1_selected_backend_proof_closure_artifact_package(
         &threshold_certificate,
         *threshold_certificate.provider_kat_evidence_digest(),
         proof_artifacts,
-        digest(51),
-        digest(52),
+        proof_slot_artifacts,
         &compatibility_certificate,
-        digest(54),
         P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly,
         true,
     )
@@ -2713,6 +2721,18 @@ fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_
     let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
     let package = selected_backend_proof_closure_artifact_package(&fixture);
     let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let expected_full_kat_validation_artifact_digest = *package
+        .proof_slot_artifacts
+        .full_kat_validation_artifact
+        .artifact_digest();
+    let expected_rejection_distribution_review_digest = *package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .artifact_digest();
+    let expected_theorem_linkage_artifact_digest = *package
+        .proof_slot_artifacts
+        .theorem_linkage_artifact
+        .artifact_digest();
 
     let assessment =
         assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
@@ -2755,17 +2775,20 @@ fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_
     );
     assert_eq!(
         certificate.full_kat_validation_artifact_digest(),
-        &digest(51)
+        &expected_full_kat_validation_artifact_digest
     );
     assert_eq!(
         certificate.rejection_distribution_review_digest(),
-        &digest(52)
+        &expected_rejection_distribution_review_digest
     );
     assert_eq!(
         certificate.standard_verifier_compatibility_artifact_digest(),
         &derive_p1_standard_verifier_compatibility_artifact_digest(&compatibility_certificate,)
     );
-    assert_eq!(certificate.theorem_linkage_artifact_digest(), &digest(54));
+    assert_eq!(
+        certificate.theorem_linkage_artifact_digest(),
+        &expected_theorem_linkage_artifact_digest
+    );
     assert_eq!(
         certificate.claim_boundary(),
         P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly
@@ -2826,7 +2849,7 @@ fn p1_selected_backend_proof_closure_artifact_rejects_stale_proof_transcript_bin
     assert_eq!(
         assessment,
         P1SelectedBackendProofClosureArtifactAssessment::Invalid {
-            reason: "P1 proof-closure proof-artifact transcript binding digest does not match threshold-output certificate",
+            reason: "P1 proof-closure Criterion 2 slot artifact source digest does not match expected proof evidence",
         }
     );
     assert!(!assessment.is_artifact_ready());
@@ -2924,6 +2947,98 @@ fn p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_ar
         assessment,
         P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason: "P1 proof-closure theorem-linkage artifact digest is all zero",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_typed_slot_kind_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.proof_slot_artifacts.norm_bound_artifact.kind =
+        P1Criterion2ProofSlotArtifactKind::HintBound;
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact kind mismatch",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_unreviewed_typed_slot() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .reviewed = false;
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact must be reviewed",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_typed_slot_digest_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .theorem_linkage_artifact
+        .artifact_digest = digest(77);
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact digest does not match payload",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_recomputed_review_digest_tamper() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .norm_bound_artifact
+        .review_evidence_digest = digest(88);
+    package
+        .proof_slot_artifacts
+        .norm_bound_artifact
+        .artifact_digest = derive_p1_criterion2_proof_slot_artifact_digest(
+        &package.proof_slot_artifacts.norm_bound_artifact,
+    );
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact review digest does not match expected external review evidence",
         }
     );
     assert!(!assessment.is_artifact_ready());
