@@ -46,6 +46,13 @@ migration candidates that require separate review.
   `native-threshold-mldsa65-aggregation-p1`, scope `research scaffold only`,
   all five criteria `partially_met`, and Falcon/LaBRADOR-style proof
   aggregation as `evaluate only`.
+- Keep the Criterion 2 proof-substance contract in
+  `docs/cryptography/criterion-2-proof-substance.md` and
+  `docs/cryptography/criterion-2-proof-substance.json` aligned with
+  `aggregate_rejection_equivalence`, status
+  `criterion2_proof_payload_formalized`, and Criterion 2 still
+  `partially_met` until reviewed proof, compatibility, distribution,
+  validation, theorem-linkage, and external-review artifacts are supplied.
 - Complete the threshold unforgeability and real/ideal proof package under the
   stated adversary, network, abort, and corruption model.
 - Show aggregate output compatibility with a standard ML-DSA verifier.
