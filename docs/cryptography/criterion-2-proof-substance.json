@@ -37,6 +37,8 @@
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_threshold_output_certificate_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "certificate_surface": "p1_selected_backend_proof_closure_artifact_certificate",
+        "certificate_accessor": "threshold_output_certificate_artifact_digest",
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
@@ -44,6 +46,8 @@
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_real_recomputation_evidence_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "certificate_surface": "p1_selected_backend_proof_closure_artifact_certificate",
+        "certificate_accessor": "real_recomputation_evidence_artifact_digest",
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
@@ -107,6 +111,22 @@
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_external_review_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      }
+    ],
+    "durable_certificate_evidence": [
+      {
+        "slot_id": "threshold_output_certificate_digest",
+        "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
+        "certificate_accessor": "threshold_output_certificate_artifact_digest",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "slot_id": "real_recomputation_evidence_digest",
+        "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
+        "certificate_accessor": "real_recomputation_evidence_artifact_digest",
+        "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only"
       }
     ]

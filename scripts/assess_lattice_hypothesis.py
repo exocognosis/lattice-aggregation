@@ -212,6 +212,20 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
         if slot != "standard_verifier_compatibility_artifact_digest"
     },
 }
+CRITERION2_DURABLE_CERTIFICATE_ACCESSORS = {
+    "threshold_output_certificate_digest": (
+        "threshold_output_certificate_artifact_digest"
+    ),
+    "real_recomputation_evidence_digest": (
+        "real_recomputation_evidence_artifact_digest"
+    ),
+}
+CRITERION2_DURABLE_CERTIFICATE_SURFACE = (
+    "p1_selected_backend_proof_closure_artifact_certificate"
+)
+CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACE = (
+    "P1SelectedBackendProofClosureArtifactCertificate"
+)
 CRITERION2_ARTIFACT_SLOT_STATUSES = {
     slot: (
         "evidence_present_unclosed"
@@ -450,6 +464,14 @@ def criterion2_proof_substance_status(markdown, manifest_text):
     slot_by_id = {
         slot.get("id"): slot for slot in artifact_slots if isinstance(slot, dict)
     }
+    durable_certificate_evidence = proof_payload.get(
+        "durable_certificate_evidence", []
+    )
+    durable_certificate_evidence_by_slot = {
+        entry.get("slot_id"): entry
+        for entry in durable_certificate_evidence
+        if isinstance(entry, dict)
+    }
     theorem_links = proof_payload.get("theorem_links", [])
 
     expected_markdown_tokens = [
@@ -516,6 +538,11 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         for slot_id in CRITERION2_REQUIRED_ARTIFACT_SLOTS
         if slot_by_id.get(slot_id, {}).get("artifact_package")
     }
+    artifact_slot_certificate_accessors = {
+        slot_id: slot_by_id.get(slot_id, {}).get("certificate_accessor", "")
+        for slot_id in CRITERION2_REQUIRED_ARTIFACT_SLOTS
+        if slot_by_id.get(slot_id, {}).get("certificate_accessor")
+    }
     evidence_present_slots_pinned = all(
         slot_by_id.get(slot_id, {}).get("evidence_source") == evidence_source
         and slot_by_id.get(slot_id, {}).get("artifact_package")
@@ -528,6 +555,34 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         artifact_slot_statuses == CRITERION2_ARTIFACT_SLOT_STATUSES
         and artifact_slot_sources == CRITERION2_EVIDENCE_PRESENT_SLOTS
         and artifact_slot_packages == CRITERION2_EVIDENCE_PRESENT_PACKAGES
+        and artifact_slot_certificate_accessors
+        == CRITERION2_DURABLE_CERTIFICATE_ACCESSORS
+        and durable_certificate_evidence_by_slot.keys()
+        == CRITERION2_DURABLE_CERTIFICATE_ACCESSORS.keys()
+        and all(
+            slot_by_id.get(slot_id, {}).get("certificate_surface")
+            == CRITERION2_DURABLE_CERTIFICATE_SURFACE
+            for slot_id in CRITERION2_DURABLE_CERTIFICATE_ACCESSORS
+        )
+        and all(
+            durable_certificate_evidence_by_slot.get(slot_id, {}).get(
+                "certificate_surface"
+            )
+            == CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACE
+            and durable_certificate_evidence_by_slot.get(slot_id, {}).get(
+                "certificate_accessor"
+            )
+            == accessor
+            and durable_certificate_evidence_by_slot.get(slot_id, {}).get(
+                "current_status"
+            )
+            == "evidence_present_unclosed"
+            and durable_certificate_evidence_by_slot.get(slot_id, {}).get(
+                "claim_boundary"
+            )
+            == "conformance/proof-review evidence only"
+            for slot_id, accessor in CRITERION2_DURABLE_CERTIFICATE_ACCESSORS.items()
+        )
         and evidence_present_slots_pinned
     )
     theorem_links_pinned = entries_contain_terms(
@@ -602,6 +657,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "required_artifact_slots": CRITERION2_REQUIRED_ARTIFACT_SLOTS,
         "artifact_slot_statuses": artifact_slot_statuses,
         "artifact_slot_sources": artifact_slot_sources,
+        "artifact_slot_certificate_accessors": artifact_slot_certificate_accessors,
+        "durable_certificate_evidence": durable_certificate_evidence,
         "theorem_links": theorem_links,
         "missing_evidence": sorted(set(missing_evidence)),
     }
@@ -1088,6 +1145,8 @@ def scan_documents(root):
             rejection_equivalence_source,
             "full_kat_validation_artifact_digest",
             "rejection_distribution_review_digest",
+            "threshold_output_certificate_artifact_digest",
+            "real_recomputation_evidence_artifact_digest",
             "standard_verifier_compatibility_artifact_digest",
             "standard_verifier_compatibility_artifact",
             "theorem_linkage_artifact_digest",
@@ -1204,6 +1263,8 @@ def scan_documents(root):
             "RealRecomputationEvidence",
             "threshold_output_certificate_artifact",
             "real_recomputation_evidence_artifact",
+            "threshold_output_certificate_artifact_digest",
+            "real_recomputation_evidence_artifact_digest",
             "validate_p1_criterion2_proof_slot_artifact",
             "source_evidence_digest",
             "review_evidence_digest",
@@ -1232,6 +1293,20 @@ def scan_documents(root):
         and has_acceptance_test_function(
             rejection_equivalence_test,
             "threshold",
+            "slot",
+            "source",
+            "tamper",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "threshold",
+            "slot",
+            "review",
+            "tamper",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "recomputation",
             "slot",
             "source",
             "tamper",
@@ -1718,6 +1793,8 @@ def classify_criteria(criteria, scan):
                     "challenge-bound, transcript-binding, theorem-linkage, "
                     "and external-review evidence as evidence_present_unclosed "
                     "only. All Criterion 2 proof slots have typed wrappers, "
+                    "and the accepted proof-closure artifact certificate "
+                    "carries durable predecessor slot artifact digests, "
                     "but they remain conformance/proof-review evidence only "
                     "and do not change aggregate_rejection_equivalence from "
                     "partially_met, do not change the overall verdict from "
@@ -2202,6 +2279,32 @@ def render_markdown(report):
                     f"{slot}={artifact_sources[slot]}"
                     for slot in criterion2["required_artifact_slots"]
                     if slot in artifact_sources
+                )
+            )
+        certificate_accessors = criterion2.get(
+            "artifact_slot_certificate_accessors", {}
+        )
+        if certificate_accessors:
+            lines.append(
+                "- Durable certificate accessors: "
+                + ", ".join(
+                    f"{slot}={certificate_accessors[slot]}"
+                    for slot in criterion2["required_artifact_slots"]
+                    if slot in certificate_accessors
+                )
+            )
+        durable_certificate_evidence = criterion2.get(
+            "durable_certificate_evidence", []
+        )
+        if durable_certificate_evidence:
+            lines.append(
+                "- Durable certificate evidence: "
+                + ", ".join(
+                    f"{entry['slot_id']}={entry['certificate_surface']}::{entry['certificate_accessor']}"
+                    for entry in durable_certificate_evidence
+                    if entry.get("slot_id")
+                    and entry.get("certificate_surface")
+                    and entry.get("certificate_accessor")
                 )
             )
         lines.append(
