@@ -96,9 +96,14 @@ rejection-distribution preservation is proven, or the theorem is closed. The
 slot claim boundary is `conformance/proof-review evidence only`.
 
 All Criterion 2 proof slots now have typed `evidence_present_unclosed` wrappers.
-Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot
-artifact packages, and the P1 standard-verifier compatibility artifact gate are
-inputs to this payload, not proof closure by themselves.
+The accepted proof-closure artifact certificate also carries durable certificate evidence for the threshold-output certificate and real recomputation
+predecessor slot artifact digests through
+`P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest`
+and
+`P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`.
+Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
+packages, and the P1 standard-verifier compatibility artifact gate are inputs
+to this payload, not proof closure by themselves.
 
 ## Theorem Links
 

@@ -524,6 +524,8 @@ class ReportGenerationTests(unittest.TestCase):
             + "impl P1SelectedBackendProofClosureArtifactCertificate {\n"
             + "pub fn full_kat_validation_artifact_digest(&self) {}\n"
             + "pub fn rejection_distribution_review_digest(&self) {}\n"
+            + "pub fn threshold_output_certificate_artifact_digest(&self) {}\n"
+            + "pub fn real_recomputation_evidence_artifact_digest(&self) {}\n"
             + "pub fn standard_verifier_compatibility_artifact_digest(&self) {}\n"
             + "pub fn theorem_linkage_artifact_digest(&self) {}\n"
             + "pub fn claims_selected_backend_proof_closure(&self) {}\n"
@@ -661,6 +663,10 @@ class ReportGenerationTests(unittest.TestCase):
             + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_source_tamper() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_review_tamper() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_source_tamper() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_review_tamper() {}\n"
             + "#[test]\n"
@@ -915,6 +921,14 @@ class ReportGenerationTests(unittest.TestCase):
                 if slot != "standard_verifier_compatibility_artifact_digest"
             },
         }
+        certificate_accessors = {
+            "threshold_output_certificate_digest": (
+                "threshold_output_certificate_artifact_digest"
+            ),
+            "real_recomputation_evidence_digest": (
+                "real_recomputation_evidence_artifact_digest"
+            ),
+        }
         manifest = {
             "schema": "lattice-aggregation.criterion-2-proof-substance.v1",
             "criterion_id": "aggregate_rejection_equivalence",
@@ -971,6 +985,18 @@ class ReportGenerationTests(unittest.TestCase):
                             "claim_boundary": (
                                 "conformance/proof-review evidence only"
                             ),
+                            **(
+                                {
+                                    "certificate_surface": (
+                                        "p1_selected_backend_proof_closure_artifact_certificate"
+                                    ),
+                                    "certificate_accessor": (
+                                        certificate_accessors[slot]
+                                    ),
+                                }
+                                if slot in certificate_accessors
+                                else {}
+                            ),
                         }
                         if slot in evidence_sources
                         else {"id": slot, "current_status": "required_unclosed"}
@@ -988,6 +1014,20 @@ class ReportGenerationTests(unittest.TestCase):
                         "transcript_binding_evidence_digest",
                         "external_review_digest",
                     ]
+                ],
+                "durable_certificate_evidence": [
+                    {
+                        "slot_id": slot,
+                        "certificate_surface": (
+                            "P1SelectedBackendProofClosureArtifactCertificate"
+                        ),
+                        "certificate_accessor": certificate_accessors[slot],
+                        "current_status": "evidence_present_unclosed",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    }
+                    for slot in certificate_accessors
                 ],
             },
             "promotion_requires": [
@@ -1257,6 +1297,38 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_selected_backend_threshold_output_artifact_gate"])
         self.assertFalse(scan["p1_selected_backend_proof_closure_artifact_gate"])
 
+        for token in [
+            "threshold_output_certificate_artifact_digest",
+            "real_recomputation_evidence_artifact_digest",
+        ]:
+            with self.subTest(token=token):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = pathlib.Path(tmp)
+                    self.write_minimal_repo_docs(root)
+                    self.write_acceptance_predicate_scaffold(root)
+                    self.write_hazmat_standard_verifier_bridge(root)
+                    self.write_blocker_evidence_gates(root)
+                    self.write_selected_backend_docs(root)
+                    self.write_selected_backend_aggregate_artifact_gate(root)
+                    rejection_equivalence_path = (
+                        root / "src" / "production" / "rejection_equivalence.rs"
+                    )
+                    rejection_equivalence_path.write_text(
+                        rejection_equivalence_path.read_text(
+                            encoding="utf-8"
+                        ).replace(token, "durable_accessor_placeholder"),
+                        encoding="utf-8",
+                    )
+
+                    scan = module.scan_documents(root)
+
+                self.assertTrue(
+                    scan["p1_selected_backend_threshold_output_artifact_gate"]
+                )
+                self.assertFalse(
+                    scan["p1_selected_backend_proof_closure_artifact_gate"]
+                )
+
     def test_standard_verifier_compatibility_artifact_gate_requires_bound_payload_tokens(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -1440,6 +1512,24 @@ class ReportGenerationTests(unittest.TestCase):
         )
         self.assertIn(
             "p1_criterion2_real_recomputation_evidence_artifact_gate",
+            markdown,
+        )
+        self.assertIn("Durable certificate accessors", markdown)
+        self.assertIn("Durable certificate evidence", markdown)
+        self.assertIn(
+            "P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest",
+            markdown,
+        )
+        self.assertIn(
+            "P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest",
+            markdown,
+        )
+        self.assertIn(
+            "threshold_output_certificate_artifact_digest",
+            markdown,
+        )
+        self.assertIn(
+            "real_recomputation_evidence_artifact_digest",
             markdown,
         )
         self.assertIn("rejection_distribution_review_digest", markdown)

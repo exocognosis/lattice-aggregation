@@ -1368,6 +1368,8 @@ pub struct P1SelectedBackendProofClosureArtifactCertificate {
     proof_artifacts: P1RejectionProofArtifacts,
     full_kat_validation_artifact_digest: [u8; 32],
     rejection_distribution_review_digest: [u8; 32],
+    threshold_output_certificate_artifact_digest: [u8; 32],
+    real_recomputation_evidence_artifact_digest: [u8; 32],
     standard_verifier_compatibility_artifact_digest: [u8; 32],
     theorem_linkage_artifact_digest: [u8; 32],
     claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
@@ -1457,6 +1459,16 @@ impl P1SelectedBackendProofClosureArtifactCertificate {
     /// Borrow the rejection-distribution review digest.
     pub const fn rejection_distribution_review_digest(&self) -> &[u8; 32] {
         &self.rejection_distribution_review_digest
+    }
+
+    /// Borrow the typed threshold-output certificate predecessor artifact digest.
+    pub const fn threshold_output_certificate_artifact_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_artifact_digest
+    }
+
+    /// Borrow the typed real recomputation predecessor artifact digest.
+    pub const fn real_recomputation_evidence_artifact_digest(&self) -> &[u8; 32] {
+        &self.real_recomputation_evidence_artifact_digest
     }
 
     /// Borrow the standard-verifier compatibility artifact digest.
@@ -4309,6 +4321,8 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
             proof_artifacts: package.proof_artifacts,
             full_kat_validation_artifact_digest: package.full_kat_validation_artifact_digest,
             rejection_distribution_review_digest: package.rejection_distribution_review_digest,
+            threshold_output_certificate_artifact_digest,
+            real_recomputation_evidence_artifact_digest,
             standard_verifier_compatibility_artifact_digest: package
                 .standard_verifier_compatibility_artifact_digest,
             theorem_linkage_artifact_digest: package.theorem_linkage_artifact_digest,

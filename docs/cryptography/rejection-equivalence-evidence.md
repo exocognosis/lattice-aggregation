@@ -173,7 +173,12 @@ not FIPS validation, not rejection-distribution preservation, and not a
 completed standard-verifier compatibility proof.
 All Criterion 2 proof slots now have typed `evidence_present_unclosed`
 wrappers; the predecessor threshold-output certificate and recomputation slots
-are still not criterion closure by themselves.
+are also carried as durable certificate evidence on the accepted proof-closure
+artifact certificate through
+`P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest`
+and
+`P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`.
+They are still not criterion closure by themselves.
 
 ## Claim Boundary
 

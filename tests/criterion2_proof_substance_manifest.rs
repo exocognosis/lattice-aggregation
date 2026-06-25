@@ -175,6 +175,54 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             );
         }
     }
+    for (slot_id, accessor) in [
+        (
+            "threshold_output_certificate_digest",
+            "threshold_output_certificate_artifact_digest",
+        ),
+        (
+            "real_recomputation_evidence_digest",
+            "real_recomputation_evidence_artifact_digest",
+        ),
+    ] {
+        let slot = slots
+            .iter()
+            .find(|slot| slot["id"].as_str() == Some(slot_id))
+            .expect("durable predecessor slot is present");
+        assert_eq!(
+            slot["certificate_surface"],
+            "p1_selected_backend_proof_closure_artifact_certificate"
+        );
+        assert_eq!(slot["certificate_accessor"], accessor);
+    }
+    let durable_certificate_evidence = manifest["proof_payload"]["durable_certificate_evidence"]
+        .as_array()
+        .expect("durable_certificate_evidence is an array");
+    for (slot_id, accessor) in [
+        (
+            "threshold_output_certificate_digest",
+            "threshold_output_certificate_artifact_digest",
+        ),
+        (
+            "real_recomputation_evidence_digest",
+            "real_recomputation_evidence_artifact_digest",
+        ),
+    ] {
+        let entry = durable_certificate_evidence
+            .iter()
+            .find(|entry| entry["slot_id"].as_str() == Some(slot_id))
+            .expect("durable predecessor certificate evidence is present");
+        assert_eq!(
+            entry["certificate_surface"],
+            "P1SelectedBackendProofClosureArtifactCertificate"
+        );
+        assert_eq!(entry["certificate_accessor"], accessor);
+        assert_eq!(entry["current_status"], "evidence_present_unclosed");
+        assert_eq!(
+            entry["claim_boundary"],
+            "conformance/proof-review evidence only"
+        );
+    }
     assert_eq!(
         evidence_present_slots,
         evidence_present
