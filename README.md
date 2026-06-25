@@ -148,6 +148,8 @@ The top-level hypothesis is only closed if a threshold ML-DSA-65 lattice aggrega
 
 The criteria were chosen because they cover the minimum security surfaces that can break the claim: mask distribution, rejection equivalence, abort/retry bias, accepted partial contribution validity, and unauthorized aggregate unforgeability. Passing implementation tests alone is not enough; each row needs code evidence, proof artifacts, and claim-boundary documentation.
 
+The formal thesis and operating-parameter contract is in [docs/cryptography/thesis-operating-parameters.md](docs/cryptography/thesis-operating-parameters.md), with machine-readable anchors in [docs/cryptography/thesis-operating-parameters.json](docs/cryptography/thesis-operating-parameters.json). Its thesis id is `native-threshold-mldsa65-aggregation-p1`; its scope is `research scaffold only`.
+
 Latest local assessment run:
 
 ```sh
@@ -159,6 +161,7 @@ Latest verification commands:
 ```sh
 cargo fmt --all -- --check
 python3 -m unittest script_tests.test_assess_lattice_hypothesis
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-gates cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-production-full cargo test --features production-mldsa65-coordinator --test production_provider --test production_rejection_equivalence --test production_selected_backend --test proof_documentation_manifest
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-coordinator-full cargo test --features coordinator-assisted
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-production-full cargo test --features production-mldsa65-coordinator
@@ -211,13 +214,14 @@ cargo test --all-features
 The documentation manifest test also validates reviewer-facing documentation anchors and local markdown links:
 
 ```sh
-cargo test --test proof_documentation_manifest
+cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest
 ```
 
 ## Reviewer Entry Points
 
 - [Audit Packet](docs/audit/README.md): attack surface, trusted computing base, dependency assumptions, and high-priority review paths
 - [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md): what is implemented, simulated, planned, or explicitly not claimed
+- [Thesis and Operating Parameters](docs/cryptography/thesis-operating-parameters.md): current P1 thesis id, operating assumptions, promotion criteria, failure criteria, and fallback trigger
 - [Protocol Code Crosswalk](docs/cryptography/protocol-code-crosswalk.md): where each protocol phase lives in code and tests
 - [Proof Implementation Crosswalk](docs/cryptography/proof-implementation-crosswalk.md): mapping from proof obligations to current implementation and test coverage
 - [Formal Threshold ML-DSA Transcript](docs/cryptography/formal-threshold-mldsa-transcript.md): transcript fields, binding invariants, and stable anchors

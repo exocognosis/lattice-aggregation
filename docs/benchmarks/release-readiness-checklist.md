@@ -40,6 +40,12 @@ migration candidates that require separate review.
   coordinator-assisted Shamir nonce DKG with the TEE/HSM coordinator
   assumption, standard-verifier compatibility target, and P2/MPC plus TALUS
   migration candidates.
+- Keep the thesis and operating-parameter contract in
+  `docs/cryptography/thesis-operating-parameters.md` and
+  `docs/cryptography/thesis-operating-parameters.json` aligned with thesis id
+  `native-threshold-mldsa65-aggregation-p1`, scope `research scaffold only`,
+  all five criteria `partially_met`, and Falcon/LaBRADOR-style proof
+  aggregation as `evaluate only`.
 - Complete the threshold unforgeability and real/ideal proof package under the
   stated adversary, network, abort, and corruption model.
 - Show aggregate output compatibility with a standard ML-DSA verifier.

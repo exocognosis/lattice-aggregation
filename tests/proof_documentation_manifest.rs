@@ -30,6 +30,7 @@ const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
     "docs/cryptography/random-oracle-game.md",
     "docs/cryptography/rejection-equivalence-evidence.md",
     "docs/cryptography/side-channel-boundary.md",
+    "docs/cryptography/thesis-operating-parameters.md",
     "docs/cryptography/unauthorized-aggregate-reduction.md",
     "docs/cryptography/vss-dkg-security-plan.md",
 ];
@@ -189,6 +190,29 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "## Implementation Leakage Claims",
             "## Constant-Time Expectations",
             "## Production Gate",
+        ],
+    ),
+    (
+        "docs/cryptography/thesis-operating-parameters.md",
+        &[
+            "# Thesis and Operating Parameters",
+            "## Thesis Statement",
+            "## Operating Parameters",
+            "## Promotion Criteria",
+            "## Failure Criteria",
+            "## Fallback Trigger",
+            "research scaffold only",
+            "native-threshold-mldsa65-aggregation-p1",
+            "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+            "one standard-sized ML-DSA-65 signature if proven",
+            "partially_proven",
+            "partially_met",
+            "not selected-backend proof closure",
+            "not production threshold ML-DSA security",
+            "not CAVP/ACVTS validation",
+            "not FIPS validation",
+            "Falcon/LaBRADOR-style proof aggregation",
+            "evaluate only",
         ],
     ),
     (
@@ -384,6 +408,20 @@ fn proof_docs_keep_required_anchor_contract() {
     for (path, required) in PROOF_DOC_ANCHORS {
         assert_contains_all(path, required);
     }
+}
+
+#[test]
+fn thesis_operating_parameters_avoids_release_claim_phrasing() {
+    assert_not_contains_all(
+        "docs/cryptography/thesis-operating-parameters.md",
+        &[
+            "production-ready",
+            "proof closure achieved",
+            "validated implementation",
+            "selected production backend",
+            "fallback release path",
+        ],
+    );
 }
 
 #[test]
@@ -629,6 +667,11 @@ fn readme_tracks_hypothesis_closure_requirements() {
             "`v0.1.0` remains the historical protocol-conformance tag",
             "`v0.2.0-research-preview`",
             "## Hypothesis Closure Requirements",
+            "docs/cryptography/thesis-operating-parameters.md",
+            "docs/cryptography/thesis-operating-parameters.json",
+            "native-threshold-mldsa65-aggregation-p1",
+            "research scaffold only",
+            "thesis_operating_parameters_manifest",
             "The five requirements below are the closure criteria used by",
             "scripts/assess_lattice_hypothesis.py",
             "Latest local assessment run:",
@@ -1058,6 +1101,7 @@ fn cryptography_readme_indexes_current_proof_docs() {
             "random-oracle-game.md",
             "rejection-equivalence-evidence.md",
             "side-channel-boundary.md",
+            "thesis-operating-parameters.md",
             "unauthorized-aggregate-reduction.md",
             "vss-dkg-security-plan.md",
         ],

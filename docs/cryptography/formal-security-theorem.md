@@ -43,6 +43,13 @@ parameters are valid when `1 <= t <= n` and every validator identifier is
 unique. A threshold key-generation protocol outputs public key `pk`, local key
 shares `sk_i`, and verification metadata `vk_i` for each validator.
 
+The current operating-parameter contract for the selected production-candidate
+direction is `native-threshold-mldsa65-aggregation-p1`, documented in
+`docs/cryptography/thesis-operating-parameters.md` and
+`docs/cryptography/thesis-operating-parameters.json`. That contract records
+the Profile P1 notation and guardrails for review; it does not close this
+theorem or claim production threshold ML-DSA security.
+
 A signing session is identified by:
 
 - session identifier `sid`

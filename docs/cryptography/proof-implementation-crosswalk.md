@@ -148,6 +148,11 @@ and TALUS.
 report the selected direction. The matching unit coverage is
 `script_tests/test_assess_lattice_hypothesis.py`, and
 `tests/proof_documentation_manifest.rs` protects the documentation anchors.
+`docs/cryptography/thesis-operating-parameters.md` and
+`docs/cryptography/thesis-operating-parameters.json` now pin the
+`native-threshold-mldsa65-aggregation-p1` thesis id, P1 operating parameters,
+promotion criteria, failure criteria, and fallback trigger as a research
+boundary only.
 
 This is a selection artifact only. It is not proof closure or production
 approval, not completed backend implementation evidence, not complete

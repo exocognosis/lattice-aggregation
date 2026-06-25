@@ -48,6 +48,99 @@ SELECTED_BACKEND_REQUIRED_TOKENS = [
     "not production approval",
 ]
 
+THESIS_OPERATING_PARAMETERS_DOC = (
+    "docs/cryptography/thesis-operating-parameters.md"
+)
+THESIS_OPERATING_PARAMETERS_MANIFEST = (
+    "docs/cryptography/thesis-operating-parameters.json"
+)
+THESIS_OPERATING_PARAMETERS_SCHEMA = (
+    "lattice-aggregation.thesis-operating-parameters.v1"
+)
+THESIS_OPERATING_PARAMETERS_ID = "native-threshold-mldsa65-aggregation-p1"
+THESIS_FALSE_CLAIM_KEYS = [
+    "claims_production_threshold_mldsa_security",
+    "claims_selected_backend_proof_closure",
+    "claims_standard_verifier_compatibility_complete",
+    "claims_rejection_distribution_preservation",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+]
+THESIS_CRITERION_IDS = [
+    "aggregate_mask_distribution",
+    "aggregate_rejection_equivalence",
+    "abort_retry_bias",
+    "partial_contribution_soundness",
+    "unauthorized_aggregate_reduction",
+]
+THESIS_OPERATING_PARAMETERS_EXPECTED = {
+    "security_parameter": "lambda",
+    "validator_count": "n",
+    "threshold": "t",
+    "validator_set": "V",
+    "threshold_range": "1 <= t <= n",
+    "static_corruption_bound": "at most t - 1 validators",
+    "retry_domain": "session_id + attempt_id + retry_counter",
+    "rejection_sampling_domain": (
+        "centralized ML-DSA-65 acceptance distribution"
+    ),
+    "batch4_dependency": (
+        "selected-backend proof-closure artifact package gate"
+    ),
+    "boundary": "conformance/proof-review evidence only",
+}
+THESIS_CRITERION_ANCHORS = {
+    "aggregate_mask_distribution": {
+        "promotion_requires": [
+            "selected-backend mask-generation",
+            "Renyi divergence",
+            "distribution comparison",
+        ],
+        "failure_criteria": ["distinguishable", "selected profile"],
+    },
+    "aggregate_rejection_equivalence": {
+        "promotion_requires": [
+            "real threshold aggregate recomputation",
+            "standard-verifier compatibility",
+            "rejection-distribution review",
+        ],
+        "failure_criteria": [
+            "fail standard ML-DSA-65 verification",
+            "centralized ML-DSA-65 predicates",
+        ],
+    },
+    "abort_retry_bias": {
+        "promotion_requires": [
+            "retry transcript domain separation",
+            "selective-abort leakage",
+            "accepted-signature distribution",
+        ],
+        "failure_criteria": ["retry timing", "attempt identifiers"],
+    },
+    "partial_contribution_soundness": {
+        "promotion_requires": [
+            "production LocalAccept",
+            "VSS/DKG binding and hiding",
+            "context-binding and leakage review",
+        ],
+        "failure_criteria": [
+            "cross-context partial contributions",
+            "accepted partial evidence leaks",
+        ],
+    },
+    "unauthorized_aggregate_reduction": {
+        "promotion_requires": [
+            "threshold unforgeability reduction",
+            "base ML-DSA theorem dependency",
+            "simulator and hybrid-bound",
+        ],
+        "failure_criteria": [
+            "named assumption",
+            "validator-set binding",
+        ],
+    },
+}
+
 TESTING_STATEMENT = (
     "If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted "
     "aggregate output, then the output should behave like a centralized "
@@ -123,6 +216,137 @@ def has_rust_tokens(source, *tokens):
 def normalize_whitespace(text):
     """Normalize text for phrase scans across Markdown line wrapping."""
     return re.sub(r"\s+", " ", text).strip().lower()
+
+
+def parse_json_document(text):
+    """Parse a JSON document without failing the assessment scan."""
+    if not text.strip():
+        return {}
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def entries_contain_terms(entries, terms):
+    """Return whether string entries contain all required reviewer-anchor terms."""
+    joined = "\n".join(str(entry) for entry in entries).lower()
+    return all(term.lower() in joined for term in terms)
+
+
+def thesis_operating_parameters_status(markdown, manifest_text):
+    """Return thesis/parameter formalization status without criterion promotion."""
+    normalized = normalize_whitespace(markdown)
+    manifest = parse_json_document(manifest_text)
+    claim_boundary = manifest.get("claim_boundary", {})
+    selected_profile = manifest.get("selected_profile", {})
+    operating_parameters = manifest.get("operating_parameters", {})
+    fallback = manifest.get("fallback", {})
+    criteria = manifest.get("criterion_promotion", [])
+    criteria_by_id = {
+        criterion.get("id"): criterion
+        for criterion in criteria
+        if isinstance(criterion, dict)
+    }
+
+    expected_markdown_tokens = [
+        "# thesis and operating parameters",
+        "native-threshold-mldsa65-aggregation-p1",
+        "research scaffold only",
+        "ml-dsa-65 coordinator-assisted shamir nonce dkg p1",
+        "one standard-sized ml-dsa-65 signature if proven",
+        "partially_proven",
+        "partially_met",
+        "not selected-backend proof closure",
+        "not production threshold ml-dsa security",
+        "not cavp/acvts validation",
+        "not fips validation",
+        "falcon/labrador-style proof aggregation",
+        "evaluate only",
+    ]
+    missing_evidence = [
+        token
+        for token in expected_markdown_tokens
+        if token not in normalized
+    ]
+    false_claims_pinned = all(
+        claim_boundary.get(key) is False for key in THESIS_FALSE_CLAIM_KEYS
+    )
+    operating_parameters_pinned = all(
+        operating_parameters.get(key) == expected
+        for key, expected in THESIS_OPERATING_PARAMETERS_EXPECTED.items()
+    )
+    criteria_pinned = all(
+        (
+            criteria_by_id.get(criterion_id, {}).get("current_status")
+            == "partially_met"
+            and entries_contain_terms(
+                criteria_by_id.get(criterion_id, {}).get(
+                    "promotion_requires", []
+                ),
+                THESIS_CRITERION_ANCHORS[criterion_id][
+                    "promotion_requires"
+                ],
+            )
+            and entries_contain_terms(
+                criteria_by_id.get(criterion_id, {}).get(
+                    "failure_criteria", []
+                ),
+                THESIS_CRITERION_ANCHORS[criterion_id][
+                    "failure_criteria"
+                ],
+            )
+        )
+        for criterion_id in THESIS_CRITERION_IDS
+    )
+    manifest_ok = (
+        manifest.get("schema") == THESIS_OPERATING_PARAMETERS_SCHEMA
+        and manifest.get("thesis_id") == THESIS_OPERATING_PARAMETERS_ID
+        and manifest.get("status") == "research_scaffold_partially_proven"
+        and claim_boundary.get("scope") == "research scaffold only"
+        and selected_profile.get("name")
+        == "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+        and selected_profile.get("feature_gate") == "production-mldsa65-coordinator"
+        and selected_profile.get("coordinator_assumption") == "TEE/HSM"
+        and selected_profile.get("aggregate_output_shape")
+        == "one standard-sized ML-DSA-65 signature if proven"
+        and false_claims_pinned
+        and operating_parameters_pinned
+        and criteria_pinned
+        and fallback.get("architecture") == "Falcon/LaBRADOR-style proof aggregation"
+        and fallback.get("status") == "evaluate_only"
+        and fallback.get("claims_selected_backend") is False
+    )
+    formalized = bool(markdown.strip()) and manifest_ok and not missing_evidence
+    if not manifest:
+        missing_evidence.append(THESIS_OPERATING_PARAMETERS_MANIFEST)
+    if not markdown.strip():
+        missing_evidence.append(THESIS_OPERATING_PARAMETERS_DOC)
+    if manifest and not operating_parameters_pinned:
+        missing_evidence.append("operating_parameters")
+    if manifest and not criteria_pinned:
+        missing_evidence.append("criterion promotion/failure anchors")
+
+    return {
+        "status": (
+            "formalized_research_boundary"
+            if formalized
+            else "missing_or_incomplete"
+        ),
+        "document_path": THESIS_OPERATING_PARAMETERS_DOC,
+        "manifest_path": THESIS_OPERATING_PARAMETERS_MANIFEST,
+        "thesis_id": manifest.get("thesis_id", ""),
+        "scope": claim_boundary.get("scope", ""),
+        "selected_profile": selected_profile.get("name", ""),
+        "output_target": selected_profile.get("aggregate_output_shape", ""),
+        "operating_parameters": operating_parameters,
+        "fallback": {
+            "architecture": fallback.get("architecture", ""),
+            "status": fallback.get("status", ""),
+        },
+        "missing_evidence": sorted(set(missing_evidence)),
+    }
 
 
 def selected_backend_direction(texts):
@@ -312,6 +536,10 @@ def scan_documents(root):
     )
     reduction_manifest_test = read_optional(
         "tests/unauthorized_aggregate_reduction_manifest.rs"
+    )
+    thesis_operating_parameters = thesis_operating_parameters_status(
+        read_optional(THESIS_OPERATING_PARAMETERS_DOC),
+        read_optional(THESIS_OPERATING_PARAMETERS_MANIFEST),
     )
 
     acceptance_source_scaffold = all(
@@ -758,6 +986,11 @@ def scan_documents(root):
         "documents": texts,
         "missing_documents": missing,
         "selected_backend_direction": selected_backend_direction(texts),
+        "thesis_operating_parameters": thesis_operating_parameters,
+        "thesis_operating_parameters_formalized": (
+            thesis_operating_parameters["status"]
+            == "formalized_research_boundary"
+        ),
         "acceptance_predicate_source_scaffold": acceptance_source_scaffold,
         "production_acceptance_tests_scaffold": production_acceptance_tests_scaffold,
         "local_acceptance_conformance_scaffold": (
@@ -1172,6 +1405,7 @@ def default_commands():
         ["cargo", "test", "--test", "simulated_flow"],
         ["cargo", "test", "--test", "simulation"],
         ["cargo", "test", "--test", "proof_documentation_manifest"],
+        ["cargo", "test", "--test", "thesis_operating_parameters_manifest"],
         ["cargo", "test", "--test", "unauthorized_aggregate_reduction_manifest"],
         [
             "cargo",
@@ -1310,6 +1544,7 @@ def build_report(
         "branch": git_value(root, ["branch", "--show-current"]),
         "claim_boundary": "research scaffold only",
         "selected_backend": scan["selected_backend_direction"],
+        "thesis_operating_parameters": scan["thesis_operating_parameters"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
         "commands": command_results,
@@ -1403,6 +1638,26 @@ def render_markdown(report):
         lines.append(
             "- Missing evidence tokens: "
             + ", ".join(selected_backend["missing_evidence"])
+        )
+
+    thesis = report.get("thesis_operating_parameters", {})
+    lines.extend(["", "## Thesis Operating Parameters", ""])
+    lines.append(f"- Status: `{thesis.get('status', 'missing_or_incomplete')}`")
+    if thesis.get("status") == "formalized_research_boundary":
+        lines.append(f"- Thesis: {thesis['thesis_id']}")
+        lines.append(f"- Boundary: {thesis['scope']}")
+        lines.append(f"- Profile: {thesis['selected_profile']}")
+        lines.append(f"- Output target: {thesis['output_target']}")
+        fallback = thesis.get("fallback", {})
+        lines.append(
+            "- Fallback: "
+            f"{fallback.get('architecture', '')}; "
+            f"{fallback.get('status', '')}"
+        )
+    elif thesis.get("missing_evidence"):
+        lines.append(
+            "- Missing evidence tokens: "
+            + ", ".join(thesis["missing_evidence"])
         )
 
     lines.extend(["", "## Criteria", ""])
