@@ -50,7 +50,12 @@ The Criterion 2 proof payload requires these slots before any promotion:
 
 - `threshold_output_certificate_digest`
 - `real_recomputation_evidence_digest`
-- `standard_verifier_compatibility_artifact_digest`
+- `standard_verifier_compatibility_artifact_digest`:
+  `evidence_present_unclosed` from
+  `p1_standard_verifier_compatibility_artifact_gate`; this is
+  conformance/proof-review evidence only.
+  Bounded fixture package:
+  `tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json`.
 - `rejection_distribution_review_digest`
 - `theorem_linkage_artifact_digest`
 - `full_kat_validation_artifact_digest`
@@ -60,8 +65,9 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `transcript_binding_evidence_digest`
 - `external_review_digest`
 
-Each slot is currently `required_unclosed`. Batch 4 proof-closure artifact
-packages are inputs to this payload, not proof closure by themselves.
+All other slots remain `required_unclosed`. Batch 4 proof-closure artifact
+packages and the P1 standard-verifier compatibility artifact gate are inputs to
+this payload, not proof closure by themselves.
 
 ## Theorem Links
 

@@ -96,9 +96,32 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "criterion-2 proof payload must require {required}"
         );
     }
+    let mut evidence_present_slots = Vec::new();
     for slot in slots {
-        assert_eq!(slot["current_status"], "required_unclosed");
+        let slot_id = slot["id"].as_str().expect("slot id");
+        if slot_id == "standard_verifier_compatibility_artifact_digest" {
+            assert_eq!(slot["current_status"], "evidence_present_unclosed");
+            assert_eq!(
+                slot["evidence_source"],
+                "p1_standard_verifier_compatibility_artifact_gate"
+            );
+            assert_eq!(
+                slot["claim_boundary"],
+                "conformance/proof-review evidence only"
+            );
+            evidence_present_slots.push(slot_id);
+        } else {
+            assert_eq!(
+                slot["current_status"], "required_unclosed",
+                "{slot_id} must remain open"
+            );
+        }
     }
+    assert_eq!(
+        evidence_present_slots,
+        vec!["standard_verifier_compatibility_artifact_digest"],
+        "only the compatibility slot may have evidence present in Batch 6A"
+    );
 }
 
 #[test]

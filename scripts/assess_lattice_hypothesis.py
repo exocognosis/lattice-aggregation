@@ -173,6 +173,14 @@ CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "transcript_binding_evidence_digest",
     "external_review_digest",
 ]
+CRITERION2_ARTIFACT_SLOT_STATUSES = {
+    slot: (
+        "evidence_present_unclosed"
+        if slot == "standard_verifier_compatibility_artifact_digest"
+        else "required_unclosed"
+    )
+    for slot in CRITERION2_REQUIRED_ARTIFACT_SLOTS
+}
 CRITERION2_THEOREM_LINKS = [
     "Correctness Lemma 7",
     "Correctness Lemma 8",
@@ -413,6 +421,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "mldsa65.verify(pk, m, sigma) = accept",
         "aggregateaccept(...) = true",
         "standard_verifier_compatibility_artifact_digest",
+        "evidence_present_unclosed",
+        "p1_standard_verifier_compatibility_artifact_gate",
         "rejection_distribution_review_digest",
         "theorem_linkage_artifact_digest",
         "correctness lemma 7",
@@ -439,9 +449,25 @@ def criterion2_proof_substance_status(markdown, manifest_text):
     false_claims_pinned = all(
         claim_boundary.get(key) is False for key in CRITERION2_FALSE_CLAIM_KEYS
     )
-    artifact_slots_pinned = all(
-        slot_by_id.get(slot_id, {}).get("current_status") == "required_unclosed"
+    artifact_slot_statuses = {
+        slot_id: slot_by_id.get(slot_id, {}).get("current_status", "")
         for slot_id in CRITERION2_REQUIRED_ARTIFACT_SLOTS
+    }
+    artifact_slot_sources = {
+        slot_id: slot_by_id.get(slot_id, {}).get("evidence_source", "")
+        for slot_id in CRITERION2_REQUIRED_ARTIFACT_SLOTS
+        if slot_by_id.get(slot_id, {}).get("evidence_source")
+    }
+    compatibility_slot = slot_by_id.get(
+        "standard_verifier_compatibility_artifact_digest",
+        {},
+    )
+    artifact_slots_pinned = (
+        artifact_slot_statuses == CRITERION2_ARTIFACT_SLOT_STATUSES
+        and compatibility_slot.get("evidence_source")
+        == "p1_standard_verifier_compatibility_artifact_gate"
+        and compatibility_slot.get("claim_boundary")
+        == "conformance/proof-review evidence only"
     )
     theorem_links_pinned = entries_contain_terms(
         theorem_links,
@@ -513,6 +539,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "selected_profile": selected_profile.get("name", ""),
         "output_target": selected_profile.get("output_target", ""),
         "required_artifact_slots": CRITERION2_REQUIRED_ARTIFACT_SLOTS,
+        "artifact_slot_statuses": artifact_slot_statuses,
+        "artifact_slot_sources": artifact_slot_sources,
         "theorem_links": theorem_links,
         "missing_evidence": sorted(set(missing_evidence)),
     }
@@ -1000,6 +1028,7 @@ def scan_documents(root):
             "full_kat_validation_artifact_digest",
             "rejection_distribution_review_digest",
             "standard_verifier_compatibility_artifact_digest",
+            "standard_verifier_compatibility_artifact",
             "theorem_linkage_artifact_digest",
             "transcript_binding_evidence_digest",
             "claims_selected_backend_proof_closure",
@@ -1053,6 +1082,15 @@ def scan_documents(root):
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,
+            "stale",
+            "standard",
+            "verifier",
+            "compatibility",
+            "artifact",
+            "digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
             "missing",
             "theorem",
             "linkage",
@@ -1060,6 +1098,107 @@ def scan_documents(root):
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,
+            "production",
+            "claim",
+            "boundary",
+        )
+    )
+    p1_standard_verifier_compatibility_artifact_gate = (
+        p1_selected_backend_threshold_output_artifact_gate
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1StandardVerifierCompatibilityArtifactPackage",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1StandardVerifierCompatibilityArtifactCertificate",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1StandardVerifierCompatibilityArtifactAssessment",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1StandardVerifierCompatibilityClaimBoundary",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1StandardVerifierCompatibilityResult",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_standard_verifier_compatibility_artifact",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_standard_verifier_compatibility_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_standard_verifier_compatibility_artifact_digest",
+        )
+        and has_rust_tokens(
+            rejection_equivalence_source,
+            "artifact_digest",
+            "threshold_output_certificate_digest",
+            "provider_identity_digest",
+            "public_key_digest",
+            "message_digest",
+            "accepted_signature_digest",
+            "standard_verifier_bridge_evidence_digest",
+            "real_recomputation_evidence_digest",
+            "transcript_binding_digest",
+            "P1StandardVerifierCompatibilityResult::Accept",
+            "claims_selected_backend_proof_closure",
+            "claims_standard_verifier_compatibility",
+            "claims_rejection_distribution_preservation",
+            "claims_cavp_acvts_validation",
+            "claims_fips_validation",
+            "claims_completed_cryptographic_proof",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "standard",
+            "verifier",
+            "compatibility",
+            "accepts",
+            "bound",
+            "verifier",
+            "payload",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "compatibility",
+            "rejects",
+            "failed",
+            "standard",
+            "verifier",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "compatibility",
+            "rejects",
+            "threshold",
+            "certificate",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "compatibility",
+            "rejects",
+            "recomputation",
+            "digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "compatibility",
+            "rejects",
+            "bridge",
+            "digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "compatibility",
+            "rejects",
             "production",
             "claim",
             "boundary",
@@ -1199,6 +1338,9 @@ def scan_documents(root):
         ),
         "p1_selected_backend_proof_closure_artifact_gate": (
             p1_selected_backend_proof_closure_artifact_gate
+        ),
+        "p1_standard_verifier_compatibility_artifact_gate": (
+            p1_standard_verifier_compatibility_artifact_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -1409,6 +1551,21 @@ def classify_criteria(criteria, scan):
                     "conformance/proof-review evidence only and does not claim "
                     "production threshold ML-DSA security, selected-backend "
                     "proof closure, CAVP/ACVTS validation, FIPS validation, "
+                    "rejection-distribution preservation, or completed "
+                    "standard-verifier compatibility proof."
+                )
+            if scan.get("p1_standard_verifier_compatibility_artifact_gate"):
+                partial_progress = True
+                observed.append(
+                    "P1 standard-verifier compatibility artifact evidence is "
+                    "present; it binds `pk`, `m`, and `sigma` through provider "
+                    "identity/version, accept result, threshold-output "
+                    "certificate digest, recomputation evidence digest, bridge "
+                    "digest, and transcript binding. This fills the "
+                    "standard_verifier_compatibility_artifact_digest slot as "
+                    "evidence_present_unclosed only; it does not claim "
+                    "selected-backend proof closure, production threshold "
+                    "ML-DSA security, CAVP/ACVTS validation, FIPS validation, "
                     "rejection-distribution preservation, or completed "
                     "standard-verifier compatibility proof."
                 )
@@ -1855,6 +2012,26 @@ def render_markdown(report):
             "- Required artifact slots: "
             + ", ".join(criterion2["required_artifact_slots"])
         )
+        artifact_statuses = criterion2.get("artifact_slot_statuses", {})
+        if artifact_statuses:
+            lines.append(
+                "- Artifact slot statuses: "
+                + ", ".join(
+                    f"{slot}={artifact_statuses[slot]}"
+                    for slot in criterion2["required_artifact_slots"]
+                    if slot in artifact_statuses
+                )
+            )
+        artifact_sources = criterion2.get("artifact_slot_sources", {})
+        if artifact_sources:
+            lines.append(
+                "- Artifact evidence sources: "
+                + ", ".join(
+                    f"{slot}={artifact_sources[slot]}"
+                    for slot in criterion2["required_artifact_slots"]
+                    if slot in artifact_sources
+                )
+            )
         lines.append(
             "- Theorem links: "
             + ", ".join(criterion2["theorem_links"])

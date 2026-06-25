@@ -14,6 +14,7 @@ use lattice_aggregation::{
             assess_p1_selected_backend_aggregate_artifact,
             assess_p1_selected_backend_proof_closure_artifact,
             assess_p1_selected_backend_threshold_output_artifact,
+            assess_p1_standard_verifier_compatibility_artifact,
             assess_rejection_equivalence_closure,
             derive_p1_selected_backend_aggregate_certificate_digest,
             derive_p1_selected_backend_attempt_binding_digest,
@@ -24,6 +25,8 @@ use lattice_aggregation::{
             derive_p1_selected_backend_threshold_output_source_digest,
             derive_p1_selected_backend_threshold_output_source_package_digest,
             derive_p1_selected_backend_transcript_binding_digest,
+            derive_p1_standard_verifier_compatibility_artifact_digest,
+            derive_p1_standard_verifier_compatibility_artifact_package,
             derive_standard_verifier_bridge_evidence_digest, AcvpFips204EvidenceSource,
             AggregateRecomputationTranscript, AggregateRejectionClosureAssessment,
             AggregateRejectionClosurePackage, AggregateRejectionClosureStatus,
@@ -40,8 +43,11 @@ use lattice_aggregation::{
             P1SelectedBackendProofClosureClaimBoundary,
             P1SelectedBackendThresholdOutputArtifactAssessment,
             P1SelectedBackendThresholdOutputArtifactCertificate,
-            P1SelectedBackendThresholdOutputArtifactPackage, P1ThresholdOutputClaimBoundary,
-            P1ThresholdOutputEvidenceSource,
+            P1SelectedBackendThresholdOutputArtifactPackage,
+            P1StandardVerifierCompatibilityArtifactAssessment,
+            P1StandardVerifierCompatibilityArtifactPackage,
+            P1StandardVerifierCompatibilityClaimBoundary, P1StandardVerifierCompatibilityResult,
+            P1ThresholdOutputClaimBoundary, P1ThresholdOutputEvidenceSource,
         },
         selected_backend::SelectedProductionBackendProfile,
         transcript::{CommitmentDigest, ProductionSigningTranscript, ProductionTranscriptInput},
@@ -67,6 +73,14 @@ const EXPECTED_P1_STANDARD_VERIFIER_BRIDGE_FIXTURE_PACKAGE_DIGEST_HEX: &str =
 struct AcceptingProvider;
 
 impl StandardMldsa65Provider for AcceptingProvider {
+    fn provider_identity() -> &'static str {
+        "mock-provider-test-fixture"
+    }
+
+    fn provider_version() -> &'static str {
+        "test-fixture-v1"
+    }
+
     fn verify(
         public_key: &ThresholdPublicKey,
         message: &[u8],
@@ -88,6 +102,13 @@ fn standard_verifier_bridge_fixture() -> P1StandardVerifierBridgeFixture {
         "fixtures/p1_standard_verifier_bridge_fixture.json"
     ))
     .expect("P1 standard-verifier bridge fixture should parse")
+}
+
+fn standard_verifier_compatibility_fixture() -> P1StandardVerifierCompatibilityFixture {
+    serde_json::from_str(include_str!(
+        "fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
+    ))
+    .expect("P1 standard-verifier compatibility artifact fixture should parse")
 }
 
 fn standard_verifier_bridge_digest() -> [u8; 32] {
@@ -266,6 +287,99 @@ struct BridgeNegativeCase {
     recomputed_signature_digest_hex: String,
     transcript_binding_digest_hex: String,
     selected_profile_binding_digest_hex: String,
+}
+
+#[derive(Deserialize)]
+struct P1StandardVerifierCompatibilityFixture {
+    name: String,
+    schema: String,
+    claim_boundary: String,
+    selected_profile: String,
+    verifier_provider_identity: String,
+    verifier_provider_version: String,
+    verifier_result: String,
+    source_bridge_fixture: String,
+    note: String,
+    payload: CompatibilityPayloadFixture,
+    expected: CompatibilityExpectedDigests,
+}
+
+#[derive(Deserialize)]
+struct CompatibilityPayloadFixture {
+    public_key_fill_byte: u8,
+    application_message_hex: String,
+    candidate_signature_fill_byte: u8,
+}
+
+#[derive(Deserialize)]
+struct CompatibilityExpectedDigests {
+    threshold_output_certificate_digest_hex: String,
+    artifact_digest_hex: String,
+    provider_identity_digest_hex: String,
+    public_key_digest_hex: String,
+    message_digest_hex: String,
+    transcript_binding_digest_hex: String,
+    signer_set_digest_hex: String,
+    attempt_binding_digest_hex: String,
+    aggregate_response_digest_hex: String,
+    hint_digest_hex: String,
+    accepted_signature_digest_hex: String,
+    standard_verifier_bridge_evidence_digest_hex: String,
+    real_recomputation_evidence_digest_hex: String,
+}
+
+impl CompatibilityExpectedDigests {
+    fn threshold_output_certificate_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_certificate_digest_hex)
+    }
+
+    fn artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.artifact_digest_hex)
+    }
+
+    fn provider_identity_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.provider_identity_digest_hex)
+    }
+
+    fn public_key_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.public_key_digest_hex)
+    }
+
+    fn message_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.message_digest_hex)
+    }
+
+    fn transcript_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.transcript_binding_digest_hex)
+    }
+
+    fn signer_set_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.signer_set_digest_hex)
+    }
+
+    fn attempt_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.attempt_binding_digest_hex)
+    }
+
+    fn aggregate_response_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.aggregate_response_digest_hex)
+    }
+
+    fn hint_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.hint_digest_hex)
+    }
+
+    fn accepted_signature_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.accepted_signature_digest_hex)
+    }
+
+    fn standard_verifier_bridge_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.standard_verifier_bridge_evidence_digest_hex)
+    }
+
+    fn real_recomputation_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.real_recomputation_evidence_digest_hex)
+    }
 }
 
 impl BridgeNegativeCase {
@@ -650,6 +764,117 @@ fn standard_verifier_bridge_fixture_parses_and_matches_bound_transcript() {
     assert_eq!(
         evidence.recomputed_signature_digest().unwrap(),
         &fixture.expected.recomputed_signature_digest()
+    );
+}
+
+#[test]
+fn standard_verifier_compatibility_fixture_parses_and_matches_bound_payload() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let compatibility_fixture = standard_verifier_compatibility_fixture();
+    let certificate = standard_verifier_compatibility_artifact_certificate(&bridge_fixture);
+
+    assert_eq!(
+        compatibility_fixture.name,
+        "p1-standard-verifier-compatibility-artifact-fixture-v1"
+    );
+    assert_eq!(
+        compatibility_fixture.schema,
+        "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1"
+    );
+    assert_eq!(
+        compatibility_fixture.claim_boundary,
+        "conformance/proof-review evidence only"
+    );
+    assert_eq!(
+        compatibility_fixture.selected_profile,
+        "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+    );
+    assert_eq!(
+        compatibility_fixture.verifier_provider_identity,
+        "mock-provider-test-fixture"
+    );
+    assert_eq!(
+        compatibility_fixture.verifier_provider_version,
+        "test-fixture-v1"
+    );
+    assert_eq!(compatibility_fixture.verifier_result, "accept");
+    assert_eq!(
+        compatibility_fixture.source_bridge_fixture,
+        "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
+    );
+    assert!(compatibility_fixture
+        .note
+        .contains("not selected-backend proof closure"));
+    assert!(compatibility_fixture
+        .note
+        .contains("not CAVP/ACVTS validation"));
+    assert!(compatibility_fixture.note.contains("not FIPS validation"));
+    assert_eq!(compatibility_fixture.payload.public_key_fill_byte, 6);
+    assert_eq!(
+        compatibility_fixture.payload.application_message_hex,
+        bridge_fixture.transcript.application_message_hex
+    );
+    assert_eq!(
+        compatibility_fixture.payload.candidate_signature_fill_byte,
+        bridge_fixture.recomputation.candidate_signature_fill_byte
+    );
+    assert_eq!(
+        certificate.threshold_output_certificate_digest(),
+        &compatibility_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        &derive_p1_standard_verifier_compatibility_artifact_digest(&certificate),
+        &compatibility_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        certificate.provider_identity_digest(),
+        &compatibility_fixture.expected.provider_identity_digest()
+    );
+    assert_eq!(
+        certificate.public_key_digest(),
+        &compatibility_fixture.expected.public_key_digest()
+    );
+    assert_eq!(
+        certificate.message_digest(),
+        &compatibility_fixture.expected.message_digest()
+    );
+    assert_eq!(
+        certificate.transcript_binding_digest(),
+        &compatibility_fixture.expected.transcript_binding_digest()
+    );
+    assert_eq!(
+        certificate.signer_set_digest(),
+        &compatibility_fixture.expected.signer_set_digest()
+    );
+    assert_eq!(
+        certificate.attempt_binding_digest(),
+        &compatibility_fixture.expected.attempt_binding_digest()
+    );
+    assert_eq!(
+        certificate.aggregate_response_digest(),
+        &compatibility_fixture.expected.aggregate_response_digest()
+    );
+    assert_eq!(
+        certificate.hint_digest(),
+        &compatibility_fixture.expected.hint_digest()
+    );
+    assert_eq!(
+        certificate.accepted_signature_digest(),
+        &compatibility_fixture.expected.accepted_signature_digest()
+    );
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        &compatibility_fixture
+            .expected
+            .standard_verifier_bridge_evidence_digest()
+    );
+    assert_eq!(
+        certificate.real_recomputation_evidence_digest(),
+        &compatibility_fixture
+            .expected
+            .real_recomputation_evidence_digest()
     );
 }
 
@@ -1177,7 +1402,7 @@ fn provider_kat_evidence(source: AcvpFips204EvidenceSource) -> Mldsa65ProviderKa
         source,
         provider_kat_fixture_digest(),
         digest(49),
-        digest(50),
+        AcceptingProvider::provider_identity_digest(),
         true,
     )
 }
@@ -1468,6 +1693,7 @@ fn selected_backend_proof_closure_artifact_package(
     fixture: &P1StandardVerifierBridgeFixture,
 ) -> P1SelectedBackendProofClosureArtifactPackage {
     let threshold_certificate = selected_backend_threshold_output_artifact_certificate(fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(fixture);
     let proof_artifacts = P1RejectionProofArtifacts::new(
         SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
             .profile_binding_digest(),
@@ -1489,11 +1715,46 @@ fn selected_backend_proof_closure_artifact_package(
         proof_artifacts,
         digest(51),
         digest(52),
-        digest(53),
+        &compatibility_certificate,
         digest(54),
         P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly,
         true,
     )
+}
+
+fn standard_verifier_compatibility_artifact_package(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> P1StandardVerifierCompatibilityArtifactPackage {
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(fixture);
+    let candidate_signature =
+        signature_from_fill_byte(fixture.recomputation.candidate_signature_fill_byte);
+    derive_p1_standard_verifier_compatibility_artifact_package::<AcceptingProvider>(
+        &transcript,
+        &threshold_certificate,
+        &candidate_signature,
+        P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly,
+        true,
+    )
+    .expect("accepted selected-backend output should derive compatibility artifact")
+}
+
+fn standard_verifier_compatibility_artifact_certificate(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> lattice_aggregation::production::rejection_equivalence::P1StandardVerifierCompatibilityArtifactCertificate
+{
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(fixture);
+    let package = standard_verifier_compatibility_artifact_package(fixture);
+
+    assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    )
+    .standard_verifier_compatibility_certificate()
+    .copied()
+    .expect("reviewed standard-verifier compatibility artifact should produce a certificate")
 }
 
 #[test]
@@ -1517,7 +1778,10 @@ fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
         &provider_kat_fixture_digest()
     );
     assert_eq!(certificate.acvp_vector_set_digest(), &digest(49));
-    assert_eq!(certificate.provider_identity_digest(), &digest(50));
+    assert_eq!(
+        certificate.provider_identity_digest(),
+        &AcceptingProvider::provider_identity_digest()
+    );
     assert_eq!(
         certificate.real_recomputation_evidence_digest(),
         &digest(41)
@@ -2235,11 +2499,220 @@ fn p1_selected_backend_threshold_output_artifact_rejects_production_claim_bounda
 }
 
 #[test]
+fn p1_standard_verifier_compatibility_artifact_accepts_bound_verifier_payload() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let package = standard_verifier_compatibility_artifact_package(&fixture);
+
+    let assessment = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    );
+
+    let certificate = assessment
+        .standard_verifier_compatibility_certificate()
+        .expect("accepted verifier payload should produce a compatibility certificate");
+    let expected_public_key_digest: [u8; 32] =
+        Sha3_256::digest(&transcript.input().public_key.0).into();
+    let expected_message_digest: [u8; 32] =
+        Sha3_256::digest(&transcript.input().application_message).into();
+    let recomputation_certificate = p1_recomputation_certificate();
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(
+        certificate.selected_profile(),
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    );
+    assert_eq!(
+        certificate.threshold_output_certificate_digest(),
+        &derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate)
+    );
+    assert_eq!(
+        certificate.provider_kat_evidence_digest(),
+        threshold_certificate.provider_kat_evidence_digest()
+    );
+    assert_eq!(
+        certificate.provider_identity_digest(),
+        recomputation_certificate.provider_identity_digest()
+    );
+    assert_eq!(certificate.public_key_digest(), &expected_public_key_digest);
+    assert_eq!(certificate.message_digest(), &expected_message_digest);
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        threshold_certificate.standard_verifier_bridge_evidence_digest()
+    );
+    assert_eq!(
+        certificate.real_recomputation_evidence_digest(),
+        threshold_certificate.real_recomputation_evidence_digest()
+    );
+    assert_eq!(
+        certificate.transcript_binding_digest(),
+        threshold_certificate.transcript_binding_digest()
+    );
+    assert_eq!(
+        certificate.accepted_signature_digest(),
+        threshold_certificate.accepted_signature_digest()
+    );
+    assert_eq!(
+        certificate.verifier_result(),
+        P1StandardVerifierCompatibilityResult::Accept
+    );
+    assert_ne!(
+        derive_p1_standard_verifier_compatibility_artifact_digest(certificate),
+        standard_verifier_bridge_digest(),
+        "compatibility artifacts must not reuse bridge-fixture confidence as their artifact digest"
+    );
+    assert!(!certificate.claims_selected_backend_proof_closure());
+    assert!(!certificate.claims_standard_verifier_compatibility());
+    assert!(!certificate.claims_rejection_distribution_preservation());
+    assert!(!certificate.claims_cavp_acvts_validation());
+    assert!(!certificate.claims_fips_validation());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[test]
+fn p1_standard_verifier_compatibility_artifact_rejects_failed_standard_verifier() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let candidate_signature =
+        signature_from_fill_byte(fixture.recomputation.candidate_signature_fill_byte);
+    let err = derive_p1_standard_verifier_compatibility_artifact_package::<RejectingProvider>(
+        &transcript,
+        &threshold_certificate,
+        &candidate_signature,
+        P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly,
+        true,
+    )
+    .unwrap_err();
+
+    assert_eq!(err, ThresholdError::StandardVerificationFailed);
+}
+
+#[test]
+fn p1_standard_verifier_compatibility_artifact_rejects_threshold_certificate_mismatch() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = standard_verifier_compatibility_artifact_package(&fixture);
+    package.threshold_output_certificate_digest = digest(219);
+
+    let assessment = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility threshold-output certificate digest does not match certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_standard_verifier_compatibility_artifact_rejects_bridge_digest_as_artifact_digest() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = standard_verifier_compatibility_artifact_package(&fixture);
+    package.artifact_digest = standard_verifier_bridge_digest();
+
+    let assessment = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason:
+                "P1 standard-verifier compatibility artifact digest does not match verifier payload",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_standard_verifier_compatibility_artifact_rejects_recomputation_digest_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = standard_verifier_compatibility_artifact_package(&fixture);
+    package.real_recomputation_evidence_digest = digest(217);
+
+    let assessment = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility recomputation digest does not match threshold-output certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_standard_verifier_compatibility_artifact_rejects_bridge_digest_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = standard_verifier_compatibility_artifact_package(&fixture);
+    package.standard_verifier_bridge_evidence_digest = digest(218);
+
+    let assessment = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility bridge digest does not match threshold-output certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_standard_verifier_compatibility_artifact_rejects_production_claim_boundary() {
+    let fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = standard_verifier_compatibility_artifact_package(&fixture);
+    package.claim_boundary = P1StandardVerifierCompatibilityClaimBoundary::ProductionClaim;
+
+    let assessment = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1StandardVerifierCompatibilityArtifactAssessment::Invalid {
+            reason: "P1 standard-verifier compatibility artifact must remain proof-review-only",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
 fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_and_proof_artifacts(
 ) {
     let fixture = standard_verifier_bridge_fixture();
     let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
     let package = selected_backend_proof_closure_artifact_package(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
 
     let assessment =
         assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
@@ -2290,7 +2763,7 @@ fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_
     );
     assert_eq!(
         certificate.standard_verifier_compatibility_artifact_digest(),
-        &digest(53)
+        &derive_p1_standard_verifier_compatibility_artifact_digest(&compatibility_certificate,)
     );
     assert_eq!(certificate.theorem_linkage_artifact_digest(), &digest(54));
     assert_eq!(
@@ -2412,6 +2885,26 @@ fn p1_selected_backend_proof_closure_artifact_rejects_missing_standard_verifier_
         assessment,
         P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason: "P1 proof-closure standard-verifier compatibility artifact digest is all zero",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_stale_standard_verifier_compatibility_artifact_digest(
+) {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.standard_verifier_compatibility_artifact_digest = digest(222);
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure standard-verifier compatibility artifact digest does not match compatibility certificate",
         }
     );
     assert!(!assessment.is_artifact_ready());

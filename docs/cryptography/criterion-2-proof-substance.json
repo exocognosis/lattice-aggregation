@@ -42,7 +42,9 @@
       },
       {
         "id": "standard_verifier_compatibility_artifact_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "rejection_distribution_review_digest",
@@ -101,7 +103,8 @@
     "docs/cryptography/noise-rejection-proof-plan.md",
     "docs/cryptography/formal-security-theorem.md",
     "src/production/rejection_equivalence.rs",
-    "tests/production_rejection_equivalence.rs"
+    "tests/production_rejection_equivalence.rs",
+    "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
   ],
   "assessment": {
     "criterion_status": "partially_met",
