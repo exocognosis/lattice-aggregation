@@ -482,13 +482,37 @@ class ReportGenerationTests(unittest.TestCase):
             + "pub struct P1SelectedBackendThresholdOutputArtifactPackage;\n"
             + "pub struct P1SelectedBackendThresholdOutputArtifactCertificate;\n"
             + "pub enum P1SelectedBackendThresholdOutputArtifactAssessment { ArtifactReady }\n"
+            + "pub struct P1SelectedBackendProofClosureArtifactPackage {\n"
+            + "pub full_kat_validation_artifact_digest: [u8; 32],\n"
+            + "pub rejection_distribution_review_digest: [u8; 32],\n"
+            + "pub standard_verifier_compatibility_artifact_digest: [u8; 32],\n"
+            + "pub theorem_linkage_artifact_digest: [u8; 32],\n"
+            + "}\n"
+            + "pub struct P1SelectedBackendProofClosureArtifactCertificate;\n"
+            + "impl P1SelectedBackendProofClosureArtifactCertificate {\n"
+            + "pub fn full_kat_validation_artifact_digest(&self) {}\n"
+            + "pub fn rejection_distribution_review_digest(&self) {}\n"
+            + "pub fn standard_verifier_compatibility_artifact_digest(&self) {}\n"
+            + "pub fn theorem_linkage_artifact_digest(&self) {}\n"
+            + "pub fn claims_selected_backend_proof_closure(&self) {}\n"
+            + "pub fn claims_rejection_distribution_preservation(&self) {}\n"
+            + "pub fn claims_cavp_acvts_validation(&self) {}\n"
+            + "pub fn claims_fips_validation(&self) {}\n"
+            + "}\n"
+            + "pub enum P1SelectedBackendProofClosureArtifactAssessment { ArtifactReady }\n"
+            + "pub enum P1SelectedBackendProofClosureClaimBoundary { ProofReviewOnly, ProductionClaim }\n"
+            + "pub struct P1RejectionProofArtifacts;\n"
+            + "impl P1RejectionProofArtifacts { pub fn transcript_binding_evidence_digest(&self) {} }\n"
             + "pub fn assess_p1_selected_backend_aggregate_artifact() {}\n"
             + "pub fn assess_p1_selected_backend_threshold_output_artifact() {}\n"
+            + "pub fn assess_p1_selected_backend_proof_closure_artifact() {}\n"
             + "pub fn derive_p1_selected_backend_aggregate_artifact_package() {}\n"
             + "pub fn derive_p1_selected_backend_threshold_output_artifact_package() {}\n"
+            + "pub fn derive_p1_selected_backend_proof_closure_artifact_package() {}\n"
             + "pub fn derive_p1_selected_backend_threshold_output_source_digest() {}\n"
             + "pub fn derive_p1_selected_backend_threshold_output_source_package_digest() {}\n"
             + "pub fn derive_p1_selected_backend_aggregate_certificate_digest() {}\n"
+            + "pub fn derive_p1_selected_backend_threshold_output_certificate_digest() {}\n"
             + "pub fn derive_p1_real_recomputation_evidence_digest() {}\n"
             + "pub fn derive_p1_selected_backend_transcript_binding_digest() {}\n"
             + "pub fn derive_p1_selected_backend_signer_set_digest() {}\n"
@@ -516,6 +540,22 @@ class ReportGenerationTests(unittest.TestCase):
             + "fn p1_selected_backend_threshold_output_artifact_accepts_real_mldsa_package() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_threshold_output_artifact_rejects_stale_source_digest() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_and_proof_artifacts() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_stale_threshold_certificate_digest() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_stale_proof_transcript_binding() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_validation_artifact() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_distribution_review_artifact() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_standard_verifier_compatibility_artifact() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_production_claim_boundary() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_aggregate_artifact_rejects_unreviewed_package() {}\n",
             encoding="utf-8",
@@ -701,6 +741,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_selected_backend_aggregate_artifact_gate"])
         self.assertTrue(scan["p1_selected_backend_real_output_package"])
         self.assertTrue(scan["p1_selected_backend_threshold_output_artifact_gate"])
+        self.assertTrue(scan["p1_selected_backend_proof_closure_artifact_gate"])
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
         aggregate_evidence = "\n".join(aggregate["observed_evidence"])
@@ -717,15 +758,46 @@ class ReportGenerationTests(unittest.TestCase):
             aggregate_evidence,
         )
         self.assertIn("reviewed source package digest", aggregate_evidence)
+        self.assertIn("Selected-backend proof-closure artifact package gate", aggregate_evidence)
+        self.assertIn("threshold-output, recomputation, bounds, rejection behavior, and standard verification evidence", aggregate_evidence)
+        self.assertIn("full KAT/validation artifact slots", aggregate_evidence)
         self.assertIn("conformance/proof-review", aggregate_evidence)
         self.assertIn("not selected-backend proof closure", aggregate_evidence)
-        self.assertIn("Selected-backend threshold-output artifact gating", aggregate_blockers)
+        self.assertIn("Selected-backend proof-closure artifact package gating", aggregate_blockers)
         self.assertIn("real standard-provider aggregate-output package", aggregate_blockers)
         self.assertIn("selected-backend proof closure", aggregate_blockers)
         self.assertIn("rejection-distribution preservation", aggregate_blockers)
+        self.assertIn("standard-verifier compatibility", aggregate_blockers)
         self.assertIn("selected-backend aggregate-output artifact gate", markdown)
+        self.assertIn("p1_selected_backend_proof_closure_artifact_gate", str(scan))
         self.assertIn("p1_selected_backend_threshold_output_artifact_gate", str(scan))
         self.assertNotIn("completely_proven", markdown)
+
+    def test_selected_backend_proof_closure_gate_requires_artifact_slot_tokens(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            rejection_equivalence_path = (
+                root / "src" / "production" / "rejection_equivalence.rs"
+            )
+            rejection_equivalence_path.write_text(
+                rejection_equivalence_path.read_text(encoding="utf-8").replace(
+                    "standard_verifier_compatibility_artifact_digest",
+                    "standard_verifier_compatibility_placeholder",
+                ),
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertTrue(scan["p1_selected_backend_threshold_output_artifact_gate"])
+        self.assertFalse(scan["p1_selected_backend_proof_closure_artifact_gate"])
 
     def test_selected_backend_direction_updates_report_without_closing_proofs(self):
         module = load_module()

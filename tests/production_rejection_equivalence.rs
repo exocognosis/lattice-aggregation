@@ -12,12 +12,15 @@ use lattice_aggregation::{
         rejection_equivalence::{
             assess_p1_aggregate_recomputation_closure,
             assess_p1_selected_backend_aggregate_artifact,
+            assess_p1_selected_backend_proof_closure_artifact,
             assess_p1_selected_backend_threshold_output_artifact,
             assess_rejection_equivalence_closure,
             derive_p1_selected_backend_aggregate_certificate_digest,
             derive_p1_selected_backend_attempt_binding_digest,
+            derive_p1_selected_backend_proof_closure_artifact_package,
             derive_p1_selected_backend_signer_set_digest,
             derive_p1_selected_backend_threshold_output_artifact_package,
+            derive_p1_selected_backend_threshold_output_certificate_digest,
             derive_p1_selected_backend_threshold_output_source_digest,
             derive_p1_selected_backend_threshold_output_source_package_digest,
             derive_p1_selected_backend_transcript_binding_digest,
@@ -32,7 +35,11 @@ use lattice_aggregation::{
             P1SelectedBackendAggregateArtifactAssessment,
             P1SelectedBackendAggregateArtifactCertificate,
             P1SelectedBackendAggregateArtifactPackage,
+            P1SelectedBackendProofClosureArtifactAssessment,
+            P1SelectedBackendProofClosureArtifactPackage,
+            P1SelectedBackendProofClosureClaimBoundary,
             P1SelectedBackendThresholdOutputArtifactAssessment,
+            P1SelectedBackendThresholdOutputArtifactCertificate,
             P1SelectedBackendThresholdOutputArtifactPackage, P1ThresholdOutputClaimBoundary,
             P1ThresholdOutputEvidenceSource,
         },
@@ -1436,6 +1443,59 @@ fn selected_backend_threshold_output_artifact_package(
     )
 }
 
+fn selected_backend_threshold_output_artifact_certificate(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> P1SelectedBackendThresholdOutputArtifactCertificate {
+    let transcript = transcript_from_fixture(&fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(fixture);
+    let recomputation = fixture_recomputation_transcript(fixture);
+    let aggregate_certificate = selected_backend_aggregate_artifact_certificate(fixture);
+    let package = selected_backend_threshold_output_artifact_package(fixture);
+
+    assess_p1_selected_backend_threshold_output_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &aggregate_certificate,
+        Some(package),
+    )
+    .threshold_output_certificate()
+    .copied()
+    .expect("complete selected-backend threshold-output artifact should produce a certificate")
+}
+
+fn selected_backend_proof_closure_artifact_package(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> P1SelectedBackendProofClosureArtifactPackage {
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(fixture);
+    let proof_artifacts = P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        *threshold_certificate.real_recomputation_evidence_digest(),
+        *threshold_certificate.standard_verifier_bridge_evidence_digest(),
+        standard_verifier_bridge_fixture_package_digest(),
+        digest(43),
+        digest(44),
+        digest(45),
+        *threshold_certificate.transcript_binding_digest(),
+        negative_test_corpus_digest(),
+        digest(48),
+        true,
+    );
+
+    derive_p1_selected_backend_proof_closure_artifact_package(
+        &threshold_certificate,
+        *threshold_certificate.provider_kat_evidence_digest(),
+        proof_artifacts,
+        digest(51),
+        digest(52),
+        digest(53),
+        digest(54),
+        P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly,
+        true,
+    )
+}
+
 #[test]
 fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
     let assessment = assess_p1_aggregate_recomputation_closure(Some(p1_recomputation_package()));
@@ -2169,6 +2229,227 @@ fn p1_selected_backend_threshold_output_artifact_rejects_production_claim_bounda
         assessment,
         P1SelectedBackendThresholdOutputArtifactAssessment::Invalid {
             reason: "P1 threshold-output artifact must remain proof-review-only",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_and_proof_artifacts(
+) {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let package = selected_backend_proof_closure_artifact_package(&fixture);
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    let certificate = assessment
+        .proof_closure_certificate()
+        .expect("reviewed proof-closure artifact package should produce a certificate");
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(
+        certificate.selected_profile(),
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    );
+    assert_eq!(
+        certificate.threshold_output_certificate_digest(),
+        &derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate)
+    );
+    assert_eq!(
+        certificate.threshold_output_source_digest(),
+        threshold_certificate.threshold_output_source_digest()
+    );
+    assert_eq!(
+        certificate.threshold_output_source_package_digest(),
+        threshold_certificate.threshold_output_source_package_digest()
+    );
+    assert_eq!(
+        certificate.provider_kat_evidence_digest(),
+        threshold_certificate.provider_kat_evidence_digest()
+    );
+    assert_eq!(
+        certificate.standard_verifier_bridge_evidence_digest(),
+        threshold_certificate.standard_verifier_bridge_evidence_digest()
+    );
+    assert_eq!(
+        certificate.real_recomputation_evidence_digest(),
+        threshold_certificate.real_recomputation_evidence_digest()
+    );
+    assert_eq!(
+        certificate.transcript_binding_digest(),
+        threshold_certificate.transcript_binding_digest()
+    );
+    assert_eq!(
+        certificate.full_kat_validation_artifact_digest(),
+        &digest(51)
+    );
+    assert_eq!(
+        certificate.rejection_distribution_review_digest(),
+        &digest(52)
+    );
+    assert_eq!(
+        certificate.standard_verifier_compatibility_artifact_digest(),
+        &digest(53)
+    );
+    assert_eq!(certificate.theorem_linkage_artifact_digest(), &digest(54));
+    assert_eq!(
+        certificate.claim_boundary(),
+        P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly
+    );
+    assert!(!certificate.claims_real_threshold_signer());
+    assert!(!certificate.claims_selected_backend_production());
+    assert!(!certificate.claims_selected_backend_proof_closure());
+    assert!(!certificate.claims_standard_verifier_compatibility());
+    assert!(!certificate.claims_rejection_distribution_preservation());
+    assert!(!certificate.claims_cavp_acvts_validation());
+    assert!(!certificate.claims_fips_validation());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_stale_threshold_certificate_digest() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.threshold_output_certificate_digest = digest(222);
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure threshold-output certificate digest does not match certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_stale_proof_transcript_binding() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.proof_artifacts = P1RejectionProofArtifacts::new(
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        *threshold_certificate.real_recomputation_evidence_digest(),
+        *threshold_certificate.standard_verifier_bridge_evidence_digest(),
+        standard_verifier_bridge_fixture_package_digest(),
+        digest(43),
+        digest(44),
+        digest(45),
+        digest(201),
+        negative_test_corpus_digest(),
+        digest(48),
+        true,
+    );
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure proof-artifact transcript binding digest does not match threshold-output certificate",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_missing_validation_artifact() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.full_kat_validation_artifact_digest = [0; 32];
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure full KAT/validation artifact digest is all zero",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_missing_distribution_review_artifact() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.rejection_distribution_review_digest = [0; 32];
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure rejection-distribution review digest is all zero",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_missing_standard_verifier_compatibility_artifact(
+) {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.standard_verifier_compatibility_artifact_digest = [0; 32];
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure standard-verifier compatibility artifact digest is all zero",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.theorem_linkage_artifact_digest = [0; 32];
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure theorem-linkage artifact digest is all zero",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_production_claim_boundary() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.claim_boundary = P1SelectedBackendProofClosureClaimBoundary::ProductionClaim;
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure artifact must remain proof-review-only",
         }
     );
     assert!(!assessment.is_artifact_ready());

@@ -137,6 +137,20 @@ certificate. It remains conformance/proof-review evidence only: it is not
 selected-backend proof closure, not production threshold ML-DSA security, not
 CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
 
+`P1SelectedBackendProofClosureArtifactPackage`,
+`derive_p1_selected_backend_proof_closure_artifact_package`,
+`derive_p1_selected_backend_threshold_output_certificate_digest`, and
+`assess_p1_selected_backend_proof_closure_artifact` add the Batch 4
+selected-backend proof-closure artifact package gate. The gate binds the
+accepted threshold-output certificate to selected profile, provider KAT,
+threshold-output source package, recomputation, standard-verifier bridge,
+accepted aggregate output, reviewed proof-artifact, full KAT/validation artifact slots, rejection-distribution review, standard-verifier compatibility, and
+theorem-linkage artifact digest evidence. This is stronger than the selected-backend threshold-output artifact gate because the proof-review package must agree with the accepted threshold-output certificate before it can be
+reported. It remains conformance/proof-review evidence only: it is not
+selected-backend proof closure, not production threshold ML-DSA security, not
+CAVP/ACVTS validation, not FIPS validation, not rejection-distribution
+preservation, and not a completed standard-verifier compatibility proof.
+
 ## Claim Boundary
 
 This is hazmat/conformance-only evidence. It does not claim production
@@ -160,16 +174,18 @@ standard-verifier bridge drift from closing the P1 recomputation blocker.
 
 To fully close blocker 2 cryptographically, the repo still needs:
 
-- reviewed selected-backend proof-closure artifacts tying threshold-output,
+- reviewed selected-backend proof arguments tying threshold-output,
   recomputation, bounds, rejection behavior, and standard verification into one
-  reviewed argument;
+  accepted argument beyond the current selected-backend proof-closure artifact
+  package gate;
 - reviewed selected profile binding evidence for the exact ML-DSA-65
   coordinator-assisted Shamir nonce DKG P1 profile under review;
 - validation artifacts for the standard-verifier bridge and selected provider;
   the current checked-in bridge fixture, selected-backend aggregate-output
-  artifact gate, real standard-provider aggregate-output package path, and
-  selected-backend threshold-output artifact gate are conformance/proof-review
-  evidence only;
+  artifact gate, real standard-provider aggregate-output package path,
+  selected-backend threshold-output artifact gate, and selected-backend
+  proof-closure artifact package gate are conformance/proof-review evidence
+  only;
 - full provider KAT coverage for the advertised API surface, plus any CAVP/ACVTS
   vector-set IDs, validation transcripts, certificate identifiers, lab sign-off,
   and prerequisite validation references if the claim moves beyond sample-vector

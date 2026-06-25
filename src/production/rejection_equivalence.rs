@@ -804,6 +804,8 @@ pub struct P1SelectedBackendThresholdOutputArtifactPackage {
     pub selected_profile_binding_digest: [u8; 32],
     /// Digest of the predecessor selected-backend aggregate artifact certificate.
     pub aggregate_artifact_digest: [u8; 32],
+    /// Provider KAT evidence digest inherited from the aggregate certificate.
+    pub provider_kat_evidence_digest: [u8; 32],
     /// Reviewed threshold-output attempt source evidence.
     pub threshold_output_source: P1ThresholdOutputEvidenceSource,
     /// Digest of the reviewed threshold-output attempt source.
@@ -836,6 +838,7 @@ pub struct P1SelectedBackendThresholdOutputArtifactCertificate {
     selected_profile: SelectedProductionBackendProfile,
     selected_profile_binding_digest: [u8; 32],
     aggregate_artifact_digest: [u8; 32],
+    provider_kat_evidence_digest: [u8; 32],
     threshold_output_source_digest: [u8; 32],
     threshold_output_source_package_digest: [u8; 32],
     transcript_binding_digest: [u8; 32],
@@ -863,6 +866,11 @@ impl P1SelectedBackendThresholdOutputArtifactCertificate {
     /// Borrow the predecessor aggregate artifact certificate digest.
     pub const fn aggregate_artifact_digest(&self) -> &[u8; 32] {
         &self.aggregate_artifact_digest
+    }
+
+    /// Borrow the provider KAT evidence digest inherited from the aggregate certificate.
+    pub const fn provider_kat_evidence_digest(&self) -> &[u8; 32] {
+        &self.provider_kat_evidence_digest
     }
 
     /// Borrow the reviewed threshold-output source digest.
@@ -941,6 +949,232 @@ impl P1SelectedBackendThresholdOutputArtifactCertificate {
     }
 }
 
+/// Claim boundary carried by Batch 4 proof-closure artifact evidence.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1SelectedBackendProofClosureClaimBoundary {
+    /// The artifact is present for conformance and proof review only.
+    ProofReviewOnly,
+    /// Forbidden boundary used to reject packages that try to claim production readiness.
+    ProductionClaim,
+}
+
+/// Submitted Batch 4 selected-backend proof-closure artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1SelectedBackendProofClosureArtifactPackage {
+    /// Selected backend profile this proof-closure artifact claims to bind.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Digest of the predecessor selected-backend threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Digest of the predecessor selected-backend aggregate artifact certificate.
+    pub aggregate_artifact_digest: [u8; 32],
+    /// Reviewed threshold-output source digest inherited from the predecessor certificate.
+    pub threshold_output_source_digest: [u8; 32],
+    /// Reviewed threshold-output source-package digest inherited from the predecessor certificate.
+    pub threshold_output_source_package_digest: [u8; 32],
+    /// Provider KAT evidence digest inherited from the predecessor certificate.
+    pub provider_kat_evidence_digest: [u8; 32],
+    /// Standard-verifier bridge evidence digest inherited from the predecessor certificate.
+    pub standard_verifier_bridge_evidence_digest: [u8; 32],
+    /// Real recomputation evidence digest inherited from the predecessor certificate.
+    pub real_recomputation_evidence_digest: [u8; 32],
+    /// Digest binding this package to the production signing transcript.
+    pub transcript_binding_digest: [u8; 32],
+    /// Digest binding the accepted aggregate signer set.
+    pub signer_set_digest: [u8; 32],
+    /// Digest binding the single-use attempt ID and retry domain.
+    pub attempt_binding_digest: [u8; 32],
+    /// Accepted aggregate-response digest from `AggregateAccept`.
+    pub aggregate_response_digest: [u8; 32],
+    /// Accepted hint digest from `AggregateAccept`.
+    pub hint_digest: [u8; 32],
+    /// Provider-verified accepted aggregate signature digest.
+    pub accepted_signature_digest: [u8; 32],
+    /// Reviewed proof artifact digests linked to this selected-backend output.
+    pub proof_artifacts: P1RejectionProofArtifacts,
+    /// Digest of full KAT or validation artifacts beyond the bounded fixture set.
+    pub full_kat_validation_artifact_digest: [u8; 32],
+    /// Digest of rejection-distribution review artifacts for this selected backend.
+    pub rejection_distribution_review_digest: [u8; 32],
+    /// Digest of standard-verifier compatibility review artifacts.
+    pub standard_verifier_compatibility_artifact_digest: [u8; 32],
+    /// Digest linking implementation evidence to the theorem/proof obligation package.
+    pub theorem_linkage_artifact_digest: [u8; 32],
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    /// Whether this artifact package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Accepted Batch 4 selected-backend proof-closure artifact-gate certificate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1SelectedBackendProofClosureArtifactCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    threshold_output_certificate_digest: [u8; 32],
+    aggregate_artifact_digest: [u8; 32],
+    threshold_output_source_digest: [u8; 32],
+    threshold_output_source_package_digest: [u8; 32],
+    provider_kat_evidence_digest: [u8; 32],
+    standard_verifier_bridge_evidence_digest: [u8; 32],
+    real_recomputation_evidence_digest: [u8; 32],
+    transcript_binding_digest: [u8; 32],
+    signer_set_digest: [u8; 32],
+    attempt_binding_digest: [u8; 32],
+    aggregate_response_digest: [u8; 32],
+    hint_digest: [u8; 32],
+    accepted_signature_digest: [u8; 32],
+    proof_artifacts: P1RejectionProofArtifacts,
+    full_kat_validation_artifact_digest: [u8; 32],
+    rejection_distribution_review_digest: [u8; 32],
+    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    theorem_linkage_artifact_digest: [u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+}
+
+impl P1SelectedBackendProofClosureArtifactCertificate {
+    /// Return the selected backend profile bound to the proof-closure artifact.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Borrow the predecessor threshold-output certificate digest.
+    pub const fn threshold_output_certificate_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_digest
+    }
+
+    /// Borrow the predecessor aggregate artifact certificate digest.
+    pub const fn aggregate_artifact_digest(&self) -> &[u8; 32] {
+        &self.aggregate_artifact_digest
+    }
+
+    /// Borrow the reviewed threshold-output source digest.
+    pub const fn threshold_output_source_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_source_digest
+    }
+
+    /// Borrow the reviewed threshold-output source-package digest.
+    pub const fn threshold_output_source_package_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_source_package_digest
+    }
+
+    /// Borrow the provider KAT evidence digest.
+    pub const fn provider_kat_evidence_digest(&self) -> &[u8; 32] {
+        &self.provider_kat_evidence_digest
+    }
+
+    /// Borrow the standard-verifier bridge evidence digest.
+    pub const fn standard_verifier_bridge_evidence_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_evidence_digest
+    }
+
+    /// Borrow the real recomputation evidence digest.
+    pub const fn real_recomputation_evidence_digest(&self) -> &[u8; 32] {
+        &self.real_recomputation_evidence_digest
+    }
+
+    /// Borrow the transcript binding digest.
+    pub const fn transcript_binding_digest(&self) -> &[u8; 32] {
+        &self.transcript_binding_digest
+    }
+
+    /// Borrow the signer-set binding digest.
+    pub const fn signer_set_digest(&self) -> &[u8; 32] {
+        &self.signer_set_digest
+    }
+
+    /// Borrow the attempt binding digest.
+    pub const fn attempt_binding_digest(&self) -> &[u8; 32] {
+        &self.attempt_binding_digest
+    }
+
+    /// Borrow the accepted aggregate-response digest.
+    pub const fn aggregate_response_digest(&self) -> &[u8; 32] {
+        &self.aggregate_response_digest
+    }
+
+    /// Borrow the accepted hint digest.
+    pub const fn hint_digest(&self) -> &[u8; 32] {
+        &self.hint_digest
+    }
+
+    /// Borrow the accepted aggregate signature digest.
+    pub const fn accepted_signature_digest(&self) -> &[u8; 32] {
+        &self.accepted_signature_digest
+    }
+
+    /// Borrow the full KAT/validation artifact digest.
+    pub const fn full_kat_validation_artifact_digest(&self) -> &[u8; 32] {
+        &self.full_kat_validation_artifact_digest
+    }
+
+    /// Borrow the rejection-distribution review digest.
+    pub const fn rejection_distribution_review_digest(&self) -> &[u8; 32] {
+        &self.rejection_distribution_review_digest
+    }
+
+    /// Borrow the standard-verifier compatibility artifact digest.
+    pub const fn standard_verifier_compatibility_artifact_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_compatibility_artifact_digest
+    }
+
+    /// Borrow the theorem-linkage artifact digest.
+    pub const fn theorem_linkage_artifact_digest(&self) -> &[u8; 32] {
+        &self.theorem_linkage_artifact_digest
+    }
+
+    /// Return the explicit non-production claim boundary.
+    pub const fn claim_boundary(self) -> P1SelectedBackendProofClosureClaimBoundary {
+        self.claim_boundary
+    }
+
+    /// This gate still does not claim a real threshold signer is implemented.
+    pub const fn claims_real_threshold_signer(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim a deployed production backend.
+    pub const fn claims_selected_backend_production(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim selected-backend proof closure.
+    pub const fn claims_selected_backend_proof_closure(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim completed standard-verifier compatibility proof.
+    pub const fn claims_standard_verifier_compatibility(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim rejection-distribution preservation.
+    pub const fn claims_rejection_distribution_preservation(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim CAVP/ACVTS validation.
+    pub const fn claims_cavp_acvts_validation(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim FIPS validation.
+    pub const fn claims_fips_validation(self) -> bool {
+        false
+    }
+
+    /// This certificate gates artifacts; it does not replace cryptographic proof.
+    pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
 /// Result of assessing a selected-backend threshold-output artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[allow(clippy::large_enum_variant)]
@@ -969,6 +1203,41 @@ impl P1SelectedBackendThresholdOutputArtifactAssessment {
     pub const fn threshold_output_certificate(
         &self,
     ) -> Option<&P1SelectedBackendThresholdOutputArtifactCertificate> {
+        match self {
+            Self::ArtifactReady(certificate) => Some(certificate),
+            Self::Missing { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
+/// Result of assessing a selected-backend proof-closure artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
+pub enum P1SelectedBackendProofClosureArtifactAssessment {
+    /// No package or required evidence digest was supplied.
+    Missing {
+        /// Static reason for the missing-evidence assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The proof-closure artifact package is ready for proof review.
+    ArtifactReady(P1SelectedBackendProofClosureArtifactCertificate),
+}
+
+impl P1SelectedBackendProofClosureArtifactAssessment {
+    /// Return true when the proof-closure artifact is ready for proof review.
+    pub const fn is_artifact_ready(self) -> bool {
+        matches!(self, Self::ArtifactReady(_))
+    }
+
+    /// Borrow the proof-closure artifact certificate when present.
+    pub const fn proof_closure_certificate(
+        &self,
+    ) -> Option<&P1SelectedBackendProofClosureArtifactCertificate> {
         match self {
             Self::ArtifactReady(certificate) => Some(certificate),
             Self::Missing { .. } | Self::Invalid { .. } => None,
@@ -1347,6 +1616,33 @@ pub fn derive_p1_selected_backend_aggregate_certificate_digest(
     hasher.finalize().into()
 }
 
+/// Derive the digest binding a Batch 3 threshold-output artifact certificate.
+pub fn derive_p1_selected_backend_threshold_output_certificate_digest(
+    certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-selected-backend-threshold-output-certificate:v1");
+    hasher.update(certificate.selected_profile().profile_binding_digest());
+    hasher.update(certificate.selected_profile_binding_digest());
+    hasher.update(certificate.aggregate_artifact_digest());
+    hasher.update(certificate.provider_kat_evidence_digest());
+    hasher.update(certificate.threshold_output_source_digest());
+    hasher.update(certificate.threshold_output_source_package_digest());
+    hasher.update(certificate.transcript_binding_digest());
+    hasher.update(certificate.signer_set_digest());
+    hasher.update(certificate.attempt_binding_digest());
+    hasher.update(certificate.aggregate_response_digest());
+    hasher.update(certificate.hint_digest());
+    hasher.update(certificate.accepted_signature_digest());
+    hasher.update(certificate.standard_verifier_bridge_evidence_digest());
+    hasher.update(certificate.real_recomputation_evidence_digest());
+    match certificate.claim_boundary() {
+        P1ThresholdOutputClaimBoundary::ProofReviewOnly => hasher.update([0]),
+        P1ThresholdOutputClaimBoundary::ProductionClaim => hasher.update([1]),
+    }
+    hasher.finalize().into()
+}
+
 /// Derive the digest of reviewed Batch 3 threshold-output source package bytes.
 pub fn derive_p1_selected_backend_threshold_output_source_package_digest(
     source_package_bytes: &[u8],
@@ -1461,6 +1757,7 @@ pub fn derive_p1_selected_backend_threshold_output_artifact_package(
         aggregate_artifact_digest: derive_p1_selected_backend_aggregate_certificate_digest(
             aggregate_certificate,
         ),
+        provider_kat_evidence_digest: *aggregate_certificate.provider_kat_evidence_digest(),
         threshold_output_source,
         threshold_output_source_digest: *threshold_output_source.source_digest(),
         transcript_binding_digest: derive_p1_selected_backend_transcript_binding_digest(transcript),
@@ -1478,6 +1775,54 @@ pub fn derive_p1_selected_backend_threshold_output_artifact_package(
         claim_boundary,
         reviewed,
     })
+}
+
+/// Derive a Batch 4 selected-backend proof-closure artifact package.
+///
+/// The returned package binds the accepted threshold-output artifact
+/// certificate to reviewed proof, validation, distribution-review, standard
+/// verifier, and theorem-linkage artifact digests. It remains
+/// conformance/proof-review evidence only.
+#[allow(clippy::too_many_arguments)]
+pub fn derive_p1_selected_backend_proof_closure_artifact_package(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    provider_kat_evidence_digest: [u8; 32],
+    proof_artifacts: P1RejectionProofArtifacts,
+    full_kat_validation_artifact_digest: [u8; 32],
+    rejection_distribution_review_digest: [u8; 32],
+    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    theorem_linkage_artifact_digest: [u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    reviewed: bool,
+) -> P1SelectedBackendProofClosureArtifactPackage {
+    P1SelectedBackendProofClosureArtifactPackage {
+        selected_profile: threshold_certificate.selected_profile(),
+        selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
+        threshold_output_certificate_digest:
+            derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate),
+        aggregate_artifact_digest: *threshold_certificate.aggregate_artifact_digest(),
+        threshold_output_source_digest: *threshold_certificate.threshold_output_source_digest(),
+        threshold_output_source_package_digest: *threshold_certificate
+            .threshold_output_source_package_digest(),
+        provider_kat_evidence_digest,
+        standard_verifier_bridge_evidence_digest: *threshold_certificate
+            .standard_verifier_bridge_evidence_digest(),
+        real_recomputation_evidence_digest: *threshold_certificate
+            .real_recomputation_evidence_digest(),
+        transcript_binding_digest: *threshold_certificate.transcript_binding_digest(),
+        signer_set_digest: *threshold_certificate.signer_set_digest(),
+        attempt_binding_digest: *threshold_certificate.attempt_binding_digest(),
+        aggregate_response_digest: *threshold_certificate.aggregate_response_digest(),
+        hint_digest: *threshold_certificate.hint_digest(),
+        accepted_signature_digest: *threshold_certificate.accepted_signature_digest(),
+        proof_artifacts,
+        full_kat_validation_artifact_digest,
+        rejection_distribution_review_digest,
+        standard_verifier_compatibility_artifact_digest,
+        theorem_linkage_artifact_digest,
+        claim_boundary,
+        reviewed,
+    }
 }
 
 /// Derive a selected-backend aggregate-output artifact package from live
@@ -2134,6 +2479,10 @@ pub fn assess_p1_selected_backend_threshold_output_artifact(
             "P1 threshold-output aggregate artifact digest is all zero",
         ),
         (
+            &package.provider_kat_evidence_digest,
+            "P1 threshold-output provider KAT digest is all zero",
+        ),
+        (
             &package.threshold_output_source_digest,
             "P1 threshold-output source digest is all zero",
         ),
@@ -2196,6 +2545,12 @@ pub fn assess_p1_selected_backend_threshold_output_artifact(
         return P1SelectedBackendThresholdOutputArtifactAssessment::Invalid {
             reason:
                 "P1 threshold-output aggregate artifact digest does not match aggregate certificate",
+        };
+    }
+    if &package.provider_kat_evidence_digest != aggregate_certificate.provider_kat_evidence_digest()
+    {
+        return P1SelectedBackendThresholdOutputArtifactAssessment::Invalid {
+            reason: "P1 threshold-output provider KAT digest does not match aggregate certificate",
         };
     }
     if accepted_aggregate.challenge_digest() != transcript.challenge_digest() {
@@ -2302,6 +2657,7 @@ pub fn assess_p1_selected_backend_threshold_output_artifact(
             selected_profile: package.selected_profile,
             selected_profile_binding_digest: package.selected_profile_binding_digest,
             aggregate_artifact_digest: package.aggregate_artifact_digest,
+            provider_kat_evidence_digest: package.provider_kat_evidence_digest,
             threshold_output_source_digest: package.threshold_output_source_digest,
             threshold_output_source_package_digest: *package
                 .threshold_output_source
@@ -2315,6 +2671,336 @@ pub fn assess_p1_selected_backend_threshold_output_artifact(
             standard_verifier_bridge_evidence_digest: package
                 .standard_verifier_bridge_evidence_digest,
             real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
+            claim_boundary: package.claim_boundary,
+        },
+    )
+}
+
+/// Assess whether selected-backend proof-closure artifact evidence is bound to
+/// the accepted threshold-output certificate and remains proof-review-only.
+pub fn assess_p1_selected_backend_proof_closure_artifact(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    package: Option<P1SelectedBackendProofClosureArtifactPackage>,
+) -> P1SelectedBackendProofClosureArtifactAssessment {
+    let Some(package) = package else {
+        return P1SelectedBackendProofClosureArtifactAssessment::Missing {
+            reason: "missing P1 selected-backend proof-closure artifact package",
+        };
+    };
+
+    if !package.reviewed {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 selected-backend proof-closure artifact must be reviewed before artifact closure",
+        };
+    }
+    if !package.proof_artifacts.reviewed() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure proof artifacts must be reviewed",
+        };
+    }
+    if package.claim_boundary != P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure artifact must remain proof-review-only",
+        };
+    }
+    if threshold_certificate.claim_boundary() != P1ThresholdOutputClaimBoundary::ProofReviewOnly {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure threshold-output certificate must remain proof-review-only",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure artifact must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != threshold_certificate.selected_profile() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure selected profile does not match threshold-output certificate",
+        };
+    }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 proof-closure profile binding digest is all zero",
+        ),
+        (
+            &package.threshold_output_certificate_digest,
+            "P1 proof-closure threshold-output certificate digest is all zero",
+        ),
+        (
+            &package.aggregate_artifact_digest,
+            "P1 proof-closure aggregate artifact digest is all zero",
+        ),
+        (
+            &package.threshold_output_source_digest,
+            "P1 proof-closure threshold-output source digest is all zero",
+        ),
+        (
+            &package.threshold_output_source_package_digest,
+            "P1 proof-closure threshold-output source-package digest is all zero",
+        ),
+        (
+            &package.provider_kat_evidence_digest,
+            "P1 proof-closure provider KAT digest is all zero",
+        ),
+        (
+            &package.standard_verifier_bridge_evidence_digest,
+            "P1 proof-closure bridge digest is all zero",
+        ),
+        (
+            &package.real_recomputation_evidence_digest,
+            "P1 proof-closure recomputation digest is all zero",
+        ),
+        (
+            &package.transcript_binding_digest,
+            "P1 proof-closure transcript binding digest is all zero",
+        ),
+        (
+            &package.signer_set_digest,
+            "P1 proof-closure signer-set digest is all zero",
+        ),
+        (
+            &package.attempt_binding_digest,
+            "P1 proof-closure attempt binding digest is all zero",
+        ),
+        (
+            &package.aggregate_response_digest,
+            "P1 proof-closure aggregate response digest is all zero",
+        ),
+        (
+            &package.hint_digest,
+            "P1 proof-closure hint digest is all zero",
+        ),
+        (
+            &package.accepted_signature_digest,
+            "P1 proof-closure accepted signature digest is all zero",
+        ),
+        (
+            package.proof_artifacts.selected_profile_binding_digest(),
+            "P1 proof-closure proof-artifact profile binding digest is all zero",
+        ),
+        (
+            package.proof_artifacts.real_recomputation_evidence_digest(),
+            "P1 proof-closure proof-artifact recomputation digest is all zero",
+        ),
+        (
+            package
+                .proof_artifacts
+                .standard_verifier_bridge_evidence_digest(),
+            "P1 proof-closure proof-artifact bridge digest is all zero",
+        ),
+        (
+            package
+                .proof_artifacts
+                .standard_verifier_bridge_fixture_package_digest(),
+            "P1 proof-closure bridge fixture package digest is all zero",
+        ),
+        (
+            package.proof_artifacts.norm_bound_evidence_digest(),
+            "P1 proof-closure norm-bound artifact digest is all zero",
+        ),
+        (
+            package.proof_artifacts.hint_bound_evidence_digest(),
+            "P1 proof-closure hint-bound artifact digest is all zero",
+        ),
+        (
+            package.proof_artifacts.challenge_bound_evidence_digest(),
+            "P1 proof-closure challenge-bound artifact digest is all zero",
+        ),
+        (
+            package.proof_artifacts.transcript_binding_evidence_digest(),
+            "P1 proof-closure proof-artifact transcript-binding digest is all zero",
+        ),
+        (
+            package.proof_artifacts.negative_test_corpus_digest(),
+            "P1 proof-closure negative corpus digest is all zero",
+        ),
+        (
+            package.proof_artifacts.external_review_digest(),
+            "P1 proof-closure external review digest is all zero",
+        ),
+        (
+            &package.full_kat_validation_artifact_digest,
+            "P1 proof-closure full KAT/validation artifact digest is all zero",
+        ),
+        (
+            &package.rejection_distribution_review_digest,
+            "P1 proof-closure rejection-distribution review digest is all zero",
+        ),
+        (
+            &package.standard_verifier_compatibility_artifact_digest,
+            "P1 proof-closure standard-verifier compatibility artifact digest is all zero",
+        ),
+        (
+            &package.theorem_linkage_artifact_digest,
+            "P1 proof-closure theorem-linkage artifact digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason };
+        }
+    }
+
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure profile binding digest does not match threshold-output certificate",
+        };
+    }
+    if package.proof_artifacts.selected_profile_binding_digest()
+        != threshold_certificate.selected_profile_binding_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure proof-artifact profile binding digest does not match threshold-output certificate",
+        };
+    }
+
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure threshold-output certificate digest does not match certificate",
+        };
+    }
+    if &package.aggregate_artifact_digest != threshold_certificate.aggregate_artifact_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure aggregate artifact digest does not match threshold-output certificate",
+        };
+    }
+    if &package.threshold_output_source_digest
+        != threshold_certificate.threshold_output_source_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure threshold-output source digest does not match threshold-output certificate",
+        };
+    }
+    if &package.threshold_output_source_package_digest
+        != threshold_certificate.threshold_output_source_package_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure threshold-output source-package digest does not match threshold-output certificate",
+        };
+    }
+    if &package.provider_kat_evidence_digest != threshold_certificate.provider_kat_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure provider KAT digest does not match threshold-output certificate",
+        };
+    }
+    if &package.standard_verifier_bridge_evidence_digest
+        != threshold_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure bridge digest does not match threshold-output certificate",
+        };
+    }
+    if &package.real_recomputation_evidence_digest
+        != threshold_certificate.real_recomputation_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure recomputation digest does not match threshold-output certificate",
+        };
+    }
+    if package.proof_artifacts.real_recomputation_evidence_digest()
+        != threshold_certificate.real_recomputation_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure proof-artifact recomputation digest does not match threshold-output certificate",
+        };
+    }
+    if package
+        .proof_artifacts
+        .standard_verifier_bridge_evidence_digest()
+        != threshold_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure proof-artifact bridge digest does not match threshold-output certificate",
+        };
+    }
+    if package.proof_artifacts.transcript_binding_evidence_digest()
+        != threshold_certificate.transcript_binding_digest()
+    {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure proof-artifact transcript binding digest does not match threshold-output certificate",
+        };
+    }
+    if &package.transcript_binding_digest != threshold_certificate.transcript_binding_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure transcript binding digest does not match threshold-output certificate",
+        };
+    }
+    if &package.signer_set_digest != threshold_certificate.signer_set_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure signer-set digest does not match threshold-output certificate",
+        };
+    }
+    if &package.attempt_binding_digest != threshold_certificate.attempt_binding_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure attempt binding digest does not match threshold-output certificate",
+        };
+    }
+    if &package.aggregate_response_digest != threshold_certificate.aggregate_response_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason:
+                "P1 proof-closure aggregate response digest does not match threshold-output certificate",
+        };
+    }
+    if &package.hint_digest != threshold_certificate.hint_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure hint digest does not match threshold-output certificate",
+        };
+    }
+    if &package.accepted_signature_digest != threshold_certificate.accepted_signature_digest() {
+        return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure signature digest does not match threshold-output certificate",
+        };
+    }
+
+    P1SelectedBackendProofClosureArtifactAssessment::ArtifactReady(
+        P1SelectedBackendProofClosureArtifactCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            threshold_output_certificate_digest: package.threshold_output_certificate_digest,
+            aggregate_artifact_digest: package.aggregate_artifact_digest,
+            threshold_output_source_digest: package.threshold_output_source_digest,
+            threshold_output_source_package_digest: package.threshold_output_source_package_digest,
+            provider_kat_evidence_digest: package.provider_kat_evidence_digest,
+            standard_verifier_bridge_evidence_digest: package
+                .standard_verifier_bridge_evidence_digest,
+            real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
+            transcript_binding_digest: package.transcript_binding_digest,
+            signer_set_digest: package.signer_set_digest,
+            attempt_binding_digest: package.attempt_binding_digest,
+            aggregate_response_digest: package.aggregate_response_digest,
+            hint_digest: package.hint_digest,
+            accepted_signature_digest: package.accepted_signature_digest,
+            proof_artifacts: package.proof_artifacts,
+            full_kat_validation_artifact_digest: package.full_kat_validation_artifact_digest,
+            rejection_distribution_review_digest: package.rejection_distribution_review_digest,
+            standard_verifier_compatibility_artifact_digest: package
+                .standard_verifier_compatibility_artifact_digest,
+            theorem_linkage_artifact_digest: package.theorem_linkage_artifact_digest,
             claim_boundary: package.claim_boundary,
         },
     )
