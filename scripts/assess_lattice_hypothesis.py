@@ -141,6 +141,48 @@ THESIS_CRITERION_ANCHORS = {
     },
 }
 
+CRITERION2_PROOF_SUBSTANCE_DOC = (
+    "docs/cryptography/criterion-2-proof-substance.md"
+)
+CRITERION2_PROOF_SUBSTANCE_MANIFEST = (
+    "docs/cryptography/criterion-2-proof-substance.json"
+)
+CRITERION2_PROOF_SUBSTANCE_SCHEMA = (
+    "lattice-aggregation.criterion-2-proof-substance.v1"
+)
+CRITERION2_ID = "aggregate_rejection_equivalence"
+CRITERION2_FALSE_CLAIM_KEYS = [
+    "claims_criterion_met",
+    "claims_selected_backend_proof_closure",
+    "claims_standard_verifier_compatibility_complete",
+    "claims_rejection_distribution_preservation",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+    "claims_production_threshold_mldsa_security",
+]
+CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
+    "threshold_output_certificate_digest",
+    "real_recomputation_evidence_digest",
+    "standard_verifier_compatibility_artifact_digest",
+    "rejection_distribution_review_digest",
+    "theorem_linkage_artifact_digest",
+    "full_kat_validation_artifact_digest",
+    "norm_bound_artifact_digest",
+    "hint_bound_artifact_digest",
+    "challenge_bound_artifact_digest",
+    "transcript_binding_evidence_digest",
+    "external_review_digest",
+]
+CRITERION2_THEOREM_LINKS = [
+    "Correctness Lemma 7",
+    "Correctness Lemma 8",
+    "Noise Lemma D",
+    "Noise Lemma F",
+    "Noise Lemma H",
+    "FST-L5",
+    "FST-L7",
+]
+
 TESTING_STATEMENT = (
     "If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted "
     "aggregate output, then the output should behave like a centralized "
@@ -349,6 +391,133 @@ def thesis_operating_parameters_status(markdown, manifest_text):
     }
 
 
+def criterion2_proof_substance_status(markdown, manifest_text):
+    """Return Criterion-2 proof-payload status without criterion promotion."""
+    normalized = normalize_whitespace(markdown)
+    manifest = parse_json_document(manifest_text)
+    claim_boundary = manifest.get("claim_boundary", {})
+    selected_profile = manifest.get("selected_profile", {})
+    proof_payload = manifest.get("proof_payload", {})
+    assessment = manifest.get("assessment", {})
+    artifact_slots = proof_payload.get("required_artifact_slots", [])
+    slot_by_id = {
+        slot.get("id"): slot for slot in artifact_slots if isinstance(slot, dict)
+    }
+    theorem_links = proof_payload.get("theorem_links", [])
+
+    expected_markdown_tokens = [
+        "# criterion 2 proof substance",
+        "aggregate_rejection_equivalence",
+        "formalized_open_proof_payload",
+        "criterion2_proof_payload_formalized",
+        "mldsa65.verify(pk, m, sigma) = accept",
+        "aggregateaccept(...) = true",
+        "standard_verifier_compatibility_artifact_digest",
+        "rejection_distribution_review_digest",
+        "theorem_linkage_artifact_digest",
+        "correctness lemma 7",
+        "correctness lemma 8",
+        "noise lemma d",
+        "noise lemma f",
+        "noise lemma h",
+        "fst-l5",
+        "fst-l7",
+        "partially_met",
+        "partially_proven",
+        "not selected-backend proof closure",
+        "not production threshold ml-dsa security",
+        "not cavp/acvts validation",
+        "not fips validation",
+        "not rejection-distribution preservation",
+        "not a completed standard-verifier compatibility proof",
+    ]
+    missing_evidence = [
+        token
+        for token in expected_markdown_tokens
+        if token not in normalized
+    ]
+    false_claims_pinned = all(
+        claim_boundary.get(key) is False for key in CRITERION2_FALSE_CLAIM_KEYS
+    )
+    artifact_slots_pinned = all(
+        slot_by_id.get(slot_id, {}).get("current_status") == "required_unclosed"
+        for slot_id in CRITERION2_REQUIRED_ARTIFACT_SLOTS
+    )
+    theorem_links_pinned = entries_contain_terms(
+        theorem_links,
+        CRITERION2_THEOREM_LINKS,
+    )
+    promotion_anchors_pinned = entries_contain_terms(
+        manifest.get("promotion_requires", []),
+        [
+            "threshold-output",
+            "full KAT/validation",
+            "rejection-distribution preservation",
+            "standard-verifier compatibility",
+            "theorem-linkage",
+        ],
+    )
+    failure_anchors_pinned = entries_contain_terms(
+        manifest.get("failure_conditions", []),
+        [
+            "fail standard ML-DSA-65 verification",
+            "centralized ML-DSA-65 predicates",
+        ],
+    )
+    manifest_ok = (
+        manifest.get("schema") == CRITERION2_PROOF_SUBSTANCE_SCHEMA
+        and manifest.get("criterion_id") == CRITERION2_ID
+        and manifest.get("status") == "formalized_open_proof_payload"
+        and claim_boundary.get("scope") == "criterion-2 proof payload only"
+        and selected_profile.get("name")
+        == "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+        and selected_profile.get("feature_gate") == "production-mldsa65-coordinator"
+        and selected_profile.get("output_target")
+        == "one standard-sized ML-DSA-65 signature if proven"
+        and proof_payload.get("central_verifier_target")
+        == "MLDSA65.Verify(pk, m, sigma) = accept"
+        and false_claims_pinned
+        and artifact_slots_pinned
+        and theorem_links_pinned
+        and promotion_anchors_pinned
+        and failure_anchors_pinned
+        and assessment.get("criterion_status") == "partially_met"
+        and assessment.get("overall_verdict") == "partially_proven"
+        and assessment.get("does_not_change_overall_verdict") is True
+        and assessment.get("report_status")
+        == "criterion2_proof_payload_formalized"
+    )
+    formalized = bool(markdown.strip()) and manifest_ok and not missing_evidence
+    if not manifest:
+        missing_evidence.append(CRITERION2_PROOF_SUBSTANCE_MANIFEST)
+    if not markdown.strip():
+        missing_evidence.append(CRITERION2_PROOF_SUBSTANCE_DOC)
+    if manifest and not false_claims_pinned:
+        missing_evidence.append("claim_boundary false claims")
+    if manifest and not artifact_slots_pinned:
+        missing_evidence.append("required_artifact_slots")
+    if manifest and not theorem_links_pinned:
+        missing_evidence.append("theorem_links")
+
+    return {
+        "status": (
+            "criterion2_proof_payload_formalized"
+            if formalized
+            else "missing_or_incomplete"
+        ),
+        "document_path": CRITERION2_PROOF_SUBSTANCE_DOC,
+        "manifest_path": CRITERION2_PROOF_SUBSTANCE_MANIFEST,
+        "criterion_id": manifest.get("criterion_id", ""),
+        "payload_status": manifest.get("status", ""),
+        "scope": claim_boundary.get("scope", ""),
+        "selected_profile": selected_profile.get("name", ""),
+        "output_target": selected_profile.get("output_target", ""),
+        "required_artifact_slots": CRITERION2_REQUIRED_ARTIFACT_SLOTS,
+        "theorem_links": theorem_links,
+        "missing_evidence": sorted(set(missing_evidence)),
+    }
+
+
 def selected_backend_direction(texts):
     """Return selected-backend traceability observed in docs."""
     selected_text = "\n".join(
@@ -540,6 +709,10 @@ def scan_documents(root):
     thesis_operating_parameters = thesis_operating_parameters_status(
         read_optional(THESIS_OPERATING_PARAMETERS_DOC),
         read_optional(THESIS_OPERATING_PARAMETERS_MANIFEST),
+    )
+    criterion2_proof_substance = criterion2_proof_substance_status(
+        read_optional(CRITERION2_PROOF_SUBSTANCE_DOC),
+        read_optional(CRITERION2_PROOF_SUBSTANCE_MANIFEST),
     )
 
     acceptance_source_scaffold = all(
@@ -991,6 +1164,11 @@ def scan_documents(root):
             thesis_operating_parameters["status"]
             == "formalized_research_boundary"
         ),
+        "criterion2_proof_substance": criterion2_proof_substance,
+        "criterion2_proof_substance_formalized": (
+            criterion2_proof_substance["status"]
+            == "criterion2_proof_payload_formalized"
+        ),
         "acceptance_predicate_source_scaffold": acceptance_source_scaffold,
         "production_acceptance_tests_scaffold": production_acceptance_tests_scaffold,
         "local_acceptance_conformance_scaffold": (
@@ -1406,6 +1584,7 @@ def default_commands():
         ["cargo", "test", "--test", "simulation"],
         ["cargo", "test", "--test", "proof_documentation_manifest"],
         ["cargo", "test", "--test", "thesis_operating_parameters_manifest"],
+        ["cargo", "test", "--test", "criterion2_proof_substance_manifest"],
         ["cargo", "test", "--test", "unauthorized_aggregate_reduction_manifest"],
         [
             "cargo",
@@ -1545,6 +1724,7 @@ def build_report(
         "claim_boundary": "research scaffold only",
         "selected_backend": scan["selected_backend_direction"],
         "thesis_operating_parameters": scan["thesis_operating_parameters"],
+        "criterion2_proof_substance": scan["criterion2_proof_substance"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
         "commands": command_results,
@@ -1658,6 +1838,31 @@ def render_markdown(report):
         lines.append(
             "- Missing evidence tokens: "
             + ", ".join(thesis["missing_evidence"])
+        )
+
+    criterion2 = report.get("criterion2_proof_substance", {})
+    lines.extend(["", "## Criterion 2 Proof Substance", ""])
+    lines.append(
+        f"- Status: `{criterion2.get('status', 'missing_or_incomplete')}`"
+    )
+    if criterion2.get("status") == "criterion2_proof_payload_formalized":
+        lines.append(f"- Criterion: {criterion2['criterion_id']}")
+        lines.append(f"- Payload status: {criterion2['payload_status']}")
+        lines.append(f"- Boundary: {criterion2['scope']}")
+        lines.append(f"- Profile: {criterion2['selected_profile']}")
+        lines.append(f"- Output target: {criterion2['output_target']}")
+        lines.append(
+            "- Required artifact slots: "
+            + ", ".join(criterion2["required_artifact_slots"])
+        )
+        lines.append(
+            "- Theorem links: "
+            + ", ".join(criterion2["theorem_links"])
+        )
+    elif criterion2.get("missing_evidence"):
+        lines.append(
+            "- Missing evidence tokens: "
+            + ", ".join(criterion2["missing_evidence"])
         )
 
     lines.extend(["", "## Criteria", ""])

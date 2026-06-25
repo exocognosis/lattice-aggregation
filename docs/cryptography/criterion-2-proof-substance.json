@@ -1,0 +1,112 @@
+{
+  "schema": "lattice-aggregation.criterion-2-proof-substance.v1",
+  "criterion_id": "aggregate_rejection_equivalence",
+  "status": "formalized_open_proof_payload",
+  "claim_boundary": {
+    "scope": "criterion-2 proof payload only",
+    "claims_criterion_met": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false
+  },
+  "selected_profile": {
+    "name": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "feature_gate": "production-mldsa65-coordinator",
+    "output_target": "one standard-sized ML-DSA-65 signature if proven"
+  },
+  "proof_payload": {
+    "statement": "accepted selected-backend threshold output binds same public key, message, signer set, attempt, transcript, and accepted signature through standard verifier and rejection-equivalence evidence",
+    "central_verifier_target": "MLDSA65.Verify(pk, m, sigma) = accept",
+    "aggregate_accept_target": "AggregateAccept(...) = true only when standard ML-DSA verification, or checks proven equivalent to it, accepts the aggregate output",
+    "distribution_target": "accepted threshold signatures are indistinguishable from ordinary ML-DSA-65 signatures under the reviewed rejection-distribution argument",
+    "theorem_links": [
+      "Correctness Lemma 7",
+      "Correctness Lemma 8",
+      "Noise Lemma D",
+      "Noise Lemma F",
+      "Noise Lemma H",
+      "FST-L5",
+      "FST-L7"
+    ],
+    "required_artifact_slots": [
+      {
+        "id": "threshold_output_certificate_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "real_recomputation_evidence_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "standard_verifier_compatibility_artifact_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "rejection_distribution_review_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "theorem_linkage_artifact_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "full_kat_validation_artifact_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "norm_bound_artifact_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "hint_bound_artifact_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "challenge_bound_artifact_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "transcript_binding_evidence_digest",
+        "current_status": "required_unclosed"
+      },
+      {
+        "id": "external_review_digest",
+        "current_status": "required_unclosed"
+      }
+    ]
+  },
+  "promotion_requires": [
+    "reviewed proof payload tying threshold-output, recomputation, bounds, rejection behavior, and standard verification",
+    "full KAT/validation artifact package",
+    "reviewed rejection-distribution preservation argument",
+    "reviewed standard-verifier compatibility argument",
+    "theorem-linkage review"
+  ],
+  "failure_conditions": [
+    "accepted threshold outputs fail standard ML-DSA-65 verification",
+    "aggregate rejection accepts outputs outside centralized ML-DSA-65 predicates"
+  ],
+  "batch4_inputs": [
+    "selected-backend proof-closure artifact package gate",
+    "threshold-output certificate",
+    "real standard-provider aggregate-output package",
+    "P1 aggregate recomputation artifact gate"
+  ],
+  "evidence_refs": [
+    "docs/cryptography/rejection-equivalence-evidence.md",
+    "docs/cryptography/proof-obligations.md",
+    "docs/cryptography/noise-rejection-proof-plan.md",
+    "docs/cryptography/formal-security-theorem.md",
+    "src/production/rejection_equivalence.rs",
+    "tests/production_rejection_equivalence.rs"
+  ],
+  "assessment": {
+    "criterion_status": "partially_met",
+    "overall_verdict": "partially_proven",
+    "does_not_change_overall_verdict": true,
+    "report_status": "criterion2_proof_payload_formalized"
+  }
+}

@@ -169,6 +169,13 @@ digests, negative-corpus evidence, and external review digests. The checked-in
 standard-verifier bridge fixture package at
 `tests/fixtures/p1_standard_verifier_bridge_fixture.json` is fixture-backed bridge conformance evidence for drift rejection only. The checked-in bridge fixture is a stricter release gate for drift rejection only; it is not selected-backend aggregate recomputation and not a completed standard-verifier compatibility proof. The selected-backend aggregate-output artifact gate binds `LocalAccept`/`AggregateAccept`, signer-set, attempt, transcript, provider KAT, recomputation, and bridge digests as conformance/proof-review evidence only. `derive_p1_selected_backend_aggregate_artifact_package` and `derive_p1_real_recomputation_evidence_digest` add a real standard-provider aggregate-output package path that derives the package from a provider-verified ML-DSA-65 candidate signature, public recomputation transcript, and standard-verifier bridge digest evidence. The selected-backend threshold-output artifact gate adds successor source-package binding, and the selected-backend proof-closure artifact package gate binds that threshold-output certificate to full KAT/validation artifact slots, rejection-distribution review, standard-verifier compatibility evidence, and a theorem-linkage artifact digest. These gates are not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof. They reject smoke-only KAT evidence and digest drift, but remain framework gates until real threshold aggregate recomputation artifacts and reviewed proof artifacts are checked in.
 
+The open proof payload for blocker 2 is now stated in
+`docs/cryptography/criterion-2-proof-substance.md` and
+`docs/cryptography/criterion-2-proof-substance.json`. Those files name the
+required digest slots and theorem links for `aggregate_rejection_equivalence`;
+they are proof-review input only and do not promote Criterion 2 beyond
+`partially_met`.
+
 ## Open Proof Obligations
 
 The following obligations remain outside the implemented security claim:

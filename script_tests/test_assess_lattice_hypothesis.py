@@ -88,6 +88,12 @@ class VerdictRuleTests(unittest.TestCase):
                 for command in commands
             )
         )
+        self.assertTrue(
+            any(
+                "criterion2_proof_substance_manifest" in command
+                for command in commands
+            )
+        )
 
 
 class DocumentClassificationTests(unittest.TestCase):
@@ -710,6 +716,139 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_criterion2_proof_substance_formalization(self, root):
+        (root / "docs" / "cryptography" / "criterion-2-proof-substance.md").write_text(
+            "# Criterion 2 Proof Substance\n\n"
+            "## Scope and Claim Boundary\n\n"
+            "Criterion id: aggregate_rejection_equivalence.\n"
+            "Status: formalized_open_proof_payload; report status "
+            "criterion2_proof_payload_formalized.\n"
+            "Boundary: not selected-backend proof closure; not production "
+            "threshold ML-DSA security; not CAVP/ACVTS validation; not FIPS "
+            "validation; not rejection-distribution preservation; "
+            "not a completed standard-verifier compatibility proof.\n\n"
+            "## Proof Payload Statement\n\n"
+            "Accepted selected-backend threshold output must bind the same public "
+            "key, message, signer set, attempt, transcript, and accepted "
+            "signature through standard verifier and rejection-equivalence "
+            "evidence.\n\n"
+            "MLDSA65.Verify(pk, m, sigma) = accept.\n"
+            "AggregateAccept(...) = true only when standard ML-DSA verification "
+            "or checks proven equivalent to it accept the aggregate output.\n\n"
+            "## Required Artifact Slots\n\n"
+            "standard_verifier_compatibility_artifact_digest, "
+            "rejection_distribution_review_digest, "
+            "theorem_linkage_artifact_digest, "
+            "threshold_output_certificate_digest, "
+            "real_recomputation_evidence_digest.\n\n"
+            "## Theorem Links\n\n"
+            "Correctness Lemma 7; Correctness Lemma 8; Noise Lemma D; "
+            "Noise Lemma F; Noise Lemma H; FST-L5; FST-L7.\n\n"
+            "## Promotion Requirements\n\n"
+            "Criterion 2 remains partially_met until reviewed proof payloads, "
+            "full KAT/validation artifacts, rejection-distribution review, "
+            "standard-verifier compatibility review, and theorem-linkage review "
+            "are complete.\n\n"
+            "## Failure Conditions\n\n"
+            "Failure occurs if accepted threshold outputs fail standard ML-DSA-65 "
+            "verification or aggregate rejection accepts outputs outside "
+            "centralized ML-DSA-65 predicates.\n\n"
+            "## Assessment Boundary\n\n"
+            "The overall verdict remains partially_proven.\n",
+            encoding="utf-8",
+        )
+        manifest = {
+            "schema": "lattice-aggregation.criterion-2-proof-substance.v1",
+            "criterion_id": "aggregate_rejection_equivalence",
+            "status": "formalized_open_proof_payload",
+            "claim_boundary": {
+                "scope": "criterion-2 proof payload only",
+                "claims_criterion_met": False,
+                "claims_selected_backend_proof_closure": False,
+                "claims_standard_verifier_compatibility_complete": False,
+                "claims_rejection_distribution_preservation": False,
+                "claims_cavp_acvts_validation": False,
+                "claims_fips_validation": False,
+                "claims_production_threshold_mldsa_security": False,
+            },
+            "selected_profile": {
+                "name": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+                "feature_gate": "production-mldsa65-coordinator",
+                "output_target": "one standard-sized ML-DSA-65 signature if proven",
+            },
+            "proof_payload": {
+                "statement": (
+                    "accepted selected-backend threshold output binds same "
+                    "public key, message, signer set, attempt, transcript, and "
+                    "accepted signature through standard verifier and "
+                    "rejection-equivalence evidence"
+                ),
+                "central_verifier_target": "MLDSA65.Verify(pk, m, sigma) = accept",
+                "aggregate_accept_target": (
+                    "AggregateAccept(...) = true only when standard ML-DSA "
+                    "verification, or checks proven equivalent to it, accepts "
+                    "the aggregate output"
+                ),
+                "distribution_target": (
+                    "accepted threshold signatures are indistinguishable from "
+                    "ordinary ML-DSA-65 signatures under the reviewed "
+                    "rejection-distribution argument"
+                ),
+                "theorem_links": [
+                    "Correctness Lemma 7",
+                    "Correctness Lemma 8",
+                    "Noise Lemma D",
+                    "Noise Lemma F",
+                    "Noise Lemma H",
+                    "FST-L5",
+                    "FST-L7",
+                ],
+                "required_artifact_slots": [
+                    {"id": slot, "current_status": "required_unclosed"}
+                    for slot in [
+                        "threshold_output_certificate_digest",
+                        "real_recomputation_evidence_digest",
+                        "standard_verifier_compatibility_artifact_digest",
+                        "rejection_distribution_review_digest",
+                        "theorem_linkage_artifact_digest",
+                        "full_kat_validation_artifact_digest",
+                        "norm_bound_artifact_digest",
+                        "hint_bound_artifact_digest",
+                        "challenge_bound_artifact_digest",
+                        "transcript_binding_evidence_digest",
+                        "external_review_digest",
+                    ]
+                ],
+            },
+            "promotion_requires": [
+                "reviewed proof payload tying threshold-output, recomputation, bounds, rejection behavior, and standard verification",
+                "full KAT/validation artifact package",
+                "reviewed rejection-distribution preservation argument",
+                "reviewed standard-verifier compatibility argument",
+                "theorem-linkage review",
+            ],
+            "failure_conditions": [
+                "accepted threshold outputs fail standard ML-DSA-65 verification",
+                "aggregate rejection accepts outputs outside centralized ML-DSA-65 predicates",
+            ],
+            "evidence_refs": [
+                "docs/cryptography/rejection-equivalence-evidence.md",
+                "docs/cryptography/proof-obligations.md",
+                "src/production/rejection_equivalence.rs",
+                "tests/production_rejection_equivalence.rs",
+            ],
+            "assessment": {
+                "criterion_status": "partially_met",
+                "overall_verdict": "partially_proven",
+                "does_not_change_overall_verdict": True,
+                "report_status": "criterion2_proof_payload_formalized",
+            },
+        }
+        (root / "docs" / "cryptography" / "criterion-2-proof-substance.json").write_text(
+            json.dumps(manifest, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
     def test_scan_documents_finds_acceptance_predicate_scaffold_anchors(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
@@ -1042,6 +1181,74 @@ class ReportGenerationTests(unittest.TestCase):
             "criterion promotion/failure anchors",
             thesis["missing_evidence"],
         )
+
+    def test_criterion2_proof_substance_updates_report_without_closing_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_criterion2_proof_substance_formalization(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["criterion2_proof_substance_formalized"])
+        self.assertEqual(
+            report["criterion2_proof_substance"]["status"],
+            "criterion2_proof_payload_formalized",
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        self.assertEqual(
+            criteria_by_id["aggregate_rejection_equivalence"]["status"],
+            "partially_met",
+        )
+        self.assertIn("Criterion 2 Proof Substance", markdown)
+        self.assertIn("standard_verifier_compatibility_artifact_digest", markdown)
+        self.assertIn("rejection_distribution_review_digest", markdown)
+        self.assertIn("theorem_linkage_artifact_digest", markdown)
+        self.assertIn("formalized_open_proof_payload", markdown)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_criterion2_proof_substance_rejects_claim_drift_or_missing_slots(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_criterion2_proof_substance_formalization(root)
+            manifest_path = (
+                root
+                / "docs"
+                / "cryptography"
+                / "criterion-2-proof-substance.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["claim_boundary"]["claims_criterion_met"] = True
+            manifest["proof_payload"]["required_artifact_slots"] = [
+                slot
+                for slot in manifest["proof_payload"]["required_artifact_slots"]
+                if slot["id"] != "theorem_linkage_artifact_digest"
+            ]
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+
+        self.assertFalse(scan["criterion2_proof_substance_formalized"])
+        self.assertEqual(
+            report["criterion2_proof_substance"]["status"],
+            "missing_or_incomplete",
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
 
     def test_selected_backend_direction_updates_report_without_closing_proofs(self):
         module = load_module()

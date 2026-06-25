@@ -9,6 +9,7 @@ Available notes:
 - [Active Adversary Model](active-adversary-model.md)
 - [Cryptographic Claims Matrix](claims-matrix.md)
 - [Algebraic Correctness Lemmas](correctness-lemmas.md)
+- [Criterion 2 Proof Substance](criterion-2-proof-substance.md)
 - [Formal Security Theorem](formal-security-theorem.md)
 - [Formal Threshold ML-DSA Transcript](formal-threshold-mldsa-transcript.md)
 - [Ideal Functionality](ideal-functionality.md)

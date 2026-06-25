@@ -171,6 +171,13 @@ bound/proof artifact digests, negative-corpus evidence, and external review
 digests. The checked-in standard-verifier bridge fixture package at
 `tests/fixtures/p1_standard_verifier_bridge_fixture.json` provides fixture-backed bridge conformance evidence for drift rejection only. The checked-in bridge fixture is a stricter release gate for drift rejection only; it is not selected-backend aggregate recomputation and not a completed standard-verifier compatibility proof. The selected-backend aggregate-output artifact gate binds `LocalAccept`/`AggregateAccept`, signer-set, attempt, transcript, provider KAT, recomputation, and bridge digests as conformance/proof-review evidence only. `derive_p1_selected_backend_aggregate_artifact_package` and `derive_p1_real_recomputation_evidence_digest` add a real standard-provider aggregate-output package path that derives the package from a provider-verified ML-DSA-65 candidate signature, public recomputation transcript, and standard-verifier bridge digest evidence. The selected-backend threshold-output artifact gate adds successor source-package binding, and the selected-backend proof-closure artifact package gate binds that threshold-output certificate to full KAT/validation artifact slots, rejection-distribution review, standard-verifier compatibility evidence, and a theorem-linkage artifact digest. These gates are not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof. They reject smoke-only provider evidence and digest mismatch, but remain framework evidence until real threshold recomputation and reviewed proofs are supplied.
 
+The Criterion 2 proof-substance contract in
+`docs/cryptography/criterion-2-proof-substance.md` and
+`docs/cryptography/criterion-2-proof-substance.json` records the open payload
+that must connect the protocol output to standard verification, aggregate
+acceptance, rejection-distribution review, and theorem-linkage artifacts. It
+is an assessment boundary only and does not claim proof closure.
+
 ## Evidence and Timeout Diagnostics
 
 `src/adapter/evidence.rs` defines local evidence containers and payloads that

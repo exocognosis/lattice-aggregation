@@ -61,6 +61,8 @@
         "accepted-output rejection-distribution review linked to provider evidence"
       ],
       "evidence_refs": [
+        "docs/cryptography/criterion-2-proof-substance.md",
+        "docs/cryptography/criterion-2-proof-substance.json",
         "docs/cryptography/rejection-equivalence-evidence.md",
         "src/production/rejection_equivalence.rs",
         "tests/production_rejection_equivalence.rs"
