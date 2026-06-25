@@ -34,11 +34,17 @@
     "required_artifact_slots": [
       {
         "id": "threshold_output_certificate_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_threshold_output_certificate_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "real_recomputation_evidence_digest",
-        "current_status": "required_unclosed"
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_criterion2_real_recomputation_evidence_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only"
       },
       {
         "id": "standard_verifier_compatibility_artifact_digest",

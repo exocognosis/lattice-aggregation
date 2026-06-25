@@ -157,18 +157,23 @@ new slot layer.
 `P1Criterion2ProofSlotArtifact`, `P1Criterion2ProofSlotArtifacts`,
 `derive_p1_criterion2_proof_slot_artifacts`, and
 `derive_p1_criterion2_proof_slot_artifact` add Typed Criterion 2 proof-slot
-artifact packages for the full KAT/validation, rejection-distribution review,
-norm-bound, hint-bound, challenge-bound, transcript-binding, theorem-linkage,
-and external-review slots. The package gate domain-separates each slot, binds it
-to the accepted threshold-output certificate and transcript binding, and rejects
-wrong slot kind, proof-artifact source mismatches for slots with predecessor
-proof-artifact sources, stale external-review digests, production claim
-boundaries, and digest drift. This layer upgrades loose digest carriage into typed
+artifact packages for the threshold-output certificate, real recomputation
+evidence, full KAT/validation, rejection-distribution review, norm-bound,
+hint-bound, challenge-bound, transcript-binding, theorem-linkage, and
+external-review slots. The package gate domain-separates each slot, binds it to
+the accepted threshold-output certificate and transcript binding, and rejects
+wrong slot kind, predecessor source mismatches, proof-artifact source mismatches
+for slots with predecessor proof-artifact sources, stale external-review
+digests, production claim boundaries, and digest drift. This layer upgrades
+loose digest carriage into typed
 `p1_criterion2_proof_slot_artifact_package` evidence, but it remains
 conformance/proof-review evidence only: it is not selected-backend proof
 closure, not production threshold ML-DSA security, not CAVP/ACVTS validation,
 not FIPS validation, not rejection-distribution preservation, and not a
 completed standard-verifier compatibility proof.
+All Criterion 2 proof slots now have typed `evidence_present_unclosed`
+wrappers; the predecessor threshold-output certificate and recomputation slots
+are still not criterion closure by themselves.
 
 ## Claim Boundary
 

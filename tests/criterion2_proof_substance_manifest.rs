@@ -98,6 +98,16 @@ fn criterion2_manifest_pins_required_artifact_slots() {
     }
     let evidence_present = [
         (
+            "threshold_output_certificate_digest",
+            "p1_criterion2_threshold_output_certificate_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
+            "real_recomputation_evidence_digest",
+            "p1_criterion2_real_recomputation_evidence_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
             "standard_verifier_compatibility_artifact_digest",
             "p1_standard_verifier_compatibility_artifact_gate",
             "p1_standard_verifier_compatibility_artifact_package",
@@ -171,7 +181,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             .iter()
             .map(|(slot_id, _, _)| *slot_id)
             .collect::<Vec<_>>(),
-        "only the typed Criterion 2 slot allowlist may have evidence present"
+        "only the Criterion 2 evidence-present allowlist may have evidence present"
     );
 }
 

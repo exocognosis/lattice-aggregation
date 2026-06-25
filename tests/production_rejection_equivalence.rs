@@ -2733,6 +2733,34 @@ fn p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_
         .proof_slot_artifacts
         .theorem_linkage_artifact
         .artifact_digest();
+    assert_eq!(
+        package
+            .proof_slot_artifacts
+            .threshold_output_certificate_artifact
+            .kind(),
+        P1Criterion2ProofSlotArtifactKind::ThresholdOutputCertificate
+    );
+    assert_eq!(
+        package
+            .proof_slot_artifacts
+            .threshold_output_certificate_artifact
+            .source_evidence_digest,
+        derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate)
+    );
+    assert_eq!(
+        package
+            .proof_slot_artifacts
+            .real_recomputation_evidence_artifact
+            .kind(),
+        P1Criterion2ProofSlotArtifactKind::RealRecomputationEvidence
+    );
+    assert_eq!(
+        &package
+            .proof_slot_artifacts
+            .real_recomputation_evidence_artifact
+            .source_evidence_digest,
+        package.proof_artifacts.real_recomputation_evidence_digest()
+    );
 
     let assessment =
         assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
@@ -3030,6 +3058,66 @@ fn p1_selected_backend_proof_closure_artifact_rejects_recomputed_review_digest_t
         .norm_bound_artifact
         .artifact_digest = derive_p1_criterion2_proof_slot_artifact_digest(
         &package.proof_slot_artifacts.norm_bound_artifact,
+    );
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact review digest does not match expected external review evidence",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_source_tamper() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .threshold_output_certificate_artifact
+        .source_evidence_digest = digest(90);
+    package
+        .proof_slot_artifacts
+        .threshold_output_certificate_artifact
+        .artifact_digest = derive_p1_criterion2_proof_slot_artifact_digest(
+        &package
+            .proof_slot_artifacts
+            .threshold_output_certificate_artifact,
+    );
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact source digest does not match expected proof evidence",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_review_tamper() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .real_recomputation_evidence_artifact
+        .review_evidence_digest = digest(91);
+    package
+        .proof_slot_artifacts
+        .real_recomputation_evidence_artifact
+        .artifact_digest = derive_p1_criterion2_proof_slot_artifact_digest(
+        &package
+            .proof_slot_artifacts
+            .real_recomputation_evidence_artifact,
     );
 
     let assessment =

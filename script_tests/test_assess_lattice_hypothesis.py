@@ -580,7 +580,32 @@ class ReportGenerationTests(unittest.TestCase):
             + "pub fn derive_p1_real_recomputation_evidence_digest() {}\n"
             + "pub fn derive_p1_selected_backend_transcript_binding_digest() {}\n"
             + "pub fn derive_p1_selected_backend_signer_set_digest() {}\n"
-            + "pub fn derive_p1_selected_backend_attempt_binding_digest() {}\n",
+            + "pub fn derive_p1_selected_backend_attempt_binding_digest() {}\n"
+            + "pub struct P1Criterion2ProofSlotArtifact {\n"
+            + "pub source_evidence_digest: [u8; 32],\n"
+            + "pub review_evidence_digest: [u8; 32],\n"
+            + "pub artifact_digest: [u8; 32],\n"
+            + "}\n"
+            + "pub struct P1Criterion2ProofSlotArtifacts {\n"
+            + "pub threshold_output_certificate_artifact: P1Criterion2ProofSlotArtifact,\n"
+            + "pub real_recomputation_evidence_artifact: P1Criterion2ProofSlotArtifact,\n"
+            + "}\n"
+            + "pub enum P1Criterion2ProofSlotArtifactKind {\n"
+            + "FullKatValidation,\n"
+            + "RejectionDistributionReview,\n"
+            + "NormBound,\n"
+            + "HintBound,\n"
+            + "ChallengeBound,\n"
+            + "TranscriptBinding,\n"
+            + "TheoremLinkage,\n"
+            + "ExternalReview,\n"
+            + "ThresholdOutputCertificate,\n"
+            + "RealRecomputationEvidence,\n"
+            + "}\n"
+            + "pub fn derive_p1_criterion2_proof_slot_artifact() {}\n"
+            + "pub fn derive_p1_criterion2_proof_slot_artifacts() {}\n"
+            + "pub fn derive_p1_criterion2_proof_slot_artifact_digest() {}\n"
+            + "pub fn validate_p1_criterion2_proof_slot_artifact() {}\n",
             encoding="utf-8",
         )
         production_rejection_test_path = (
@@ -634,6 +659,10 @@ class ReportGenerationTests(unittest.TestCase):
             + "fn p1_selected_backend_proof_closure_artifact_rejects_stale_standard_verifier_compatibility_artifact_digest() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_source_tamper() {}\n"
+            + "#[test]\n"
+            + "fn p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_review_tamper() {}\n"
             + "#[test]\n"
             + "fn p1_selected_backend_proof_closure_artifact_rejects_production_claim_boundary() {}\n"
             + "#[test]\n"
@@ -810,6 +839,8 @@ class ReportGenerationTests(unittest.TestCase):
             "evidence_present_unclosed only, "
             "typed Criterion 2 proof-slot artifact packages, "
             "p1_criterion2_proof_slot_artifact_package, "
+            "p1_criterion2_threshold_output_certificate_artifact_gate, "
+            "p1_criterion2_real_recomputation_evidence_artifact_gate, "
             "rejection_distribution_review_digest, "
             "p1_criterion2_rejection_distribution_review_artifact_gate, "
             "theorem_linkage_artifact_digest, "
@@ -840,6 +871,12 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
         evidence_sources = {
+            "threshold_output_certificate_digest": (
+                "p1_criterion2_threshold_output_certificate_artifact_gate"
+            ),
+            "real_recomputation_evidence_digest": (
+                "p1_criterion2_real_recomputation_evidence_artifact_gate"
+            ),
             "standard_verifier_compatibility_artifact_digest": (
                 "p1_standard_verifier_compatibility_artifact_gate"
             ),
@@ -1373,6 +1410,18 @@ class ReportGenerationTests(unittest.TestCase):
             ],
             "evidence_present_unclosed",
         )
+        self.assertEqual(
+            report["criterion2_proof_substance"]["artifact_slot_statuses"][
+                "threshold_output_certificate_digest"
+            ],
+            "evidence_present_unclosed",
+        )
+        self.assertEqual(
+            report["criterion2_proof_substance"]["artifact_slot_statuses"][
+                "real_recomputation_evidence_digest"
+            ],
+            "evidence_present_unclosed",
+        )
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         self.assertEqual(
@@ -1381,8 +1430,18 @@ class ReportGenerationTests(unittest.TestCase):
         )
         self.assertIn("Criterion 2 Proof Substance", markdown)
         self.assertIn("standard_verifier_compatibility_artifact_digest", markdown)
+        self.assertIn("threshold_output_certificate_digest", markdown)
+        self.assertIn("real_recomputation_evidence_digest", markdown)
         self.assertIn("evidence_present_unclosed", markdown)
         self.assertIn("p1_standard_verifier_compatibility_artifact_gate", markdown)
+        self.assertIn(
+            "p1_criterion2_threshold_output_certificate_artifact_gate",
+            markdown,
+        )
+        self.assertIn(
+            "p1_criterion2_real_recomputation_evidence_artifact_gate",
+            markdown,
+        )
         self.assertIn("rejection_distribution_review_digest", markdown)
         self.assertIn("theorem_linkage_artifact_digest", markdown)
         self.assertIn("formalized_open_proof_payload", markdown)
