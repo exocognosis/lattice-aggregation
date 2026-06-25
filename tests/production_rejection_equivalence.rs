@@ -2515,7 +2515,7 @@ fn p1_standard_verifier_compatibility_artifact_accepts_bound_verifier_payload() 
         .standard_verifier_compatibility_certificate()
         .expect("accepted verifier payload should produce a compatibility certificate");
     let expected_public_key_digest: [u8; 32] =
-        Sha3_256::digest(&transcript.input().public_key.0).into();
+        Sha3_256::digest(transcript.input().public_key.0).into();
     let expected_message_digest: [u8; 32] =
         Sha3_256::digest(&transcript.input().application_message).into();
     let recomputation_certificate = p1_recomputation_certificate();

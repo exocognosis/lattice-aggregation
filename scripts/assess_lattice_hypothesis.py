@@ -1351,9 +1351,19 @@ def scan_documents(root):
             unauthorized_reduction_closure_framework
         ),
         "readme_research_boundary": (
-            "research status" in readme
-            and "deterministic simulation" in readme
-            and "if the hypothesis is proven" in readme
+            (
+                "research status" in readme
+                and "deterministic simulation" in readme
+                and "if the hypothesis is proven" in readme
+            )
+            or (
+                "current status" in readme
+                and "research artifact" in readme
+                and "not publishable as production cryptography" in readme
+                and "partially_proven" in readme
+                and "standard-verifier-compatible aggregate signature scheme"
+                in readme
+            )
         ),
         "standard_verifier_blocked": (
             "standard-verifier bridge tests" in combined

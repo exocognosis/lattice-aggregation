@@ -97,6 +97,25 @@ class VerdictRuleTests(unittest.TestCase):
 
 
 class DocumentClassificationTests(unittest.TestCase):
+    def test_scan_documents_accepts_current_readme_boundary_wording(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "README.md").write_text(
+                "## Current Status\n\n"
+                "This repository is publishable as a research artifact and "
+                "exploratory implementation.\n"
+                "It is not publishable as production cryptography, a completed "
+                "threshold ML-DSA construction, or a finished "
+                "standard-verifier-compatible aggregate signature scheme.\n"
+                "Current merged-main assessment status: `partially_proven`.\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertTrue(scan["readme_research_boundary"])
+
     def test_scan_documents_finds_claim_boundaries_and_blockers(self):
         module = load_module()
         with tempfile.TemporaryDirectory() as tmp:
