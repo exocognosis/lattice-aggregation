@@ -401,6 +401,10 @@ pub enum P1Criterion2ProofSlotArtifactKind {
     TheoremLinkage = 6,
     /// External proof/audit review evidence.
     ExternalReview = 7,
+    /// Predecessor threshold-output certificate digest evidence.
+    ThresholdOutputCertificate = 8,
+    /// Predecessor real recomputation evidence digest.
+    RealRecomputationEvidence = 9,
 }
 
 impl P1Criterion2ProofSlotArtifactKind {
@@ -470,6 +474,10 @@ pub struct P1Criterion2ProofSlotArtifacts {
     pub theorem_linkage_artifact: P1Criterion2ProofSlotArtifact,
     /// External proof/audit review proof-slot artifact.
     pub external_review_artifact: P1Criterion2ProofSlotArtifact,
+    /// Threshold-output certificate predecessor proof-slot artifact.
+    pub threshold_output_certificate_artifact: P1Criterion2ProofSlotArtifact,
+    /// Real recomputation evidence predecessor proof-slot artifact.
+    pub real_recomputation_evidence_artifact: P1Criterion2ProofSlotArtifact,
 }
 
 impl P1Criterion2ProofSlotArtifacts {
@@ -484,6 +492,8 @@ impl P1Criterion2ProofSlotArtifacts {
         transcript_binding_artifact: P1Criterion2ProofSlotArtifact,
         theorem_linkage_artifact: P1Criterion2ProofSlotArtifact,
         external_review_artifact: P1Criterion2ProofSlotArtifact,
+        threshold_output_certificate_artifact: P1Criterion2ProofSlotArtifact,
+        real_recomputation_evidence_artifact: P1Criterion2ProofSlotArtifact,
     ) -> Self {
         Self {
             full_kat_validation_artifact,
@@ -494,6 +504,8 @@ impl P1Criterion2ProofSlotArtifacts {
             transcript_binding_artifact,
             theorem_linkage_artifact,
             external_review_artifact,
+            threshold_output_certificate_artifact,
+            real_recomputation_evidence_artifact,
         }
     }
 }
@@ -2104,6 +2116,8 @@ pub fn derive_p1_criterion2_proof_slot_artifacts(
     reviewed: bool,
 ) -> P1Criterion2ProofSlotArtifacts {
     let external_review_digest = *proof_artifacts.external_review_digest();
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
     P1Criterion2ProofSlotArtifacts::new(
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
@@ -2165,6 +2179,22 @@ pub fn derive_p1_criterion2_proof_slot_artifacts(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::ExternalReview,
             external_review_digest,
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::ThresholdOutputCertificate,
+            threshold_output_certificate_digest,
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::RealRecomputationEvidence,
+            *proof_artifacts.real_recomputation_evidence_digest(),
             external_review_digest,
             claim_boundary,
             reviewed,
@@ -3733,6 +3763,8 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
         };
     }
 
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
     let slot_artifacts = package.proof_slot_artifacts;
     let expected_review_evidence_digest = package.proof_artifacts.external_review_digest();
     let full_kat_validation_artifact_digest = match validate_p1_criterion2_proof_slot_artifact(
@@ -3821,6 +3853,32 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
         Ok(digest) => digest,
         Err(reason) => return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason },
     };
+    let threshold_output_certificate_artifact_digest =
+        match validate_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            &slot_artifacts.threshold_output_certificate_artifact,
+            P1Criterion2ProofSlotArtifactKind::ThresholdOutputCertificate,
+            &threshold_output_certificate_digest,
+            expected_review_evidence_digest,
+        ) {
+            Ok(digest) => digest,
+            Err(reason) => {
+                return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason };
+            }
+        };
+    let real_recomputation_evidence_artifact_digest =
+        match validate_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            &slot_artifacts.real_recomputation_evidence_artifact,
+            P1Criterion2ProofSlotArtifactKind::RealRecomputationEvidence,
+            package.proof_artifacts.real_recomputation_evidence_digest(),
+            expected_review_evidence_digest,
+        ) {
+            Ok(digest) => digest,
+            Err(reason) => {
+                return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason };
+            }
+        };
 
     for (digest, reason) in [
         (
@@ -3968,8 +4026,6 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
         };
     }
 
-    let threshold_output_certificate_digest =
-        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
     if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
         return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason:
@@ -4077,6 +4133,10 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
     if norm_bound_artifact_digest == hint_bound_artifact_digest
         || norm_bound_artifact_digest == challenge_bound_artifact_digest
         || transcript_binding_artifact_digest == external_review_artifact_digest
+        || threshold_output_certificate_artifact_digest
+            == real_recomputation_evidence_artifact_digest
+        || threshold_output_certificate_artifact_digest == external_review_artifact_digest
+        || real_recomputation_evidence_artifact_digest == external_review_artifact_digest
     {
         return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason: "P1 proof-closure Criterion 2 slot artifacts must be domain-separated",

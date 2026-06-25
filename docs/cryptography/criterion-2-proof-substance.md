@@ -48,8 +48,12 @@ not enough.
 
 The Criterion 2 proof payload requires these slots before any promotion:
 
-- `threshold_output_certificate_digest`
-- `real_recomputation_evidence_digest`
+- `threshold_output_certificate_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_threshold_output_certificate_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
+- `real_recomputation_evidence_digest`: `evidence_present_unclosed` from
+  `p1_criterion2_real_recomputation_evidence_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`).
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -84,17 +88,17 @@ The Criterion 2 proof payload requires these slots before any promotion:
 
 Typed Criterion 2 proof-slot artifact packages provide deterministic package
 shape, digest binding, review metadata, and proof-review claim boundaries for
-the listed slots. `evidence_present_unclosed` means the slot has typed evidence
-for review; `evidence_present_unclosed only` does not mean Criterion 2 is met,
-selected-backend proof closure is complete, rejection-distribution preservation
-is proven, or the theorem is closed. The slot claim boundary is
-`conformance/proof-review evidence only`.
+all listed slots, including the threshold-output certificate and real
+recomputation predecessor evidence. `evidence_present_unclosed` means the slot
+has typed evidence for review; `evidence_present_unclosed only` does not mean
+Criterion 2 is met, selected-backend proof closure is complete,
+rejection-distribution preservation is proven, or the theorem is closed. The
+slot claim boundary is `conformance/proof-review evidence only`.
 
-`threshold_output_certificate_digest` and `real_recomputation_evidence_digest`
-remain `required_unclosed`. Batch 4 proof-closure artifact packages, typed
-Criterion 2 proof-slot artifact packages, and the P1 standard-verifier
-compatibility artifact gate are inputs to this payload, not proof closure by
-themselves.
+All Criterion 2 proof slots now have typed `evidence_present_unclosed` wrappers.
+Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot
+artifact packages, and the P1 standard-verifier compatibility artifact gate are
+inputs to this payload, not proof closure by themselves.
 
 ## Theorem Links
 

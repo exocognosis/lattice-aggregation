@@ -174,6 +174,12 @@ CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "external_review_digest",
 ]
 CRITERION2_EVIDENCE_PRESENT_SLOTS = {
+    "threshold_output_certificate_digest": (
+        "p1_criterion2_threshold_output_certificate_artifact_gate"
+    ),
+    "real_recomputation_evidence_digest": (
+        "p1_criterion2_real_recomputation_evidence_artifact_gate"
+    ),
     "standard_verifier_compatibility_artifact_digest": (
         "p1_standard_verifier_compatibility_artifact_gate"
     ),
@@ -459,6 +465,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "typed criterion 2 proof-slot artifact packages",
         "p1_criterion2_proof_slot_artifact_package",
         "p1_standard_verifier_compatibility_artifact_gate",
+        "p1_criterion2_threshold_output_certificate_artifact_gate",
+        "p1_criterion2_real_recomputation_evidence_artifact_gate",
         "rejection_distribution_review_digest",
         "p1_criterion2_rejection_distribution_review_artifact_gate",
         "theorem_linkage_artifact_digest",
@@ -1192,6 +1200,10 @@ def scan_documents(root):
             "TranscriptBinding",
             "TheoremLinkage",
             "ExternalReview",
+            "ThresholdOutputCertificate",
+            "RealRecomputationEvidence",
+            "threshold_output_certificate_artifact",
+            "real_recomputation_evidence_artifact",
             "validate_p1_criterion2_proof_slot_artifact",
             "source_evidence_digest",
             "review_evidence_digest",
@@ -1216,6 +1228,20 @@ def scan_documents(root):
             "slot",
             "digest",
             "drift",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "threshold",
+            "slot",
+            "source",
+            "tamper",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "recomputation",
+            "slot",
+            "review",
+            "tamper",
         )
     )
     p1_standard_verifier_compatibility_artifact_gate = (
@@ -1686,11 +1712,13 @@ def classify_criteria(criteria, scan):
                 partial_progress = True
                 observed.append(
                     "Typed Criterion 2 proof-slot artifact packages are "
-                    "present for P1; they domain-separate full KAT/validation, "
+                    "present for P1; they domain-separate threshold-output "
+                    "certificate, real recomputation, full KAT/validation, "
                     "rejection-distribution review, norm-bound, hint-bound, "
                     "challenge-bound, transcript-binding, theorem-linkage, "
                     "and external-review evidence as evidence_present_unclosed "
-                    "only. They remain conformance/proof-review evidence only "
+                    "only. All Criterion 2 proof slots have typed wrappers, "
+                    "but they remain conformance/proof-review evidence only "
                     "and do not change aggregate_rejection_equivalence from "
                     "partially_met, do not change the overall verdict from "
                     "partially_proven, and do not claim selected-backend proof "
