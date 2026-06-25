@@ -54,6 +54,8 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `real_recomputation_evidence_digest`: `evidence_present_unclosed` from
   `p1_criterion2_real_recomputation_evidence_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
+  Checked recomputation fixture:
+  `tests/fixtures/p1_real_recomputation_artifact_fixture.json`.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -101,6 +103,11 @@ predecessor slot artifact digests through
 `P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest`
 and
 `P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`.
+The real recomputation predecessor slot is now backed by the checked
+`tests/fixtures/p1_real_recomputation_artifact_fixture.json` fixture so
+reviewers can inspect the bound source evidence, review digest, transcript
+binding, predecessor threshold-output certificate, and typed slot artifact
+digest without relying only on in-memory test construction.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.

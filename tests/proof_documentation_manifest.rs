@@ -119,6 +119,7 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "`P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`",
             "evidence_present_unclosed only",
             "conformance/proof-review evidence only",
+            "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
             "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
             "rejection_distribution_review_digest",
             "theorem_linkage_artifact_digest",

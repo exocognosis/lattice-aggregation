@@ -284,3 +284,43 @@ fn criterion2_manifest_links_existing_evidence_surfaces() {
         );
     }
 }
+
+#[test]
+fn criterion2_manifest_links_real_recomputation_fixture() {
+    let manifest = manifest();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let fixture_refs = manifest["proof_payload"]["artifact_fixture_refs"]
+        .as_array()
+        .expect("artifact_fixture_refs is an array");
+
+    let recomputation_fixture = fixture_refs
+        .iter()
+        .find(|entry| entry["slot_id"].as_str() == Some("real_recomputation_evidence_digest"))
+        .expect("real recomputation proof slot has a checked fixture reference");
+
+    assert_eq!(
+        recomputation_fixture["fixture_path"],
+        "tests/fixtures/p1_real_recomputation_artifact_fixture.json"
+    );
+    assert_eq!(
+        recomputation_fixture["schema"],
+        "lattice-aggregation:p1-real-recomputation-artifact:v1"
+    );
+    assert_eq!(
+        recomputation_fixture["claim_boundary"],
+        "conformance/proof-review evidence only"
+    );
+    assert_eq!(
+        recomputation_fixture["current_status"],
+        "evidence_present_unclosed"
+    );
+    assert!(
+        root.join(
+            recomputation_fixture["fixture_path"]
+                .as_str()
+                .expect("fixture_path is a string")
+        )
+        .exists(),
+        "real recomputation fixture must be checked in"
+    );
+}

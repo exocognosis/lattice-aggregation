@@ -178,6 +178,11 @@ artifact certificate through
 `P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest`
 and
 `P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`.
+The real recomputation predecessor slot is also backed by the checked
+`tests/fixtures/p1_real_recomputation_artifact_fixture.json` fixture, which
+binds the real recomputation source digest, review evidence digest,
+threshold-output certificate digest, transcript binding, and typed slot artifact
+digest for proof review.
 They are still not criterion closure by themselves.
 
 ## Claim Boundary
