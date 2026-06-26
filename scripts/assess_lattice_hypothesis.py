@@ -249,6 +249,15 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
         "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
+        "slot_id": "rejection_distribution_review_digest",
+        "fixture_path": (
+            "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
+        ),
+        "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only",
     }
 ]
 CRITERION2_ARTIFACT_SLOT_STATUSES = {
@@ -514,9 +523,11 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "p1_criterion2_proof_slot_artifact_package",
         "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
         "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+        "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
+        "checked rejection-distribution review fixture",
         "p1_standard_verifier_compatibility_artifact_gate",
         "p1_criterion2_threshold_output_certificate_artifact_gate",
         "p1_criterion2_real_recomputation_evidence_artifact_gate",

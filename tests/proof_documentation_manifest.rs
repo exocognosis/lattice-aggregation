@@ -122,6 +122,7 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
             "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+            "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
             "rejection_distribution_review_digest",
             "theorem_linkage_artifact_digest",
             "partially_met",
