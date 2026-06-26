@@ -29,6 +29,7 @@ PQCA / Open Quantum Safe, Arbitrum, Rust Foundation, and academic cryptography
 groups).
 
 - **One-page executive summary:** [docs/grant/one-pager.md](docs/grant/one-pager.md)
+- **Full grant proposal** (aims, novelty, risks, work plan, budget, evidence-vs-obligations): [docs/grant/proposal.md](docs/grant/proposal.md) ([package index](docs/grant/README.md))
 - **Ethereum / post-quantum alignment:** [Alignment with Ethereum Post-Quantum Priorities](#alignment-with-ethereum-post-quantum-priorities)
 - **What it takes to close the thesis:** [Path to Full Hypothesis Closure](#path-to-full-hypothesis-closure)
 - **Protocol flow & security boundaries:** [docs/assets/protocol-flow.md](docs/assets/protocol-flow.md)

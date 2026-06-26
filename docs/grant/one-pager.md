@@ -9,6 +9,11 @@ an unmodified verifier accepts.
 > hypothesis assessment reports `partially_proven`, with all five criteria
 > `partially_met`.
 
+For the full proposal — specific aims, novelty and related-work comparison,
+risk register, 6-to-12-month work plan, budget justification, and the
+current-evidence-vs-remaining-obligations table — see
+[proposal.md](proposal.md) (or the [package index](README.md)).
+
 ---
 
 ## Problem
