@@ -286,41 +286,45 @@ fn criterion2_manifest_links_existing_evidence_surfaces() {
 }
 
 #[test]
-fn criterion2_manifest_links_real_recomputation_fixture() {
+fn criterion2_manifest_links_checked_fixture_refs() {
     let manifest = manifest();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let fixture_refs = manifest["proof_payload"]["artifact_fixture_refs"]
         .as_array()
         .expect("artifact_fixture_refs is an array");
 
-    let recomputation_fixture = fixture_refs
-        .iter()
-        .find(|entry| entry["slot_id"].as_str() == Some("real_recomputation_evidence_digest"))
-        .expect("real recomputation proof slot has a checked fixture reference");
+    for (slot_id, fixture_path, schema) in [
+        (
+            "real_recomputation_evidence_digest",
+            "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+            "lattice-aggregation:p1-real-recomputation-artifact:v1",
+        ),
+        (
+            "standard_verifier_compatibility_artifact_digest",
+            "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+            "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
+        ),
+    ] {
+        let fixture_ref = fixture_refs
+            .iter()
+            .find(|entry| entry["slot_id"].as_str() == Some(slot_id))
+            .unwrap_or_else(|| panic!("{slot_id} has a checked fixture reference"));
 
-    assert_eq!(
-        recomputation_fixture["fixture_path"],
-        "tests/fixtures/p1_real_recomputation_artifact_fixture.json"
-    );
-    assert_eq!(
-        recomputation_fixture["schema"],
-        "lattice-aggregation:p1-real-recomputation-artifact:v1"
-    );
-    assert_eq!(
-        recomputation_fixture["claim_boundary"],
-        "conformance/proof-review evidence only"
-    );
-    assert_eq!(
-        recomputation_fixture["current_status"],
-        "evidence_present_unclosed"
-    );
-    assert!(
-        root.join(
-            recomputation_fixture["fixture_path"]
-                .as_str()
-                .expect("fixture_path is a string")
-        )
-        .exists(),
-        "real recomputation fixture must be checked in"
-    );
+        assert_eq!(fixture_ref["fixture_path"], fixture_path);
+        assert_eq!(fixture_ref["schema"], schema);
+        assert_eq!(
+            fixture_ref["claim_boundary"],
+            "conformance/proof-review evidence only"
+        );
+        assert_eq!(fixture_ref["current_status"], "evidence_present_unclosed");
+        assert!(
+            root.join(
+                fixture_ref["fixture_path"]
+                    .as_str()
+                    .expect("fixture_path is a string")
+            )
+            .exists(),
+            "{fixture_path} must be checked in"
+        );
+    }
 }
