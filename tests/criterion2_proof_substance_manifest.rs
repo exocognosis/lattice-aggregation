@@ -295,6 +295,11 @@ fn criterion2_manifest_links_checked_fixture_refs() {
 
     for (slot_id, fixture_path, schema) in [
         (
+            "threshold_output_certificate_digest",
+            "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
+            "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
+        ),
+        (
             "real_recomputation_evidence_digest",
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
             "lattice-aggregation:p1-real-recomputation-artifact:v1",
