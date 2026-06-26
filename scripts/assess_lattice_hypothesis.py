@@ -233,6 +233,13 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
         "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
+        "slot_id": "standard_verifier_compatibility_artifact_digest",
+        "fixture_path": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+        "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only",
     }
 ]
 CRITERION2_ARTIFACT_SLOT_STATUSES = {
@@ -498,6 +505,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "p1_criterion2_proof_slot_artifact_package",
         "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "checked recomputation fixture",
+        "checked standard-verifier compatibility fixture",
         "p1_standard_verifier_compatibility_artifact_gate",
         "p1_criterion2_threshold_output_certificate_artifact_gate",
         "p1_criterion2_real_recomputation_evidence_artifact_gate",
