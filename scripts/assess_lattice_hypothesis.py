@@ -226,6 +226,15 @@ CRITERION2_DURABLE_CERTIFICATE_SURFACE = (
 CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACE = (
     "P1SelectedBackendProofClosureArtifactCertificate"
 )
+CRITERION2_ARTIFACT_FIXTURE_REFS = [
+    {
+        "slot_id": "real_recomputation_evidence_digest",
+        "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+        "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only",
+    }
+]
 CRITERION2_ARTIFACT_SLOT_STATUSES = {
     slot: (
         "evidence_present_unclosed"
@@ -467,6 +476,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
     durable_certificate_evidence = proof_payload.get(
         "durable_certificate_evidence", []
     )
+    artifact_fixture_refs = proof_payload.get("artifact_fixture_refs", [])
     durable_certificate_evidence_by_slot = {
         entry.get("slot_id"): entry
         for entry in durable_certificate_evidence
@@ -486,6 +496,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "evidence_present_unclosed only",
         "typed criterion 2 proof-slot artifact packages",
         "p1_criterion2_proof_slot_artifact_package",
+        "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+        "checked recomputation fixture",
         "p1_standard_verifier_compatibility_artifact_gate",
         "p1_criterion2_threshold_output_certificate_artifact_gate",
         "p1_criterion2_real_recomputation_evidence_artifact_gate",
@@ -585,6 +597,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         )
         and evidence_present_slots_pinned
     )
+    artifact_fixture_refs_pinned = artifact_fixture_refs == CRITERION2_ARTIFACT_FIXTURE_REFS
     theorem_links_pinned = entries_contain_terms(
         theorem_links,
         CRITERION2_THEOREM_LINKS,
@@ -620,6 +633,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         == "MLDSA65.Verify(pk, m, sigma) = accept"
         and false_claims_pinned
         and artifact_slots_pinned
+        and artifact_fixture_refs_pinned
         and theorem_links_pinned
         and promotion_anchors_pinned
         and failure_anchors_pinned
@@ -638,6 +652,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         missing_evidence.append("claim_boundary false claims")
     if manifest and not artifact_slots_pinned:
         missing_evidence.append("required_artifact_slots")
+    if manifest and not artifact_fixture_refs_pinned:
+        missing_evidence.append("artifact_fixture_refs")
     if manifest and not theorem_links_pinned:
         missing_evidence.append("theorem_links")
 
@@ -658,6 +674,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "artifact_slot_statuses": artifact_slot_statuses,
         "artifact_slot_sources": artifact_slot_sources,
         "artifact_slot_certificate_accessors": artifact_slot_certificate_accessors,
+        "artifact_fixture_refs": artifact_fixture_refs,
         "durable_certificate_evidence": durable_certificate_evidence,
         "theorem_links": theorem_links,
         "missing_evidence": sorted(set(missing_evidence)),

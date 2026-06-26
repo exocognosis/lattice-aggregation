@@ -257,6 +257,31 @@ class DocumentClassificationTests(unittest.TestCase):
             any("Real P1 aggregate recomputation artifacts" in item for item in rejection["blockers"])
         )
 
+    def test_criterion2_status_surfaces_real_recomputation_fixture_reference(self):
+        module = load_module()
+        markdown = (
+            (ROOT / "docs" / "cryptography" / "criterion-2-proof-substance.md")
+            .read_text(encoding="utf-8")
+        )
+        manifest = (
+            (ROOT / "docs" / "cryptography" / "criterion-2-proof-substance.json")
+            .read_text(encoding="utf-8")
+        )
+
+        status = module.criterion2_proof_substance_status(markdown, manifest)
+
+        self.assertEqual(status["status"], "criterion2_proof_payload_formalized")
+        self.assertIn(
+            {
+                "slot_id": "real_recomputation_evidence_digest",
+                "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+                "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
+                "current_status": "evidence_present_unclosed",
+                "claim_boundary": "conformance/proof-review evidence only",
+            },
+            status["artifact_fixture_refs"],
+        )
+
 
 class ReportGenerationTests(unittest.TestCase):
     def write_minimal_repo_docs(self, root):
@@ -845,6 +870,8 @@ class ReportGenerationTests(unittest.TestCase):
             "evidence_present_unclosed only, "
             "typed Criterion 2 proof-slot artifact packages, "
             "p1_criterion2_proof_slot_artifact_package, "
+            "tests/fixtures/p1_real_recomputation_artifact_fixture.json, "
+            "checked recomputation fixture, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
             "rejection_distribution_review_digest, "
@@ -1029,6 +1056,21 @@ class ReportGenerationTests(unittest.TestCase):
                     }
                     for slot in certificate_accessors
                 ],
+                "artifact_fixture_refs": [
+                    {
+                        "slot_id": "real_recomputation_evidence_digest",
+                        "fixture_path": (
+                            "tests/fixtures/p1_real_recomputation_artifact_fixture.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-real-recomputation-artifact:v1"
+                        ),
+                        "current_status": "evidence_present_unclosed",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    }
+                ],
             },
             "promotion_requires": [
                 "reviewed proof payload tying threshold-output, recomputation, bounds, rejection behavior, and standard verification",
@@ -1046,6 +1088,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "docs/cryptography/proof-obligations.md",
                 "src/production/rejection_equivalence.rs",
                 "tests/production_rejection_equivalence.rs",
+                "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
             ],
             "assessment": {
                 "criterion_status": "partially_met",
