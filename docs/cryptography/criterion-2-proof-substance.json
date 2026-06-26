@@ -116,6 +116,13 @@
     ],
     "artifact_fixture_refs": [
       {
+        "slot_id": "threshold_output_certificate_digest",
+        "fixture_path": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
+        "schema": "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "real_recomputation_evidence_digest",
         "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
@@ -171,6 +178,7 @@
     "docs/cryptography/formal-security-theorem.md",
     "src/production/rejection_equivalence.rs",
     "tests/production_rejection_equivalence.rs",
+    "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
   ],

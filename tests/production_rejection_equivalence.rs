@@ -72,6 +72,8 @@ const EXPECTED_P1_STANDARD_VERIFIER_BRIDGE_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "28a59ad2845dc0e6694c997ed106c23f09966efb6028431dd55ac8ccdb9639fa";
 const EXPECTED_P1_REAL_RECOMPUTATION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "b1f0f1ad5682c3d92781631bdd6d1bd412acc45e0408c0c8b16088e36307d1be";
+const EXPECTED_P1_THRESHOLD_OUTPUT_CERTIFICATE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
+    "b60af953ac22542646287f1ded308bd2e479e24da761bdc0371c77cb7bba2e92";
 
 struct AcceptingProvider;
 
@@ -121,6 +123,13 @@ fn real_recomputation_artifact_fixture() -> P1RealRecomputationArtifactFixture {
     .expect("P1 real recomputation artifact fixture should parse")
 }
 
+fn threshold_output_certificate_artifact_fixture() -> P1ThresholdOutputCertificateArtifactFixture {
+    serde_json::from_str(include_str!(
+        "fixtures/p1_threshold_output_certificate_artifact_fixture.json"
+    ))
+    .expect("P1 threshold-output certificate artifact fixture should parse")
+}
+
 fn standard_verifier_bridge_digest() -> [u8; 32] {
     let fixture = standard_verifier_bridge_fixture();
     let evidence = fixture_bridge_evidence(&fixture);
@@ -146,6 +155,16 @@ fn real_recomputation_artifact_fixture_package_digest() -> [u8; 32] {
     hasher.update(b"lattice-aggregation:p1-real-recomputation-artifact-fixture-package:v1");
     hasher.update(include_bytes!(
         "fixtures/p1_real_recomputation_artifact_fixture.json"
+    ));
+    hasher.finalize().into()
+}
+
+fn threshold_output_certificate_artifact_fixture_package_digest() -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher
+        .update(b"lattice-aggregation:p1-threshold-output-certificate-artifact-fixture-package:v1");
+    hasher.update(include_bytes!(
+        "fixtures/p1_threshold_output_certificate_artifact_fixture.json"
     ));
     hasher.finalize().into()
 }
@@ -362,6 +381,21 @@ struct P1RealRecomputationArtifactFixture {
 }
 
 #[derive(Deserialize)]
+struct P1ThresholdOutputCertificateArtifactFixture {
+    name: String,
+    schema: String,
+    claim_boundary: String,
+    selected_profile: String,
+    source_bridge_fixture: String,
+    source_standard_verifier_compatibility_fixture: String,
+    source_threshold_output_package: ThresholdOutputSourcePackageFixture,
+    note: String,
+    slot_artifact: ThresholdOutputCertificateSlotFixture,
+    expected: ThresholdOutputCertificateExpectedDigests,
+    negative_cases: Vec<ThresholdOutputCertificateNegativeCase>,
+}
+
+#[derive(Deserialize)]
 struct RealRecomputationSlotFixture {
     slot_id: String,
     kind: String,
@@ -369,6 +403,22 @@ struct RealRecomputationSlotFixture {
     artifact_package: String,
     current_status: String,
     reviewed: bool,
+}
+
+#[derive(Deserialize)]
+struct ThresholdOutputCertificateSlotFixture {
+    slot_id: String,
+    kind: String,
+    evidence_source: String,
+    artifact_package: String,
+    current_status: String,
+    reviewed: bool,
+}
+
+#[derive(Deserialize)]
+struct ThresholdOutputSourcePackageFixture {
+    encoding: String,
+    value: String,
 }
 
 #[derive(Deserialize)]
@@ -386,7 +436,34 @@ struct RealRecomputationExpectedDigests {
 }
 
 #[derive(Deserialize)]
+struct ThresholdOutputCertificateExpectedDigests {
+    selected_profile_binding_digest_hex: String,
+    aggregate_artifact_digest_hex: String,
+    provider_kat_evidence_digest_hex: String,
+    threshold_output_source_package_digest_hex: String,
+    threshold_output_source_digest_hex: String,
+    threshold_output_certificate_digest_hex: String,
+    transcript_binding_digest_hex: String,
+    signer_set_digest_hex: String,
+    attempt_binding_digest_hex: String,
+    aggregate_response_digest_hex: String,
+    hint_digest_hex: String,
+    accepted_signature_digest_hex: String,
+    source_evidence_digest_hex: String,
+    review_evidence_digest_hex: String,
+    artifact_digest_hex: String,
+    standard_verifier_bridge_evidence_digest_hex: String,
+    real_recomputation_evidence_digest_hex: String,
+}
+
+#[derive(Deserialize)]
 struct RealRecomputationNegativeCase {
+    name: String,
+    expected_gate: String,
+}
+
+#[derive(Deserialize)]
+struct ThresholdOutputCertificateNegativeCase {
     name: String,
     expected_gate: String,
 }
@@ -484,6 +561,83 @@ impl RealRecomputationExpectedDigests {
 
     fn accepted_signature_digest(&self) -> [u8; 32] {
         decode_hex_array(&self.accepted_signature_digest_hex)
+    }
+}
+
+impl ThresholdOutputSourcePackageFixture {
+    fn bytes(&self) -> &[u8] {
+        assert_eq!(self.encoding, "utf8");
+        self.value.as_bytes()
+    }
+}
+
+impl ThresholdOutputCertificateExpectedDigests {
+    fn selected_profile_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.selected_profile_binding_digest_hex)
+    }
+
+    fn aggregate_artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.aggregate_artifact_digest_hex)
+    }
+
+    fn provider_kat_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.provider_kat_evidence_digest_hex)
+    }
+
+    fn threshold_output_source_package_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_source_package_digest_hex)
+    }
+
+    fn threshold_output_source_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_source_digest_hex)
+    }
+
+    fn threshold_output_certificate_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_certificate_digest_hex)
+    }
+
+    fn transcript_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.transcript_binding_digest_hex)
+    }
+
+    fn signer_set_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.signer_set_digest_hex)
+    }
+
+    fn attempt_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.attempt_binding_digest_hex)
+    }
+
+    fn aggregate_response_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.aggregate_response_digest_hex)
+    }
+
+    fn hint_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.hint_digest_hex)
+    }
+
+    fn accepted_signature_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.accepted_signature_digest_hex)
+    }
+
+    fn source_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.source_evidence_digest_hex)
+    }
+
+    fn review_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.review_evidence_digest_hex)
+    }
+
+    fn artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.artifact_digest_hex)
+    }
+
+    fn standard_verifier_bridge_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.standard_verifier_bridge_evidence_digest_hex)
+    }
+
+    fn real_recomputation_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.real_recomputation_evidence_digest_hex)
     }
 }
 
@@ -1131,6 +1285,261 @@ fn real_recomputation_artifact_fixture_parses_and_matches_typed_slot() {
 }
 
 #[test]
+fn threshold_output_certificate_artifact_fixture_parses_and_matches_typed_slot() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let threshold_fixture = threshold_output_certificate_artifact_fixture();
+    let proof_closure_package = selected_backend_proof_closure_artifact_package(&bridge_fixture);
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(&bridge_fixture);
+    let threshold_source = threshold_output_evidence_source(&bridge_fixture);
+    let transcript = transcript_from_fixture(&bridge_fixture.transcript);
+    let accepted_aggregate = accepted_aggregate_from_fixture(&bridge_fixture);
+    let recomputation = fixture_recomputation_transcript(&bridge_fixture);
+    let threshold_slot = proof_closure_package
+        .proof_slot_artifacts
+        .threshold_output_certificate_artifact;
+
+    assert_eq!(
+        threshold_fixture.name,
+        "p1-threshold-output-certificate-artifact-fixture-v1"
+    );
+    assert_eq!(
+        threshold_fixture.schema,
+        "lattice-aggregation:p1-threshold-output-certificate-artifact:v1"
+    );
+    assert_eq!(
+        threshold_fixture.claim_boundary,
+        "conformance/proof-review evidence only"
+    );
+    assert_eq!(
+        threshold_fixture.selected_profile,
+        "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+    );
+    assert_eq!(
+        threshold_fixture.source_bridge_fixture,
+        "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
+    );
+    assert_eq!(
+        threshold_fixture.source_standard_verifier_compatibility_fixture,
+        "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
+    );
+    assert_eq!(
+        threshold_fixture.source_threshold_output_package.bytes(),
+        DEFAULT_THRESHOLD_OUTPUT_SOURCE_PACKAGE
+    );
+    assert!(threshold_fixture
+        .note
+        .contains("not selected-backend proof closure"));
+    assert!(threshold_fixture
+        .note
+        .contains("not rejection-distribution preservation"));
+    assert_eq!(
+        threshold_fixture.slot_artifact.slot_id,
+        "threshold_output_certificate_digest"
+    );
+    assert_eq!(
+        threshold_fixture.slot_artifact.kind,
+        "ThresholdOutputCertificate"
+    );
+    assert_eq!(
+        threshold_fixture.slot_artifact.evidence_source,
+        "p1_criterion2_threshold_output_certificate_artifact_gate"
+    );
+    assert_eq!(
+        threshold_fixture.slot_artifact.artifact_package,
+        "p1_criterion2_proof_slot_artifact_package"
+    );
+    assert_eq!(
+        threshold_fixture.slot_artifact.current_status,
+        "evidence_present_unclosed"
+    );
+    assert!(threshold_fixture.slot_artifact.reviewed);
+    assert!(threshold_source.reviewed());
+    assert_eq!(
+        derive_p1_selected_backend_threshold_output_source_package_digest(
+            threshold_fixture.source_threshold_output_package.bytes()
+        ),
+        threshold_fixture
+            .expected
+            .threshold_output_source_package_digest()
+    );
+    assert_eq!(
+        derive_p1_selected_backend_threshold_output_source_digest(
+            &transcript,
+            &accepted_aggregate,
+            &recomputation,
+            threshold_fixture.source_threshold_output_package.bytes(),
+        ),
+        threshold_fixture.expected.threshold_output_source_digest()
+    );
+    assert_eq!(
+        threshold_source.source_package_digest(),
+        &threshold_fixture
+            .expected
+            .threshold_output_source_package_digest()
+    );
+    assert_eq!(
+        threshold_source.source_digest(),
+        &threshold_fixture.expected.threshold_output_source_digest()
+    );
+    assert_eq!(
+        threshold_certificate.selected_profile_binding_digest(),
+        &threshold_fixture.expected.selected_profile_binding_digest()
+    );
+    assert_eq!(
+        threshold_certificate.aggregate_artifact_digest(),
+        &threshold_fixture.expected.aggregate_artifact_digest()
+    );
+    assert_eq!(
+        threshold_certificate.provider_kat_evidence_digest(),
+        &threshold_fixture.expected.provider_kat_evidence_digest()
+    );
+    assert_eq!(
+        threshold_certificate.threshold_output_source_package_digest(),
+        &threshold_fixture
+            .expected
+            .threshold_output_source_package_digest()
+    );
+    assert_eq!(
+        threshold_certificate.threshold_output_source_digest(),
+        &threshold_fixture.expected.threshold_output_source_digest()
+    );
+    assert_eq!(
+        derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate),
+        threshold_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        threshold_certificate.transcript_binding_digest(),
+        &threshold_fixture.expected.transcript_binding_digest()
+    );
+    assert_eq!(
+        threshold_certificate.signer_set_digest(),
+        &threshold_fixture.expected.signer_set_digest()
+    );
+    assert_eq!(
+        threshold_certificate.attempt_binding_digest(),
+        &threshold_fixture.expected.attempt_binding_digest()
+    );
+    assert_eq!(
+        threshold_certificate.aggregate_response_digest(),
+        &threshold_fixture.expected.aggregate_response_digest()
+    );
+    assert_eq!(
+        threshold_certificate.hint_digest(),
+        &threshold_fixture.expected.hint_digest()
+    );
+    assert_eq!(
+        threshold_certificate.accepted_signature_digest(),
+        &threshold_fixture.expected.accepted_signature_digest()
+    );
+    assert_eq!(
+        threshold_certificate.standard_verifier_bridge_evidence_digest(),
+        &threshold_fixture
+            .expected
+            .standard_verifier_bridge_evidence_digest()
+    );
+    assert_eq!(
+        threshold_certificate.real_recomputation_evidence_digest(),
+        &threshold_fixture
+            .expected
+            .real_recomputation_evidence_digest()
+    );
+    assert_eq!(
+        threshold_slot.kind(),
+        P1Criterion2ProofSlotArtifactKind::ThresholdOutputCertificate
+    );
+    assert_eq!(
+        threshold_slot.selected_profile_binding_digest,
+        threshold_fixture.expected.selected_profile_binding_digest()
+    );
+    assert_eq!(
+        threshold_slot.threshold_output_certificate_digest,
+        threshold_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        threshold_slot.transcript_binding_digest,
+        threshold_fixture.expected.transcript_binding_digest()
+    );
+    assert_eq!(
+        threshold_slot.source_evidence_digest,
+        threshold_fixture.expected.source_evidence_digest()
+    );
+    assert_eq!(
+        threshold_slot.review_evidence_digest,
+        threshold_fixture.expected.review_evidence_digest()
+    );
+    assert_eq!(
+        threshold_slot.artifact_digest(),
+        &threshold_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        derive_p1_criterion2_proof_slot_artifact_digest(&threshold_slot),
+        threshold_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        proof_closure_package.threshold_output_certificate_digest,
+        threshold_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        proof_closure_package.standard_verifier_bridge_evidence_digest,
+        threshold_fixture
+            .expected
+            .standard_verifier_bridge_evidence_digest()
+    );
+    assert_eq!(
+        proof_closure_package
+            .proof_artifacts
+            .real_recomputation_evidence_digest(),
+        &threshold_fixture
+            .expected
+            .real_recomputation_evidence_digest()
+    );
+    assert_eq!(
+        proof_closure_package.aggregate_response_digest,
+        threshold_fixture.expected.aggregate_response_digest()
+    );
+    assert_eq!(
+        proof_closure_package.hint_digest,
+        threshold_fixture.expected.hint_digest()
+    );
+    assert_eq!(
+        proof_closure_package.accepted_signature_digest,
+        threshold_fixture.expected.accepted_signature_digest()
+    );
+    assert_eq!(
+        threshold_fixture
+            .negative_cases
+            .iter()
+            .map(|case| (case.name.as_str(), case.expected_gate.as_str()))
+            .collect::<BTreeSet<_>>(),
+        BTreeSet::from([
+            (
+                "stale_threshold_certificate_digest",
+                "p1_selected_backend_proof_closure_artifact_rejects_stale_threshold_certificate_digest",
+            ),
+            (
+                "threshold_slot_source_tamper",
+                "p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_source_tamper",
+            ),
+            (
+                "threshold_slot_review_tamper",
+                "p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_review_tamper",
+            ),
+            (
+                "typed_slot_digest_drift",
+                "p1_selected_backend_proof_closure_artifact_rejects_typed_slot_digest_drift",
+            ),
+        ])
+    );
+}
+
+#[test]
 fn standard_verifier_bridge_fixture_digest_is_deterministic_nonzero_and_not_placeholder() {
     let fixture = standard_verifier_bridge_fixture();
     let derived = standard_verifier_bridge_digest();
@@ -1160,6 +1569,17 @@ fn real_recomputation_artifact_fixture_package_digest_fails_loudly_on_drift() {
             EXPECTED_P1_REAL_RECOMPUTATION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
         ),
         "P1 real recomputation artifact fixture drifted; review Criterion 2 source/review digests, predecessor certificate binding, negative cases, and non-claim docs before updating the digest"
+    );
+}
+
+#[test]
+fn threshold_output_certificate_artifact_fixture_package_digest_fails_loudly_on_drift() {
+    assert_eq!(
+        threshold_output_certificate_artifact_fixture_package_digest(),
+        decode_hex_array::<32>(
+            EXPECTED_P1_THRESHOLD_OUTPUT_CERTIFICATE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
+        ),
+        "P1 threshold-output certificate artifact fixture drifted; review Criterion 2 source package, certificate binding, typed slot digest, negative cases, and non-claim docs before updating the digest"
     );
 }
 

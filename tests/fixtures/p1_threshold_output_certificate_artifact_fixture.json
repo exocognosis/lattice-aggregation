@@ -1,0 +1,58 @@
+{
+  "name": "p1-threshold-output-certificate-artifact-fixture-v1",
+  "schema": "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
+  "source_standard_verifier_compatibility_fixture": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+  "source_threshold_output_package": {
+    "encoding": "utf8",
+    "value": "coordinator-assisted threshold-output transcript package v1"
+  },
+  "note": "Checked threshold-output certificate proof-slot fixture for Criterion 2 review only; not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.",
+  "slot_artifact": {
+    "slot_id": "threshold_output_certificate_digest",
+    "kind": "ThresholdOutputCertificate",
+    "evidence_source": "p1_criterion2_threshold_output_certificate_artifact_gate",
+    "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+    "current_status": "evidence_present_unclosed",
+    "reviewed": true
+  },
+  "expected": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "aggregate_artifact_digest_hex": "1936526c9ddc8659a17b9268e5436bdb92f87abf2be9395e9370a03f87119ab0",
+    "provider_kat_evidence_digest_hex": "9336011f37b0fe90f0d52ad37e30c15f8aff488359e0e868c18626787c681e12",
+    "threshold_output_source_package_digest_hex": "6c4efed99e9d0816e1dd8c2169d87bd25aa810fe28c98faffc8ae5a8acb86f52",
+    "threshold_output_source_digest_hex": "92f537d537b33376bfb772ac08ef072ca02c686d0e712f84b3b3e84798dd6dc6",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f",
+    "transcript_binding_digest_hex": "f46232108fe8566806963154fa76c8b957dee0c7003a10f5ff082c58f94b7f8a",
+    "signer_set_digest_hex": "d33f9166f07c4d1dc3815818dac64200d8d377637ea3d52721ed24dc0ca35a9f",
+    "attempt_binding_digest_hex": "0d11827f6cc9c74ab4c168a2a091d3c3c923674da711b2d5daa1d07a1d14029b",
+    "aggregate_response_digest_hex": "e41c03e1463d24a41c6baa5985e40c73400118a2ead1bb5944671c9d190385b0",
+    "hint_digest_hex": "ce557d7e4188cfd152415e4df57f35d109bbe3c38d23bc0798f9183e790bbc7c",
+    "accepted_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30",
+    "source_evidence_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f",
+    "review_evidence_digest_hex": "3030303030303030303030303030303030303030303030303030303030303030",
+    "artifact_digest_hex": "d93287735dbe7878f971bca865fc376563812f2e36e120ccfa25f2ed3d78ae18",
+    "standard_verifier_bridge_evidence_digest_hex": "dfa42dff5d8c509f9f25298b3e28964db0cdb2987330d73fd2250fcf1eb77127",
+    "real_recomputation_evidence_digest_hex": "2929292929292929292929292929292929292929292929292929292929292929"
+  },
+  "negative_cases": [
+    {
+      "name": "stale_threshold_certificate_digest",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_stale_threshold_certificate_digest"
+    },
+    {
+      "name": "threshold_slot_source_tamper",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_source_tamper"
+    },
+    {
+      "name": "threshold_slot_review_tamper",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_review_tamper"
+    },
+    {
+      "name": "typed_slot_digest_drift",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_typed_slot_digest_drift"
+    }
+  ]
+}
