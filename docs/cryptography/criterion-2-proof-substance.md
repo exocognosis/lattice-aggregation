@@ -71,6 +71,8 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `rejection_distribution_review_digest`: `evidence_present_unclosed` from
   `p1_criterion2_rejection_distribution_review_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
+  Checked rejection-distribution review fixture:
+  `tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json`.
 - `norm_bound_artifact_digest`: `evidence_present_unclosed` from
   `p1_criterion2_norm_bound_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
@@ -122,6 +124,12 @@ fixture so reviewers can inspect the bound verifier payload, provider identity,
 accepted result, predecessor certificate digest, transcript binding, and
 standard-verifier compatibility artifact digest without promoting the slot
 beyond `evidence_present_unclosed`.
+The rejection-distribution review slot is now backed by the checked
+`tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json`
+fixture so reviewers can inspect the bound rejection-distribution review source
+evidence, review digest, threshold-output certificate digest, transcript
+binding, and typed slot artifact digest without promoting the slot beyond
+`evidence_present_unclosed`.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.

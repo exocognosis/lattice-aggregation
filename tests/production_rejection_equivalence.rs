@@ -74,6 +74,8 @@ const EXPECTED_P1_REAL_RECOMPUTATION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "b1f0f1ad5682c3d92781631bdd6d1bd412acc45e0408c0c8b16088e36307d1be";
 const EXPECTED_P1_THRESHOLD_OUTPUT_CERTIFICATE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "b60af953ac22542646287f1ded308bd2e479e24da761bdc0371c77cb7bba2e92";
+const EXPECTED_P1_REJECTION_DISTRIBUTION_REVIEW_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
+    "de7c71635f2c271f09856a1a4a0cffe292aa3d09a4e2bac09d9c04c90c7ce243";
 
 struct AcceptingProvider;
 
@@ -130,6 +132,14 @@ fn threshold_output_certificate_artifact_fixture() -> P1ThresholdOutputCertifica
     .expect("P1 threshold-output certificate artifact fixture should parse")
 }
 
+fn rejection_distribution_review_artifact_fixture() -> P1RejectionDistributionReviewArtifactFixture
+{
+    serde_json::from_str(include_str!(
+        "fixtures/p1_rejection_distribution_review_artifact_fixture.json"
+    ))
+    .expect("P1 rejection-distribution review artifact fixture should parse")
+}
+
 fn standard_verifier_bridge_digest() -> [u8; 32] {
     let fixture = standard_verifier_bridge_fixture();
     let evidence = fixture_bridge_evidence(&fixture);
@@ -165,6 +175,17 @@ fn threshold_output_certificate_artifact_fixture_package_digest() -> [u8; 32] {
         .update(b"lattice-aggregation:p1-threshold-output-certificate-artifact-fixture-package:v1");
     hasher.update(include_bytes!(
         "fixtures/p1_threshold_output_certificate_artifact_fixture.json"
+    ));
+    hasher.finalize().into()
+}
+
+fn rejection_distribution_review_artifact_fixture_package_digest() -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(
+        b"lattice-aggregation:p1-rejection-distribution-review-artifact-fixture-package:v1",
+    );
+    hasher.update(include_bytes!(
+        "fixtures/p1_rejection_distribution_review_artifact_fixture.json"
     ));
     hasher.finalize().into()
 }
@@ -396,6 +417,22 @@ struct P1ThresholdOutputCertificateArtifactFixture {
 }
 
 #[derive(Deserialize)]
+struct P1RejectionDistributionReviewArtifactFixture {
+    name: String,
+    schema: String,
+    claim_boundary: String,
+    selected_profile: String,
+    source_bridge_fixture: String,
+    source_standard_verifier_compatibility_fixture: String,
+    source_threshold_output_certificate_artifact_fixture: String,
+    source_real_recomputation_artifact_fixture: String,
+    note: String,
+    slot_artifact: RejectionDistributionReviewSlotFixture,
+    expected: RejectionDistributionReviewExpectedDigests,
+    negative_cases: Vec<RejectionDistributionReviewNegativeCase>,
+}
+
+#[derive(Deserialize)]
 struct RealRecomputationSlotFixture {
     slot_id: String,
     kind: String,
@@ -407,6 +444,16 @@ struct RealRecomputationSlotFixture {
 
 #[derive(Deserialize)]
 struct ThresholdOutputCertificateSlotFixture {
+    slot_id: String,
+    kind: String,
+    evidence_source: String,
+    artifact_package: String,
+    current_status: String,
+    reviewed: bool,
+}
+
+#[derive(Deserialize)]
+struct RejectionDistributionReviewSlotFixture {
     slot_id: String,
     kind: String,
     evidence_source: String,
@@ -457,6 +504,17 @@ struct ThresholdOutputCertificateExpectedDigests {
 }
 
 #[derive(Deserialize)]
+struct RejectionDistributionReviewExpectedDigests {
+    selected_profile_binding_digest_hex: String,
+    threshold_output_certificate_digest_hex: String,
+    transcript_binding_digest_hex: String,
+    source_evidence_digest_hex: String,
+    review_evidence_digest_hex: String,
+    artifact_digest_hex: String,
+    rejection_distribution_review_digest_hex: String,
+}
+
+#[derive(Deserialize)]
 struct RealRecomputationNegativeCase {
     name: String,
     expected_gate: String,
@@ -464,6 +522,12 @@ struct RealRecomputationNegativeCase {
 
 #[derive(Deserialize)]
 struct ThresholdOutputCertificateNegativeCase {
+    name: String,
+    expected_gate: String,
+}
+
+#[derive(Deserialize)]
+struct RejectionDistributionReviewNegativeCase {
     name: String,
     expected_gate: String,
 }
@@ -638,6 +702,36 @@ impl ThresholdOutputCertificateExpectedDigests {
 
     fn real_recomputation_evidence_digest(&self) -> [u8; 32] {
         decode_hex_array(&self.real_recomputation_evidence_digest_hex)
+    }
+}
+
+impl RejectionDistributionReviewExpectedDigests {
+    fn selected_profile_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.selected_profile_binding_digest_hex)
+    }
+
+    fn threshold_output_certificate_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_certificate_digest_hex)
+    }
+
+    fn transcript_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.transcript_binding_digest_hex)
+    }
+
+    fn source_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.source_evidence_digest_hex)
+    }
+
+    fn review_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.review_evidence_digest_hex)
+    }
+
+    fn artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.artifact_digest_hex)
+    }
+
+    fn rejection_distribution_review_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.rejection_distribution_review_digest_hex)
     }
 }
 
@@ -1540,6 +1634,177 @@ fn threshold_output_certificate_artifact_fixture_parses_and_matches_typed_slot()
 }
 
 #[test]
+fn rejection_distribution_review_artifact_fixture_parses_and_matches_typed_slot() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let rejection_fixture = rejection_distribution_review_artifact_fixture();
+    let proof_closure_package = selected_backend_proof_closure_artifact_package(&bridge_fixture);
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(&bridge_fixture);
+    let rejection_slot = proof_closure_package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact;
+
+    assert_eq!(
+        rejection_fixture.name,
+        "p1-rejection-distribution-review-artifact-fixture-v1"
+    );
+    assert_eq!(
+        rejection_fixture.schema,
+        "lattice-aggregation:p1-rejection-distribution-review-artifact:v1"
+    );
+    assert_eq!(
+        rejection_fixture.claim_boundary,
+        "conformance/proof-review evidence only"
+    );
+    assert_eq!(
+        rejection_fixture.selected_profile,
+        "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+    );
+    assert_eq!(
+        rejection_fixture.source_bridge_fixture,
+        "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
+    );
+    assert_eq!(
+        rejection_fixture.source_standard_verifier_compatibility_fixture,
+        "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
+    );
+    assert_eq!(
+        rejection_fixture.source_threshold_output_certificate_artifact_fixture,
+        "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json"
+    );
+    assert_eq!(
+        rejection_fixture.source_real_recomputation_artifact_fixture,
+        "tests/fixtures/p1_real_recomputation_artifact_fixture.json"
+    );
+    assert!(rejection_fixture
+        .note
+        .contains("not selected-backend proof closure"));
+    assert!(rejection_fixture
+        .note
+        .contains("not rejection-distribution preservation"));
+    assert_eq!(
+        rejection_fixture.slot_artifact.slot_id,
+        "rejection_distribution_review_digest"
+    );
+    assert_eq!(
+        rejection_fixture.slot_artifact.kind,
+        "RejectionDistributionReview"
+    );
+    assert_eq!(
+        rejection_fixture.slot_artifact.evidence_source,
+        "p1_criterion2_rejection_distribution_review_artifact_gate"
+    );
+    assert_eq!(
+        rejection_fixture.slot_artifact.artifact_package,
+        "p1_criterion2_proof_slot_artifact_package"
+    );
+    assert_eq!(
+        rejection_fixture.slot_artifact.current_status,
+        "evidence_present_unclosed"
+    );
+    assert!(rejection_fixture.slot_artifact.reviewed);
+    assert_eq!(
+        rejection_slot.kind(),
+        P1Criterion2ProofSlotArtifactKind::RejectionDistributionReview
+    );
+    assert_eq!(
+        rejection_slot.selected_profile_binding_digest,
+        rejection_fixture.expected.selected_profile_binding_digest()
+    );
+    assert_eq!(
+        rejection_slot.threshold_output_certificate_digest,
+        rejection_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        rejection_slot.threshold_output_certificate_digest,
+        derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate)
+    );
+    assert_eq!(
+        rejection_slot.transcript_binding_digest,
+        rejection_fixture.expected.transcript_binding_digest()
+    );
+    assert_eq!(
+        rejection_slot.source_evidence_digest,
+        rejection_fixture.expected.source_evidence_digest()
+    );
+    assert_eq!(
+        rejection_slot.review_evidence_digest,
+        rejection_fixture.expected.review_evidence_digest()
+    );
+    assert_eq!(
+        rejection_slot.artifact_digest(),
+        &rejection_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        derive_p1_criterion2_proof_slot_artifact_digest(&rejection_slot),
+        rejection_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        proof_closure_package.rejection_distribution_review_digest,
+        rejection_fixture
+            .expected
+            .rejection_distribution_review_digest()
+    );
+    assert_eq!(
+        proof_closure_package.rejection_distribution_review_digest,
+        rejection_fixture.expected.artifact_digest()
+    );
+
+    let assessment = assess_p1_selected_backend_proof_closure_artifact(
+        &threshold_certificate,
+        Some(proof_closure_package),
+    );
+    let certificate = assessment
+        .proof_closure_certificate()
+        .expect("reviewed proof-closure artifact package should produce a certificate");
+    assert_eq!(
+        certificate.rejection_distribution_review_digest(),
+        &rejection_fixture
+            .expected
+            .rejection_distribution_review_digest()
+    );
+    assert!(
+        !certificate.claims_rejection_distribution_preservation(),
+        "checked fixture must not promote rejection-distribution preservation"
+    );
+    assert_eq!(
+        rejection_fixture
+            .negative_cases
+            .iter()
+            .map(|case| (case.name.as_str(), case.expected_gate.as_str()))
+            .collect::<BTreeSet<_>>(),
+        BTreeSet::from([
+            (
+                "missing_distribution_review_artifact",
+                "p1_selected_backend_proof_closure_artifact_rejects_missing_distribution_review_artifact",
+            ),
+            (
+                "rejection_distribution_slot_review_tamper",
+                "p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_review_tamper",
+            ),
+            (
+                "rejection_distribution_slot_digest_drift",
+                "p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_digest_drift",
+            ),
+            (
+                "rejection_distribution_package_digest_stale",
+                "p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_package_digest_stale",
+            ),
+            (
+                "unreviewed_rejection_distribution_slot",
+                "p1_selected_backend_proof_closure_artifact_rejects_unreviewed_rejection_distribution_slot",
+            ),
+            (
+                "rejection_distribution_slot_production_claim_boundary",
+                "p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_production_claim_boundary",
+            ),
+        ])
+    );
+}
+
+#[test]
 fn standard_verifier_bridge_fixture_digest_is_deterministic_nonzero_and_not_placeholder() {
     let fixture = standard_verifier_bridge_fixture();
     let derived = standard_verifier_bridge_digest();
@@ -1580,6 +1845,17 @@ fn threshold_output_certificate_artifact_fixture_package_digest_fails_loudly_on_
             EXPECTED_P1_THRESHOLD_OUTPUT_CERTIFICATE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
         ),
         "P1 threshold-output certificate artifact fixture drifted; review Criterion 2 source package, certificate binding, typed slot digest, negative cases, and non-claim docs before updating the digest"
+    );
+}
+
+#[test]
+fn rejection_distribution_review_artifact_fixture_package_digest_fails_loudly_on_drift() {
+    assert_eq!(
+        rejection_distribution_review_artifact_fixture_package_digest(),
+        decode_hex_array::<32>(
+            EXPECTED_P1_REJECTION_DISTRIBUTION_REVIEW_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
+        ),
+        "P1 rejection-distribution review artifact fixture drifted; review Criterion 2 source/review digests, typed slot digest, negative cases, and non-claim docs before updating the digest"
     );
 }
 
@@ -3721,6 +3997,28 @@ fn p1_selected_backend_proof_closure_artifact_rejects_unreviewed_typed_slot() {
 }
 
 #[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_unreviewed_rejection_distribution_slot() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .reviewed = false;
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact must be reviewed",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
 fn p1_selected_backend_proof_closure_artifact_rejects_typed_slot_digest_drift() {
     let fixture = standard_verifier_bridge_fixture();
     let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
@@ -3729,6 +4027,28 @@ fn p1_selected_backend_proof_closure_artifact_rejects_typed_slot_digest_drift() 
         .proof_slot_artifacts
         .theorem_linkage_artifact
         .artifact_digest = digest(77);
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact digest does not match payload",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_digest_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .artifact_digest = digest(78);
 
     let assessment =
         assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
@@ -3765,6 +4085,79 @@ fn p1_selected_backend_proof_closure_artifact_rejects_recomputed_review_digest_t
         assessment,
         P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason: "P1 proof-closure Criterion 2 slot artifact review digest does not match expected external review evidence",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_review_tamper() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .review_evidence_digest = digest(89);
+    package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .artifact_digest = derive_p1_criterion2_proof_slot_artifact_digest(
+        &package
+            .proof_slot_artifacts
+            .rejection_distribution_review_artifact,
+    );
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact review digest does not match expected external review evidence",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_package_digest_stale()
+{
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package.rejection_distribution_review_digest = digest(94);
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure rejection-distribution review digest does not match typed Criterion 2 slot artifact",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_production_claim_boundary(
+) {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let mut package = selected_backend_proof_closure_artifact_package(&fixture);
+    package
+        .proof_slot_artifacts
+        .rejection_distribution_review_artifact
+        .claim_boundary = P1SelectedBackendProofClosureClaimBoundary::ProductionClaim;
+
+    let assessment =
+        assess_p1_selected_backend_proof_closure_artifact(&threshold_certificate, Some(package));
+
+    assert_eq!(
+        assessment,
+        P1SelectedBackendProofClosureArtifactAssessment::Invalid {
+            reason: "P1 proof-closure Criterion 2 slot artifact must remain proof-review-only",
         }
     );
     assert!(!assessment.is_artifact_ready());
