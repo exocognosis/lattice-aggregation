@@ -314,6 +314,11 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
             "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
         ),
+        (
+            "theorem_linkage_artifact_digest",
+            "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
+            "lattice-aggregation:p1-theorem-linkage-artifact:v1",
+        ),
     ] {
         let fixture_ref = fixture_refs
             .iter()

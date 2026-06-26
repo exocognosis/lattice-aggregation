@@ -88,6 +88,8 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `theorem_linkage_artifact_digest`: `evidence_present_unclosed` from
   `p1_criterion2_theorem_linkage_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
+  Checked theorem-linkage fixture:
+  `tests/fixtures/p1_theorem_linkage_artifact_fixture.json`.
 - `external_review_digest`: `evidence_present_unclosed` from
   `p1_criterion2_external_review_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
@@ -130,6 +132,11 @@ fixture so reviewers can inspect the bound rejection-distribution review source
 evidence, review digest, threshold-output certificate digest, transcript
 binding, and typed slot artifact digest without promoting the slot beyond
 `evidence_present_unclosed`.
+The theorem-linkage slot is now backed by the checked
+`tests/fixtures/p1_theorem_linkage_artifact_fixture.json` fixture so reviewers
+can inspect the bound theorem-linkage source evidence, review digest,
+threshold-output certificate digest, transcript binding, and typed slot artifact
+digest without promoting the slot beyond `evidence_present_unclosed`.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.

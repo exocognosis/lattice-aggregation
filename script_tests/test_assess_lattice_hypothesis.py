@@ -323,6 +323,18 @@ class DocumentClassificationTests(unittest.TestCase):
             },
             status["artifact_fixture_refs"],
         )
+        self.assertIn(
+            {
+                "slot_id": "theorem_linkage_artifact_digest",
+                "fixture_path": (
+                    "tests/fixtures/p1_theorem_linkage_artifact_fixture.json"
+                ),
+                "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
+                "current_status": "evidence_present_unclosed",
+                "claim_boundary": "conformance/proof-review evidence only",
+            },
+            status["artifact_fixture_refs"],
+        )
 
 
 class ReportGenerationTests(unittest.TestCase):
@@ -915,10 +927,12 @@ class ReportGenerationTests(unittest.TestCase):
             "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json, "
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json, "
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json, "
+            "tests/fixtures/p1_theorem_linkage_artifact_fixture.json, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
             "checked standard-verifier compatibility fixture, "
             "checked rejection-distribution review fixture, "
+            "checked theorem-linkage fixture, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
             "rejection_distribution_review_digest, "
@@ -1157,6 +1171,19 @@ class ReportGenerationTests(unittest.TestCase):
                         "claim_boundary": (
                             "conformance/proof-review evidence only"
                         ),
+                    },
+                    {
+                        "slot_id": "theorem_linkage_artifact_digest",
+                        "fixture_path": (
+                            "tests/fixtures/p1_theorem_linkage_artifact_fixture.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-theorem-linkage-artifact:v1"
+                        ),
+                        "current_status": "evidence_present_unclosed",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
                     }
                 ],
             },
@@ -1178,6 +1205,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "tests/production_rejection_equivalence.rs",
                 "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
                 "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
+                "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
             ],
             "assessment": {
                 "criterion_status": "partially_met",
