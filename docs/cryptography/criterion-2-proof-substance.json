@@ -121,13 +121,6 @@
         "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
         "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only"
-      },
-      {
-        "slot_id": "standard_verifier_compatibility_artifact_digest",
-        "fixture_path": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
-        "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
-        "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
       }
     ],
     "durable_certificate_evidence": [
