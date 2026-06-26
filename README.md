@@ -13,8 +13,34 @@ Interactive threshold aggregation for **ML-DSA-65** (NIST FIPS 204 / Dilithium) 
 
 ![GitHub stars](https://img.shields.io/github/stars/exocognosis/lattice-aggregation)
 ![Rust](https://img.shields.io/badge/Rust-2021-orange)
+![status: research preview](https://img.shields.io/badge/status-research--preview-blue)
+![license: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
+![post-quantum: ML-DSA-65 (FIPS 204)](https://img.shields.io/badge/post--quantum-ML--DSA--65%20(FIPS%20204)-7b3fe4)
 
 ![Lattice Aggregation protocol flow: threshold ML-DSA-65](docs/assets/lattice-aggregation-protocol-flow.png)
+
+## Grant & Collaboration
+
+This repository is actively seeking research funding and cryptographic
+collaboration to close the five tracked hypothesis criteria for interactive
+threshold ML-DSA-65 signature aggregation. We are preparing submissions to
+high-signal post-quantum and Ethereum-aligned funders (Ethereum Foundation ESP,
+PQCA / Open Quantum Safe, Arbitrum, Rust Foundation, and academic cryptography
+groups).
+
+- **One-page executive summary:** [docs/grant/one-pager.md](docs/grant/one-pager.md)
+- **Ethereum / post-quantum alignment:** [Alignment with Ethereum Post-Quantum Priorities](#alignment-with-ethereum-post-quantum-priorities)
+- **What it takes to close the thesis:** [Path to Full Hypothesis Closure](#path-to-full-hypothesis-closure)
+- **Protocol flow & security boundaries:** [docs/assets/protocol-flow.md](docs/assets/protocol-flow.md)
+- **Funding / sponsorship channels:** [.github/FUNDING.yml](.github/FUNDING.yml)
+- **Maintainer & contact:** [AUTHORS.md](AUTHORS.md)
+
+Reviewers from EF/ESP, PQCA/OQS, and academic cryptography teams are welcome.
+The fastest path into the evidence package is the
+[Reviewer Entry Points](#reviewer-entry-points) and the
+[Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md). We keep an
+honest, audit-first boundary: this is a research-stage artifact, not a security
+claim.
 
 ## Current Status
 
@@ -46,6 +72,24 @@ Recommended next tag name: `v0.2.0-research-preview`.
 
 Tags must point at merged `main` commits, include the assessment output path used for reproduction, and avoid production-readiness language unless the [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md) is fully satisfied.
 
+**Readiness confirmation.** The repository is ready to cut
+`v0.2.0-research-preview` once this work is merged to `main`. The
+research-preview boundary is satisfied: the status, hypothesis assessment,
+documentation manifest, and release-boundary wording are in place; the
+[grant-readiness materials](docs/grant/one-pager.md) (one-pager, Ethereum/PQ
+alignment, path-to-closure, funding, and authors) are added; and the
+reproduction commands in [Reproduce Evidence](#reproduce-evidence) and
+[Verification](#verification) pass with the assessment reporting
+`partially_proven`. This tag remains a research-preview milestone only: it does
+not assert proof closure, a selected production backend, or production
+readiness. After the merge, create the tag from a clean tree on the merged
+`main` commit:
+
+```sh
+git tag -a v0.2.0-research-preview -m "Research preview: grant-readiness package and proof-route documentation"
+git push origin v0.2.0-research-preview
+```
+
 ## The Problem
 
 As L1 blockchains prepare for the post-quantum era, migration to NIST-standardized lattice-based cryptography such as FIPS 204 ML-DSA introduces a severe scalability tax. Unlike legacy BLS signature schemes, ML-DSA signatures do not natively compose or aggregate algebraically because of structured lattice secrets, masking vectors, and interactive rejection sampling.
@@ -66,6 +110,44 @@ To make that claim reviewable, the framework models an "Epsilon Residual Ledger"
 - selective-abort and liveness bias introduced by interactive participants
 - byte-level verifier compatibility, domain separation, and standard ML-DSA-65 encoding constraints
 
+### Protocol Flow and Security Boundaries
+
+The diagram below shows the intended flow and marks where each Epsilon Residual
+Ledger boundary lives. A larger standalone version with a per-boundary mapping
+to the five hypothesis criteria and their evidence docs is in
+[docs/assets/protocol-flow.md](docs/assets/protocol-flow.md); a rendered raster
+version is [docs/assets/lattice-aggregation-protocol-flow.png](docs/assets/lattice-aggregation-protocol-flow.png).
+
+```mermaid
+flowchart LR
+    subgraph SETUP["Epoch setup"]
+        DKG["DKG / VSS"] --> EPK["Epoch threshold<br/>public key"]
+    end
+    subgraph SIGN["Per-block signing session"]
+        COM["Masking commitments"] --> CH["Challenge bound to<br/>canonical transcript"]
+        CH --> PART["Partial signing"]
+        PART --> AGG["Aggregation +<br/>rejection checks"]
+    end
+    subgraph VERIFY["Standard verification"]
+        SIG["One standard-size<br/>ML-DSA-65 signature"] --> STDV["Unmodified ML-DSA-65 verifier<br/>O(1) in validator count"]
+    end
+    EPK --> COM
+    AGG --> SIG
+
+    classDef open fill:#fff3e0,stroke:#e65100,color:#000;
+    classDef compat fill:#e8f5e9,stroke:#2e7d32,color:#000;
+    class SETUP,SIGN open;
+    class VERIFY compat;
+```
+
+The orange boundaries are the open security surfaces tracked by the
+[Hypothesis Closure Requirements](#hypothesis-closure-requirements): private-key-share
+isolation in setup; transcript/challenge binding and masking/rejection residuals
+in signing; selective-abort bias across the signing rounds; and byte-level
+verifier compatibility at the green verification boundary. The green boundary is
+the backward-compatible path an unmodified verifier must accept. None of the
+orange boundaries is yet closed; each is `partially_met`.
+
 ## Practical Implications Upon Theorem Closure
 
 If the hypothesis is proven, implemented with a reviewed threshold backend, and validated against standard ML-DSA verification, the architecture would unlock several distributed-system benefits:
@@ -74,6 +156,111 @@ If the hypothesis is proven, implemented with a reviewed threshold backend, and 
 - **Zero-overhead quantum-resistance target.** Allows L1 blockchains to adopt post-quantum security without paying the normal lattice multi-signature penalty in network bandwidth and persistent state.
 - **Backward-compatible verification path.** Lets light clients, cross-chain bridges, and hardware wallets verify post-quantum network consensus with off-the-shelf ML-DSA verification code rather than custom threshold-verifier modules.
 - **Hyper-efficient interoperability target.** Replaces large multi-signature verification sets or expensive zero-knowledge wrappers with a single native ML-DSA verification check for bridge and cross-chain consensus proofs.
+
+## Alignment with Ethereum Post-Quantum Priorities
+
+Ethereum's post-quantum program (see [pq.ethereum.org](https://pq.ethereum.org))
+and the broader "lean Ethereum" / lean-consensus roadmap have made
+quantum-resistant validator signatures and their aggregation a first-order
+research priority. The aggregation problem this repository studies sits squarely
+inside that priority. The framing below positions the work for Ethereum
+Foundation, ESP, and PQ-team reviewers; it states alignment and complementarity,
+not endorsement, and preserves the repository's research-stage boundary.
+
+**The aggregation bottleneck is shared.** A post-quantum validator set cannot
+keep BLS's algebraic signature aggregation, so every PQ roadmap must answer the
+same question this project asks: how do you turn many large lattice (or
+hash-based) validator attestations into something a verifier can check cheaply?
+
+- The Ethereum PQ roadmap treats signature size and aggregation as a central
+  scaling concern for attestations and validator messages.
+- ML-DSA-65 (FIPS 204) is a leading standardized lattice signature, which makes
+  a native ML-DSA aggregation primitive directly relevant to any chain that
+  adopts ML-DSA for validator signing.
+
+**This is a complementary path, not a competitor.** The leading PQ aggregation
+directions in the Ethereum ecosystem are hash-based signatures with SNARK
+aggregation (e.g. the lean-consensus / `leanMultisig`-style approach that proves
+a batch of hash-based signatures inside a succinct proof) and STARK/SNARK
+recursion over attestations.
+
+- **Hash-based + SNARK path:** aggregates by proving many signatures inside one
+  succinct proof; the verifier checks a proof system, and proof generation cost
+  and proving-stack trust assumptions dominate.
+- **Interactive / threshold ML-DSA path (this work):** aggregates by running a
+  multi-party signing protocol so the *output is itself a single standard
+  ML-DSA-65 signature*; the verifier checks the standardized signature with no
+  proof system in the verification path.
+- These approaches trade off differently (prover cost and proof-stack trust
+  versus interactive signing-round liveness and threshold assumptions), so a
+  robust PQ roadmap benefits from evaluating both. A native-signature aggregator
+  is a useful point of comparison and a potential fallback or hybrid component.
+
+**O(1) verification footprint for large validator sets.** The design target is a
+single standard-size (approximately 3.3 KB) ML-DSA-65 signature per block whose
+verification cost is independent of the validator count.
+
+- This matters most exactly where validator sets are largest and where light
+  clients, bridges, and constrained verifiers are most sensitive to per-message
+  verification cost.
+- It avoids adding a SNARK/STARK verifier to the consensus-critical signature
+  check, keeping the verifier surface equal to standardized ML-DSA-65.
+
+**Backward-compatible standard verifier.** The construction is required to emit a
+signature that an *unmodified* ML-DSA-65 verifier accepts against the epoch
+threshold public key.
+
+- No new verifier to standardize, audit, or re-implement across clients.
+- Verification can reuse FIPS 204 ML-DSA-65 implementations and any future
+  hardware acceleration, rather than depending on a fast-moving proving stack.
+
+**Audit-first, transparent Rust methodology.** The repository is built for
+review before it is built for claims, which matches how EF/PQ and OQS-adjacent
+teams evaluate cryptographic infrastructure.
+
+- The five tracked hypothesis criteria, the "Epsilon Residual Ledger" of
+  security boundaries, and every non-claim are listed in the
+  [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md), the
+  [Hypothesis Closure Requirements](#hypothesis-closure-requirements), and the
+  [thesis and operating parameters](docs/cryptography/thesis-operating-parameters.md).
+- A reproducible assessment script (`scripts/assess_lattice_hypothesis.py`)
+  reports a conservative `partially_proven` verdict, and production-labeled
+  configurations fail closed against scaffold backends, so the code cannot
+  present research machinery as production security.
+- Fail-closed release gates, fixture-backed conformance evidence, and a
+  documentation manifest test keep the engineering evidence independently
+  re-runnable.
+
+**Fit with validator attestation aggregation specifically.** The intended
+integration model is epoch-keyed threshold signing over per-block attestations,
+which is the same shape as the attestation-aggregation workload PQ roadmaps must
+re-solve once BLS is retired.
+
+- One epoch threshold public key replaces per-validator aggregate keys for the
+  signature check.
+- The aggregator role maps onto the existing proposer/aggregator responsibility
+  rather than requiring a new privileged actor.
+
+**Concrete next-step value for EF / PQ teams.** Funding or collaboration here
+buys the ecosystem a rigorously bounded evaluation of the native-signature
+aggregation option, with explicit deliverables:
+
+- closure or explicit bounding of the five hypothesis criteria, giving reviewers
+  a precise picture of what an interactive ML-DSA aggregator can and cannot
+  guarantee;
+- a written, apples-to-apples comparison against the hash-based + SNARK
+  aggregation path on verification cost, signing-round liveness, trust
+  assumptions, and audit surface;
+- a reference Rust protocol specification and conformance suite that other PQ
+  efforts can reuse or adversarially test;
+- early identification of which assumptions (mask-distribution preservation,
+  selective-abort bounds, malicious-secure DKG) are the true blockers for any
+  native PQ signature aggregation primitive — information that is valuable to the
+  roadmap even if the final answer is "prefer the SNARK path."
+
+This positioning is deliberately conservative: the work is offered as a
+well-instrumented research input to Ethereum's post-quantum signature
+aggregation decision, not as a finished primitive.
 
 ## Why This Repo Exists
 
@@ -185,6 +372,35 @@ Latest result: all listed commands passed locally, the assessment command report
 | Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation. | The final security theorem must classify any accepting unauthorized output as either a base ML-DSA break or a precise threshold assumption failure. | [docs/cryptography/unauthorized-aggregate-reduction.md](docs/cryptography/unauthorized-aggregate-reduction.md), [tests/unauthorized_aggregate_reduction_manifest.rs](tests/unauthorized_aggregate_reduction_manifest.rs), [docs/cryptography/formal-security-theorem.md](docs/cryptography/formal-security-theorem.md), [docs/cryptography/proof-obligations.md](docs/cryptography/proof-obligations.md). | The reduction manifest names base-forgery and threshold-side cases and has classifier/simulator/review slots; the threshold unforgeability reduction remains a target, not a completed proof. | Partially proven. |
 
 Current closure determination: `partially_proven`. None of the five requirements is disproven by the latest run, but none is fully proven until the missing proof/backend artifacts and validation evidence are checked in and reviewed.
+
+### Path to Full Hypothesis Closure
+
+Each of the five criteria above is currently `partially_met`. The table maps each
+to one or two concrete next steps, a rough effort estimate, the key open proof
+obligations, and the controlling evidence docs. Effort estimates are
+planning-grade ranges for an experienced cryptographer, not commitments. All
+five sit on top of the production setup obligation (malicious-secure DKG), which
+is tracked separately in [vss-dkg-security-plan.md](docs/cryptography/vss-dkg-security-plan.md).
+
+| # | Criterion (gate) | Concrete next steps | Effort | Open proof obligations | Controlling docs |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Aggregate masks ≈ centralized ML-DSA masks (`mask_distribution` / `epsilon_mask`) | (a) select the production `CombineMask` / blinded pre-filter family; (b) supply the Renyi-divergence evidence bounding aggregate-vs-centralized mask distance | 3–6 months | `epsilon_mask` Renyi-divergence bound; no completed distance proof today | [mask-distribution-evidence.md](docs/cryptography/mask-distribution-evidence.md), [phase-1-noise-bound-model.md](docs/cryptography/phase-1-noise-bound-model.md), [noise-rejection-proof-plan.md](docs/cryptography/noise-rejection-proof-plan.md) |
+| 2 | Aggregate rejection = centralized rejection (`rejection_equivalence`) | (a) close the Criterion 2 proof payload (`aggregate_rejection_equivalence`) with real threshold recomputation; (b) complete standard-verifier compatibility evidence over the same candidate tuple | 2–4 months | real (not fixture) recomputation; completed standard-verifier compatibility proof | [rejection-equivalence-evidence.md](docs/cryptography/rejection-equivalence-evidence.md), [criterion-2-proof-substance.md](docs/cryptography/criterion-2-proof-substance.md) |
+| 3 | Selective aborts / retries do not bias output (`abort_bias`) | (a) fix a concrete retry-domain and timeout policy; (b) prove an accepted-sample bound from the abort-leakage and retry-bias model | 3–5 months | abort-leakage analysis; retry-bias distribution bound | [abort-retry-bias-evidence.md](docs/cryptography/abort-retry-bias-evidence.md), [active-adversary-model.md](docs/cryptography/active-adversary-model.md) |
+| 4 | Partial contributions sound, bound, hiding (`partial_soundness`) | (a) specify production local-acceptance and partial-verification predicates; (b) prove soundness and hiding for the chosen leakage model | 6–12 months | production partial verification + hiding proof | [partial-soundness-evidence.md](docs/cryptography/partial-soundness-evidence.md), [vss-dkg-security-plan.md](docs/cryptography/vss-dkg-security-plan.md) |
+| 5 | Every unauthorized output reduces to forgery/assumption | (a) complete the per-case reduction cases in the manifest; (b) close the threshold EUF-CMA reduction to base ML-DSA forgery or a named threshold assumption | 3–6 months | completed per-case reductions; threshold unforgeability reduction | [unauthorized-aggregate-reduction.md](docs/cryptography/unauthorized-aggregate-reduction.md), [formal-security-theorem.md](docs/cryptography/formal-security-theorem.md), [proof-obligations.md](docs/cryptography/proof-obligations.md) |
+
+**External review needs.** Closure is not internal-only. Each criterion needs
+independent cryptographic review of its evidence and any completed proof;
+criteria 1–2 additionally need randomness and constant-time review of the
+selected mask/rejection arithmetic ([side-channel-boundary.md](docs/cryptography/side-channel-boundary.md));
+criterion 4 needs review of the chosen contribution/DKG backend's soundness and
+hiding proofs; criterion 5 needs review that the reduction is total over the
+production verifier grammar. Beyond the five, production deployment still
+requires malicious-secure DKG, side-channel and leakage audit, FIPS/CAVP-style
+validation, and an end-to-end external cryptographic review, as gated by the
+[Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md) and
+the [Audit Packet](docs/audit/README.md).
 
 ## Quick Start
 
