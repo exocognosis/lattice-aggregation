@@ -40,9 +40,24 @@ def canonical_json(data):
     return json.dumps(data, indent=2, sort_keys=True) + "\n"
 
 
-def localnet_command():
+def localnet_command(profile="honest"):
     """Return the Cargo command used to run the localnet smoke example."""
-    return ["cargo", "run", "--quiet", "--example", "validator_localnet"]
+    command = ["cargo", "run", "--quiet", "--example", "validator_localnet"]
+    if profile == "honest":
+        return command
+    if profile == "withheld-partial":
+        return command + [
+            "--",
+            "--profile",
+            "withheld-partial",
+            "--validators",
+            "4",
+            "--threshold",
+            "4",
+            "--withheld-validator",
+            "4",
+        ]
+    raise ValueError(f"unsupported localnet profile: {profile}")
 
 
 def run_command(command, root, env):
@@ -126,12 +141,15 @@ def parse_key_value_output(text):
 
     required = [
         "claim_boundary",
+        "fault_profile",
         "validators",
         "threshold",
         "finalized",
+        "all_validators_finalized",
         "evidence_count",
         "broadcast_count",
         "direct_send_count",
+        "dropped_message_count",
         "network_bytes",
     ]
     missing = [key for key in required if key not in values]
@@ -142,12 +160,15 @@ def parse_key_value_output(text):
 
     return {
         "claim_boundary": values["claim_boundary"],
+        "fault_profile": values["fault_profile"],
         "validators": int(values["validators"]),
         "threshold": int(values["threshold"]),
         "finalized": int(values["finalized"]),
+        "all_validators_finalized": values["all_validators_finalized"] == "true",
         "evidence_count": int(values["evidence_count"]),
         "broadcast_count": int(values["broadcast_count"]),
         "direct_send_count": int(values["direct_send_count"]),
+        "dropped_message_count": int(values["dropped_message_count"]),
         "network_bytes": int(values["network_bytes"]),
     }
 
@@ -159,12 +180,15 @@ def render_metrics_csv(metrics):
         output,
         fieldnames=[
             "profile",
+            "fault_profile",
             "validators",
             "threshold",
             "finalized",
+            "all_validators_finalized",
             "evidence_count",
             "broadcast_count",
             "direct_send_count",
+            "dropped_message_count",
             "network_bytes",
             "claim_boundary",
         ],
@@ -179,6 +203,7 @@ def render_topology_json(metrics):
     return canonical_json(
         {
             "profile": "localnet-smoke",
+            "fault_profile": metrics["fault_profile"],
             "validator_count": metrics["validators"],
             "threshold": metrics["threshold"],
             "transport_mode": "in-memory tokio mpsc",
@@ -198,12 +223,15 @@ def render_events_jsonl(metrics):
         {
             "event_type": "localnet_summary",
             "profile": "localnet-smoke",
+            "fault_profile": metrics["fault_profile"],
             "validators": metrics["validators"],
             "threshold": metrics["threshold"],
             "finalized": metrics["finalized"],
+            "all_validators_finalized": metrics["all_validators_finalized"],
             "evidence_count": metrics["evidence_count"],
             "broadcast_count": metrics["broadcast_count"],
             "direct_send_count": metrics["direct_send_count"],
+            "dropped_message_count": metrics["dropped_message_count"],
             "network_bytes": metrics["network_bytes"],
         },
         {
@@ -216,6 +244,21 @@ def render_events_jsonl(metrics):
 
 def render_summary(generated_at, metadata, metrics):
     """Render human-readable localnet summary."""
+    fault_note = "No local fault injection was enabled for this packet."
+    regeneration_command = "python3 scripts/run_localnet_runner.py --out artifacts/localnet/latest"
+    if metrics["fault_profile"] != "honest":
+        fault_note = (
+            "This packet is fault-injection telemetry for local validator "
+            "orchestration only; it is not production network liveness or "
+            "consensus-safety evidence."
+        )
+        regeneration_command = (
+            "python3 scripts/run_localnet_runner.py --profile "
+            + metrics["fault_profile"]
+            + " --out artifacts/localnet/"
+            + metrics["fault_profile"]
+        )
+
     return "\n".join(
         [
             "# Local Validator-Network Telemetry Summary",
@@ -228,23 +271,43 @@ def render_summary(generated_at, metadata, metrics):
             f"- Commit: `{metadata['commit']}`",
             f"- Branch: `{metadata['branch']}`",
             "- Profile: `localnet-smoke`",
+            f"- Fault profile: `{metrics['fault_profile']}`",
             f"- Validators: `{metrics['validators']}`",
             f"- Threshold: `{metrics['threshold']}`",
             f"- Finalized callbacks: `{metrics['finalized']}`",
+            f"- All validators finalized: `{metrics['all_validators_finalized']}`",
             f"- Evidence records: `{metrics['evidence_count']}`",
             f"- Broadcast calls: `{metrics['broadcast_count']}`",
             f"- Direct-send calls: `{metrics['direct_send_count']}`",
+            f"- Dropped message deliveries: `{metrics['dropped_message_count']}`",
             f"- Network bytes: `{metrics['network_bytes']}`",
             f"- Claim boundary: `{metrics['claim_boundary']}`",
+            f"- Fault boundary: {fault_note}",
             "",
             "## Regeneration",
             "",
             "```sh",
-            "python3 scripts/run_localnet_runner.py --out artifacts/localnet/latest",
+            regeneration_command,
             "```",
             "",
         ]
     )
+
+
+def render_node_log(metrics, validator_index):
+    """Render deterministic per-validator local node telemetry."""
+    lines = [
+        f"validator={validator_index}",
+        f"fault_profile={metrics['fault_profile']}",
+        f"threshold={metrics['threshold']}",
+        f"validator_count={metrics['validators']}",
+        f"all_validators_finalized={metrics['all_validators_finalized']}",
+        f"evidence_count={metrics['evidence_count']}",
+        f"dropped_message_count={metrics['dropped_message_count']}",
+        "claim_boundary=" + metrics["claim_boundary"],
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def render_node_log_readme():
@@ -253,10 +316,10 @@ def render_node_log_readme():
         [
             "# Localnet Node Logs",
             "",
-            "The first localnet smoke runner executes validators in one process and "
-            "does not yet emit per-validator log streams. This placeholder keeps "
-            "the packet layout stable for later multi-process or per-node "
-            "telemetry runs.",
+            "The localnet runner executes validators in one process and emits "
+            "per-validator local telemetry summaries only. These are not raw "
+            "production validator logs and must not be used as production "
+            "network evidence.",
             "",
         ]
     )
@@ -264,6 +327,7 @@ def render_node_log_readme():
 
 def build_report(
     root,
+    profile="honest",
     command_runner=run_command,
     metadata_provider=collect_metadata,
     generated_at=None,
@@ -271,7 +335,7 @@ def build_report(
 ):
     """Run the localnet example and build in-memory artifact content."""
     root = Path(root)
-    command = localnet_command()
+    command = localnet_command(profile)
     env = {}
     if target_dir:
         env["CARGO_TARGET_DIR"] = str(target_dir)
@@ -297,6 +361,9 @@ def build_report(
         "schema_version": 1,
         "generated_at": generated_at,
         "claim_boundary": CLAIM_BOUNDARY,
+        "fault_profile": metrics["fault_profile"],
+        "all_validators_finalized": metrics["all_validators_finalized"],
+        "dropped_message_count": metrics["dropped_message_count"],
         "metadata": metadata,
         "command": command,
         "command_duration_seconds": result["duration_seconds"],
@@ -305,6 +372,7 @@ def build_report(
         "backend": "deterministic simulated backend",
         "topology": {
             "profile": "localnet-smoke",
+            "fault_profile": metrics["fault_profile"],
             "validator_count": metrics["validators"],
             "threshold": metrics["threshold"],
             "transport_mode": "in-memory tokio mpsc",
@@ -335,6 +403,10 @@ def artifact_contents(report):
         "node-logs/README.md": render_node_log_readme(),
         "summary.md": report["summary_md"],
     }
+    for validator_index in range(1, report["metrics"]["validators"] + 1):
+        contents[f"node-logs/validator-{validator_index}.log"] = render_node_log(
+            report["metrics"], validator_index
+        )
     artifacts = {
         name: {
             "path": name,
@@ -367,10 +439,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", required=True, help="output artifact directory")
     parser.add_argument("--target-dir", help="Cargo target directory for the run")
+    parser.add_argument(
+        "--profile",
+        choices=["honest", "withheld-partial"],
+        default="honest",
+        help="localnet profile to execute",
+    )
     args = parser.parse_args(argv)
 
     root = Path(__file__).resolve().parents[1]
-    report = build_report(root, target_dir=args.target_dir)
+    report = build_report(root, profile=args.profile, target_dir=args.target_dir)
     write_artifacts(report, Path(args.out))
     print(Path(args.out))
     return 0

@@ -1,21 +1,28 @@
 use lattice_aggregation::{
-    adapter::localnet::{run_localnet, LocalnetConfig, LOCALNET_CLAIM_BOUNDARY},
-    ThresholdError, MLDSA65_SIGNATURE_BYTES,
+    adapter::localnet::{
+        run_localnet, LocalnetConfig, LocalnetFaultProfile, LOCALNET_CLAIM_BOUNDARY,
+    },
+    ThresholdError, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
+
+use std::time::Duration;
 
 #[tokio::test]
 async fn localnet_three_validators_finalize_without_manual_peer_injection() {
     let report = run_localnet(LocalnetConfig::new(3, 2)).await.unwrap();
 
     assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
+    assert_eq!(report.fault_profile, "honest");
     assert_eq!(report.validator_count, 3);
     assert_eq!(report.threshold, 2);
+    assert!(report.all_validators_finalized);
     assert_eq!(report.finalized.len(), 3);
     assert!(report
         .finalized
         .iter()
         .all(|event| event.signature_bytes == MLDSA65_SIGNATURE_BYTES));
     assert_eq!(report.evidence_count, 0);
+    assert_eq!(report.dropped_message_count, 0);
     assert!(report.broadcast_count >= 6);
     assert!(report.network_bytes > 0);
 }
@@ -44,4 +51,24 @@ async fn localnet_rejects_invalid_threshold_shape() {
             total_nodes: 2
         }
     );
+}
+
+#[tokio::test]
+async fn withheld_partial_fault_profile_records_liveness_evidence_without_success_claim() {
+    let report = run_localnet(
+        LocalnetConfig::new(4, 4)
+            .with_round_timeout(Duration::from_millis(5))
+            .with_fault_profile(LocalnetFaultProfile::withheld_partial(ValidatorId(4))),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(report.fault_profile, "withheld-partial");
+    assert!(!report.all_validators_finalized);
+    assert!(report.finalized.len() < usize::from(report.validator_count));
+    assert!(report.evidence_count >= 3);
+    assert!(report.dropped_message_count >= 3);
+    assert!(report.broadcast_count >= 8);
+    assert!(report.network_bytes > 0);
+    assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
 }
