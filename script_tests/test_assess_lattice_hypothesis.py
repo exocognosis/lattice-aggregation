@@ -106,6 +106,12 @@ class VerdictRuleTests(unittest.TestCase):
                 for command in commands
             )
         )
+        self.assertTrue(
+            any(
+                "validator_10000_standard_verifier_gate" in command
+                for command in commands
+            )
+        )
 
 
 class DocumentClassificationTests(unittest.TestCase):
@@ -551,6 +557,18 @@ class ReportGenerationTests(unittest.TestCase):
             "}\n",
             encoding="utf-8",
         )
+
+    def write_validator_10000_standard_verifier_gate(self, root):
+        (root / "docs" / "cryptography").mkdir(parents=True, exist_ok=True)
+        (root / "tests").mkdir(parents=True, exist_ok=True)
+        for relative in [
+            "docs/cryptography/validator-10000-standard-verifier-gate.md",
+            "tests/validator_10000_standard_verifier_gate.rs",
+        ]:
+            (root / relative).write_text(
+                (ROOT / relative).read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
 
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
@@ -1510,6 +1528,62 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("p1_selected_backend_proof_closure_artifact_gate", str(scan))
         self.assertIn("p1_selected_backend_threshold_output_artifact_gate", str(scan))
         self.assertNotIn("completely_proven", markdown)
+
+    def test_validator_10000_gate_updates_report_without_claiming_equivalence(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_validator_10000_standard_verifier_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["validator_10000_standard_verifier_fail_closed_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("10,000-validator standard-verifier fail-closed gate", aggregate_evidence)
+        self.assertIn("BackendUnavailable", aggregate_evidence)
+        self.assertIn("not standard-verifier equivalence", aggregate_evidence)
+        self.assertIn(
+            "real threshold ML-DSA backend emits a verifier-accepted aggregate signature",
+            aggregate_blockers,
+        )
+        self.assertIn("10,000-validator standard-verifier fail-closed gate", markdown)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_validator_10000_gate_rejects_missing_fail_closed_boundary(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_validator_10000_standard_verifier_gate(root)
+            gate_doc = (
+                root
+                / "docs"
+                / "cryptography"
+                / "validator-10000-standard-verifier-gate.md"
+            )
+            gate_doc.write_text(
+                gate_doc.read_text(encoding="utf-8").replace(
+                    "not standard-verifier equivalence",
+                    "standard-verifier equivalence evidence",
+                ),
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertFalse(scan["validator_10000_standard_verifier_fail_closed_gate"])
 
     def test_selected_backend_proof_closure_gate_requires_artifact_slot_tokens(self):
         module = load_module()
