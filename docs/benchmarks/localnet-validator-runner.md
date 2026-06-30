@@ -29,6 +29,12 @@ Run the local withheld-partial fault profile:
 cargo run --example validator_localnet -- --profile withheld-partial --validators 4 --threshold 4 --withheld-validator 4
 ```
 
+Run the local quorum-participation profile:
+
+```sh
+cargo run --example validator_localnet -- --profile honest --validators 4 --threshold 3 --triggered-validators 3
+```
+
 The example currently runs four local validator actors with threshold three. It
 uses in-memory message routing, local consensus recorders, deterministic
 simulation key shares, and the simulated aggregation backend.
@@ -42,6 +48,14 @@ from the honest smoke profile and must not be used as production network
 liveness, consensus-safety, slashing-soundness, or Byzantine-fault-tolerance
 evidence.
 
+Quorum-participation runs are local participation telemetry only. The
+`quorum-participation` packet profile registers four validators, actively
+triggers three validators, and keeps the fourth validator passive. The passive validator
+did not initiate signing, is not counted as finalized, and is not
+treated as slashing evidence. The runner records `triggered_validator_count`
+alongside `all_validators_finalized` so reviewers can distinguish active quorum
+completion from all-registered-validator completion.
+
 ## Packet Layout
 
 Generate an ignored localnet packet:
@@ -54,6 +68,12 @@ Generate a local fault-injection packet:
 
 ```sh
 python3 scripts/run_localnet_runner.py --profile withheld-partial --out artifacts/localnet/withheld-partial
+```
+
+Generate a local quorum-participation packet:
+
+```sh
+python3 scripts/run_localnet_runner.py --profile quorum-participation --out artifacts/localnet/quorum-participation
 ```
 
 Exploratory localnet packets should be written under ignored
@@ -71,9 +91,9 @@ Exploratory localnet packets should be written under ignored
 - `SHA256SUMS`
 
 `manifest.json`, `topology.json`, `metrics.csv`, and `events.jsonl` must carry
-`fault_profile`, `all_validators_finalized`, and `dropped_message_count` when
-the runner emits those fields. Per-validator node logs are deterministic local
-telemetry summaries only, not raw production logs.
+`fault_profile`, `triggered_validator_count`, `all_validators_finalized`, and
+`dropped_message_count` when the runner emits those fields. Per-validator node
+logs are deterministic local telemetry summaries only, not raw production logs.
 
 Those packets are engineering telemetry only. They must not be checked in as
 real-world benchmark evidence and must not replace the

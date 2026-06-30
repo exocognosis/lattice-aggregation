@@ -219,6 +219,9 @@ migration candidates that require separate review.
 - Keep local fault-profile telemetry such as `withheld-partial` explicitly
   framed as local fault-injection telemetry, not production liveness,
   consensus-safety, slashing-soundness, or Byzantine-fault-tolerance evidence.
+- Keep quorum-participation telemetry such as `triggered_validator_count`
+  framed as local participation evidence only; a passive validator is not
+  finalized and is not slashing evidence.
 - Keep benchmark output framed as deterministic research telemetry and not
   security evidence.
 - Store artifact checksums and regeneration commands.

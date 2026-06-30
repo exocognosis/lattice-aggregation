@@ -12,6 +12,7 @@ SCRIPT = ROOT / "scripts" / "run_localnet_runner.py"
 SAMPLE_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
 fault_profile=honest
 validators=4
+triggered_validator_count=4
 threshold=3
 finalized=4
 all_validators_finalized=true
@@ -25,6 +26,7 @@ network_bytes=2160
 FAULT_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
 fault_profile=withheld-partial
 validators=4
+triggered_validator_count=4
 threshold=4
 finalized=1
 all_validators_finalized=false
@@ -33,6 +35,20 @@ broadcast_count=8
 direct_send_count=0
 dropped_message_count=3
 network_bytes=1920
+"""
+
+QUORUM_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+fault_profile=honest
+validators=4
+triggered_validator_count=3
+threshold=3
+finalized=3
+all_validators_finalized=false
+evidence_count=0
+broadcast_count=6
+direct_send_count=0
+dropped_message_count=0
+network_bytes=1512
 """
 
 
@@ -86,6 +102,16 @@ def fault_runner(command, root, env):
     }
 
 
+def quorum_runner(command, root, env):
+    return {
+        "command": command,
+        "exit_code": 0,
+        "duration_seconds": 1.5,
+        "stdout": QUORUM_STDOUT,
+        "stderr": "",
+    }
+
+
 class LocalnetRunnerTests(unittest.TestCase):
     def test_build_report_parses_runner_output_and_preserves_boundary(self):
         module = load_module()
@@ -101,6 +127,7 @@ class LocalnetRunnerTests(unittest.TestCase):
         self.assertEqual(report["manifest"]["schema_version"], 1)
         self.assertEqual(report["manifest"]["claim_boundary"], module.CLAIM_BOUNDARY)
         self.assertEqual(report["metrics"]["validators"], 4)
+        self.assertEqual(report["metrics"]["triggered_validator_count"], 4)
         self.assertEqual(report["metrics"]["threshold"], 3)
         self.assertEqual(report["metrics"]["finalized"], 4)
         self.assertTrue(report["metrics"]["all_validators_finalized"])
@@ -137,6 +164,7 @@ class LocalnetRunnerTests(unittest.TestCase):
         self.assertEqual(topology["transport_mode"], "in-memory tokio mpsc")
         self.assertEqual(topology["fault_profile"], "honest")
         self.assertEqual(metrics[0]["validators"], "4")
+        self.assertEqual(metrics[0]["triggered_validator_count"], "4")
         self.assertEqual(metrics[0]["threshold"], "3")
         self.assertEqual(metrics[0]["fault_profile"], "honest")
         self.assertEqual(metrics[0]["all_validators_finalized"], "True")
@@ -168,6 +196,27 @@ class LocalnetRunnerTests(unittest.TestCase):
         self.assertIn("fault-injection telemetry", report["summary_md"])
         self.assertIn("not production network liveness", report["summary_md"])
         self.assertIn("--profile withheld-partial", report["summary_md"])
+
+    def test_quorum_participation_packet_preserves_passive_validator_boundary(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            report = module.build_report(
+                pathlib.Path(temp_dir),
+                profile="quorum-participation",
+                command_runner=quorum_runner,
+                metadata_provider=fake_metadata,
+                generated_at="2026-06-30T00:00:00Z",
+            )
+
+        self.assertEqual(report["manifest"]["triggered_validator_count"], 3)
+        self.assertEqual(report["metrics"]["validators"], 4)
+        self.assertEqual(report["metrics"]["triggered_validator_count"], 3)
+        self.assertFalse(report["metrics"]["all_validators_finalized"])
+        self.assertEqual(report["metrics"]["evidence_count"], 0)
+        self.assertIn("passive validator", report["summary_md"])
+        self.assertIn("not slashing evidence", report["summary_md"])
+        self.assertIn("--profile quorum-participation", report["summary_md"])
 
     def test_failed_runner_status_raises(self):
         module = load_module()

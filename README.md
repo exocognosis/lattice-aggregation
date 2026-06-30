@@ -443,6 +443,10 @@ only. They can record incomplete local finalization, dropped in-memory message
 deliveries, and local adapter evidence without making production network
 liveness, consensus-safety, or Byzantine-fault-tolerance claims.
 
+Quorum-participation packets can record `triggered_validator_count` when fewer
+validators actively start signing than are registered. A passive validator is
+not finalized and is not treated as slashing evidence.
+
 ## Verification
 
 The CI workflow runs the same core checks reviewers should start with:

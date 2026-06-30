@@ -17,6 +17,10 @@ async fn main() {
     println!("claim_boundary={LOCALNET_CLAIM_BOUNDARY}");
     println!("fault_profile={}", report.fault_profile);
     println!("validators={}", report.validator_count);
+    println!(
+        "triggered_validator_count={}",
+        report.triggered_validator_count
+    );
     println!("threshold={}", report.threshold);
     println!("finalized={}", report.finalized.len());
     println!(
@@ -37,6 +41,7 @@ struct ExampleArgs {
 fn parse_args() -> ExampleArgs {
     let mut validators = 4;
     let mut threshold = 3;
+    let mut triggered_validators = None;
     let mut profile = "honest".to_string();
     let mut withheld_validator = 4;
 
@@ -48,6 +53,9 @@ fn parse_args() -> ExampleArgs {
             }
             "--threshold" => {
                 threshold = parse_u16("--threshold", args.next());
+            }
+            "--triggered-validators" => {
+                triggered_validators = Some(parse_u16("--triggered-validators", args.next()));
             }
             "--profile" => {
                 profile = args.next().expect("--profile requires a value");
@@ -68,7 +76,9 @@ fn parse_args() -> ExampleArgs {
     };
 
     ExampleArgs {
-        config: LocalnetConfig::new(validators, threshold).with_fault_profile(fault_profile),
+        config: LocalnetConfig::new(validators, threshold)
+            .with_triggered_validator_count(triggered_validators.unwrap_or(validators))
+            .with_fault_profile(fault_profile),
     }
 }
 
