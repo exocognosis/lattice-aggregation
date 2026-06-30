@@ -57,6 +57,18 @@ def localnet_command(profile="honest"):
             "--withheld-validator",
             "4",
         ]
+    if profile == "quorum-participation":
+        return command + [
+            "--",
+            "--profile",
+            "honest",
+            "--validators",
+            "4",
+            "--threshold",
+            "3",
+            "--triggered-validators",
+            "3",
+        ]
     raise ValueError(f"unsupported localnet profile: {profile}")
 
 
@@ -143,6 +155,7 @@ def parse_key_value_output(text):
         "claim_boundary",
         "fault_profile",
         "validators",
+        "triggered_validator_count",
         "threshold",
         "finalized",
         "all_validators_finalized",
@@ -162,6 +175,7 @@ def parse_key_value_output(text):
         "claim_boundary": values["claim_boundary"],
         "fault_profile": values["fault_profile"],
         "validators": int(values["validators"]),
+        "triggered_validator_count": int(values["triggered_validator_count"]),
         "threshold": int(values["threshold"]),
         "finalized": int(values["finalized"]),
         "all_validators_finalized": values["all_validators_finalized"] == "true",
@@ -182,6 +196,7 @@ def render_metrics_csv(metrics):
             "profile",
             "fault_profile",
             "validators",
+            "triggered_validator_count",
             "threshold",
             "finalized",
             "all_validators_finalized",
@@ -205,6 +220,7 @@ def render_topology_json(metrics):
             "profile": "localnet-smoke",
             "fault_profile": metrics["fault_profile"],
             "validator_count": metrics["validators"],
+            "triggered_validator_count": metrics["triggered_validator_count"],
             "threshold": metrics["threshold"],
             "transport_mode": "in-memory tokio mpsc",
             "network_scope": "single-process local runner",
@@ -225,6 +241,7 @@ def render_events_jsonl(metrics):
             "profile": "localnet-smoke",
             "fault_profile": metrics["fault_profile"],
             "validators": metrics["validators"],
+            "triggered_validator_count": metrics["triggered_validator_count"],
             "threshold": metrics["threshold"],
             "finalized": metrics["finalized"],
             "all_validators_finalized": metrics["all_validators_finalized"],
@@ -246,6 +263,7 @@ def render_summary(generated_at, metadata, metrics):
     """Render human-readable localnet summary."""
     fault_note = "No local fault injection was enabled for this packet."
     regeneration_command = "python3 scripts/run_localnet_runner.py --out artifacts/localnet/latest"
+    participation_note = "All configured validators actively triggered signing."
     if metrics["fault_profile"] != "honest":
         fault_note = (
             "This packet is fault-injection telemetry for local validator "
@@ -257,6 +275,16 @@ def render_summary(generated_at, metadata, metrics):
             + metrics["fault_profile"]
             + " --out artifacts/localnet/"
             + metrics["fault_profile"]
+        )
+    elif metrics["triggered_validator_count"] < metrics["validators"]:
+        participation_note = (
+            "This packet records a passive validator quorum-participation "
+            "profile; the passive validator did not trigger signing, is not "
+            "counted as finalized, and this is not slashing evidence."
+        )
+        regeneration_command = (
+            "python3 scripts/run_localnet_runner.py --profile "
+            "quorum-participation --out artifacts/localnet/quorum-participation"
         )
 
     return "\n".join(
@@ -273,6 +301,7 @@ def render_summary(generated_at, metadata, metrics):
             "- Profile: `localnet-smoke`",
             f"- Fault profile: `{metrics['fault_profile']}`",
             f"- Validators: `{metrics['validators']}`",
+            f"- Triggered validators: `{metrics['triggered_validator_count']}`",
             f"- Threshold: `{metrics['threshold']}`",
             f"- Finalized callbacks: `{metrics['finalized']}`",
             f"- All validators finalized: `{metrics['all_validators_finalized']}`",
@@ -283,6 +312,7 @@ def render_summary(generated_at, metadata, metrics):
             f"- Network bytes: `{metrics['network_bytes']}`",
             f"- Claim boundary: `{metrics['claim_boundary']}`",
             f"- Fault boundary: {fault_note}",
+            f"- Participation boundary: {participation_note}",
             "",
             "## Regeneration",
             "",
@@ -301,6 +331,7 @@ def render_node_log(metrics, validator_index):
         f"fault_profile={metrics['fault_profile']}",
         f"threshold={metrics['threshold']}",
         f"validator_count={metrics['validators']}",
+        f"triggered_validator_count={metrics['triggered_validator_count']}",
         f"all_validators_finalized={metrics['all_validators_finalized']}",
         f"evidence_count={metrics['evidence_count']}",
         f"dropped_message_count={metrics['dropped_message_count']}",
@@ -362,6 +393,7 @@ def build_report(
         "generated_at": generated_at,
         "claim_boundary": CLAIM_BOUNDARY,
         "fault_profile": metrics["fault_profile"],
+        "triggered_validator_count": metrics["triggered_validator_count"],
         "all_validators_finalized": metrics["all_validators_finalized"],
         "dropped_message_count": metrics["dropped_message_count"],
         "metadata": metadata,
@@ -374,6 +406,7 @@ def build_report(
             "profile": "localnet-smoke",
             "fault_profile": metrics["fault_profile"],
             "validator_count": metrics["validators"],
+            "triggered_validator_count": metrics["triggered_validator_count"],
             "threshold": metrics["threshold"],
             "transport_mode": "in-memory tokio mpsc",
         },
@@ -441,7 +474,7 @@ def main(argv=None):
     parser.add_argument("--target-dir", help="Cargo target directory for the run")
     parser.add_argument(
         "--profile",
-        choices=["honest", "withheld-partial"],
+        choices=["honest", "withheld-partial", "quorum-participation"],
         default="honest",
         help="localnet profile to execute",
     )

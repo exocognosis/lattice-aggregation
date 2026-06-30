@@ -5,6 +5,7 @@ use lattice_aggregation::{
     ThresholdError, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
 
+use std::collections::BTreeSet;
 use std::time::Duration;
 
 #[tokio::test]
@@ -14,6 +15,7 @@ async fn localnet_three_validators_finalize_without_manual_peer_injection() {
     assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
     assert_eq!(report.fault_profile, "honest");
     assert_eq!(report.validator_count, 3);
+    assert_eq!(report.triggered_validator_count, 3);
     assert_eq!(report.threshold, 2);
     assert!(report.all_validators_finalized);
     assert_eq!(report.finalized.len(), 3);
@@ -25,6 +27,51 @@ async fn localnet_three_validators_finalize_without_manual_peer_injection() {
     assert_eq!(report.dropped_message_count, 0);
     assert!(report.broadcast_count >= 6);
     assert!(report.network_bytes > 0);
+}
+
+#[tokio::test]
+async fn localnet_threshold_subset_finalizes_with_passive_validator() {
+    let report = run_localnet(LocalnetConfig::new(4, 3).with_triggered_validator_count(3))
+        .await
+        .unwrap();
+
+    let finalized_validators = report
+        .finalized
+        .iter()
+        .map(|event| event.validator)
+        .collect::<BTreeSet<_>>();
+
+    assert_eq!(report.validator_count, 4);
+    assert_eq!(report.triggered_validator_count, 3);
+    assert_eq!(report.threshold, 3);
+    assert_eq!(report.finalized.len(), 3);
+    assert_eq!(
+        finalized_validators,
+        [ValidatorId(1), ValidatorId(2), ValidatorId(3)]
+            .into_iter()
+            .collect()
+    );
+    assert!(!finalized_validators.contains(&ValidatorId(4)));
+    assert!(!report.all_validators_finalized);
+    assert_eq!(report.evidence_count, 0);
+    assert_eq!(report.dropped_message_count, 0);
+    assert!(report.network_bytes > 0);
+    assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
+}
+
+#[tokio::test]
+async fn localnet_rejects_triggered_count_below_threshold() {
+    let error = run_localnet(LocalnetConfig::new(4, 3).with_triggered_validator_count(2))
+        .await
+        .unwrap_err();
+
+    assert_eq!(
+        error,
+        ThresholdError::InvalidThresholdParameters {
+            threshold: 3,
+            total_nodes: 2
+        }
+    );
 }
 
 #[tokio::test]

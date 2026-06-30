@@ -40,6 +40,8 @@ pub struct LocalnetConfig {
     pub validator_count: u16,
     /// Signing threshold for the session.
     pub threshold: u16,
+    /// Number of validators that actively trigger signing.
+    pub triggered_validator_count: u16,
     /// Actor round timeout.
     pub round_timeout: Duration,
     /// Maximum active sessions per actor.
@@ -54,6 +56,7 @@ impl LocalnetConfig {
         Self {
             validator_count,
             threshold,
+            triggered_validator_count: validator_count,
             round_timeout: DEFAULT_ROUND_TIMEOUT,
             max_sessions: DEFAULT_MAX_SESSIONS,
             fault_profile: LocalnetFaultProfile::Honest,
@@ -69,6 +72,12 @@ impl LocalnetConfig {
     /// Override the localnet fault profile.
     pub fn with_fault_profile(mut self, fault_profile: LocalnetFaultProfile) -> Self {
         self.fault_profile = fault_profile;
+        self
+    }
+
+    /// Override how many validators actively trigger the signing round.
+    pub fn with_triggered_validator_count(mut self, triggered_validator_count: u16) -> Self {
+        self.triggered_validator_count = triggered_validator_count;
         self
     }
 }
@@ -129,6 +138,8 @@ pub struct LocalnetReport {
     pub validator_count: u16,
     /// Signing threshold.
     pub threshold: u16,
+    /// Number of validators that actively triggered signing.
+    pub triggered_validator_count: u16,
     /// Localnet fault profile label.
     pub fault_profile: &'static str,
     /// Whether every configured validator reported finalization.
@@ -193,7 +204,10 @@ pub async fn run_localnet(config: LocalnetConfig) -> Result<LocalnetReport, Thre
         handles.push(tokio::spawn(actor.run()));
     }
 
-    for tx in &senders {
+    for tx in senders
+        .iter()
+        .take(usize::from(config.triggered_validator_count))
+    {
         tx.send(ActorEvent::TriggerSigningRound {
             session_id: DEFAULT_SESSION_ID,
             block_height: DEFAULT_BLOCK_HEIGHT,
@@ -220,6 +234,7 @@ pub async fn run_localnet(config: LocalnetConfig) -> Result<LocalnetReport, Thre
         claim_boundary: LOCALNET_CLAIM_BOUNDARY,
         validator_count: config.validator_count,
         threshold: config.threshold,
+        triggered_validator_count: config.triggered_validator_count,
         fault_profile: config.fault_profile.label(),
         all_validators_finalized: finalized.len() == usize::from(config.validator_count),
         finalized,
@@ -234,11 +249,14 @@ pub async fn run_localnet(config: LocalnetConfig) -> Result<LocalnetReport, Thre
 fn validate_localnet_config(config: LocalnetConfig) -> Result<(), ThresholdError> {
     if config.threshold == 0
         || config.validator_count == 0
+        || config.triggered_validator_count == 0
         || config.threshold > config.validator_count
+        || config.triggered_validator_count > config.validator_count
+        || config.threshold > config.triggered_validator_count
     {
         return Err(ThresholdError::InvalidThresholdParameters {
             threshold: config.threshold,
-            total_nodes: config.validator_count,
+            total_nodes: config.triggered_validator_count,
         });
     }
     if let LocalnetFaultProfile::WithheldPartial { validator } = config.fault_profile {
@@ -263,7 +281,7 @@ async fn drive_localnet_until_observed(
 ) -> Result<(), ThresholdError> {
     match config.fault_profile {
         LocalnetFaultProfile::Honest => {
-            wait_for_finalizations(finalized, usize::from(config.validator_count)).await
+            wait_for_finalizations(finalized, usize::from(config.triggered_validator_count)).await
         }
         LocalnetFaultProfile::WithheldPartial { .. } => {
             tokio::time::sleep(config.round_timeout + Duration::from_millis(5)).await;
