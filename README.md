@@ -32,6 +32,7 @@ groups).
 - **Full grant proposal** (aims, novelty, risks, work plan, budget, evidence-vs-obligations): [docs/grant/proposal.md](docs/grant/proposal.md) ([package index](docs/grant/README.md))
 - **Ethereum / post-quantum alignment:** [Alignment with Ethereum Post-Quantum Priorities](#alignment-with-ethereum-post-quantum-priorities)
 - **What it takes to close the thesis:** [Path to Full Hypothesis Closure](#path-to-full-hypothesis-closure)
+- **Outcome taxonomy:** [docs/cryptography/hypothesis-outcome-taxonomy.md](docs/cryptography/hypothesis-outcome-taxonomy.md)
 - **Protocol flow & security boundaries:** [docs/assets/protocol-flow.md](docs/assets/protocol-flow.md)
 - **Funding / sponsorship channels:** [.github/FUNDING.yml](.github/FUNDING.yml)
 - **Maintainer & contact:** [AUTHORS.md](AUTHORS.md)
@@ -49,7 +50,7 @@ This repository is publishable as a research artifact and exploratory implementa
 
 It is not publishable as production cryptography, a completed threshold ML-DSA construction, a FIPS/CAVP/ACVTS-validated implementation, or a finished standard-verifier-compatible aggregate signature scheme.
 
-Current merged-main assessment status: `partially_proven`. The five tracked hypothesis criteria are all `partially_met`; none is currently classified as fully proven or disproven.
+Current merged-main assessment status: `partially_proven`. The five tracked hypothesis criteria are all `partially_met`; none is currently classified as fully proven or disproven. The repository defines failure, partial success, and full success in [docs/cryptography/hypothesis-outcome-taxonomy.md](docs/cryptography/hypothesis-outcome-taxonomy.md).
 
 ## Reproduce Evidence
 
@@ -343,6 +344,8 @@ The criteria were chosen because they cover the minimum security surfaces that c
 
 The formal thesis and operating-parameter contract is in [docs/cryptography/thesis-operating-parameters.md](docs/cryptography/thesis-operating-parameters.md), with machine-readable anchors in [docs/cryptography/thesis-operating-parameters.json](docs/cryptography/thesis-operating-parameters.json). Its thesis id is `native-threshold-mldsa65-aggregation-p1`; its scope is `research scaffold only`.
 
+The outcome taxonomy is in [docs/cryptography/hypothesis-outcome-taxonomy.md](docs/cryptography/hypothesis-outcome-taxonomy.md). It defines failure, partial success, and full success for the top-level thesis and each criterion, including the rule that full hypothesis success is not production release readiness.
+
 Criterion 1 proof substance is tracked in [docs/cryptography/criterion-1-proof-substance.md](docs/cryptography/criterion-1-proof-substance.md), with machine-readable anchors in [docs/cryptography/criterion-1-proof-substance.json](docs/cryptography/criterion-1-proof-substance.json). It formalizes the open proof payload for `aggregate_mask_distribution`, including selected mask construction, centralized and aggregate distribution artifacts, `renyi_bound_proof_digest`, min-entropy review, parameter selection, and external review slots marked `required_unclosed`; it does not promote Criterion 1 beyond `partially_met`.
 
 Criterion 2 proof substance is tracked in [docs/cryptography/criterion-2-proof-substance.md](docs/cryptography/criterion-2-proof-substance.md), with machine-readable anchors in [docs/cryptography/criterion-2-proof-substance.json](docs/cryptography/criterion-2-proof-substance.json). It formalizes the open proof payload for `aggregate_rejection_equivalence`, including the checked threshold-output certificate, real recomputation, standard-verifier compatibility, rejection-distribution review, and theorem-linkage proof-slot fixtures; it does not promote Criterion 2 beyond `partially_met`.
@@ -448,6 +451,7 @@ cargo test --test proof_documentation_manifest --test thesis_operating_parameter
 - [Audit Packet](docs/audit/README.md): attack surface, trusted computing base, dependency assumptions, and high-priority review paths
 - [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md): what is implemented, simulated, planned, or explicitly not claimed
 - [Thesis and Operating Parameters](docs/cryptography/thesis-operating-parameters.md): current P1 thesis id, operating assumptions, promotion criteria, failure criteria, and fallback trigger
+- [Hypothesis Outcome Taxonomy](docs/cryptography/hypothesis-outcome-taxonomy.md): definitions for failure, partial success, full success, and criterion promotion
 - [Criterion 1 Proof Substance](docs/cryptography/criterion-1-proof-substance.md): open aggregate mask-distribution proof payload and required artifact slots
 - [Criterion 2 Proof Substance](docs/cryptography/criterion-2-proof-substance.md): open aggregate rejection-equivalence proof payload and required artifact slots
 - [Protocol Code Crosswalk](docs/cryptography/protocol-code-crosswalk.md): where each protocol phase lives in code and tests
