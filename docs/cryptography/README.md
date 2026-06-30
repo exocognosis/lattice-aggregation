@@ -13,6 +13,7 @@ Available notes:
 - [Criterion 2 Proof Substance](criterion-2-proof-substance.md)
 - [Formal Security Theorem](formal-security-theorem.md)
 - [Formal Threshold ML-DSA Transcript](formal-threshold-mldsa-transcript.md)
+- [Hypothesis Outcome Taxonomy](hypothesis-outcome-taxonomy.md)
 - [Ideal Functionality](ideal-functionality.md)
 - [Mask Distribution Evidence](mask-distribution-evidence.md)
 - [Noise-Bound and Rejection-Sampling Proof Plan](noise-rejection-proof-plan.md)
