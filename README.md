@@ -350,6 +350,8 @@ Criterion 1 proof substance is tracked in [docs/cryptography/criterion-1-proof-s
 
 Criterion 2 proof substance is tracked in [docs/cryptography/criterion-2-proof-substance.md](docs/cryptography/criterion-2-proof-substance.md), with machine-readable anchors in [docs/cryptography/criterion-2-proof-substance.json](docs/cryptography/criterion-2-proof-substance.json). It formalizes the open proof payload for `aggregate_rejection_equivalence`, including the checked threshold-output certificate, real recomputation, standard-verifier compatibility, rejection-distribution review, and theorem-linkage proof-slot fixtures; it does not promote Criterion 2 beyond `partially_met`.
 
+Criterion 3 proof substance is tracked in [docs/cryptography/criterion-3-proof-substance.md](docs/cryptography/criterion-3-proof-substance.md), with machine-readable anchors in [docs/cryptography/criterion-3-proof-substance.json](docs/cryptography/criterion-3-proof-substance.json). It formalizes the open proof payload for `abort_retry_bias`, including `retry_domain_separation_proof_digest`, formal abort-leakage model, accepted-signature distribution proof, adversarial abort-policy corpus, sample-size bucket rationale, timeout/retry policy, and external review slots marked `required_unclosed`; it does not promote Criterion 3 beyond `partially_met`.
+
 Latest local assessment run:
 
 ```sh
@@ -361,7 +363,7 @@ Latest verification commands:
 ```sh
 cargo fmt --all -- --check
 python3 -m unittest script_tests.test_assess_lattice_hypothesis
-CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-gates cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-gates cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest --test criterion3_proof_substance_manifest
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-production-full cargo test --features production-mldsa65-coordinator --test production_provider --test production_rejection_equivalence --test production_selected_backend --test proof_documentation_manifest
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-coordinator-full cargo test --features coordinator-assisted
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-production-full cargo test --features production-mldsa65-coordinator
@@ -392,7 +394,7 @@ is tracked separately in [vss-dkg-security-plan.md](docs/cryptography/vss-dkg-se
 | --- | --- | --- | --- | --- | --- |
 | 1 | Aggregate masks ≈ centralized ML-DSA masks (`mask_distribution` / `epsilon_mask`) | (a) select the production `CombineMask` / blinded pre-filter family; (b) supply the Renyi-divergence evidence bounding aggregate-vs-centralized mask distance | 3–6 months | `epsilon_mask` Renyi-divergence bound; no completed distance proof today | [criterion-1-proof-substance.md](docs/cryptography/criterion-1-proof-substance.md), [mask-distribution-evidence.md](docs/cryptography/mask-distribution-evidence.md), [phase-1-noise-bound-model.md](docs/cryptography/phase-1-noise-bound-model.md), [noise-rejection-proof-plan.md](docs/cryptography/noise-rejection-proof-plan.md) |
 | 2 | Aggregate rejection = centralized rejection (`rejection_equivalence`) | (a) close the Criterion 2 proof payload (`aggregate_rejection_equivalence`) with real threshold recomputation; (b) complete standard-verifier compatibility evidence over the same candidate tuple | 2–4 months | real (not fixture) recomputation; completed standard-verifier compatibility proof | [rejection-equivalence-evidence.md](docs/cryptography/rejection-equivalence-evidence.md), [criterion-2-proof-substance.md](docs/cryptography/criterion-2-proof-substance.md) |
-| 3 | Selective aborts / retries do not bias output (`abort_bias`) | (a) fix a concrete retry-domain and timeout policy; (b) prove an accepted-sample bound from the abort-leakage and retry-bias model | 3–5 months | abort-leakage analysis; retry-bias distribution bound | [abort-retry-bias-evidence.md](docs/cryptography/abort-retry-bias-evidence.md), [active-adversary-model.md](docs/cryptography/active-adversary-model.md) |
+| 3 | Selective aborts / retries do not bias output (`abort_bias`) | (a) fix a concrete retry-domain and timeout policy; (b) prove an accepted-sample bound from the abort-leakage and retry-bias model | 3–5 months | abort-leakage analysis; retry-bias distribution bound | [criterion-3-proof-substance.md](docs/cryptography/criterion-3-proof-substance.md), [abort-retry-bias-evidence.md](docs/cryptography/abort-retry-bias-evidence.md), [active-adversary-model.md](docs/cryptography/active-adversary-model.md) |
 | 4 | Partial contributions sound, bound, hiding (`partial_soundness`) | (a) specify production local-acceptance and partial-verification predicates; (b) prove soundness and hiding for the chosen leakage model | 6–12 months | production partial verification + hiding proof | [partial-soundness-evidence.md](docs/cryptography/partial-soundness-evidence.md), [vss-dkg-security-plan.md](docs/cryptography/vss-dkg-security-plan.md) |
 | 5 | Every unauthorized output reduces to forgery/assumption | (a) complete the per-case reduction cases in the manifest; (b) close the threshold EUF-CMA reduction to base ML-DSA forgery or a named threshold assumption | 3–6 months | completed per-case reductions; threshold unforgeability reduction | [unauthorized-aggregate-reduction.md](docs/cryptography/unauthorized-aggregate-reduction.md), [formal-security-theorem.md](docs/cryptography/formal-security-theorem.md), [proof-obligations.md](docs/cryptography/proof-obligations.md) |
 
@@ -460,7 +462,7 @@ cargo test --all-features
 The documentation manifest test also validates reviewer-facing documentation anchors and local markdown links:
 
 ```sh
-cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest
+cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest --test criterion3_proof_substance_manifest
 ```
 
 ## Reviewer Entry Points
@@ -471,6 +473,7 @@ cargo test --test proof_documentation_manifest --test thesis_operating_parameter
 - [Hypothesis Outcome Taxonomy](docs/cryptography/hypothesis-outcome-taxonomy.md): definitions for failure, partial success, full success, and criterion promotion
 - [Criterion 1 Proof Substance](docs/cryptography/criterion-1-proof-substance.md): open aggregate mask-distribution proof payload and required artifact slots
 - [Criterion 2 Proof Substance](docs/cryptography/criterion-2-proof-substance.md): open aggregate rejection-equivalence proof payload and required artifact slots
+- [Criterion 3 Proof Substance](docs/cryptography/criterion-3-proof-substance.md): open abort/retry-bias proof payload and required artifact slots
 - [Protocol Code Crosswalk](docs/cryptography/protocol-code-crosswalk.md): where each protocol phase lives in code and tests
 - [Proof Implementation Crosswalk](docs/cryptography/proof-implementation-crosswalk.md): mapping from proof obligations to current implementation and test coverage
 - [Formal Threshold ML-DSA Transcript](docs/cryptography/formal-threshold-mldsa-transcript.md): transcript fields, binding invariants, and stable anchors

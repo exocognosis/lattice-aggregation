@@ -1,0 +1,111 @@
+{
+  "schema": "lattice-aggregation.criterion-3-proof-substance.v1",
+  "criterion_id": "abort_retry_bias",
+  "status": "formalized_open_proof_payload",
+  "claim_boundary": {
+    "scope": "criterion-3 proof payload only",
+    "claims_criterion_met": false,
+    "claims_abort_retry_bias_proven": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_accepted_signature_distribution": false,
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false
+  },
+  "selected_profile": {
+    "name": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "feature_gate": "production-mldsa65-coordinator",
+    "output_target": "one standard-sized ML-DSA-65 signature if proven"
+  },
+  "proof_payload": {
+    "statement": "selected Profile P1 abort, timeout, and retry policy must preserve accepted threshold-signature distribution before any abort/retry-bias criterion promotion",
+    "retry_domain": "session_id + attempt_id + retry_counter",
+    "public_observable_target": "aggregate accept/abort bit per attempt plus retry counter bound into the transcript",
+    "accepted_signature_target": "accepted threshold signatures remain unbiased under the reviewed abort and retry policy",
+    "theorem_links": [
+      "Noise Lemma G",
+      "Noise Lemma H",
+      "FST-L7",
+      "FST-L9"
+    ],
+    "required_artifact_slots": [
+      {
+        "id": "retry_domain_separation_proof_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_retry_domain_separation_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "formal_abort_leakage_model_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_abort_leakage_model_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "accepted_signature_distribution_proof_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_accepted_signature_distribution_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "adversarial_abort_policy_corpus_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_adversarial_abort_policy_corpus_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "sample_size_bucket_rationale_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_sample_size_bucket_rationale_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "timeout_retry_policy_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_timeout_retry_policy_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "external_review_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion3_external_review_artifact_gate",
+        "artifact_package": "p1_criterion3_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      }
+    ]
+  },
+  "promotion_requires": [
+    "retry transcript domain separation over session_id, attempt_id, and retry_counter",
+    "formal abort leakage model matching the public observable set",
+    "accepted-signature distribution proof under the reviewed abort and retry policy",
+    "adversarial abort-policy corpus covering rushing, selective abort, malformed commitment, omitted partial, and retry-exhaustion policies",
+    "sample-size and bucket-construction rationale",
+    "timeout and retry policy bound to the production transcript",
+    "external cryptographic review of the exact digests and assumptions"
+  ],
+  "failure_conditions": [
+    "retry timing or attempt identifiers let participants bias accepted outputs beyond the reviewed bound",
+    "local aborts reveal secret-dependent information that is not public or simulatable",
+    "accepted-sample evidence exceeds the reviewed bias bound"
+  ],
+  "evidence_refs": [
+    "docs/cryptography/abort-retry-bias-evidence.md",
+    "docs/cryptography/noise-rejection-proof-plan.md",
+    "docs/cryptography/proof-obligations.md",
+    "docs/cryptography/thesis-operating-parameters.md",
+    "src/production/abort_bias.rs",
+    "tests/production_abort_bias.rs"
+  ],
+  "assessment": {
+    "criterion_status": "partially_met",
+    "overall_verdict": "partially_proven",
+    "does_not_change_overall_verdict": true,
+    "report_status": "criterion3_proof_payload_formalized"
+  }
+}
