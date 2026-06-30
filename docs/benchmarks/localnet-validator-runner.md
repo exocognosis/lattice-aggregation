@@ -72,6 +72,14 @@ coverage from unauthenticated in-memory delivery. This is not production
 authenticated transport, peer discovery, replay-resistance, network-liveness,
 consensus-safety, or Byzantine-fault-tolerance evidence.
 
+Authenticated-envelope-tamper runs are local tamper-rejection telemetry only.
+The `authenticated-envelope-tamper` packet profile corrupts one validator's
+tampered authenticated envelope digest in the local runner and records the
+rejection through `rejected_envelope_count`. This is not production
+authenticated transport, not replay-resistance, peer discovery, network
+liveness, consensus-safety, Byzantine-fault-tolerance, slashing-soundness, or
+cryptographic security evidence.
+
 ## Packet Layout
 
 Generate an ignored localnet packet:
@@ -96,6 +104,12 @@ Generate a local authenticated-envelope transport packet:
 
 ```sh
 python3 scripts/run_localnet_runner.py --profile authenticated-transport --out artifacts/localnet/authenticated-transport
+```
+
+Generate a local authenticated-envelope tamper packet:
+
+```sh
+python3 scripts/run_localnet_runner.py --profile authenticated-envelope-tamper --out artifacts/localnet/authenticated-envelope-tamper
 ```
 
 Exploratory localnet packets should be written under ignored

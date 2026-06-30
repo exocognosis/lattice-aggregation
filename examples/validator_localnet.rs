@@ -53,6 +53,7 @@ fn parse_args() -> ExampleArgs {
     let mut profile = "honest".to_string();
     let mut transport_mode = LocalnetTransportMode::InMemoryTokioMpsc;
     let mut withheld_validator = 4;
+    let mut tamper_validator = 4;
 
     let mut args = env::args().skip(1);
     while let Some(arg) = args.next() {
@@ -75,6 +76,9 @@ fn parse_args() -> ExampleArgs {
             "--withheld-validator" => {
                 withheld_validator = parse_u16("--withheld-validator", args.next());
             }
+            "--tamper-validator" => {
+                tamper_validator = parse_u16("--tamper-validator", args.next());
+            }
             unknown => panic!("unknown localnet example argument: {unknown}"),
         }
     }
@@ -83,6 +87,9 @@ fn parse_args() -> ExampleArgs {
         "honest" => LocalnetFaultProfile::Honest,
         "withheld-partial" => {
             LocalnetFaultProfile::withheld_partial(ValidatorId(withheld_validator))
+        }
+        "authenticated-envelope-tamper" => {
+            LocalnetFaultProfile::tampered_authenticated_envelope(ValidatorId(tamper_validator))
         }
         other => panic!("unknown localnet profile: {other}"),
     };

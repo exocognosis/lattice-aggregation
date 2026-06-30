@@ -71,6 +71,20 @@ def localnet_command(profile="honest"):
         ]
     if profile == "authenticated-transport":
         return command + ["--", "--transport", "authenticated-envelope"]
+    if profile == "authenticated-envelope-tamper":
+        return command + [
+            "--",
+            "--transport",
+            "authenticated-envelope",
+            "--profile",
+            "authenticated-envelope-tamper",
+            "--validators",
+            "4",
+            "--threshold",
+            "3",
+            "--tamper-validator",
+            "4",
+        ]
     raise ValueError(f"unsupported localnet profile: {profile}")
 
 
@@ -316,6 +330,26 @@ def render_summary(generated_at, metadata, metrics):
             "python3 scripts/run_localnet_runner.py --profile "
             "authenticated-transport --out artifacts/localnet/authenticated-transport"
         )
+    if metrics["fault_profile"] == "authenticated-envelope-tamper":
+        fault_note = (
+            "The authenticated-envelope-tamper packet is local "
+            "tamper-rejection telemetry only: it records tampered authenticated "
+            "local envelopes through rejected_envelope_count without treating "
+            "the local transport rejection as slashing evidence; this is not "
+            "slashing evidence."
+        )
+        transport_note = (
+            "This packet exercises tampered authenticated local envelopes with "
+            "a deterministic validator identity digest; it is not production "
+            "authenticated transport, peer discovery, replay-resistance, "
+            "network-liveness, consensus-safety, Byzantine-fault-tolerance, "
+            "slashing-soundness, or cryptographic security evidence."
+        )
+        regeneration_command = (
+            "python3 scripts/run_localnet_runner.py --profile "
+            "authenticated-envelope-tamper --out "
+            "artifacts/localnet/authenticated-envelope-tamper"
+        )
 
     return "\n".join(
         [
@@ -523,6 +557,7 @@ def main(argv=None):
             "withheld-partial",
             "quorum-participation",
             "authenticated-transport",
+            "authenticated-envelope-tamper",
         ],
         default="honest",
         help="localnet profile to execute",

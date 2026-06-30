@@ -84,6 +84,32 @@ async fn localnet_authenticated_transport_envelopes_bind_validator_identity() {
 }
 
 #[tokio::test]
+async fn localnet_rejects_tampered_authenticated_envelope_without_slashing_claim() {
+    let report = run_localnet(
+        LocalnetConfig::new(4, 3)
+            .with_transport_mode(LocalnetTransportMode::AuthenticatedEnvelope)
+            .with_fault_profile(LocalnetFaultProfile::tampered_authenticated_envelope(
+                ValidatorId(4),
+            )),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(report.fault_profile, "authenticated-envelope-tamper");
+    assert_eq!(
+        report.transport_mode,
+        "authenticated local envelope over tokio mpsc"
+    );
+    assert!(report.authenticated_envelope_count > 0);
+    assert!(report.rejected_envelope_count > 0);
+    assert_eq!(report.evidence_count, 0);
+    assert_eq!(report.dropped_message_count, 0);
+    assert_eq!(report.finalized.len(), 4);
+    assert!(report.all_validators_finalized);
+    assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
+}
+
+#[tokio::test]
 async fn localnet_rejects_triggered_count_below_threshold() {
     let error = run_localnet(LocalnetConfig::new(4, 3).with_triggered_validator_count(2))
         .await

@@ -453,6 +453,11 @@ packets exercise a deterministic validator identity digest over the local
 runner only; they are not production authenticated transport, peer discovery,
 replay-resistance, or network-liveness evidence.
 
+Authenticated-envelope-tamper packets are local tamper-rejection telemetry only.
+They record a tampered authenticated envelope through `rejected_envelope_count`
+without treating the local transport rejection as slashing evidence; this is
+not production authenticated transport and not replay-resistance evidence.
+
 ## Verification
 
 The CI workflow runs the same core checks reviewers should start with:

@@ -81,6 +81,24 @@ rejected_envelope_count=0
 network_bytes=3096
 """
 
+AUTHENTICATED_TAMPER_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+fault_profile=authenticated-envelope-tamper
+validators=4
+triggered_validator_count=4
+threshold=3
+transport_mode=authenticated local envelope over tokio mpsc
+authentication_policy=local validator identity digest envelope
+finalized=4
+all_validators_finalized=true
+evidence_count=0
+broadcast_count=8
+direct_send_count=0
+dropped_message_count=0
+authenticated_envelope_count=18
+rejected_envelope_count=6
+network_bytes=3096
+"""
+
 
 def load_module():
     spec = importlib.util.spec_from_file_location("run_localnet_runner", SCRIPT)
@@ -148,6 +166,16 @@ def authenticated_runner(command, root, env):
         "exit_code": 0,
         "duration_seconds": 1.7,
         "stdout": AUTHENTICATED_STDOUT,
+        "stderr": "",
+    }
+
+
+def authenticated_tamper_runner(command, root, env):
+    return {
+        "command": command,
+        "exit_code": 0,
+        "duration_seconds": 1.8,
+        "stdout": AUTHENTICATED_TAMPER_STDOUT,
         "stderr": "",
     }
 
@@ -293,6 +321,27 @@ class LocalnetRunnerTests(unittest.TestCase):
         self.assertIn("authenticated local envelope", report["summary_md"])
         self.assertIn("not production authenticated transport", report["summary_md"])
         self.assertIn("--profile authenticated-transport", report["summary_md"])
+
+    def test_authenticated_tamper_packet_records_rejected_envelopes_without_slashing_claim(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            report = module.build_report(
+                pathlib.Path(temp_dir),
+                profile="authenticated-envelope-tamper",
+                command_runner=authenticated_tamper_runner,
+                metadata_provider=fake_metadata,
+                generated_at="2026-06-30T00:00:00Z",
+            )
+
+        self.assertEqual(report["manifest"]["fault_profile"], "authenticated-envelope-tamper")
+        self.assertEqual(report["metrics"]["authenticated_envelope_count"], 18)
+        self.assertEqual(report["metrics"]["rejected_envelope_count"], 6)
+        self.assertEqual(report["metrics"]["evidence_count"], 0)
+        self.assertEqual(report["metrics"]["dropped_message_count"], 0)
+        self.assertIn("tampered authenticated local envelopes", report["summary_md"])
+        self.assertIn("not slashing evidence", report["summary_md"])
+        self.assertIn("--profile authenticated-envelope-tamper", report["summary_md"])
 
     def test_failed_runner_status_raises(self):
         module = load_module()

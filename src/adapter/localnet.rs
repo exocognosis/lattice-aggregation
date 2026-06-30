@@ -129,6 +129,11 @@ pub enum LocalnetFaultProfile {
         /// Validator whose partial-signature broadcasts are dropped.
         validator: ValidatorId,
     },
+    /// Corrupt authenticated local transport envelopes from one validator.
+    TamperedAuthenticatedEnvelope {
+        /// Validator whose authenticated local envelopes are tampered.
+        validator: ValidatorId,
+    },
 }
 
 impl LocalnetFaultProfile {
@@ -137,10 +142,16 @@ impl LocalnetFaultProfile {
         Self::WithheldPartial { validator }
     }
 
+    /// Construct a tampered-authenticated-envelope fault profile.
+    pub fn tampered_authenticated_envelope(validator: ValidatorId) -> Self {
+        Self::TamperedAuthenticatedEnvelope { validator }
+    }
+
     fn label(self) -> &'static str {
         match self {
             Self::Honest => "honest",
             Self::WithheldPartial { .. } => "withheld-partial",
+            Self::TamperedAuthenticatedEnvelope { .. } => "authenticated-envelope-tamper",
         }
     }
 
@@ -151,6 +162,13 @@ impl LocalnetFaultProfile {
                 Self::WithheldPartial { validator },
                 PqcThresholdWireMsg::PartialSignature { .. }
             ) if validator == sender
+        )
+    }
+
+    fn should_tamper_authenticated_envelope(self, sender: ValidatorId) -> bool {
+        matches!(
+            self,
+            Self::TamperedAuthenticatedEnvelope { validator } if validator == sender
         )
     }
 }
@@ -308,15 +326,28 @@ fn validate_localnet_config(config: LocalnetConfig) -> Result<(), ThresholdError
             total_nodes: config.triggered_validator_count,
         });
     }
-    if let LocalnetFaultProfile::WithheldPartial { validator } = config.fault_profile {
-        if validator.0 == 0 || validator.0 > config.validator_count {
-            return Err(ThresholdError::UnknownValidator { validator });
+    match config.fault_profile {
+        LocalnetFaultProfile::Honest => {}
+        LocalnetFaultProfile::WithheldPartial { validator } => {
+            if validator.0 == 0 || validator.0 > config.validator_count {
+                return Err(ThresholdError::UnknownValidator { validator });
+            }
+            if config.threshold != config.validator_count {
+                return Err(ThresholdError::InvalidThresholdParameters {
+                    threshold: config.threshold,
+                    total_nodes: config.validator_count,
+                });
+            }
         }
-        if config.threshold != config.validator_count {
-            return Err(ThresholdError::InvalidThresholdParameters {
-                threshold: config.threshold,
-                total_nodes: config.validator_count,
-            });
+        LocalnetFaultProfile::TamperedAuthenticatedEnvelope { validator } => {
+            if validator.0 == 0 || validator.0 > config.validator_count {
+                return Err(ThresholdError::UnknownValidator { validator });
+            }
+            if config.transport_mode != LocalnetTransportMode::AuthenticatedEnvelope {
+                return Err(ThresholdError::BackendUnavailable {
+                    reason: "tampered authenticated envelope profile requires authenticated envelope transport",
+                });
+            }
         }
     }
     Ok(())
@@ -329,7 +360,8 @@ async fn drive_localnet_until_observed(
     senders: &[mpsc::Sender<ActorEvent>],
 ) -> Result<(), ThresholdError> {
     match config.fault_profile {
-        LocalnetFaultProfile::Honest => {
+        LocalnetFaultProfile::Honest
+        | LocalnetFaultProfile::TamperedAuthenticatedEnvelope { .. } => {
             wait_for_finalizations(finalized, usize::from(config.triggered_validator_count)).await
         }
         LocalnetFaultProfile::WithheldPartial { .. } => {
@@ -353,7 +385,7 @@ async fn wait_for_finalizations(
         tokio::time::sleep(Duration::from_millis(5)).await;
     }
     Err(ThresholdError::BackendUnavailable {
-        reason: "localnet did not finalize all validators before timeout",
+        reason: "localnet did not finalize expected validators before timeout",
     })
 }
 
@@ -444,7 +476,7 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
 
     async fn broadcast(&self, msg: PqcThresholdWireMsg) -> Result<(), Self::Error> {
         let encoded = msg.encode();
-        let (recipients, dropped, transport_mode) = {
+        let (recipients, dropped, transport_mode, fault_profile) = {
             let mut inner = self.hub.inner.lock().expect("network hub lock poisoned");
             let recipients = inner
                 .senders
@@ -459,12 +491,12 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
                 .should_drop_broadcast(self.local_validator, &msg)
             {
                 inner.metrics.dropped_message_count += recipients.len();
-                (Vec::new(), true, inner.transport_mode)
+                (Vec::new(), true, inner.transport_mode, inner.fault_profile)
             } else {
                 let frame_len =
                     transport_frame_len(inner.transport_mode, self.local_validator, &encoded);
                 inner.metrics.network_bytes += frame_len * recipients.len();
-                (recipients, false, inner.transport_mode)
+                (recipients, false, inner.transport_mode, inner.fault_profile)
             }
         };
         if dropped {
@@ -475,6 +507,7 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
                 transport_mode,
                 self.local_validator,
                 &encoded,
+                fault_profile.should_tamper_authenticated_envelope(self.local_validator),
                 &self.hub,
             ) {
                 let _ = sender
@@ -487,7 +520,7 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
 
     async fn send_to(&self, target: u16, msg: PqcThresholdWireMsg) -> Result<(), Self::Error> {
         let encoded = msg.encode();
-        let (recipient, transport_mode) = {
+        let (recipient, transport_mode, fault_profile) = {
             let mut inner = self.hub.inner.lock().expect("network hub lock poisoned");
             let recipient = inner.senders.get(&ValidatorId(target)).cloned();
             inner.metrics.direct_send_count += 1;
@@ -495,13 +528,14 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
                 inner.metrics.network_bytes +=
                     transport_frame_len(inner.transport_mode, self.local_validator, &encoded);
             }
-            (recipient, inner.transport_mode)
+            (recipient, inner.transport_mode, inner.fault_profile)
         };
         if let Some(sender) = recipient {
             if let Some(decoded) = decode_local_transport_frame(
                 transport_mode,
                 self.local_validator,
                 &encoded,
+                fault_profile.should_tamper_authenticated_envelope(self.local_validator),
                 &self.hub,
             ) {
                 let _ = sender
@@ -530,12 +564,16 @@ fn decode_local_transport_frame(
     transport_mode: LocalnetTransportMode,
     sender: ValidatorId,
     payload: &[u8],
+    tamper_authenticated_envelope: bool,
     hub: &InMemoryNetworkHub,
 ) -> Option<PqcThresholdWireMsg> {
     let decoded = match transport_mode {
         LocalnetTransportMode::InMemoryTokioMpsc => PqcThresholdWireMsg::decode(payload).ok(),
         LocalnetTransportMode::AuthenticatedEnvelope => {
-            let frame = encode_local_authenticated_envelope(sender, payload);
+            let mut frame = encode_local_authenticated_envelope(sender, payload);
+            if tamper_authenticated_envelope {
+                frame[3] ^= 0x01;
+            }
             decode_local_authenticated_envelope(&frame).and_then(|(frame_sender, frame_payload)| {
                 (frame_sender == sender)
                     .then(|| PqcThresholdWireMsg::decode(&frame_payload).ok())

@@ -226,6 +226,10 @@ migration candidates that require separate review.
   `authenticated_envelope_count`, and `rejected_envelope_count` framed as
   local identity-envelope evidence only; it is not production authenticated
   transport, peer-discovery, replay-resistance, or network-liveness evidence.
+- Keep authenticated-envelope-tamper telemetry framed as local tamper-rejection
+  telemetry only; a tampered authenticated envelope rejected by the local
+  runner is not slashing evidence, not production authenticated transport, and
+  not replay-resistance evidence.
 - Keep benchmark output framed as deterministic research telemetry and not
   security evidence.
 - Store artifact checksums and regeneration commands.
