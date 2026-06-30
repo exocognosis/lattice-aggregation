@@ -216,6 +216,9 @@ migration candidates that require separate review.
   from real-world benchmark evidence until production transport, consensus
   safety, authenticated validator deployment, and reviewed backend evidence
   exist.
+- Keep local fault-profile telemetry such as `withheld-partial` explicitly
+  framed as local fault-injection telemetry, not production liveness,
+  consensus-safety, slashing-soundness, or Byzantine-fault-tolerance evidence.
 - Keep benchmark output framed as deterministic research telemetry and not
   security evidence.
 - Store artifact checksums and regeneration commands.

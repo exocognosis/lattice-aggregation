@@ -438,6 +438,11 @@ cargo run --example validator_localnet
 
 The localnet runner is indexed in the [Local Validator-Network Runner](docs/benchmarks/localnet-validator-runner.md). It is local validator orchestration telemetry using the simulated backend only; it is not security evidence, real-world validator performance, or production-readiness evidence.
 
+Local fault profiles such as `withheld-partial` are fault-injection telemetry
+only. They can record incomplete local finalization, dropped in-memory message
+deliveries, and local adapter evidence without making production network
+liveness, consensus-safety, or Byzantine-fault-tolerance claims.
+
 ## Verification
 
 The CI workflow runs the same core checks reviewers should start with:

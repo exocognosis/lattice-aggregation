@@ -23,9 +23,24 @@ Run the default localnet smoke profile:
 cargo run --example validator_localnet
 ```
 
+Run the local withheld-partial fault profile:
+
+```sh
+cargo run --example validator_localnet -- --profile withheld-partial --validators 4 --threshold 4 --withheld-validator 4
+```
+
 The example currently runs four local validator actors with threshold three. It
 uses in-memory message routing, local consensus recorders, deterministic
 simulation key shares, and the simulated aggregation backend.
+
+Fault profiles are local fault-injection telemetry only. The `withheld-partial`
+profile drops local `PartialSignature` deliveries from one validator after that
+validator has broadcast its commitment. The runner records `fault_profile`,
+`all_validators_finalized`, `dropped_message_count`, finalization count, and
+local adapter evidence count. These fields distinguish local partial success
+from the honest smoke profile and must not be used as production network
+liveness, consensus-safety, slashing-soundness, or Byzantine-fault-tolerance
+evidence.
 
 ## Packet Layout
 
@@ -33,6 +48,12 @@ Generate an ignored localnet packet:
 
 ```sh
 python3 scripts/run_localnet_runner.py --out artifacts/localnet/latest
+```
+
+Generate a local fault-injection packet:
+
+```sh
+python3 scripts/run_localnet_runner.py --profile withheld-partial --out artifacts/localnet/withheld-partial
 ```
 
 Exploratory localnet packets should be written under ignored
@@ -43,10 +64,16 @@ Exploratory localnet packets should be written under ignored
 - `metrics.csv`
 - `events.jsonl`
 - `node-logs/README.md`
+- `node-logs/validator-{id}.log`
 - `command.stdout.log`
 - `command.stderr.log`
 - `summary.md`
 - `SHA256SUMS`
+
+`manifest.json`, `topology.json`, `metrics.csv`, and `events.jsonl` must carry
+`fault_profile`, `all_validators_finalized`, and `dropped_message_count` when
+the runner emits those fields. Per-validator node logs are deterministic local
+telemetry summaries only, not raw production logs.
 
 Those packets are engineering telemetry only. They must not be checked in as
 real-world benchmark evidence and must not replace the
