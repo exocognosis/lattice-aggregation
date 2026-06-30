@@ -409,6 +409,52 @@ async fn actor_finalizes_ideal_threshold_signature() {
 }
 
 #[tokio::test]
+async fn actor_broadcasts_local_partial_after_threshold_commitments() {
+    let (tx, rx) = mpsc::channel(8);
+    let network = RecordingNetwork::default();
+    let consensus = RecordingConsensus::default();
+    let actor = ThresholdActor::new(
+        actor_config_with_timeout(4, Duration::ZERO),
+        network.clone(),
+        consensus.clone(),
+        rx,
+    )
+    .expect("actor config should be valid");
+    let handle = tokio::spawn(actor.run());
+
+    tx.send(ActorEvent::TriggerSigningRound {
+        session_id: [6; 32],
+        block_height: 47,
+        message_hash: [0x47; 32],
+    })
+    .await
+    .unwrap();
+    tx.send(ActorEvent::IncomingNetworkMessage(
+        PqcThresholdWireMsg::SignCommit {
+            session_id: [6; 32],
+            block_height: 47,
+            validator_index: 2,
+            commitment: [0x25; 32],
+        },
+    ))
+    .await
+    .unwrap();
+    drop(tx);
+
+    handle.await.unwrap();
+
+    let broadcasts = network.broadcasts.lock().unwrap();
+    assert!(broadcasts.iter().any(|message| matches!(
+        message,
+        PqcThresholdWireMsg::PartialSignature {
+            session_id,
+            validator_index: 1,
+            partial_sig_share,
+        } if session_id == &[6; 32] && partial_sig_share.len() == 64
+    )));
+}
+
+#[tokio::test]
 async fn actor_submits_evidence_for_poisoned_partial_share() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();

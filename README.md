@@ -430,6 +430,14 @@ cargo run -- --profile large --format csv --no-wall-sleep
 
 Checked-in large-scale simulation artifacts are indexed in [Simulation Benchmark Results](docs/benchmarks/simulation-results.md). Future real-world benchmark claims must follow the [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md) and remain blocked until a production threshold backend, external validator deployment, and reviewed artifacts exist.
 
+Run the local validator-network orchestration smoke runner:
+
+```sh
+cargo run --example validator_localnet
+```
+
+The localnet runner is indexed in the [Local Validator-Network Runner](docs/benchmarks/localnet-validator-runner.md). It is local validator orchestration telemetry using the simulated backend only; it is not security evidence, real-world validator performance, or production-readiness evidence.
+
 ## Verification
 
 The CI workflow runs the same core checks reviewers should start with:
@@ -460,6 +468,7 @@ cargo test --test proof_documentation_manifest --test thesis_operating_parameter
 - [Side-Channel and Constant-Time Boundary](docs/cryptography/side-channel-boundary.md): current leakage claims and production gate
 - [Release Readiness Checklist](docs/benchmarks/release-readiness-checklist.md): gates before any production-readiness language
 - [Simulation Benchmark Results](docs/benchmarks/simulation-results.md): checked-in deterministic large-scale simulation telemetry
+- [Local Validator-Network Runner](docs/benchmarks/localnet-validator-runner.md): local multi-actor validator orchestration telemetry
 - [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md): required inputs before any real-world benchmark claim
 
 ## Repository Map

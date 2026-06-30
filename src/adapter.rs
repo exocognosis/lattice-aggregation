@@ -6,6 +6,7 @@
 
 pub mod actor;
 pub mod evidence;
+pub mod localnet;
 #[cfg(feature = "coordinator-assisted")]
 pub mod production_wire;
 pub mod traits;

@@ -211,6 +211,11 @@ migration candidates that require separate review.
   [real-world-benchmark-protocol.md](real-world-benchmark-protocol.md) until a
   production backend, external validator deployment, raw logs, checksums, and
   reviewer sign-off exist.
+- Keep local validator-network telemetry indexed from
+  [localnet-validator-runner.md](localnet-validator-runner.md) and separate it
+  from real-world benchmark evidence until production transport, consensus
+  safety, authenticated validator deployment, and reviewed backend evidence
+  exist.
 - Keep benchmark output framed as deterministic research telemetry and not
   security evidence.
 - Store artifact checksums and regeneration commands.
