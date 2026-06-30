@@ -352,6 +352,8 @@ Criterion 2 proof substance is tracked in [docs/cryptography/criterion-2-proof-s
 
 Criterion 3 proof substance is tracked in [docs/cryptography/criterion-3-proof-substance.md](docs/cryptography/criterion-3-proof-substance.md), with machine-readable anchors in [docs/cryptography/criterion-3-proof-substance.json](docs/cryptography/criterion-3-proof-substance.json). It formalizes the open proof payload for `abort_retry_bias`, including `retry_domain_separation_proof_digest`, formal abort-leakage model, accepted-signature distribution proof, adversarial abort-policy corpus, sample-size bucket rationale, timeout/retry policy, and external review slots marked `required_unclosed`; it does not promote Criterion 3 beyond `partially_met`.
 
+The 10,000-validator standard-verifier gate is tracked in [docs/cryptography/validator-10000-standard-verifier-gate.md](docs/cryptography/validator-10000-standard-verifier-gate.md) and enforced by `validator_10000_standard_verifier_gate`. It constructs a deterministic 10,000-validator topology with threshold 6,667, confirms the simulated aggregate is one standard-size 3,309-byte ML-DSA-65-shaped output, and confirms the current backend fails closed because `SimulatedBackend` cannot perform standard ML-DSA verification. Its status is `blocked_fail_closed`, not standard-verifier equivalence.
+
 Latest local assessment run:
 
 ```sh
@@ -363,7 +365,7 @@ Latest verification commands:
 ```sh
 cargo fmt --all -- --check
 python3 -m unittest script_tests.test_assess_lattice_hypothesis
-CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-gates cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest --test criterion3_proof_substance_manifest
+CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-gates cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest --test criterion3_proof_substance_manifest --test validator_10000_standard_verifier_gate
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-production-full cargo test --features production-mldsa65-coordinator --test production_provider --test production_rejection_equivalence --test production_selected_backend --test proof_documentation_manifest
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-coordinator-full cargo test --features coordinator-assisted
 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=/tmp/lattice-aggregation-p1-production-full cargo test --features production-mldsa65-coordinator
@@ -462,7 +464,7 @@ cargo test --all-features
 The documentation manifest test also validates reviewer-facing documentation anchors and local markdown links:
 
 ```sh
-cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest --test criterion3_proof_substance_manifest
+cargo test --test proof_documentation_manifest --test thesis_operating_parameters_manifest --test criterion1_proof_substance_manifest --test criterion2_proof_substance_manifest --test criterion3_proof_substance_manifest --test validator_10000_standard_verifier_gate
 ```
 
 ## Reviewer Entry Points
@@ -474,6 +476,7 @@ cargo test --test proof_documentation_manifest --test thesis_operating_parameter
 - [Criterion 1 Proof Substance](docs/cryptography/criterion-1-proof-substance.md): open aggregate mask-distribution proof payload and required artifact slots
 - [Criterion 2 Proof Substance](docs/cryptography/criterion-2-proof-substance.md): open aggregate rejection-equivalence proof payload and required artifact slots
 - [Criterion 3 Proof Substance](docs/cryptography/criterion-3-proof-substance.md): open abort/retry-bias proof payload and required artifact slots
+- [10,000 Validator Standard-Verifier Gate](docs/cryptography/validator-10000-standard-verifier-gate.md): fail-closed standard-verifier gate for the large validator profile; not equivalence evidence
 - [Protocol Code Crosswalk](docs/cryptography/protocol-code-crosswalk.md): where each protocol phase lives in code and tests
 - [Proof Implementation Crosswalk](docs/cryptography/proof-implementation-crosswalk.md): mapping from proof obligations to current implementation and test coverage
 - [Formal Threshold ML-DSA Transcript](docs/cryptography/formal-threshold-mldsa-transcript.md): transcript fields, binding invariants, and stable anchors

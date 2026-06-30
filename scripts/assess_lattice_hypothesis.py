@@ -1354,6 +1354,12 @@ def scan_documents(root):
     mask_distribution_test = read_optional("tests/production_mask_distribution.rs")
     rejection_equivalence_source = read_optional("src/production/rejection_equivalence.rs")
     rejection_equivalence_test = read_optional("tests/production_rejection_equivalence.rs")
+    validator_10000_gate_doc = read_optional(
+        "docs/cryptography/validator-10000-standard-verifier-gate.md"
+    )
+    validator_10000_gate_test = read_optional(
+        "tests/validator_10000_standard_verifier_gate.rs"
+    )
     abort_bias_source = read_optional("src/production/abort_bias.rs")
     abort_bias_test = read_optional("tests/production_abort_bias.rs")
     partial_soundness_source = read_optional("src/production/partial_soundness.rs")
@@ -2029,6 +2035,34 @@ def scan_documents(root):
         and '"testPassed": true' in acvp_mldsa65_sigver_fixture
         and '"testPassed": false' in acvp_mldsa65_sigver_fixture
     )
+    validator_10000_standard_verifier_fail_closed_gate = (
+        "blocked_fail_closed" in validator_10000_gate_doc
+        and "10,000-validator deterministic fan-in telemetry only"
+        in validator_10000_gate_doc
+        and "not cryptographic proof" in validator_10000_gate_doc
+        and "not standard-verifier equivalence" in validator_10000_gate_doc
+        and "not byte-identical to one validator signature"
+        in validator_10000_gate_doc
+        and (
+            "blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature"
+            in validator_10000_gate_doc
+        )
+        and (
+            "MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept"
+            in validator_10000_gate_doc
+        )
+        and "const VALIDATOR_COUNT: u16 = 10_000" in validator_10000_gate_test
+        and "const THRESHOLD: u16 = 6_667" in validator_10000_gate_test
+        and "simulated_10000_validator_aggregate_is_standard_sized_but_verifier_blocked"
+        in validator_10000_gate_test
+        and "MLDSA65_SIGNATURE_BYTES" in validator_10000_gate_test
+        and "SimulatedBackend::verify_standard" in validator_10000_gate_test
+        and "BackendUnavailable" in validator_10000_gate_test
+        and (
+            "simulation backend does not implement standard ML-DSA verification"
+            in validator_10000_gate_test
+        )
+    )
 
     return {
         "documents": texts,
@@ -2067,6 +2101,9 @@ def scan_documents(root):
         "rejection_equivalence_bridge_gate": rejection_equivalence_bridge_gate,
         "hazmat_standard_verifier_bridge": hazmat_standard_verifier_bridge,
         "acvp_mldsa65_sample_kat": acvp_mldsa65_sample_kat,
+        "validator_10000_standard_verifier_fail_closed_gate": (
+            validator_10000_standard_verifier_fail_closed_gate
+        ),
         "rejection_equivalence_closure_framework": (
             rejection_equivalence_closure_framework
         ),
@@ -2242,6 +2279,23 @@ def classify_criteria(criteria, scan):
                         "mutated message/signature rejection; ACVP/FIPS KAT "
                         "promotion remains separately gated."
                     )
+            if scan.get("validator_10000_standard_verifier_fail_closed_gate"):
+                partial_progress = True
+                observed.append(
+                    "10,000-validator standard-verifier fail-closed gate is "
+                    "present; it constructs a deterministic 10,000-validator "
+                    "topology with threshold 6,667, confirms a standard-size "
+                    "3,309-byte simulated aggregate output, and confirms "
+                    "SimulatedBackend standard verification returns "
+                    "BackendUnavailable. This is deterministic telemetry "
+                    "only, not cryptographic proof, not standard-verifier "
+                    "equivalence, and not production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "10,000-validator standard-verifier equivalence remains "
+                    "blocked until a real threshold ML-DSA backend emits a "
+                    "verifier-accepted aggregate signature."
+                )
             if scan.get("p1_aggregate_recomputation_artifact_gate"):
                 partial_progress = True
                 observed.append(
@@ -2523,6 +2577,7 @@ def default_commands():
         ["cargo", "test", "--test", "criterion1_proof_substance_manifest"],
         ["cargo", "test", "--test", "criterion2_proof_substance_manifest"],
         ["cargo", "test", "--test", "criterion3_proof_substance_manifest"],
+        ["cargo", "test", "--test", "validator_10000_standard_verifier_gate"],
         ["cargo", "test", "--test", "unauthorized_aggregate_reduction_manifest"],
         [
             "cargo",

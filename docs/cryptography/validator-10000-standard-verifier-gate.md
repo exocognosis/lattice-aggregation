@@ -1,0 +1,84 @@
+# 10,000 Validator Standard-Verifier Gate
+
+Status: `blocked_fail_closed`, not standard-verifier equivalence.
+
+Date: 2026-06-30
+
+## Scope
+
+This gate defines the executable target for a 10,000-validator aggregate output
+to be treated as one standard-size ML-DSA-65 signature. It is a proof target and
+release gate, not evidence that the current deterministic simulation backend
+has achieved cryptographic aggregation.
+
+Exact claim boundary:
+
+```text
+10,000-validator deterministic fan-in telemetry only; not cryptographic proof; not standard-verifier equivalence; not byte-identical to one validator signature; not production threshold ML-DSA security; blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature
+```
+
+## Current Executable Gate
+
+The current test is:
+
+```sh
+cargo test --test validator_10000_standard_verifier_gate
+```
+
+The gate constructs a deterministic 10,000-validator topology with threshold
+6,667 and produces simulated aggregate bytes through `SimulatedBackend`.
+
+Current expected result:
+
+```text
+validators = 10000
+threshold = 6667
+aggregate_signature.len() = 3309
+SimulatedBackend::verify_standard(...) = BackendUnavailable
+```
+
+This is intentional fail-closed behavior. A passing test today means the repo
+correctly refuses to treat deterministic simulated bytes as a standard
+ML-DSA-65 signature.
+
+## Future Pass Condition
+
+The cryptographic pass condition is:
+
+```text
+aggregate_signature.len() == 3309
+MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept
+```
+
+In Rust terms, the real backend must satisfy:
+
+```rust
+assert_eq!(aggregate_signature.0.len(), 3309);
+assert!(HazmatMldsa65Provider::verify(
+    &aggregate_public_key,
+    message,
+    &aggregate_signature
+)?);
+```
+
+The target is not byte equality with one validator's local signature. The target
+is one standard-size aggregate signature that an unmodified ML-DSA-65 verifier
+accepts under the aggregate public key and message.
+
+## Promotion Requirements
+
+The gate cannot promote beyond `blocked_fail_closed` until all of the following
+are present:
+
+- a real threshold ML-DSA aggregation backend, not `SimulatedBackend`;
+- 10,000-validator threshold signing over the selected Profile P1 transcript;
+- an aggregate public key and aggregate signature emitted by that backend;
+- standard-verifier acceptance through `HazmatMldsa65Provider` or a reviewed
+  production provider boundary;
+- rejection of mutated message, public key, and aggregate signature bytes;
+- linkage to the Criterion 2 standard-verifier compatibility artifact;
+- external cryptographic review of the backend and transcript assumptions.
+
+## Relationship To The Large Simulation Profile
+
+The existing `large` simulation profile already contains `Large Validator Set 10000` with threshold 6,667. That profile is useful for fan-in and byte-count telemetry. It does not provide standard-verifier equivalence because `SimulatedBackend` does not produce or verify real ML-DSA signatures.
