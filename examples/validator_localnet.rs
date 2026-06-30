@@ -2,7 +2,8 @@ use std::env;
 
 use lattice_aggregation::{
     adapter::localnet::{
-        run_localnet, LocalnetConfig, LocalnetFaultProfile, LOCALNET_CLAIM_BOUNDARY,
+        run_localnet, LocalnetConfig, LocalnetFaultProfile, LocalnetTransportMode,
+        LOCALNET_CLAIM_BOUNDARY,
     },
     ValidatorId,
 };
@@ -22,6 +23,8 @@ async fn main() {
         report.triggered_validator_count
     );
     println!("threshold={}", report.threshold);
+    println!("transport_mode={}", report.transport_mode);
+    println!("authentication_policy={}", report.authentication_policy);
     println!("finalized={}", report.finalized.len());
     println!(
         "all_validators_finalized={}",
@@ -31,6 +34,11 @@ async fn main() {
     println!("broadcast_count={}", report.broadcast_count);
     println!("direct_send_count={}", report.direct_send_count);
     println!("dropped_message_count={}", report.dropped_message_count);
+    println!(
+        "authenticated_envelope_count={}",
+        report.authenticated_envelope_count
+    );
+    println!("rejected_envelope_count={}", report.rejected_envelope_count);
     println!("network_bytes={}", report.network_bytes);
 }
 
@@ -43,6 +51,7 @@ fn parse_args() -> ExampleArgs {
     let mut threshold = 3;
     let mut triggered_validators = None;
     let mut profile = "honest".to_string();
+    let mut transport_mode = LocalnetTransportMode::InMemoryTokioMpsc;
     let mut withheld_validator = 4;
 
     let mut args = env::args().skip(1);
@@ -59,6 +68,9 @@ fn parse_args() -> ExampleArgs {
             }
             "--profile" => {
                 profile = args.next().expect("--profile requires a value");
+            }
+            "--transport" => {
+                transport_mode = parse_transport_mode(args.next());
             }
             "--withheld-validator" => {
                 withheld_validator = parse_u16("--withheld-validator", args.next());
@@ -78,6 +90,7 @@ fn parse_args() -> ExampleArgs {
     ExampleArgs {
         config: LocalnetConfig::new(validators, threshold)
             .with_triggered_validator_count(triggered_validators.unwrap_or(validators))
+            .with_transport_mode(transport_mode)
             .with_fault_profile(fault_profile),
     }
 }
@@ -87,4 +100,15 @@ fn parse_u16(flag: &str, value: Option<String>) -> u16 {
         .unwrap_or_else(|| panic!("{flag} requires a value"))
         .parse()
         .unwrap_or_else(|_| panic!("{flag} requires a u16 value"))
+}
+
+fn parse_transport_mode(value: Option<String>) -> LocalnetTransportMode {
+    match value
+        .as_deref()
+        .unwrap_or_else(|| panic!("--transport requires a value"))
+    {
+        "in-memory" | "in-memory-tokio-mpsc" => LocalnetTransportMode::InMemoryTokioMpsc,
+        "authenticated-envelope" => LocalnetTransportMode::AuthenticatedEnvelope,
+        other => panic!("unsupported --transport value: {other}"),
+    }
 }

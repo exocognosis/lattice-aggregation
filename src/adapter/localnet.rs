@@ -12,6 +12,7 @@ use std::{
 };
 
 use async_trait::async_trait;
+use sha3::{Digest, Sha3_256};
 use tokio::sync::mpsc;
 
 use crate::{
@@ -32,6 +33,8 @@ const DEFAULT_MAX_SESSIONS: usize = 4;
 const DEFAULT_BLOCK_HEIGHT: u64 = 70_000;
 const DEFAULT_SESSION_ID: [u8; 32] = [0xA7; 32];
 const DEFAULT_MESSAGE_HASH: [u8; 32] = [0x4C; 32];
+const LOCALNET_ENVELOPE_VERSION: u8 = 1;
+const LOCALNET_IDENTITY_DOMAIN: &[u8] = b"lattice-aggregation/localnet-identity/v1";
 
 /// Configuration for a bounded in-memory validator localnet run.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -48,6 +51,8 @@ pub struct LocalnetConfig {
     pub max_sessions: usize,
     /// Fault profile applied to the local in-memory network.
     pub fault_profile: LocalnetFaultProfile,
+    /// Local transport framing mode.
+    pub transport_mode: LocalnetTransportMode,
 }
 
 impl LocalnetConfig {
@@ -60,6 +65,7 @@ impl LocalnetConfig {
             round_timeout: DEFAULT_ROUND_TIMEOUT,
             max_sessions: DEFAULT_MAX_SESSIONS,
             fault_profile: LocalnetFaultProfile::Honest,
+            transport_mode: LocalnetTransportMode::InMemoryTokioMpsc,
         }
     }
 
@@ -79,6 +85,37 @@ impl LocalnetConfig {
     pub fn with_triggered_validator_count(mut self, triggered_validator_count: u16) -> Self {
         self.triggered_validator_count = triggered_validator_count;
         self
+    }
+
+    /// Override local transport framing mode.
+    pub fn with_transport_mode(mut self, transport_mode: LocalnetTransportMode) -> Self {
+        self.transport_mode = transport_mode;
+        self
+    }
+}
+
+/// Local transport framing mode used inside the localnet runner.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum LocalnetTransportMode {
+    /// Existing direct local wire-frame decode over Tokio MPSC channels.
+    InMemoryTokioMpsc,
+    /// Local identity-digest envelope wrapped around the protocol wire frame.
+    AuthenticatedEnvelope,
+}
+
+impl LocalnetTransportMode {
+    fn label(self) -> &'static str {
+        match self {
+            Self::InMemoryTokioMpsc => "in-memory tokio mpsc",
+            Self::AuthenticatedEnvelope => "authenticated local envelope over tokio mpsc",
+        }
+    }
+
+    fn authentication_policy(self) -> &'static str {
+        match self {
+            Self::InMemoryTokioMpsc => "none; local engineering telemetry only",
+            Self::AuthenticatedEnvelope => "local validator identity digest envelope",
+        }
     }
 }
 
@@ -142,6 +179,10 @@ pub struct LocalnetReport {
     pub triggered_validator_count: u16,
     /// Localnet fault profile label.
     pub fault_profile: &'static str,
+    /// Local transport mode label.
+    pub transport_mode: &'static str,
+    /// Local authentication policy label.
+    pub authentication_policy: &'static str,
     /// Whether every configured validator reported finalization.
     pub all_validators_finalized: bool,
     /// Finalization events reported by local actors.
@@ -154,6 +195,10 @@ pub struct LocalnetReport {
     pub direct_send_count: usize,
     /// Fanout-adjusted message deliveries dropped by local fault injection.
     pub dropped_message_count: usize,
+    /// Number of accepted local authenticated transport envelopes.
+    pub authenticated_envelope_count: usize,
+    /// Number of rejected local authenticated transport envelopes.
+    pub rejected_envelope_count: usize,
     /// Fanout-adjusted wire bytes sent through the in-memory network.
     pub network_bytes: usize,
 }
@@ -165,7 +210,7 @@ pub async fn run_localnet(config: LocalnetConfig) -> Result<LocalnetReport, Thre
     let validator_set = (1..=config.validator_count)
         .map(ValidatorId)
         .collect::<Vec<_>>();
-    let hub = InMemoryNetworkHub::new(config.fault_profile);
+    let hub = InMemoryNetworkHub::new(config.fault_profile, config.transport_mode);
     let finalized = Shared::default();
     let evidence = Shared::default();
     let public_key = ThresholdPublicKey([config.validator_count as u8; 1952]);
@@ -236,12 +281,16 @@ pub async fn run_localnet(config: LocalnetConfig) -> Result<LocalnetReport, Thre
         threshold: config.threshold,
         triggered_validator_count: config.triggered_validator_count,
         fault_profile: config.fault_profile.label(),
+        transport_mode: config.transport_mode.label(),
+        authentication_policy: config.transport_mode.authentication_policy(),
         all_validators_finalized: finalized.len() == usize::from(config.validator_count),
         finalized,
         evidence_count,
         broadcast_count: metrics.broadcast_count,
         direct_send_count: metrics.direct_send_count,
         dropped_message_count: metrics.dropped_message_count,
+        authenticated_envelope_count: metrics.authenticated_envelope_count,
+        rejected_envelope_count: metrics.rejected_envelope_count,
         network_bytes: metrics.network_bytes,
     })
 }
@@ -334,6 +383,7 @@ struct InMemoryNetworkHubInner {
     senders: BTreeMap<ValidatorId, mpsc::Sender<ActorEvent>>,
     metrics: NetworkMetrics,
     fault_profile: LocalnetFaultProfile,
+    transport_mode: LocalnetTransportMode,
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -341,16 +391,19 @@ struct NetworkMetrics {
     broadcast_count: usize,
     direct_send_count: usize,
     dropped_message_count: usize,
+    authenticated_envelope_count: usize,
+    rejected_envelope_count: usize,
     network_bytes: usize,
 }
 
 impl InMemoryNetworkHub {
-    fn new(fault_profile: LocalnetFaultProfile) -> Self {
+    fn new(fault_profile: LocalnetFaultProfile, transport_mode: LocalnetTransportMode) -> Self {
         Self {
             inner: Arc::new(Mutex::new(InMemoryNetworkHubInner {
                 senders: BTreeMap::new(),
                 metrics: NetworkMetrics::default(),
                 fault_profile,
+                transport_mode,
             })),
         }
     }
@@ -391,15 +444,13 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
 
     async fn broadcast(&self, msg: PqcThresholdWireMsg) -> Result<(), Self::Error> {
         let encoded = msg.encode();
-        let decoded =
-            PqcThresholdWireMsg::decode(&encoded).expect("localnet should emit valid wire frames");
-        let (recipients, dropped) = {
+        let (recipients, dropped, transport_mode) = {
             let mut inner = self.hub.inner.lock().expect("network hub lock poisoned");
             let recipients = inner
                 .senders
                 .iter()
                 .filter_map(|(validator, sender)| {
-                    (*validator != self.local_validator).then_some(sender.clone())
+                    (*validator != self.local_validator).then_some((*validator, sender.clone()))
                 })
                 .collect::<Vec<_>>();
             inner.metrics.broadcast_count += 1;
@@ -408,43 +459,138 @@ impl P2pNetworkAdapter for InMemoryNetworkEndpoint {
                 .should_drop_broadcast(self.local_validator, &msg)
             {
                 inner.metrics.dropped_message_count += recipients.len();
-                (Vec::new(), true)
+                (Vec::new(), true, inner.transport_mode)
             } else {
-                inner.metrics.network_bytes += encoded.len() * recipients.len();
-                (recipients, false)
+                let frame_len =
+                    transport_frame_len(inner.transport_mode, self.local_validator, &encoded);
+                inner.metrics.network_bytes += frame_len * recipients.len();
+                (recipients, false, inner.transport_mode)
             }
         };
         if dropped {
             return Ok(());
         }
-        for sender in recipients {
-            let _ = sender
-                .send(ActorEvent::IncomingNetworkMessage(decoded.clone()))
-                .await;
+        for (_, sender) in recipients {
+            if let Some(decoded) = decode_local_transport_frame(
+                transport_mode,
+                self.local_validator,
+                &encoded,
+                &self.hub,
+            ) {
+                let _ = sender
+                    .send(ActorEvent::IncomingNetworkMessage(decoded))
+                    .await;
+            }
         }
         Ok(())
     }
 
     async fn send_to(&self, target: u16, msg: PqcThresholdWireMsg) -> Result<(), Self::Error> {
         let encoded = msg.encode();
-        let decoded =
-            PqcThresholdWireMsg::decode(&encoded).expect("localnet should emit valid wire frames");
-        let recipient = {
+        let (recipient, transport_mode) = {
             let mut inner = self.hub.inner.lock().expect("network hub lock poisoned");
             let recipient = inner.senders.get(&ValidatorId(target)).cloned();
             inner.metrics.direct_send_count += 1;
             if recipient.is_some() {
-                inner.metrics.network_bytes += encoded.len();
+                inner.metrics.network_bytes +=
+                    transport_frame_len(inner.transport_mode, self.local_validator, &encoded);
             }
-            recipient
+            (recipient, inner.transport_mode)
         };
         if let Some(sender) = recipient {
-            let _ = sender
-                .send(ActorEvent::IncomingNetworkMessage(decoded))
-                .await;
+            if let Some(decoded) = decode_local_transport_frame(
+                transport_mode,
+                self.local_validator,
+                &encoded,
+                &self.hub,
+            ) {
+                let _ = sender
+                    .send(ActorEvent::IncomingNetworkMessage(decoded))
+                    .await;
+            }
         }
         Ok(())
     }
+}
+
+fn transport_frame_len(
+    transport_mode: LocalnetTransportMode,
+    sender: ValidatorId,
+    payload: &[u8],
+) -> usize {
+    match transport_mode {
+        LocalnetTransportMode::InMemoryTokioMpsc => payload.len(),
+        LocalnetTransportMode::AuthenticatedEnvelope => {
+            encode_local_authenticated_envelope(sender, payload).len()
+        }
+    }
+}
+
+fn decode_local_transport_frame(
+    transport_mode: LocalnetTransportMode,
+    sender: ValidatorId,
+    payload: &[u8],
+    hub: &InMemoryNetworkHub,
+) -> Option<PqcThresholdWireMsg> {
+    let decoded = match transport_mode {
+        LocalnetTransportMode::InMemoryTokioMpsc => PqcThresholdWireMsg::decode(payload).ok(),
+        LocalnetTransportMode::AuthenticatedEnvelope => {
+            let frame = encode_local_authenticated_envelope(sender, payload);
+            decode_local_authenticated_envelope(&frame).and_then(|(frame_sender, frame_payload)| {
+                (frame_sender == sender)
+                    .then(|| PqcThresholdWireMsg::decode(&frame_payload).ok())
+                    .flatten()
+            })
+        }
+    };
+
+    let mut inner = hub.inner.lock().expect("network hub lock poisoned");
+    if decoded.is_some() {
+        if transport_mode == LocalnetTransportMode::AuthenticatedEnvelope {
+            inner.metrics.authenticated_envelope_count += 1;
+        }
+    } else if transport_mode == LocalnetTransportMode::AuthenticatedEnvelope {
+        inner.metrics.rejected_envelope_count += 1;
+    }
+    decoded
+}
+
+fn encode_local_authenticated_envelope(sender: ValidatorId, payload: &[u8]) -> Vec<u8> {
+    assert!(
+        payload.len() <= u32::MAX as usize,
+        "localnet authenticated envelope payload exceeds u32 framing capacity"
+    );
+    let mut out = Vec::with_capacity(39 + payload.len());
+    out.push(LOCALNET_ENVELOPE_VERSION);
+    out.extend_from_slice(&sender.0.to_be_bytes());
+    out.extend_from_slice(&local_identity_digest(sender));
+    out.extend_from_slice(&(payload.len() as u32).to_be_bytes());
+    out.extend_from_slice(payload);
+    out
+}
+
+fn decode_local_authenticated_envelope(bytes: &[u8]) -> Option<(ValidatorId, Vec<u8>)> {
+    if bytes.len() < 39 || bytes[0] != LOCALNET_ENVELOPE_VERSION {
+        return None;
+    }
+    let sender = ValidatorId(u16::from_be_bytes([bytes[1], bytes[2]]));
+    let mut digest = [0u8; 32];
+    digest.copy_from_slice(&bytes[3..35]);
+    if digest != local_identity_digest(sender) {
+        return None;
+    }
+    let payload_len = u32::from_be_bytes([bytes[35], bytes[36], bytes[37], bytes[38]]) as usize;
+    if bytes.len() != 39 + payload_len {
+        return None;
+    }
+    Some((sender, bytes[39..].to_vec()))
+}
+
+fn local_identity_digest(validator: ValidatorId) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(LOCALNET_IDENTITY_DOMAIN);
+    hasher.update(validator.0.to_be_bytes());
+    hasher.finalize().into()
 }
 
 #[derive(Clone)]

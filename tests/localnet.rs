@@ -1,6 +1,7 @@
 use lattice_aggregation::{
     adapter::localnet::{
-        run_localnet, LocalnetConfig, LocalnetFaultProfile, LOCALNET_CLAIM_BOUNDARY,
+        run_localnet, LocalnetConfig, LocalnetFaultProfile, LocalnetTransportMode,
+        LOCALNET_CLAIM_BOUNDARY,
     },
     ThresholdError, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
@@ -56,6 +57,29 @@ async fn localnet_threshold_subset_finalizes_with_passive_validator() {
     assert_eq!(report.evidence_count, 0);
     assert_eq!(report.dropped_message_count, 0);
     assert!(report.network_bytes > 0);
+    assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
+}
+
+#[tokio::test]
+async fn localnet_authenticated_transport_envelopes_bind_validator_identity() {
+    let report = run_localnet(
+        LocalnetConfig::new(4, 3).with_transport_mode(LocalnetTransportMode::AuthenticatedEnvelope),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(
+        report.transport_mode,
+        "authenticated local envelope over tokio mpsc"
+    );
+    assert_eq!(
+        report.authentication_policy,
+        "local validator identity digest envelope"
+    );
+    assert!(report.authenticated_envelope_count >= usize::from(report.validator_count));
+    assert_eq!(report.rejected_envelope_count, 0);
+    assert_eq!(report.finalized.len(), 4);
+    assert!(report.all_validators_finalized);
     assert_eq!(report.claim_boundary, LOCALNET_CLAIM_BOUNDARY);
 }
 
