@@ -11,6 +11,7 @@ const CRYPTOGRAPHY_README: &str = "docs/cryptography/README.md";
 const RELEASE_READINESS_CHECKLIST: &str = "docs/benchmarks/release-readiness-checklist.md";
 const SIMULATION_RESULTS: &str = "docs/benchmarks/simulation-results.md";
 const REAL_WORLD_BENCHMARK_PROTOCOL: &str = "docs/benchmarks/real-world-benchmark-protocol.md";
+const LOCALNET_VALIDATOR_RUNNER: &str = "docs/benchmarks/localnet-validator-runner.md";
 
 const REQUIRED_CRYPTOGRAPHY_DOCS: &[&str] = &[
     "docs/cryptography/active-adversary-model.md",
@@ -617,15 +618,39 @@ fn benchmark_docs_keep_simulation_and_real_world_boundaries() {
         ],
     );
     assert_contains_all(
+        LOCALNET_VALIDATOR_RUNNER,
+        &[
+            "# Local Validator-Network Runner",
+            "local validator-network engineering telemetry",
+            "not security evidence",
+            "not real-world validator performance",
+            "not production-readiness evidence",
+            "not production network liveness, authenticated transport, or consensus safety",
+            "not production threshold ML-DSA security",
+            "cargo run --example validator_localnet",
+            "python3 scripts/run_localnet_runner.py --out artifacts/localnet/latest",
+            "manifest.json",
+            "events.jsonl",
+            "node-logs/README.md",
+            "SHA256SUMS",
+            "artifacts/localnet/",
+        ],
+    );
+    assert_contains_all(
         "README.md",
         &[
             "[Simulation Benchmark Results](docs/benchmarks/simulation-results.md)",
             "[Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md)",
+            "[Local Validator-Network Runner](docs/benchmarks/localnet-validator-runner.md)",
         ],
     );
     assert_contains_all(
         RELEASE_READINESS_CHECKLIST,
-        &["simulation-results.md", "real-world-benchmark-protocol.md"],
+        &[
+            "simulation-results.md",
+            "real-world-benchmark-protocol.md",
+            "localnet-validator-runner.md",
+        ],
     );
 }
 
