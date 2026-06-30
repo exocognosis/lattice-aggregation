@@ -141,6 +141,66 @@ THESIS_CRITERION_ANCHORS = {
     },
 }
 
+CRITERION1_PROOF_SUBSTANCE_DOC = (
+    "docs/cryptography/criterion-1-proof-substance.md"
+)
+CRITERION1_PROOF_SUBSTANCE_MANIFEST = (
+    "docs/cryptography/criterion-1-proof-substance.json"
+)
+CRITERION1_PROOF_SUBSTANCE_SCHEMA = (
+    "lattice-aggregation.criterion-1-proof-substance.v1"
+)
+CRITERION1_ID = "aggregate_mask_distribution"
+CRITERION1_FALSE_CLAIM_KEYS = [
+    "claims_criterion_met",
+    "claims_mask_distribution_proven",
+    "claims_selected_backend_proof_closure",
+    "claims_rejection_distribution_preservation",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+    "claims_production_threshold_mldsa_security",
+]
+CRITERION1_REQUIRED_ARTIFACT_SLOTS = [
+    "selected_mask_construction_digest",
+    "centralized_distribution_artifact_digest",
+    "aggregate_distribution_artifact_digest",
+    "renyi_bound_proof_digest",
+    "min_entropy_review_digest",
+    "parameter_selection_digest",
+    "external_review_digest",
+]
+CRITERION1_EVIDENCE_SOURCES = {
+    "selected_mask_construction_digest": (
+        "p1_criterion1_mask_construction_artifact_gate"
+    ),
+    "centralized_distribution_artifact_digest": (
+        "p1_criterion1_centralized_distribution_artifact_gate"
+    ),
+    "aggregate_distribution_artifact_digest": (
+        "p1_criterion1_aggregate_distribution_artifact_gate"
+    ),
+    "renyi_bound_proof_digest": (
+        "p1_criterion1_renyi_bound_proof_artifact_gate"
+    ),
+    "min_entropy_review_digest": (
+        "p1_criterion1_min_entropy_review_artifact_gate"
+    ),
+    "parameter_selection_digest": (
+        "p1_criterion1_parameter_selection_artifact_gate"
+    ),
+    "external_review_digest": "p1_criterion1_external_review_artifact_gate",
+}
+CRITERION1_ARTIFACT_PACKAGE = "p1_criterion1_proof_payload_package"
+CRITERION1_ARTIFACT_SLOT_STATUSES = {
+    slot: "required_unclosed" for slot in CRITERION1_REQUIRED_ARTIFACT_SLOTS
+}
+CRITERION1_THEOREM_LINKS = [
+    "Noise Lemma B",
+    "Noise Lemma H",
+    "Correctness Lemma 8",
+    "FST-L7",
+]
+
 CRITERION2_PROOF_SUBSTANCE_DOC = (
     "docs/cryptography/criterion-2-proof-substance.md"
 )
@@ -489,6 +549,174 @@ def thesis_operating_parameters_status(markdown, manifest_text):
             "architecture": fallback.get("architecture", ""),
             "status": fallback.get("status", ""),
         },
+        "missing_evidence": sorted(set(missing_evidence)),
+    }
+
+
+def criterion1_proof_substance_status(markdown, manifest_text):
+    """Return Criterion-1 proof-payload status without criterion promotion."""
+    normalized = normalize_whitespace(markdown)
+    manifest = parse_json_document(manifest_text)
+    claim_boundary = manifest.get("claim_boundary", {})
+    selected_profile = manifest.get("selected_profile", {})
+    proof_payload = manifest.get("proof_payload", {})
+    assessment = manifest.get("assessment", {})
+    artifact_slots = proof_payload.get("required_artifact_slots", [])
+    slot_by_id = {
+        slot.get("id"): slot for slot in artifact_slots if isinstance(slot, dict)
+    }
+    theorem_links = proof_payload.get("theorem_links", [])
+
+    expected_markdown_tokens = [
+        "# criterion 1 proof substance",
+        "aggregate_mask_distribution",
+        "formalized_open_proof_payload",
+        "criterion1_proof_payload_formalized",
+        "centralized ml-dsa-65 mask distribution",
+        "selected profile p1 aggregate mask distribution",
+        "renyi divergence bound for epsilon_mask",
+        "selected_mask_construction_digest",
+        "centralized_distribution_artifact_digest",
+        "aggregate_distribution_artifact_digest",
+        "renyi_bound_proof_digest",
+        "min_entropy_review_digest",
+        "parameter_selection_digest",
+        "external_review_digest",
+        "required_unclosed",
+        "p1_criterion1_proof_payload_package",
+        "p1_criterion1_renyi_bound_proof_artifact_gate",
+        "conformance/proof-review evidence only",
+        "maskdistributionevidence",
+        "acceptedmaskdistributioncertificate",
+        "maskdistributionclosurepackage",
+        "noise lemma b",
+        "noise lemma h",
+        "correctness lemma 8",
+        "fst-l7",
+        "partially_met",
+        "partially_proven",
+        "not selected-backend proof closure",
+        "not production threshold ml-dsa security",
+        "not cavp/acvts validation",
+        "not fips validation",
+        "not rejection-distribution preservation",
+        "not a completed mask-distribution proof",
+    ]
+    missing_evidence = [
+        token
+        for token in expected_markdown_tokens
+        if token not in normalized
+    ]
+    false_claims_pinned = all(
+        claim_boundary.get(key) is False for key in CRITERION1_FALSE_CLAIM_KEYS
+    )
+    artifact_slot_statuses = {
+        slot_id: slot_by_id.get(slot_id, {}).get("current_status", "")
+        for slot_id in CRITERION1_REQUIRED_ARTIFACT_SLOTS
+    }
+    artifact_slot_sources = {
+        slot_id: slot_by_id.get(slot_id, {}).get("evidence_source", "")
+        for slot_id in CRITERION1_REQUIRED_ARTIFACT_SLOTS
+        if slot_by_id.get(slot_id, {}).get("evidence_source")
+    }
+    artifact_slot_packages = {
+        slot_id: slot_by_id.get(slot_id, {}).get("artifact_package", "")
+        for slot_id in CRITERION1_REQUIRED_ARTIFACT_SLOTS
+        if slot_by_id.get(slot_id, {}).get("artifact_package")
+    }
+    artifact_slots_pinned = (
+        artifact_slot_statuses == CRITERION1_ARTIFACT_SLOT_STATUSES
+        and artifact_slot_sources == CRITERION1_EVIDENCE_SOURCES
+        and artifact_slot_packages
+        == {
+            slot: CRITERION1_ARTIFACT_PACKAGE
+            for slot in CRITERION1_REQUIRED_ARTIFACT_SLOTS
+        }
+        and all(
+            slot_by_id.get(slot_id, {}).get("claim_boundary")
+            == "conformance/proof-review evidence only"
+            for slot_id in CRITERION1_REQUIRED_ARTIFACT_SLOTS
+        )
+    )
+    theorem_links_pinned = entries_contain_terms(
+        theorem_links,
+        CRITERION1_THEOREM_LINKS,
+    )
+    promotion_anchors_pinned = entries_contain_terms(
+        manifest.get("promotion_requires", []),
+        [
+            "selected aggregate-mask construction",
+            "centralized ML-DSA-65 reference distribution",
+            "selected Profile P1 aggregate-mask distribution",
+            "Renyi-divergence proof",
+            "min-entropy",
+            "external cryptographic review",
+        ],
+    )
+    failure_anchors_pinned = entries_contain_terms(
+        manifest.get("failure_conditions", []),
+        [
+            "distinguishable",
+            "epsilon_mask",
+            "min-entropy",
+        ],
+    )
+    manifest_ok = (
+        manifest.get("schema") == CRITERION1_PROOF_SUBSTANCE_SCHEMA
+        and manifest.get("criterion_id") == CRITERION1_ID
+        and manifest.get("status") == "formalized_open_proof_payload"
+        and claim_boundary.get("scope") == "criterion-1 proof payload only"
+        and selected_profile.get("name")
+        == "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+        and selected_profile.get("feature_gate") == "production-mldsa65-coordinator"
+        and selected_profile.get("output_target")
+        == "one standard-sized ML-DSA-65 signature if proven"
+        and proof_payload.get("centralized_mask_target")
+        == "centralized ML-DSA-65 mask distribution"
+        and proof_payload.get("aggregate_mask_target")
+        == "selected Profile P1 aggregate mask distribution"
+        and proof_payload.get("distance_measure")
+        == "Renyi divergence bound for epsilon_mask"
+        and false_claims_pinned
+        and artifact_slots_pinned
+        and theorem_links_pinned
+        and promotion_anchors_pinned
+        and failure_anchors_pinned
+        and assessment.get("criterion_status") == "partially_met"
+        and assessment.get("overall_verdict") == "partially_proven"
+        and assessment.get("does_not_change_overall_verdict") is True
+        and assessment.get("report_status")
+        == "criterion1_proof_payload_formalized"
+    )
+    formalized = bool(markdown.strip()) and manifest_ok and not missing_evidence
+    if not manifest:
+        missing_evidence.append(CRITERION1_PROOF_SUBSTANCE_MANIFEST)
+    if not markdown.strip():
+        missing_evidence.append(CRITERION1_PROOF_SUBSTANCE_DOC)
+    if manifest and not false_claims_pinned:
+        missing_evidence.append("claim_boundary false claims")
+    if manifest and not artifact_slots_pinned:
+        missing_evidence.append("required_artifact_slots")
+    if manifest and not theorem_links_pinned:
+        missing_evidence.append("theorem_links")
+
+    return {
+        "status": (
+            "criterion1_proof_payload_formalized"
+            if formalized
+            else "missing_or_incomplete"
+        ),
+        "document_path": CRITERION1_PROOF_SUBSTANCE_DOC,
+        "manifest_path": CRITERION1_PROOF_SUBSTANCE_MANIFEST,
+        "criterion_id": manifest.get("criterion_id", ""),
+        "payload_status": manifest.get("status", ""),
+        "scope": claim_boundary.get("scope", ""),
+        "selected_profile": selected_profile.get("name", ""),
+        "output_target": selected_profile.get("output_target", ""),
+        "required_artifact_slots": CRITERION1_REQUIRED_ARTIFACT_SLOTS,
+        "artifact_slot_statuses": artifact_slot_statuses,
+        "artifact_slot_sources": artifact_slot_sources,
+        "theorem_links": theorem_links,
         "missing_evidence": sorted(set(missing_evidence)),
     }
 
@@ -911,6 +1139,10 @@ def scan_documents(root):
     thesis_operating_parameters = thesis_operating_parameters_status(
         read_optional(THESIS_OPERATING_PARAMETERS_DOC),
         read_optional(THESIS_OPERATING_PARAMETERS_MANIFEST),
+    )
+    criterion1_proof_substance = criterion1_proof_substance_status(
+        read_optional(CRITERION1_PROOF_SUBSTANCE_DOC),
+        read_optional(CRITERION1_PROOF_SUBSTANCE_MANIFEST),
     )
     criterion2_proof_substance = criterion2_proof_substance_status(
         read_optional(CRITERION2_PROOF_SUBSTANCE_DOC),
@@ -1575,6 +1807,11 @@ def scan_documents(root):
             thesis_operating_parameters["status"]
             == "formalized_research_boundary"
         ),
+        "criterion1_proof_substance": criterion1_proof_substance,
+        "criterion1_proof_substance_formalized": (
+            criterion1_proof_substance["status"]
+            == "criterion1_proof_payload_formalized"
+        ),
         "criterion2_proof_substance": criterion2_proof_substance,
         "criterion2_proof_substance_formalized": (
             criterion2_proof_substance["status"]
@@ -2046,6 +2283,7 @@ def default_commands():
         ["cargo", "test", "--test", "simulation"],
         ["cargo", "test", "--test", "proof_documentation_manifest"],
         ["cargo", "test", "--test", "thesis_operating_parameters_manifest"],
+        ["cargo", "test", "--test", "criterion1_proof_substance_manifest"],
         ["cargo", "test", "--test", "criterion2_proof_substance_manifest"],
         ["cargo", "test", "--test", "unauthorized_aggregate_reduction_manifest"],
         [
@@ -2186,6 +2424,7 @@ def build_report(
         "claim_boundary": "research scaffold only",
         "selected_backend": scan["selected_backend_direction"],
         "thesis_operating_parameters": scan["thesis_operating_parameters"],
+        "criterion1_proof_substance": scan["criterion1_proof_substance"],
         "criterion2_proof_substance": scan["criterion2_proof_substance"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
@@ -2300,6 +2539,50 @@ def render_markdown(report):
         lines.append(
             "- Missing evidence tokens: "
             + ", ".join(thesis["missing_evidence"])
+        )
+
+    criterion1 = report.get("criterion1_proof_substance", {})
+    lines.extend(["", "## Criterion 1 Proof Substance", ""])
+    lines.append(
+        f"- Status: `{criterion1.get('status', 'missing_or_incomplete')}`"
+    )
+    if criterion1.get("status") == "criterion1_proof_payload_formalized":
+        lines.append(f"- Criterion: {criterion1['criterion_id']}")
+        lines.append(f"- Payload status: {criterion1['payload_status']}")
+        lines.append(f"- Boundary: {criterion1['scope']}")
+        lines.append(f"- Profile: {criterion1['selected_profile']}")
+        lines.append(f"- Output target: {criterion1['output_target']}")
+        lines.append(
+            "- Required artifact slots: "
+            + ", ".join(criterion1["required_artifact_slots"])
+        )
+        artifact_statuses = criterion1.get("artifact_slot_statuses", {})
+        if artifact_statuses:
+            lines.append(
+                "- Artifact slot statuses: "
+                + ", ".join(
+                    f"{slot}={artifact_statuses[slot]}"
+                    for slot in criterion1["required_artifact_slots"]
+                    if slot in artifact_statuses
+                )
+            )
+        artifact_sources = criterion1.get("artifact_slot_sources", {})
+        if artifact_sources:
+            lines.append(
+                "- Artifact evidence sources: "
+                + ", ".join(
+                    f"{slot}={artifact_sources[slot]}"
+                    for slot in criterion1["required_artifact_slots"]
+                    if slot in artifact_sources
+                )
+            )
+        theorem_links = criterion1.get("theorem_links", [])
+        if theorem_links:
+            lines.append("- Theorem links: " + ", ".join(theorem_links))
+    elif criterion1.get("missing_evidence"):
+        lines.append(
+            "- Missing evidence tokens: "
+            + ", ".join(criterion1["missing_evidence"])
         )
 
     criterion2 = report.get("criterion2_proof_substance", {})
