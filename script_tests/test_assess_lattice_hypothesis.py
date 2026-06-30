@@ -94,6 +94,12 @@ class VerdictRuleTests(unittest.TestCase):
                 for command in commands
             )
         )
+        self.assertTrue(
+            any(
+                "criterion1_proof_substance_manifest" in command
+                for command in commands
+            )
+        )
 
 
 class DocumentClassificationTests(unittest.TestCase):
@@ -335,6 +341,33 @@ class DocumentClassificationTests(unittest.TestCase):
             },
             status["artifact_fixture_refs"],
         )
+
+    def test_criterion1_status_formalizes_open_mask_distribution_payload(self):
+        module = load_module()
+        markdown = (
+            (ROOT / "docs" / "cryptography" / "criterion-1-proof-substance.md")
+            .read_text(encoding="utf-8")
+        )
+        manifest = (
+            (ROOT / "docs" / "cryptography" / "criterion-1-proof-substance.json")
+            .read_text(encoding="utf-8")
+        )
+
+        status = module.criterion1_proof_substance_status(markdown, manifest)
+
+        self.assertEqual(status["status"], "criterion1_proof_payload_formalized")
+        self.assertEqual(status["criterion_id"], "aggregate_mask_distribution")
+        self.assertEqual(status["payload_status"], "formalized_open_proof_payload")
+        self.assertEqual(status["scope"], "criterion-1 proof payload only")
+        self.assertIn(
+            "renyi_bound_proof_digest",
+            status["artifact_slot_statuses"],
+        )
+        self.assertEqual(
+            status["artifact_slot_statuses"]["renyi_bound_proof_digest"],
+            "required_unclosed",
+        )
+        self.assertIn("Noise Lemma B", status["theorem_links"])
 
 
 class ReportGenerationTests(unittest.TestCase):
