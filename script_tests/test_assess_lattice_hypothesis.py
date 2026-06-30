@@ -96,6 +96,12 @@ class VerdictRuleTests(unittest.TestCase):
         )
         self.assertTrue(
             any(
+                "criterion3_proof_substance_manifest" in command
+                for command in commands
+            )
+        )
+        self.assertTrue(
+            any(
                 "criterion1_proof_substance_manifest" in command
                 for command in commands
             )
@@ -368,6 +374,35 @@ class DocumentClassificationTests(unittest.TestCase):
             "required_unclosed",
         )
         self.assertIn("Noise Lemma B", status["theorem_links"])
+
+    def test_criterion3_status_formalizes_open_abort_retry_payload(self):
+        module = load_module()
+        markdown = (
+            (ROOT / "docs" / "cryptography" / "criterion-3-proof-substance.md")
+            .read_text(encoding="utf-8")
+        )
+        manifest = (
+            (ROOT / "docs" / "cryptography" / "criterion-3-proof-substance.json")
+            .read_text(encoding="utf-8")
+        )
+
+        status = module.criterion3_proof_substance_status(markdown, manifest)
+
+        self.assertEqual(status["status"], "criterion3_proof_payload_formalized")
+        self.assertEqual(status["criterion_id"], "abort_retry_bias")
+        self.assertEqual(status["payload_status"], "formalized_open_proof_payload")
+        self.assertEqual(status["scope"], "criterion-3 proof payload only")
+        self.assertIn(
+            "retry_domain_separation_proof_digest",
+            status["artifact_slot_statuses"],
+        )
+        self.assertEqual(
+            status["artifact_slot_statuses"][
+                "retry_domain_separation_proof_digest"
+            ],
+            "required_unclosed",
+        )
+        self.assertIn("Noise Lemma G", status["theorem_links"])
 
 
 class ReportGenerationTests(unittest.TestCase):
@@ -930,6 +965,18 @@ class ReportGenerationTests(unittest.TestCase):
             json.dumps(manifest, indent=2) + "\n",
             encoding="utf-8",
         )
+
+    def write_criterion3_proof_substance_formalization(self, root):
+        for filename in [
+            "criterion-3-proof-substance.md",
+            "criterion-3-proof-substance.json",
+        ]:
+            (root / "docs" / "cryptography" / filename).write_text(
+                (ROOT / "docs" / "cryptography" / filename).read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
 
     def write_criterion2_proof_substance_formalization(self, root):
         (root / "docs" / "cryptography" / "criterion-2-proof-substance.md").write_text(
@@ -1760,6 +1807,84 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertFalse(scan["criterion2_proof_substance_formalized"])
         self.assertEqual(
             report["criterion2_proof_substance"]["status"],
+            "missing_or_incomplete",
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+
+    def test_criterion3_proof_substance_updates_report_without_closing_proofs(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_criterion3_proof_substance_formalization(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["criterion3_proof_substance_formalized"])
+        self.assertEqual(
+            report["criterion3_proof_substance"]["status"],
+            "criterion3_proof_payload_formalized",
+        )
+        self.assertEqual(
+            report["criterion3_proof_substance"]["artifact_slot_statuses"][
+                "retry_domain_separation_proof_digest"
+            ],
+            "required_unclosed",
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        self.assertEqual(
+            criteria_by_id["abort_retry_bias"]["status"],
+            "partially_met",
+        )
+        self.assertIn("Criterion 3 Proof Substance", markdown)
+        self.assertIn("abort_retry_bias", markdown)
+        self.assertIn("retry_domain_separation_proof_digest", markdown)
+        self.assertIn(
+            "p1_criterion3_retry_domain_separation_artifact_gate",
+            markdown,
+        )
+        self.assertIn("Noise Lemma G", markdown)
+        self.assertIn("formalized_open_proof_payload", markdown)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_criterion3_proof_substance_rejects_claim_drift_or_missing_slots(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_criterion3_proof_substance_formalization(root)
+            manifest_path = (
+                root
+                / "docs"
+                / "cryptography"
+                / "criterion-3-proof-substance.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["claim_boundary"]["claims_criterion_met"] = True
+            manifest["proof_payload"]["required_artifact_slots"] = [
+                slot
+                for slot in manifest["proof_payload"]["required_artifact_slots"]
+                if slot["id"] != "timeout_retry_policy_digest"
+            ]
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+
+        self.assertFalse(scan["criterion3_proof_substance_formalized"])
+        self.assertEqual(
+            report["criterion3_proof_substance"]["status"],
             "missing_or_incomplete",
         )
         self.assertEqual(report["overall_verdict"], "partially_proven")

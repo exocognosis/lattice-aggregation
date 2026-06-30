@@ -345,6 +345,66 @@ CRITERION2_THEOREM_LINKS = [
     "FST-L7",
 ]
 
+CRITERION3_PROOF_SUBSTANCE_DOC = (
+    "docs/cryptography/criterion-3-proof-substance.md"
+)
+CRITERION3_PROOF_SUBSTANCE_MANIFEST = (
+    "docs/cryptography/criterion-3-proof-substance.json"
+)
+CRITERION3_PROOF_SUBSTANCE_SCHEMA = (
+    "lattice-aggregation.criterion-3-proof-substance.v1"
+)
+CRITERION3_ID = "abort_retry_bias"
+CRITERION3_FALSE_CLAIM_KEYS = [
+    "claims_criterion_met",
+    "claims_abort_retry_bias_proven",
+    "claims_selected_backend_proof_closure",
+    "claims_accepted_signature_distribution",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+    "claims_production_threshold_mldsa_security",
+]
+CRITERION3_REQUIRED_ARTIFACT_SLOTS = [
+    "retry_domain_separation_proof_digest",
+    "formal_abort_leakage_model_digest",
+    "accepted_signature_distribution_proof_digest",
+    "adversarial_abort_policy_corpus_digest",
+    "sample_size_bucket_rationale_digest",
+    "timeout_retry_policy_digest",
+    "external_review_digest",
+]
+CRITERION3_EVIDENCE_SOURCES = {
+    "retry_domain_separation_proof_digest": (
+        "p1_criterion3_retry_domain_separation_artifact_gate"
+    ),
+    "formal_abort_leakage_model_digest": (
+        "p1_criterion3_abort_leakage_model_artifact_gate"
+    ),
+    "accepted_signature_distribution_proof_digest": (
+        "p1_criterion3_accepted_signature_distribution_artifact_gate"
+    ),
+    "adversarial_abort_policy_corpus_digest": (
+        "p1_criterion3_adversarial_abort_policy_corpus_artifact_gate"
+    ),
+    "sample_size_bucket_rationale_digest": (
+        "p1_criterion3_sample_size_bucket_rationale_artifact_gate"
+    ),
+    "timeout_retry_policy_digest": (
+        "p1_criterion3_timeout_retry_policy_artifact_gate"
+    ),
+    "external_review_digest": "p1_criterion3_external_review_artifact_gate",
+}
+CRITERION3_ARTIFACT_PACKAGE = "p1_criterion3_proof_payload_package"
+CRITERION3_ARTIFACT_SLOT_STATUSES = {
+    slot: "required_unclosed" for slot in CRITERION3_REQUIRED_ARTIFACT_SLOTS
+}
+CRITERION3_THEOREM_LINKS = [
+    "Noise Lemma G",
+    "Noise Lemma H",
+    "FST-L7",
+    "FST-L9",
+]
+
 TESTING_STATEMENT = (
     "If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted "
     "aggregate output, then the output should behave like a centralized "
@@ -948,6 +1008,174 @@ def criterion2_proof_substance_status(markdown, manifest_text):
     }
 
 
+def criterion3_proof_substance_status(markdown, manifest_text):
+    """Return Criterion-3 proof-payload status without criterion promotion."""
+    normalized = normalize_whitespace(markdown)
+    manifest = parse_json_document(manifest_text)
+    claim_boundary = manifest.get("claim_boundary", {})
+    selected_profile = manifest.get("selected_profile", {})
+    proof_payload = manifest.get("proof_payload", {})
+    assessment = manifest.get("assessment", {})
+    artifact_slots = proof_payload.get("required_artifact_slots", [])
+    slot_by_id = {
+        slot.get("id"): slot for slot in artifact_slots if isinstance(slot, dict)
+    }
+    theorem_links = proof_payload.get("theorem_links", [])
+
+    expected_markdown_tokens = [
+        "# criterion 3 proof substance",
+        "abort_retry_bias",
+        "formalized_open_proof_payload",
+        "criterion3_proof_payload_formalized",
+        "session_id + attempt_id + retry_counter",
+        "accepted threshold signatures remain unbiased under the reviewed abort and retry policy",
+        "retry_domain_separation_proof_digest",
+        "formal_abort_leakage_model_digest",
+        "accepted_signature_distribution_proof_digest",
+        "adversarial_abort_policy_corpus_digest",
+        "sample_size_bucket_rationale_digest",
+        "timeout_retry_policy_digest",
+        "external_review_digest",
+        "required_unclosed",
+        "p1_criterion3_proof_payload_package",
+        "p1_criterion3_retry_domain_separation_artifact_gate",
+        "p1_criterion3_accepted_signature_distribution_artifact_gate",
+        "conformance/proof-review evidence only",
+        "abortbiasevidence",
+        "abortretrybiasproofpackage",
+        "abortbiasclosurereport",
+        "noise lemma g",
+        "noise lemma h",
+        "fst-l7",
+        "fst-l9",
+        "partially_met",
+        "partially_proven",
+        "not selected-backend proof closure",
+        "not production threshold ml-dsa security",
+        "not cavp/acvts validation",
+        "not fips validation",
+        "not accepted-signature distribution preservation",
+        "not a completed fiat-shamir-with-aborts preservation proof",
+        "not a completed abort/retry-bias proof",
+    ]
+    missing_evidence = [
+        token
+        for token in expected_markdown_tokens
+        if token not in normalized
+    ]
+    false_claims_pinned = all(
+        claim_boundary.get(key) is False for key in CRITERION3_FALSE_CLAIM_KEYS
+    )
+    artifact_slot_statuses = {
+        slot_id: slot_by_id.get(slot_id, {}).get("current_status", "")
+        for slot_id in CRITERION3_REQUIRED_ARTIFACT_SLOTS
+    }
+    artifact_slot_sources = {
+        slot_id: slot_by_id.get(slot_id, {}).get("evidence_source", "")
+        for slot_id in CRITERION3_REQUIRED_ARTIFACT_SLOTS
+        if slot_by_id.get(slot_id, {}).get("evidence_source")
+    }
+    artifact_slot_packages = {
+        slot_id: slot_by_id.get(slot_id, {}).get("artifact_package", "")
+        for slot_id in CRITERION3_REQUIRED_ARTIFACT_SLOTS
+        if slot_by_id.get(slot_id, {}).get("artifact_package")
+    }
+    artifact_slots_pinned = (
+        artifact_slot_statuses == CRITERION3_ARTIFACT_SLOT_STATUSES
+        and artifact_slot_sources == CRITERION3_EVIDENCE_SOURCES
+        and artifact_slot_packages
+        == {
+            slot: CRITERION3_ARTIFACT_PACKAGE
+            for slot in CRITERION3_REQUIRED_ARTIFACT_SLOTS
+        }
+        and all(
+            slot_by_id.get(slot_id, {}).get("claim_boundary")
+            == "conformance/proof-review evidence only"
+            for slot_id in CRITERION3_REQUIRED_ARTIFACT_SLOTS
+        )
+    )
+    theorem_links_pinned = entries_contain_terms(
+        theorem_links,
+        CRITERION3_THEOREM_LINKS,
+    )
+    promotion_anchors_pinned = entries_contain_terms(
+        manifest.get("promotion_requires", []),
+        [
+            "retry transcript domain separation",
+            "formal abort leakage model",
+            "accepted-signature distribution proof",
+            "adversarial abort-policy corpus",
+            "sample-size",
+            "timeout and retry policy",
+            "external cryptographic review",
+        ],
+    )
+    failure_anchors_pinned = entries_contain_terms(
+        manifest.get("failure_conditions", []),
+        [
+            "retry timing",
+            "secret-dependent information",
+            "accepted-sample evidence",
+        ],
+    )
+    manifest_ok = (
+        manifest.get("schema") == CRITERION3_PROOF_SUBSTANCE_SCHEMA
+        and manifest.get("criterion_id") == CRITERION3_ID
+        and manifest.get("status") == "formalized_open_proof_payload"
+        and claim_boundary.get("scope") == "criterion-3 proof payload only"
+        and selected_profile.get("name")
+        == "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+        and selected_profile.get("feature_gate") == "production-mldsa65-coordinator"
+        and selected_profile.get("output_target")
+        == "one standard-sized ML-DSA-65 signature if proven"
+        and proof_payload.get("retry_domain")
+        == "session_id + attempt_id + retry_counter"
+        and proof_payload.get("accepted_signature_target")
+        == "accepted threshold signatures remain unbiased under the reviewed abort and retry policy"
+        and false_claims_pinned
+        and artifact_slots_pinned
+        and theorem_links_pinned
+        and promotion_anchors_pinned
+        and failure_anchors_pinned
+        and assessment.get("criterion_status") == "partially_met"
+        and assessment.get("overall_verdict") == "partially_proven"
+        and assessment.get("does_not_change_overall_verdict") is True
+        and assessment.get("report_status")
+        == "criterion3_proof_payload_formalized"
+    )
+    formalized = bool(markdown.strip()) and manifest_ok and not missing_evidence
+    if not manifest:
+        missing_evidence.append(CRITERION3_PROOF_SUBSTANCE_MANIFEST)
+    if not markdown.strip():
+        missing_evidence.append(CRITERION3_PROOF_SUBSTANCE_DOC)
+    if manifest and not false_claims_pinned:
+        missing_evidence.append("claim_boundary false claims")
+    if manifest and not artifact_slots_pinned:
+        missing_evidence.append("required_artifact_slots")
+    if manifest and not theorem_links_pinned:
+        missing_evidence.append("theorem_links")
+
+    return {
+        "status": (
+            "criterion3_proof_payload_formalized"
+            if formalized
+            else "missing_or_incomplete"
+        ),
+        "document_path": CRITERION3_PROOF_SUBSTANCE_DOC,
+        "manifest_path": CRITERION3_PROOF_SUBSTANCE_MANIFEST,
+        "criterion_id": manifest.get("criterion_id", ""),
+        "payload_status": manifest.get("status", ""),
+        "scope": claim_boundary.get("scope", ""),
+        "selected_profile": selected_profile.get("name", ""),
+        "output_target": selected_profile.get("output_target", ""),
+        "required_artifact_slots": CRITERION3_REQUIRED_ARTIFACT_SLOTS,
+        "artifact_slot_statuses": artifact_slot_statuses,
+        "artifact_slot_sources": artifact_slot_sources,
+        "theorem_links": theorem_links,
+        "missing_evidence": sorted(set(missing_evidence)),
+    }
+
+
 def selected_backend_direction(texts):
     """Return selected-backend traceability observed in docs."""
     selected_text = "\n".join(
@@ -1147,6 +1375,10 @@ def scan_documents(root):
     criterion2_proof_substance = criterion2_proof_substance_status(
         read_optional(CRITERION2_PROOF_SUBSTANCE_DOC),
         read_optional(CRITERION2_PROOF_SUBSTANCE_MANIFEST),
+    )
+    criterion3_proof_substance = criterion3_proof_substance_status(
+        read_optional(CRITERION3_PROOF_SUBSTANCE_DOC),
+        read_optional(CRITERION3_PROOF_SUBSTANCE_MANIFEST),
     )
 
     acceptance_source_scaffold = all(
@@ -1817,6 +2049,11 @@ def scan_documents(root):
             criterion2_proof_substance["status"]
             == "criterion2_proof_payload_formalized"
         ),
+        "criterion3_proof_substance": criterion3_proof_substance,
+        "criterion3_proof_substance_formalized": (
+            criterion3_proof_substance["status"]
+            == "criterion3_proof_payload_formalized"
+        ),
         "acceptance_predicate_source_scaffold": acceptance_source_scaffold,
         "production_acceptance_tests_scaffold": production_acceptance_tests_scaffold,
         "local_acceptance_conformance_scaffold": (
@@ -2285,6 +2522,7 @@ def default_commands():
         ["cargo", "test", "--test", "thesis_operating_parameters_manifest"],
         ["cargo", "test", "--test", "criterion1_proof_substance_manifest"],
         ["cargo", "test", "--test", "criterion2_proof_substance_manifest"],
+        ["cargo", "test", "--test", "criterion3_proof_substance_manifest"],
         ["cargo", "test", "--test", "unauthorized_aggregate_reduction_manifest"],
         [
             "cargo",
@@ -2426,6 +2664,7 @@ def build_report(
         "thesis_operating_parameters": scan["thesis_operating_parameters"],
         "criterion1_proof_substance": scan["criterion1_proof_substance"],
         "criterion2_proof_substance": scan["criterion2_proof_substance"],
+        "criterion3_proof_substance": scan["criterion3_proof_substance"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
         "commands": command_results,
@@ -2654,6 +2893,50 @@ def render_markdown(report):
         lines.append(
             "- Missing evidence tokens: "
             + ", ".join(criterion2["missing_evidence"])
+        )
+
+    criterion3 = report.get("criterion3_proof_substance", {})
+    lines.extend(["", "## Criterion 3 Proof Substance", ""])
+    lines.append(
+        f"- Status: `{criterion3.get('status', 'missing_or_incomplete')}`"
+    )
+    if criterion3.get("status") == "criterion3_proof_payload_formalized":
+        lines.append(f"- Criterion: {criterion3['criterion_id']}")
+        lines.append(f"- Payload status: {criterion3['payload_status']}")
+        lines.append(f"- Boundary: {criterion3['scope']}")
+        lines.append(f"- Profile: {criterion3['selected_profile']}")
+        lines.append(f"- Output target: {criterion3['output_target']}")
+        lines.append(
+            "- Required artifact slots: "
+            + ", ".join(criterion3["required_artifact_slots"])
+        )
+        artifact_statuses = criterion3.get("artifact_slot_statuses", {})
+        if artifact_statuses:
+            lines.append(
+                "- Artifact slot statuses: "
+                + ", ".join(
+                    f"{slot}={artifact_statuses[slot]}"
+                    for slot in criterion3["required_artifact_slots"]
+                    if slot in artifact_statuses
+                )
+            )
+        artifact_sources = criterion3.get("artifact_slot_sources", {})
+        if artifact_sources:
+            lines.append(
+                "- Artifact evidence sources: "
+                + ", ".join(
+                    f"{slot}={artifact_sources[slot]}"
+                    for slot in criterion3["required_artifact_slots"]
+                    if slot in artifact_sources
+                )
+            )
+        theorem_links = criterion3.get("theorem_links", [])
+        if theorem_links:
+            lines.append("- Theorem links: " + ", ".join(theorem_links))
+    elif criterion3.get("missing_evidence"):
+        lines.append(
+            "- Missing evidence tokens: "
+            + ", ".join(criterion3["missing_evidence"])
         )
 
     lines.extend(["", "## Criteria", ""])
