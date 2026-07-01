@@ -14,7 +14,7 @@ use crate::{
         selected_backend::SelectedProductionBackendProfile,
         transcript::ProductionSigningTranscript,
     },
-    ThresholdError, ThresholdSignature, ValidatorId,
+    ThresholdError, ThresholdSignature, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
 
 /// Evidence strength for aggregate rejection-equivalence claims.
@@ -1293,6 +1293,158 @@ impl P1StandardVerifierCompatibilityArtifactCertificate {
     }
 }
 
+/// Backend evidence class for the 10,000-validator real-threshold verifier contract.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1RealThresholdVerifierClosureBackendEvidence {
+    /// Deterministic simulation evidence; always fail-closed for this contract.
+    SimulatedDeterministic,
+    /// Ordinary single-key ML-DSA standard-provider output; not threshold provenance.
+    StandardProviderSingleKey,
+    /// Evidence from a real threshold ML-DSA backend implementation.
+    RealThresholdMldsa,
+}
+
+/// Claim boundary for the 10,000-validator real-threshold verifier contract.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1RealThresholdVerifierClosureClaimBoundary {
+    /// The artifact is present for conformance and proof review only.
+    ProofReviewOnly,
+    /// Forbidden boundary used to reject production or theorem-closure claims.
+    ProductionClaim,
+}
+
+/// Submitted 10,000-validator real-threshold verifier closure contract package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1RealThresholdVerifierClosurePackage {
+    /// Selected backend profile this contract package binds.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Number of validators in the closure target.
+    pub validator_count: u32,
+    /// Threshold required for the closure target.
+    pub threshold: u32,
+    /// Emitted aggregate signature byte length.
+    pub aggregate_signature_len: usize,
+    /// Backend evidence class used by the package.
+    pub backend_evidence: P1RealThresholdVerifierClosureBackendEvidence,
+    /// Digest of reviewed real-threshold backend evidence.
+    pub backend_evidence_digest: [u8; 32],
+    /// Digest of the predecessor threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Digest of the standard-verifier compatibility artifact.
+    pub standard_verifier_compatibility_artifact_digest: [u8; 32],
+    /// Standard verifier result for `MLDSA65.Verify(pk, m, sigma)`.
+    pub verifier_result: P1StandardVerifierCompatibilityResult,
+    /// Whether the same verifier rejected a mutated message.
+    pub mutated_message_rejected: bool,
+    /// Whether the same verifier rejected a mutated public key.
+    pub mutated_public_key_rejected: bool,
+    /// Whether the same verifier rejected a mutated signature.
+    pub mutated_signature_rejected: bool,
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+    /// Whether this contract package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Accepted 10,000-validator real-threshold verifier contract certificate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1RealThresholdVerifierClosureCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    validator_count: u32,
+    threshold: u32,
+    aggregate_signature_len: usize,
+    backend_evidence_digest: [u8; 32],
+    threshold_output_certificate_digest: [u8; 32],
+    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    verifier_result: P1StandardVerifierCompatibilityResult,
+    mutated_message_rejected: bool,
+    mutated_public_key_rejected: bool,
+    mutated_signature_rejected: bool,
+    claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+}
+
+impl P1RealThresholdVerifierClosureCertificate {
+    /// Return the selected backend profile bound to the verifier contract.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Return the validator count bound to the contract.
+    pub const fn validator_count(self) -> u32 {
+        self.validator_count
+    }
+
+    /// Return the threshold bound to the contract.
+    pub const fn threshold(self) -> u32 {
+        self.threshold
+    }
+
+    /// Return the aggregate signature length bound to the contract.
+    pub const fn aggregate_signature_len(self) -> usize {
+        self.aggregate_signature_len
+    }
+
+    /// Borrow the reviewed real-threshold backend evidence digest.
+    pub const fn backend_evidence_digest(&self) -> &[u8; 32] {
+        &self.backend_evidence_digest
+    }
+
+    /// Borrow the predecessor threshold-output certificate digest.
+    pub const fn threshold_output_certificate_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_digest
+    }
+
+    /// Borrow the standard-verifier compatibility artifact digest.
+    pub const fn standard_verifier_compatibility_artifact_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_compatibility_artifact_digest
+    }
+
+    /// Return the verifier result bound to the contract.
+    pub const fn verifier_result(self) -> P1StandardVerifierCompatibilityResult {
+        self.verifier_result
+    }
+
+    /// Return true when all mutation rejection checks are present.
+    pub const fn mutation_rejection_corpus_complete(self) -> bool {
+        self.mutated_message_rejected
+            && self.mutated_public_key_rejected
+            && self.mutated_signature_rejected
+    }
+
+    /// Return the explicit non-production claim boundary.
+    pub const fn claim_boundary(self) -> P1RealThresholdVerifierClosureClaimBoundary {
+        self.claim_boundary
+    }
+
+    /// Contract readiness does not claim production threshold ML-DSA security.
+    pub const fn claims_production_threshold_mldsa_security(self) -> bool {
+        false
+    }
+
+    /// Contract readiness does not claim CAVP/ACVTS validation.
+    pub const fn claims_cavp_acvts_validation(self) -> bool {
+        false
+    }
+
+    /// Contract readiness does not claim FIPS validation.
+    pub const fn claims_fips_validation(self) -> bool {
+        false
+    }
+
+    /// This certificate gates a reviewed tuple; it does not close the theorem.
+    pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
 /// Submitted Batch 4 selected-backend proof-closure artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1SelectedBackendProofClosureArtifactPackage {
@@ -1628,6 +1780,39 @@ impl P1StandardVerifierCompatibilityArtifactAssessment {
         match self {
             Self::ArtifactReady(certificate) => Some(certificate),
             Self::Missing { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
+/// Result of assessing the 10,000-validator real-threshold verifier contract.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
+pub enum P1RealThresholdVerifierClosureAssessment {
+    /// The contract has no real-threshold backend evidence and must fail closed.
+    BlockedFailClosed {
+        /// Static reason for the fail-closed assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The verifier contract tuple is ready for proof review.
+    ClosureReady(P1RealThresholdVerifierClosureCertificate),
+}
+
+impl P1RealThresholdVerifierClosureAssessment {
+    /// Return true when the verifier contract tuple is ready for proof review.
+    pub const fn is_closure_ready(self) -> bool {
+        matches!(self, Self::ClosureReady(_))
+    }
+
+    /// Borrow the verifier contract certificate when present.
+    pub const fn closure_certificate(&self) -> Option<&P1RealThresholdVerifierClosureCertificate> {
+        match self {
+            Self::ClosureReady(certificate) => Some(certificate),
+            Self::BlockedFailClosed { .. } | Self::Invalid { .. } => None,
         }
     }
 }
@@ -3662,6 +3847,182 @@ pub fn assess_p1_standard_verifier_compatibility_artifact(
                 .standard_verifier_bridge_evidence_digest,
             real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
             verifier_result: package.verifier_result,
+            claim_boundary: package.claim_boundary,
+        },
+    )
+}
+
+/// Assess whether a 10,000-validator selected-backend output satisfies the
+/// future real-threshold standard-verifier closure contract.
+pub fn assess_p1_real_threshold_verifier_closure_contract(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    package: Option<P1RealThresholdVerifierClosurePackage>,
+) -> P1RealThresholdVerifierClosureAssessment {
+    let Some(package) = package else {
+        return P1RealThresholdVerifierClosureAssessment::BlockedFailClosed {
+            reason: "missing P1 real-threshold verifier closure package",
+        };
+    };
+
+    match package.backend_evidence {
+        P1RealThresholdVerifierClosureBackendEvidence::SimulatedDeterministic => {
+            return P1RealThresholdVerifierClosureAssessment::BlockedFailClosed {
+                reason: "P1 real-threshold verifier closure requires real threshold ML-DSA backend evidence, not deterministic simulation",
+            };
+        }
+        P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey => {
+            return P1RealThresholdVerifierClosureAssessment::Invalid {
+                reason: "P1 real-threshold verifier closure requires threshold backend provenance, not ordinary single-key standard-provider output",
+            };
+        }
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => {}
+    }
+    if !package.reviewed {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure package must be reviewed",
+        };
+    }
+    if package.claim_boundary != P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure package must remain proof-review-only",
+        };
+    }
+    if threshold_certificate.claim_boundary() != P1ThresholdOutputClaimBoundary::ProofReviewOnly {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason:
+                "P1 real-threshold verifier closure threshold-output certificate must remain proof-review-only",
+        };
+    }
+    if compatibility_certificate.claim_boundary()
+        != P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason:
+                "P1 real-threshold verifier closure compatibility certificate must remain proof-review-only",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != threshold_certificate.selected_profile()
+        || package.selected_profile != compatibility_certificate.selected_profile()
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure selected profile does not match predecessor certificates",
+        };
+    }
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+        || &package.selected_profile_binding_digest
+            != compatibility_certificate.selected_profile_binding_digest()
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure profile binding digest does not match predecessor certificates",
+        };
+    }
+    if package.validator_count != 10_000 || package.threshold != 6_667 {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason:
+                "P1 real-threshold verifier closure must bind 10,000 validators with threshold 6,667",
+        };
+    }
+    if package.aggregate_signature_len != MLDSA65_SIGNATURE_BYTES {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure aggregate signature must be 3,309 bytes",
+        };
+    }
+    if package.verifier_result != P1StandardVerifierCompatibilityResult::Accept {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason:
+                "P1 real-threshold verifier closure must bind an accepted standard verifier result",
+        };
+    }
+    if package.verifier_result != compatibility_certificate.verifier_result() {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason:
+                "P1 real-threshold verifier closure verifier result does not match compatibility certificate",
+        };
+    }
+    if !(package.mutated_message_rejected
+        && package.mutated_public_key_rejected
+        && package.mutated_signature_rejected)
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure requires mutated message, public key, and signature rejection evidence",
+        };
+    }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 real-threshold verifier closure profile binding digest is all zero",
+        ),
+        (
+            &package.backend_evidence_digest,
+            "P1 real-threshold verifier closure backend evidence digest is all zero",
+        ),
+        (
+            &package.threshold_output_certificate_digest,
+            "P1 real-threshold verifier closure threshold-output certificate digest is all zero",
+        ),
+        (
+            &package.standard_verifier_compatibility_artifact_digest,
+            "P1 real-threshold verifier closure compatibility artifact digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1RealThresholdVerifierClosureAssessment::Invalid { reason };
+        }
+    }
+
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure threshold-output certificate digest does not match certificate",
+        };
+    }
+    if compatibility_certificate.threshold_output_certificate_digest()
+        != &threshold_output_certificate_digest
+    {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure compatibility certificate does not bind threshold-output certificate",
+        };
+    }
+    let compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate);
+    if package.standard_verifier_compatibility_artifact_digest != compatibility_artifact_digest {
+        return P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure compatibility artifact digest does not match certificate",
+        };
+    }
+
+    P1RealThresholdVerifierClosureAssessment::ClosureReady(
+        P1RealThresholdVerifierClosureCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            validator_count: package.validator_count,
+            threshold: package.threshold,
+            aggregate_signature_len: package.aggregate_signature_len,
+            backend_evidence_digest: package.backend_evidence_digest,
+            threshold_output_certificate_digest: package.threshold_output_certificate_digest,
+            standard_verifier_compatibility_artifact_digest: package
+                .standard_verifier_compatibility_artifact_digest,
+            verifier_result: package.verifier_result,
+            mutated_message_rejected: package.mutated_message_rejected,
+            mutated_public_key_rejected: package.mutated_public_key_rejected,
+            mutated_signature_rejected: package.mutated_signature_rejected,
             claim_boundary: package.claim_boundary,
         },
     )

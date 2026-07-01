@@ -123,6 +123,19 @@ This is stronger than fixture-only bridge confidence, but it remains
 conformance/proof-review evidence only and does not claim a real threshold
 aggregate signer.
 
+`P1RealThresholdVerifierClosurePackage` and
+`assess_p1_real_threshold_verifier_closure_contract` add the real threshold backend emission gate for the 10,000-validator target. This threshold verifier closure contract requires `validators = 10000`, `threshold = 6667`,
+`aggregate_signature.len() = 3309`, real threshold ML-DSA backend provenance,
+`MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept`,
+matching threshold-output and standard-verifier compatibility artifact digests,
+and mutation rejection for message, public key, and signature. The gate rejects
+`SimulatedDeterministic` evidence as `blocked_fail_closed` and rejects
+`StandardProviderSingleKey` evidence because ordinary single-key standard-provider output is not threshold backend provenance. This is
+framework/conformance evidence only and does not claim production threshold
+ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS
+validation, rejection-distribution preservation, completed standard-verifier
+compatibility, or a completed cryptographic proof.
+
 `P1SelectedBackendThresholdOutputArtifactPackage`,
 `derive_p1_selected_backend_threshold_output_artifact_package`, and
 `assess_p1_selected_backend_threshold_output_artifact` add the Batch 3
@@ -208,6 +221,8 @@ standard-verifier bridge drift from closing the P1 recomputation blocker.
 
 To fully close blocker 2 cryptographically, the repo still needs:
 
+- actual real threshold backend emissions for the selected P1 profile that
+  satisfy the threshold verifier closure contract;
 - reviewed selected-backend proof arguments tying threshold-output,
   recomputation, bounds, rejection behavior, and standard verification into one
   accepted argument beyond the current selected-backend proof-closure artifact
