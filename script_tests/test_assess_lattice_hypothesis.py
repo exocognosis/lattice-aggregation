@@ -852,6 +852,38 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_hazmat_threshold_backend_capture_adapter_gate(self, root):
+        self.write_p1_real_threshold_backend_emission_request_gate(root)
+        (root / "scripts" / "run_hazmat_threshold_backend_capture.py").write_text(
+            "RUST_EMITTER_SOURCE = '''\n"
+            "backend_external_pure_verifier_accepts\n"
+            "repo_pr69_hazmat_provider_accepts\n"
+            "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\n"
+            "real_threshold_mldsa_external_capture\n"
+            "dytallix-pq-threshold hazmat-real-mldsa\n"
+            "10_000\n"
+            "6_667\n"
+            "mutated_message_rejected\n"
+            "mutated_public_key_rejected\n"
+            "mutated_signature_rejected\n"
+            "''' \n"
+            "def write_emitter_project(): pass\n"
+            "def run_capture(): pass\n"
+            "def validate_crate_path(): pass\n"
+            "LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE\n"
+            "--backend-crate\n",
+            encoding="utf-8",
+        )
+        (root / "script_tests" / "test_run_hazmat_threshold_backend_capture.py").write_text(
+            "def test_build_emitter_project_requires_explicit_backend_crate_and_repo_root(): pass\n"
+            "def test_run_capture_invokes_generated_release_emitter_and_returns_stdout(): pass\n"
+            "def test_run_capture_rejects_missing_or_invalid_backend_crate(): pass\n"
+            "backend_external_pure_verifier_accepts\n"
+            "repo_pr69_hazmat_provider_accepts\n"
+            "Lattice Aggregation Current\n",
+            encoding="utf-8",
+        )
+
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
@@ -2058,6 +2090,43 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("required capture schema", aggregate_evidence)
         self.assertIn("exact repo-generated request digest", aggregate_evidence)
         self.assertIn("rejects stale or missing request bindings", aggregate_evidence)
+        self.assertIn("evidence_present_unclosed", aggregate_evidence)
+        self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_hazmat_threshold_backend_capture_adapter_updates_report_without_closing_proofs(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_hazmat_threshold_backend_capture_adapter_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_real_threshold_backend_request_capture_binding_gate"])
+        self.assertTrue(scan["p1_hazmat_threshold_backend_capture_adapter_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn(
+            "repo-owned hazmat threshold backend capture adapter", aggregate_evidence
+        )
+        self.assertIn("explicit backend crate path", aggregate_evidence)
+        self.assertIn("10,000 validators", aggregate_evidence)
+        self.assertIn("standard external-message verifier", aggregate_evidence)
+        self.assertIn("mutation rejection", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)

@@ -170,6 +170,17 @@ capture envelope, and the script rejects localnet and deterministic simulation
 command sources, non-importable capture shapes, and stale or missing request
 digest bindings before artifact write. It records `evidence_present_unclosed`
 conformance/proof-review evidence only.
+`scripts/run_hazmat_threshold_backend_capture.py` is the repo-owned adapter for
+the current hazmat threshold backend run. It requires an explicit
+`--backend-crate` path, or `LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE`, to a
+`dytallix-pq-threshold` checkout; generates a temporary Rust emitter; runs the
+10,000-validator, threshold-6,667 hazmat session; checks both the backend
+external-pure verifier and the repo `HazmatMldsa65Provider`; checks mutated
+message, public-key, and signature rejection; and prints the canonical
+request-bound capture JSON consumed by `scripts/run_backend_emission_capture.py`.
+This adapter is a reproducibility path for actual backend capture evidence, not
+production threshold ML-DSA security, not rejection-distribution preservation,
+and not theorem closure.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries

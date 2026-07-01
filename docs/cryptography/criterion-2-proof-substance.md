@@ -94,6 +94,14 @@ The Criterion 2 proof payload requires these slots before any promotion:
   and requires the backend capture to echo the exact request digest before
   writing artifacts. It remains `evidence_present_unclosed` and is not proof
   closure.
+  The repo-owned hazmat threshold backend capture adapter
+  `scripts/run_hazmat_threshold_backend_capture.py` is the explicit-backend
+  bridge for the current 10,000-validator experiment: it requires
+  `--backend-crate` or `LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE`, generates a
+  temporary Rust emitter for a `dytallix-pq-threshold` hazmat backend, checks
+  backend and repo standard-verifier acceptance plus mutation rejection, and
+  emits canonical request-bound capture JSON for the runner. It is
+  `evidence_present_unclosed` conformance/proof-review infrastructure only.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated
