@@ -2016,8 +2016,8 @@ fn synthetic_actual_real_threshold_backend_capture_json(
     };
     let expected_package =
         derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output(
-            &threshold_certificate,
-            &compatibility_certificate,
+            threshold_certificate,
+            compatibility_certificate,
             material,
         )
         .expect("synthetic capture material should bind predecessor certificates");
