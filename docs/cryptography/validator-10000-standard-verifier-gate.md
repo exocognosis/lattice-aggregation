@@ -134,6 +134,16 @@ ingestion, checks predecessor certificate digests and expected package digests,
 and feeds the same provider-verified adapter. This is an executable input gate,
 not a real threshold backend and not theorem closure.
 
+Before an external backend emits that capture JSON, the repo can generate the
+request it must answer with `scripts/build_backend_emission_request.py`. The
+request schema
+`lattice-aggregation:p1-real-threshold-backend-emission-request:v1` binds the
+message, 10,000-validator target, threshold 6,667, predecessor certificate
+digests, required capture schema, required real-threshold backend evidence
+class, mutation-rejection requirements, and forbidden localnet/simulation/
+fixture sources. This request is a challenge contract for external backend
+capture; it is not proof closure.
+
 The checked capture schema fixture at
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 pins the future capture envelope, but it is explicitly not actual real
