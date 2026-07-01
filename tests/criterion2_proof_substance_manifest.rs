@@ -82,6 +82,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         "threshold_output_certificate_digest",
         "real_recomputation_evidence_digest",
         "standard_verifier_compatibility_artifact_digest",
+        "real_threshold_backend_emission_artifact_digest",
         "rejection_distribution_review_digest",
         "theorem_linkage_artifact_digest",
         "full_kat_validation_artifact_digest",
@@ -111,6 +112,11 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "standard_verifier_compatibility_artifact_digest",
             "p1_standard_verifier_compatibility_artifact_gate",
             "p1_standard_verifier_compatibility_artifact_package",
+        ),
+        (
+            "real_threshold_backend_emission_artifact_digest",
+            "p1_real_threshold_backend_output_gate",
+            "p1_real_threshold_backend_emission_artifact_package",
         ),
         (
             "rejection_distribution_review_digest",

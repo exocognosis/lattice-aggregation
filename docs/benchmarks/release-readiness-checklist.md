@@ -128,18 +128,25 @@ migration candidates that require separate review.
   signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
   validation, rejection-distribution preservation, or completed
   standard-verifier compatibility proof.
-- Require the real-threshold backend emission gate before claiming that the
-  10,000-validator standard-verifier target moved beyond standard-provider
-  evidence: `P1RealThresholdVerifierClosurePackage`,
+- Require the real-threshold backend emission ingestion artifact before claiming
+  that the 10,000-validator standard-verifier target moved beyond
+  standard-provider evidence: `P1RealThresholdBackendEmissionArtifactPackage`,
+  `derive_p1_real_threshold_backend_emission_artifact_package`,
+  `assess_p1_real_threshold_backend_emission_artifact`,
+  `P1RealThresholdVerifierClosurePackage`,
   `assess_p1_real_threshold_verifier_closure_contract`, and the
   `p1_real_threshold_backend_output_gate` assessment/report key must bind real
-  threshold ML-DSA backend provenance, `validators = 10000`, `threshold = 6667`,
-  `aggregate_signature.len() = 3309`, standard-verifier acceptance, and mutated
-  message, public-key, and signature rejection evidence. This threshold verifier closure contract rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. It is still
-  conformance/proof-review evidence only; it is not production threshold ML-DSA
-  security, CAVP/ACVTS validation, FIPS validation,
-  rejection-distribution preservation, selected-backend proof closure, or
-  completed standard-verifier compatibility proof.
+  threshold ML-DSA backend provenance, backend source package digest, backend
+  implementation digest, backend transcript digest, `validators = 10000`,
+  `threshold = 6667`, `aggregate_signature.len() = 3309`,
+  standard-verifier acceptance, and mutated message, public-key, and signature
+  rejection evidence. This threshold verifier closure contract rejects
+  deterministic simulation and ordinary single-key standard-provider output as
+  closure evidence. It is still conformance/proof-review evidence only; it is not
+  production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation,
+  rejection-distribution preservation, selected-backend proof closure, a claim
+  that this repo implements a real threshold backend, or completed
+  standard-verifier compatibility proof.
 - Require the selected-backend threshold-output artifact gate before claiming
   that Batch 3 moved beyond real standard-provider aggregate-output package
   evidence: `P1SelectedBackendThresholdOutputArtifactPackage`,

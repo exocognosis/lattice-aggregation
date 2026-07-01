@@ -81,31 +81,42 @@ are present:
 
 ## Real Threshold Backend Emission Gate
 
-The follow-on Criterion 2 contract is the real threshold backend emission gate,
-implemented by `P1RealThresholdVerifierClosurePackage` and
-`assess_p1_real_threshold_verifier_closure_contract` in
+The follow-on Criterion 2 contract is the real threshold backend emission ingestion artifact, implemented by
+`P1RealThresholdBackendEmissionArtifactPackage`,
+`derive_p1_real_threshold_backend_emission_artifact_package`, and
+`assess_p1_real_threshold_backend_emission_artifact` in
 `src/production/rejection_equivalence.rs`.
+
+The ingestion artifact is the input path to the stricter threshold verifier
+closure contract implemented by `P1RealThresholdVerifierClosurePackage` and
+`assess_p1_real_threshold_verifier_closure_contract`. A reviewed emission
+certificate can be converted into the closure package with
+`to_verifier_closure_package`.
 
 This is a threshold verifier closure contract and real threshold ML-DSA acceptance contract. It requires:
 
 - exactly `validators = 10000` and `threshold = 6667`;
 - `aggregate_signature.len() = 3309`;
 - `P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa`;
+- a backend source package digest, backend implementation digest, and backend
+  transcript digest for external review;
 - `MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept`;
 - mutated message, public-key, and signature rejection evidence;
 - a matching selected-backend threshold-output certificate digest;
 - a matching Criterion 2 standard-verifier compatibility artifact digest.
 
 The contract intentionally rejects deterministic simulation as closure evidence.
-Claim boundary: real threshold backend emission only, not ordinary single-key standard-provider output. It is fail-closed, framework/conformance evidence
-only, and does not claim production threshold ML-DSA security, selected-backend
-proof closure, CAVP/ACVTS validation, FIPS validation,
+Claim boundary: real threshold backend emission ingestion only, not ordinary single-key standard-provider output. It is fail-closed, framework/conformance
+evidence only, and does not claim production threshold ML-DSA security,
+selected-backend proof closure, CAVP/ACVTS validation, FIPS validation,
 rejection-distribution preservation, completed standard-verifier compatibility,
-or a completed cryptographic proof.
+or a completed cryptographic proof. It also does not claim a real threshold
+backend is implemented in this repository.
 
 The targeted tests are:
 
 ```sh
+cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_backend_emission_ingestion
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_verifier_closure_contract
 ```
 

@@ -583,6 +583,24 @@ class ReportGenerationTests(unittest.TestCase):
             + "SimulatedDeterministic, StandardProviderSingleKey, RealThresholdMldsa }\n"
             + "pub enum P1RealThresholdVerifierClosureClaimBoundary { "
             + "ProofReviewOnly, ProductionClaim }\n"
+            + "pub struct P1RealThresholdBackendEmissionArtifactPackage {\n"
+            + "pub backend_source_package_digest: [u8; 32],\n"
+            + "pub backend_implementation_digest: [u8; 32],\n"
+            + "pub backend_transcript_digest: [u8; 32],\n"
+            + "pub artifact_digest: [u8; 32],\n"
+            + "}\n"
+            + "pub struct P1RealThresholdBackendEmissionArtifactCertificate;\n"
+            + "impl P1RealThresholdBackendEmissionArtifactCertificate {\n"
+            + "pub fn backend_source_package_digest(&self) {}\n"
+            + "pub fn backend_implementation_digest(&self) {}\n"
+            + "pub fn backend_transcript_digest(&self) {}\n"
+            + "pub fn to_verifier_closure_package(&self) {}\n"
+            + "pub fn claims_real_threshold_backend_implemented(&self) {}\n"
+            + "pub fn claims_production_threshold_mldsa_security(&self) {}\n"
+            + "pub fn claims_completed_cryptographic_proof(&self) {}\n"
+            + "}\n"
+            + "pub enum P1RealThresholdBackendEmissionArtifactAssessment { "
+            + "BlockedFailClosed, Invalid, ArtifactReady }\n"
             + "pub struct P1RealThresholdVerifierClosurePackage {\n"
             + "pub validator_count: u32,\n"
             + "pub threshold: u32,\n"
@@ -602,12 +620,25 @@ class ReportGenerationTests(unittest.TestCase):
             + "}\n"
             + "pub enum P1RealThresholdVerifierClosureAssessment { "
             + "BlockedFailClosed, Invalid, ClosureReady }\n"
+            + "pub fn assess_p1_real_threshold_backend_emission_artifact() {}\n"
+            + "pub fn derive_p1_real_threshold_backend_emission_artifact_package() {}\n"
+            + "pub fn derive_p1_real_threshold_backend_emission_artifact_digest() {}\n"
             + "pub fn assess_p1_real_threshold_verifier_closure_contract() {}\n",
             encoding="utf-8",
         )
         test_path = root / "tests" / "production_rejection_equivalence.rs"
         test_path.write_text(
             test_path.read_text(encoding="utf-8")
+            + "#[test]\n"
+            + "fn p1_real_threshold_backend_emission_ingestion_accepts_reviewed_external_threshold_output() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_backend_emission_ingestion_blocks_simulated_backend() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_backend_emission_ingestion_rejects_standard_provider_single_key_output() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_backend_emission_ingestion_rejects_stale_threshold_certificate_digest() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_backend_emission_ingestion_rejects_unreviewed_external_backend_evidence() {}\n"
             + "#[test]\n"
             + "fn p1_real_threshold_verifier_closure_contract_blocks_simulated_backend() {}\n"
             + "#[test]\n"
@@ -624,7 +655,7 @@ class ReportGenerationTests(unittest.TestCase):
             / "cryptography"
             / "validator-10000-standard-verifier-gate.md"
         ).write_text(
-            "real threshold backend emission gate\n"
+            "real threshold backend emission ingestion artifact\n"
             "threshold verifier closure contract\n"
             "real threshold ML-DSA acceptance contract\n"
             "fail-closed\n"
@@ -1082,11 +1113,14 @@ class ReportGenerationTests(unittest.TestCase):
             "or checks proven equivalent to it accept the aggregate output.\n\n"
             "## Required Artifact Slots\n\n"
             "standard_verifier_compatibility_artifact_digest, "
+            "real_threshold_backend_emission_artifact_digest, "
             "evidence_present_unclosed from "
             "p1_standard_verifier_compatibility_artifact_gate, "
+            "p1_real_threshold_backend_output_gate, "
             "evidence_present_unclosed only, "
             "typed Criterion 2 proof-slot artifact packages, "
             "p1_criterion2_proof_slot_artifact_package, "
+            "p1_real_threshold_backend_emission_artifact_package, "
             "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json, "
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json, "
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json, "
@@ -1137,6 +1171,9 @@ class ReportGenerationTests(unittest.TestCase):
             "standard_verifier_compatibility_artifact_digest": (
                 "p1_standard_verifier_compatibility_artifact_gate"
             ),
+            "real_threshold_backend_emission_artifact_digest": (
+                "p1_real_threshold_backend_output_gate"
+            ),
             "rejection_distribution_review_digest": (
                 "p1_criterion2_rejection_distribution_review_artifact_gate"
             ),
@@ -1166,10 +1203,17 @@ class ReportGenerationTests(unittest.TestCase):
             "standard_verifier_compatibility_artifact_digest": (
                 "p1_standard_verifier_compatibility_artifact_package"
             ),
+            "real_threshold_backend_emission_artifact_digest": (
+                "p1_real_threshold_backend_emission_artifact_package"
+            ),
             **{
                 slot: "p1_criterion2_proof_slot_artifact_package"
                 for slot in evidence_sources
-                if slot != "standard_verifier_compatibility_artifact_digest"
+                if slot
+                not in {
+                    "standard_verifier_compatibility_artifact_digest",
+                    "real_threshold_backend_emission_artifact_digest",
+                }
             },
         }
         certificate_accessors = {
@@ -1256,6 +1300,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "threshold_output_certificate_digest",
                         "real_recomputation_evidence_digest",
                         "standard_verifier_compatibility_artifact_digest",
+                        "real_threshold_backend_emission_artifact_digest",
                         "rejection_distribution_review_digest",
                         "theorem_linkage_artifact_digest",
                         "full_kat_validation_artifact_digest",
@@ -1674,13 +1719,16 @@ class ReportGenerationTests(unittest.TestCase):
         aggregate_blockers = "\n".join(aggregate["blockers"])
 
         self.assertEqual(aggregate["status"], "partially_met")
-        self.assertIn("real-threshold backend emission gate", aggregate_evidence)
+        self.assertIn(
+            "real-threshold backend emission ingestion artifact", aggregate_evidence
+        )
+        self.assertIn("backend source, implementation, and transcript digests", aggregate_evidence)
         self.assertIn("rejects deterministic simulation", aggregate_evidence)
         self.assertIn("ordinary single-key standard-provider output", aggregate_evidence)
         self.assertIn("not production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("real threshold backend emissions", aggregate_blockers)
         self.assertIn("reviewed cryptographic proof", aggregate_blockers)
-        self.assertIn("real-threshold backend emission gate", markdown)
+        self.assertIn("real-threshold backend emission ingestion artifact", markdown)
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):
@@ -1700,6 +1748,31 @@ class ReportGenerationTests(unittest.TestCase):
                 rejection_equivalence_path.read_text(encoding="utf-8").replace(
                     "StandardProviderSingleKey",
                     "StandardProviderEvidence",
+                ),
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertFalse(scan["p1_real_threshold_backend_output_gate"])
+
+    def test_p1_real_threshold_backend_output_gate_requires_emission_ingestion_artifact(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_real_threshold_backend_output_gate(root)
+            rejection_equivalence_path = (
+                root / "src" / "production" / "rejection_equivalence.rs"
+            )
+            rejection_equivalence_path.write_text(
+                rejection_equivalence_path.read_text(encoding="utf-8").replace(
+                    "P1RealThresholdBackendEmissionArtifactPackage",
+                    "P1RealThresholdBackendEmissionPackage",
                 ),
                 encoding="utf-8",
             )
@@ -1931,6 +2004,24 @@ class ReportGenerationTests(unittest.TestCase):
             ],
             "evidence_present_unclosed",
         )
+        self.assertEqual(
+            report["criterion2_proof_substance"]["artifact_slot_statuses"][
+                "real_threshold_backend_emission_artifact_digest"
+            ],
+            "evidence_present_unclosed",
+        )
+        self.assertEqual(
+            report["criterion2_proof_substance"]["artifact_slot_sources"][
+                "real_threshold_backend_emission_artifact_digest"
+            ],
+            "p1_real_threshold_backend_output_gate",
+        )
+        self.assertEqual(
+            report["criterion2_proof_substance"]["artifact_slot_packages"][
+                "real_threshold_backend_emission_artifact_digest"
+            ],
+            "p1_real_threshold_backend_emission_artifact_package",
+        )
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         self.assertEqual(
@@ -1941,6 +2032,9 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("standard_verifier_compatibility_artifact_digest", markdown)
         self.assertIn("threshold_output_certificate_digest", markdown)
         self.assertIn("real_recomputation_evidence_digest", markdown)
+        self.assertIn("real_threshold_backend_emission_artifact_digest", markdown)
+        self.assertIn("p1_real_threshold_backend_output_gate", markdown)
+        self.assertIn("p1_real_threshold_backend_emission_artifact_package", markdown)
         self.assertIn("evidence_present_unclosed", markdown)
         self.assertIn("p1_standard_verifier_compatibility_artifact_gate", markdown)
         self.assertIn(

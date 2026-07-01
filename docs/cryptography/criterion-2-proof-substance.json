@@ -58,6 +58,14 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "id": "real_threshold_backend_emission_artifact_digest",
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_real_threshold_backend_output_gate",
+        "artifact_package": "p1_real_threshold_backend_emission_artifact_package",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "fixture_status": "blocked_until_actual_real_threshold_backend_emission"
+      },
+      {
         "id": "rejection_distribution_review_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_rejection_distribution_review_artifact_gate",

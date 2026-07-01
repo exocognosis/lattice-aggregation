@@ -1313,6 +1313,250 @@ pub enum P1RealThresholdVerifierClosureClaimBoundary {
     ProductionClaim,
 }
 
+/// Submitted real-threshold backend emission artifact package for P1.
+///
+/// This package is the ingestion surface for future real threshold backend
+/// output. It binds a reviewed backend emission artifact to the predecessor
+/// threshold-output and standard-verifier compatibility certificates without
+/// claiming that this repository implements the backend.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1RealThresholdBackendEmissionArtifactPackage {
+    /// Selected backend profile this emission package binds.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Number of validators in the closure target.
+    pub validator_count: u32,
+    /// Threshold required for the closure target.
+    pub threshold: u32,
+    /// Emitted aggregate signature byte length.
+    pub aggregate_signature_len: usize,
+    /// Backend evidence class used by the emission artifact.
+    pub backend_evidence: P1RealThresholdVerifierClosureBackendEvidence,
+    /// Digest of reviewed real-threshold backend evidence.
+    pub backend_evidence_digest: [u8; 32],
+    /// Digest of the external source package emitted by the backend.
+    pub backend_source_package_digest: [u8; 32],
+    /// Digest identifying the backend implementation/build under review.
+    pub backend_implementation_digest: [u8; 32],
+    /// Digest binding the backend signing transcript and participant set.
+    pub backend_transcript_digest: [u8; 32],
+    /// Digest of this emission artifact payload.
+    pub artifact_digest: [u8; 32],
+    /// Digest of the predecessor threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Digest of the standard-verifier compatibility artifact.
+    pub standard_verifier_compatibility_artifact_digest: [u8; 32],
+    /// Digest of the public ML-DSA-65 verification key `pk`.
+    pub public_key_digest: [u8; 32],
+    /// Digest of the original application message `m`.
+    pub message_digest: [u8; 32],
+    /// Digest binding this artifact to the production signing transcript.
+    pub transcript_binding_digest: [u8; 32],
+    /// Digest binding the accepted aggregate signer set.
+    pub signer_set_digest: [u8; 32],
+    /// Digest binding the single-use attempt ID and retry domain.
+    pub attempt_binding_digest: [u8; 32],
+    /// Provider-verified accepted signature digest for `sigma`.
+    pub accepted_signature_digest: [u8; 32],
+    /// Standard verifier result for `MLDSA65.Verify(pk, m, sigma)`.
+    pub verifier_result: P1StandardVerifierCompatibilityResult,
+    /// Whether the same verifier rejected a mutated message.
+    pub mutated_message_rejected: bool,
+    /// Whether the same verifier rejected a mutated public key.
+    pub mutated_public_key_rejected: bool,
+    /// Whether the same verifier rejected a mutated signature.
+    pub mutated_signature_rejected: bool,
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+    /// Whether this artifact package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Accepted real-threshold backend emission artifact certificate for P1.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1RealThresholdBackendEmissionArtifactCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    validator_count: u32,
+    threshold: u32,
+    aggregate_signature_len: usize,
+    backend_evidence_digest: [u8; 32],
+    backend_source_package_digest: [u8; 32],
+    backend_implementation_digest: [u8; 32],
+    backend_transcript_digest: [u8; 32],
+    artifact_digest: [u8; 32],
+    threshold_output_certificate_digest: [u8; 32],
+    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    public_key_digest: [u8; 32],
+    message_digest: [u8; 32],
+    transcript_binding_digest: [u8; 32],
+    signer_set_digest: [u8; 32],
+    attempt_binding_digest: [u8; 32],
+    accepted_signature_digest: [u8; 32],
+    verifier_result: P1StandardVerifierCompatibilityResult,
+    mutated_message_rejected: bool,
+    mutated_public_key_rejected: bool,
+    mutated_signature_rejected: bool,
+    claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+}
+
+impl P1RealThresholdBackendEmissionArtifactCertificate {
+    /// Return the selected backend profile bound to the backend emission artifact.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Return the validator count bound to the artifact.
+    pub const fn validator_count(self) -> u32 {
+        self.validator_count
+    }
+
+    /// Return the threshold bound to the artifact.
+    pub const fn threshold(self) -> u32 {
+        self.threshold
+    }
+
+    /// Return the aggregate signature length bound to the artifact.
+    pub const fn aggregate_signature_len(self) -> usize {
+        self.aggregate_signature_len
+    }
+
+    /// Borrow the reviewed real-threshold backend evidence digest.
+    pub const fn backend_evidence_digest(&self) -> &[u8; 32] {
+        &self.backend_evidence_digest
+    }
+
+    /// Borrow the external backend source package digest.
+    pub const fn backend_source_package_digest(&self) -> &[u8; 32] {
+        &self.backend_source_package_digest
+    }
+
+    /// Borrow the backend implementation digest.
+    pub const fn backend_implementation_digest(&self) -> &[u8; 32] {
+        &self.backend_implementation_digest
+    }
+
+    /// Borrow the backend transcript digest.
+    pub const fn backend_transcript_digest(&self) -> &[u8; 32] {
+        &self.backend_transcript_digest
+    }
+
+    /// Borrow the emission artifact payload digest.
+    pub const fn artifact_digest(&self) -> &[u8; 32] {
+        &self.artifact_digest
+    }
+
+    /// Borrow the predecessor threshold-output certificate digest.
+    pub const fn threshold_output_certificate_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_digest
+    }
+
+    /// Borrow the standard-verifier compatibility artifact digest.
+    pub const fn standard_verifier_compatibility_artifact_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_compatibility_artifact_digest
+    }
+
+    /// Borrow the public key digest.
+    pub const fn public_key_digest(&self) -> &[u8; 32] {
+        &self.public_key_digest
+    }
+
+    /// Borrow the message digest.
+    pub const fn message_digest(&self) -> &[u8; 32] {
+        &self.message_digest
+    }
+
+    /// Borrow the transcript binding digest.
+    pub const fn transcript_binding_digest(&self) -> &[u8; 32] {
+        &self.transcript_binding_digest
+    }
+
+    /// Borrow the signer-set digest.
+    pub const fn signer_set_digest(&self) -> &[u8; 32] {
+        &self.signer_set_digest
+    }
+
+    /// Borrow the attempt binding digest.
+    pub const fn attempt_binding_digest(&self) -> &[u8; 32] {
+        &self.attempt_binding_digest
+    }
+
+    /// Borrow the accepted signature digest.
+    pub const fn accepted_signature_digest(&self) -> &[u8; 32] {
+        &self.accepted_signature_digest
+    }
+
+    /// Return the verifier result bound to the artifact.
+    pub const fn verifier_result(self) -> P1StandardVerifierCompatibilityResult {
+        self.verifier_result
+    }
+
+    /// Return true when all mutation rejection checks are present.
+    pub const fn mutation_rejection_corpus_complete(self) -> bool {
+        self.mutated_message_rejected
+            && self.mutated_public_key_rejected
+            && self.mutated_signature_rejected
+    }
+
+    /// Return the explicit non-production claim boundary.
+    pub const fn claim_boundary(self) -> P1RealThresholdVerifierClosureClaimBoundary {
+        self.claim_boundary
+    }
+
+    /// Convert the accepted emission artifact into the stricter verifier closure contract package.
+    pub const fn to_verifier_closure_package(self) -> P1RealThresholdVerifierClosurePackage {
+        P1RealThresholdVerifierClosurePackage {
+            selected_profile: self.selected_profile,
+            selected_profile_binding_digest: self.selected_profile_binding_digest,
+            validator_count: self.validator_count,
+            threshold: self.threshold,
+            aggregate_signature_len: self.aggregate_signature_len,
+            backend_evidence: P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa,
+            backend_evidence_digest: self.backend_evidence_digest,
+            threshold_output_certificate_digest: self.threshold_output_certificate_digest,
+            standard_verifier_compatibility_artifact_digest: self
+                .standard_verifier_compatibility_artifact_digest,
+            verifier_result: self.verifier_result,
+            mutated_message_rejected: self.mutated_message_rejected,
+            mutated_public_key_rejected: self.mutated_public_key_rejected,
+            mutated_signature_rejected: self.mutated_signature_rejected,
+            claim_boundary: self.claim_boundary,
+            reviewed: true,
+        }
+    }
+
+    /// Artifact readiness does not claim this repo has implemented the backend.
+    pub const fn claims_real_threshold_backend_implemented(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim production threshold ML-DSA security.
+    pub const fn claims_production_threshold_mldsa_security(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim CAVP/ACVTS validation.
+    pub const fn claims_cavp_acvts_validation(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim FIPS validation.
+    pub const fn claims_fips_validation(self) -> bool {
+        false
+    }
+
+    /// This certificate gates backend emission evidence; it does not close the theorem.
+    pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
 /// Submitted 10,000-validator real-threshold verifier closure contract package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1RealThresholdVerifierClosurePackage {
@@ -1780,6 +2024,41 @@ impl P1StandardVerifierCompatibilityArtifactAssessment {
         match self {
             Self::ArtifactReady(certificate) => Some(certificate),
             Self::Missing { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
+/// Result of assessing a real-threshold backend emission artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
+pub enum P1RealThresholdBackendEmissionArtifactAssessment {
+    /// The artifact has no real-threshold backend evidence and must fail closed.
+    BlockedFailClosed {
+        /// Static reason for the fail-closed assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The backend emission artifact is ready for proof review.
+    ArtifactReady(P1RealThresholdBackendEmissionArtifactCertificate),
+}
+
+impl P1RealThresholdBackendEmissionArtifactAssessment {
+    /// Return true when the backend emission artifact is ready for proof review.
+    pub const fn is_artifact_ready(self) -> bool {
+        matches!(self, Self::ArtifactReady(_))
+    }
+
+    /// Borrow the backend emission artifact certificate when present.
+    pub const fn backend_emission_certificate(
+        &self,
+    ) -> Option<&P1RealThresholdBackendEmissionArtifactCertificate> {
+        match self {
+            Self::ArtifactReady(certificate) => Some(certificate),
+            Self::BlockedFailClosed { .. } | Self::Invalid { .. } => None,
         }
     }
 }
@@ -2684,6 +2963,186 @@ where
         claim_boundary,
         reviewed,
     })
+}
+
+/// Derive the digest binding a real-threshold backend emission artifact.
+///
+/// This digest commits to external backend provenance and the verifier-accepted
+/// tuple already bound by the predecessor certificates. It remains
+/// conformance/proof-review evidence only.
+pub fn derive_p1_real_threshold_backend_emission_artifact_digest(
+    certificate: &P1RealThresholdBackendEmissionArtifactCertificate,
+) -> [u8; 32] {
+    derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
+        certificate.selected_profile(),
+        certificate.selected_profile_binding_digest(),
+        certificate.validator_count(),
+        certificate.threshold(),
+        certificate.aggregate_signature_len(),
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa,
+        certificate.backend_evidence_digest(),
+        certificate.backend_source_package_digest(),
+        certificate.backend_implementation_digest(),
+        certificate.backend_transcript_digest(),
+        certificate.threshold_output_certificate_digest(),
+        certificate.standard_verifier_compatibility_artifact_digest(),
+        certificate.public_key_digest(),
+        certificate.message_digest(),
+        certificate.transcript_binding_digest(),
+        certificate.signer_set_digest(),
+        certificate.attempt_binding_digest(),
+        certificate.accepted_signature_digest(),
+        certificate.verifier_result(),
+        certificate.mutated_message_rejected,
+        certificate.mutated_public_key_rejected,
+        certificate.mutated_signature_rejected,
+        certificate.claim_boundary(),
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: &[u8; 32],
+    validator_count: u32,
+    threshold: u32,
+    aggregate_signature_len: usize,
+    backend_evidence: P1RealThresholdVerifierClosureBackendEvidence,
+    backend_evidence_digest: &[u8; 32],
+    backend_source_package_digest: &[u8; 32],
+    backend_implementation_digest: &[u8; 32],
+    backend_transcript_digest: &[u8; 32],
+    threshold_output_certificate_digest: &[u8; 32],
+    standard_verifier_compatibility_artifact_digest: &[u8; 32],
+    public_key_digest: &[u8; 32],
+    message_digest: &[u8; 32],
+    transcript_binding_digest: &[u8; 32],
+    signer_set_digest: &[u8; 32],
+    attempt_binding_digest: &[u8; 32],
+    accepted_signature_digest: &[u8; 32],
+    verifier_result: P1StandardVerifierCompatibilityResult,
+    mutated_message_rejected: bool,
+    mutated_public_key_rejected: bool,
+    mutated_signature_rejected: bool,
+    claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1");
+    hasher.update(selected_profile.profile_binding_digest());
+    hasher.update(selected_profile_binding_digest);
+    hasher.update(validator_count.to_be_bytes());
+    hasher.update(threshold.to_be_bytes());
+    hasher.update((aggregate_signature_len as u64).to_be_bytes());
+    match backend_evidence {
+        P1RealThresholdVerifierClosureBackendEvidence::SimulatedDeterministic => hasher.update([0]),
+        P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey => {
+            hasher.update([1])
+        }
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => hasher.update([2]),
+    }
+    hasher.update(backend_evidence_digest);
+    hasher.update(backend_source_package_digest);
+    hasher.update(backend_implementation_digest);
+    hasher.update(backend_transcript_digest);
+    hasher.update(threshold_output_certificate_digest);
+    hasher.update(standard_verifier_compatibility_artifact_digest);
+    hasher.update(public_key_digest);
+    hasher.update(message_digest);
+    hasher.update(transcript_binding_digest);
+    hasher.update(signer_set_digest);
+    hasher.update(attempt_binding_digest);
+    hasher.update(accepted_signature_digest);
+    match verifier_result {
+        P1StandardVerifierCompatibilityResult::Accept => hasher.update([0]),
+        P1StandardVerifierCompatibilityResult::Reject => hasher.update([1]),
+    }
+    hasher.update([u8::from(mutated_message_rejected)]);
+    hasher.update([u8::from(mutated_public_key_rejected)]);
+    hasher.update([u8::from(mutated_signature_rejected)]);
+    match claim_boundary {
+        P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly => hasher.update([0]),
+        P1RealThresholdVerifierClosureClaimBoundary::ProductionClaim => hasher.update([1]),
+    }
+    hasher.finalize().into()
+}
+
+/// Derive a P1 real-threshold backend emission artifact package.
+///
+/// The returned package ingests external backend-emission provenance and binds it
+/// to the already reviewed threshold-output and standard-verifier compatibility
+/// certificates. It does not implement a real threshold backend.
+#[allow(clippy::too_many_arguments)]
+pub fn derive_p1_real_threshold_backend_emission_artifact_package(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    backend_evidence: P1RealThresholdVerifierClosureBackendEvidence,
+    backend_evidence_digest: [u8; 32],
+    backend_source_package_digest: [u8; 32],
+    backend_implementation_digest: [u8; 32],
+    backend_transcript_digest: [u8; 32],
+    mutated_message_rejected: bool,
+    mutated_public_key_rejected: bool,
+    mutated_signature_rejected: bool,
+    claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+    reviewed: bool,
+) -> P1RealThresholdBackendEmissionArtifactPackage {
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    let standard_verifier_compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate);
+    let artifact_digest = derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
+        threshold_certificate.selected_profile(),
+        threshold_certificate.selected_profile_binding_digest(),
+        10_000,
+        6_667,
+        MLDSA65_SIGNATURE_BYTES,
+        backend_evidence,
+        &backend_evidence_digest,
+        &backend_source_package_digest,
+        &backend_implementation_digest,
+        &backend_transcript_digest,
+        &threshold_output_certificate_digest,
+        &standard_verifier_compatibility_artifact_digest,
+        compatibility_certificate.public_key_digest(),
+        compatibility_certificate.message_digest(),
+        threshold_certificate.transcript_binding_digest(),
+        threshold_certificate.signer_set_digest(),
+        threshold_certificate.attempt_binding_digest(),
+        threshold_certificate.accepted_signature_digest(),
+        compatibility_certificate.verifier_result(),
+        mutated_message_rejected,
+        mutated_public_key_rejected,
+        mutated_signature_rejected,
+        claim_boundary,
+    );
+
+    P1RealThresholdBackendEmissionArtifactPackage {
+        selected_profile: threshold_certificate.selected_profile(),
+        selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
+        validator_count: 10_000,
+        threshold: 6_667,
+        aggregate_signature_len: MLDSA65_SIGNATURE_BYTES,
+        backend_evidence,
+        backend_evidence_digest,
+        backend_source_package_digest,
+        backend_implementation_digest,
+        backend_transcript_digest,
+        artifact_digest,
+        threshold_output_certificate_digest,
+        standard_verifier_compatibility_artifact_digest,
+        public_key_digest: *compatibility_certificate.public_key_digest(),
+        message_digest: *compatibility_certificate.message_digest(),
+        transcript_binding_digest: *threshold_certificate.transcript_binding_digest(),
+        signer_set_digest: *threshold_certificate.signer_set_digest(),
+        attempt_binding_digest: *threshold_certificate.attempt_binding_digest(),
+        accepted_signature_digest: *threshold_certificate.accepted_signature_digest(),
+        verifier_result: compatibility_certificate.verifier_result(),
+        mutated_message_rejected,
+        mutated_public_key_rejected,
+        mutated_signature_rejected,
+        claim_boundary,
+        reviewed,
+    }
 }
 
 /// Derive a Batch 4 selected-backend proof-closure artifact package.
@@ -3847,6 +4306,302 @@ pub fn assess_p1_standard_verifier_compatibility_artifact(
                 .standard_verifier_bridge_evidence_digest,
             real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
             verifier_result: package.verifier_result,
+            claim_boundary: package.claim_boundary,
+        },
+    )
+}
+
+/// Assess whether external P1 backend emission evidence can feed the verifier closure contract.
+pub fn assess_p1_real_threshold_backend_emission_artifact(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    package: Option<P1RealThresholdBackendEmissionArtifactPackage>,
+) -> P1RealThresholdBackendEmissionArtifactAssessment {
+    let Some(package) = package else {
+        return P1RealThresholdBackendEmissionArtifactAssessment::BlockedFailClosed {
+            reason: "missing P1 real-threshold backend emission artifact package",
+        };
+    };
+
+    match package.backend_evidence {
+        P1RealThresholdVerifierClosureBackendEvidence::SimulatedDeterministic => {
+            return P1RealThresholdBackendEmissionArtifactAssessment::BlockedFailClosed {
+                reason: "P1 real-threshold backend emission requires real threshold ML-DSA backend evidence, not deterministic simulation",
+            };
+        }
+        P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey => {
+            return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+                reason: "P1 real-threshold backend emission requires threshold backend provenance, not ordinary single-key standard-provider output",
+            };
+        }
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => {}
+    }
+    if !package.reviewed {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission artifact must be reviewed",
+        };
+    }
+    if package.claim_boundary != P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission artifact must remain proof-review-only",
+        };
+    }
+    if threshold_certificate.claim_boundary() != P1ThresholdOutputClaimBoundary::ProofReviewOnly {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason:
+                "P1 real-threshold backend emission threshold-output certificate must remain proof-review-only",
+        };
+    }
+    if compatibility_certificate.claim_boundary()
+        != P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason:
+                "P1 real-threshold backend emission compatibility certificate must remain proof-review-only",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != threshold_certificate.selected_profile()
+        || package.selected_profile != compatibility_certificate.selected_profile()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission selected profile does not match predecessor certificates",
+        };
+    }
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+        || &package.selected_profile_binding_digest
+            != compatibility_certificate.selected_profile_binding_digest()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission profile binding digest does not match predecessor certificates",
+        };
+    }
+    if package.validator_count != 10_000 || package.threshold != 6_667 {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason:
+                "P1 real-threshold backend emission must bind 10,000 validators with threshold 6,667",
+        };
+    }
+    if package.aggregate_signature_len != MLDSA65_SIGNATURE_BYTES {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission aggregate signature must be 3,309 bytes",
+        };
+    }
+    if package.verifier_result != P1StandardVerifierCompatibilityResult::Accept {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason:
+                "P1 real-threshold backend emission must bind an accepted standard verifier result",
+        };
+    }
+    if package.verifier_result != compatibility_certificate.verifier_result() {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission verifier result does not match compatibility certificate",
+        };
+    }
+    if !(package.mutated_message_rejected
+        && package.mutated_public_key_rejected
+        && package.mutated_signature_rejected)
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission requires mutated message, public key, and signature rejection evidence",
+        };
+    }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 real-threshold backend emission profile binding digest is all zero",
+        ),
+        (
+            &package.backend_evidence_digest,
+            "P1 real-threshold backend emission backend evidence digest is all zero",
+        ),
+        (
+            &package.backend_source_package_digest,
+            "P1 real-threshold backend emission source package digest is all zero",
+        ),
+        (
+            &package.backend_implementation_digest,
+            "P1 real-threshold backend emission implementation digest is all zero",
+        ),
+        (
+            &package.backend_transcript_digest,
+            "P1 real-threshold backend emission transcript digest is all zero",
+        ),
+        (
+            &package.artifact_digest,
+            "P1 real-threshold backend emission artifact digest is all zero",
+        ),
+        (
+            &package.threshold_output_certificate_digest,
+            "P1 real-threshold backend emission threshold-output certificate digest is all zero",
+        ),
+        (
+            &package.standard_verifier_compatibility_artifact_digest,
+            "P1 real-threshold backend emission compatibility artifact digest is all zero",
+        ),
+        (
+            &package.public_key_digest,
+            "P1 real-threshold backend emission public key digest is all zero",
+        ),
+        (
+            &package.message_digest,
+            "P1 real-threshold backend emission message digest is all zero",
+        ),
+        (
+            &package.transcript_binding_digest,
+            "P1 real-threshold backend emission transcript binding digest is all zero",
+        ),
+        (
+            &package.signer_set_digest,
+            "P1 real-threshold backend emission signer-set digest is all zero",
+        ),
+        (
+            &package.attempt_binding_digest,
+            "P1 real-threshold backend emission attempt binding digest is all zero",
+        ),
+        (
+            &package.accepted_signature_digest,
+            "P1 real-threshold backend emission accepted signature digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1RealThresholdBackendEmissionArtifactAssessment::Invalid { reason };
+        }
+    }
+
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission threshold-output digest does not match predecessor certificate",
+        };
+    }
+    if compatibility_certificate.threshold_output_certificate_digest()
+        != &threshold_output_certificate_digest
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission compatibility certificate does not bind threshold-output certificate",
+        };
+    }
+    let compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate);
+    if package.standard_verifier_compatibility_artifact_digest != compatibility_artifact_digest {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission compatibility artifact digest does not match certificate",
+        };
+    }
+    if package.public_key_digest != *compatibility_certificate.public_key_digest() {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission public key digest does not match compatibility certificate",
+        };
+    }
+    if package.message_digest != *compatibility_certificate.message_digest() {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission message digest does not match compatibility certificate",
+        };
+    }
+    if package.transcript_binding_digest != *threshold_certificate.transcript_binding_digest()
+        || package.transcript_binding_digest
+            != *compatibility_certificate.transcript_binding_digest()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission transcript binding digest does not match predecessor certificates",
+        };
+    }
+    if package.signer_set_digest != *threshold_certificate.signer_set_digest()
+        || package.signer_set_digest != *compatibility_certificate.signer_set_digest()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission signer-set digest does not match predecessor certificates",
+        };
+    }
+    if package.attempt_binding_digest != *threshold_certificate.attempt_binding_digest()
+        || package.attempt_binding_digest != *compatibility_certificate.attempt_binding_digest()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission attempt binding digest does not match predecessor certificates",
+        };
+    }
+    if package.accepted_signature_digest != *threshold_certificate.accepted_signature_digest()
+        || package.accepted_signature_digest
+            != *compatibility_certificate.accepted_signature_digest()
+    {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission accepted signature digest does not match predecessor certificates",
+        };
+    }
+
+    let expected_artifact_digest =
+        derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
+            package.selected_profile,
+            &package.selected_profile_binding_digest,
+            package.validator_count,
+            package.threshold,
+            package.aggregate_signature_len,
+            package.backend_evidence,
+            &package.backend_evidence_digest,
+            &package.backend_source_package_digest,
+            &package.backend_implementation_digest,
+            &package.backend_transcript_digest,
+            &package.threshold_output_certificate_digest,
+            &package.standard_verifier_compatibility_artifact_digest,
+            &package.public_key_digest,
+            &package.message_digest,
+            &package.transcript_binding_digest,
+            &package.signer_set_digest,
+            &package.attempt_binding_digest,
+            &package.accepted_signature_digest,
+            package.verifier_result,
+            package.mutated_message_rejected,
+            package.mutated_public_key_rejected,
+            package.mutated_signature_rejected,
+            package.claim_boundary,
+        );
+    if package.artifact_digest != expected_artifact_digest {
+        return P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission artifact digest does not match payload",
+        };
+    }
+
+    P1RealThresholdBackendEmissionArtifactAssessment::ArtifactReady(
+        P1RealThresholdBackendEmissionArtifactCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            validator_count: package.validator_count,
+            threshold: package.threshold,
+            aggregate_signature_len: package.aggregate_signature_len,
+            backend_evidence_digest: package.backend_evidence_digest,
+            backend_source_package_digest: package.backend_source_package_digest,
+            backend_implementation_digest: package.backend_implementation_digest,
+            backend_transcript_digest: package.backend_transcript_digest,
+            artifact_digest: package.artifact_digest,
+            threshold_output_certificate_digest: package.threshold_output_certificate_digest,
+            standard_verifier_compatibility_artifact_digest: package
+                .standard_verifier_compatibility_artifact_digest,
+            public_key_digest: package.public_key_digest,
+            message_digest: package.message_digest,
+            transcript_binding_digest: package.transcript_binding_digest,
+            signer_set_digest: package.signer_set_digest,
+            attempt_binding_digest: package.attempt_binding_digest,
+            accepted_signature_digest: package.accepted_signature_digest,
+            verifier_result: package.verifier_result,
+            mutated_message_rejected: package.mutated_message_rejected,
+            mutated_public_key_rejected: package.mutated_public_key_rejected,
+            mutated_signature_rejected: package.mutated_signature_rejected,
             claim_boundary: package.claim_boundary,
         },
     )
