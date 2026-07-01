@@ -640,6 +640,10 @@ class ReportGenerationTests(unittest.TestCase):
             + "#[test]\n"
             + "fn p1_real_threshold_backend_emission_ingestion_rejects_unreviewed_external_backend_evidence() {}\n"
             + "#[test]\n"
+            + "fn real_threshold_backend_emission_artifact_fixture_parses_and_feeds_ingestion_gate() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_emission_artifact_fixture_package_digest_fails_loudly_on_drift() {}\n"
+            + "#[test]\n"
             + "fn p1_real_threshold_verifier_closure_contract_blocks_simulated_backend() {}\n"
             + "#[test]\n"
             + "fn p1_real_threshold_verifier_closure_contract_rejects_standard_provider_single_key_output() {}\n"
@@ -1123,13 +1127,16 @@ class ReportGenerationTests(unittest.TestCase):
             "p1_real_threshold_backend_emission_artifact_package, "
             "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json, "
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json, "
+            "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json, "
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json, "
             "tests/fixtures/p1_theorem_linkage_artifact_fixture.json, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
             "checked standard-verifier compatibility fixture, "
+            "checked real-threshold backend emission ingestion fixture harness, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
+            "not a real threshold backend implementation, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
             "rejection_distribution_review_digest, "
@@ -1368,6 +1375,21 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": (
+                            "real_threshold_backend_emission_artifact_digest"
+                        ),
+                        "fixture_path": (
+                            "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1"
+                        ),
+                        "current_status": "evidence_present_unclosed",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1412,6 +1434,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "src/production/rejection_equivalence.rs",
                 "tests/production_rejection_equivalence.rs",
                 "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+                "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
                 "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
                 "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
             ],

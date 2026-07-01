@@ -322,6 +322,13 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
+        "slot_id": "real_threshold_backend_emission_artifact_digest",
+        "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+        "schema": "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": (
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -336,7 +343,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
         "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only",
-    }
+    },
 ]
 CRITERION2_ARTIFACT_SLOT_STATUSES = {
     slot: (
@@ -829,11 +836,13 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "p1_criterion2_proof_slot_artifact_package",
         "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
         "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+        "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
         "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
+        "checked real-threshold backend emission ingestion fixture harness",
         "checked rejection-distribution review fixture",
         "checked theorem-linkage fixture",
         "p1_standard_verifier_compatibility_artifact_gate",
@@ -865,6 +874,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "not fips validation",
         "not rejection-distribution preservation",
         "not a completed standard-verifier compatibility proof",
+        "not a real threshold backend implementation",
     ]
     missing_evidence = [
         token
@@ -2095,6 +2105,33 @@ def scan_documents(root):
             "external",
             "backend",
             "evidence",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "artifact",
+            "fixture",
+            "parses",
+            "feeds",
+            "ingestion",
+            "gate",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "artifact",
+            "fixture",
+            "package",
+            "digest",
+            "fails",
+            "loudly",
+            "drift",
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,

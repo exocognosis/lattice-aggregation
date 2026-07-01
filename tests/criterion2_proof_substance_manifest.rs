@@ -316,6 +316,11 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
         ),
         (
+            "real_threshold_backend_emission_artifact_digest",
+            "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+            "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
+        ),
+        (
             "rejection_distribution_review_digest",
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
             "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",

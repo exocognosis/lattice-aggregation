@@ -68,8 +68,12 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `real_threshold_backend_emission_artifact_digest`:
   `evidence_present_unclosed` from `p1_real_threshold_backend_output_gate`
   (`p1_real_threshold_backend_emission_artifact_package`); this is an
-  ingestion gate for external backend-emission evidence only. No checked fixture
-  is listed until an actual real threshold backend emits reviewed output.
+  ingestion gate for external backend-emission evidence only.
+  checked real-threshold backend emission ingestion fixture harness:
+  `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`.
+  The fixture harness pins source, implementation, transcript, and artifact
+  digests, but it is not a real threshold backend implementation and does not
+  replace actual real threshold backend emissions.
 - `full_kat_validation_artifact_digest`: `evidence_present_unclosed` from
   `p1_criterion2_full_kat_validation_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
@@ -137,8 +141,13 @@ The real-threshold backend emission ingestion artifact is typed through
 package, implementation, and transcript digests to the predecessor
 threshold-output and standard-verifier compatibility certificates, then can
 feed the threshold verifier closure contract through `to_verifier_closure_package`.
-It is not a checked real backend emission fixture and does not mean this repo
-implements a real threshold backend.
+It is now backed by the checked
+`tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
+fixture harness so reviewers can inspect the bound backend source package,
+implementation, transcript, predecessor certificate digests, mutation-rejection
+evidence, and raw fixture-package digest. This is still not a real threshold
+backend implementation, not actual real threshold backend emission evidence,
+and not proof closure.
 The rejection-distribution review slot is now backed by the checked
 `tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json`
 fixture so reviewers can inspect the bound rejection-distribution review source
