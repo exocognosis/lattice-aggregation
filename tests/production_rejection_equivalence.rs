@@ -11,6 +11,7 @@ use lattice_aggregation::{
         provider::StandardMldsa65Provider,
         rejection_equivalence::{
             assess_p1_aggregate_recomputation_closure,
+            assess_p1_real_threshold_verifier_closure_contract,
             assess_p1_selected_backend_aggregate_artifact,
             assess_p1_selected_backend_proof_closure_artifact,
             assess_p1_selected_backend_threshold_output_artifact,
@@ -36,6 +37,9 @@ use lattice_aggregation::{
             AggregateRejectionEvidenceStrength, Mldsa65ProviderKatEvidence,
             P1AggregateRecomputationAssessment, P1AggregateRecomputationClosureCertificate,
             P1AggregateRecomputationClosurePackage, P1Criterion2ProofSlotArtifactKind,
+            P1RealThresholdVerifierClosureAssessment,
+            P1RealThresholdVerifierClosureBackendEvidence,
+            P1RealThresholdVerifierClosureClaimBoundary, P1RealThresholdVerifierClosurePackage,
             P1RejectionProofArtifacts, P1SelectedBackendAggregateArtifactAssessment,
             P1SelectedBackendAggregateArtifactCertificate,
             P1SelectedBackendAggregateArtifactPackage,
@@ -57,7 +61,7 @@ use lattice_aggregation::{
             ValidatorSetDigest,
         },
     },
-    ThresholdError, ThresholdPublicKey, ThresholdSignature, ValidatorId,
+    ThresholdError, ThresholdPublicKey, ThresholdSignature, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
 use serde::Deserialize;
 use sha3::{Digest, Sha3_256};
@@ -2992,6 +2996,35 @@ fn standard_verifier_compatibility_artifact_certificate(
     .expect("reviewed standard-verifier compatibility artifact should produce a certificate")
 }
 
+fn real_threshold_verifier_closure_package(
+    fixture: &P1StandardVerifierBridgeFixture,
+) -> P1RealThresholdVerifierClosurePackage {
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(fixture);
+
+    P1RealThresholdVerifierClosurePackage {
+        selected_profile: SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1(),
+        selected_profile_binding_digest:
+            SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                .profile_binding_digest(),
+        validator_count: 10_000,
+        threshold: 6_667,
+        aggregate_signature_len: MLDSA65_SIGNATURE_BYTES,
+        backend_evidence: P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa,
+        backend_evidence_digest: digest(77),
+        threshold_output_certificate_digest:
+            derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate),
+        standard_verifier_compatibility_artifact_digest:
+            derive_p1_standard_verifier_compatibility_artifact_digest(&compatibility_certificate),
+        verifier_result: P1StandardVerifierCompatibilityResult::Accept,
+        mutated_message_rejected: true,
+        mutated_public_key_rejected: true,
+        mutated_signature_rejected: true,
+        claim_boundary: P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    }
+}
+
 #[test]
 fn p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts() {
     let assessment = assess_p1_aggregate_recomputation_closure(Some(p1_recomputation_package()));
@@ -3939,6 +3972,119 @@ fn p1_standard_verifier_compatibility_artifact_rejects_production_claim_boundary
         }
     );
     assert!(!assessment.is_artifact_ready());
+}
+
+#[test]
+fn p1_real_threshold_verifier_closure_contract_blocks_simulated_backend() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut package = real_threshold_verifier_closure_package(&fixture);
+    package.backend_evidence =
+        P1RealThresholdVerifierClosureBackendEvidence::SimulatedDeterministic;
+
+    let assessment = assess_p1_real_threshold_verifier_closure_contract(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1RealThresholdVerifierClosureAssessment::BlockedFailClosed {
+            reason: "P1 real-threshold verifier closure requires real threshold ML-DSA backend evidence, not deterministic simulation",
+        }
+    );
+    assert!(!assessment.is_closure_ready());
+}
+
+#[test]
+fn p1_real_threshold_verifier_closure_contract_rejects_standard_provider_single_key_output() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut package = real_threshold_verifier_closure_package(&fixture);
+    package.backend_evidence =
+        P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey;
+
+    let assessment = assess_p1_real_threshold_verifier_closure_contract(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure requires threshold backend provenance, not ordinary single-key standard-provider output",
+        }
+    );
+    assert!(!assessment.is_closure_ready());
+}
+
+#[test]
+fn p1_real_threshold_verifier_closure_contract_accepts_reviewed_verifier_tuple() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let package = real_threshold_verifier_closure_package(&fixture);
+
+    let assessment = assess_p1_real_threshold_verifier_closure_contract(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+
+    let certificate = assessment
+        .closure_certificate()
+        .expect("reviewed real-threshold verifier tuple should produce a contract certificate");
+    assert!(assessment.is_closure_ready());
+    assert_eq!(certificate.validator_count(), 10_000);
+    assert_eq!(certificate.threshold(), 6_667);
+    assert_eq!(
+        certificate.aggregate_signature_len(),
+        MLDSA65_SIGNATURE_BYTES
+    );
+    assert_eq!(
+        certificate.standard_verifier_compatibility_artifact_digest(),
+        &derive_p1_standard_verifier_compatibility_artifact_digest(&compatibility_certificate)
+    );
+    assert_eq!(
+        certificate.threshold_output_certificate_digest(),
+        &derive_p1_selected_backend_threshold_output_certificate_digest(&threshold_certificate)
+    );
+    assert_eq!(
+        certificate.verifier_result(),
+        P1StandardVerifierCompatibilityResult::Accept
+    );
+    assert!(certificate.mutation_rejection_corpus_complete());
+    assert!(!certificate.claims_production_threshold_mldsa_security());
+    assert!(!certificate.claims_cavp_acvts_validation());
+    assert!(!certificate.claims_fips_validation());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[test]
+fn p1_real_threshold_verifier_closure_contract_rejects_missing_mutation_corpus() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut package = real_threshold_verifier_closure_package(&fixture);
+    package.mutated_signature_rejected = false;
+
+    let assessment = assess_p1_real_threshold_verifier_closure_contract(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+
+    assert_eq!(
+        assessment,
+        P1RealThresholdVerifierClosureAssessment::Invalid {
+            reason: "P1 real-threshold verifier closure requires mutated message, public key, and signature rejection evidence",
+        }
+    );
+    assert!(!assessment.is_closure_ready());
 }
 
 #[test]

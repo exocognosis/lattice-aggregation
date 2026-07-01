@@ -79,6 +79,36 @@ are present:
 - linkage to the Criterion 2 standard-verifier compatibility artifact;
 - external cryptographic review of the backend and transcript assumptions.
 
+## Real Threshold Backend Emission Gate
+
+The follow-on Criterion 2 contract is the real threshold backend emission gate,
+implemented by `P1RealThresholdVerifierClosurePackage` and
+`assess_p1_real_threshold_verifier_closure_contract` in
+`src/production/rejection_equivalence.rs`.
+
+This is a threshold verifier closure contract and real threshold ML-DSA acceptance contract. It requires:
+
+- exactly `validators = 10000` and `threshold = 6667`;
+- `aggregate_signature.len() = 3309`;
+- `P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa`;
+- `MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept`;
+- mutated message, public-key, and signature rejection evidence;
+- a matching selected-backend threshold-output certificate digest;
+- a matching Criterion 2 standard-verifier compatibility artifact digest.
+
+The contract intentionally rejects deterministic simulation as closure evidence.
+Claim boundary: real threshold backend emission only, not ordinary single-key standard-provider output. It is fail-closed, framework/conformance evidence
+only, and does not claim production threshold ML-DSA security, selected-backend
+proof closure, CAVP/ACVTS validation, FIPS validation,
+rejection-distribution preservation, completed standard-verifier compatibility,
+or a completed cryptographic proof.
+
+The targeted tests are:
+
+```sh
+cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_verifier_closure_contract
+```
+
 ## Relationship To The Large Simulation Profile
 
 The existing `large` simulation profile already contains `Large Validator Set 10000` with threshold 6,667. That profile is useful for fan-in and byte-count telemetry. It does not provide standard-verifier equivalence because `SimulatedBackend` does not produce or verify real ML-DSA signatures.

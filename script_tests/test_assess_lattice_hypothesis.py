@@ -570,6 +570,71 @@ class ReportGenerationTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
+    def write_p1_real_threshold_backend_output_gate(self, root):
+        (root / "docs" / "cryptography").mkdir(parents=True, exist_ok=True)
+        (root / "src" / "production").mkdir(parents=True, exist_ok=True)
+        (root / "tests").mkdir(parents=True, exist_ok=True)
+        rejection_equivalence_path = (
+            root / "src" / "production" / "rejection_equivalence.rs"
+        )
+        rejection_equivalence_path.write_text(
+            rejection_equivalence_path.read_text(encoding="utf-8")
+            + "pub enum P1RealThresholdVerifierClosureBackendEvidence { "
+            + "SimulatedDeterministic, StandardProviderSingleKey, RealThresholdMldsa }\n"
+            + "pub enum P1RealThresholdVerifierClosureClaimBoundary { "
+            + "ProofReviewOnly, ProductionClaim }\n"
+            + "pub struct P1RealThresholdVerifierClosurePackage {\n"
+            + "pub validator_count: u32,\n"
+            + "pub threshold: u32,\n"
+            + "pub aggregate_signature_len: usize,\n"
+            + "pub backend_evidence_digest: [u8; 32],\n"
+            + "pub mutated_message_rejected: bool,\n"
+            + "pub mutated_public_key_rejected: bool,\n"
+            + "pub mutated_signature_rejected: bool,\n"
+            + "}\n"
+            + "pub struct P1RealThresholdVerifierClosureCertificate;\n"
+            + "impl P1RealThresholdVerifierClosureCertificate {\n"
+            + "pub fn mutation_rejection_corpus_complete(&self) {}\n"
+            + "pub fn claims_production_threshold_mldsa_security(&self) {}\n"
+            + "pub fn claims_cavp_acvts_validation(&self) {}\n"
+            + "pub fn claims_fips_validation(&self) {}\n"
+            + "pub fn claims_completed_cryptographic_proof(&self) {}\n"
+            + "}\n"
+            + "pub enum P1RealThresholdVerifierClosureAssessment { "
+            + "BlockedFailClosed, Invalid, ClosureReady }\n"
+            + "pub fn assess_p1_real_threshold_verifier_closure_contract() {}\n",
+            encoding="utf-8",
+        )
+        test_path = root / "tests" / "production_rejection_equivalence.rs"
+        test_path.write_text(
+            test_path.read_text(encoding="utf-8")
+            + "#[test]\n"
+            + "fn p1_real_threshold_verifier_closure_contract_blocks_simulated_backend() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_verifier_closure_contract_rejects_standard_provider_single_key_output() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_verifier_closure_contract_accepts_reviewed_verifier_tuple() {}\n"
+            + "#[test]\n"
+            + "fn p1_real_threshold_verifier_closure_contract_rejects_missing_mutation_corpus() {}\n",
+            encoding="utf-8",
+        )
+        (
+            root
+            / "docs"
+            / "cryptography"
+            / "validator-10000-standard-verifier-gate.md"
+        ).write_text(
+            "real threshold backend emission gate\n"
+            "threshold verifier closure contract\n"
+            "real threshold ML-DSA acceptance contract\n"
+            "fail-closed\n"
+            "not ordinary single-key standard-provider output\n"
+            "framework/conformance evidence only\n"
+            "does not claim production threshold ML-DSA security\n"
+            "blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature\n",
+            encoding="utf-8",
+        )
+
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
@@ -1584,6 +1649,64 @@ class ReportGenerationTests(unittest.TestCase):
             scan = module.scan_documents(root)
 
         self.assertFalse(scan["validator_10000_standard_verifier_fail_closed_gate"])
+
+    def test_p1_real_threshold_backend_output_gate_updates_report_without_promoting_claim(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_real_threshold_backend_output_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_real_threshold_backend_output_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("real-threshold backend emission gate", aggregate_evidence)
+        self.assertIn("rejects deterministic simulation", aggregate_evidence)
+        self.assertIn("ordinary single-key standard-provider output", aggregate_evidence)
+        self.assertIn("not production threshold ML-DSA security", aggregate_evidence)
+        self.assertIn("real threshold backend emissions", aggregate_blockers)
+        self.assertIn("reviewed cryptographic proof", aggregate_blockers)
+        self.assertIn("real-threshold backend emission gate", markdown)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_real_threshold_backend_output_gate(root)
+            rejection_equivalence_path = (
+                root / "src" / "production" / "rejection_equivalence.rs"
+            )
+            rejection_equivalence_path.write_text(
+                rejection_equivalence_path.read_text(encoding="utf-8").replace(
+                    "StandardProviderSingleKey",
+                    "StandardProviderEvidence",
+                ),
+                encoding="utf-8",
+            )
+
+            scan = module.scan_documents(root)
+
+        self.assertFalse(scan["p1_real_threshold_backend_output_gate"])
 
     def test_selected_backend_proof_closure_gate_requires_artifact_slot_tokens(self):
         module = load_module()
