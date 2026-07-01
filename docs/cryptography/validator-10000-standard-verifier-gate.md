@@ -130,9 +130,10 @@ mutation-rejection evidence, the gate remains `blocked_fail_closed`.
 The canonical backend-emission capture schema/importer is the JSON handoff for
 those externally generated artifacts. It decodes
 `P1RealThresholdBackendEmissionCapture`, rejects schema fixtures before tuple
-ingestion, checks predecessor certificate digests and expected package digests,
-and feeds the same provider-verified adapter. This is an executable input gate,
-not a real threshold backend and not theorem closure.
+ingestion, requires a nonzero request digest binding, checks predecessor
+certificate digests and expected package digests, and feeds the same
+provider-verified adapter. This is an executable input gate, not a real
+threshold backend and not theorem closure.
 
 Before an external backend emits that capture JSON, the repo can generate the
 request it must answer with `scripts/build_backend_emission_request.py`. The
@@ -142,7 +143,20 @@ message, 10,000-validator target, threshold 6,667, predecessor certificate
 digests, required capture schema, required real-threshold backend evidence
 class, mutation-rejection requirements, and forbidden localnet/simulation/
 fixture sources. This request is a challenge contract for external backend
-capture; it is not proof closure.
+capture. The capture runner loads the request JSON and rejects backend output
+whose embedded request schema/name/SHA-256 binding is missing, stale, or
+mismatched; it is not proof closure.
+
+For the current hazmat threshold backend experiment, the repo-owned adapter is
+`scripts/run_hazmat_threshold_backend_capture.py`. The adapter requires an
+explicit `--backend-crate` path, or
+`LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE`, to a `dytallix-pq-threshold` checkout
+with `hazmat-real-mldsa`; it then generates a temporary Rust emitter, runs the
+10,000-validator threshold session, bridges the session to the standard
+external-message verifier boundary, checks backend and repo-provider acceptance,
+checks mutated message/public-key/signature rejection, and prints canonical
+request-bound capture JSON. It is an opt-in adapter for reviewed backend
+capture, not a default CI dependency and not theorem closure.
 
 The checked capture schema fixture at
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
@@ -171,6 +185,7 @@ cargo test --features coordinator-assisted --test production_rejection_equivalen
 cargo test --features coordinator-assisted --test production_rejection_equivalence real_threshold_backend_emission_artifact_fixture
 cargo test --features production-mldsa65-coordinator --test production_rejection_equivalence standard_provider_single_key_emission_fixture
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_verifier_closure_contract
+python3 -m unittest script_tests.test_run_hazmat_threshold_backend_capture
 ```
 
 ## Relationship To The Large Simulation Profile

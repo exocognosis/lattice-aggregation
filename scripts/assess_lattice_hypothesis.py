@@ -1401,6 +1401,12 @@ def scan_documents(root):
     backend_emission_request_builder_test = read_optional(
         "script_tests/test_build_backend_emission_request.py"
     )
+    hazmat_threshold_backend_capture_adapter = read_optional(
+        "scripts/run_hazmat_threshold_backend_capture.py"
+    )
+    hazmat_threshold_backend_capture_adapter_test = read_optional(
+        "script_tests/test_run_hazmat_threshold_backend_capture.py"
+    )
     real_threshold_backend_capture_schema_fixture = read_optional(
         "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
     )
@@ -2555,6 +2561,88 @@ def scan_documents(root):
             ]
         )
     )
+    p1_real_threshold_backend_request_capture_binding_gate = (
+        p1_real_threshold_backend_emission_request_gate
+        and has_rust_tokens(
+            rejection_equivalence_source,
+            "P1_REAL_THRESHOLD_BACKEND_EMISSION_REQUEST_SCHEMA",
+            "P1RealThresholdBackendEmissionCaptureRequestBinding",
+            "request_sha256",
+            "validate_request_binding",
+        )
+        and "P1 real-threshold backend emission capture requires request digest binding"
+        in rejection_equivalence_source
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "capture",
+            "json",
+            "rejects",
+            "missing",
+            "request",
+            "binding",
+        )
+        and all(
+            token in backend_capture_runner
+            for token in [
+                "REQUEST_SCHEMA",
+                "load_request",
+                "validate_request_binding",
+                "validate_capture_matches_request",
+                "request digest mismatch",
+                "request_sha256",
+            ]
+        )
+        and all(
+            token in backend_capture_runner_test
+            for token in [
+                "test_build_report_rejects_capture_that_omits_or_stales_request_binding",
+                "request_sha256",
+                "request digest mismatch",
+                "request binding",
+            ]
+        )
+        and "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
+        in real_threshold_backend_capture_schema_fixture
+        and "request_sha256" in real_threshold_backend_capture_schema_fixture
+    )
+    p1_hazmat_threshold_backend_capture_adapter_gate = (
+        p1_real_threshold_backend_request_capture_binding_gate
+        and all(
+            token in hazmat_threshold_backend_capture_adapter
+            for token in [
+                "RUST_EMITTER_SOURCE",
+                "write_emitter_project",
+                "run_capture",
+                "validate_crate_path",
+                "LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE",
+                "--backend-crate",
+                "dytallix-pq-threshold hazmat-real-mldsa",
+                "backend_external_pure_verifier_accepts",
+                "repo_pr69_hazmat_provider_accepts",
+                "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+                "real_threshold_mldsa_external_capture",
+                "mutated_message_rejected",
+                "mutated_public_key_rejected",
+                "mutated_signature_rejected",
+                "10_000",
+                "6_667",
+            ]
+        )
+        and all(
+            token in hazmat_threshold_backend_capture_adapter_test
+            for token in [
+                "test_build_emitter_project_requires_explicit_backend_crate_and_repo_root",
+                "test_run_capture_invokes_generated_release_emitter_and_returns_stdout",
+                "test_run_capture_rejects_missing_or_invalid_backend_crate",
+                "backend_external_pure_verifier_accepts",
+                "repo_pr69_hazmat_provider_accepts",
+                "Lattice Aggregation Current",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -2745,6 +2833,12 @@ def scan_documents(root):
         ),
         "p1_real_threshold_backend_emission_request_gate": (
             p1_real_threshold_backend_emission_request_gate
+        ),
+        "p1_real_threshold_backend_request_capture_binding_gate": (
+            p1_real_threshold_backend_request_capture_binding_gate
+        ),
+        "p1_hazmat_threshold_backend_capture_adapter_gate": (
+            p1_hazmat_threshold_backend_capture_adapter_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -3084,6 +3178,38 @@ def classify_criteria(criteria, scan):
                     "conformance/proof-review evidence only, does not change "
                     "aggregate_rejection_equivalence from partially_met, and "
                     "does not change the overall verdict from partially_proven."
+                )
+            if scan.get("p1_real_threshold_backend_request_capture_binding_gate"):
+                partial_progress = True
+                observed.append(
+                    "The real-threshold backend capture path now binds each "
+                    "capture to the exact repo-generated request digest: the "
+                    "runner loads request JSON, requires the capture to carry "
+                    "the request schema/name/SHA-256 binding, rejects stale or "
+                    "missing request bindings, and the Rust importer requires "
+                    "a nonzero request digest binding before backend material "
+                    "can enter the verified ingestion gate. This closes a "
+                    "harness gap between request generation and capture "
+                    "ingestion, but remains evidence_present_unclosed "
+                    "conformance/proof-review evidence only; it does not "
+                    "change aggregate_rejection_equivalence from partially_met "
+                    "or the overall verdict from partially_proven."
+                )
+            if scan.get("p1_hazmat_threshold_backend_capture_adapter_gate"):
+                partial_progress = True
+                observed.append(
+                    "A repo-owned hazmat threshold backend capture adapter is "
+                    "present for the 10,000-validator P1 path; it requires an "
+                    "explicit backend crate path, generates a temporary Rust "
+                    "emitter for the hazmat `dytallix-pq-threshold` backend, "
+                    "bridges the threshold session to the standard "
+                    "external-message verifier boundary, records mutation "
+                    "rejection for message, public key, and signature changes, "
+                    "and emits request-bound capture JSON for the canonical "
+                    "runner. This is evidence_present_unclosed "
+                    "conformance/proof-review infrastructure only; it does not "
+                    "change aggregate_rejection_equivalence from partially_met "
+                    "or the overall verdict from partially_proven."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

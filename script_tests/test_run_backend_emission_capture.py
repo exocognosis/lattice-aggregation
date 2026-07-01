@@ -7,6 +7,8 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "run_backend_emission_capture.py"
+REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
+CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 
 
 def load_module():
@@ -31,13 +33,20 @@ def fake_metadata(root):
 
 def external_capture():
     digest = "11" * 32
+    request = external_request()
+    request_digest = request_sha256(request)
     return {
         "name": "external-threshold-backend-smoke-capture",
-        "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+        "schema": CAPTURE_SCHEMA,
         "claim_boundary": "conformance/proof-review evidence only",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
         "note": "External backend capture produced outside deterministic simulation.",
+        "request": {
+            "schema": REQUEST_SCHEMA,
+            "name": request["name"],
+            "request_sha256": request_digest,
+        },
         "predecessors": {
             "selected_profile_binding_digest_hex": digest,
             "threshold_output_certificate_digest_hex": "22" * 32,
@@ -81,6 +90,53 @@ def external_capture():
             "accepted_signature_digest_hex": "bb" * 32,
         },
     }
+
+
+def external_request():
+    return {
+        "schema": REQUEST_SCHEMA,
+        "name": "external-threshold-backend-smoke-request",
+        "generated_at": "2026-07-01T00:00:00Z",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "request_status": "evidence_present_unclosed",
+        "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "validator_count": 10000,
+        "threshold": 6667,
+        "aggregate_signature_len": 3309,
+        "message": {
+            "encoding": "hex",
+            "value": "74657374206d657373616765",
+        },
+        "predecessors": {
+            "selected_profile_binding_digest_hex": "11" * 32,
+            "threshold_output_certificate_digest_hex": "22" * 32,
+            "standard_verifier_compatibility_artifact_digest_hex": "33" * 32,
+        },
+        "required_capture": {
+            "schema": CAPTURE_SCHEMA,
+            "backend_evidence": "real_threshold_mldsa_external_capture",
+            "claim_boundary": "conformance/proof-review evidence only",
+            "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+            "validator_count": 10000,
+            "threshold": 6667,
+            "aggregate_signature_len": 3309,
+            "mutated_message_rejected": True,
+            "mutated_public_key_rejected": True,
+            "mutated_signature_rejected": True,
+            "reviewed": True,
+        },
+        "forbidden_capture_sources": [
+            "localnet",
+            "deterministic simulation",
+            "fixture harness",
+            "ordinary single-key standard-provider output",
+        ],
+    }
+
+
+def request_sha256(request):
+    module = load_module()
+    return module.sha256_text(module.canonical_json(request))
 
 
 def fake_capture_runner(command, root, env):
@@ -181,9 +237,12 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
             root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
             out_dir = root / "artifacts" / "backend-capture"
             report = module.build_report(
                 root,
+                request_path=request_path,
                 backend_command=["/opt/threshold-backend", "emit-capture"],
                 command_runner=fake_capture_runner,
                 metadata_provider=fake_metadata,
@@ -197,8 +256,14 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
 
         self.assertEqual(
             capture["schema"],
-            "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+            CAPTURE_SCHEMA,
         )
+        self.assertEqual(capture["request"]["schema"], REQUEST_SCHEMA)
+        self.assertEqual(
+            capture["request"]["request_sha256"],
+            request_sha256(external_request()),
+        )
+        self.assertEqual(manifest["request_sha256"], request_sha256(external_request()))
         self.assertEqual(capture["backend_evidence"], "real_threshold_mldsa_external_capture")
         self.assertEqual(capture["capture"]["validator_count"], 10000)
         self.assertEqual(capture["capture"]["threshold"], 6667)
@@ -218,6 +283,52 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
         self.assertNotIn("validator_localnet", " ".join(manifest["backend_command"]))
         self.assertNotIn("run_simulation_benchmarks", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
+
+    def test_build_report_rejects_capture_that_omits_or_stales_request_binding(self):
+        module = load_module()
+
+        def missing_request_runner(command, root, env):
+            capture = external_capture()
+            del capture["request"]
+            return {
+                "command": command,
+                "exit_code": 0,
+                "duration_seconds": 0.2,
+                "stdout": json.dumps(capture),
+                "stderr": "",
+            }
+
+        def stale_request_runner(command, root, env):
+            capture = external_capture()
+            capture["request"]["request_sha256"] = "99" * 32
+            return {
+                "command": command,
+                "exit_code": 0,
+                "duration_seconds": 0.2,
+                "stdout": json.dumps(capture),
+                "stderr": "",
+            }
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "request binding"):
+                module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=["/opt/threshold-backend", "emit-capture"],
+                    command_runner=missing_request_runner,
+                    metadata_provider=fake_metadata,
+                )
+            with self.assertRaisesRegex(ValueError, "request digest mismatch"):
+                module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=["/opt/threshold-backend", "emit-capture"],
+                    command_runner=stale_request_runner,
+                    metadata_provider=fake_metadata,
+                )
 
     def test_build_report_rejects_deterministic_simulation_or_localnet_capture_source(
         self,

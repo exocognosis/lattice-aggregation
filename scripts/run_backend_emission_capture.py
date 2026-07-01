@@ -12,6 +12,7 @@ from pathlib import Path
 
 
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
 EXTERNAL_BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
 CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
@@ -33,9 +34,15 @@ TOP_LEVEL_FIELDS = {
     "selected_profile",
     "backend_evidence",
     "note",
+    "request",
     "predecessors",
     "capture",
     "expected",
+}
+REQUEST_BINDING_FIELDS = {
+    "schema",
+    "name",
+    "request_sha256",
 }
 PREDECESSOR_DIGEST_FIELDS = {
     "selected_profile_binding_digest_hex",
@@ -190,6 +197,7 @@ def parse_capture_json(stdout):
         raise ValueError(
             "backend capture runner requires actual external real-threshold evidence"
         )
+    validate_request_binding(capture.get("request"))
     if "predecessors" not in capture or "expected" not in capture:
         raise ValueError("backend capture runner requires predecessor and expected digests")
     validate_digest_object(
@@ -248,6 +256,119 @@ def parse_capture_json(stdout):
             raise ValueError(f"backend capture runner requires true {field}")
 
     return capture
+
+
+def load_request(path):
+    """Load and validate the repo-generated backend emission request manifest."""
+    try:
+        request = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError("backend capture runner requires request JSON") from exc
+
+    validate_no_unknown_fields(
+        request,
+        {
+            "schema",
+            "name",
+            "generated_at",
+            "claim_boundary",
+            "request_status",
+            "selected_profile",
+            "validator_count",
+            "threshold",
+            "aggregate_signature_len",
+            "message",
+            "predecessors",
+            "required_capture",
+            "forbidden_capture_sources",
+        },
+        "request",
+    )
+    if request.get("schema") != REQUEST_SCHEMA:
+        raise ValueError("backend capture runner request schema mismatch")
+    if not isinstance(request.get("name"), str) or not request["name"].strip():
+        raise ValueError("backend capture runner requires request name")
+    if request.get("claim_boundary") != CLAIM_BOUNDARY:
+        raise ValueError("backend capture runner request claim boundary mismatch")
+    if request.get("selected_profile") != SELECTED_PROFILE:
+        raise ValueError("backend capture runner request selected profile mismatch")
+    if request.get("validator_count") != 10_000 or request.get("threshold") != 6_667:
+        raise ValueError("backend capture runner requires the 10,000 validator request")
+    if request.get("aggregate_signature_len") != MLDSA65_SIGNATURE_BYTES:
+        raise ValueError("backend capture runner request signature length mismatch")
+    validate_capture_bytes(request.get("message"), "request message")
+    validate_digest_object(
+        request.get("predecessors"),
+        PREDECESSOR_DIGEST_FIELDS,
+        "request predecessor",
+    )
+    required_capture = request.get("required_capture")
+    validate_no_unknown_fields(
+        required_capture,
+        {
+            "schema",
+            "backend_evidence",
+            "claim_boundary",
+            "selected_profile",
+            "validator_count",
+            "threshold",
+            "aggregate_signature_len",
+            "mutated_message_rejected",
+            "mutated_public_key_rejected",
+            "mutated_signature_rejected",
+            "reviewed",
+        },
+        "request required_capture",
+    )
+    if required_capture.get("schema") != CAPTURE_SCHEMA:
+        raise ValueError("backend capture runner request required capture schema mismatch")
+    if required_capture.get("backend_evidence") != EXTERNAL_BACKEND_EVIDENCE:
+        raise ValueError("backend capture runner request required evidence mismatch")
+    return request
+
+
+def validate_request_binding(binding):
+    """Validate the capture carries a repo request digest binding."""
+    if not isinstance(binding, dict):
+        raise ValueError("backend capture runner requires request binding")
+    validate_no_unknown_fields(binding, REQUEST_BINDING_FIELDS, "request binding")
+    if binding.get("schema") != REQUEST_SCHEMA:
+        raise ValueError("backend capture runner request binding schema mismatch")
+    if not isinstance(binding.get("name"), str) or not binding["name"].strip():
+        raise ValueError("backend capture runner requires request binding name")
+    validate_hex_field(binding.get("request_sha256"), 32, "request_sha256")
+    if binding["request_sha256"].lower() == "00" * 32:
+        raise ValueError("backend capture runner rejects all-zero request digest")
+
+
+def validate_capture_matches_request(capture, request):
+    """Require backend stdout to answer the exact request JSON supplied by the repo."""
+    request_digest = sha256_text(canonical_json(request))
+    binding = capture["request"]
+    if binding["name"] != request["name"] or binding["schema"] != REQUEST_SCHEMA:
+        raise ValueError("backend capture runner request binding mismatch")
+    if binding["request_sha256"].lower() != request_digest:
+        raise ValueError("backend capture runner request digest mismatch")
+    if capture["selected_profile"] != request["selected_profile"]:
+        raise ValueError("backend capture runner request selected profile mismatch")
+    if capture["predecessors"] != request["predecessors"]:
+        raise ValueError("backend capture runner request predecessor digest mismatch")
+    if capture["capture"]["message"] != request["message"]:
+        raise ValueError("backend capture runner request message mismatch")
+
+    required_capture = request["required_capture"]
+    for field in [
+        "validator_count",
+        "threshold",
+        "aggregate_signature_len",
+        "mutated_message_rejected",
+        "mutated_public_key_rejected",
+        "mutated_signature_rejected",
+        "reviewed",
+    ]:
+        if capture["capture"][field] != required_capture[field]:
+            raise ValueError(f"backend capture runner request capture field mismatch: {field}")
+    return request_digest
 
 
 def validate_digest_object(value, required_fields, label):
@@ -318,6 +439,9 @@ def render_summary(generated_at, metadata, manifest):
             f"- Commit: `{metadata['commit']}`",
             f"- Branch: `{metadata['branch']}`",
             f"- Capture schema: `{manifest['capture_schema']}`",
+            f"- Request schema: `{manifest['request_schema']}`",
+            f"- Request: `{manifest['request_name']}`",
+            f"- Request SHA-256: `{manifest['request_sha256']}`",
             f"- Backend evidence: `{manifest['backend_evidence']}`",
             f"- Validator target: `{manifest['validator_count']}`",
             f"- Threshold target: `{manifest['threshold']}`",
@@ -336,6 +460,7 @@ def render_summary(generated_at, metadata, manifest):
 def build_report(
     root,
     backend_command,
+    request_path=None,
     command_runner=run_command,
     metadata_provider=collect_metadata,
     generated_at=None,
@@ -356,6 +481,12 @@ def build_report(
         )
 
     capture = parse_capture_json(result["stdout"])
+    request = load_request(request_path) if request_path else None
+    request_sha256 = (
+        validate_capture_matches_request(capture, request)
+        if request is not None
+        else capture["request"]["request_sha256"].lower()
+    )
     metadata = metadata_from_provider(metadata_provider, root)
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     payload = capture["capture"]
@@ -367,6 +498,10 @@ def build_report(
         "claim_boundary": CLAIM_BOUNDARY,
         "runner_status": RUNNER_STATUS,
         "capture_schema": CAPTURE_SCHEMA,
+        "request_schema": REQUEST_SCHEMA,
+        "request_name": capture["request"]["name"],
+        "request_sha256": request_sha256,
+        "request_path": str(request_path) if request_path else None,
         "backend_evidence": EXTERNAL_BACKEND_EVIDENCE,
         "backend_command": list(backend_command),
         "command_duration_seconds": result["duration_seconds"],
@@ -431,6 +566,11 @@ def parse_args(argv):
         help="output directory",
     )
     parser.add_argument(
+        "--request",
+        required=True,
+        help="repo-generated backend emission request JSON answered by the capture",
+    )
+    parser.add_argument(
         "--backend-command",
         nargs=argparse.REMAINDER,
         required=True,
@@ -441,7 +581,7 @@ def parse_args(argv):
 
 def main(argv=None):
     args = parse_args(argv or sys.argv[1:])
-    report = build_report(Path(args.root), args.backend_command)
+    report = build_report(Path(args.root), args.backend_command, request_path=args.request)
     write_artifacts(report, Path(args.out))
     print(f"wrote backend capture artifacts to {args.out}")
 

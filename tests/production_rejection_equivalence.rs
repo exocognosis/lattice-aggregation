@@ -49,7 +49,9 @@ use lattice_aggregation::{
             P1AggregateRecomputationClosurePackage, P1Criterion2ProofSlotArtifactKind,
             P1RealThresholdBackendEmissionArtifactAssessment,
             P1RealThresholdBackendEmissionArtifactPackage, P1RealThresholdBackendEmissionCapture,
-            P1RealThresholdBackendEmissionOutput, P1RealThresholdVerifierClosureAssessment,
+            P1RealThresholdBackendEmissionOutput,
+            P1RealThresholdBackendEmissionRequestDigestBinding,
+            P1RealThresholdVerifierClosureAssessment,
             P1RealThresholdVerifierClosureBackendEvidence,
             P1RealThresholdVerifierClosureClaimBoundary, P1RealThresholdVerifierClosurePackage,
             P1RejectionProofArtifacts, P1SelectedBackendAggregateArtifactAssessment,
@@ -99,7 +101,7 @@ const EXPECTED_P1_THEOREM_LINKAGE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
 const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "fcd09b72c5443409c02e407d45b150cde307aba9346b82d0e2e818109574eb83";
 const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "efa8cd7dba97fa707dd0ee565a2b87e00fe91dc237008758fb97f604e65bbd8c";
+    "0cb401b91c79a1e0803fb2bf53fc5af89355e85642f42ca94283990874e70976";
 #[cfg(feature = "hazmat-real-mldsa")]
 const EXPECTED_P1_STANDARD_PROVIDER_SINGLE_KEY_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "56de4e8bb21b601c1985483b469fd4fc9d591efbb015fd08852574a821eb9074";
@@ -1956,6 +1958,14 @@ fn real_threshold_backend_capture_schema_fixture_parses_but_remains_blocked_unti
         capture.backend_evidence(),
         "real_threshold_mldsa_capture_schema_fixture"
     );
+    assert_eq!(
+        capture.request_name(),
+        Some("p1-real-threshold-backend-emission-request-schema-fixture-v1")
+    );
+    assert_eq!(
+        capture.request_sha256_hex(),
+        Some("1212121212121212121212121212121212121212121212121212121212121212")
+    );
     assert_eq!(capture.validator_count(), 10_000);
     assert_eq!(capture.threshold(), 6_667);
     assert_eq!(capture.aggregate_signature_len(), MLDSA65_SIGNATURE_BYTES);
@@ -2037,6 +2047,11 @@ fn synthetic_actual_real_threshold_backend_capture_json(
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
         "note": "Synthetic unit-test capture for importer behavior only; not checked proof evidence.",
+        "request": {
+            "schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+            "name": "synthetic-actual-real-threshold-request-for-importer-test",
+            "request_sha256": encode_hex(&digest(0x12)),
+        },
         "predecessors": {
             "selected_profile_binding_digest_hex": encode_hex(&selected_profile_binding_digest),
             "threshold_output_certificate_digest_hex": encode_hex(&threshold_output_certificate_digest),
@@ -2179,6 +2194,10 @@ fn real_threshold_backend_capture_runner_emits_canonical_importable_capture() {
         &threshold_certificate,
         &compatibility_certificate,
         "actual-external-threshold-backend-capture-test",
+        P1RealThresholdBackendEmissionRequestDigestBinding {
+            name: "actual-external-threshold-backend-request-test",
+            request_sha256: digest(0x12),
+        },
         "Actual backend capture runner output fixture; evidence_present_unclosed.",
         output,
         package,
@@ -2259,6 +2278,10 @@ fn real_threshold_backend_capture_runner_rejects_unready_package_before_external
         &threshold_certificate,
         &compatibility_certificate,
         "fixture-harness-cannot-mint-external-capture",
+        P1RealThresholdBackendEmissionRequestDigestBinding {
+            name: "fixture-harness-request-cannot-mint-external-capture",
+            request_sha256: digest(0x12),
+        },
         "Fixture harness must remain blocked before external capture emission.",
         output,
         fixture_package,
@@ -2348,6 +2371,37 @@ fn real_threshold_backend_capture_json_rejects_missing_predecessor_digests() {
         ThresholdError::MalformedSerialization {
             reason:
                 "P1 real-threshold backend emission capture requires predecessor certificate digests",
+        }
+    );
+}
+
+#[test]
+fn real_threshold_backend_capture_json_rejects_missing_request_binding() {
+    let (transcript, threshold_certificate, compatibility_certificate) =
+        real_threshold_backend_capture_test_inputs();
+    let mut capture_json = synthetic_actual_real_threshold_backend_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json
+        .as_object_mut()
+        .expect("synthetic capture is an object")
+        .remove("request");
+    let capture = decode_real_threshold_backend_capture_json(&capture_json);
+
+    let err = derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture::<
+        AcceptingProvider,
+    >(
+        &transcript,
+        &threshold_certificate,
+        &compatibility_certificate,
+        &capture,
+    )
+    .unwrap_err();
+    assert_eq!(
+        err,
+        ThresholdError::MalformedSerialization {
+            reason: "P1 real-threshold backend emission capture requires request digest binding",
         }
     );
 }

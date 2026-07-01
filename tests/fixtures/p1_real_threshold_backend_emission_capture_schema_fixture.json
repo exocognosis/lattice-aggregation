@@ -5,6 +5,11 @@
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "backend_evidence": "real_threshold_mldsa_capture_schema_fixture",
   "note": "Canonical capture schema fixture for externally generated real-threshold backend emissions; not actual real threshold backend emission evidence, not a real threshold backend implementation, not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, not completed standard-verifier compatibility, and not a completed cryptographic proof.",
+  "request": {
+    "schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+    "name": "p1-real-threshold-backend-emission-request-schema-fixture-v1",
+    "request_sha256": "1212121212121212121212121212121212121212121212121212121212121212"
+  },
   "capture": {
     "validator_count": 10000,
     "threshold": 6667,
