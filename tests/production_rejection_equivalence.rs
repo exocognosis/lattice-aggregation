@@ -38,6 +38,7 @@ use lattice_aggregation::{
             derive_p1_standard_verifier_compatibility_artifact_package,
             derive_p1_verified_real_threshold_backend_emission_artifact_package,
             derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture,
+            derive_p1_verified_real_threshold_backend_emission_capture,
             derive_standard_verifier_bridge_evidence_digest, AcvpFips204EvidenceSource,
             AggregateRecomputationTranscript, AggregateRejectionClosureAssessment,
             AggregateRejectionClosurePackage, AggregateRejectionClosureStatus,
@@ -2143,6 +2144,133 @@ fn real_threshold_backend_capture_json_requires_standard_verifier_acceptance() {
     )
     .unwrap_err();
     assert_eq!(err, ThresholdError::StandardVerificationFailed);
+}
+
+#[test]
+fn real_threshold_backend_capture_runner_emits_canonical_importable_capture() {
+    let (transcript, threshold_certificate, compatibility_certificate) =
+        real_threshold_backend_capture_test_inputs();
+    let public_key = ThresholdPublicKey([6; 1952]);
+    let message = b"original application message";
+    let aggregate_signature = ThresholdSignature([42; 3309]);
+    let output = P1RealThresholdBackendEmissionOutput {
+        backend_source_package: b"actual external threshold backend source manifest v1",
+        backend_implementation: b"actual external threshold backend implementation digest v1",
+        backend_transcript: b"actual external threshold backend transcript digest v1",
+        public_key: &public_key,
+        message,
+        aggregate_signature: &aggregate_signature,
+        mutated_message_rejected: true,
+        mutated_public_key_rejected: true,
+        mutated_signature_rejected: true,
+        claim_boundary: P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    };
+    let package =
+        derive_p1_verified_real_threshold_backend_emission_artifact_package::<AcceptingProvider>(
+            &transcript,
+            &threshold_certificate,
+            &compatibility_certificate,
+            output,
+        )
+        .expect("standard-verifier accepted backend material should derive a package");
+
+    let emitted_capture = derive_p1_verified_real_threshold_backend_emission_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        "actual-external-threshold-backend-capture-test",
+        "Actual backend capture runner output fixture; evidence_present_unclosed.",
+        output,
+        package,
+    )
+    .expect("artifact-ready backend package should emit canonical capture JSON");
+    let capture_json = emitted_capture
+        .to_canonical_json()
+        .expect("canonical capture should encode");
+    let decoded_capture = P1RealThresholdBackendEmissionCapture::decode_json(&capture_json)
+        .expect("emitted capture JSON should decode through canonical importer");
+
+    assert_eq!(
+        decoded_capture.backend_evidence(),
+        "real_threshold_mldsa_external_capture"
+    );
+    assert_eq!(decoded_capture.validator_count(), 10_000);
+    assert_eq!(decoded_capture.threshold(), 6_667);
+    assert_eq!(
+        decoded_capture.aggregate_signature_len(),
+        MLDSA65_SIGNATURE_BYTES
+    );
+
+    let package =
+        derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture::<
+            AcceptingProvider,
+        >(
+            &transcript,
+            &threshold_certificate,
+            &compatibility_certificate,
+            &decoded_capture,
+        )
+        .expect("emitted capture should feed the verified ingestion gate");
+    let assessment = assess_p1_real_threshold_backend_emission_artifact(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+    assert!(assessment.is_artifact_ready());
+}
+
+#[test]
+fn real_threshold_backend_capture_runner_rejects_unready_package_before_external_capture() {
+    let (_transcript, threshold_certificate, compatibility_certificate) =
+        real_threshold_backend_capture_test_inputs();
+    let public_key = ThresholdPublicKey([6; 1952]);
+    let message = b"original application message";
+    let aggregate_signature = ThresholdSignature([42; 3309]);
+    let output = P1RealThresholdBackendEmissionOutput {
+        backend_source_package: b"fixture harness source bytes cannot mint external capture",
+        backend_implementation:
+            b"fixture harness implementation bytes cannot mint external capture",
+        backend_transcript: b"fixture harness transcript bytes cannot mint external capture",
+        public_key: &public_key,
+        message,
+        aggregate_signature: &aggregate_signature,
+        mutated_message_rejected: true,
+        mutated_public_key_rejected: true,
+        mutated_signature_rejected: true,
+        claim_boundary: P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    };
+    let fixture_package = derive_p1_real_threshold_backend_emission_artifact_package(
+        &threshold_certificate,
+        &compatibility_certificate,
+        P1RealThresholdVerifierClosureBackendEvidence::FixtureHarness,
+        derive_p1_real_threshold_backend_emission_evidence_digest(&output),
+        derive_p1_real_threshold_backend_source_package_digest(output.backend_source_package),
+        derive_p1_real_threshold_backend_implementation_digest(output.backend_implementation),
+        derive_p1_real_threshold_backend_transcript_digest(output.backend_transcript),
+        true,
+        true,
+        true,
+        P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        true,
+    );
+
+    let err = derive_p1_verified_real_threshold_backend_emission_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        "fixture-harness-cannot-mint-external-capture",
+        "Fixture harness must remain blocked before external capture emission.",
+        output,
+        fixture_package,
+    )
+    .unwrap_err();
+
+    assert_eq!(
+        err,
+        ThresholdError::BackendUnavailable {
+            reason: "P1 real-threshold backend capture runner requires artifact-ready external backend evidence",
+        }
+    );
 }
 
 #[test]

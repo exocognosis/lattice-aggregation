@@ -5,7 +5,7 @@
 //! without claiming that the current coordinator profile implements production
 //! threshold ML-DSA rejection-distribution preservation.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
 
 use crate::{
@@ -1419,6 +1419,9 @@ pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE: &str =
 /// Evidence class for the checked schema fixture that must remain blocked.
 pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_EVIDENCE: &str =
     "real_threshold_mldsa_capture_schema_fixture";
+/// Gate label for the actual backend capture runner.
+pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_ACTUAL_CAPTURE_RUNNER_GATE: &str =
+    "p1_real_threshold_backend_actual_capture_runner_gate";
 const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_CLAIM_BOUNDARY: &str =
     "conformance/proof-review evidence only";
 const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SELECTED_PROFILE: &str =
@@ -1431,7 +1434,7 @@ const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SELECTED_PROFILE: &str =
 /// predecessor digest bindings, and expected package digests. It is not itself
 /// proof closure; conversion still feeds the existing provider-verified adapter
 /// and the assessment gate must accept the derived package.
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct P1RealThresholdBackendEmissionCapture {
     name: String,
@@ -1447,7 +1450,7 @@ pub struct P1RealThresholdBackendEmissionCapture {
     expected: Option<P1RealThresholdBackendEmissionCaptureExpectedDigests>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct P1RealThresholdBackendEmissionCapturePredecessors {
     selected_profile_binding_digest_hex: String,
@@ -1455,7 +1458,7 @@ struct P1RealThresholdBackendEmissionCapturePredecessors {
     standard_verifier_compatibility_artifact_digest_hex: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct P1RealThresholdBackendEmissionCapturePayload {
     validator_count: u32,
@@ -1473,14 +1476,14 @@ struct P1RealThresholdBackendEmissionCapturePayload {
     reviewed: bool,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct P1RealThresholdBackendEmissionCaptureBytes {
     encoding: String,
     value: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct P1RealThresholdBackendEmissionCaptureExpectedDigests {
     backend_evidence_digest_hex: String,
@@ -1545,6 +1548,17 @@ impl P1RealThresholdBackendEmissionCapture {
         serde_json::from_slice(bytes).map_err(|_| ThresholdError::MalformedSerialization {
             reason: "P1 real-threshold backend emission capture JSON is malformed",
         })
+    }
+
+    /// Encode this capture as stable pretty JSON for artifact handoff.
+    pub fn to_canonical_json(&self) -> Result<Vec<u8>, ThresholdError> {
+        let mut bytes = serde_json::to_vec_pretty(self).map_err(|_| {
+            ThresholdError::MalformedSerialization {
+                reason: "P1 real-threshold backend emission capture JSON could not be encoded",
+            }
+        })?;
+        bytes.push(b'\n');
+        Ok(bytes)
     }
 
     /// Return the capture name.
@@ -1769,6 +1783,13 @@ impl P1RealThresholdBackendEmissionCapture {
 }
 
 impl P1RealThresholdBackendEmissionCaptureBytes {
+    fn hex(bytes: &[u8]) -> Self {
+        Self {
+            encoding: "hex".to_owned(),
+            value: encode_hex(bytes),
+        }
+    }
+
     fn decode(&self) -> Result<Vec<u8>, ThresholdError> {
         match self.encoding.as_str() {
             "utf8" => Ok(self.value.as_bytes().to_vec()),
@@ -3606,6 +3627,123 @@ where
         compatibility_certificate,
         output,
     )
+}
+
+/// Emit canonical capture JSON material for an artifact-ready backend package.
+///
+/// This is the in-process capture runner seam for an external threshold
+/// backend. It does not derive real-threshold provenance from raw tuple bytes:
+/// callers must first supply a package that the real-threshold backend emission
+/// assessment gate accepts as artifact-ready. The function cross-checks that
+/// package against the bytes being packaged, and only then emits a canonical
+/// capture envelope that can be re-imported by
+/// `derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture`.
+/// It does not implement threshold signing and does not close Criterion 2.
+pub fn derive_p1_verified_real_threshold_backend_emission_capture(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    name: &str,
+    note: &str,
+    output: P1RealThresholdBackendEmissionOutput<'_>,
+    package: P1RealThresholdBackendEmissionArtifactPackage,
+) -> Result<P1RealThresholdBackendEmissionCapture, ThresholdError> {
+    if name.trim().is_empty() {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: "P1 real-threshold backend emission capture name is required",
+        });
+    }
+    if note.trim().is_empty() {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: "P1 real-threshold backend emission capture note is required",
+        });
+    }
+
+    let assessment = assess_p1_real_threshold_backend_emission_artifact(
+        threshold_certificate,
+        compatibility_certificate,
+        Some(package),
+    );
+    if !assessment.is_artifact_ready() {
+        return Err(ThresholdError::BackendUnavailable {
+            reason: "P1 real-threshold backend capture runner requires artifact-ready external backend evidence",
+        });
+    }
+    if package.backend_evidence != P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa
+        || package.backend_evidence_digest
+            != derive_p1_real_threshold_backend_emission_evidence_digest(&output)
+        || package.backend_source_package_digest
+            != derive_p1_real_threshold_backend_source_package_digest(output.backend_source_package)
+        || package.backend_implementation_digest
+            != derive_p1_real_threshold_backend_implementation_digest(output.backend_implementation)
+        || package.backend_transcript_digest
+            != derive_p1_real_threshold_backend_transcript_digest(output.backend_transcript)
+        || package.public_key_digest != digest_bytes(&output.public_key.0)
+        || package.message_digest != digest_bytes(output.message)
+        || package.accepted_signature_digest != digest_signature(output.aggregate_signature)
+        || package.mutated_message_rejected != output.mutated_message_rejected
+        || package.mutated_public_key_rejected != output.mutated_public_key_rejected
+        || package.mutated_signature_rejected != output.mutated_signature_rejected
+        || package.claim_boundary != output.claim_boundary
+        || package.reviewed != output.reviewed
+    {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+
+    Ok(P1RealThresholdBackendEmissionCapture {
+        name: name.to_owned(),
+        schema: P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA.to_owned(),
+        claim_boundary: P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_CLAIM_BOUNDARY.to_owned(),
+        selected_profile: P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SELECTED_PROFILE.to_owned(),
+        backend_evidence: P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE.to_owned(),
+        note: note.to_owned(),
+        predecessors: Some(P1RealThresholdBackendEmissionCapturePredecessors {
+            selected_profile_binding_digest_hex: encode_hex(
+                &SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                    .profile_binding_digest(),
+            ),
+            threshold_output_certificate_digest_hex: encode_hex(
+                &derive_p1_selected_backend_threshold_output_certificate_digest(
+                    threshold_certificate,
+                ),
+            ),
+            standard_verifier_compatibility_artifact_digest_hex: encode_hex(
+                &derive_p1_standard_verifier_compatibility_artifact_digest(
+                    compatibility_certificate,
+                ),
+            ),
+        }),
+        capture: P1RealThresholdBackendEmissionCapturePayload {
+            validator_count: 10_000,
+            threshold: 6_667,
+            aggregate_signature_len: MLDSA65_SIGNATURE_BYTES,
+            public_key_hex: encode_hex(&output.public_key.0),
+            message: P1RealThresholdBackendEmissionCaptureBytes::hex(output.message),
+            aggregate_signature_hex: encode_hex(&output.aggregate_signature.0),
+            backend_source_package: P1RealThresholdBackendEmissionCaptureBytes::hex(
+                output.backend_source_package,
+            ),
+            backend_implementation: P1RealThresholdBackendEmissionCaptureBytes::hex(
+                output.backend_implementation,
+            ),
+            backend_transcript: P1RealThresholdBackendEmissionCaptureBytes::hex(
+                output.backend_transcript,
+            ),
+            mutated_message_rejected: output.mutated_message_rejected,
+            mutated_public_key_rejected: output.mutated_public_key_rejected,
+            mutated_signature_rejected: output.mutated_signature_rejected,
+            reviewed: output.reviewed,
+        },
+        expected: Some(P1RealThresholdBackendEmissionCaptureExpectedDigests {
+            backend_evidence_digest_hex: encode_hex(&package.backend_evidence_digest),
+            backend_source_package_digest_hex: encode_hex(&package.backend_source_package_digest),
+            backend_implementation_digest_hex: encode_hex(&package.backend_implementation_digest),
+            backend_transcript_digest_hex: encode_hex(&package.backend_transcript_digest),
+            artifact_digest_hex: encode_hex(&package.artifact_digest),
+            public_key_digest_hex: encode_hex(&package.public_key_digest),
+            message_digest_hex: encode_hex(&package.message_digest),
+            accepted_signature_digest_hex: encode_hex(&package.accepted_signature_digest),
+        }),
+    })
 }
 
 /// Derive a verified P1 real-threshold backend emission package from capture JSON.
@@ -6110,6 +6248,16 @@ fn decode_hex_nibble(byte: u8, reason: &'static str) -> Result<u8, ThresholdErro
         b'A'..=b'F' => Ok(byte - b'A' + 10),
         _ => Err(ThresholdError::MalformedSerialization { reason }),
     }
+}
+
+fn encode_hex(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        out.push(HEX[(byte >> 4) as usize] as char);
+        out.push(HEX[(byte & 0x0f) as usize] as char);
+    }
+    out
 }
 
 fn is_all_zero(bytes: &[u8; 32]) -> bool {

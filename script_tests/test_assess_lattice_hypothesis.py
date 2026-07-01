@@ -734,6 +734,73 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_p1_real_threshold_backend_actual_capture_runner_gate(self, root):
+        self.write_p1_real_threshold_backend_output_gate(root)
+        (root / "scripts").mkdir(parents=True, exist_ok=True)
+        (root / "script_tests").mkdir(parents=True, exist_ok=True)
+        rejection_equivalence_path = (
+            root / "src" / "production" / "rejection_equivalence.rs"
+        )
+        rejection_equivalence_path.write_text(
+            rejection_equivalence_path.read_text(encoding="utf-8")
+            + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_ACTUAL_CAPTURE_RUNNER_GATE: &str = "
+            + "\"p1_real_threshold_backend_actual_capture_runner_gate\";\n"
+            + "pub fn derive_p1_verified_real_threshold_backend_emission_capture() {}\n"
+            + "impl P1RealThresholdBackendEmissionCapture {\n"
+            + "pub fn to_canonical_json(&self) {}\n"
+            + "}\n"
+            + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE: &str = "
+            + "\"real_threshold_mldsa_external_capture\";\n"
+            + "fn runner_gate_tokens(assessment: P1RealThresholdBackendEmissionArtifactAssessment) {\n"
+            + "assessment.is_artifact_ready();\n"
+            + "P1RealThresholdBackendEmissionCaptureBytes::hex;\n"
+            + "package.backend_evidence;\n"
+            + "derive_p1_real_threshold_backend_source_package_digest();\n"
+            + "derive_p1_real_threshold_backend_implementation_digest();\n"
+            + "derive_p1_real_threshold_backend_transcript_digest();\n"
+            + "}\n",
+            encoding="utf-8",
+        )
+        test_path = root / "tests" / "production_rejection_equivalence.rs"
+        test_path.write_text(
+            test_path.read_text(encoding="utf-8")
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_runner_emits_canonical_importable_capture() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_runner_rejects_unready_package_before_external_capture() {}\n",
+            encoding="utf-8",
+        )
+        (root / "scripts" / "run_backend_emission_capture.py").write_text(
+            "CAPTURE_SCHEMA = \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\"\n"
+            "EXTERNAL_BACKEND_EVIDENCE = \"real_threshold_mldsa_external_capture\"\n"
+            "SELECTED_PROFILE = \"ML-DSA-65 coordinator-assisted Shamir nonce DKG P1\"\n"
+            "RUNNER_STATUS = \"evidence_present_unclosed\"\n"
+            "FORBIDDEN_BACKEND_COMMAND_TOKENS = ('localnet', 'validator_localnet', 'run_simulation_benchmarks')\n"
+            "def validate_backend_command(command):\n"
+            "    raise ValueError('forbidden backend command')\n"
+            "def validate_no_unknown_fields(value, allowed_fields, label): pass\n"
+            "def validate_digest_object(value, required_fields, label):\n"
+            "    raise ValueError('missing {label} digest')\n"
+            "def validate_hex_field(value, expected_bytes, field):\n"
+            "    raise ValueError('public_key_hex')\n"
+            "def validate_capture_bytes(value, field): pass\n"
+            "def parse_capture_json(stdout):\n"
+            "    raise ValueError('canonical capture JSON actual external real-threshold evidence')\n"
+            "def build_report(): pass\n"
+            "def write_artifacts(): pass\n",
+            encoding="utf-8",
+        )
+        (root / "script_tests" / "test_run_backend_emission_capture.py").write_text(
+            "def test_build_report_invokes_backend_capture_runner_and_writes_importable_capture_json(): pass\n"
+            "def test_build_report_rejects_deterministic_simulation_or_localnet_capture_source(): pass\n"
+            "def test_build_report_rejects_forged_external_json_from_localnet_or_simulation_command(): pass\n"
+            "def test_build_report_rejects_non_importable_capture_shape_before_artifact_write(): pass\n"
+            "validator_localnet\n"
+            "run_simulation_benchmarks\n"
+            "real_threshold_mldsa_capture_schema_fixture\n",
+            encoding="utf-8",
+        )
+
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
@@ -1863,6 +1930,48 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("real threshold backend emissions", aggregate_blockers)
         self.assertIn("reviewed cryptographic proof", aggregate_blockers)
         self.assertIn("real-threshold backend emission ingestion artifact", markdown)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_p1_real_threshold_backend_actual_capture_runner_updates_report_without_closing_proofs(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_real_threshold_backend_actual_capture_runner_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_real_threshold_backend_output_gate"])
+        self.assertTrue(scan["p1_real_threshold_backend_actual_capture_runner_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("Actual real-threshold backend capture runner", aggregate_evidence)
+        self.assertIn("RealThresholdMldsa capture material", aggregate_evidence)
+        self.assertIn("artifact-ready package", aggregate_evidence)
+        self.assertIn("canonical provider-verified importer", aggregate_evidence)
+        self.assertIn("deterministic simulation command sources", aggregate_evidence)
+        self.assertIn("non-importable capture shapes", aggregate_evidence)
+        self.assertIn("evidence_present_unclosed", aggregate_evidence)
+        self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
+        self.assertIn("partially_met", aggregate_evidence)
+        self.assertIn("partially_proven", aggregate_evidence)
+        self.assertIn("rejection-distribution preservation", aggregate_evidence)
+        self.assertIn("production threshold ML-DSA security", aggregate_evidence)
+        self.assertIn("reviewed cryptographic proof", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):
