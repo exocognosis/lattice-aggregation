@@ -1300,6 +1300,8 @@ pub enum P1RealThresholdVerifierClosureBackendEvidence {
     SimulatedDeterministic,
     /// Ordinary single-key ML-DSA standard-provider output; not threshold provenance.
     StandardProviderSingleKey,
+    /// Checked fixture harness evidence; useful for ingestion-shape checks only.
+    FixtureHarness,
     /// Evidence from a real threshold ML-DSA backend implementation.
     RealThresholdMldsa,
 }
@@ -3038,7 +3040,8 @@ fn derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
         P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey => {
             hasher.update([1])
         }
-        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => hasher.update([2]),
+        P1RealThresholdVerifierClosureBackendEvidence::FixtureHarness => hasher.update([2]),
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => hasher.update([3]),
     }
     hasher.update(backend_evidence_digest);
     hasher.update(backend_source_package_digest);
@@ -4334,6 +4337,11 @@ pub fn assess_p1_real_threshold_backend_emission_artifact(
                 reason: "P1 real-threshold backend emission requires threshold backend provenance, not ordinary single-key standard-provider output",
             };
         }
+        P1RealThresholdVerifierClosureBackendEvidence::FixtureHarness => {
+            return P1RealThresholdBackendEmissionArtifactAssessment::BlockedFailClosed {
+                reason: "P1 real-threshold backend emission requires actual real threshold ML-DSA backend evidence, not the checked fixture harness",
+            };
+        }
         P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => {}
     }
     if !package.reviewed {
@@ -4629,6 +4637,11 @@ pub fn assess_p1_real_threshold_verifier_closure_contract(
         P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey => {
             return P1RealThresholdVerifierClosureAssessment::Invalid {
                 reason: "P1 real-threshold verifier closure requires threshold backend provenance, not ordinary single-key standard-provider output",
+            };
+        }
+        P1RealThresholdVerifierClosureBackendEvidence::FixtureHarness => {
+            return P1RealThresholdVerifierClosureAssessment::BlockedFailClosed {
+                reason: "P1 real-threshold verifier closure requires actual real threshold ML-DSA backend evidence, not the checked fixture harness",
             };
         }
         P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa => {}

@@ -580,7 +580,7 @@ class ReportGenerationTests(unittest.TestCase):
         rejection_equivalence_path.write_text(
             rejection_equivalence_path.read_text(encoding="utf-8")
             + "pub enum P1RealThresholdVerifierClosureBackendEvidence { "
-            + "SimulatedDeterministic, StandardProviderSingleKey, RealThresholdMldsa }\n"
+            + "SimulatedDeterministic, StandardProviderSingleKey, FixtureHarness, RealThresholdMldsa }\n"
             + "pub enum P1RealThresholdVerifierClosureClaimBoundary { "
             + "ProofReviewOnly, ProductionClaim }\n"
             + "pub struct P1RealThresholdBackendEmissionArtifactPackage {\n"
@@ -640,7 +640,9 @@ class ReportGenerationTests(unittest.TestCase):
             + "#[test]\n"
             + "fn p1_real_threshold_backend_emission_ingestion_rejects_unreviewed_external_backend_evidence() {}\n"
             + "#[test]\n"
-            + "fn real_threshold_backend_emission_artifact_fixture_parses_and_feeds_ingestion_gate() {}\n"
+            + "fn real_threshold_backend_emission_artifact_fixture_parses_and_remains_blocked_until_actual_backend_evidence_replaces_it() {}\n"
+            + "#[test]\n"
+            + "fn standard_provider_single_key_emission_fixture_verifies_real_mldsa_but_cannot_replace_threshold_backend_evidence() {}\n"
             + "#[test]\n"
             + "fn real_threshold_backend_emission_artifact_fixture_package_digest_fails_loudly_on_drift() {}\n"
             + "#[test]\n"
@@ -1128,12 +1130,16 @@ class ReportGenerationTests(unittest.TestCase):
             "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json, "
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json, "
             "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json, "
+            "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json, "
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json, "
             "tests/fixtures/p1_theorem_linkage_artifact_fixture.json, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
             "checked standard-verifier compatibility fixture, "
             "checked real-threshold backend emission ingestion fixture harness, "
+            "actual single-key ML-DSA-65 negative-control emission fixture, "
+            "blocked from artifact readiness, "
+            "StandardProviderSingleKey, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
             "not a real threshold backend implementation, "
@@ -1748,6 +1754,9 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("backend source, implementation, and transcript digests", aggregate_evidence)
         self.assertIn("rejects deterministic simulation", aggregate_evidence)
         self.assertIn("ordinary single-key standard-provider output", aggregate_evidence)
+        self.assertIn("blocked as FixtureHarness", aggregate_evidence)
+        self.assertIn("negative-control emission fixture", aggregate_evidence)
+        self.assertIn("rejected as StandardProviderSingleKey", aggregate_evidence)
         self.assertIn("not production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("real threshold backend emissions", aggregate_blockers)
         self.assertIn("reviewed cryptographic proof", aggregate_blockers)
