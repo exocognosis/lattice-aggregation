@@ -62,6 +62,7 @@
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_real_threshold_backend_output_gate",
         "artifact_package": "p1_real_threshold_backend_emission_artifact_package",
+        "backend_output_adapter": "derive_p1_verified_real_threshold_backend_emission_artifact_package",
         "claim_boundary": "conformance/proof-review evidence only",
         "fixture_status": "checked_ingestion_fixture_harness_blocked_until_actual_backend_evidence"
       },

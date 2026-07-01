@@ -133,6 +133,16 @@ backend source package, implementation, and transcript digests,
 matching threshold-output and standard-verifier compatibility artifact digests,
 and mutation rejection for message, public key, and signature.
 
+`P1RealThresholdBackendEmissionOutput` and
+`derive_p1_verified_real_threshold_backend_emission_artifact_package` are the
+checked backend-output adapter for future externally generated real-threshold
+emissions. The adapter compares the submitted public key, message, and
+aggregate signature against the predecessor certificates, calls the selected
+standard ML-DSA provider boundary before minting the package, and derives the
+backend source, implementation, transcript, and evidence digests from submitted
+backend material. It is still an ingestion adapter only; it does not implement a
+real threshold backend in this repository.
+
 The checked fixture harness at
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
 pins the external backend-emission input shape, backend source package digest,
