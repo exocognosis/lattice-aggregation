@@ -837,12 +837,16 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
         "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+        "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
         "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
         "checked real-threshold backend emission ingestion fixture harness",
+        "actual single-key ml-dsa-65 negative-control emission fixture",
+        "blocked from artifact readiness",
+        "standardprovidersinglekey",
         "checked rejection-distribution review fixture",
         "checked theorem-linkage fixture",
         "p1_standard_verifier_compatibility_artifact_gate",
@@ -2022,6 +2026,7 @@ def scan_documents(root):
             rejection_equivalence_source,
             "SimulatedDeterministic",
             "StandardProviderSingleKey",
+            "FixtureHarness",
             "RealThresholdMldsa",
             "validator_count",
             "threshold",
@@ -2115,9 +2120,30 @@ def scan_documents(root):
             "artifact",
             "fixture",
             "parses",
-            "feeds",
-            "ingestion",
-            "gate",
+            "remains",
+            "blocked",
+            "actual",
+            "backend",
+            "evidence",
+            "replaces",
+            "it",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "standard",
+            "provider",
+            "single",
+            "key",
+            "emission",
+            "fixture",
+            "verifies",
+            "real",
+            "mldsa",
+            "cannot",
+            "replace",
+            "threshold",
+            "backend",
+            "evidence",
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,
@@ -2661,10 +2687,14 @@ def classify_criteria(criteria, scan):
                     "acceptance, and mutated message, public key, and signature "
                     "rejection evidence. It rejects deterministic simulation "
                     "and ordinary single-key standard-provider output as "
-                    "closure evidence. This remains conformance/proof-review "
-                    "evidence only, not production threshold ML-DSA security, "
-                    "not CAVP/ACVTS validation, not FIPS validation, and not a "
-                    "completed cryptographic proof."
+                    "closure evidence. The checked fixture harness is blocked "
+                    "as FixtureHarness, while an actual single-key ML-DSA-65 "
+                    "negative-control emission fixture verifies through the "
+                    "standard provider and is rejected as StandardProviderSingleKey. "
+                    "This remains conformance/proof-review evidence only, not "
+                    "production threshold ML-DSA security, not CAVP/ACVTS "
+                    "validation, not FIPS validation, and not a completed "
+                    "cryptographic proof."
                 )
                 blockers.append(
                     "P1 real-threshold backend emission ingestion artifact is "

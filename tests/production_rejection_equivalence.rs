@@ -88,6 +88,9 @@ const EXPECTED_P1_THEOREM_LINKAGE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "34e4d1907e8105ccbe883df67573e8ba55814b3d948c7a49fb21f665ead1c300";
 const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "fcd09b72c5443409c02e407d45b150cde307aba9346b82d0e2e818109574eb83";
+#[cfg(feature = "hazmat-real-mldsa")]
+const EXPECTED_P1_STANDARD_PROVIDER_SINGLE_KEY_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
+    "56de4e8bb21b601c1985483b469fd4fc9d591efbb015fd08852574a821eb9074";
 
 struct AcceptingProvider;
 
@@ -167,6 +170,15 @@ fn real_threshold_backend_emission_artifact_fixture(
     .expect("P1 real-threshold backend emission artifact fixture should parse")
 }
 
+#[cfg(feature = "hazmat-real-mldsa")]
+fn standard_provider_single_key_emission_artifact_fixture(
+) -> P1StandardProviderSingleKeyEmissionArtifactFixture {
+    serde_json::from_str(include_str!(
+        "fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json"
+    ))
+    .expect("P1 standard-provider single-key emission artifact fixture should parse")
+}
+
 fn standard_verifier_bridge_digest() -> [u8; 32] {
     let fixture = standard_verifier_bridge_fixture();
     let evidence = fixture_bridge_evidence(&fixture);
@@ -233,6 +245,18 @@ fn real_threshold_backend_emission_artifact_fixture_package_digest() -> [u8; 32]
     );
     hasher.update(include_bytes!(
         "fixtures/p1_real_threshold_backend_emission_artifact_fixture.json"
+    ));
+    hasher.finalize().into()
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn standard_provider_single_key_emission_artifact_fixture_package_digest() -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(
+        b"lattice-aggregation:p1-standard-provider-single-key-emission-artifact-fixture-package:v1",
+    );
+    hasher.update(include_bytes!(
+        "fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json"
     ));
     hasher.finalize().into()
 }
@@ -511,6 +535,22 @@ struct P1RealThresholdBackendEmissionArtifactFixture {
     expected: RealThresholdBackendEmissionExpectedDigests,
 }
 
+#[cfg(feature = "hazmat-real-mldsa")]
+#[derive(Deserialize)]
+struct P1StandardProviderSingleKeyEmissionArtifactFixture {
+    name: String,
+    schema: String,
+    claim_boundary: String,
+    selected_profile: String,
+    source_bridge_fixture: String,
+    source_standard_verifier_compatibility_fixture: String,
+    source_threshold_output_certificate_artifact_fixture: String,
+    backend_evidence: String,
+    note: String,
+    capture: StandardProviderSingleKeyEmissionCaptureFixture,
+    expected: StandardProviderSingleKeyEmissionExpectedDigests,
+}
+
 #[derive(Deserialize)]
 struct RealRecomputationSlotFixture {
     slot_id: String,
@@ -556,6 +596,25 @@ struct RealThresholdBackendEmissionCaptureFixture {
     validator_count: u32,
     threshold: u32,
     aggregate_signature_len: usize,
+    backend_source_package: ThresholdOutputSourcePackageFixture,
+    backend_implementation: ThresholdOutputSourcePackageFixture,
+    backend_transcript: ThresholdOutputSourcePackageFixture,
+    mutated_message_rejected: bool,
+    mutated_public_key_rejected: bool,
+    mutated_signature_rejected: bool,
+    reviewed: bool,
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[derive(Deserialize)]
+struct StandardProviderSingleKeyEmissionCaptureFixture {
+    validator_count: u32,
+    threshold: u32,
+    aggregate_signature_len: usize,
+    seed_hex: String,
+    message: ThresholdOutputSourcePackageFixture,
+    public_key_hex: String,
+    signature_hex: String,
     backend_source_package: ThresholdOutputSourcePackageFixture,
     backend_implementation: ThresholdOutputSourcePackageFixture,
     backend_transcript: ThresholdOutputSourcePackageFixture,
@@ -630,6 +689,25 @@ struct TheoremLinkageExpectedDigests {
 
 #[derive(Deserialize)]
 struct RealThresholdBackendEmissionExpectedDigests {
+    selected_profile_binding_digest_hex: String,
+    threshold_output_certificate_digest_hex: String,
+    standard_verifier_compatibility_artifact_digest_hex: String,
+    backend_evidence_digest_hex: String,
+    backend_source_package_digest_hex: String,
+    backend_implementation_digest_hex: String,
+    backend_transcript_digest_hex: String,
+    artifact_digest_hex: String,
+    public_key_digest_hex: String,
+    message_digest_hex: String,
+    transcript_binding_digest_hex: String,
+    signer_set_digest_hex: String,
+    attempt_binding_digest_hex: String,
+    accepted_signature_digest_hex: String,
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[derive(Deserialize)]
+struct StandardProviderSingleKeyEmissionExpectedDigests {
     selected_profile_binding_digest_hex: String,
     threshold_output_certificate_digest_hex: String,
     standard_verifier_compatibility_artifact_digest_hex: String,
@@ -904,6 +982,65 @@ impl TheoremLinkageExpectedDigests {
 }
 
 impl RealThresholdBackendEmissionExpectedDigests {
+    fn selected_profile_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.selected_profile_binding_digest_hex)
+    }
+
+    fn threshold_output_certificate_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_certificate_digest_hex)
+    }
+
+    fn standard_verifier_compatibility_artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.standard_verifier_compatibility_artifact_digest_hex)
+    }
+
+    fn backend_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_evidence_digest_hex)
+    }
+
+    fn backend_source_package_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_source_package_digest_hex)
+    }
+
+    fn backend_implementation_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_implementation_digest_hex)
+    }
+
+    fn backend_transcript_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_transcript_digest_hex)
+    }
+
+    fn artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.artifact_digest_hex)
+    }
+
+    fn public_key_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.public_key_digest_hex)
+    }
+
+    fn message_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.message_digest_hex)
+    }
+
+    fn transcript_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.transcript_binding_digest_hex)
+    }
+
+    fn signer_set_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.signer_set_digest_hex)
+    }
+
+    fn attempt_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.attempt_binding_digest_hex)
+    }
+
+    fn accepted_signature_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.accepted_signature_digest_hex)
+    }
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+impl StandardProviderSingleKeyEmissionExpectedDigests {
     fn selected_profile_binding_digest(&self) -> [u8; 32] {
         decode_hex_array(&self.selected_profile_binding_digest_hex)
     }
@@ -1458,7 +1595,8 @@ fn standard_verifier_compatibility_fixture_parses_and_matches_bound_payload() {
 }
 
 #[test]
-fn real_threshold_backend_emission_artifact_fixture_parses_and_feeds_ingestion_gate() {
+fn real_threshold_backend_emission_artifact_fixture_parses_and_remains_blocked_until_actual_backend_evidence_replaces_it(
+) {
     let bridge_fixture = standard_verifier_bridge_fixture();
     let emission_fixture = real_threshold_backend_emission_artifact_fixture();
     let threshold_certificate =
@@ -1571,32 +1709,24 @@ fn real_threshold_backend_emission_artifact_fixture_parses_and_feeds_ingestion_g
         package.accepted_signature_digest,
         emission_fixture.expected.accepted_signature_digest()
     );
+    assert_eq!(
+        package.backend_evidence,
+        P1RealThresholdVerifierClosureBackendEvidence::FixtureHarness
+    );
 
     let assessment = assess_p1_real_threshold_backend_emission_artifact(
         &threshold_certificate,
         &compatibility_certificate,
         Some(package),
     );
-    let certificate = assessment
-        .backend_emission_certificate()
-        .expect("checked backend-emission fixture should feed the ingestion gate");
-    assert!(assessment.is_artifact_ready());
     assert_eq!(
-        certificate.artifact_digest(),
-        &emission_fixture.expected.artifact_digest()
+        assessment,
+        P1RealThresholdBackendEmissionArtifactAssessment::BlockedFailClosed {
+            reason: "P1 real-threshold backend emission requires actual real threshold ML-DSA backend evidence, not the checked fixture harness",
+        }
     );
-    assert!(certificate.mutation_rejection_corpus_complete());
-    assert!(!certificate.claims_real_threshold_backend_implemented());
-    assert!(!certificate.claims_production_threshold_mldsa_security());
-    assert!(!certificate.claims_completed_cryptographic_proof());
-
-    let closure_package = certificate.to_verifier_closure_package();
-    let closure_assessment = assess_p1_real_threshold_verifier_closure_contract(
-        &threshold_certificate,
-        &compatibility_certificate,
-        Some(closure_package),
-    );
-    assert!(closure_assessment.is_closure_ready());
+    assert!(!assessment.is_artifact_ready());
+    assert!(assessment.backend_emission_certificate().is_none());
 }
 
 #[test]
@@ -1607,6 +1737,279 @@ fn real_threshold_backend_emission_artifact_fixture_package_digest_fails_loudly_
             EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
         )
     );
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+#[test]
+fn standard_provider_single_key_emission_fixture_verifies_real_mldsa_but_cannot_replace_threshold_backend_evidence(
+) {
+    use lattice_aggregation::production::provider::HazmatMldsa65Provider;
+    use ml_dsa::{Keypair, MlDsa65, SignatureEncoding, Signer, SigningKey};
+
+    let emission_fixture = standard_provider_single_key_emission_artifact_fixture();
+    assert_eq!(
+        emission_fixture.name,
+        "p1-standard-provider-single-key-emission-artifact-v1"
+    );
+    assert_eq!(
+        emission_fixture.schema,
+        "lattice-aggregation:p1-standard-provider-single-key-emission-artifact:v1"
+    );
+    assert_eq!(
+        emission_fixture.claim_boundary,
+        "conformance/proof-review evidence only"
+    );
+    assert_eq!(
+        emission_fixture.selected_profile,
+        "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+    );
+    assert_eq!(
+        emission_fixture.source_bridge_fixture,
+        "generated-from-real-ml-dsa-provider-output"
+    );
+    assert_eq!(
+        emission_fixture.source_standard_verifier_compatibility_fixture,
+        "generated-from-real-ml-dsa-provider-output"
+    );
+    assert_eq!(
+        emission_fixture.source_threshold_output_certificate_artifact_fixture,
+        "generated-from-real-ml-dsa-provider-output"
+    );
+    assert_eq!(
+        emission_fixture.backend_evidence,
+        "standard_provider_single_key_actual_mldsa65_emission"
+    );
+    assert!(emission_fixture
+        .note
+        .contains("not threshold backend provenance"));
+    assert_eq!(
+        standard_provider_single_key_emission_artifact_fixture_package_digest(),
+        decode_hex_array(
+            EXPECTED_P1_STANDARD_PROVIDER_SINGLE_KEY_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
+        )
+    );
+
+    let seed = decode_hex_array::<32>(&emission_fixture.capture.seed_hex);
+    let seed = seed.into();
+    let signing_key = SigningKey::<MlDsa65>::from_seed(&seed);
+    let message = emission_fixture.capture.message.bytes();
+    let expected_public_key = signing_key.verifying_key().encode();
+    let expected_signature = signing_key.sign(message).to_bytes();
+    assert_eq!(
+        decode_hex(&emission_fixture.capture.public_key_hex),
+        expected_public_key.as_slice()
+    );
+    assert_eq!(
+        decode_hex(&emission_fixture.capture.signature_hex),
+        expected_signature.as_slice()
+    );
+
+    let public_key = threshold_public_key_from(expected_public_key.as_slice());
+    let signature = threshold_signature_from(expected_signature.as_slice());
+    assert!(
+        HazmatMldsa65Provider::verify(&public_key, message, &signature).unwrap(),
+        "actual standard-provider ML-DSA emission should verify before threshold provenance checks"
+    );
+
+    let mut mutated_public_key = public_key.clone();
+    mutated_public_key.0[0] ^= 0x01;
+    let mut mutated_signature = signature.clone();
+    mutated_signature.0[0] ^= 0x01;
+    assert!(!HazmatMldsa65Provider::verify(&public_key, b"mutated message", &signature).unwrap());
+    assert!(!HazmatMldsa65Provider::verify(&mutated_public_key, message, &signature).unwrap());
+    assert!(!HazmatMldsa65Provider::verify(&public_key, message, &mutated_signature).unwrap());
+
+    let transcript = real_mldsa_transcript(public_key, message);
+    let partials = real_mldsa_accepted_partials(&transcript);
+    let verifier =
+        StandardVerifierEvidence::verify::<HazmatMldsa65Provider>(&transcript, &signature)
+            .expect("real ML-DSA signature should mint standard-verifier evidence");
+    let recomputation = AggregateRecomputationTranscript::from_public_outputs(
+        &transcript,
+        emission_fixture.capture.backend_transcript.bytes(),
+        b"standard-provider-single-key-emission-hint-route",
+        &signature,
+    )
+    .expect("public real-ML-DSA emission should derive a recomputation transcript");
+    let bridge_evidence = AggregateRejectionEquivalenceGate::verify_recomputed_bridge::<
+        HazmatMldsa65Provider,
+    >(&transcript, &signature, &recomputation)
+    .expect("real provider emission should satisfy the standard-verifier bridge");
+    let standard_verifier_bridge_evidence_digest = derive_standard_verifier_bridge_evidence_digest(
+        &SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest(),
+        &provider_kat_fixture_digest(),
+        &bridge_evidence,
+    )
+    .expect("real provider bridge evidence should derive a digest");
+    let real_recomputation_evidence_digest =
+        derive_p1_real_recomputation_evidence_digest(&recomputation);
+    let accepted_aggregate = AggregateAccept::accept(
+        &transcript,
+        &partials,
+        AggregateAcceptEvidence {
+            aggregate_response_digest: *recomputation.aggregate_response_digest(),
+            hint_digest: *recomputation.hint_digest(),
+            standard_verifier: verifier,
+        },
+    )
+    .expect("real standard-provider output should pass aggregate acceptance");
+    let recomputation_certificate = p1_recomputation_certificate_for_output(
+        standard_verifier_bridge_evidence_digest,
+        real_recomputation_evidence_digest,
+    );
+    let aggregate_package =
+        derive_p1_selected_backend_aggregate_artifact_package::<HazmatMldsa65Provider>(
+            &transcript,
+            &accepted_aggregate,
+            &recomputation,
+            &recomputation_certificate,
+            &signature,
+            true,
+        )
+        .expect("real provider emission should derive an aggregate artifact package");
+    let aggregate_certificate = assess_p1_selected_backend_aggregate_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &recomputation_certificate,
+        Some(aggregate_package),
+    )
+    .artifact_certificate()
+    .copied()
+    .expect("real provider emission should produce an aggregate artifact certificate");
+    let threshold_source = P1ThresholdOutputEvidenceSource::selected_backend_candidate(
+        derive_p1_selected_backend_threshold_output_source_digest(
+            &transcript,
+            &accepted_aggregate,
+            &recomputation,
+            emission_fixture.capture.backend_source_package.bytes(),
+        ),
+        derive_p1_selected_backend_threshold_output_source_package_digest(
+            emission_fixture.capture.backend_source_package.bytes(),
+        ),
+        true,
+    );
+    let threshold_package = derive_p1_selected_backend_threshold_output_artifact_package(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &aggregate_certificate,
+        threshold_source,
+        P1ThresholdOutputClaimBoundary::ProofReviewOnly,
+        true,
+    )
+    .expect("real provider emission should derive a threshold-output predecessor package");
+    let threshold_certificate = assess_p1_selected_backend_threshold_output_artifact(
+        &transcript,
+        &accepted_aggregate,
+        &recomputation,
+        &aggregate_certificate,
+        Some(threshold_package),
+    )
+    .threshold_output_certificate()
+    .copied()
+    .expect("real provider emission should produce a threshold-output predecessor certificate");
+    let compatibility_package =
+        derive_p1_standard_verifier_compatibility_artifact_package::<HazmatMldsa65Provider>(
+            &transcript,
+            &threshold_certificate,
+            &signature,
+            P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly,
+            true,
+        )
+        .expect("real provider emission should derive a compatibility package");
+    let compatibility_certificate = assess_p1_standard_verifier_compatibility_artifact(
+        &transcript,
+        &threshold_certificate,
+        Some(compatibility_package),
+    )
+    .standard_verifier_compatibility_certificate()
+    .copied()
+    .expect("real provider emission should produce a compatibility certificate");
+
+    let package = standard_provider_single_key_emission_artifact_package_from_fixture(
+        &emission_fixture,
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    assert_eq!(
+        package.backend_evidence,
+        P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey
+    );
+    assert_eq!(
+        package.selected_profile_binding_digest,
+        emission_fixture.expected.selected_profile_binding_digest()
+    );
+    assert_eq!(
+        package.backend_evidence_digest,
+        emission_fixture.expected.backend_evidence_digest()
+    );
+    assert_eq!(
+        package.backend_source_package_digest,
+        emission_fixture.expected.backend_source_package_digest()
+    );
+    assert_eq!(
+        package.backend_implementation_digest,
+        emission_fixture.expected.backend_implementation_digest()
+    );
+    assert_eq!(
+        package.backend_transcript_digest,
+        emission_fixture.expected.backend_transcript_digest()
+    );
+    assert_eq!(
+        package.artifact_digest,
+        emission_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        package.public_key_digest,
+        emission_fixture.expected.public_key_digest()
+    );
+    assert_eq!(
+        package.message_digest,
+        emission_fixture.expected.message_digest()
+    );
+    assert_eq!(
+        package.transcript_binding_digest,
+        emission_fixture.expected.transcript_binding_digest()
+    );
+    assert_eq!(
+        package.signer_set_digest,
+        emission_fixture.expected.signer_set_digest()
+    );
+    assert_eq!(
+        package.attempt_binding_digest,
+        emission_fixture.expected.attempt_binding_digest()
+    );
+    assert_eq!(
+        package.accepted_signature_digest,
+        emission_fixture.expected.accepted_signature_digest()
+    );
+    assert_eq!(
+        package.threshold_output_certificate_digest,
+        emission_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        package.standard_verifier_compatibility_artifact_digest,
+        emission_fixture
+            .expected
+            .standard_verifier_compatibility_artifact_digest()
+    );
+
+    let assessment = assess_p1_real_threshold_backend_emission_artifact(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+    assert_eq!(
+        assessment,
+        P1RealThresholdBackendEmissionArtifactAssessment::Invalid {
+            reason: "P1 real-threshold backend emission requires threshold backend provenance, not ordinary single-key standard-provider output",
+        }
+    );
+    assert!(!assessment.is_artifact_ready());
 }
 
 #[test]
@@ -3359,6 +3762,48 @@ fn real_threshold_backend_evidence_digest(
     hasher.finalize().into()
 }
 
+#[cfg(feature = "hazmat-real-mldsa")]
+fn standard_provider_single_key_backend_evidence_digest(
+    fixture: &P1StandardProviderSingleKeyEmissionArtifactFixture,
+) -> [u8; 32] {
+    let source_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-standard-provider-single-key-source-package:v1",
+        fixture.capture.backend_source_package.bytes(),
+    );
+    let implementation_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-standard-provider-single-key-implementation:v1",
+        fixture.capture.backend_implementation.bytes(),
+    );
+    let transcript_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-standard-provider-single-key-transcript:v1",
+        fixture.capture.backend_transcript.bytes(),
+    );
+    let public_key_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-standard-provider-single-key-public-key:v1",
+        &decode_hex(&fixture.capture.public_key_hex),
+    );
+    let message_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-standard-provider-single-key-message:v1",
+        fixture.capture.message.bytes(),
+    );
+    let signature_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-standard-provider-single-key-signature:v1",
+        &decode_hex(&fixture.capture.signature_hex),
+    );
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-standard-provider-single-key-emission-evidence:v1");
+    hasher.update(source_digest);
+    hasher.update(implementation_digest);
+    hasher.update(transcript_digest);
+    hasher.update(public_key_digest);
+    hasher.update(message_digest);
+    hasher.update(signature_digest);
+    hasher.update([fixture.capture.mutated_message_rejected as u8]);
+    hasher.update([fixture.capture.mutated_public_key_rejected as u8]);
+    hasher.update([fixture.capture.mutated_signature_rejected as u8]);
+    hasher.finalize().into()
+}
+
 fn real_threshold_backend_emission_artifact_package_from_fixture(
     emission_fixture: &P1RealThresholdBackendEmissionArtifactFixture,
     bridge_fixture: &P1StandardVerifierBridgeFixture,
@@ -3376,7 +3821,7 @@ fn real_threshold_backend_emission_artifact_package_from_fixture(
     derive_p1_real_threshold_backend_emission_artifact_package(
         &threshold_certificate,
         &compatibility_certificate,
-        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa,
+        P1RealThresholdVerifierClosureBackendEvidence::FixtureHarness,
         real_threshold_backend_evidence_digest(emission_fixture),
         digest_fixture_bytes(
             b"lattice-aggregation:p1-real-threshold-backend-source-package:v1",
@@ -3388,6 +3833,43 @@ fn real_threshold_backend_emission_artifact_package_from_fixture(
         ),
         digest_fixture_bytes(
             b"lattice-aggregation:p1-real-threshold-backend-transcript:v1",
+            emission_fixture.capture.backend_transcript.bytes(),
+        ),
+        emission_fixture.capture.mutated_message_rejected,
+        emission_fixture.capture.mutated_public_key_rejected,
+        emission_fixture.capture.mutated_signature_rejected,
+        P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        emission_fixture.capture.reviewed,
+    )
+}
+
+#[cfg(feature = "hazmat-real-mldsa")]
+fn standard_provider_single_key_emission_artifact_package_from_fixture(
+    emission_fixture: &P1StandardProviderSingleKeyEmissionArtifactFixture,
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &lattice_aggregation::production::rejection_equivalence::P1StandardVerifierCompatibilityArtifactCertificate,
+) -> P1RealThresholdBackendEmissionArtifactPackage {
+    assert_eq!(emission_fixture.capture.validator_count, 10_000);
+    assert_eq!(emission_fixture.capture.threshold, 6_667);
+    assert_eq!(
+        emission_fixture.capture.aggregate_signature_len,
+        MLDSA65_SIGNATURE_BYTES
+    );
+    derive_p1_real_threshold_backend_emission_artifact_package(
+        threshold_certificate,
+        compatibility_certificate,
+        P1RealThresholdVerifierClosureBackendEvidence::StandardProviderSingleKey,
+        standard_provider_single_key_backend_evidence_digest(emission_fixture),
+        digest_fixture_bytes(
+            b"lattice-aggregation:p1-standard-provider-single-key-source-package:v1",
+            emission_fixture.capture.backend_source_package.bytes(),
+        ),
+        digest_fixture_bytes(
+            b"lattice-aggregation:p1-standard-provider-single-key-implementation:v1",
+            emission_fixture.capture.backend_implementation.bytes(),
+        ),
+        digest_fixture_bytes(
+            b"lattice-aggregation:p1-standard-provider-single-key-transcript:v1",
             emission_fixture.capture.backend_transcript.bytes(),
         ),
         emission_fixture.capture.mutated_message_rejected,

@@ -72,8 +72,15 @@ The Criterion 2 proof payload requires these slots before any promotion:
   checked real-threshold backend emission ingestion fixture harness:
   `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`.
   The fixture harness pins source, implementation, transcript, and artifact
-  digests, but it is not a real threshold backend implementation and does not
-  replace actual real threshold backend emissions.
+  digests, but it is blocked from artifact readiness as `FixtureHarness`; it is
+  not a real threshold backend implementation and does not replace actual real
+  threshold backend emissions. The checked
+  actual single-key ML-DSA-65 negative-control emission fixture:
+  `tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json`
+  carries an actual `ml-dsa`/`HazmatMldsa65Provider` ML-DSA-65 signature,
+  source digest, implementation digest, transcript digest, accepted signature
+  digest, and mutation rejection evidence, but it is rejected as
+  `StandardProviderSingleKey` because it is not threshold backend provenance.
 - `full_kat_validation_artifact_digest`: `evidence_present_unclosed` from
   `p1_criterion2_full_kat_validation_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
@@ -139,13 +146,19 @@ The real-threshold backend emission ingestion artifact is typed through
 `P1RealThresholdBackendEmissionArtifactPackage` and
 `assess_p1_real_threshold_backend_emission_artifact`. It binds backend source
 package, implementation, and transcript digests to the predecessor
-threshold-output and standard-verifier compatibility certificates, then can
-feed the threshold verifier closure contract through `to_verifier_closure_package`.
-It is now backed by the checked
+threshold-output and standard-verifier compatibility certificates. Only an
+accepted `RealThresholdMldsa` package can feed the threshold verifier closure
+contract through `to_verifier_closure_package`.
+The checked
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
-fixture harness so reviewers can inspect the bound backend source package,
+fixture harness lets reviewers inspect the bound backend source package,
 implementation, transcript, predecessor certificate digests, mutation-rejection
-evidence, and raw fixture-package digest. This is still not a real threshold
+evidence, and raw fixture-package digest, but it is deliberately blocked from
+artifact readiness. The checked
+`tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json`
+negative-control fixture proves that actual single-key ML-DSA provider output
+verifies and rejects message, key, and signature mutations, while still being
+rejected as non-threshold provenance. These are still not a real threshold
 backend implementation, not actual real threshold backend emission evidence,
 and not proof closure.
 The rejection-distribution review slot is now backed by the checked
