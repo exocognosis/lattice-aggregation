@@ -69,6 +69,22 @@ def localnet_command(profile="honest"):
             "--triggered-validators",
             "3",
         ]
+    if profile == "authenticated-transport":
+        return command + ["--", "--transport", "authenticated-envelope"]
+    if profile == "authenticated-envelope-tamper":
+        return command + [
+            "--",
+            "--transport",
+            "authenticated-envelope",
+            "--profile",
+            "authenticated-envelope-tamper",
+            "--validators",
+            "4",
+            "--threshold",
+            "3",
+            "--tamper-validator",
+            "4",
+        ]
     raise ValueError(f"unsupported localnet profile: {profile}")
 
 
@@ -157,12 +173,16 @@ def parse_key_value_output(text):
         "validators",
         "triggered_validator_count",
         "threshold",
+        "transport_mode",
+        "authentication_policy",
         "finalized",
         "all_validators_finalized",
         "evidence_count",
         "broadcast_count",
         "direct_send_count",
         "dropped_message_count",
+        "authenticated_envelope_count",
+        "rejected_envelope_count",
         "network_bytes",
     ]
     missing = [key for key in required if key not in values]
@@ -177,12 +197,16 @@ def parse_key_value_output(text):
         "validators": int(values["validators"]),
         "triggered_validator_count": int(values["triggered_validator_count"]),
         "threshold": int(values["threshold"]),
+        "transport_mode": values["transport_mode"],
+        "authentication_policy": values["authentication_policy"],
         "finalized": int(values["finalized"]),
         "all_validators_finalized": values["all_validators_finalized"] == "true",
         "evidence_count": int(values["evidence_count"]),
         "broadcast_count": int(values["broadcast_count"]),
         "direct_send_count": int(values["direct_send_count"]),
         "dropped_message_count": int(values["dropped_message_count"]),
+        "authenticated_envelope_count": int(values["authenticated_envelope_count"]),
+        "rejected_envelope_count": int(values["rejected_envelope_count"]),
         "network_bytes": int(values["network_bytes"]),
     }
 
@@ -198,12 +222,16 @@ def render_metrics_csv(metrics):
             "validators",
             "triggered_validator_count",
             "threshold",
+            "transport_mode",
+            "authentication_policy",
             "finalized",
             "all_validators_finalized",
             "evidence_count",
             "broadcast_count",
             "direct_send_count",
             "dropped_message_count",
+            "authenticated_envelope_count",
+            "rejected_envelope_count",
             "network_bytes",
             "claim_boundary",
         ],
@@ -222,9 +250,9 @@ def render_topology_json(metrics):
             "validator_count": metrics["validators"],
             "triggered_validator_count": metrics["triggered_validator_count"],
             "threshold": metrics["threshold"],
-            "transport_mode": "in-memory tokio mpsc",
+            "transport_mode": metrics["transport_mode"],
             "network_scope": "single-process local runner",
-            "authentication_policy": "none; local engineering telemetry only",
+            "authentication_policy": metrics["authentication_policy"],
             "replay_policy": "session-id scoped actor state only",
             "timeout_policy": "actor round timeout",
             "retry_policy": "none in first localnet smoke runner",
@@ -243,12 +271,16 @@ def render_events_jsonl(metrics):
             "validators": metrics["validators"],
             "triggered_validator_count": metrics["triggered_validator_count"],
             "threshold": metrics["threshold"],
+            "transport_mode": metrics["transport_mode"],
+            "authentication_policy": metrics["authentication_policy"],
             "finalized": metrics["finalized"],
             "all_validators_finalized": metrics["all_validators_finalized"],
             "evidence_count": metrics["evidence_count"],
             "broadcast_count": metrics["broadcast_count"],
             "direct_send_count": metrics["direct_send_count"],
             "dropped_message_count": metrics["dropped_message_count"],
+            "authenticated_envelope_count": metrics["authenticated_envelope_count"],
+            "rejected_envelope_count": metrics["rejected_envelope_count"],
             "network_bytes": metrics["network_bytes"],
         },
         {
@@ -264,6 +296,7 @@ def render_summary(generated_at, metadata, metrics):
     fault_note = "No local fault injection was enabled for this packet."
     regeneration_command = "python3 scripts/run_localnet_runner.py --out artifacts/localnet/latest"
     participation_note = "All configured validators actively triggered signing."
+    transport_note = "No authenticated local transport envelope was enabled for this packet."
     if metrics["fault_profile"] != "honest":
         fault_note = (
             "This packet is fault-injection telemetry for local validator "
@@ -286,6 +319,37 @@ def render_summary(generated_at, metadata, metrics):
             "python3 scripts/run_localnet_runner.py --profile "
             "quorum-participation --out artifacts/localnet/quorum-participation"
         )
+    if metrics["transport_mode"] == "authenticated local envelope over tokio mpsc":
+        transport_note = (
+            "This packet exercises an authenticated local envelope with a "
+            "deterministic validator identity digest; it is not production "
+            "authenticated transport, peer discovery, replay-resistance, or "
+            "network-liveness evidence."
+        )
+        regeneration_command = (
+            "python3 scripts/run_localnet_runner.py --profile "
+            "authenticated-transport --out artifacts/localnet/authenticated-transport"
+        )
+    if metrics["fault_profile"] == "authenticated-envelope-tamper":
+        fault_note = (
+            "The authenticated-envelope-tamper packet is local "
+            "tamper-rejection telemetry only: it records tampered authenticated "
+            "local envelopes through rejected_envelope_count without treating "
+            "the local transport rejection as slashing evidence; this is not "
+            "slashing evidence."
+        )
+        transport_note = (
+            "This packet exercises tampered authenticated local envelopes with "
+            "a deterministic validator identity digest; it is not production "
+            "authenticated transport, peer discovery, replay-resistance, "
+            "network-liveness, consensus-safety, Byzantine-fault-tolerance, "
+            "slashing-soundness, or cryptographic security evidence."
+        )
+        regeneration_command = (
+            "python3 scripts/run_localnet_runner.py --profile "
+            "authenticated-envelope-tamper --out "
+            "artifacts/localnet/authenticated-envelope-tamper"
+        )
 
     return "\n".join(
         [
@@ -303,16 +367,21 @@ def render_summary(generated_at, metadata, metrics):
             f"- Validators: `{metrics['validators']}`",
             f"- Triggered validators: `{metrics['triggered_validator_count']}`",
             f"- Threshold: `{metrics['threshold']}`",
+            f"- Transport mode: `{metrics['transport_mode']}`",
+            f"- Authentication policy: `{metrics['authentication_policy']}`",
             f"- Finalized callbacks: `{metrics['finalized']}`",
             f"- All validators finalized: `{metrics['all_validators_finalized']}`",
             f"- Evidence records: `{metrics['evidence_count']}`",
             f"- Broadcast calls: `{metrics['broadcast_count']}`",
             f"- Direct-send calls: `{metrics['direct_send_count']}`",
             f"- Dropped message deliveries: `{metrics['dropped_message_count']}`",
+            f"- Authenticated envelopes: `{metrics['authenticated_envelope_count']}`",
+            f"- Rejected envelopes: `{metrics['rejected_envelope_count']}`",
             f"- Network bytes: `{metrics['network_bytes']}`",
             f"- Claim boundary: `{metrics['claim_boundary']}`",
             f"- Fault boundary: {fault_note}",
             f"- Participation boundary: {participation_note}",
+            f"- Transport boundary: {transport_note}",
             "",
             "## Regeneration",
             "",
@@ -332,9 +401,13 @@ def render_node_log(metrics, validator_index):
         f"threshold={metrics['threshold']}",
         f"validator_count={metrics['validators']}",
         f"triggered_validator_count={metrics['triggered_validator_count']}",
+        f"transport_mode={metrics['transport_mode']}",
+        f"authentication_policy={metrics['authentication_policy']}",
         f"all_validators_finalized={metrics['all_validators_finalized']}",
         f"evidence_count={metrics['evidence_count']}",
         f"dropped_message_count={metrics['dropped_message_count']}",
+        f"authenticated_envelope_count={metrics['authenticated_envelope_count']}",
+        f"rejected_envelope_count={metrics['rejected_envelope_count']}",
         "claim_boundary=" + metrics["claim_boundary"],
         "",
     ]
@@ -394,8 +467,12 @@ def build_report(
         "claim_boundary": CLAIM_BOUNDARY,
         "fault_profile": metrics["fault_profile"],
         "triggered_validator_count": metrics["triggered_validator_count"],
+        "transport_mode": metrics["transport_mode"],
+        "authentication_policy": metrics["authentication_policy"],
         "all_validators_finalized": metrics["all_validators_finalized"],
         "dropped_message_count": metrics["dropped_message_count"],
+        "authenticated_envelope_count": metrics["authenticated_envelope_count"],
+        "rejected_envelope_count": metrics["rejected_envelope_count"],
         "metadata": metadata,
         "command": command,
         "command_duration_seconds": result["duration_seconds"],
@@ -408,7 +485,8 @@ def build_report(
             "validator_count": metrics["validators"],
             "triggered_validator_count": metrics["triggered_validator_count"],
             "threshold": metrics["threshold"],
-            "transport_mode": "in-memory tokio mpsc",
+            "transport_mode": metrics["transport_mode"],
+            "authentication_policy": metrics["authentication_policy"],
         },
     }
 
@@ -474,7 +552,13 @@ def main(argv=None):
     parser.add_argument("--target-dir", help="Cargo target directory for the run")
     parser.add_argument(
         "--profile",
-        choices=["honest", "withheld-partial", "quorum-participation"],
+        choices=[
+            "honest",
+            "withheld-partial",
+            "quorum-participation",
+            "authenticated-transport",
+            "authenticated-envelope-tamper",
+        ],
         default="honest",
         help="localnet profile to execute",
     )
