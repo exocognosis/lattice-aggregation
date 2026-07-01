@@ -113,10 +113,17 @@ rejection-distribution preservation, completed standard-verifier compatibility,
 or a completed cryptographic proof. It also does not claim a real threshold
 backend is implemented in this repository.
 
+The checked fixture harness at
+`tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
+pins this ingestion shape for review and drift detection. It is a harness for
+future externally captured backend emissions, not actual real threshold backend
+emission evidence and not proof closure.
+
 The targeted tests are:
 
 ```sh
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_backend_emission_ingestion
+cargo test --features coordinator-assisted --test production_rejection_equivalence real_threshold_backend_emission_artifact_fixture
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_verifier_closure_contract
 ```
 

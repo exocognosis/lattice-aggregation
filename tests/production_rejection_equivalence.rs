@@ -86,6 +86,8 @@ const EXPECTED_P1_REJECTION_DISTRIBUTION_REVIEW_ARTIFACT_FIXTURE_PACKAGE_DIGEST_
     "de7c71635f2c271f09856a1a4a0cffe292aa3d09a4e2bac09d9c04c90c7ce243";
 const EXPECTED_P1_THEOREM_LINKAGE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "34e4d1907e8105ccbe883df67573e8ba55814b3d948c7a49fb21f665ead1c300";
+const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
+    "fcd09b72c5443409c02e407d45b150cde307aba9346b82d0e2e818109574eb83";
 
 struct AcceptingProvider;
 
@@ -157,6 +159,14 @@ fn theorem_linkage_artifact_fixture() -> P1TheoremLinkageArtifactFixture {
     .expect("P1 theorem-linkage artifact fixture should parse")
 }
 
+fn real_threshold_backend_emission_artifact_fixture(
+) -> P1RealThresholdBackendEmissionArtifactFixture {
+    serde_json::from_str(include_str!(
+        "fixtures/p1_real_threshold_backend_emission_artifact_fixture.json"
+    ))
+    .expect("P1 real-threshold backend emission artifact fixture should parse")
+}
+
 fn standard_verifier_bridge_digest() -> [u8; 32] {
     let fixture = standard_verifier_bridge_fixture();
     let evidence = fixture_bridge_evidence(&fixture);
@@ -212,6 +222,17 @@ fn theorem_linkage_artifact_fixture_package_digest() -> [u8; 32] {
     hasher.update(b"lattice-aggregation:p1-theorem-linkage-artifact-fixture-package:v1");
     hasher.update(include_bytes!(
         "fixtures/p1_theorem_linkage_artifact_fixture.json"
+    ));
+    hasher.finalize().into()
+}
+
+fn real_threshold_backend_emission_artifact_fixture_package_digest() -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(
+        b"lattice-aggregation:p1-real-threshold-backend-emission-artifact-fixture-package:v1",
+    );
+    hasher.update(include_bytes!(
+        "fixtures/p1_real_threshold_backend_emission_artifact_fixture.json"
     ));
     hasher.finalize().into()
 }
@@ -476,6 +497,21 @@ struct P1TheoremLinkageArtifactFixture {
 }
 
 #[derive(Deserialize)]
+struct P1RealThresholdBackendEmissionArtifactFixture {
+    name: String,
+    schema: String,
+    claim_boundary: String,
+    selected_profile: String,
+    source_bridge_fixture: String,
+    source_standard_verifier_compatibility_fixture: String,
+    source_threshold_output_certificate_artifact_fixture: String,
+    backend_evidence: String,
+    note: String,
+    capture: RealThresholdBackendEmissionCaptureFixture,
+    expected: RealThresholdBackendEmissionExpectedDigests,
+}
+
+#[derive(Deserialize)]
 struct RealRecomputationSlotFixture {
     slot_id: String,
     kind: String,
@@ -512,6 +548,20 @@ struct TheoremLinkageSlotFixture {
     evidence_source: String,
     artifact_package: String,
     current_status: String,
+    reviewed: bool,
+}
+
+#[derive(Deserialize)]
+struct RealThresholdBackendEmissionCaptureFixture {
+    validator_count: u32,
+    threshold: u32,
+    aggregate_signature_len: usize,
+    backend_source_package: ThresholdOutputSourcePackageFixture,
+    backend_implementation: ThresholdOutputSourcePackageFixture,
+    backend_transcript: ThresholdOutputSourcePackageFixture,
+    mutated_message_rejected: bool,
+    mutated_public_key_rejected: bool,
+    mutated_signature_rejected: bool,
     reviewed: bool,
 }
 
@@ -576,6 +626,24 @@ struct TheoremLinkageExpectedDigests {
     review_evidence_digest_hex: String,
     artifact_digest_hex: String,
     theorem_linkage_artifact_digest_hex: String,
+}
+
+#[derive(Deserialize)]
+struct RealThresholdBackendEmissionExpectedDigests {
+    selected_profile_binding_digest_hex: String,
+    threshold_output_certificate_digest_hex: String,
+    standard_verifier_compatibility_artifact_digest_hex: String,
+    backend_evidence_digest_hex: String,
+    backend_source_package_digest_hex: String,
+    backend_implementation_digest_hex: String,
+    backend_transcript_digest_hex: String,
+    artifact_digest_hex: String,
+    public_key_digest_hex: String,
+    message_digest_hex: String,
+    transcript_binding_digest_hex: String,
+    signer_set_digest_hex: String,
+    attempt_binding_digest_hex: String,
+    accepted_signature_digest_hex: String,
 }
 
 #[derive(Deserialize)]
@@ -832,6 +900,64 @@ impl TheoremLinkageExpectedDigests {
 
     fn theorem_linkage_artifact_digest(&self) -> [u8; 32] {
         decode_hex_array(&self.theorem_linkage_artifact_digest_hex)
+    }
+}
+
+impl RealThresholdBackendEmissionExpectedDigests {
+    fn selected_profile_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.selected_profile_binding_digest_hex)
+    }
+
+    fn threshold_output_certificate_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.threshold_output_certificate_digest_hex)
+    }
+
+    fn standard_verifier_compatibility_artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.standard_verifier_compatibility_artifact_digest_hex)
+    }
+
+    fn backend_evidence_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_evidence_digest_hex)
+    }
+
+    fn backend_source_package_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_source_package_digest_hex)
+    }
+
+    fn backend_implementation_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_implementation_digest_hex)
+    }
+
+    fn backend_transcript_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.backend_transcript_digest_hex)
+    }
+
+    fn artifact_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.artifact_digest_hex)
+    }
+
+    fn public_key_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.public_key_digest_hex)
+    }
+
+    fn message_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.message_digest_hex)
+    }
+
+    fn transcript_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.transcript_binding_digest_hex)
+    }
+
+    fn signer_set_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.signer_set_digest_hex)
+    }
+
+    fn attempt_binding_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.attempt_binding_digest_hex)
+    }
+
+    fn accepted_signature_digest(&self) -> [u8; 32] {
+        decode_hex_array(&self.accepted_signature_digest_hex)
     }
 }
 
@@ -1328,6 +1454,158 @@ fn standard_verifier_compatibility_fixture_parses_and_matches_bound_payload() {
         &compatibility_fixture
             .expected
             .real_recomputation_evidence_digest()
+    );
+}
+
+#[test]
+fn real_threshold_backend_emission_artifact_fixture_parses_and_feeds_ingestion_gate() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let emission_fixture = real_threshold_backend_emission_artifact_fixture();
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(&bridge_fixture);
+    let compatibility_certificate =
+        standard_verifier_compatibility_artifact_certificate(&bridge_fixture);
+    let package = real_threshold_backend_emission_artifact_package_from_fixture(
+        &emission_fixture,
+        &bridge_fixture,
+    );
+
+    assert_eq!(
+        emission_fixture.name,
+        "p1-real-threshold-backend-emission-artifact-fixture-v1"
+    );
+    assert_eq!(
+        emission_fixture.schema,
+        "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1"
+    );
+    assert_eq!(
+        emission_fixture.claim_boundary,
+        "conformance/proof-review evidence only"
+    );
+    assert_eq!(
+        emission_fixture.selected_profile,
+        "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+    );
+    assert_eq!(
+        emission_fixture.source_bridge_fixture,
+        "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
+    );
+    assert_eq!(
+        emission_fixture.source_standard_verifier_compatibility_fixture,
+        "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
+    );
+    assert_eq!(
+        emission_fixture.source_threshold_output_certificate_artifact_fixture,
+        "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json"
+    );
+    assert_eq!(
+        emission_fixture.backend_evidence,
+        "real_threshold_mldsa_fixture_harness"
+    );
+    assert!(emission_fixture
+        .note
+        .contains("not a real threshold backend implementation"));
+    assert!(emission_fixture
+        .note
+        .contains("not production threshold ML-DSA security"));
+    assert!(emission_fixture
+        .note
+        .contains("not a completed cryptographic proof"));
+    assert_eq!(
+        package.selected_profile_binding_digest,
+        emission_fixture.expected.selected_profile_binding_digest()
+    );
+    assert_eq!(
+        package.threshold_output_certificate_digest,
+        emission_fixture
+            .expected
+            .threshold_output_certificate_digest()
+    );
+    assert_eq!(
+        package.standard_verifier_compatibility_artifact_digest,
+        emission_fixture
+            .expected
+            .standard_verifier_compatibility_artifact_digest()
+    );
+    assert_eq!(
+        package.backend_evidence_digest,
+        emission_fixture.expected.backend_evidence_digest()
+    );
+    assert_eq!(
+        package.backend_source_package_digest,
+        emission_fixture.expected.backend_source_package_digest()
+    );
+    assert_eq!(
+        package.backend_implementation_digest,
+        emission_fixture.expected.backend_implementation_digest()
+    );
+    assert_eq!(
+        package.backend_transcript_digest,
+        emission_fixture.expected.backend_transcript_digest()
+    );
+    assert_eq!(
+        package.artifact_digest,
+        emission_fixture.expected.artifact_digest()
+    );
+    assert_eq!(
+        package.public_key_digest,
+        emission_fixture.expected.public_key_digest()
+    );
+    assert_eq!(
+        package.message_digest,
+        emission_fixture.expected.message_digest()
+    );
+    assert_eq!(
+        package.transcript_binding_digest,
+        emission_fixture.expected.transcript_binding_digest()
+    );
+    assert_eq!(
+        package.signer_set_digest,
+        emission_fixture.expected.signer_set_digest()
+    );
+    assert_eq!(
+        package.attempt_binding_digest,
+        emission_fixture.expected.attempt_binding_digest()
+    );
+    assert_eq!(
+        package.accepted_signature_digest,
+        emission_fixture.expected.accepted_signature_digest()
+    );
+
+    let assessment = assess_p1_real_threshold_backend_emission_artifact(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+    let certificate = assessment
+        .backend_emission_certificate()
+        .expect("checked backend-emission fixture should feed the ingestion gate");
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(
+        certificate.artifact_digest(),
+        &emission_fixture.expected.artifact_digest()
+    );
+    assert!(certificate.mutation_rejection_corpus_complete());
+    assert!(!certificate.claims_real_threshold_backend_implemented());
+    assert!(!certificate.claims_production_threshold_mldsa_security());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+
+    let closure_package = certificate.to_verifier_closure_package();
+    let closure_assessment = assess_p1_real_threshold_verifier_closure_contract(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(closure_package),
+    );
+    assert!(closure_assessment.is_closure_ready());
+}
+
+#[test]
+fn real_threshold_backend_emission_artifact_fixture_package_digest_fails_loudly_on_drift() {
+    assert_eq!(
+        real_threshold_backend_emission_artifact_fixture_package_digest(),
+        decode_hex_array(
+            EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
+        )
     );
 }
 
@@ -3048,6 +3326,75 @@ fn real_threshold_backend_emission_artifact_package(
         true,
         P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
         true,
+    )
+}
+
+fn digest_fixture_bytes(domain: &[u8], bytes: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(domain);
+    hasher.update(bytes);
+    hasher.finalize().into()
+}
+
+fn real_threshold_backend_evidence_digest(
+    fixture: &P1RealThresholdBackendEmissionArtifactFixture,
+) -> [u8; 32] {
+    let source_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-real-threshold-backend-source-package:v1",
+        fixture.capture.backend_source_package.bytes(),
+    );
+    let implementation_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-real-threshold-backend-implementation:v1",
+        fixture.capture.backend_implementation.bytes(),
+    );
+    let transcript_digest = digest_fixture_bytes(
+        b"lattice-aggregation:p1-real-threshold-backend-transcript:v1",
+        fixture.capture.backend_transcript.bytes(),
+    );
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-real-threshold-backend-evidence:v1");
+    hasher.update(source_digest);
+    hasher.update(implementation_digest);
+    hasher.update(transcript_digest);
+    hasher.finalize().into()
+}
+
+fn real_threshold_backend_emission_artifact_package_from_fixture(
+    emission_fixture: &P1RealThresholdBackendEmissionArtifactFixture,
+    bridge_fixture: &P1StandardVerifierBridgeFixture,
+) -> P1RealThresholdBackendEmissionArtifactPackage {
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(bridge_fixture);
+    let compatibility_certificate =
+        standard_verifier_compatibility_artifact_certificate(bridge_fixture);
+    assert_eq!(emission_fixture.capture.validator_count, 10_000);
+    assert_eq!(emission_fixture.capture.threshold, 6_667);
+    assert_eq!(
+        emission_fixture.capture.aggregate_signature_len,
+        MLDSA65_SIGNATURE_BYTES
+    );
+    derive_p1_real_threshold_backend_emission_artifact_package(
+        &threshold_certificate,
+        &compatibility_certificate,
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa,
+        real_threshold_backend_evidence_digest(emission_fixture),
+        digest_fixture_bytes(
+            b"lattice-aggregation:p1-real-threshold-backend-source-package:v1",
+            emission_fixture.capture.backend_source_package.bytes(),
+        ),
+        digest_fixture_bytes(
+            b"lattice-aggregation:p1-real-threshold-backend-implementation:v1",
+            emission_fixture.capture.backend_implementation.bytes(),
+        ),
+        digest_fixture_bytes(
+            b"lattice-aggregation:p1-real-threshold-backend-transcript:v1",
+            emission_fixture.capture.backend_transcript.bytes(),
+        ),
+        emission_fixture.capture.mutated_message_rejected,
+        emission_fixture.capture.mutated_public_key_rejected,
+        emission_fixture.capture.mutated_signature_rejected,
+        P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        emission_fixture.capture.reviewed,
     )
 }
 

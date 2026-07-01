@@ -133,6 +133,17 @@ backend source package, implementation, and transcript digests,
 matching threshold-output and standard-verifier compatibility artifact digests,
 and mutation rejection for message, public key, and signature.
 
+The checked fixture harness at
+`tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
+pins the external backend-emission input shape, backend source package digest,
+backend implementation digest, backend transcript digest, mutation rejection
+flags, and raw fixture-package digest for review. The harness feeds
+`assess_p1_real_threshold_backend_emission_artifact` and then the verifier
+closure package through `to_verifier_closure_package`, but it remains
+conformance/proof-review evidence only. It is not a real threshold backend
+implementation, not actual real threshold backend emission evidence, and not a
+completed cryptographic proof.
+
 A reviewed `P1RealThresholdBackendEmissionArtifactCertificate` can feed
 `P1RealThresholdVerifierClosurePackage` through `to_verifier_closure_package`,
 which is then assessed by `assess_p1_real_threshold_verifier_closure_contract`. The
