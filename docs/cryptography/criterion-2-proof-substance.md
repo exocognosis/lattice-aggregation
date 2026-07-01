@@ -67,8 +67,10 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json`.
 - `real_threshold_backend_emission_artifact_digest`:
   `evidence_present_unclosed` from `p1_real_threshold_backend_output_gate`
-  (`p1_real_threshold_backend_emission_artifact_package`); this is an
-  ingestion gate for external backend-emission evidence only.
+  (`p1_real_threshold_backend_emission_artifact_package` and
+  `derive_p1_verified_real_threshold_backend_emission_artifact_package`); this
+  is an ingestion gate for provider-verified external backend-emission evidence
+  only.
   checked real-threshold backend emission ingestion fixture harness:
   `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`.
   The fixture harness pins source, implementation, transcript, and artifact
@@ -144,11 +146,14 @@ standard-verifier compatibility artifact digest without promoting the slot
 beyond `evidence_present_unclosed`.
 The real-threshold backend emission ingestion artifact is typed through
 `P1RealThresholdBackendEmissionArtifactPackage` and
-`assess_p1_real_threshold_backend_emission_artifact`. It binds backend source
-package, implementation, and transcript digests to the predecessor
-threshold-output and standard-verifier compatibility certificates. Only an
-accepted `RealThresholdMldsa` package can feed the threshold verifier closure
-contract through `to_verifier_closure_package`.
+`assess_p1_real_threshold_backend_emission_artifact`. The backend-output adapter
+`P1RealThresholdBackendEmissionOutput` plus
+`derive_p1_verified_real_threshold_backend_emission_artifact_package` binds
+backend source package, implementation, transcript, public key, message, and
+aggregate-signature digests to the predecessor threshold-output and
+standard-verifier compatibility certificates after standard-provider acceptance.
+Only an accepted `RealThresholdMldsa` package can feed the threshold verifier
+closure contract through `to_verifier_closure_package`.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
 fixture harness lets reviewers inspect the bound backend source package,

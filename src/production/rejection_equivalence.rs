@@ -14,7 +14,7 @@ use crate::{
         selected_backend::SelectedProductionBackendProfile,
         transcript::ProductionSigningTranscript,
     },
-    ThresholdError, ThresholdSignature, ValidatorId, MLDSA65_SIGNATURE_BYTES,
+    ThresholdError, ThresholdPublicKey, ThresholdSignature, ValidatorId, MLDSA65_SIGNATURE_BYTES,
 };
 
 /// Evidence strength for aggregate rejection-equivalence claims.
@@ -1372,6 +1372,39 @@ pub struct P1RealThresholdBackendEmissionArtifactPackage {
     /// Explicit non-production claim boundary.
     pub claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
     /// Whether this artifact package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Backend-generated material submitted to the P1 real-threshold emission gate.
+///
+/// This is an import boundary for an external threshold backend. It carries the
+/// backend provenance bytes and verifier tuple that must already match the
+/// predecessor threshold-output and standard-verifier compatibility
+/// certificates. Constructing this value does not implement a threshold backend
+/// and does not bypass the artifact assessment gate.
+#[derive(Clone, Copy, Debug)]
+pub struct P1RealThresholdBackendEmissionOutput<'a> {
+    /// Reviewed backend source package bytes or canonical manifest bytes.
+    pub backend_source_package: &'a [u8],
+    /// Reviewed backend implementation/build identity bytes.
+    pub backend_implementation: &'a [u8],
+    /// Reviewed backend signing transcript bytes.
+    pub backend_transcript: &'a [u8],
+    /// Standard ML-DSA-65 public verification key emitted by the backend.
+    pub public_key: &'a ThresholdPublicKey,
+    /// Original application message verified by the standard verifier.
+    pub message: &'a [u8],
+    /// Accepted aggregate signature emitted by the backend.
+    pub aggregate_signature: &'a ThresholdSignature,
+    /// Whether the standard verifier rejected the same signature over a mutated message.
+    pub mutated_message_rejected: bool,
+    /// Whether the standard verifier rejected the same signature under a mutated public key.
+    pub mutated_public_key_rejected: bool,
+    /// Whether the standard verifier rejected a mutated signature over the same tuple.
+    pub mutated_signature_rejected: bool,
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1RealThresholdVerifierClosureClaimBoundary,
+    /// Whether this backend emission output has named review signoff.
     pub reviewed: bool,
 }
 
@@ -3002,6 +3035,60 @@ pub fn derive_p1_real_threshold_backend_emission_artifact_digest(
     )
 }
 
+/// Derive the source-package digest for backend-generated real-threshold material.
+pub fn derive_p1_real_threshold_backend_source_package_digest(bytes: &[u8]) -> [u8; 32] {
+    digest_domain_separated_bytes(
+        b"lattice-aggregation:p1-real-threshold-backend-source-package:v1",
+        bytes,
+    )
+}
+
+/// Derive the implementation/build digest for backend-generated real-threshold material.
+pub fn derive_p1_real_threshold_backend_implementation_digest(bytes: &[u8]) -> [u8; 32] {
+    digest_domain_separated_bytes(
+        b"lattice-aggregation:p1-real-threshold-backend-implementation:v1",
+        bytes,
+    )
+}
+
+/// Derive the transcript digest for backend-generated real-threshold material.
+pub fn derive_p1_real_threshold_backend_transcript_digest(bytes: &[u8]) -> [u8; 32] {
+    digest_domain_separated_bytes(
+        b"lattice-aggregation:p1-real-threshold-backend-transcript:v1",
+        bytes,
+    )
+}
+
+/// Derive the evidence digest for backend-generated real-threshold material.
+///
+/// This digest commits to the backend provenance digests plus the verifier
+/// tuple and mutation-rejection corpus. It is an evidence binding only; the
+/// assessment gate still rejects missing review, bad boundaries, tuple drift,
+/// and non-threshold evidence classes.
+pub fn derive_p1_real_threshold_backend_emission_evidence_digest(
+    output: &P1RealThresholdBackendEmissionOutput<'_>,
+) -> [u8; 32] {
+    let source_digest =
+        derive_p1_real_threshold_backend_source_package_digest(output.backend_source_package);
+    let implementation_digest =
+        derive_p1_real_threshold_backend_implementation_digest(output.backend_implementation);
+    let transcript_digest =
+        derive_p1_real_threshold_backend_transcript_digest(output.backend_transcript);
+
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-real-threshold-backend-emission-evidence:v1");
+    hasher.update(source_digest);
+    hasher.update(implementation_digest);
+    hasher.update(transcript_digest);
+    hasher.update(digest_bytes(&output.public_key.0));
+    hasher.update(digest_bytes(output.message));
+    hasher.update(digest_signature(output.aggregate_signature));
+    hasher.update([u8::from(output.mutated_message_rejected)]);
+    hasher.update([u8::from(output.mutated_public_key_rejected)]);
+    hasher.update([u8::from(output.mutated_signature_rejected)]);
+    hasher.finalize().into()
+}
+
 #[allow(clippy::too_many_arguments)]
 fn derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
     selected_profile: SelectedProductionBackendProfile,
@@ -3067,6 +3154,83 @@ fn derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
         P1RealThresholdVerifierClosureClaimBoundary::ProductionClaim => hasher.update([1]),
     }
     hasher.finalize().into()
+}
+
+/// Derive a P1 real-threshold backend emission package from backend output material.
+///
+/// This constructor is the intended import adapter for actual backend-generated
+/// evidence. It binds the external backend material to predecessor
+/// threshold-output and standard-verifier compatibility certificates, sets the
+/// evidence class to `RealThresholdMldsa`, and leaves final readiness to
+/// `assess_p1_real_threshold_backend_emission_artifact`.
+pub fn derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    output: P1RealThresholdBackendEmissionOutput<'_>,
+) -> Result<P1RealThresholdBackendEmissionArtifactPackage, ThresholdError> {
+    let public_key_digest = digest_bytes(&output.public_key.0);
+    let message_digest = digest_bytes(output.message);
+    let accepted_signature_digest = digest_signature(output.aggregate_signature);
+    if public_key_digest != *compatibility_certificate.public_key_digest()
+        || message_digest != *compatibility_certificate.message_digest()
+        || accepted_signature_digest != *threshold_certificate.accepted_signature_digest()
+        || accepted_signature_digest != *compatibility_certificate.accepted_signature_digest()
+    {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+
+    Ok(derive_p1_real_threshold_backend_emission_artifact_package(
+        threshold_certificate,
+        compatibility_certificate,
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa,
+        derive_p1_real_threshold_backend_emission_evidence_digest(&output),
+        derive_p1_real_threshold_backend_source_package_digest(output.backend_source_package),
+        derive_p1_real_threshold_backend_implementation_digest(output.backend_implementation),
+        derive_p1_real_threshold_backend_transcript_digest(output.backend_transcript),
+        output.mutated_message_rejected,
+        output.mutated_public_key_rejected,
+        output.mutated_signature_rejected,
+        output.claim_boundary,
+        output.reviewed,
+    ))
+}
+
+/// Derive a P1 real-threshold backend emission package after standard verification.
+///
+/// This is the preferred adapter for actual backend-generated emissions when a
+/// standard ML-DSA provider is available. It proves only that the submitted
+/// tuple is accepted by the provider boundary and matches predecessor
+/// certificates; it still does not implement an in-repo threshold backend.
+pub fn derive_p1_verified_real_threshold_backend_emission_artifact_package<P>(
+    transcript: &ProductionSigningTranscript,
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    output: P1RealThresholdBackendEmissionOutput<'_>,
+) -> Result<P1RealThresholdBackendEmissionArtifactPackage, ThresholdError>
+where
+    P: StandardMldsa65Provider,
+{
+    if output.public_key != &transcript.input().public_key
+        || output.message != transcript.input().application_message.as_slice()
+    {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+
+    let verifier = StandardVerifierEvidence::verify::<P>(transcript, output.aggregate_signature)?;
+    if verifier.candidate_signature_digest() != &digest_signature(output.aggregate_signature)
+        || verifier.candidate_signature_digest()
+            != threshold_certificate.accepted_signature_digest()
+        || verifier.candidate_signature_digest()
+            != compatibility_certificate.accepted_signature_digest()
+    {
+        return Err(ThresholdError::StandardVerificationFailed);
+    }
+
+    derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output(
+        threshold_certificate,
+        compatibility_certificate,
+        output,
+    )
 }
 
 /// Derive a P1 real-threshold backend emission artifact package.
@@ -5496,6 +5660,13 @@ fn require_closure_digest(
 
 fn digest_bytes(bytes: &[u8]) -> [u8; 32] {
     Sha3_256::digest(bytes).into()
+}
+
+fn digest_domain_separated_bytes(domain: &[u8], bytes: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(domain);
+    hasher.update(bytes);
+    hasher.finalize().into()
 }
 
 fn digest_signature(signature: &ThresholdSignature) -> [u8; 32] {

@@ -20,6 +20,11 @@ use lattice_aggregation::{
             assess_rejection_equivalence_closure, derive_p1_criterion2_proof_slot_artifact_digest,
             derive_p1_criterion2_proof_slot_artifacts,
             derive_p1_real_threshold_backend_emission_artifact_package,
+            derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output,
+            derive_p1_real_threshold_backend_emission_evidence_digest,
+            derive_p1_real_threshold_backend_implementation_digest,
+            derive_p1_real_threshold_backend_source_package_digest,
+            derive_p1_real_threshold_backend_transcript_digest,
             derive_p1_selected_backend_aggregate_certificate_digest,
             derive_p1_selected_backend_attempt_binding_digest,
             derive_p1_selected_backend_proof_closure_artifact_package,
@@ -31,6 +36,7 @@ use lattice_aggregation::{
             derive_p1_selected_backend_transcript_binding_digest,
             derive_p1_standard_verifier_compatibility_artifact_digest,
             derive_p1_standard_verifier_compatibility_artifact_package,
+            derive_p1_verified_real_threshold_backend_emission_artifact_package,
             derive_standard_verifier_bridge_evidence_digest, AcvpFips204EvidenceSource,
             AggregateRecomputationTranscript, AggregateRejectionClosureAssessment,
             AggregateRejectionClosurePackage, AggregateRejectionClosureStatus,
@@ -40,7 +46,7 @@ use lattice_aggregation::{
             P1AggregateRecomputationAssessment, P1AggregateRecomputationClosureCertificate,
             P1AggregateRecomputationClosurePackage, P1Criterion2ProofSlotArtifactKind,
             P1RealThresholdBackendEmissionArtifactAssessment,
-            P1RealThresholdBackendEmissionArtifactPackage,
+            P1RealThresholdBackendEmissionArtifactPackage, P1RealThresholdBackendEmissionOutput,
             P1RealThresholdVerifierClosureAssessment,
             P1RealThresholdVerifierClosureBackendEvidence,
             P1RealThresholdVerifierClosureClaimBoundary, P1RealThresholdVerifierClosurePackage,
@@ -1737,6 +1743,166 @@ fn real_threshold_backend_emission_artifact_fixture_package_digest_fails_loudly_
             EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX
         )
     );
+}
+
+#[test]
+fn real_threshold_backend_output_material_derives_artifact_ready_package() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(&bridge_fixture);
+    let compatibility_certificate =
+        standard_verifier_compatibility_artifact_certificate(&bridge_fixture);
+    let public_key = ThresholdPublicKey([6; 1952]);
+    let message = b"original application message";
+    let aggregate_signature = ThresholdSignature([42; 3309]);
+    let backend_source_package = b"reviewed real threshold source package bytes v1";
+    let backend_implementation = b"reviewed real threshold implementation digest material v1";
+    let backend_transcript = b"reviewed real threshold transcript digest material v1";
+
+    let material = P1RealThresholdBackendEmissionOutput {
+        backend_source_package,
+        backend_implementation,
+        backend_transcript,
+        public_key: &public_key,
+        message,
+        aggregate_signature: &aggregate_signature,
+        mutated_message_rejected: true,
+        mutated_public_key_rejected: true,
+        mutated_signature_rejected: true,
+        claim_boundary: P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    };
+
+    let package = derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output(
+        &threshold_certificate,
+        &compatibility_certificate,
+        material,
+    )
+    .expect("matching backend-output material should derive a real-threshold package");
+
+    assert_eq!(
+        package.backend_evidence,
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa
+    );
+    assert_eq!(
+        package.backend_source_package_digest,
+        derive_p1_real_threshold_backend_source_package_digest(backend_source_package)
+    );
+    assert_eq!(
+        package.backend_implementation_digest,
+        derive_p1_real_threshold_backend_implementation_digest(backend_implementation)
+    );
+    assert_eq!(
+        package.backend_transcript_digest,
+        derive_p1_real_threshold_backend_transcript_digest(backend_transcript)
+    );
+    assert_eq!(
+        package.backend_evidence_digest,
+        derive_p1_real_threshold_backend_emission_evidence_digest(&material)
+    );
+
+    let assessment = assess_p1_real_threshold_backend_emission_artifact(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+    let certificate = assessment
+        .backend_emission_certificate()
+        .copied()
+        .expect("reviewed real-threshold material should become artifact-ready");
+    assert!(assessment.is_artifact_ready());
+    assert_eq!(certificate.validator_count(), 10_000);
+    assert_eq!(certificate.threshold(), 6_667);
+    assert_eq!(
+        certificate.aggregate_signature_len(),
+        MLDSA65_SIGNATURE_BYTES
+    );
+    assert!(certificate.mutation_rejection_corpus_complete());
+    assert!(!certificate.claims_real_threshold_backend_implemented());
+    assert!(!certificate.claims_completed_cryptographic_proof());
+}
+
+#[test]
+fn real_threshold_backend_output_material_rejects_tuple_digest_mismatch() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(&bridge_fixture);
+    let compatibility_certificate =
+        standard_verifier_compatibility_artifact_certificate(&bridge_fixture);
+    let public_key = ThresholdPublicKey([6; 1952]);
+    let aggregate_signature = ThresholdSignature([43; 3309]);
+
+    let material = P1RealThresholdBackendEmissionOutput {
+        backend_source_package: b"reviewed real threshold source package bytes v1",
+        backend_implementation: b"reviewed real threshold implementation digest material v1",
+        backend_transcript: b"reviewed real threshold transcript digest material v1",
+        public_key: &public_key,
+        message: b"original application message",
+        aggregate_signature: &aggregate_signature,
+        mutated_message_rejected: true,
+        mutated_public_key_rejected: true,
+        mutated_signature_rejected: true,
+        claim_boundary: P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    };
+
+    let err = derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output(
+        &threshold_certificate,
+        &compatibility_certificate,
+        material,
+    )
+    .unwrap_err();
+    assert_eq!(err, ThresholdError::TranscriptMismatch);
+}
+
+#[test]
+fn verified_real_threshold_backend_output_material_requires_standard_verifier_acceptance() {
+    let bridge_fixture = standard_verifier_bridge_fixture();
+    let transcript = transcript_from_fixture(&bridge_fixture.transcript);
+    let threshold_certificate =
+        selected_backend_threshold_output_artifact_certificate(&bridge_fixture);
+    let compatibility_certificate =
+        standard_verifier_compatibility_artifact_certificate(&bridge_fixture);
+    let public_key = ThresholdPublicKey([6; 1952]);
+    let message = b"original application message";
+    let aggregate_signature = ThresholdSignature([42; 3309]);
+
+    let material = P1RealThresholdBackendEmissionOutput {
+        backend_source_package: b"reviewed real threshold source package bytes v1",
+        backend_implementation: b"reviewed real threshold implementation digest material v1",
+        backend_transcript: b"reviewed real threshold transcript digest material v1",
+        public_key: &public_key,
+        message,
+        aggregate_signature: &aggregate_signature,
+        mutated_message_rejected: true,
+        mutated_public_key_rejected: true,
+        mutated_signature_rejected: true,
+        claim_boundary: P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    };
+
+    let package =
+        derive_p1_verified_real_threshold_backend_emission_artifact_package::<AcceptingProvider>(
+            &transcript,
+            &threshold_certificate,
+            &compatibility_certificate,
+            material,
+        )
+        .expect("standard-verifier accepted backend material should derive a package");
+    assert_eq!(
+        package.backend_evidence,
+        P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa
+    );
+
+    let err =
+        derive_p1_verified_real_threshold_backend_emission_artifact_package::<RejectingProvider>(
+            &transcript,
+            &threshold_certificate,
+            &compatibility_certificate,
+            material,
+        )
+        .unwrap_err();
+    assert_eq!(err, ThresholdError::StandardVerificationFailed);
 }
 
 #[cfg(feature = "hazmat-real-mldsa")]
