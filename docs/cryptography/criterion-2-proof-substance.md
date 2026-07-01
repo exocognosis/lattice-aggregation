@@ -65,6 +65,11 @@ The Criterion 2 proof payload requires these slots before any promotion:
   conformance/proof-review evidence only.
   Checked standard-verifier compatibility fixture:
   `tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json`.
+- `real_threshold_backend_emission_artifact_digest`:
+  `evidence_present_unclosed` from `p1_real_threshold_backend_output_gate`
+  (`p1_real_threshold_backend_emission_artifact_package`); this is an
+  ingestion gate for external backend-emission evidence only. No checked fixture
+  is listed until an actual real threshold backend emits reviewed output.
 - `full_kat_validation_artifact_digest`: `evidence_present_unclosed` from
   `p1_criterion2_full_kat_validation_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
@@ -126,6 +131,14 @@ fixture so reviewers can inspect the bound verifier payload, provider identity,
 accepted result, predecessor certificate digest, transcript binding, and
 standard-verifier compatibility artifact digest without promoting the slot
 beyond `evidence_present_unclosed`.
+The real-threshold backend emission ingestion artifact is typed through
+`P1RealThresholdBackendEmissionArtifactPackage` and
+`assess_p1_real_threshold_backend_emission_artifact`. It binds backend source
+package, implementation, and transcript digests to the predecessor
+threshold-output and standard-verifier compatibility certificates, then can
+feed the threshold verifier closure contract through `to_verifier_closure_package`.
+It is not a checked real backend emission fixture and does not mean this repo
+implements a real threshold backend.
 The rejection-distribution review slot is now backed by the checked
 `tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json`
 fixture so reviewers can inspect the bound rejection-distribution review source

@@ -123,18 +123,26 @@ This is stronger than fixture-only bridge confidence, but it remains
 conformance/proof-review evidence only and does not claim a real threshold
 aggregate signer.
 
-`P1RealThresholdVerifierClosurePackage` and
-`assess_p1_real_threshold_verifier_closure_contract` add the real threshold backend emission gate for the 10,000-validator target. This threshold verifier closure contract requires `validators = 10000`, `threshold = 6667`,
+`P1RealThresholdBackendEmissionArtifactPackage`,
+`derive_p1_real_threshold_backend_emission_artifact_package`, and
+`assess_p1_real_threshold_backend_emission_artifact` add the real threshold backend emission ingestion artifact for the 10,000-validator target. The
+artifact binds `validators = 10000`, `threshold = 6667`,
 `aggregate_signature.len() = 3309`, real threshold ML-DSA backend provenance,
+backend source package, implementation, and transcript digests,
 `MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept`,
 matching threshold-output and standard-verifier compatibility artifact digests,
-and mutation rejection for message, public key, and signature. The gate rejects
-`SimulatedDeterministic` evidence as `blocked_fail_closed` and rejects
-`StandardProviderSingleKey` evidence because ordinary single-key standard-provider output is not threshold backend provenance. This is
-framework/conformance evidence only and does not claim production threshold
-ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS
-validation, rejection-distribution preservation, completed standard-verifier
-compatibility, or a completed cryptographic proof.
+and mutation rejection for message, public key, and signature.
+
+A reviewed `P1RealThresholdBackendEmissionArtifactCertificate` can feed
+`P1RealThresholdVerifierClosurePackage` through `to_verifier_closure_package`,
+which is then assessed by `assess_p1_real_threshold_verifier_closure_contract`. The
+gate rejects `SimulatedDeterministic` evidence as `blocked_fail_closed` and
+rejects `StandardProviderSingleKey` evidence because ordinary single-key standard-provider output is not threshold backend provenance. This is
+framework/conformance evidence only and does not claim a real threshold backend
+is implemented in this repository, production threshold ML-DSA security,
+selected-backend proof closure, CAVP/ACVTS validation, FIPS validation,
+rejection-distribution preservation, completed standard-verifier compatibility,
+or a completed cryptographic proof.
 
 `P1SelectedBackendThresholdOutputArtifactPackage`,
 `derive_p1_selected_backend_threshold_output_artifact_package`, and

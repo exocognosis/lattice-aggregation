@@ -224,6 +224,7 @@ CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "threshold_output_certificate_digest",
     "real_recomputation_evidence_digest",
     "standard_verifier_compatibility_artifact_digest",
+    "real_threshold_backend_emission_artifact_digest",
     "rejection_distribution_review_digest",
     "theorem_linkage_artifact_digest",
     "full_kat_validation_artifact_digest",
@@ -242,6 +243,9 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     ),
     "standard_verifier_compatibility_artifact_digest": (
         "p1_standard_verifier_compatibility_artifact_gate"
+    ),
+    "real_threshold_backend_emission_artifact_digest": (
+        "p1_real_threshold_backend_output_gate"
     ),
     "rejection_distribution_review_digest": (
         "p1_criterion2_rejection_distribution_review_artifact_gate"
@@ -266,10 +270,17 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     "standard_verifier_compatibility_artifact_digest": (
         "p1_standard_verifier_compatibility_artifact_package"
     ),
+    "real_threshold_backend_emission_artifact_digest": (
+        "p1_real_threshold_backend_emission_artifact_package"
+    ),
     **{
         slot: "p1_criterion2_proof_slot_artifact_package"
         for slot in CRITERION2_EVIDENCE_PRESENT_SLOTS
-        if slot != "standard_verifier_compatibility_artifact_digest"
+        if slot
+        not in {
+            "standard_verifier_compatibility_artifact_digest",
+            "real_threshold_backend_emission_artifact_digest",
+        }
     },
 }
 CRITERION2_DURABLE_CERTIFICATE_ACCESSORS = {
@@ -1000,6 +1011,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "required_artifact_slots": CRITERION2_REQUIRED_ARTIFACT_SLOTS,
         "artifact_slot_statuses": artifact_slot_statuses,
         "artifact_slot_sources": artifact_slot_sources,
+        "artifact_slot_packages": artifact_slot_packages,
         "artifact_slot_certificate_accessors": artifact_slot_certificate_accessors,
         "artifact_fixture_refs": artifact_fixture_refs,
         "durable_certificate_evidence": durable_certificate_evidence,
@@ -1958,6 +1970,18 @@ def scan_documents(root):
         )
         and has_public_struct(
             rejection_equivalence_source,
+            "P1RealThresholdBackendEmissionArtifactPackage",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1RealThresholdBackendEmissionArtifactCertificate",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1RealThresholdBackendEmissionArtifactAssessment",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
             "P1RealThresholdVerifierClosurePackage",
         )
         and has_public_struct(
@@ -1967,6 +1991,18 @@ def scan_documents(root):
         and has_public_enum(
             rejection_equivalence_source,
             "P1RealThresholdVerifierClosureAssessment",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_real_threshold_backend_emission_artifact",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_real_threshold_backend_emission_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_real_threshold_backend_emission_artifact_digest",
         )
         and has_public_function(
             rejection_equivalence_source,
@@ -1981,14 +2017,84 @@ def scan_documents(root):
             "threshold",
             "aggregate_signature_len",
             "backend_evidence_digest",
+            "backend_source_package_digest",
+            "backend_implementation_digest",
+            "backend_transcript_digest",
+            "artifact_digest",
             "mutated_message_rejected",
             "mutated_public_key_rejected",
             "mutated_signature_rejected",
+            "to_verifier_closure_package",
+            "claims_real_threshold_backend_implemented",
             "mutation_rejection_corpus_complete",
             "claims_production_threshold_mldsa_security",
             "claims_cavp_acvts_validation",
             "claims_fips_validation",
             "claims_completed_cryptographic_proof",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "ingestion",
+            "accepts",
+            "reviewed",
+            "external",
+            "threshold",
+            "output",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "ingestion",
+            "blocks",
+            "simulated",
+            "backend",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "ingestion",
+            "rejects",
+            "standard",
+            "provider",
+            "single",
+            "key",
+            "output",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "ingestion",
+            "rejects",
+            "stale",
+            "threshold",
+            "certificate",
+            "digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "emission",
+            "ingestion",
+            "rejects",
+            "unreviewed",
+            "external",
+            "backend",
+            "evidence",
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,
@@ -2039,7 +2145,8 @@ def scan_documents(root):
             "mutation",
             "corpus",
         )
-        and "real threshold backend emission gate" in validator_10000_gate_doc
+        and "real threshold backend emission ingestion artifact"
+        in validator_10000_gate_doc
         and "threshold verifier closure contract" in validator_10000_gate_doc
         and "real threshold ML-DSA acceptance contract" in validator_10000_gate_doc
         and "not ordinary single-key standard-provider output"
@@ -2509,24 +2616,24 @@ def classify_criteria(criteria, scan):
             if scan.get("p1_real_threshold_backend_output_gate"):
                 partial_progress = True
                 observed.append(
-                    "P1 real-threshold backend emission gate is present as a "
-                    "threshold verifier closure contract; it requires 10,000 "
-                    "validators with threshold 6,667, a 3,309-byte aggregate "
-                    "signature, real threshold ML-DSA backend provenance, "
-                    "standard-verifier acceptance, and mutated message, public "
-                    "key, and signature rejection evidence. It rejects "
-                    "deterministic simulation and ordinary single-key "
-                    "standard-provider output as closure evidence. This remains "
-                    "conformance/proof-review evidence only, not production "
-                    "threshold ML-DSA security, not CAVP/ACVTS validation, "
-                    "not FIPS validation, and not a completed cryptographic "
-                    "proof."
+                    "P1 real-threshold backend emission ingestion artifact is "
+                    "present as the input path to the threshold verifier "
+                    "closure contract; it requires 10,000 validators with "
+                    "threshold 6,667, a 3,309-byte aggregate signature, real "
+                    "threshold ML-DSA backend provenance, backend source, implementation, and transcript digests, standard-verifier "
+                    "acceptance, and mutated message, public key, and signature "
+                    "rejection evidence. It rejects deterministic simulation "
+                    "and ordinary single-key standard-provider output as "
+                    "closure evidence. This remains conformance/proof-review "
+                    "evidence only, not production threshold ML-DSA security, "
+                    "not CAVP/ACVTS validation, not FIPS validation, and not a "
+                    "completed cryptographic proof."
                 )
                 blockers.append(
-                    "P1 real-threshold backend emission gate is present, but "
-                    "actual real threshold backend emissions, rejection-"
-                    "distribution preservation, full validation artifacts, "
-                    "and reviewed cryptographic proof remain open."
+                    "P1 real-threshold backend emission ingestion artifact is "
+                    "present, but actual real threshold backend emissions, "
+                    "rejection-distribution preservation, full validation "
+                    "artifacts, and reviewed cryptographic proof remain open."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):
@@ -3038,6 +3145,16 @@ def render_markdown(report):
                     f"{slot}={artifact_sources[slot]}"
                     for slot in criterion2["required_artifact_slots"]
                     if slot in artifact_sources
+                )
+            )
+        artifact_packages = criterion2.get("artifact_slot_packages", {})
+        if artifact_packages:
+            lines.append(
+                "- Artifact packages: "
+                + ", ".join(
+                    f"{slot}={artifact_packages[slot]}"
+                    for slot in criterion2["required_artifact_slots"]
+                    if slot in artifact_packages
                 )
             )
         certificate_accessors = criterion2.get(
