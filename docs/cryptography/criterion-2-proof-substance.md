@@ -68,9 +68,20 @@ The Criterion 2 proof payload requires these slots before any promotion:
 - `real_threshold_backend_emission_artifact_digest`:
   `evidence_present_unclosed` from `p1_real_threshold_backend_output_gate`
   (`p1_real_threshold_backend_emission_artifact_package` and
-  `derive_p1_verified_real_threshold_backend_emission_artifact_package`); this
-  is an ingestion gate for provider-verified external backend-emission evidence
-  only.
+  `derive_p1_verified_real_threshold_backend_emission_artifact_package` plus
+  `derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture`);
+  this is an ingestion gate for provider-verified external backend-emission
+  evidence only.
+  Canonical backend-emission capture schema/importer:
+  `P1RealThresholdBackendEmissionCapture`,
+  `P1OwnedRealThresholdBackendEmissionOutput`,
+  `lattice-aggregation:p1-real-threshold-backend-emission-capture:v1`, and
+  `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`.
+  The importer binds externally supplied backend source, implementation,
+  transcript, public key, message, accepted signature, predecessor certificate
+  digests, expected package digests, and mutation-rejection evidence before it
+  feeds the provider-verified adapter. The schema fixture is blocked until
+  actual backend-generated real-threshold emission artifacts replace it.
   checked real-threshold backend emission ingestion fixture harness:
   `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`.
   The fixture harness pins source, implementation, transcript, and artifact
@@ -152,8 +163,23 @@ The real-threshold backend emission ingestion artifact is typed through
 backend source package, implementation, transcript, public key, message, and
 aggregate-signature digests to the predecessor threshold-output and
 standard-verifier compatibility certificates after standard-provider acceptance.
+The canonical backend-emission capture schema/importer
+`P1RealThresholdBackendEmissionCapture` plus
+`derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture`
+is now the JSON handoff for actual external backend captures. It rejects schema
+fixtures, decodes owned backend output material, checks predecessor certificate
+digests and expected package digests, and then feeds the same provider-verified
+adapter. This standardizes the future source digest, implementation digest,
+transcript digest, accepted signature, mutation-rejection evidence, and
+standard-verifier compatibility binding without implementing a real threshold
+backend.
 Only an accepted `RealThresholdMldsa` package can feed the threshold verifier
 closure contract through `to_verifier_closure_package`.
+The checked
+`tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
+fixture pins that capture schema, but it is not actual real threshold backend
+emission evidence and is blocked until externally generated threshold emission
+artifacts are available.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
 fixture harness lets reviewers inspect the bound backend source package,

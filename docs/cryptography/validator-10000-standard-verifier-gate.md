@@ -84,7 +84,9 @@ are present:
 The follow-on Criterion 2 contract is the real threshold backend emission ingestion artifact, implemented by
 `P1RealThresholdBackendEmissionArtifactPackage`,
 `derive_p1_real_threshold_backend_emission_artifact_package`, and
-`derive_p1_verified_real_threshold_backend_emission_artifact_package`, and
+`derive_p1_verified_real_threshold_backend_emission_artifact_package`,
+`P1RealThresholdBackendEmissionCapture`, and
+`derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture`, and
 `assess_p1_real_threshold_backend_emission_artifact` in
 `src/production/rejection_equivalence.rs`.
 
@@ -101,6 +103,9 @@ This is a threshold verifier closure contract and real threshold ML-DSA acceptan
 - `P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa`;
 - a backend source package digest, backend implementation digest, and backend
   transcript digest for external review;
+- canonical backend-emission capture schema/importer input
+  (`lattice-aggregation:p1-real-threshold-backend-emission-capture:v1`) with
+  predecessor certificate digests and expected package digest bindings;
 - `P1RealThresholdBackendEmissionOutput` material whose public key, message, and
   aggregate signature match the predecessor certificates;
 - `MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept`;
@@ -122,6 +127,18 @@ substitute for backend implementation evidence: without externally generated
 real-threshold source, implementation, transcript, accepted aggregate, and
 mutation-rejection evidence, the gate remains `blocked_fail_closed`.
 
+The canonical backend-emission capture schema/importer is the JSON handoff for
+those externally generated artifacts. It decodes
+`P1RealThresholdBackendEmissionCapture`, rejects schema fixtures before tuple
+ingestion, checks predecessor certificate digests and expected package digests,
+and feeds the same provider-verified adapter. This is an executable input gate,
+not a real threshold backend and not theorem closure.
+
+The checked capture schema fixture at
+`tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
+pins the future capture envelope, but it is explicitly not actual real
+threshold backend emission evidence.
+
 The checked fixture harness at
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
 pins this ingestion shape for review and drift detection, but the harness is
@@ -140,6 +157,7 @@ The targeted tests are:
 
 ```sh
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_backend_emission_ingestion
+cargo test --features coordinator-assisted --test production_rejection_equivalence real_threshold_backend_capture
 cargo test --features coordinator-assisted --test production_rejection_equivalence real_threshold_backend_emission_artifact_fixture
 cargo test --features production-mldsa65-coordinator --test production_rejection_equivalence standard_provider_single_key_emission_fixture
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_verifier_closure_contract

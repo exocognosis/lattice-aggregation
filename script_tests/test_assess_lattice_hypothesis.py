@@ -574,6 +574,7 @@ class ReportGenerationTests(unittest.TestCase):
         (root / "docs" / "cryptography").mkdir(parents=True, exist_ok=True)
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
+        (root / "tests" / "fixtures").mkdir(parents=True, exist_ok=True)
         rejection_equivalence_path = (
             root / "src" / "production" / "rejection_equivalence.rs"
         )
@@ -595,6 +596,20 @@ class ReportGenerationTests(unittest.TestCase):
             + "pub backend_transcript: &'a [u8],\n"
             + "pub aggregate_signature: &'a [u8],\n"
             + "}\n"
+            + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA: &str = "
+            + "\"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\";\n"
+            + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE: &str = "
+            + "\"real_threshold_mldsa_external_capture\";\n"
+            + "pub struct P1RealThresholdBackendEmissionCapture;\n"
+            + "pub struct P1OwnedRealThresholdBackendEmissionOutput;\n"
+            + "impl P1RealThresholdBackendEmissionCapture {\n"
+            + "pub fn decode_json(&self) {}\n"
+            + "pub fn to_backend_output_material(&self) {}\n"
+            + "fn validate_predecessors(&self) {}\n"
+            + "fn validate_expected_digests(&self) {}\n"
+            + "}\n"
+            + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_EVIDENCE: &str = "
+            + "\"real_threshold_mldsa_capture_schema_fixture\";\n"
             + "pub struct P1RealThresholdBackendEmissionArtifactCertificate;\n"
             + "impl P1RealThresholdBackendEmissionArtifactCertificate {\n"
             + "pub fn backend_source_package_digest(&self) {}\n"
@@ -630,6 +645,7 @@ class ReportGenerationTests(unittest.TestCase):
             + "pub fn derive_p1_real_threshold_backend_emission_artifact_package() {}\n"
             + "pub fn derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output() {}\n"
             + "pub fn derive_p1_verified_real_threshold_backend_emission_artifact_package() {}\n"
+            + "pub fn derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture() {}\n"
             + "pub fn derive_p1_real_threshold_backend_emission_evidence_digest() {}\n"
             + "pub fn derive_p1_real_threshold_backend_emission_artifact_digest() {}\n"
             + "pub fn assess_p1_real_threshold_verifier_closure_contract() {}\n",
@@ -644,6 +660,24 @@ class ReportGenerationTests(unittest.TestCase):
             + "fn real_threshold_backend_output_material_rejects_tuple_digest_mismatch() {}\n"
             + "#[test]\n"
             + "fn verified_real_threshold_backend_output_material_requires_standard_verifier_acceptance() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_schema_fixture_parses_but_remains_blocked_until_actual_capture() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_feeds_verified_ingestion_gate_when_actual_evidence_is_present() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_requires_standard_verifier_acceptance() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_stale_predecessor_digest() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_expected_artifact_digest_drift() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_missing_predecessor_digests() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_missing_expected_digests() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_malformed_signature_length() {}\n"
+            + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_unsupported_byte_encoding() {}\n"
             + "#[test]\n"
             + "fn p1_real_threshold_backend_emission_ingestion_accepts_reviewed_external_threshold_output() {}\n"
             + "#[test]\n"
@@ -672,11 +706,24 @@ class ReportGenerationTests(unittest.TestCase):
         )
         (
             root
+            / "tests"
+            / "fixtures"
+            / "p1_real_threshold_backend_emission_capture_schema_fixture.json"
+        ).write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\",\n"
+            "  \"note\": \"not actual real threshold backend emission evidence\"\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        (
+            root
             / "docs"
             / "cryptography"
             / "validator-10000-standard-verifier-gate.md"
         ).write_text(
             "real threshold backend emission ingestion artifact\n"
+            "canonical backend-emission capture schema/importer\n"
             "threshold verifier closure contract\n"
             "real threshold ML-DSA acceptance contract\n"
             "fail-closed\n"
@@ -1145,6 +1192,7 @@ class ReportGenerationTests(unittest.TestCase):
             "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json, "
             "tests/fixtures/p1_real_recomputation_artifact_fixture.json, "
             "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json, "
+            "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json, "
             "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json, "
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json, "
             "tests/fixtures/p1_theorem_linkage_artifact_fixture.json, "
@@ -1310,6 +1358,22 @@ class ReportGenerationTests(unittest.TestCase):
                             ),
                             **(
                                 {
+                                    "backend_capture_schema": (
+                                        "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+                                    ),
+                                    "backend_capture_importer": (
+                                        "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture"
+                                    ),
+                                    "backend_capture_fixture_path": (
+                                        "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
+                                    ),
+                                }
+                                if slot
+                                == "real_threshold_backend_emission_artifact_digest"
+                                else {}
+                            ),
+                            **(
+                                {
                                     "certificate_surface": (
                                         "p1_selected_backend_proof_closure_artifact_certificate"
                                     ),
@@ -1411,6 +1475,23 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": (
+                            "real_threshold_backend_emission_artifact_digest"
+                        ),
+                        "fixture_path": (
+                            "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+                        ),
+                        "current_status": (
+                            "checked_capture_schema_fixture_blocked_until_actual_backend_evidence"
+                        ),
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1456,6 +1537,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "tests/production_rejection_equivalence.rs",
                 "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
                 "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+                "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
                 "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
                 "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
             ],
@@ -1766,10 +1848,14 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn(
             "real-threshold backend emission ingestion artifact", aggregate_evidence
         )
+        self.assertIn("canonical backend-emission capture", aggregate_evidence)
+        self.assertIn("predecessor certificate digests", aggregate_evidence)
+        self.assertIn("expected package digest binding", aggregate_evidence)
         self.assertIn("backend source, implementation, and transcript digests", aggregate_evidence)
         self.assertIn("provider-verified backend-output ingestion", aggregate_evidence)
         self.assertIn("rejects deterministic simulation", aggregate_evidence)
         self.assertIn("ordinary single-key standard-provider output", aggregate_evidence)
+        self.assertIn("checked capture schema fixture", aggregate_evidence)
         self.assertIn("blocked as FixtureHarness", aggregate_evidence)
         self.assertIn("negative-control emission fixture", aggregate_evidence)
         self.assertIn("rejected as StandardProviderSingleKey", aggregate_evidence)

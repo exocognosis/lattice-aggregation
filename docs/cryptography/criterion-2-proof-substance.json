@@ -63,6 +63,9 @@
         "evidence_source": "p1_real_threshold_backend_output_gate",
         "artifact_package": "p1_real_threshold_backend_emission_artifact_package",
         "backend_output_adapter": "derive_p1_verified_real_threshold_backend_emission_artifact_package",
+        "backend_capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+        "backend_capture_importer": "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture",
+        "backend_capture_fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
         "claim_boundary": "conformance/proof-review evidence only",
         "fixture_status": "checked_ingestion_fixture_harness_blocked_until_actual_backend_evidence"
       },
@@ -153,6 +156,13 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "slot_id": "real_threshold_backend_emission_artifact_digest",
+        "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
+        "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+        "current_status": "checked_capture_schema_fixture_blocked_until_actual_backend_evidence",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -212,6 +222,7 @@
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
     "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+    "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
     "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
     "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
     "tests/fixtures/p1_theorem_linkage_artifact_fixture.json"
