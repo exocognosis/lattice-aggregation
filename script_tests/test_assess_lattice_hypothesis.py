@@ -801,6 +801,35 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_p1_real_threshold_backend_emission_request_gate(self, root):
+        self.write_p1_real_threshold_backend_actual_capture_runner_gate(root)
+        (root / "scripts" / "build_backend_emission_request.py").write_text(
+            "REQUEST_SCHEMA = \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\"\n"
+            "CAPTURE_SCHEMA = \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\"\n"
+            "EXTERNAL_BACKEND_EVIDENCE = \"real_threshold_mldsa_external_capture\"\n"
+            "REQUEST_STATUS = \"evidence_present_unclosed\"\n"
+            "SELECTED_PROFILE = \"ML-DSA-65 coordinator-assisted Shamir nonce DKG P1\"\n"
+            "FORBIDDEN_REQUEST_NAME_TOKENS = ('localnet', 'simulation', 'fixture')\n"
+            "def build_request(): pass\n"
+            "def write_artifacts(): pass\n"
+            "def validate_digest(value, field): pass\n"
+            "def validate_message_hex(value): pass\n"
+            "validator_count = 10000\n"
+            "threshold = 6667\n"
+            "aggregate_signature_len = 3309\n"
+            "required_capture\n"
+            "forbidden_capture_sources\n",
+            encoding="utf-8",
+        )
+        (root / "script_tests" / "test_build_backend_emission_request.py").write_text(
+            "def test_build_request_manifest_writes_external_backend_challenge_contract(): pass\n"
+            "def test_build_request_manifest_rejects_simulation_names_bad_digests_and_bad_message_hex(): pass\n"
+            "lattice-aggregation:p1-real-threshold-backend-emission-request:v1\n"
+            "real_threshold_mldsa_external_capture\n"
+            "evidence_present_unclosed\n",
+            encoding="utf-8",
+        )
+
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
@@ -1972,6 +2001,40 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("rejection-distribution preservation", aggregate_evidence)
         self.assertIn("production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("reviewed cryptographic proof", aggregate_blockers)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_p1_real_threshold_backend_emission_request_updates_report_without_closing_proofs(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_real_threshold_backend_emission_request_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_real_threshold_backend_output_gate"])
+        self.assertTrue(scan["p1_real_threshold_backend_actual_capture_runner_gate"])
+        self.assertTrue(scan["p1_real_threshold_backend_emission_request_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("repo-generated real-threshold backend emission request", aggregate_evidence)
+        self.assertIn("P1 challenge contract", aggregate_evidence)
+        self.assertIn("required capture schema", aggregate_evidence)
+        self.assertIn("evidence_present_unclosed", aggregate_evidence)
+        self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):

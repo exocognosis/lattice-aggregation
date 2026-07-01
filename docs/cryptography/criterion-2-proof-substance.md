@@ -82,6 +82,14 @@ The Criterion 2 proof payload requires these slots before any promotion:
   digests, expected package digests, and mutation-rejection evidence before it
   feeds the provider-verified adapter. The schema fixture is blocked until
   actual backend-generated real-threshold emission artifacts replace it.
+  Repo-generated backend emission request manifest:
+  `lattice-aggregation:p1-real-threshold-backend-emission-request:v1` and
+  `scripts/build_backend_emission_request.py`. This request is the P1 challenge
+  contract an external backend must answer before capture: it binds the message,
+  10,000-validator target, threshold 6,667, predecessor certificate digests,
+  required capture schema, external `RealThresholdMldsa` evidence class, and
+  mutation-rejection requirements. It remains `evidence_present_unclosed` and is
+  not proof closure.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated
