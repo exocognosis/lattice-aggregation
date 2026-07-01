@@ -1395,6 +1395,12 @@ def scan_documents(root):
     backend_capture_runner_test = read_optional(
         "script_tests/test_run_backend_emission_capture.py"
     )
+    backend_emission_request_builder = read_optional(
+        "scripts/build_backend_emission_request.py"
+    )
+    backend_emission_request_builder_test = read_optional(
+        "script_tests/test_build_backend_emission_request.py"
+    )
     real_threshold_backend_capture_schema_fixture = read_optional(
         "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
     )
@@ -2514,6 +2520,41 @@ def scan_documents(root):
             ]
         )
     )
+    p1_real_threshold_backend_emission_request_gate = (
+        p1_real_threshold_backend_actual_capture_runner_gate
+        and all(
+            token in backend_emission_request_builder
+            for token in [
+                "REQUEST_SCHEMA",
+                "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+                "CAPTURE_SCHEMA",
+                "EXTERNAL_BACKEND_EVIDENCE",
+                "REQUEST_STATUS",
+                "evidence_present_unclosed",
+                "SELECTED_PROFILE",
+                "FORBIDDEN_REQUEST_NAME_TOKENS",
+                "build_request",
+                "write_artifacts",
+                "validate_digest",
+                "validate_message_hex",
+                "validator_count",
+                "threshold",
+                "aggregate_signature_len",
+                "required_capture",
+                "forbidden_capture_sources",
+            ]
+        )
+        and all(
+            token in backend_emission_request_builder_test
+            for token in [
+                "test_build_request_manifest_writes_external_backend_challenge_contract",
+                "test_build_request_manifest_rejects_simulation_names_bad_digests_and_bad_message_hex",
+                "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+                "real_threshold_mldsa_external_capture",
+                "evidence_present_unclosed",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -2701,6 +2742,9 @@ def scan_documents(root):
         ),
         "p1_real_threshold_backend_actual_capture_runner_gate": (
             p1_real_threshold_backend_actual_capture_runner_gate
+        ),
+        "p1_real_threshold_backend_emission_request_gate": (
+            p1_real_threshold_backend_emission_request_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -3025,6 +3069,21 @@ def classify_criteria(criteria, scan):
                     "partially_proven, and does not claim rejection-distribution "
                     "preservation, production threshold ML-DSA security, "
                     "CAVP/ACVTS validation, FIPS validation, or theorem closure."
+                )
+            if scan.get("p1_real_threshold_backend_emission_request_gate"):
+                partial_progress = True
+                observed.append(
+                    "A repo-generated real-threshold backend emission request "
+                    "manifest is present for P1; it writes the P1 challenge "
+                    "contract that an external backend must answer, including "
+                    "10,000 validators, threshold 6,667, message bytes, "
+                    "predecessor certificate digests, required capture schema, "
+                    "external RealThresholdMldsa evidence class, mutation "
+                    "rejection requirements, and forbidden localnet/simulation "
+                    "capture sources. This is evidence_present_unclosed "
+                    "conformance/proof-review evidence only, does not change "
+                    "aggregate_rejection_equivalence from partially_met, and "
+                    "does not change the overall verdict from partially_proven."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

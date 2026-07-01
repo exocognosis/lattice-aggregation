@@ -152,6 +152,14 @@ backend-output ingestion. The capture schema
 backend provenance material, verifier tuple, predecessor certificate digests,
 expected package digests, accepted signature bytes, and mutation-rejection
 evidence to be present before the importer feeds the provider-verified adapter.
+`scripts/build_backend_emission_request.py` writes the repo-generated P1
+backend-emission request manifest
+`lattice-aggregation:p1-real-threshold-backend-emission-request:v1`. That
+request binds the message, 10,000-validator target, threshold 6,667,
+predecessor certificate digests, required capture schema, required
+`RealThresholdMldsa` evidence class, mutation-rejection requirements, and
+forbidden localnet/simulation/fixture capture sources before an external
+backend attempts emission.
 `derive_p1_verified_real_threshold_backend_emission_capture` and
 `scripts/run_backend_emission_capture.py` are the actual backend capture runner
 surfaces for producing this canonical JSON from externally generated
