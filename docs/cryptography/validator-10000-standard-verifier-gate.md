@@ -84,6 +84,7 @@ are present:
 The follow-on Criterion 2 contract is the real threshold backend emission ingestion artifact, implemented by
 `P1RealThresholdBackendEmissionArtifactPackage`,
 `derive_p1_real_threshold_backend_emission_artifact_package`, and
+`derive_p1_verified_real_threshold_backend_emission_artifact_package`, and
 `assess_p1_real_threshold_backend_emission_artifact` in
 `src/production/rejection_equivalence.rs`.
 
@@ -100,6 +101,8 @@ This is a threshold verifier closure contract and real threshold ML-DSA acceptan
 - `P1RealThresholdVerifierClosureBackendEvidence::RealThresholdMldsa`;
 - a backend source package digest, backend implementation digest, and backend
   transcript digest for external review;
+- `P1RealThresholdBackendEmissionOutput` material whose public key, message, and
+  aggregate signature match the predecessor certificates;
 - `MLDSA65.Verify(aggregate_public_key, message, aggregate_signature) == accept`;
 - mutated message, public-key, and signature rejection evidence;
 - a matching selected-backend threshold-output certificate digest;
@@ -113,17 +116,32 @@ rejection-distribution preservation, completed standard-verifier compatibility,
 or a completed cryptographic proof. It also does not claim a real threshold
 backend is implemented in this repository.
 
+The provider-verified backend-output adapter checks standard-verifier
+acceptance before deriving a `RealThresholdMldsa` package. That adapter is not a
+substitute for backend implementation evidence: without externally generated
+real-threshold source, implementation, transcript, accepted aggregate, and
+mutation-rejection evidence, the gate remains `blocked_fail_closed`.
+
 The checked fixture harness at
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
-pins this ingestion shape for review and drift detection. It is a harness for
-future externally captured backend emissions, not actual real threshold backend
-emission evidence and not proof closure.
+pins this ingestion shape for review and drift detection, but the harness is
+classified as `FixtureHarness` and remains blocked from artifact readiness. It
+is a harness for future externally captured backend emissions, not actual real
+threshold backend emission evidence and not proof closure.
+
+The checked negative-control fixture at
+`tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json`
+carries actual `ml-dsa`/`HazmatMldsa65Provider` ML-DSA-65 output, including
+source, implementation, transcript, accepted signature, and mutation-rejection
+digests. The gate still rejects it as `StandardProviderSingleKey`, because a
+single-key standard-provider signature is not threshold backend provenance.
 
 The targeted tests are:
 
 ```sh
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_backend_emission_ingestion
 cargo test --features coordinator-assisted --test production_rejection_equivalence real_threshold_backend_emission_artifact_fixture
+cargo test --features production-mldsa65-coordinator --test production_rejection_equivalence standard_provider_single_key_emission_fixture
 cargo test --features coordinator-assisted --test production_rejection_equivalence p1_real_threshold_verifier_closure_contract
 ```
 

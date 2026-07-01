@@ -133,16 +133,37 @@ backend source package, implementation, and transcript digests,
 matching threshold-output and standard-verifier compatibility artifact digests,
 and mutation rejection for message, public key, and signature.
 
+`P1RealThresholdBackendEmissionOutput` and
+`derive_p1_verified_real_threshold_backend_emission_artifact_package` are the
+checked backend-output adapter for future externally generated real-threshold
+emissions. The adapter compares the submitted public key, message, and
+aggregate signature against the predecessor certificates, calls the selected
+standard ML-DSA provider boundary before minting the package, and derives the
+backend source, implementation, transcript, and evidence digests from submitted
+backend material. It is still an ingestion adapter only; it does not implement a
+real threshold backend in this repository.
+
 The checked fixture harness at
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
 pins the external backend-emission input shape, backend source package digest,
 backend implementation digest, backend transcript digest, mutation rejection
-flags, and raw fixture-package digest for review. The harness feeds
-`assess_p1_real_threshold_backend_emission_artifact` and then the verifier
-closure package through `to_verifier_closure_package`, but it remains
-conformance/proof-review evidence only. It is not a real threshold backend
-implementation, not actual real threshold backend emission evidence, and not a
-completed cryptographic proof.
+flags, and raw fixture-package digest for review. The harness is now classified
+as `FixtureHarness` and is blocked by
+`assess_p1_real_threshold_backend_emission_artifact`; it cannot feed the
+verifier closure package through `to_verifier_closure_package`.
+
+The checked negative-control fixture at
+`tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json`
+carries actual `ml-dsa`/`HazmatMldsa65Provider` ML-DSA-65 output: fixed-seed
+public key, accepted signature, backend source digest, implementation digest,
+transcript digest, standard-verifier acceptance, and mutated message, public key,
+and signature rejection evidence. It is deliberately classified as
+`StandardProviderSingleKey` and rejected because ordinary single-key standard
+provider output is not threshold backend provenance.
+
+Both fixtures remain conformance/proof-review evidence only. They are not a
+real threshold backend implementation, not actual real threshold backend
+emission evidence, and not a completed cryptographic proof.
 
 A reviewed `P1RealThresholdBackendEmissionArtifactCertificate` can feed
 `P1RealThresholdVerifierClosurePackage` through `to_verifier_closure_package`,

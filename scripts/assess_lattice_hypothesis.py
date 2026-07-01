@@ -837,12 +837,16 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
         "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+        "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
         "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
         "checked real-threshold backend emission ingestion fixture harness",
+        "actual single-key ml-dsa-65 negative-control emission fixture",
+        "blocked from artifact readiness",
+        "standardprovidersinglekey",
         "checked rejection-distribution review fixture",
         "checked theorem-linkage fixture",
         "p1_standard_verifier_compatibility_artifact_gate",
@@ -1984,6 +1988,10 @@ def scan_documents(root):
         )
         and has_public_struct(
             rejection_equivalence_source,
+            "P1RealThresholdBackendEmissionOutput",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
             "P1RealThresholdBackendEmissionArtifactCertificate",
         )
         and has_public_enum(
@@ -2012,6 +2020,18 @@ def scan_documents(root):
         )
         and has_public_function(
             rejection_equivalence_source,
+            "derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_verified_real_threshold_backend_emission_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_real_threshold_backend_emission_evidence_digest",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
             "derive_p1_real_threshold_backend_emission_artifact_digest",
         )
         and has_public_function(
@@ -2022,6 +2042,7 @@ def scan_documents(root):
             rejection_equivalence_source,
             "SimulatedDeterministic",
             "StandardProviderSingleKey",
+            "FixtureHarness",
             "RealThresholdMldsa",
             "validator_count",
             "threshold",
@@ -2031,6 +2052,10 @@ def scan_documents(root):
             "backend_implementation_digest",
             "backend_transcript_digest",
             "artifact_digest",
+            "backend_source_package",
+            "backend_implementation",
+            "backend_transcript",
+            "aggregate_signature",
             "mutated_message_rejected",
             "mutated_public_key_rejected",
             "mutated_signature_rejected",
@@ -2054,6 +2079,43 @@ def scan_documents(root):
             "external",
             "threshold",
             "output",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "output",
+            "material",
+            "derives",
+            "artifact",
+            "ready",
+            "package",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "output",
+            "material",
+            "rejects",
+            "tuple",
+            "digest",
+            "mismatch",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "verified",
+            "real",
+            "threshold",
+            "backend",
+            "output",
+            "material",
+            "requires",
+            "standard",
+            "verifier",
+            "acceptance",
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,
@@ -2115,9 +2177,30 @@ def scan_documents(root):
             "artifact",
             "fixture",
             "parses",
-            "feeds",
-            "ingestion",
-            "gate",
+            "remains",
+            "blocked",
+            "actual",
+            "backend",
+            "evidence",
+            "replaces",
+            "it",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "standard",
+            "provider",
+            "single",
+            "key",
+            "emission",
+            "fixture",
+            "verifies",
+            "real",
+            "mldsa",
+            "cannot",
+            "replace",
+            "threshold",
+            "backend",
+            "evidence",
         )
         and has_acceptance_test_function(
             rejection_equivalence_test,
@@ -2657,14 +2740,18 @@ def classify_criteria(criteria, scan):
                     "present as the input path to the threshold verifier "
                     "closure contract; it requires 10,000 validators with "
                     "threshold 6,667, a 3,309-byte aggregate signature, real "
-                    "threshold ML-DSA backend provenance, backend source, implementation, and transcript digests, standard-verifier "
-                    "acceptance, and mutated message, public key, and signature "
-                    "rejection evidence. It rejects deterministic simulation "
+                    "threshold ML-DSA backend provenance, backend source, implementation, and transcript digests, provider-verified backend-output ingestion, standard-verifier acceptance, and mutated "
+                    "message, public key, and signature rejection evidence. "
+                    "It rejects deterministic simulation "
                     "and ordinary single-key standard-provider output as "
-                    "closure evidence. This remains conformance/proof-review "
-                    "evidence only, not production threshold ML-DSA security, "
-                    "not CAVP/ACVTS validation, not FIPS validation, and not a "
-                    "completed cryptographic proof."
+                    "closure evidence. The checked fixture harness is blocked "
+                    "as FixtureHarness, while an actual single-key ML-DSA-65 "
+                    "negative-control emission fixture verifies through the "
+                    "standard provider and is rejected as StandardProviderSingleKey. "
+                    "This remains conformance/proof-review evidence only, not "
+                    "production threshold ML-DSA security, not CAVP/ACVTS "
+                    "validation, not FIPS validation, and not a completed "
+                    "cryptographic proof."
                 )
                 blockers.append(
                     "P1 real-threshold backend emission ingestion artifact is "

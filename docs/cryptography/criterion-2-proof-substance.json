@@ -62,8 +62,9 @@
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_real_threshold_backend_output_gate",
         "artifact_package": "p1_real_threshold_backend_emission_artifact_package",
+        "backend_output_adapter": "derive_p1_verified_real_threshold_backend_emission_artifact_package",
         "claim_boundary": "conformance/proof-review evidence only",
-        "fixture_status": "checked_ingestion_fixture_harness_present"
+        "fixture_status": "checked_ingestion_fixture_harness_blocked_until_actual_backend_evidence"
       },
       {
         "id": "rejection_distribution_review_digest",
@@ -211,6 +212,7 @@
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
     "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
+    "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
     "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
     "tests/fixtures/p1_theorem_linkage_artifact_fixture.json"
   ],
