@@ -1391,6 +1391,10 @@ def scan_documents(root):
     mask_distribution_test = read_optional("tests/production_mask_distribution.rs")
     rejection_equivalence_source = read_optional("src/production/rejection_equivalence.rs")
     rejection_equivalence_test = read_optional("tests/production_rejection_equivalence.rs")
+    backend_capture_runner = read_optional("scripts/run_backend_emission_capture.py")
+    backend_capture_runner_test = read_optional(
+        "script_tests/test_run_backend_emission_capture.py"
+    )
     real_threshold_backend_capture_schema_fixture = read_optional(
         "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
     )
@@ -2427,6 +2431,89 @@ def scan_documents(root):
         and "does not claim production threshold ML-DSA security"
         in validator_10000_gate_doc
     )
+    p1_real_threshold_backend_actual_capture_runner_gate = (
+        p1_real_threshold_backend_output_gate
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_verified_real_threshold_backend_emission_capture",
+        )
+        and has_rust_tokens(
+            rejection_equivalence_source,
+            "P1_REAL_THRESHOLD_BACKEND_EMISSION_ACTUAL_CAPTURE_RUNNER_GATE",
+            "to_canonical_json",
+            "is_artifact_ready",
+            "P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE",
+            "P1RealThresholdBackendEmissionCaptureBytes::hex",
+            "package.backend_evidence",
+            "derive_p1_real_threshold_backend_source_package_digest",
+            "derive_p1_real_threshold_backend_implementation_digest",
+            "derive_p1_real_threshold_backend_transcript_digest",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "capture",
+            "runner",
+            "emits",
+            "canonical",
+            "importable",
+            "capture",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "capture",
+            "runner",
+            "rejects",
+            "unready",
+            "package",
+            "before",
+            "external",
+            "capture",
+        )
+        and all(
+            token in backend_capture_runner
+            for token in [
+                "CAPTURE_SCHEMA",
+                "EXTERNAL_BACKEND_EVIDENCE",
+                "SELECTED_PROFILE",
+                "RUNNER_STATUS",
+                "FORBIDDEN_BACKEND_COMMAND_TOKENS",
+                "validate_backend_command",
+                "validate_no_unknown_fields",
+                "validate_digest_object",
+                "validate_hex_field",
+                "validate_capture_bytes",
+                "localnet",
+                "real_threshold_mldsa_external_capture",
+                "evidence_present_unclosed",
+                "parse_capture_json",
+                "build_report",
+                "write_artifacts",
+                "canonical capture JSON",
+                "actual external real-threshold evidence",
+                "forbidden backend command",
+                "missing {label} digest",
+                "public_key_hex",
+            ]
+        )
+        and all(
+            token in backend_capture_runner_test
+            for token in [
+                "test_build_report_invokes_backend_capture_runner_and_writes_importable_capture_json",
+                "test_build_report_rejects_deterministic_simulation_or_localnet_capture_source",
+                "test_build_report_rejects_forged_external_json_from_localnet_or_simulation_command",
+                "test_build_report_rejects_non_importable_capture_shape_before_artifact_write",
+                "validator_localnet",
+                "run_simulation_benchmarks",
+                "real_threshold_mldsa_capture_schema_fixture",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -2611,6 +2698,9 @@ def scan_documents(root):
         ),
         "p1_real_threshold_backend_output_gate": (
             p1_real_threshold_backend_output_gate
+        ),
+        "p1_real_threshold_backend_actual_capture_runner_gate": (
+            p1_real_threshold_backend_actual_capture_runner_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -2917,6 +3007,24 @@ def classify_criteria(criteria, scan):
                     "present, but actual real threshold backend emissions, "
                     "rejection-distribution preservation, full validation "
                     "artifacts, and reviewed cryptographic proof remain open."
+                )
+            if scan.get("p1_real_threshold_backend_actual_capture_runner_gate"):
+                partial_progress = True
+                observed.append(
+                    "Actual real-threshold backend capture runner is present "
+                    "for P1; it emits externally generated "
+                    "RealThresholdMldsa capture material from an "
+                    "artifact-ready package into the canonical "
+                    "provider-verified importer, rejects localnet and "
+                    "deterministic simulation command sources plus "
+                    "non-importable capture shapes before artifact write, "
+                    "and records evidence_present_unclosed "
+                    "conformance/proof-review evidence only. This runner does "
+                    "not change aggregate_rejection_equivalence from "
+                    "partially_met, does not change the overall verdict from "
+                    "partially_proven, and does not claim rejection-distribution "
+                    "preservation, production threshold ML-DSA security, "
+                    "CAVP/ACVTS validation, FIPS validation, or theorem closure."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

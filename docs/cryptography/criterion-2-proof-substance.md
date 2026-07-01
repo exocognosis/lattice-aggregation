@@ -82,6 +82,15 @@ The Criterion 2 proof payload requires these slots before any promotion:
   digests, expected package digests, and mutation-rejection evidence before it
   feeds the provider-verified adapter. The schema fixture is blocked until
   actual backend-generated real-threshold emission artifacts replace it.
+  The actual backend capture runner
+  (`derive_p1_verified_real_threshold_backend_emission_capture` and
+  `scripts/run_backend_emission_capture.py`) may supply externally generated
+  `RealThresholdMldsa` capture material to the canonical importer only after the
+  Rust side has an artifact-ready package and the script side rejects known
+  localnet/simulation sources plus non-importable capture shapes before artifact
+  write. It remains `evidence_present_unclosed` until the reviewed proof
+  payload, validation artifacts, rejection-distribution argument, and external
+  review are complete.
   checked real-threshold backend emission ingestion fixture harness:
   `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`.
   The fixture harness pins source, implementation, transcript, and artifact

@@ -1,0 +1,450 @@
+#!/usr/bin/env python3
+"""Run an external real-threshold backend capture command and write artifacts."""
+
+import argparse
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+
+CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+EXTERNAL_BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
+CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+RUNNER_STATUS = "evidence_present_unclosed"
+MLDSA65_PUBLIC_KEY_BYTES = 1952
+MLDSA65_SIGNATURE_BYTES = 3309
+FORBIDDEN_BACKEND_COMMAND_TOKENS = (
+    "localnet",
+    "validator_localnet",
+    "run_simulation_benchmarks",
+    "deterministic",
+    "simulation",
+    "simulated",
+)
+TOP_LEVEL_FIELDS = {
+    "name",
+    "schema",
+    "claim_boundary",
+    "selected_profile",
+    "backend_evidence",
+    "note",
+    "predecessors",
+    "capture",
+    "expected",
+}
+PREDECESSOR_DIGEST_FIELDS = {
+    "selected_profile_binding_digest_hex",
+    "threshold_output_certificate_digest_hex",
+    "standard_verifier_compatibility_artifact_digest_hex",
+}
+EXPECTED_DIGEST_FIELDS = {
+    "backend_evidence_digest_hex",
+    "backend_source_package_digest_hex",
+    "backend_implementation_digest_hex",
+    "backend_transcript_digest_hex",
+    "artifact_digest_hex",
+    "public_key_digest_hex",
+    "message_digest_hex",
+    "accepted_signature_digest_hex",
+}
+CAPTURE_PAYLOAD_FIELDS = {
+    "validator_count",
+    "threshold",
+    "aggregate_signature_len",
+    "public_key_hex",
+    "message",
+    "aggregate_signature_hex",
+    "backend_source_package",
+    "backend_implementation",
+    "backend_transcript",
+    "mutated_message_rejected",
+    "mutated_public_key_rejected",
+    "mutated_signature_rejected",
+    "reviewed",
+}
+CAPTURE_BYTE_FIELDS = {"encoding", "value"}
+
+
+def sha256_text(text):
+    """Return the SHA-256 digest for UTF-8 text."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def sha256_file(path):
+    """Return the SHA-256 digest for a file, or unknown if absent."""
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return "unknown"
+
+
+def canonical_json(data):
+    """Render stable pretty JSON with a trailing newline."""
+    return json.dumps(data, indent=2, sort_keys=True) + "\n"
+
+
+def run_command(command, root, env):
+    """Run an external backend command and capture stdout/stderr."""
+    merged_env = None
+    if env:
+        import os
+
+        merged_env = os.environ.copy()
+        merged_env.update(env)
+
+    started = time.monotonic()
+    completed = subprocess.run(
+        command,
+        cwd=root,
+        env=merged_env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    return {
+        "command": command,
+        "exit_code": completed.returncode,
+        "duration_seconds": round(time.monotonic() - started, 3),
+        "stdout": completed.stdout,
+        "stderr": completed.stderr,
+    }
+
+
+def validate_backend_command(command):
+    """Reject known non-cryptographic capture sources before execution."""
+    command_text = " ".join(command).lower()
+    for token in FORBIDDEN_BACKEND_COMMAND_TOKENS:
+        if token in command_text:
+            raise ValueError(
+                "forbidden backend command source for actual real-threshold capture: "
+                + token
+            )
+
+
+def capture_value(command, root, fallback="unknown"):
+    """Capture a small metadata command without failing artifact generation."""
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    except OSError:
+        return fallback
+    if completed.returncode != 0:
+        return fallback
+    value = completed.stdout.strip()
+    return value if value else fallback
+
+
+def collect_metadata(root):
+    """Collect local capture-runner provenance metadata."""
+    root = Path(root)
+    return {
+        "commit": capture_value(["git", "rev-parse", "HEAD"], root),
+        "branch": capture_value(["git", "branch", "--show-current"], root),
+        "dirty": bool(capture_value(["git", "status", "--short"], root, fallback="")),
+        "cargo_version": capture_value(["cargo", "--version"], root),
+        "rustc_version": capture_value(["rustc", "--version"], root),
+        "os": platform.platform(),
+        "python_version": platform.python_version(),
+        "cargo_lock_sha256": sha256_file(root / "Cargo.lock"),
+    }
+
+
+def metadata_from_provider(provider, root):
+    """Call metadata providers from tests or production code."""
+    try:
+        return provider(root)
+    except TypeError:
+        return provider()
+
+
+def parse_capture_json(stdout):
+    """Parse and validate canonical real-threshold backend capture JSON."""
+    text = stdout.strip()
+    if not text.startswith("{"):
+        raise ValueError("backend capture runner requires canonical capture JSON")
+    try:
+        capture = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError("backend capture runner requires canonical capture JSON") from exc
+
+    validate_no_unknown_fields(capture, TOP_LEVEL_FIELDS, "top-level")
+    if capture.get("schema") != CAPTURE_SCHEMA:
+        raise ValueError("backend capture runner requires canonical capture JSON")
+    if capture.get("claim_boundary") != CLAIM_BOUNDARY:
+        raise ValueError("backend capture runner requires proof-review-only claim boundary")
+    if capture.get("selected_profile") != SELECTED_PROFILE:
+        raise ValueError("backend capture runner selected profile mismatch")
+    if capture.get("backend_evidence") != EXTERNAL_BACKEND_EVIDENCE:
+        raise ValueError(
+            "backend capture runner requires actual external real-threshold evidence"
+        )
+    if "predecessors" not in capture or "expected" not in capture:
+        raise ValueError("backend capture runner requires predecessor and expected digests")
+    validate_digest_object(
+        capture["predecessors"],
+        PREDECESSOR_DIGEST_FIELDS,
+        "predecessor",
+    )
+    validate_digest_object(
+        capture["expected"],
+        EXPECTED_DIGEST_FIELDS,
+        "expected",
+    )
+
+    payload = capture.get("capture")
+    if not isinstance(payload, dict):
+        raise ValueError("backend capture runner requires capture payload")
+    validate_no_unknown_fields(payload, CAPTURE_PAYLOAD_FIELDS, "capture")
+    if payload.get("validator_count") != 10_000 or payload.get("threshold") != 6_667:
+        raise ValueError("backend capture runner requires the 10,000 validator P1 target")
+    if payload.get("aggregate_signature_len") != 3309:
+        raise ValueError("backend capture runner requires a standard-size ML-DSA-65 signature")
+    for field in [
+        "public_key_hex",
+        "message",
+        "aggregate_signature_hex",
+        "backend_source_package",
+        "backend_implementation",
+        "backend_transcript",
+    ]:
+        if field not in payload:
+            raise ValueError(f"backend capture runner missing capture field: {field}")
+    validate_hex_field(
+        payload["public_key_hex"],
+        MLDSA65_PUBLIC_KEY_BYTES,
+        "public_key_hex",
+    )
+    validate_hex_field(
+        payload["aggregate_signature_hex"],
+        MLDSA65_SIGNATURE_BYTES,
+        "aggregate_signature_hex",
+    )
+    for field in [
+        "message",
+        "backend_source_package",
+        "backend_implementation",
+        "backend_transcript",
+    ]:
+        validate_capture_bytes(payload[field], field)
+    for field in [
+        "mutated_message_rejected",
+        "mutated_public_key_rejected",
+        "mutated_signature_rejected",
+        "reviewed",
+    ]:
+        if payload.get(field) is not True:
+            raise ValueError(f"backend capture runner requires true {field}")
+
+    return capture
+
+
+def validate_digest_object(value, required_fields, label):
+    """Validate required nonzero SHA-256-style digest hex fields."""
+    if not isinstance(value, dict):
+        raise ValueError(f"backend capture runner requires {label} digests")
+    validate_no_unknown_fields(value, set(required_fields), label)
+    for field in required_fields:
+        if field not in value:
+            raise ValueError(f"backend capture runner missing {label} digest: {field}")
+        validate_hex_field(value[field], 32, field)
+        if value[field].lower() == "00" * 32:
+            raise ValueError(f"backend capture runner rejects all-zero {label} digest: {field}")
+
+
+def validate_hex_field(value, expected_bytes, field):
+    """Validate fixed-length lowercase-or-uppercase hex."""
+    if not isinstance(value, str):
+        raise ValueError(f"backend capture runner requires hex string for {field}")
+    if len(value) != expected_bytes * 2:
+        raise ValueError(f"backend capture runner invalid {field} length")
+    try:
+        bytes.fromhex(value)
+    except ValueError as exc:
+        raise ValueError(f"backend capture runner invalid {field} hex") from exc
+
+
+def validate_capture_bytes(value, field):
+    """Validate a capture byte object supported by the Rust importer."""
+    if not isinstance(value, dict):
+        raise ValueError(f"backend capture runner requires byte object for {field}")
+    validate_no_unknown_fields(value, CAPTURE_BYTE_FIELDS, field)
+    encoding = value.get("encoding")
+    raw_value = value.get("value")
+    if encoding not in {"hex", "utf8"} or not isinstance(raw_value, str):
+        raise ValueError(f"backend capture runner invalid byte encoding for {field}")
+    if encoding == "hex":
+        if len(raw_value) % 2 != 0:
+            raise ValueError(f"backend capture runner invalid byte hex for {field}")
+        try:
+            bytes.fromhex(raw_value)
+        except ValueError as exc:
+            raise ValueError(f"backend capture runner invalid byte hex for {field}") from exc
+
+
+def validate_no_unknown_fields(value, allowed_fields, label):
+    """Mirror Rust deny_unknown_fields before artifact write."""
+    if not isinstance(value, dict):
+        raise ValueError(f"backend capture runner requires object for {label}")
+    unknown = sorted(set(value) - set(allowed_fields))
+    if unknown:
+        raise ValueError(
+            f"backend capture runner unknown {label} field: {unknown[0]}"
+        )
+
+
+def render_summary(generated_at, metadata, manifest):
+    """Render a concise backend-capture summary."""
+    return "\n".join(
+        [
+            "# Real-Threshold Backend Capture Runner Summary",
+            "",
+            "This artifact records externally generated backend capture material "
+            "for the canonical P1 importer. It is "
+            f"{RUNNER_STATUS} conformance/proof-review evidence only.",
+            "",
+            f"- Generated at: `{generated_at}`",
+            f"- Commit: `{metadata['commit']}`",
+            f"- Branch: `{metadata['branch']}`",
+            f"- Capture schema: `{manifest['capture_schema']}`",
+            f"- Backend evidence: `{manifest['backend_evidence']}`",
+            f"- Validator target: `{manifest['validator_count']}`",
+            f"- Threshold target: `{manifest['threshold']}`",
+            f"- Signature length: `{manifest['aggregate_signature_len']}`",
+            f"- Runner status: `{RUNNER_STATUS}`",
+            f"- Claim boundary: `{manifest['claim_boundary']}`",
+            "",
+            "This runner does not prove Criterion 2, rejection-distribution "
+            "preservation, production threshold ML-DSA security, CAVP/ACVTS "
+            "validation, FIPS validation, or theorem closure.",
+            "",
+        ]
+    )
+
+
+def build_report(
+    root,
+    backend_command,
+    command_runner=run_command,
+    metadata_provider=collect_metadata,
+    generated_at=None,
+):
+    """Run an external backend command and build in-memory artifact content."""
+    if not backend_command:
+        raise ValueError("backend capture runner requires a backend command")
+
+    root = Path(root)
+    validate_backend_command(list(backend_command))
+    result = command_runner(list(backend_command), root, {})
+    if result["exit_code"] != 0:
+        raise RuntimeError(
+            "backend capture command failed: "
+            + " ".join(backend_command)
+            + "\n"
+            + result.get("stderr", "")
+        )
+
+    capture = parse_capture_json(result["stdout"])
+    metadata = metadata_from_provider(metadata_provider, root)
+    generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    payload = capture["capture"]
+    capture_json = canonical_json(capture)
+
+    manifest = {
+        "schema_version": 1,
+        "generated_at": generated_at,
+        "claim_boundary": CLAIM_BOUNDARY,
+        "runner_status": RUNNER_STATUS,
+        "capture_schema": CAPTURE_SCHEMA,
+        "backend_evidence": EXTERNAL_BACKEND_EVIDENCE,
+        "backend_command": list(backend_command),
+        "command_duration_seconds": result["duration_seconds"],
+        "exit_code": result["exit_code"],
+        "metadata": metadata,
+        "validator_count": payload["validator_count"],
+        "threshold": payload["threshold"],
+        "aggregate_signature_len": payload["aggregate_signature_len"],
+        "capture_sha256": sha256_text(capture_json),
+    }
+    summary_md = render_summary(generated_at, metadata, manifest)
+
+    return {
+        "manifest": manifest,
+        "capture": capture,
+        "capture_json": capture_json,
+        "summary_md": summary_md,
+        "stdout": result["stdout"],
+        "stderr": result["stderr"],
+    }
+
+
+def artifact_contents(report):
+    """Build final artifact file contents."""
+    return {
+        "manifest.json": canonical_json(report["manifest"]),
+        "capture.json": report["capture_json"],
+        "summary.md": report["summary_md"],
+        "command.stdout.log": report["stdout"],
+        "command.stderr.log": report["stderr"],
+    }
+
+
+def render_checksums(contents):
+    """Render deterministic SHA-256 checksums for artifact files."""
+    lines = []
+    for name in sorted(contents):
+        lines.append(f"{sha256_text(contents[name])}  {name}")
+    return "\n".join(lines) + "\n"
+
+
+def write_artifacts(report, out_dir):
+    """Write capture artifacts and checksums."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    contents = artifact_contents(report)
+    contents["SHA256SUMS"] = render_checksums(contents)
+    for name, content in contents.items():
+        path = out_dir / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser(
+        description="Run an external threshold backend capture command"
+    )
+    parser.add_argument("--root", default=".", help="repository root")
+    parser.add_argument(
+        "--out",
+        default="artifacts/backend-emission-capture/latest",
+        help="output directory",
+    )
+    parser.add_argument(
+        "--backend-command",
+        nargs=argparse.REMAINDER,
+        required=True,
+        help="external command that writes canonical capture JSON to stdout",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv or sys.argv[1:])
+    report = build_report(Path(args.root), args.backend_command)
+    write_artifacts(report, Path(args.out))
+    print(f"wrote backend capture artifacts to {args.out}")
+
+
+if __name__ == "__main__":
+    main()

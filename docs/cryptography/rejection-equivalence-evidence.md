@@ -152,6 +152,14 @@ backend-output ingestion. The capture schema
 backend provenance material, verifier tuple, predecessor certificate digests,
 expected package digests, accepted signature bytes, and mutation-rejection
 evidence to be present before the importer feeds the provider-verified adapter.
+`derive_p1_verified_real_threshold_backend_emission_capture` and
+`scripts/run_backend_emission_capture.py` are the actual backend capture runner
+surfaces for producing this canonical JSON from externally generated
+`RealThresholdMldsa` capture material. The Rust surface requires an
+artifact-ready real-threshold backend package before it can emit an external
+capture envelope, and the script rejects localnet and deterministic simulation
+command sources plus non-importable capture shapes before artifact write. It
+records `evidence_present_unclosed` conformance/proof-review evidence only.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries
