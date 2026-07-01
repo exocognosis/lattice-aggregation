@@ -149,9 +149,10 @@ real threshold backend in this repository.
 are the canonical backend-emission capture schema/importer for actual external
 backend-output ingestion. The capture schema
 `lattice-aggregation:p1-real-threshold-backend-emission-capture:v1` requires the
-backend provenance material, verifier tuple, predecessor certificate digests,
-expected package digests, accepted signature bytes, and mutation-rejection
-evidence to be present before the importer feeds the provider-verified adapter.
+backend provenance material, verifier tuple, request schema/name/SHA-256
+binding, predecessor certificate digests, expected package digests, accepted
+signature bytes, and mutation-rejection evidence to be present before the
+importer feeds the provider-verified adapter.
 `scripts/build_backend_emission_request.py` writes the repo-generated P1
 backend-emission request manifest
 `lattice-aggregation:p1-real-threshold-backend-emission-request:v1`. That
@@ -166,8 +167,9 @@ surfaces for producing this canonical JSON from externally generated
 `RealThresholdMldsa` capture material. The Rust surface requires an
 artifact-ready real-threshold backend package before it can emit an external
 capture envelope, and the script rejects localnet and deterministic simulation
-command sources plus non-importable capture shapes before artifact write. It
-records `evidence_present_unclosed` conformance/proof-review evidence only.
+command sources, non-importable capture shapes, and stale or missing request
+digest bindings before artifact write. It records `evidence_present_unclosed`
+conformance/proof-review evidence only.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries

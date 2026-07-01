@@ -1410,9 +1410,21 @@ pub struct P1RealThresholdBackendEmissionOutput<'a> {
     pub reviewed: bool,
 }
 
+/// Repo-generated request binding that a canonical backend capture must echo.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1RealThresholdBackendEmissionRequestDigestBinding<'a> {
+    /// Name of the request manifest answered by the capture.
+    pub name: &'a str,
+    /// SHA-256 digest of the canonical request JSON.
+    pub request_sha256: [u8; 32],
+}
+
 /// Canonical JSON schema tag for P1 real-threshold backend emission captures.
 pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA: &str =
     "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1";
+/// Canonical JSON schema tag for P1 real-threshold backend emission requests.
+pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_REQUEST_SCHEMA: &str =
+    "lattice-aggregation:p1-real-threshold-backend-emission-request:v1";
 /// Evidence class for actual externally generated real-threshold captures.
 pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE: &str =
     "real_threshold_mldsa_external_capture";
@@ -1444,10 +1456,20 @@ pub struct P1RealThresholdBackendEmissionCapture {
     backend_evidence: String,
     note: String,
     #[serde(default)]
+    request: Option<P1RealThresholdBackendEmissionCaptureRequestBinding>,
+    #[serde(default)]
     predecessors: Option<P1RealThresholdBackendEmissionCapturePredecessors>,
     capture: P1RealThresholdBackendEmissionCapturePayload,
     #[serde(default)]
     expected: Option<P1RealThresholdBackendEmissionCaptureExpectedDigests>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct P1RealThresholdBackendEmissionCaptureRequestBinding {
+    schema: String,
+    name: String,
+    request_sha256: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -1581,6 +1603,18 @@ impl P1RealThresholdBackendEmissionCapture {
         &self.note
     }
 
+    /// Return the backend emission request name if the capture carries one.
+    pub fn request_name(&self) -> Option<&str> {
+        self.request.as_ref().map(|request| request.name.as_str())
+    }
+
+    /// Return the backend emission request SHA-256 hex binding if present.
+    pub fn request_sha256_hex(&self) -> Option<&str> {
+        self.request
+            .as_ref()
+            .map(|request| request.request_sha256.as_str())
+    }
+
     /// Return the validator count carried by the capture target.
     pub const fn validator_count(&self) -> u32 {
         self.capture.validator_count
@@ -1659,6 +1693,35 @@ impl P1RealThresholdBackendEmissionCapture {
         if self.selected_profile != P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SELECTED_PROFILE {
             return Err(ThresholdError::MalformedSerialization {
                 reason: "P1 real-threshold backend emission capture selected profile mismatch",
+            });
+        }
+        self.validate_request_binding()?;
+        Ok(())
+    }
+
+    fn validate_request_binding(&self) -> Result<(), ThresholdError> {
+        let Some(request) = &self.request else {
+            return Err(ThresholdError::MalformedSerialization {
+                reason:
+                    "P1 real-threshold backend emission capture requires request digest binding",
+            });
+        };
+        if request.schema != P1_REAL_THRESHOLD_BACKEND_EMISSION_REQUEST_SCHEMA
+            || request.name.trim().is_empty()
+        {
+            return Err(ThresholdError::MalformedSerialization {
+                reason:
+                    "P1 real-threshold backend emission capture requires request digest binding",
+            });
+        }
+        let request_sha256 = decode_hex_array::<32>(
+            &request.request_sha256,
+            "P1 real-threshold backend emission capture request SHA-256 hex is malformed",
+        )?;
+        if is_all_zero(&request_sha256) {
+            return Err(ThresholdError::MalformedSerialization {
+                reason:
+                    "P1 real-threshold backend emission capture requires request digest binding",
             });
         }
         Ok(())
@@ -3643,6 +3706,7 @@ pub fn derive_p1_verified_real_threshold_backend_emission_capture(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
     compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
     name: &str,
+    request_binding: P1RealThresholdBackendEmissionRequestDigestBinding<'_>,
     note: &str,
     output: P1RealThresholdBackendEmissionOutput<'_>,
     package: P1RealThresholdBackendEmissionArtifactPackage,
@@ -3655,6 +3719,11 @@ pub fn derive_p1_verified_real_threshold_backend_emission_capture(
     if note.trim().is_empty() {
         return Err(ThresholdError::MalformedSerialization {
             reason: "P1 real-threshold backend emission capture note is required",
+        });
+    }
+    if request_binding.name.trim().is_empty() || is_all_zero(&request_binding.request_sha256) {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: "P1 real-threshold backend emission capture requires request digest binding",
         });
     }
 
@@ -3696,6 +3765,11 @@ pub fn derive_p1_verified_real_threshold_backend_emission_capture(
         selected_profile: P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SELECTED_PROFILE.to_owned(),
         backend_evidence: P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE.to_owned(),
         note: note.to_owned(),
+        request: Some(P1RealThresholdBackendEmissionCaptureRequestBinding {
+            schema: P1_REAL_THRESHOLD_BACKEND_EMISSION_REQUEST_SCHEMA.to_owned(),
+            name: request_binding.name.to_owned(),
+            request_sha256: encode_hex(&request_binding.request_sha256),
+        }),
         predecessors: Some(P1RealThresholdBackendEmissionCapturePredecessors {
             selected_profile_binding_digest_hex: encode_hex(
                 &SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()

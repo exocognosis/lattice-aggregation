@@ -130,9 +130,10 @@ mutation-rejection evidence, the gate remains `blocked_fail_closed`.
 The canonical backend-emission capture schema/importer is the JSON handoff for
 those externally generated artifacts. It decodes
 `P1RealThresholdBackendEmissionCapture`, rejects schema fixtures before tuple
-ingestion, checks predecessor certificate digests and expected package digests,
-and feeds the same provider-verified adapter. This is an executable input gate,
-not a real threshold backend and not theorem closure.
+ingestion, requires a nonzero request digest binding, checks predecessor
+certificate digests and expected package digests, and feeds the same
+provider-verified adapter. This is an executable input gate, not a real
+threshold backend and not theorem closure.
 
 Before an external backend emits that capture JSON, the repo can generate the
 request it must answer with `scripts/build_backend_emission_request.py`. The
@@ -142,7 +143,9 @@ message, 10,000-validator target, threshold 6,667, predecessor certificate
 digests, required capture schema, required real-threshold backend evidence
 class, mutation-rejection requirements, and forbidden localnet/simulation/
 fixture sources. This request is a challenge contract for external backend
-capture; it is not proof closure.
+capture. The capture runner loads the request JSON and rejects backend output
+whose embedded request schema/name/SHA-256 binding is missing, stale, or
+mismatched; it is not proof closure.
 
 The checked capture schema fixture at
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`

@@ -67,6 +67,7 @@
         "backend_emission_request_builder": "scripts/build_backend_emission_request.py",
         "backend_emission_request_status": "evidence_present_unclosed",
         "backend_emission_request_claim_boundary": "conformance/proof-review evidence only",
+        "backend_request_capture_binding": "capture embeds request schema, request name, and request_sha256; runner rejects missing, stale, or mismatched request bindings",
         "backend_capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
         "backend_capture_runner": "derive_p1_verified_real_threshold_backend_emission_capture and scripts/run_backend_emission_capture.py",
         "backend_capture_runner_status": "evidence_present_unclosed",

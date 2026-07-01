@@ -2555,6 +2555,53 @@ def scan_documents(root):
             ]
         )
     )
+    p1_real_threshold_backend_request_capture_binding_gate = (
+        p1_real_threshold_backend_emission_request_gate
+        and has_rust_tokens(
+            rejection_equivalence_source,
+            "P1_REAL_THRESHOLD_BACKEND_EMISSION_REQUEST_SCHEMA",
+            "P1RealThresholdBackendEmissionCaptureRequestBinding",
+            "request_sha256",
+            "validate_request_binding",
+        )
+        and "P1 real-threshold backend emission capture requires request digest binding"
+        in rejection_equivalence_source
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "real",
+            "threshold",
+            "backend",
+            "capture",
+            "json",
+            "rejects",
+            "missing",
+            "request",
+            "binding",
+        )
+        and all(
+            token in backend_capture_runner
+            for token in [
+                "REQUEST_SCHEMA",
+                "load_request",
+                "validate_request_binding",
+                "validate_capture_matches_request",
+                "request digest mismatch",
+                "request_sha256",
+            ]
+        )
+        and all(
+            token in backend_capture_runner_test
+            for token in [
+                "test_build_report_rejects_capture_that_omits_or_stales_request_binding",
+                "request_sha256",
+                "request digest mismatch",
+                "requires request binding",
+            ]
+        )
+        and "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
+        in real_threshold_backend_capture_schema_fixture
+        and "request_sha256" in real_threshold_backend_capture_schema_fixture
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -2745,6 +2792,9 @@ def scan_documents(root):
         ),
         "p1_real_threshold_backend_emission_request_gate": (
             p1_real_threshold_backend_emission_request_gate
+        ),
+        "p1_real_threshold_backend_request_capture_binding_gate": (
+            p1_real_threshold_backend_request_capture_binding_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -3084,6 +3134,22 @@ def classify_criteria(criteria, scan):
                     "conformance/proof-review evidence only, does not change "
                     "aggregate_rejection_equivalence from partially_met, and "
                     "does not change the overall verdict from partially_proven."
+                )
+            if scan.get("p1_real_threshold_backend_request_capture_binding_gate"):
+                partial_progress = True
+                observed.append(
+                    "The real-threshold backend capture path now binds each "
+                    "capture to the exact repo-generated request digest: the "
+                    "runner loads request JSON, requires the capture to carry "
+                    "the request schema/name/SHA-256 binding, rejects stale or "
+                    "missing request bindings, and the Rust importer requires "
+                    "a nonzero request digest binding before backend material "
+                    "can enter the verified ingestion gate. This closes a "
+                    "harness gap between request generation and capture "
+                    "ingestion, but remains evidence_present_unclosed "
+                    "conformance/proof-review evidence only; it does not "
+                    "change aggregate_rejection_equivalence from partially_met "
+                    "or the overall verdict from partially_proven."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

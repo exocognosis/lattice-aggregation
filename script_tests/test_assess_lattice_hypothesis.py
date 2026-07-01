@@ -598,16 +598,21 @@ class ReportGenerationTests(unittest.TestCase):
             + "}\n"
             + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA: &str = "
             + "\"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\";\n"
+            + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_REQUEST_SCHEMA: &str = "
+            + "\"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\";\n"
             + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_EXTERNAL_EVIDENCE: &str = "
             + "\"real_threshold_mldsa_external_capture\";\n"
+            + "pub struct P1RealThresholdBackendEmissionCaptureRequestBinding { request_sha256: String }\n"
             + "pub struct P1RealThresholdBackendEmissionCapture;\n"
             + "pub struct P1OwnedRealThresholdBackendEmissionOutput;\n"
             + "impl P1RealThresholdBackendEmissionCapture {\n"
             + "pub fn decode_json(&self) {}\n"
             + "pub fn to_backend_output_material(&self) {}\n"
+            + "fn validate_request_binding(&self) {}\n"
             + "fn validate_predecessors(&self) {}\n"
             + "fn validate_expected_digests(&self) {}\n"
             + "}\n"
+            + "const REQUEST_BINDING_REASON: &str = \"P1 real-threshold backend emission capture requires request digest binding\";\n"
             + "pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_EVIDENCE: &str = "
             + "\"real_threshold_mldsa_capture_schema_fixture\";\n"
             + "pub struct P1RealThresholdBackendEmissionArtifactCertificate;\n"
@@ -673,6 +678,8 @@ class ReportGenerationTests(unittest.TestCase):
             + "#[test]\n"
             + "fn real_threshold_backend_capture_json_rejects_missing_predecessor_digests() {}\n"
             + "#[test]\n"
+            + "fn real_threshold_backend_capture_json_rejects_missing_request_binding() {}\n"
+            + "#[test]\n"
             + "fn real_threshold_backend_capture_json_rejects_missing_expected_digests() {}\n"
             + "#[test]\n"
             + "fn real_threshold_backend_capture_json_rejects_malformed_signature_length() {}\n"
@@ -712,6 +719,11 @@ class ReportGenerationTests(unittest.TestCase):
         ).write_text(
             "{\n"
             "  \"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\",\n"
+            "  \"request\": {\n"
+            "    \"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\",\n"
+            "    \"name\": \"fixture-request\",\n"
+            "    \"request_sha256\": \"1212121212121212121212121212121212121212121212121212121212121212\"\n"
+            "  },\n"
             "  \"note\": \"not actual real threshold backend emission evidence\"\n"
             "}\n",
             encoding="utf-8",
@@ -772,12 +784,18 @@ class ReportGenerationTests(unittest.TestCase):
         )
         (root / "scripts" / "run_backend_emission_capture.py").write_text(
             "CAPTURE_SCHEMA = \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\"\n"
+            "REQUEST_SCHEMA = \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\"\n"
             "EXTERNAL_BACKEND_EVIDENCE = \"real_threshold_mldsa_external_capture\"\n"
             "SELECTED_PROFILE = \"ML-DSA-65 coordinator-assisted Shamir nonce DKG P1\"\n"
             "RUNNER_STATUS = \"evidence_present_unclosed\"\n"
             "FORBIDDEN_BACKEND_COMMAND_TOKENS = ('localnet', 'validator_localnet', 'run_simulation_benchmarks')\n"
+            "request_sha256 = '12' * 32\n"
             "def validate_backend_command(command):\n"
             "    raise ValueError('forbidden backend command')\n"
+            "def load_request(path): pass\n"
+            "def validate_request_binding(binding): pass\n"
+            "def validate_capture_matches_request(capture, request):\n"
+            "    raise ValueError('request digest mismatch')\n"
             "def validate_no_unknown_fields(value, allowed_fields, label): pass\n"
             "def validate_digest_object(value, required_fields, label):\n"
             "    raise ValueError('missing {label} digest')\n"
@@ -792,9 +810,13 @@ class ReportGenerationTests(unittest.TestCase):
         )
         (root / "script_tests" / "test_run_backend_emission_capture.py").write_text(
             "def test_build_report_invokes_backend_capture_runner_and_writes_importable_capture_json(): pass\n"
+            "def test_build_report_rejects_capture_that_omits_or_stales_request_binding(): pass\n"
             "def test_build_report_rejects_deterministic_simulation_or_localnet_capture_source(): pass\n"
             "def test_build_report_rejects_forged_external_json_from_localnet_or_simulation_command(): pass\n"
             "def test_build_report_rejects_non_importable_capture_shape_before_artifact_write(): pass\n"
+            "request_sha256\n"
+            "request digest mismatch\n"
+            "requires request binding\n"
             "validator_localnet\n"
             "run_simulation_benchmarks\n"
             "real_threshold_mldsa_capture_schema_fixture\n",
@@ -2024,6 +2046,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_real_threshold_backend_output_gate"])
         self.assertTrue(scan["p1_real_threshold_backend_actual_capture_runner_gate"])
         self.assertTrue(scan["p1_real_threshold_backend_emission_request_gate"])
+        self.assertTrue(scan["p1_real_threshold_backend_request_capture_binding_gate"])
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -2033,6 +2056,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("repo-generated real-threshold backend emission request", aggregate_evidence)
         self.assertIn("P1 challenge contract", aggregate_evidence)
         self.assertIn("required capture schema", aggregate_evidence)
+        self.assertIn("exact repo-generated request digest", aggregate_evidence)
+        self.assertIn("rejects stale or missing request bindings", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
