@@ -143,6 +143,21 @@ backend source, implementation, transcript, and evidence digests from submitted
 backend material. It is still an ingestion adapter only; it does not implement a
 real threshold backend in this repository.
 
+`P1RealThresholdBackendEmissionCapture`,
+`P1OwnedRealThresholdBackendEmissionOutput`, and
+`derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture`
+are the canonical backend-emission capture schema/importer for actual external
+backend-output ingestion. The capture schema
+`lattice-aggregation:p1-real-threshold-backend-emission-capture:v1` requires the
+backend provenance material, verifier tuple, predecessor certificate digests,
+expected package digests, accepted signature bytes, and mutation-rejection
+evidence to be present before the importer feeds the provider-verified adapter.
+The checked
+`tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
+fixture pins the future envelope, but it carries
+`real_threshold_mldsa_capture_schema_fixture` evidence and is blocked until
+actual backend-generated real-threshold ML-DSA emission artifacts exist.
+
 The checked fixture harness at
 `tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json`
 pins the external backend-emission input shape, backend source package digest,

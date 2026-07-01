@@ -169,6 +169,20 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             assert_eq!(slot["current_status"], "evidence_present_unclosed");
             assert_eq!(slot["evidence_source"], *source);
             assert_eq!(slot["artifact_package"], *package);
+            if slot_id == "real_threshold_backend_emission_artifact_digest" {
+                assert_eq!(
+                    slot["backend_capture_schema"],
+                    "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+                );
+                assert_eq!(
+                    slot["backend_capture_importer"],
+                    "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture"
+                );
+                assert_eq!(
+                    slot["backend_capture_fixture_path"],
+                    "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
+                );
+            }
             assert_eq!(
                 slot["claim_boundary"],
                 "conformance/proof-review evidence only"
@@ -353,4 +367,39 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             "{fixture_path} must be checked in"
         );
     }
+
+    let capture_fixture_ref = fixture_refs
+        .iter()
+        .find(|entry| {
+            entry["fixture_path"].as_str()
+                == Some(
+                    "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
+                )
+        })
+        .expect("real-threshold backend emission capture schema fixture is linked");
+    assert_eq!(
+        capture_fixture_ref["slot_id"],
+        "real_threshold_backend_emission_artifact_digest"
+    );
+    assert_eq!(
+        capture_fixture_ref["schema"],
+        "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+    );
+    assert_eq!(
+        capture_fixture_ref["current_status"],
+        "checked_capture_schema_fixture_blocked_until_actual_backend_evidence"
+    );
+    assert_eq!(
+        capture_fixture_ref["claim_boundary"],
+        "conformance/proof-review evidence only"
+    );
+    assert!(
+        root.join(
+            capture_fixture_ref["fixture_path"]
+                .as_str()
+                .expect("capture fixture_path is a string")
+        )
+        .exists(),
+        "capture schema fixture must be checked in"
+    );
 }
