@@ -2684,9 +2684,13 @@ def scan_documents(root):
             token in hazmat_rejection_equivalence_batch
             for token in [
                 "derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key",
+                "derive_mldsa65_centralized_domain_masking_contribution_from_share",
                 "derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met",
                 "lattice-aggregation:p1-rejection-equivalence-batch:v1",
                 "mldsa65-centralized-vs-threshold-rejection-batch",
+                "centralized-rho-double-prime-kappa",
+                "aligned_mask_domain",
+                "mask_domain",
                 "threshold_attempts",
                 "centralized_attempts",
                 "predicate_mismatches",
@@ -2703,6 +2707,8 @@ def scan_documents(root):
                 "test_build_emitter_project_pins_centralized_threshold_comparator_surface",
                 "test_run_batch_invokes_generated_release_emitter_and_returns_stdout",
                 "mldsa65-centralized-vs-threshold-rejection-batch",
+                "centralized-rho-double-prime-kappa",
+                "aligned_mask_domain",
                 "threshold_attempts",
                 "centralized_attempts",
                 "predicate_mismatches",
@@ -3311,10 +3317,15 @@ def classify_criteria(criteria, scan):
                     "keeps claims_rejection_distribution_preservation and "
                     "claims_theorem_closure false. This is the first runnable "
                     "comparison harness for the actual rejection-sampling "
-                    "question, but any predicate_mismatches or insufficient "
-                    "accepted/rejected coverage mean it does not close the "
-                    "theorem or move aggregate_rejection_equivalence beyond "
-                    "partially_met."
+                    "question. It can also run an aligned centralized mask "
+                    "domain mode keyed to centralized-rho-double-prime-kappa; "
+                    "a zero predicate mismatches close_candidate result there "
+                    "is strong algebraic closure-candidate evidence, but the "
+                    "aligned helper uses expanded secret-key material and still "
+                    "does not close the theorem or move "
+                    "aggregate_rejection_equivalence beyond partially_met "
+                    "without reviewed distributed nonce-DKG replacement and "
+                    "external review."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

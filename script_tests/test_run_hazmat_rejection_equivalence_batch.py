@@ -55,10 +55,17 @@ class HazmatRejectionEquivalenceBatchTests(unittest.TestCase):
             main_rs,
         )
         self.assertIn(
+            "derive_mldsa65_centralized_domain_masking_contribution_from_share",
+            main_rs,
+        )
+        self.assertIn(
             "lattice-aggregation:p1-rejection-equivalence-batch:v1",
             main_rs,
         )
         self.assertIn("mldsa65-centralized-vs-threshold-rejection-batch", main_rs)
+        self.assertIn("centralized-rho-double-prime-kappa", main_rs)
+        self.assertIn("aligned_mask_domain", main_rs)
+        self.assertIn("mask_domain", main_rs)
         self.assertIn("threshold_attempts", main_rs)
         self.assertIn("centralized_attempts", main_rs)
         self.assertIn("predicate_mismatches", main_rs)
@@ -66,6 +73,8 @@ class HazmatRejectionEquivalenceBatchTests(unittest.TestCase):
         self.assertIn("accepted_or_rejected_matches", main_rs)
         self.assertIn("close_candidate", main_rs)
         self.assertIn("claims_rejection_distribution_preservation", main_rs)
+        parsed = module.parse_args(["--backend-crate", "x", "--aligned-mask-domain"])
+        self.assertTrue(parsed.aligned_mask_domain)
 
     def test_run_batch_invokes_generated_release_emitter_and_returns_stdout(self):
         module = load_module()
