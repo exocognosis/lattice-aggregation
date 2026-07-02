@@ -706,6 +706,54 @@ impl Mldsa65MaskingContribution {
     }
 }
 
+/// Share-local output of a distributed nonce-DKG/PRF emission round.
+///
+/// The share contains one active-set-bound additive piece of the ML-DSA mask
+/// vector. It is the interface expected from a reviewed distributed PRF/MPC
+/// producer; the splitter below is deterministic test-vector plumbing for that
+/// interface, not a proof that the producer is secure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Mldsa65DistributedNoncePrfOutputShare {
+    receiver_index: u16,
+    threshold: u16,
+    total_nodes: u16,
+    attempt_index: u16,
+    active_set_digest: [u8; 32],
+    y_share: VectorL,
+}
+
+impl Mldsa65DistributedNoncePrfOutputShare {
+    /// Return the one-based receiver index for this nonce share.
+    pub const fn receiver_index(&self) -> u16 {
+        self.receiver_index
+    }
+
+    /// Return the reconstruction threshold for this nonce share.
+    pub const fn threshold(&self) -> u16 {
+        self.threshold
+    }
+
+    /// Return the total validator count bound to this nonce share.
+    pub const fn total_nodes(&self) -> u16 {
+        self.total_nodes
+    }
+
+    /// Return the ML-DSA rejection-attempt index bound to this nonce share.
+    pub const fn attempt_index(&self) -> u16 {
+        self.attempt_index
+    }
+
+    /// Return the active-set digest this nonce share is bound to.
+    pub fn active_set_digest(&self) -> &[u8; 32] {
+        &self.active_set_digest
+    }
+
+    /// Borrow this validator's additive mask-vector share.
+    pub fn y_share(&self) -> &VectorL {
+        &self.y_share
+    }
+}
+
 /// Aggregated masking state used to derive the threshold challenge.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Mldsa65AggregatedMasking {
@@ -766,6 +814,68 @@ impl Mldsa65ThresholdResponse {
     /// Borrow the aggregated response vector `z`.
     pub fn z(&self) -> &VectorL {
         &self.z
+    }
+}
+
+/// Public rejection-predicate transcript for one threshold ML-DSA-65 candidate.
+///
+/// The transcript reports the same predicate families used by ML-DSA-65
+/// rejection sampling without exposing secret vectors. It is diagnostic
+/// hazmat evidence for distribution review, not a production proof object.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Mldsa65ThresholdRejectionPredicateTranscript {
+    challenge: [u8; MLDSA65_CHALLENGE_BYTES],
+    challenge_digest: [u8; 32],
+    z_bound_result: bool,
+    r0_bound_result: bool,
+    ct0_bound_result: bool,
+    hint_bound_result: bool,
+    accepted: bool,
+}
+
+impl Mldsa65ThresholdRejectionPredicateTranscript {
+    /// Borrow the challenge seed checked by this transcript.
+    pub fn challenge(&self) -> &[u8; MLDSA65_CHALLENGE_BYTES] {
+        &self.challenge
+    }
+
+    /// Return a SHA3-256 digest of the challenge seed.
+    pub fn challenge_digest(&self) -> &[u8; 32] {
+        &self.challenge_digest
+    }
+
+    /// Return whether the aggregate `z` vector is inside the ML-DSA-65 bound.
+    pub const fn z_bound_result(&self) -> bool {
+        self.z_bound_result
+    }
+
+    /// Return whether the low-bits `r0` vector is inside the ML-DSA-65 bound.
+    pub const fn r0_bound_result(&self) -> bool {
+        self.r0_bound_result
+    }
+
+    /// Return whether the `c*t0` vector is inside the ML-DSA-65 bound.
+    pub const fn ct0_bound_result(&self) -> bool {
+        self.ct0_bound_result
+    }
+
+    /// Return whether the computed hint weight is inside the ML-DSA-65 bound.
+    pub const fn hint_bound_result(&self) -> bool {
+        self.hint_bound_result
+    }
+
+    /// Return whether all rejection predicates accept this candidate.
+    pub const fn accepted(&self) -> bool {
+        self.accepted
+    }
+
+    /// Return the canonical text label for the candidate outcome.
+    pub const fn accepted_or_rejected(&self) -> &'static str {
+        if self.accepted {
+            "accepted"
+        } else {
+            "rejected"
+        }
     }
 }
 
@@ -1356,6 +1466,169 @@ pub fn derive_mldsa65_masking_contribution_from_share(
     })
 }
 
+/// Derive a hazmat masking contribution in the centralized ML-DSA mask domain.
+///
+/// This diagnostic helper lets proof tests split one centralized signing
+/// attempt's `y` mask across threshold contribution records so aggregate
+/// predicate behavior can be compared exactly. It uses expanded secret-key
+/// material and is not a production nonce-DKG construction.
+pub fn derive_mldsa65_centralized_domain_masking_contribution_from_share(
+    secret_key: &[u8],
+    share: &Mldsa65ExpandedSecretKeyShare,
+    active_position: u16,
+    mu: &[u8; MLDSA65_MU_BYTES],
+    rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
+    attempt_index: u16,
+) -> Result<Mldsa65MaskingContribution, ThresholdError> {
+    let material = decode_expanded_secret_key(secret_key)?;
+    if share.rho != material.rho {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: SECRET_SHARE_METADATA_MISMATCH,
+        });
+    }
+    let kappa =
+        attempt_index
+            .checked_mul(MLDSA65_L as u16)
+            .ok_or(ThresholdError::BackendUnavailable {
+                reason: SIGNING_REJECTION_EXHAUSTED,
+            })?;
+    let rho_double_prime = derive_signing_rho_double_prime(&material.key_seed, rnd, mu);
+    let y = if active_position == 0 {
+        expand_mask_vector_l(&rho_double_prime, kappa)
+    } else {
+        VectorL::zero()
+    };
+    let w = fips_inverse_ntt_vector_k(&fips_matrix_vector_mul(
+        &material.matrix,
+        &fips_ntt_vector_l(&y),
+    ));
+
+    Ok(Mldsa65MaskingContribution {
+        receiver_index: share.receiver_index,
+        threshold: share.threshold,
+        total_nodes: share.total_nodes,
+        rho: share.rho,
+        y,
+        w,
+    })
+}
+
+/// Derive the standard ML-DSA nonce PRF output from an expanded key.
+///
+/// This is a hazmat oracle used to feed deterministic distributed-emission test
+/// vectors. Threshold signing code must consume distributed output shares
+/// instead of calling this function on the hot path.
+pub fn derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key(
+    secret_key: &[u8],
+    mu: &[u8; MLDSA65_MU_BYTES],
+    rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
+) -> Result<[u8; MLDSA65_MU_BYTES], ThresholdError> {
+    let material = decode_expanded_secret_key(secret_key)?;
+    Ok(derive_signing_rho_double_prime(&material.key_seed, rnd, mu))
+}
+
+/// Split one distributed nonce-DKG/PRF output into active-set-bound mask shares.
+///
+/// The input `rho_double_prime` represents the already-produced distributed PRF
+/// output for this signing transcript. The returned shares add to the same
+/// `y = ExpandMask(rho_double_prime, kappa)` candidate used by centralized
+/// ML-DSA for `attempt_index`.
+pub fn split_mldsa65_distributed_nonce_prf_output(
+    threshold: u16,
+    total_nodes: u16,
+    active_receivers: &[u16],
+    rho_double_prime: &[u8; MLDSA65_MU_BYTES],
+    attempt_index: u16,
+) -> Result<Vec<Mldsa65DistributedNoncePrfOutputShare>, ThresholdError> {
+    if threshold == 0 || active_receivers.len() < usize::from(threshold) {
+        return Err(ThresholdError::InsufficientCommitments {
+            required: threshold,
+            received: active_receivers.len(),
+        });
+    }
+    let mut seen = BTreeSet::new();
+    for receiver_index in active_receivers {
+        validate_contribution_receiver(*receiver_index, total_nodes)?;
+        if !seen.insert(*receiver_index) {
+            return Err(ThresholdError::DuplicateValidator {
+                validator: ValidatorId(*receiver_index),
+            });
+        }
+    }
+
+    let kappa =
+        attempt_index
+            .checked_mul(MLDSA65_L as u16)
+            .ok_or(ThresholdError::BackendUnavailable {
+                reason: SIGNING_REJECTION_EXHAUSTED,
+            })?;
+    let active_set_digest = distributed_nonce_active_set_digest(
+        threshold,
+        total_nodes,
+        active_receivers,
+        attempt_index,
+    );
+    let target_y = expand_mask_vector_l(rho_double_prime, kappa);
+
+    let mut shares = Vec::with_capacity(active_receivers.len());
+    let mut accumulated = VectorL::zero();
+    let last_index = active_receivers.len() - 1;
+    for (position, receiver_index) in active_receivers.iter().copied().enumerate() {
+        let y_share = if position == last_index {
+            vector_l_sub_mod(&target_y, &accumulated)
+        } else {
+            derive_distributed_nonce_y_share(
+                rho_double_prime,
+                &active_set_digest,
+                receiver_index,
+                attempt_index,
+                position as u16,
+            )
+        };
+        accumulated = vector_l_add_mod(&accumulated, &y_share);
+        shares.push(Mldsa65DistributedNoncePrfOutputShare {
+            receiver_index,
+            threshold,
+            total_nodes,
+            attempt_index,
+            active_set_digest,
+            y_share,
+        });
+    }
+
+    Ok(shares)
+}
+
+/// Convert a share-local distributed nonce PRF output into a masking contribution.
+pub fn derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(
+    share: &Mldsa65ExpandedSecretKeyShare,
+    nonce_share: &Mldsa65DistributedNoncePrfOutputShare,
+) -> Result<Mldsa65MaskingContribution, ThresholdError> {
+    if share.receiver_index != nonce_share.receiver_index
+        || share.threshold != nonce_share.threshold
+        || share.total_nodes != nonce_share.total_nodes
+    {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: SECRET_SHARE_METADATA_MISMATCH,
+        });
+    }
+    validate_contribution_receiver(nonce_share.receiver_index, nonce_share.total_nodes)?;
+    let matrix = expand_a(&share.rho);
+    let w = fips_inverse_ntt_vector_k(&fips_matrix_vector_mul(
+        &matrix,
+        &fips_ntt_vector_l(&nonce_share.y_share),
+    ));
+
+    Ok(Mldsa65MaskingContribution {
+        receiver_index: share.receiver_index,
+        threshold: share.threshold,
+        total_nodes: share.total_nodes,
+        rho: share.rho,
+        y: nonce_share.y_share,
+        w,
+    })
+}
+
 /// Aggregate local masking contributions into `sum(y_i)` and `sum(w_i)`.
 pub fn aggregate_mldsa65_masking_contributions(
     contributions: &[Mldsa65MaskingContribution],
@@ -1470,6 +1743,98 @@ pub fn finalize_mldsa65_threshold_signature_attempt(
     }
 
     pack_signature(*response.challenge(), response.z(), &hint)
+}
+
+/// Derive the public rejection-predicate transcript for one threshold candidate.
+pub fn derive_mldsa65_threshold_rejection_predicate_transcript(
+    masking: &Mldsa65AggregatedMasking,
+    mu: &[u8; MLDSA65_MU_BYTES],
+    secret: &Mldsa65SecretContribution,
+) -> Result<Mldsa65ThresholdRejectionPredicateTranscript, ThresholdError> {
+    if secret.challenge != compute_challenge_from_mu(mu, &masking.w1) {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+
+    let z = mod_plus_minus_q_vector_l(&vector_l_add_mod(&masking.y, &secret.cs1));
+    let z_bound_result = vector_l_infinity_norm_mod_q(&z) < MLDSA65_Z_NORM_BOUND;
+    let r0 = low_bits_vector_k(&vector_k_sub_mod(&masking.w, &secret.cs2));
+    let r0_bound_result = vector_k_infinity_norm_signed(&r0) < MLDSA65_GAMMA2 - MLDSA65_BETA;
+    let minus_ct0 = vector_k_neg_mod(&secret.ct0);
+    let w_cs2_ct0 = vector_k_add_mod(&vector_k_sub_mod(&masking.w, &secret.cs2), &secret.ct0);
+    let hint_weight = hint_weight_from_make_hint(&minus_ct0, &w_cs2_ct0);
+    let ct0_bound_result = vector_k_infinity_norm_mod_q(&secret.ct0) < MLDSA65_GAMMA2;
+    let hint_bound_result = hint_weight <= MLDSA65_OMEGA;
+    let accepted = z_bound_result && r0_bound_result && ct0_bound_result && hint_bound_result;
+    let challenge_digest = Sha3_256::digest(secret.challenge);
+
+    Ok(Mldsa65ThresholdRejectionPredicateTranscript {
+        challenge: secret.challenge,
+        challenge_digest: challenge_digest.into(),
+        z_bound_result,
+        r0_bound_result,
+        ct0_bound_result,
+        hint_bound_result,
+        accepted,
+    })
+}
+
+/// Derive the public rejection-predicate transcript for one centralized candidate.
+pub fn derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key(
+    secret_key: &[u8],
+    mu: &[u8; MLDSA65_MU_BYTES],
+    rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
+    attempt_index: u16,
+) -> Result<Mldsa65ThresholdRejectionPredicateTranscript, ThresholdError> {
+    let material = decode_expanded_secret_key(secret_key)?;
+    let kappa =
+        attempt_index
+            .checked_mul(MLDSA65_L as u16)
+            .ok_or(ThresholdError::BackendUnavailable {
+                reason: SIGNING_REJECTION_EXHAUSTED,
+            })?;
+    let rho_double_prime = derive_signing_rho_double_prime(&material.key_seed, rnd, mu);
+    let y = expand_mask_vector_l(&rho_double_prime, kappa);
+    let w = fips_inverse_ntt_vector_k(&fips_matrix_vector_mul(
+        &material.matrix,
+        &fips_ntt_vector_l(&y),
+    ));
+    let w1 = high_bits_vector_k(&w);
+    let challenge = compute_challenge_from_mu(mu, &w1);
+    let challenge_poly = sample_in_ball(&challenge);
+    let challenge_hat = fips_ntt_poly(&challenge_poly);
+    let cs1 = fips_inverse_ntt_vector_l(&fips_ntt_poly_mul_vector_l(
+        &challenge_hat,
+        &material.s1_hat,
+    ));
+    let cs2 = fips_inverse_ntt_vector_k(&fips_ntt_poly_mul_vector_k(
+        &challenge_hat,
+        &material.s2_hat,
+    ));
+    let z = vector_l_add_mod(&y, &cs1);
+    let z_bound_result = vector_l_infinity_norm_mod_q(&z) < MLDSA65_Z_NORM_BOUND;
+    let r0 = low_bits_vector_k(&vector_k_sub_mod(&w, &cs2));
+    let r0_bound_result = vector_k_infinity_norm_signed(&r0) < MLDSA65_GAMMA2 - MLDSA65_BETA;
+    let ct0 = fips_inverse_ntt_vector_k(&fips_ntt_poly_mul_vector_k(
+        &challenge_hat,
+        &material.t0_hat,
+    ));
+    let minus_ct0 = vector_k_neg_mod(&ct0);
+    let w_cs2_ct0 = vector_k_add_mod(&vector_k_sub_mod(&w, &cs2), &ct0);
+    let hint_weight = hint_weight_from_make_hint(&minus_ct0, &w_cs2_ct0);
+    let ct0_bound_result = vector_k_infinity_norm_mod_q(&ct0) < MLDSA65_GAMMA2;
+    let hint_bound_result = hint_weight <= MLDSA65_OMEGA;
+    let accepted = z_bound_result && r0_bound_result && ct0_bound_result && hint_bound_result;
+    let challenge_digest = Sha3_256::digest(challenge);
+
+    Ok(Mldsa65ThresholdRejectionPredicateTranscript {
+        challenge,
+        challenge_digest: challenge_digest.into(),
+        z_bound_result,
+        r0_bound_result,
+        ct0_bound_result,
+        hint_bound_result,
+        accepted,
+    })
 }
 
 /// Start a hazmat threshold signing attempt for one fixed `mu` digest.
@@ -1609,6 +1974,23 @@ pub fn finalize_mldsa65_session_signature_once_quorum_met(
         }
         Err(err) => Err(err),
     }
+}
+
+/// Derive the public rejection-predicate transcript once round-2 quorum is available.
+pub fn derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met(
+    session: &Mldsa65ThresholdSigningAttempt,
+) -> Result<Mldsa65ThresholdRejectionPredicateTranscript, ThresholdError> {
+    if session.phase != Mldsa65ThresholdSigningPhase::AwaitingSecretContributions {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+    let aggregate = session
+        .aggregate
+        .as_ref()
+        .ok_or(ThresholdError::TranscriptMismatch)?;
+    let secret =
+        reconstruct_mldsa65_secret_contribution_from_shares(&session.secret_contributions)?;
+
+    derive_mldsa65_threshold_rejection_predicate_transcript(aggregate, &session.mu, &secret)
 }
 
 /// Deterministically sign an internal ML-DSA-65 message from a key-generation seed.
@@ -2488,13 +2870,7 @@ fn sign_mldsa65_mu(
     mu: &[u8; MLDSA65_MU_BYTES],
     rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
 ) -> Result<Mldsa65SignatureBytes, ThresholdError> {
-    let mut hasher = Shake256::default();
-    hasher.update(&material.key_seed);
-    hasher.update(rnd);
-    hasher.update(mu);
-    let mut reader = hasher.finalize_xof();
-    let mut rho_double_prime = [0u8; MLDSA65_MU_BYTES];
-    reader.read(&mut rho_double_prime);
+    let rho_double_prime = derive_signing_rho_double_prime(&material.key_seed, rnd, mu);
 
     for kappa in (0..u16::MAX).step_by(MLDSA65_L) {
         let y = expand_mask_vector_l(&rho_double_prime, kappa);
@@ -2543,6 +2919,21 @@ fn sign_mldsa65_mu(
     Err(ThresholdError::BackendUnavailable {
         reason: SIGNING_REJECTION_EXHAUSTED,
     })
+}
+
+fn derive_signing_rho_double_prime(
+    key_seed: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
+    rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
+    mu: &[u8; MLDSA65_MU_BYTES],
+) -> [u8; MLDSA65_MU_BYTES] {
+    let mut hasher = Shake256::default();
+    hasher.update(key_seed);
+    hasher.update(rnd);
+    hasher.update(mu);
+    let mut reader = hasher.finalize_xof();
+    let mut rho_double_prime = [0u8; MLDSA65_MU_BYTES];
+    reader.read(&mut rho_double_prime);
+    rho_double_prime
 }
 
 fn expand_s_eta4_vector_l(rho_prime: &[u8; 64], base: usize) -> VectorL {
@@ -2688,6 +3079,53 @@ fn derive_validator_masking_seed(
     output
 }
 
+fn distributed_nonce_active_set_digest(
+    threshold: u16,
+    total_nodes: u16,
+    active_receivers: &[u16],
+    attempt_index: u16,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    Sha3Digest::update(&mut hasher, b"mldsa65-distributed-nonce-prf-active-set-v1");
+    Sha3Digest::update(&mut hasher, threshold.to_be_bytes());
+    Sha3Digest::update(&mut hasher, total_nodes.to_be_bytes());
+    Sha3Digest::update(&mut hasher, attempt_index.to_be_bytes());
+    for receiver_index in active_receivers {
+        Sha3Digest::update(&mut hasher, receiver_index.to_be_bytes());
+    }
+    hasher.finalize().into()
+}
+
+fn derive_distributed_nonce_y_share(
+    rho_double_prime: &[u8; MLDSA65_MU_BYTES],
+    active_set_digest: &[u8; 32],
+    receiver_index: u16,
+    attempt_index: u16,
+    active_position: u16,
+) -> VectorL {
+    let mut polys = [Poly::zero(); MLDSA65_L];
+    for (lane, poly) in polys.iter_mut().enumerate() {
+        let mut coeffs = [0i32; N];
+        for (coeff_index, coeff) in coeffs.iter_mut().enumerate() {
+            let mut hasher = Shake256::default();
+            hasher.update(b"mldsa65-distributed-nonce-y-share-v1");
+            hasher.update(rho_double_prime);
+            hasher.update(active_set_digest);
+            hasher.update(&receiver_index.to_be_bytes());
+            hasher.update(&attempt_index.to_be_bytes());
+            hasher.update(&active_position.to_be_bytes());
+            hasher.update(&(lane as u16).to_be_bytes());
+            hasher.update(&(coeff_index as u16).to_be_bytes());
+            let mut reader = hasher.finalize_xof();
+            let mut bytes = [0u8; 8];
+            reader.read(&mut bytes);
+            *coeff = reduce_mod_q(u64::from_le_bytes(bytes) as i64);
+        }
+        *poly = Poly::from_coeffs(coeffs);
+    }
+    VectorL::from_polys(polys)
+}
+
 fn shrink_threshold_masking_vector_l(vector: &VectorL, divisor: u16) -> VectorL {
     let divisor = i32::from(divisor.max(1));
     let mut polys = [Poly::zero(); MLDSA65_L];
@@ -2713,6 +3151,24 @@ fn vector_l_add_mod(lhs: &VectorL, rhs: &VectorL) -> VectorL {
             .zip(left.coeffs.iter().zip(right.coeffs.iter()))
         {
             *out_coeff = add_mod_q(*left_coeff, *right_coeff);
+        }
+        *out = Poly::from_coeffs(coeffs);
+    }
+    VectorL::from_polys(polys)
+}
+
+fn vector_l_sub_mod(lhs: &VectorL, rhs: &VectorL) -> VectorL {
+    let mut polys = [Poly::zero(); MLDSA65_L];
+    for (out, (left, right)) in polys
+        .iter_mut()
+        .zip(lhs.polys().iter().zip(rhs.polys().iter()))
+    {
+        let mut coeffs = [0i32; N];
+        for (out_coeff, (left_coeff, right_coeff)) in coeffs
+            .iter_mut()
+            .zip(left.coeffs.iter().zip(right.coeffs.iter()))
+        {
+            *out_coeff = sub_mod_q(*left_coeff, *right_coeff);
         }
         *out = Poly::from_coeffs(coeffs);
     }
@@ -2781,6 +3237,18 @@ fn hint_vector_from_make_hint(z: &VectorK, r: &VectorK) -> Result<HintVector, Th
         }
     }
     HintVector::from_positions(&positions)
+}
+
+fn hint_weight_from_make_hint(z: &VectorK, r: &VectorK) -> usize {
+    let mut weight = 0usize;
+    for (z_poly, r_poly) in z.polys().iter().zip(r.polys().iter()) {
+        for (z_coeff, r_coeff) in z_poly.coeffs.iter().zip(r_poly.coeffs.iter()) {
+            if make_hint(*z_coeff, *r_coeff) {
+                weight += 1;
+            }
+        }
+    }
+    weight
 }
 
 fn mod_plus_minus_q_vector_l(vector: &VectorL) -> VectorL {

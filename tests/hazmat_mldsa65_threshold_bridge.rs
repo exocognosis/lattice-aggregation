@@ -3,22 +3,29 @@
 use dytallix_pq_threshold::{
     mldsa65::{
         aggregate_mldsa65_masking_contributions, begin_mldsa65_threshold_attempt,
+        derive_mldsa65_centralized_domain_masking_contribution_from_share,
+        derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key,
+        derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key,
         derive_mldsa65_challenge_from_aggregated_masking,
+        derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share,
         derive_mldsa65_expanded_secret_key_from_seed,
         derive_mldsa65_masking_contribution_from_share,
         derive_mldsa65_public_key_from_expanded_secret_key,
         derive_mldsa65_secret_contribution_from_expanded_secret_key,
         derive_mldsa65_secret_contribution_from_share,
         derive_mldsa65_session_challenge_once_quorum_met,
+        derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met,
+        derive_mldsa65_threshold_rejection_predicate_transcript,
         finalize_mldsa65_session_signature_once_quorum_met, finalize_mldsa65_threshold_response,
         finalize_mldsa65_threshold_signature_attempt,
         reconstruct_mldsa65_expanded_secret_key_from_shares,
         reconstruct_mldsa65_secret_contribution_from_shares,
         sign_mldsa65_external_pure_deterministic_from_expanded_secret_key,
-        split_mldsa65_expanded_secret_key, split_mldsa65_expanded_secret_key_with_vss_session,
-        submit_mldsa65_masking_contribution, submit_mldsa65_secret_contribution,
-        verify_mldsa65_internal_mu, Mldsa65ThresholdSigningPhase, MLDSA65_CHALLENGE_BYTES,
-        MLDSA65_KEYGEN_SEED_BYTES, MLDSA65_MU_BYTES, MLDSA65_Z_NORM_BOUND,
+        split_mldsa65_distributed_nonce_prf_output, split_mldsa65_expanded_secret_key,
+        split_mldsa65_expanded_secret_key_with_vss_session, submit_mldsa65_masking_contribution,
+        submit_mldsa65_secret_contribution, verify_mldsa65_internal_mu,
+        Mldsa65ThresholdSigningPhase, MLDSA65_CHALLENGE_BYTES, MLDSA65_KEYGEN_SEED_BYTES,
+        MLDSA65_MU_BYTES, MLDSA65_Z_NORM_BOUND,
     },
     Poly, ThresholdError, ThresholdPublicKey, ThresholdSignature, MLDSA65_SIGNATURE_BYTES, Q,
 };
@@ -458,6 +465,350 @@ fn threshold_signature_attempt_reports_rejection_for_bad_masking_sample() {
 }
 
 #[test]
+fn threshold_signature_attempt_exposes_rejection_predicate_transcript() {
+    let seed = core::array::from_fn(|index| (index as u8).wrapping_mul(41).wrapping_add(19));
+    let original_secret =
+        derive_mldsa65_expanded_secret_key_from_seed(&seed).expect("derive expanded secret key");
+    let shares = split_mldsa65_expanded_secret_key(original_secret.as_bytes(), 3, 5)
+        .expect("split expanded secret key");
+    let active_shares = [&shares[0], &shares[2], &shares[4]];
+    let mu = [0x66u8; MLDSA65_MU_BYTES];
+
+    let mut saw_rejected = false;
+    let mut saw_accepted = false;
+    for attempt in 0..64u8 {
+        let masking_seed = [attempt; MLDSA65_MU_BYTES];
+        let masking_contributions = active_shares
+            .iter()
+            .enumerate()
+            .map(|(round, share)| {
+                derive_mldsa65_masking_contribution_from_share(share, &masking_seed, round as u16)
+                    .expect("derive local masking contribution")
+            })
+            .collect::<Vec<_>>();
+        let aggregate = aggregate_mldsa65_masking_contributions(&masking_contributions)
+            .expect("aggregate masking contributions");
+        let challenge = derive_mldsa65_challenge_from_aggregated_masking(&mu, &aggregate);
+        let partial_secret_contributions = active_shares
+            .iter()
+            .map(|share| {
+                derive_mldsa65_secret_contribution_from_share(share, &challenge)
+                    .expect("derive partial secret contribution")
+            })
+            .collect::<Vec<_>>();
+        let secret_contribution =
+            reconstruct_mldsa65_secret_contribution_from_shares(&partial_secret_contributions)
+                .expect("reconstruct secret contribution");
+
+        let transcript = derive_mldsa65_threshold_rejection_predicate_transcript(
+            &aggregate,
+            &mu,
+            &secret_contribution,
+        )
+        .expect("derive rejection predicate transcript");
+        assert_eq!(transcript.challenge(), &challenge);
+        assert_eq!(
+            transcript.accepted(),
+            transcript.z_bound_result()
+                && transcript.r0_bound_result()
+                && transcript.ct0_bound_result()
+                && transcript.hint_bound_result()
+        );
+
+        match finalize_mldsa65_threshold_signature_attempt(&aggregate, &mu, &secret_contribution) {
+            Ok(_) => {
+                assert!(transcript.accepted());
+                saw_accepted = true;
+            }
+            Err(ThresholdError::RejectionSamplingFailed { .. }) => {
+                assert!(!transcript.accepted());
+                saw_rejected = true;
+            }
+            Err(err) => panic!("unexpected finalization error: {err:?}"),
+        }
+        if saw_rejected && saw_accepted {
+            break;
+        }
+    }
+
+    assert!(
+        saw_rejected,
+        "transcript loop must observe at least one rejected attempt"
+    );
+    assert!(
+        saw_accepted,
+        "transcript loop must observe at least one accepted attempt"
+    );
+}
+
+#[test]
+fn centralized_signature_attempt_exposes_rejection_predicate_transcript() {
+    let seed = core::array::from_fn(|index| (index as u8).wrapping_mul(37).wrapping_add(29));
+    let original_secret =
+        derive_mldsa65_expanded_secret_key_from_seed(&seed).expect("derive expanded secret key");
+    let mu = [0xA7u8; MLDSA65_MU_BYTES];
+    let rnd = [0u8; MLDSA65_KEYGEN_SEED_BYTES];
+
+    let mut saw_rejected = false;
+    let mut saw_accepted = false;
+    for attempt in 0..64u16 {
+        let transcript =
+            derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key(
+                original_secret.as_bytes(),
+                &mu,
+                &rnd,
+                attempt,
+            )
+            .expect("derive centralized rejection predicate transcript");
+        assert_eq!(
+            transcript.accepted(),
+            transcript.z_bound_result()
+                && transcript.r0_bound_result()
+                && transcript.ct0_bound_result()
+                && transcript.hint_bound_result()
+        );
+        if transcript.accepted() {
+            saw_accepted = true;
+        } else {
+            saw_rejected = true;
+        }
+        if saw_rejected && saw_accepted {
+            break;
+        }
+    }
+
+    assert!(
+        saw_rejected,
+        "centralized transcript loop must observe at least one rejected attempt"
+    );
+    assert!(
+        saw_accepted,
+        "centralized transcript loop must observe at least one accepted attempt"
+    );
+}
+
+#[test]
+fn threshold_attempt_matches_centralized_predicates_when_masking_domain_is_aligned() {
+    let seed = core::array::from_fn(|index| (index as u8).wrapping_mul(43).wrapping_add(21));
+    let original_secret =
+        derive_mldsa65_expanded_secret_key_from_seed(&seed).expect("derive expanded secret key");
+    let shares = split_mldsa65_expanded_secret_key(original_secret.as_bytes(), 3, 5)
+        .expect("split expanded secret key");
+    let active_shares = [&shares[0], &shares[2], &shares[4]];
+    let mu = [0xC4u8; MLDSA65_MU_BYTES];
+    let rnd = [0u8; MLDSA65_KEYGEN_SEED_BYTES];
+
+    let mut saw_rejected = false;
+    let mut saw_accepted = false;
+    for attempt in 0..64u16 {
+        let masking_contributions = active_shares
+            .iter()
+            .enumerate()
+            .map(|(active_position, share)| {
+                derive_mldsa65_centralized_domain_masking_contribution_from_share(
+                    original_secret.as_bytes(),
+                    share,
+                    active_position as u16,
+                    &mu,
+                    &rnd,
+                    attempt,
+                )
+                .expect("derive centralized-domain masking contribution")
+            })
+            .collect::<Vec<_>>();
+        let aggregate = aggregate_mldsa65_masking_contributions(&masking_contributions)
+            .expect("aggregate masking contributions");
+        let challenge = derive_mldsa65_challenge_from_aggregated_masking(&mu, &aggregate);
+        let partial_secret_contributions = active_shares
+            .iter()
+            .map(|share| {
+                derive_mldsa65_secret_contribution_from_share(share, &challenge)
+                    .expect("derive partial secret contribution")
+            })
+            .collect::<Vec<_>>();
+        let secret_contribution =
+            reconstruct_mldsa65_secret_contribution_from_shares(&partial_secret_contributions)
+                .expect("reconstruct secret contribution");
+
+        let threshold_transcript = derive_mldsa65_threshold_rejection_predicate_transcript(
+            &aggregate,
+            &mu,
+            &secret_contribution,
+        )
+        .expect("derive threshold rejection predicate transcript");
+        let centralized_transcript =
+            derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key(
+                original_secret.as_bytes(),
+                &mu,
+                &rnd,
+                attempt,
+            )
+            .expect("derive centralized rejection predicate transcript");
+
+        assert_eq!(
+            threshold_transcript.challenge_digest(),
+            centralized_transcript.challenge_digest()
+        );
+        assert_eq!(
+            threshold_transcript.z_bound_result(),
+            centralized_transcript.z_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.r0_bound_result(),
+            centralized_transcript.r0_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.ct0_bound_result(),
+            centralized_transcript.ct0_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.hint_bound_result(),
+            centralized_transcript.hint_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.accepted(),
+            centralized_transcript.accepted()
+        );
+        if threshold_transcript.accepted() {
+            saw_accepted = true;
+        } else {
+            saw_rejected = true;
+        }
+        if saw_rejected && saw_accepted {
+            break;
+        }
+    }
+
+    assert!(
+        saw_rejected,
+        "aligned transcript loop must observe at least one rejected attempt"
+    );
+    assert!(
+        saw_accepted,
+        "aligned transcript loop must observe at least one accepted attempt"
+    );
+}
+
+#[test]
+fn distributed_nonce_prf_emission_matches_centralized_predicates_without_secret_key_masking_helper()
+{
+    let seed = core::array::from_fn(|index| (index as u8).wrapping_mul(47).wrapping_add(25));
+    let original_secret =
+        derive_mldsa65_expanded_secret_key_from_seed(&seed).expect("derive expanded secret key");
+    let shares = split_mldsa65_expanded_secret_key(original_secret.as_bytes(), 3, 5)
+        .expect("split expanded secret key");
+    let active_shares = [&shares[0], &shares[2], &shares[4]];
+    let active_receivers = active_shares
+        .iter()
+        .map(|share| share.receiver_index())
+        .collect::<Vec<_>>();
+    let mu = [0xD6u8; MLDSA65_MU_BYTES];
+    let rnd = [0u8; MLDSA65_KEYGEN_SEED_BYTES];
+
+    let mut saw_rejected = false;
+    let mut saw_accepted = false;
+    for attempt in 0..64u16 {
+        let nonce_prf_output =
+            derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key(
+                original_secret.as_bytes(),
+                &mu,
+                &rnd,
+            )
+            .expect("derive centralized nonce PRF oracle output");
+        let nonce_shares = split_mldsa65_distributed_nonce_prf_output(
+            active_shares[0].threshold(),
+            active_shares[0].total_nodes(),
+            &active_receivers,
+            &nonce_prf_output,
+            attempt,
+        )
+        .expect("split distributed nonce PRF output");
+
+        let masking_contributions = active_shares
+            .iter()
+            .zip(nonce_shares.iter())
+            .map(|(share, nonce_share)| {
+                derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(
+                    share,
+                    nonce_share,
+                )
+                .expect("derive distributed nonce PRF masking contribution")
+            })
+            .collect::<Vec<_>>();
+        let aggregate = aggregate_mldsa65_masking_contributions(&masking_contributions)
+            .expect("aggregate masking contributions");
+        let challenge = derive_mldsa65_challenge_from_aggregated_masking(&mu, &aggregate);
+        let partial_secret_contributions = active_shares
+            .iter()
+            .map(|share| {
+                derive_mldsa65_secret_contribution_from_share(share, &challenge)
+                    .expect("derive partial secret contribution")
+            })
+            .collect::<Vec<_>>();
+        let secret_contribution =
+            reconstruct_mldsa65_secret_contribution_from_shares(&partial_secret_contributions)
+                .expect("reconstruct secret contribution");
+
+        let threshold_transcript = derive_mldsa65_threshold_rejection_predicate_transcript(
+            &aggregate,
+            &mu,
+            &secret_contribution,
+        )
+        .expect("derive threshold rejection predicate transcript");
+        let centralized_transcript =
+            derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key(
+                original_secret.as_bytes(),
+                &mu,
+                &rnd,
+                attempt,
+            )
+            .expect("derive centralized rejection predicate transcript");
+
+        assert_eq!(
+            threshold_transcript.challenge_digest(),
+            centralized_transcript.challenge_digest()
+        );
+        assert_eq!(
+            threshold_transcript.z_bound_result(),
+            centralized_transcript.z_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.r0_bound_result(),
+            centralized_transcript.r0_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.ct0_bound_result(),
+            centralized_transcript.ct0_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.hint_bound_result(),
+            centralized_transcript.hint_bound_result()
+        );
+        assert_eq!(
+            threshold_transcript.accepted(),
+            centralized_transcript.accepted()
+        );
+        if threshold_transcript.accepted() {
+            saw_accepted = true;
+        } else {
+            saw_rejected = true;
+        }
+        if saw_rejected && saw_accepted {
+            break;
+        }
+    }
+
+    assert!(
+        saw_rejected,
+        "distributed nonce PRF loop must observe at least one rejected attempt"
+    );
+    assert!(
+        saw_accepted,
+        "distributed nonce PRF loop must observe at least one accepted attempt"
+    );
+}
+
+#[test]
 fn threshold_session_ideal_3_of_5_flow_emits_standard_verifying_signature() {
     let seed = core::array::from_fn(|index| (index as u8).wrapping_mul(43).wrapping_add(21));
     let original_secret =
@@ -498,13 +849,20 @@ fn threshold_session_ideal_3_of_5_flow_emits_standard_verifying_signature() {
                 .expect("submit secret contribution");
         }
 
+        let predicate_transcript =
+            derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met(&session)
+                .expect("derive session rejection predicate transcript");
+        assert_eq!(predicate_transcript.challenge(), &challenge);
+
         match finalize_mldsa65_session_signature_once_quorum_met(&mut session) {
             Ok(signature) => {
+                assert!(predicate_transcript.accepted());
                 assert_eq!(session.phase(), Mldsa65ThresholdSigningPhase::Finalized);
                 accepted_signature = Some(signature);
                 break;
             }
             Err(ThresholdError::RejectionSamplingFailed { .. }) => {
+                assert!(!predicate_transcript.accepted());
                 assert_eq!(session.phase(), Mldsa65ThresholdSigningPhase::Rejected);
             }
             Err(err) => panic!("unexpected session finalization error: {err:?}"),
