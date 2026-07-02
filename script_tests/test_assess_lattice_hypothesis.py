@@ -858,17 +858,19 @@ class ReportGenerationTests(unittest.TestCase):
             "RUST_EMITTER_SOURCE = '''\n"
             "backend_external_pure_verifier_accepts\n"
             "repo_pr69_hazmat_provider_accepts\n"
+            "derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met\n"
             "attempt_count\n"
             "retry_count\n"
-            "accepted-attempt-only\n"
+            "per-attempt-bound-predicates\n"
             "rejection_predicate_fields_available\n"
+            "attempts\n"
             "mask_seed_digest_hex\n"
             "challenge_digest_hex\n"
             "z_bound_result\n"
             "r0_bound_result\n"
             "ct0_bound_result\n"
             "hint_bound_result\n"
-            "blocked_until_backend_exports_bound_level_rejection_transcript\n"
+            "accepted_or_rejected\n"
             "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\n"
             "real_threshold_mldsa_external_capture\n"
             "dytallix-pq-threshold hazmat-real-mldsa\n"
@@ -891,9 +893,9 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_run_capture_rejects_missing_or_invalid_backend_crate(): pass\n"
             "backend_external_pure_verifier_accepts\n"
             "repo_pr69_hazmat_provider_accepts\n"
-            "accepted-attempt-only\n"
+            "per-attempt-bound-predicates\n"
             "rejection_predicate_fields_available\n"
-            "blocked_until_backend_exports_bound_level_rejection_transcript\n"
+            "accepted_or_rejected\n"
             "Lattice Aggregation Current\n",
             encoding="utf-8",
         )
@@ -2145,7 +2147,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
-    def test_hazmat_rejection_transcript_boundary_updates_report_without_closing_proofs(
+    def test_hazmat_rejection_predicate_transcript_updates_report_without_closing_proofs(
         self,
     ):
         module = load_module()
@@ -2165,7 +2167,7 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertTrue(scan["p1_hazmat_threshold_backend_capture_adapter_gate"])
         self.assertTrue(
-            scan["p1_hazmat_rejection_transcript_boundary_gate"]
+            scan["p1_hazmat_rejection_predicate_transcript_gate"]
         )
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
@@ -2173,13 +2175,14 @@ class ReportGenerationTests(unittest.TestCase):
         aggregate_evidence = "\n".join(aggregate["observed_evidence"])
 
         self.assertEqual(aggregate["status"], "partially_met")
-        self.assertIn("accepted-attempt-only", aggregate_evidence)
+        self.assertIn("per-attempt bound-predicate transcript", aggregate_evidence)
+        self.assertIn("attempts[]", aggregate_evidence)
         self.assertIn("retry count", aggregate_evidence)
         self.assertIn("per-attempt ML-DSA rejection predicates", aggregate_evidence)
         self.assertIn("z/r0/ct0/hint", aggregate_evidence)
-        self.assertIn("machine-visible blocker", aggregate_evidence)
+        self.assertIn("batch comparison", aggregate_evidence)
         self.assertIn(
-            "does not prove rejection-distribution preservation",
+            "does not by itself prove rejection-distribution preservation",
             aggregate_evidence,
         )
         self.assertNotIn("completely_proven", markdown)

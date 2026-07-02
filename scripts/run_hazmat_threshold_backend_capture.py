@@ -17,12 +17,13 @@ RUST_EMITTER_SOURCE = r'''use dytallix_pq_threshold::{
         derive_mldsa65_public_key_from_expanded_secret_key,
         derive_mldsa65_secret_contribution_from_share,
         derive_mldsa65_session_challenge_once_quorum_met,
+        derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met,
         finalize_mldsa65_session_signature_once_quorum_met, split_mldsa65_expanded_secret_key,
         submit_mldsa65_masking_contribution, submit_mldsa65_secret_contribution,
         verify_mldsa65_external_pure, MLDSA65_KEYGEN_SEED_BYTES, MLDSA65_MU_BYTES,
     },
     ThresholdPublicKey as BackendPublicKey, ThresholdSignature as BackendSignature,
-    MLDSA65_SIGNATURE_BYTES,
+    ThresholdError as BackendThresholdError, MLDSA65_SIGNATURE_BYTES,
 };
 use lattice_aggregation::production::provider::{HazmatMldsa65Provider, StandardMldsa65Provider};
 use lattice_aggregation::{ThresholdPublicKey, ThresholdSignature};
@@ -40,11 +41,9 @@ const CAPTURE_SCHEMA: &str = "lattice-aggregation:p1-real-threshold-backend-emis
 const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
 const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 const BACKEND_EVIDENCE: &str = "real_threshold_mldsa_external_capture";
-const REJECTION_TRANSCRIPT_CAPABILITY: &str = "accepted-attempt-only";
+const REJECTION_TRANSCRIPT_CAPABILITY: &str = "per-attempt-bound-predicates";
 const REJECTION_DISTRIBUTION_REVIEW_STATUS: &str =
-    "blocked_until_backend_exports_bound_level_rejection_transcript";
-const REJECTION_DISTRIBUTION_REVIEW_BLOCKER: &str =
-    "backend does not expose per-attempt ML-DSA rejection predicate results";
+    "predicate_transcript_available_unreviewed";
 
 #[derive(Deserialize)]
 struct ByteValue {
@@ -92,7 +91,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     );
     let implementation = "threshold session external-pure mu bridge using Shamir expanded-key shares, quorum masking contributions, quorum secret contributions, backend external verifier, and PR69 HazmatMldsa65Provider";
 
-    let (public_key, signature, attempts) =
+    let (public_key, signature, accepted_attempt_id, attempt_transcript) =
         threshold_sign_external_message(seed, request.threshold, request.validator_count, &message)?;
 
     let backend_public_key = BackendPublicKey(public_key);
@@ -154,9 +153,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "backend": "dytallix-pq-threshold hazmat-real-mldsa",
         "validator_count": request.validator_count,
         "threshold": request.threshold,
-        "accepted_attempt_id": attempts,
-        "attempt_count": u16::from(attempts) + 1,
-        "retry_count": attempts,
+        "accepted_attempt_id": accepted_attempt_id,
+        "attempt_count": u16::from(accepted_attempt_id) + 1,
+        "retry_count": accepted_attempt_id,
         "message_digest_hex": sha256_hex(&message),
         "public_key_digest_hex": sha256_hex(&public_key),
         "accepted_signature_digest_hex": sha256_hex(&signature),
@@ -166,18 +165,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "mutated_public_key_rejected_by_both": mutated_public_key_rejected,
         "mutated_signature_rejected_by_both": mutated_signature_rejected,
         "rejection_transcript_capability": REJECTION_TRANSCRIPT_CAPABILITY,
-        "rejection_predicate_fields_available": false,
-        "rejection_predicate_fields_missing": [
-            "mask_seed_digest_hex",
-            "challenge_digest_hex",
-            "z_bound_result",
-            "r0_bound_result",
-            "ct0_bound_result",
-            "hint_bound_result",
-            "accepted_or_rejected"
-        ],
-        "rejection_distribution_review_status": REJECTION_DISTRIBUTION_REVIEW_STATUS,
-        "rejection_distribution_review_blocker": REJECTION_DISTRIBUTION_REVIEW_BLOCKER
+        "rejection_predicate_fields_available": true,
+        "attempts": attempt_transcript,
+        "rejection_distribution_review_status": REJECTION_DISTRIBUTION_REVIEW_STATUS
     })
     .to_string();
 
@@ -274,13 +264,14 @@ fn threshold_sign_external_message(
     threshold: u16,
     validator_count: u16,
     message: &[u8],
-) -> Result<([u8; 1952], [u8; 3309], u8), Box<dyn std::error::Error>> {
+) -> Result<([u8; 1952], [u8; 3309], u8, Vec<Value>), Box<dyn std::error::Error>> {
     let original_secret = derive_mldsa65_expanded_secret_key_from_seed(&seed)?;
     let public_key =
         *derive_mldsa65_public_key_from_expanded_secret_key(original_secret.as_bytes())?.as_bytes();
     let mu = compute_external_pure_mu(&public_key, message, &[]);
     let shares =
         split_mldsa65_expanded_secret_key(original_secret.as_bytes(), threshold, validator_count)?;
+    let mut attempt_transcript = Vec::new();
 
     for attempt_id in 0..=u8::MAX {
         let mut session = begin_mldsa65_threshold_attempt(threshold, validator_count, mu)?;
@@ -295,8 +286,34 @@ fn threshold_sign_external_message(
             let contribution = derive_mldsa65_secret_contribution_from_share(share, &challenge)?;
             submit_mldsa65_secret_contribution(&mut session, contribution)?;
         }
-        if let Ok(signature) = finalize_mldsa65_session_signature_once_quorum_met(&mut session) {
-            return Ok((public_key, *signature.as_bytes(), attempt_id));
+        let predicate =
+            derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met(&session)?;
+        let attempt_record = json!({
+            "attempt_id": attempt_id,
+            "mask_seed_digest_hex": sha256_hex(&masking_seed),
+            "challenge_digest_hex": hex_encode(predicate.challenge_digest()),
+            "z_bound_result": predicate.z_bound_result(),
+            "r0_bound_result": predicate.r0_bound_result(),
+            "ct0_bound_result": predicate.ct0_bound_result(),
+            "hint_bound_result": predicate.hint_bound_result(),
+            "accepted_or_rejected": predicate.accepted_or_rejected()
+        });
+
+        match finalize_mldsa65_session_signature_once_quorum_met(&mut session) {
+            Ok(signature) => {
+                if !predicate.accepted() {
+                    return Err("backend predicate transcript rejected an accepted signature".into());
+                }
+                attempt_transcript.push(attempt_record);
+                return Ok((public_key, *signature.as_bytes(), attempt_id, attempt_transcript));
+            }
+            Err(BackendThresholdError::RejectionSamplingFailed { .. }) => {
+                if predicate.accepted() {
+                    return Err("backend predicate transcript accepted a rejected attempt".into());
+                }
+                attempt_transcript.push(attempt_record);
+            }
+            Err(err) => return Err(err.into()),
         }
     }
 
