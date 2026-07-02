@@ -214,6 +214,27 @@ backend and repo standard-verifier checks, so this result separates
 standard-verifier compatibility from rejection-sampling equivalence: the large
 fan-in path can aggregate and compare, but the current sampling path is not a
 theorem-closure candidate.
+
+The comparator also has an aligned-mask-domain mode that derives threshold
+masking contributions in the centralized `rho_double_prime/kappa` mask domain.
+This mode produced zero-mismatch close-candidate evidence:
+
+- 3-of-5, 8 attempts:
+  `3f007157d3a4540ba12ca6797e7efe5efe905920b8d444c983a83d06b1e41660`;
+  zero predicate mismatches, accepted and rejected attempt coverage, backend
+  and repo verifier acceptance, `close_candidate = true`.
+- 10,000 validators, threshold 6,667, 8 attempts:
+  `e74d8c56dc1f92b762bb42ac41157ac54eb6470062fdd30e8bcc1207b3f29e68`;
+  zero predicate mismatches, accepted and rejected attempt coverage, backend
+  and repo verifier acceptance, `close_candidate = true`.
+
+This is the strongest Criterion 2 evidence so far: when the threshold mask
+domain is aligned to centralized ML-DSA, aggregate rejection predicates match
+centralized rejection predicates across accepted and rejected attempts, including
+the 10,000-validator fan-in path. It is not theorem closure yet because the
+aligned helper uses expanded secret-key material to place the aggregate mask in
+the centralized domain; a reviewed distributed nonce-DKG/PRF replacement must
+provide the same domain without central secret-key access.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries

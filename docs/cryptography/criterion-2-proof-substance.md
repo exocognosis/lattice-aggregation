@@ -134,6 +134,22 @@ The Criterion 2 proof payload requires these slots before any promotion:
   passed both backend and repo standard-verifier checks. This shows the large
   fan-in path can aggregate and compare, but the current sampling path does not
   satisfy rejection-equivalence closure.
+  The aligned-mask-domain mode uses backend hazmat helper
+  `derive_mldsa65_centralized_domain_masking_contribution_from_share` so the
+  threshold aggregate mask is in the centralized `rho_double_prime/kappa`
+  domain. A live 3-of-5, 8-attempt aligned batch produced artifact digest
+  `3f007157d3a4540ba12ca6797e7efe5efe905920b8d444c983a83d06b1e41660` with
+  zero predicate mismatches, accepted and rejected attempt coverage, both
+  verifier checks passing, and `close_candidate = true`. A live
+  10,000-validator, threshold-6,667, 8-attempt aligned batch produced artifact
+  digest
+  `e74d8c56dc1f92b762bb42ac41157ac54eb6470062fdd30e8bcc1207b3f29e68` with
+  zero predicate mismatches, accepted and rejected attempt coverage, both
+  verifier checks passing, and `close_candidate = true`. This is strong
+  algebraic closure-candidate evidence for Criterion 2, but it still relies on
+  expanded secret-key material to align the mask domain and therefore does not
+  replace a reviewed distributed nonce-DKG/PRF construction or close the
+  theorem by itself.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated

@@ -908,6 +908,10 @@ class ReportGenerationTests(unittest.TestCase):
             "derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met\n"
             "lattice-aggregation:p1-rejection-equivalence-batch:v1\n"
             "mldsa65-centralized-vs-threshold-rejection-batch\n"
+            "derive_mldsa65_centralized_domain_masking_contribution_from_share\n"
+            "centralized-rho-double-prime-kappa\n"
+            "aligned_mask_domain\n"
+            "mask_domain\n"
             "threshold_attempts\n"
             "centralized_attempts\n"
             "predicate_mismatches\n"
@@ -929,6 +933,8 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_run_batch_invokes_generated_release_emitter_and_returns_stdout(): pass\n"
             "derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key\n"
             "mldsa65-centralized-vs-threshold-rejection-batch\n"
+            "centralized-rho-double-prime-kappa\n"
+            "aligned_mask_domain\n"
             "threshold_attempts\n"
             "centralized_attempts\n"
             "predicate_mismatches\n"
@@ -2252,6 +2258,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("centralized-vs-threshold", aggregate_evidence)
         self.assertIn("predicate_mismatches", aggregate_evidence)
         self.assertIn("close_candidate", aggregate_evidence)
+        self.assertIn("aligned centralized mask domain", aggregate_evidence)
+        self.assertIn("zero predicate mismatches", aggregate_evidence)
         self.assertIn("does not close the theorem", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 

@@ -13,6 +13,7 @@ from pathlib import Path
 RUST_EMITTER_SOURCE = r'''use dytallix_pq_threshold::{
     mldsa65::{
         begin_mldsa65_threshold_attempt,
+        derive_mldsa65_centralized_domain_masking_contribution_from_share,
         derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key,
         derive_mldsa65_expanded_secret_key_from_seed,
         derive_mldsa65_masking_contribution_from_share,
@@ -47,6 +48,7 @@ struct Config {
     validator_count: u16,
     threshold: u16,
     attempts: u8,
+    aligned_mask_domain: bool,
 }
 
 fn main() {
@@ -85,7 +87,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             config.threshold,
             config.validator_count,
             mu,
+            original_secret.as_bytes(),
+            &central_rnd,
             attempt_id,
+            config.aligned_mask_domain,
         )?;
         let centralized_attempt =
             derive_centralized_attempt(original_secret.as_bytes(), &mu, &central_rnd, attempt_id)?;
@@ -149,6 +154,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             "validator_count": config.validator_count,
             "threshold": config.threshold,
             "attempts": config.attempts,
+            "aligned_mask_domain": config.aligned_mask_domain,
+            "mask_domain": if config.aligned_mask_domain { "centralized-rho-double-prime-kappa" } else { "threshold-share-derived-mask-seed" },
             "message_digest_hex": sha256_hex(message),
             "public_key_digest_hex": sha256_hex(&public_key),
             "centralized_rnd_digest_hex": sha256_hex(&central_rnd)
@@ -169,6 +176,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     "validator_count": config.validator_count,
                     "threshold": config.threshold,
                     "attempts": config.attempts,
+                    "aligned_mask_domain": config.aligned_mask_domain,
+                    "mask_domain": if config.aligned_mask_domain { "centralized-rho-double-prime-kappa" } else { "threshold-share-derived-mask-seed" },
                     "message_digest_hex": sha256_hex(message),
                     "public_key_digest_hex": sha256_hex(&public_key)
                 },
@@ -186,6 +195,7 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
         validator_count: 5,
         threshold: 3,
         attempts: 16,
+        aligned_mask_domain: false,
     };
     let mut args = env::args().skip(1);
     while let Some(arg) = args.next() {
@@ -198,6 +208,9 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
             }
             "--attempts" => {
                 config.attempts = args.next().ok_or("missing --attempts value")?.parse()?;
+            }
+            "--aligned-mask-domain" => {
+                config.aligned_mask_domain = true;
             }
             _ => return Err(format!("unknown argument: {arg}").into()),
         }
@@ -244,13 +257,26 @@ fn derive_threshold_attempt(
     threshold: u16,
     validator_count: u16,
     mu: [u8; MLDSA65_MU_BYTES],
+    secret_key: &[u8],
+    rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
     attempt_id: u8,
+    aligned_mask_domain: bool,
 ) -> Result<AttemptRecord, Box<dyn std::error::Error>> {
     let mut session = begin_mldsa65_threshold_attempt(threshold, validator_count, mu)?;
     let masking_seed = [attempt_id; MLDSA65_MU_BYTES];
     for (round, share) in shares.iter().take(threshold as usize).enumerate() {
-        let contribution =
-            derive_mldsa65_masking_contribution_from_share(share, &masking_seed, round as u16)?;
+        let contribution = if aligned_mask_domain {
+            derive_mldsa65_centralized_domain_masking_contribution_from_share(
+                secret_key,
+                share,
+                round as u16,
+                &mu,
+                rnd,
+                u16::from(attempt_id),
+            )?
+        } else {
+            derive_mldsa65_masking_contribution_from_share(share, &masking_seed, round as u16)?
+        };
         submit_mldsa65_masking_contribution(&mut session, contribution)?;
     }
     let challenge = derive_mldsa65_session_challenge_once_quorum_met(&mut session)?;
@@ -540,6 +566,11 @@ def parse_args(argv):
     parser.add_argument("--threshold", type=int, help="threshold signer count")
     parser.add_argument("--attempts", type=int, help="attempts to compare")
     parser.add_argument(
+        "--aligned-mask-domain",
+        action="store_true",
+        help="derive threshold masking contributions from the centralized ML-DSA rho''/kappa mask domain",
+    )
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="run cargo without --release for adapter debugging",
@@ -555,6 +586,8 @@ def emitter_args_from_options(args):
         emitter_args.extend(["--threshold", str(args.threshold)])
     if args.attempts is not None:
         emitter_args.extend(["--attempts", str(args.attempts)])
+    if args.aligned_mask_domain:
+        emitter_args.append("--aligned-mask-domain")
     return emitter_args
 
 
