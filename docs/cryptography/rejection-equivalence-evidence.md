@@ -192,6 +192,28 @@ emitted tuple, and backend predicate observability for the signing attempts.
 It still does not prove rejection-distribution preservation until those
 attempt-level predicates are compared against centralized ML-DSA rejection
 behavior across reviewed batches.
+
+`scripts/run_hazmat_rejection_equivalence_batch.py` now provides the first
+centralized-vs-threshold comparison runner for that question. It generates a
+temporary Rust emitter against an explicit backend checkout, derives
+centralized ML-DSA per-attempt predicates and threshold per-attempt predicates,
+and emits `threshold_attempts`, `centralized_attempts`, `predicate_mismatches`,
+`challenge_digest_matches`, `accepted_or_rejected_matches`, and
+`close_candidate`. A live 3-of-5, 8-attempt smoke batch produced artifact digest
+`86115e5e8d50099b08f65ee1944ae996f4b5f80cd2407cd393f9648e0454021f` with 17
+predicate mismatches, including 8 challenge-digest mismatches and 3
+accepted/rejected outcome mismatches. That run confirms the comparator can
+aggregate and compare actual backend predicate evidence, and it blocks theorem
+closure for the current sampling path rather than proving rejection-distribution
+preservation.
+A 10,000-validator, threshold-6,667, 1-attempt comparator run produced artifact
+digest `51b2e252360dfad0c06d863f41b8d0e5c6c63f39d24b55b77e3577d6a0f1a901`
+with 4 predicate mismatches, including 1 challenge-digest mismatch and 1
+accepted/rejected outcome mismatch. The threshold signature still passed both
+backend and repo standard-verifier checks, so this result separates
+standard-verifier compatibility from rejection-sampling equivalence: the large
+fan-in path can aggregate and compare, but the current sampling path is not a
+theorem-closure candidate.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries
