@@ -58,7 +58,8 @@ The Criterion 2 proof payload requires these slots before any promotion:
   (`p1_criterion2_proof_slot_artifact_package`).
   Checked recomputation fixture:
   `tests/fixtures/p1_real_recomputation_artifact_fixture.json`.
-- `distributed_nonce_producer_artifact_digest`: `required_unclosed` from
+- `distributed_nonce_producer_artifact_digest`: `evidence_present_unclosed`
+  from
   `p1_criterion2_distributed_nonce_producer_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`). This is the producer slot
   that must replace the current hazmat PRF-output oracle behind
@@ -66,11 +67,14 @@ The Criterion 2 proof payload requires these slots before any promotion:
   The P1 nonce producer selection is documented in
   `docs/cryptography/p1-nonce-producer-selection.md` and
   `docs/cryptography/p1-nonce-producer-selection.json` as
-  `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`. It remains
-  `required_unclosed` until a reviewed P1 nonce producer emits source,
-  selected-profile, coordinator-attestation, Shamir nonce-DKG transcript,
-  active-set, pairwise-mask, attempt-binding, abort-accountability,
-  standard-verifier bridge, and external-review digests.
+  `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`. The Rust gate
+  now accepts only reviewed `ReviewedP1ShamirNonceDkgTee` evidence and rejects
+  the hazmat PRF-output oracle, centralized expanded-secret-key helper, fixture
+  harnesses, and ordinary single-key standard-provider output. It remains
+  `evidence_present_unclosed` until a backend-generated reviewed P1 nonce
+  producer emits source, selected-profile, coordinator-attestation, Shamir
+  nonce-DKG transcript, active-set, pairwise-mask, attempt-binding,
+  abort-accountability, standard-verifier bridge, and external-review digests.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -236,21 +240,26 @@ The Criterion 2 proof payload requires these slots before any promotion:
 Typed Criterion 2 proof-slot artifact packages provide deterministic package
 shape, digest binding, review metadata, and proof-review claim boundaries for
 all listed slots, including the threshold-output certificate, real
-recomputation predecessor evidence, and the still-required distributed nonce
-producer artifact slot. `evidence_present_unclosed` means the slot has typed
-evidence for review; `required_unclosed` means the producer artifact is still
-missing. `evidence_present_unclosed only` does not mean
+recomputation predecessor evidence, and the distributed nonce-producer artifact
+slot. `evidence_present_unclosed` means the slot has typed evidence for review;
+for the producer slot it specifically means the fail-closed gate exists while a
+reviewed backend-generated producer artifact is still required.
+`evidence_present_unclosed only` does not mean
 Criterion 2 is met, selected-backend proof closure is complete,
 rejection-distribution preservation is proven, or the theorem is closed. The
 slot claim boundary is `conformance/proof-review evidence only`.
 
 All Criterion 2 proof slots now have typed wrappers, while
-`distributed_nonce_producer_artifact_digest` remains `required_unclosed`.
-The accepted proof-closure artifact certificate also carries durable certificate evidence for the threshold-output certificate and real recomputation
-predecessor slot artifact digests through
+`distributed_nonce_producer_artifact_digest` remains unclosed until actual
+backend-generated producer evidence replaces the hazmat oracle. The accepted
+proof-closure artifact certificate also carries durable certificate evidence
+for the threshold-output certificate, real recomputation predecessor, and
+distributed nonce-producer artifact digests through
 `P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest`
 and
-`P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`.
+`P1SelectedBackendProofClosureArtifactCertificate::real_recomputation_evidence_artifact_digest`,
+plus
+`P1SelectedBackendProofClosureArtifactCertificate::distributed_nonce_producer_artifact_digest`.
 The threshold-output certificate slot is now backed by the checked
 `tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json`
 fixture so reviewers can inspect the bound threshold-output source package,

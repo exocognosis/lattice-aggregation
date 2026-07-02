@@ -407,6 +407,8 @@ pub enum P1Criterion2ProofSlotArtifactKind {
     ThresholdOutputCertificate = 8,
     /// Predecessor real recomputation evidence digest.
     RealRecomputationEvidence = 9,
+    /// Reviewed distributed nonce-producer artifact evidence.
+    DistributedNonceProducer = 10,
 }
 
 impl P1Criterion2ProofSlotArtifactKind {
@@ -480,6 +482,8 @@ pub struct P1Criterion2ProofSlotArtifacts {
     pub threshold_output_certificate_artifact: P1Criterion2ProofSlotArtifact,
     /// Real recomputation evidence predecessor proof-slot artifact.
     pub real_recomputation_evidence_artifact: P1Criterion2ProofSlotArtifact,
+    /// Distributed nonce-producer proof-slot artifact.
+    pub distributed_nonce_producer_artifact: P1Criterion2ProofSlotArtifact,
 }
 
 impl P1Criterion2ProofSlotArtifacts {
@@ -496,6 +500,7 @@ impl P1Criterion2ProofSlotArtifacts {
         external_review_artifact: P1Criterion2ProofSlotArtifact,
         threshold_output_certificate_artifact: P1Criterion2ProofSlotArtifact,
         real_recomputation_evidence_artifact: P1Criterion2ProofSlotArtifact,
+        distributed_nonce_producer_artifact: P1Criterion2ProofSlotArtifact,
     ) -> Self {
         Self {
             full_kat_validation_artifact,
@@ -508,6 +513,7 @@ impl P1Criterion2ProofSlotArtifacts {
             external_review_artifact,
             threshold_output_certificate_artifact,
             real_recomputation_evidence_artifact,
+            distributed_nonce_producer_artifact,
         }
     }
 }
@@ -1291,6 +1297,220 @@ impl P1StandardVerifierCompatibilityArtifactCertificate {
 
     /// This certificate gates artifacts; it does not replace cryptographic proof.
     pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
+/// Evidence class for the P1 distributed nonce-producer artifact gate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1DistributedNonceProducerEvidence {
+    /// Current hazmat PRF-output oracle; always fail-closed for this gate.
+    HazmatPrfOutputOracle,
+    /// Centralized expanded-secret-key nonce helper; always fail-closed.
+    CentralizedExpandedSecretKeyHelper,
+    /// Checked fixture harness evidence; useful for shape checks only.
+    FixtureHarness,
+    /// Ordinary single-key ML-DSA provider output; not threshold nonce provenance.
+    StandardProviderSingleKey,
+    /// Reviewed P1 Shamir nonce-DKG producer under the TEE/HSM coordinator profile.
+    ReviewedP1ShamirNonceDkgTee,
+}
+
+impl P1DistributedNonceProducerEvidence {
+    const fn tag(self) -> u8 {
+        match self {
+            Self::HazmatPrfOutputOracle => 0,
+            Self::CentralizedExpandedSecretKeyHelper => 1,
+            Self::FixtureHarness => 2,
+            Self::StandardProviderSingleKey => 3,
+            Self::ReviewedP1ShamirNonceDkgTee => 4,
+        }
+    }
+}
+
+/// Claim boundary for the P1 distributed nonce-producer artifact gate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum P1DistributedNonceProducerClaimBoundary {
+    /// The artifact is present for conformance and proof review only.
+    ProofReviewOnly,
+    /// Forbidden boundary used to reject production or theorem-closure claims.
+    ProductionClaim,
+}
+
+impl P1DistributedNonceProducerClaimBoundary {
+    const fn tag(self) -> u8 {
+        match self {
+            Self::ProofReviewOnly => 0,
+            Self::ProductionClaim => 1,
+        }
+    }
+}
+
+/// Submitted P1 distributed nonce-producer artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1DistributedNonceProducerArtifactPackage {
+    /// Selected backend profile this producer artifact binds.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Producer evidence class used by this artifact.
+    pub producer_evidence: P1DistributedNonceProducerEvidence,
+    /// Digest of the reviewed source/reference material.
+    pub source_reference_digest: [u8; 32],
+    /// Digest of the coordinator attestation or HSM/TEE identity evidence.
+    pub coordinator_attestation_digest: [u8; 32],
+    /// Digest of the Shamir nonce-DKG transcript.
+    pub shamir_nonce_dkg_transcript_digest: [u8; 32],
+    /// Digest binding the active signer set.
+    pub active_set_digest: [u8; 32],
+    /// Digest of pairwise mask seed commitments.
+    pub pairwise_mask_seed_commitment_digest: [u8; 32],
+    /// Digest of nonce-share commitments.
+    pub nonce_share_commitment_digest: [u8; 32],
+    /// Digest binding the signing attempt and retry domain.
+    pub attempt_binding_digest: [u8; 32],
+    /// Digest of abort-accountability evidence.
+    pub abort_accountability_digest: [u8; 32],
+    /// Digest of the standard-verifier bridge evidence bound to this output.
+    pub standard_verifier_bridge_digest: [u8; 32],
+    /// Digest of external review evidence.
+    pub external_review_digest: [u8; 32],
+    /// Digest of this distributed nonce-producer artifact payload.
+    pub distributed_nonce_producer_artifact_digest: [u8; 32],
+    /// Digest of the predecessor threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Digest of the predecessor standard-verifier compatibility artifact.
+    pub standard_verifier_compatibility_artifact_digest: [u8; 32],
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1DistributedNonceProducerClaimBoundary,
+    /// Whether this artifact package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Accepted P1 distributed nonce-producer artifact certificate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1DistributedNonceProducerArtifactCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    source_reference_digest: [u8; 32],
+    coordinator_attestation_digest: [u8; 32],
+    shamir_nonce_dkg_transcript_digest: [u8; 32],
+    active_set_digest: [u8; 32],
+    pairwise_mask_seed_commitment_digest: [u8; 32],
+    nonce_share_commitment_digest: [u8; 32],
+    attempt_binding_digest: [u8; 32],
+    abort_accountability_digest: [u8; 32],
+    standard_verifier_bridge_digest: [u8; 32],
+    external_review_digest: [u8; 32],
+    distributed_nonce_producer_artifact_digest: [u8; 32],
+    threshold_output_certificate_digest: [u8; 32],
+    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    claim_boundary: P1DistributedNonceProducerClaimBoundary,
+}
+
+impl P1DistributedNonceProducerArtifactCertificate {
+    /// Return the selected backend profile bound to the producer artifact.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Borrow the source/reference digest.
+    pub const fn source_reference_digest(&self) -> &[u8; 32] {
+        &self.source_reference_digest
+    }
+
+    /// Borrow the coordinator attestation digest.
+    pub const fn coordinator_attestation_digest(&self) -> &[u8; 32] {
+        &self.coordinator_attestation_digest
+    }
+
+    /// Borrow the Shamir nonce-DKG transcript digest.
+    pub const fn shamir_nonce_dkg_transcript_digest(&self) -> &[u8; 32] {
+        &self.shamir_nonce_dkg_transcript_digest
+    }
+
+    /// Borrow the active signer-set digest.
+    pub const fn active_set_digest(&self) -> &[u8; 32] {
+        &self.active_set_digest
+    }
+
+    /// Borrow the pairwise mask seed commitment digest.
+    pub const fn pairwise_mask_seed_commitment_digest(&self) -> &[u8; 32] {
+        &self.pairwise_mask_seed_commitment_digest
+    }
+
+    /// Borrow the nonce-share commitment digest.
+    pub const fn nonce_share_commitment_digest(&self) -> &[u8; 32] {
+        &self.nonce_share_commitment_digest
+    }
+
+    /// Borrow the attempt binding digest.
+    pub const fn attempt_binding_digest(&self) -> &[u8; 32] {
+        &self.attempt_binding_digest
+    }
+
+    /// Borrow the abort-accountability digest.
+    pub const fn abort_accountability_digest(&self) -> &[u8; 32] {
+        &self.abort_accountability_digest
+    }
+
+    /// Borrow the standard-verifier bridge digest.
+    pub const fn standard_verifier_bridge_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_bridge_digest
+    }
+
+    /// Borrow the external review digest.
+    pub const fn external_review_digest(&self) -> &[u8; 32] {
+        &self.external_review_digest
+    }
+
+    /// Borrow the distributed nonce-producer artifact digest.
+    pub const fn distributed_nonce_producer_artifact_digest(&self) -> &[u8; 32] {
+        &self.distributed_nonce_producer_artifact_digest
+    }
+
+    /// Borrow the predecessor threshold-output certificate digest.
+    pub const fn threshold_output_certificate_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_digest
+    }
+
+    /// Borrow the predecessor standard-verifier compatibility artifact digest.
+    pub const fn standard_verifier_compatibility_artifact_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_compatibility_artifact_digest
+    }
+
+    /// Return the explicit non-production claim boundary.
+    pub const fn claim_boundary(self) -> P1DistributedNonceProducerClaimBoundary {
+        self.claim_boundary
+    }
+
+    /// Artifact readiness does not claim theorem closure.
+    pub const fn claims_theorem_closure(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim selected-backend proof closure.
+    pub const fn claims_selected_backend_proof_closure(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim production threshold ML-DSA security.
+    pub const fn claims_production_threshold_mldsa_security(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim rejection-distribution preservation.
+    pub const fn claims_rejection_distribution_preservation(self) -> bool {
+        false
+    }
+
+    /// Artifact readiness does not claim completed standard-verifier compatibility.
+    pub const fn claims_standard_verifier_compatibility_complete(self) -> bool {
         false
     }
 }
@@ -2204,6 +2424,8 @@ pub struct P1SelectedBackendProofClosureArtifactPackage {
     pub standard_verifier_bridge_evidence_digest: [u8; 32],
     /// Real recomputation evidence digest inherited from the predecessor certificate.
     pub real_recomputation_evidence_digest: [u8; 32],
+    /// Distributed nonce-producer artifact digest for the selected producer path.
+    pub distributed_nonce_producer_artifact_digest: [u8; 32],
     /// Digest binding this package to the production signing transcript.
     pub transcript_binding_digest: [u8; 32],
     /// Digest binding the accepted aggregate signer set.
@@ -2260,6 +2482,7 @@ pub struct P1SelectedBackendProofClosureArtifactCertificate {
     rejection_distribution_review_digest: [u8; 32],
     threshold_output_certificate_artifact_digest: [u8; 32],
     real_recomputation_evidence_artifact_digest: [u8; 32],
+    distributed_nonce_producer_artifact_digest: [u8; 32],
     standard_verifier_compatibility_artifact_digest: [u8; 32],
     theorem_linkage_artifact_digest: [u8; 32],
     claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
@@ -2359,6 +2582,11 @@ impl P1SelectedBackendProofClosureArtifactCertificate {
     /// Borrow the typed real recomputation predecessor artifact digest.
     pub const fn real_recomputation_evidence_artifact_digest(&self) -> &[u8; 32] {
         &self.real_recomputation_evidence_artifact_digest
+    }
+
+    /// Borrow the typed distributed nonce-producer artifact digest.
+    pub const fn distributed_nonce_producer_artifact_digest(&self) -> &[u8; 32] {
+        &self.distributed_nonce_producer_artifact_digest
     }
 
     /// Borrow the standard-verifier compatibility artifact digest.
@@ -2550,6 +2778,41 @@ impl P1RealThresholdBackendEmissionArtifactAssessment {
     pub const fn backend_emission_certificate(
         &self,
     ) -> Option<&P1RealThresholdBackendEmissionArtifactCertificate> {
+        match self {
+            Self::ArtifactReady(certificate) => Some(certificate),
+            Self::BlockedFailClosed { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
+/// Result of assessing a P1 distributed nonce-producer artifact package.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
+pub enum P1DistributedNonceProducerArtifactAssessment {
+    /// The artifact has no reviewed distributed nonce-producer evidence and must fail closed.
+    BlockedFailClosed {
+        /// Static reason for the fail-closed assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The distributed nonce-producer artifact is ready for proof review.
+    ArtifactReady(P1DistributedNonceProducerArtifactCertificate),
+}
+
+impl P1DistributedNonceProducerArtifactAssessment {
+    /// Return true when the distributed nonce-producer artifact is ready for proof review.
+    pub const fn is_artifact_ready(self) -> bool {
+        matches!(self, Self::ArtifactReady(_))
+    }
+
+    /// Borrow the distributed nonce-producer artifact certificate when present.
+    pub const fn distributed_nonce_producer_certificate(
+        &self,
+    ) -> Option<&P1DistributedNonceProducerArtifactCertificate> {
         match self {
             Self::ArtifactReady(certificate) => Some(certificate),
             Self::BlockedFailClosed { .. } | Self::Invalid { .. } => None,
@@ -3081,6 +3344,7 @@ pub fn derive_p1_criterion2_proof_slot_artifacts(
     proof_artifacts: &P1RejectionProofArtifacts,
     full_kat_validation_source_digest: [u8; 32],
     rejection_distribution_review_source_digest: [u8; 32],
+    distributed_nonce_producer_source_digest: [u8; 32],
     theorem_linkage_source_digest: [u8; 32],
     claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
     reviewed: bool,
@@ -3165,6 +3429,14 @@ pub fn derive_p1_criterion2_proof_slot_artifacts(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::RealRecomputationEvidence,
             *proof_artifacts.real_recomputation_evidence_digest(),
+            external_review_digest,
+            claim_boundary,
+            reviewed,
+        ),
+        derive_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            P1Criterion2ProofSlotArtifactKind::DistributedNonceProducer,
+            distributed_nonce_producer_source_digest,
             external_review_digest,
             claim_boundary,
             reviewed,
@@ -3457,6 +3729,142 @@ where
         claim_boundary,
         reviewed,
     })
+}
+
+/// Derive the digest binding a reviewed P1 distributed nonce-producer artifact.
+pub fn derive_p1_distributed_nonce_producer_artifact_digest(
+    certificate: &P1DistributedNonceProducerArtifactCertificate,
+) -> [u8; 32] {
+    derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
+        certificate.selected_profile(),
+        certificate.selected_profile_binding_digest(),
+        P1DistributedNonceProducerEvidence::ReviewedP1ShamirNonceDkgTee,
+        certificate.source_reference_digest(),
+        certificate.coordinator_attestation_digest(),
+        certificate.shamir_nonce_dkg_transcript_digest(),
+        certificate.active_set_digest(),
+        certificate.pairwise_mask_seed_commitment_digest(),
+        certificate.nonce_share_commitment_digest(),
+        certificate.attempt_binding_digest(),
+        certificate.abort_accountability_digest(),
+        certificate.standard_verifier_bridge_digest(),
+        certificate.external_review_digest(),
+        certificate.threshold_output_certificate_digest(),
+        certificate.standard_verifier_compatibility_artifact_digest(),
+        certificate.claim_boundary(),
+        true,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: &[u8; 32],
+    producer_evidence: P1DistributedNonceProducerEvidence,
+    source_reference_digest: &[u8; 32],
+    coordinator_attestation_digest: &[u8; 32],
+    shamir_nonce_dkg_transcript_digest: &[u8; 32],
+    active_set_digest: &[u8; 32],
+    pairwise_mask_seed_commitment_digest: &[u8; 32],
+    nonce_share_commitment_digest: &[u8; 32],
+    attempt_binding_digest: &[u8; 32],
+    abort_accountability_digest: &[u8; 32],
+    standard_verifier_bridge_digest: &[u8; 32],
+    external_review_digest: &[u8; 32],
+    threshold_output_certificate_digest: &[u8; 32],
+    standard_verifier_compatibility_artifact_digest: &[u8; 32],
+    claim_boundary: P1DistributedNonceProducerClaimBoundary,
+    reviewed: bool,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-distributed-nonce-producer-artifact:v1");
+    hasher.update(selected_profile.profile_binding_digest());
+    hasher.update(selected_profile_binding_digest);
+    hasher.update([producer_evidence.tag()]);
+    hasher.update(source_reference_digest);
+    hasher.update(coordinator_attestation_digest);
+    hasher.update(shamir_nonce_dkg_transcript_digest);
+    hasher.update(active_set_digest);
+    hasher.update(pairwise_mask_seed_commitment_digest);
+    hasher.update(nonce_share_commitment_digest);
+    hasher.update(attempt_binding_digest);
+    hasher.update(abort_accountability_digest);
+    hasher.update(standard_verifier_bridge_digest);
+    hasher.update(external_review_digest);
+    hasher.update(threshold_output_certificate_digest);
+    hasher.update(standard_verifier_compatibility_artifact_digest);
+    hasher.update([claim_boundary.tag()]);
+    hasher.update([u8::from(reviewed)]);
+    hasher.finalize().into()
+}
+
+/// Derive a P1 distributed nonce-producer artifact package.
+///
+/// The package is the import boundary for a future reviewed P1 Shamir
+/// nonce-DKG producer. It binds the producer evidence to the predecessor
+/// threshold-output and standard-verifier compatibility certificates and
+/// remains conformance/proof-review evidence only.
+#[allow(clippy::too_many_arguments)]
+pub fn derive_p1_distributed_nonce_producer_artifact_package(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    producer_evidence: P1DistributedNonceProducerEvidence,
+    source_reference_digest: [u8; 32],
+    coordinator_attestation_digest: [u8; 32],
+    shamir_nonce_dkg_transcript_digest: [u8; 32],
+    pairwise_mask_seed_commitment_digest: [u8; 32],
+    nonce_share_commitment_digest: [u8; 32],
+    abort_accountability_digest: [u8; 32],
+    external_review_digest: [u8; 32],
+    claim_boundary: P1DistributedNonceProducerClaimBoundary,
+    reviewed: bool,
+) -> P1DistributedNonceProducerArtifactPackage {
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    let standard_verifier_compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate);
+    let distributed_nonce_producer_artifact_digest =
+        derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
+            threshold_certificate.selected_profile(),
+            threshold_certificate.selected_profile_binding_digest(),
+            producer_evidence,
+            &source_reference_digest,
+            &coordinator_attestation_digest,
+            &shamir_nonce_dkg_transcript_digest,
+            threshold_certificate.signer_set_digest(),
+            &pairwise_mask_seed_commitment_digest,
+            &nonce_share_commitment_digest,
+            threshold_certificate.attempt_binding_digest(),
+            &abort_accountability_digest,
+            threshold_certificate.standard_verifier_bridge_evidence_digest(),
+            &external_review_digest,
+            &threshold_output_certificate_digest,
+            &standard_verifier_compatibility_artifact_digest,
+            claim_boundary,
+            reviewed,
+        );
+
+    P1DistributedNonceProducerArtifactPackage {
+        selected_profile: threshold_certificate.selected_profile(),
+        selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
+        producer_evidence,
+        source_reference_digest,
+        coordinator_attestation_digest,
+        shamir_nonce_dkg_transcript_digest,
+        active_set_digest: *threshold_certificate.signer_set_digest(),
+        pairwise_mask_seed_commitment_digest,
+        nonce_share_commitment_digest,
+        attempt_binding_digest: *threshold_certificate.attempt_binding_digest(),
+        abort_accountability_digest,
+        standard_verifier_bridge_digest: *threshold_certificate
+            .standard_verifier_bridge_evidence_digest(),
+        external_review_digest,
+        distributed_nonce_producer_artifact_digest,
+        threshold_output_certificate_digest,
+        standard_verifier_compatibility_artifact_digest,
+        claim_boundary,
+        reviewed,
+    }
 }
 
 /// Derive the digest binding a real-threshold backend emission artifact.
@@ -3956,6 +4364,9 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
             .standard_verifier_bridge_evidence_digest(),
         real_recomputation_evidence_digest: *threshold_certificate
             .real_recomputation_evidence_digest(),
+        distributed_nonce_producer_artifact_digest: proof_slot_artifacts
+            .distributed_nonce_producer_artifact
+            .source_evidence_digest,
         transcript_binding_digest: *threshold_certificate.transcript_binding_digest(),
         signer_set_digest: *threshold_certificate.signer_set_digest(),
         attempt_binding_digest: *threshold_certificate.attempt_binding_digest(),
@@ -5092,6 +5503,252 @@ pub fn assess_p1_standard_verifier_compatibility_artifact(
     )
 }
 
+/// Assess whether external P1 distributed nonce-producer evidence satisfies the artifact gate.
+pub fn assess_p1_distributed_nonce_producer_artifact(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    package: Option<P1DistributedNonceProducerArtifactPackage>,
+) -> P1DistributedNonceProducerArtifactAssessment {
+    let Some(package) = package else {
+        return P1DistributedNonceProducerArtifactAssessment::BlockedFailClosed {
+            reason: "missing P1 distributed nonce-producer artifact package",
+        };
+    };
+
+    match package.producer_evidence {
+        P1DistributedNonceProducerEvidence::HazmatPrfOutputOracle => {
+            return P1DistributedNonceProducerArtifactAssessment::BlockedFailClosed {
+                reason: "P1 distributed nonce producer requires reviewed Shamir nonce-DKG evidence, not the hazmat PRF-output oracle",
+            };
+        }
+        P1DistributedNonceProducerEvidence::CentralizedExpandedSecretKeyHelper => {
+            return P1DistributedNonceProducerArtifactAssessment::BlockedFailClosed {
+                reason: "P1 distributed nonce producer requires distributed nonce-DKG evidence, not centralized expanded-secret-key nonce output",
+            };
+        }
+        P1DistributedNonceProducerEvidence::FixtureHarness => {
+            return P1DistributedNonceProducerArtifactAssessment::BlockedFailClosed {
+                reason: "P1 distributed nonce producer requires actual reviewed producer evidence, not a fixture harness",
+            };
+        }
+        P1DistributedNonceProducerEvidence::StandardProviderSingleKey => {
+            return P1DistributedNonceProducerArtifactAssessment::Invalid {
+                reason: "P1 distributed nonce producer requires threshold nonce provenance, not ordinary single-key standard-provider output",
+            };
+        }
+        P1DistributedNonceProducerEvidence::ReviewedP1ShamirNonceDkgTee => {}
+    }
+    if !package.reviewed {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer artifact must be reviewed",
+        };
+    }
+    if package.claim_boundary != P1DistributedNonceProducerClaimBoundary::ProofReviewOnly {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer artifact must remain proof-review-only",
+        };
+    }
+    if threshold_certificate.claim_boundary() != P1ThresholdOutputClaimBoundary::ProofReviewOnly {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer threshold-output certificate must remain proof-review-only",
+        };
+    }
+    if compatibility_certificate.claim_boundary()
+        != P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer compatibility certificate must remain proof-review-only",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != threshold_certificate.selected_profile()
+        || package.selected_profile != compatibility_certificate.selected_profile()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer selected profile does not match predecessor certificates",
+        };
+    }
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+        || &package.selected_profile_binding_digest
+            != compatibility_certificate.selected_profile_binding_digest()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer profile binding digest does not match predecessor certificates",
+        };
+    }
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 distributed nonce producer profile binding digest is all zero",
+        ),
+        (
+            &package.source_reference_digest,
+            "P1 distributed nonce producer source reference digest is all zero",
+        ),
+        (
+            &package.coordinator_attestation_digest,
+            "P1 distributed nonce producer coordinator attestation digest is all zero",
+        ),
+        (
+            &package.shamir_nonce_dkg_transcript_digest,
+            "P1 distributed nonce producer Shamir nonce-DKG transcript digest is all zero",
+        ),
+        (
+            &package.active_set_digest,
+            "P1 distributed nonce producer active set digest is all zero",
+        ),
+        (
+            &package.pairwise_mask_seed_commitment_digest,
+            "P1 distributed nonce producer pairwise mask seed commitment digest is all zero",
+        ),
+        (
+            &package.nonce_share_commitment_digest,
+            "P1 distributed nonce producer nonce-share commitment digest is all zero",
+        ),
+        (
+            &package.attempt_binding_digest,
+            "P1 distributed nonce producer attempt binding digest is all zero",
+        ),
+        (
+            &package.abort_accountability_digest,
+            "P1 distributed nonce producer abort-accountability digest is all zero",
+        ),
+        (
+            &package.standard_verifier_bridge_digest,
+            "P1 distributed nonce producer standard-verifier bridge digest is all zero",
+        ),
+        (
+            &package.external_review_digest,
+            "P1 distributed nonce producer external review digest is all zero",
+        ),
+        (
+            &package.distributed_nonce_producer_artifact_digest,
+            "P1 distributed nonce producer artifact digest is all zero",
+        ),
+        (
+            &package.threshold_output_certificate_digest,
+            "P1 distributed nonce producer threshold-output certificate digest is all zero",
+        ),
+        (
+            &package.standard_verifier_compatibility_artifact_digest,
+            "P1 distributed nonce producer compatibility artifact digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1DistributedNonceProducerArtifactAssessment::Invalid { reason };
+        }
+    }
+
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer threshold-output digest does not match predecessor certificate",
+        };
+    }
+    if compatibility_certificate.threshold_output_certificate_digest()
+        != &threshold_output_certificate_digest
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer compatibility certificate does not bind threshold-output certificate",
+        };
+    }
+    let standard_verifier_compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate);
+    if package.standard_verifier_compatibility_artifact_digest
+        != standard_verifier_compatibility_artifact_digest
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer compatibility artifact digest does not match certificate",
+        };
+    }
+    if package.active_set_digest != *threshold_certificate.signer_set_digest()
+        || package.active_set_digest != *compatibility_certificate.signer_set_digest()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer active set digest does not match predecessor certificates",
+        };
+    }
+    if package.attempt_binding_digest != *threshold_certificate.attempt_binding_digest()
+        || package.attempt_binding_digest != *compatibility_certificate.attempt_binding_digest()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer attempt binding digest does not match predecessor certificates",
+        };
+    }
+    if package.standard_verifier_bridge_digest
+        != *threshold_certificate.standard_verifier_bridge_evidence_digest()
+        || package.standard_verifier_bridge_digest
+            != *compatibility_certificate.standard_verifier_bridge_evidence_digest()
+    {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer standard-verifier bridge digest does not match predecessor certificates",
+        };
+    }
+
+    let expected_artifact_digest = derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
+        package.selected_profile,
+        &package.selected_profile_binding_digest,
+        package.producer_evidence,
+        &package.source_reference_digest,
+        &package.coordinator_attestation_digest,
+        &package.shamir_nonce_dkg_transcript_digest,
+        &package.active_set_digest,
+        &package.pairwise_mask_seed_commitment_digest,
+        &package.nonce_share_commitment_digest,
+        &package.attempt_binding_digest,
+        &package.abort_accountability_digest,
+        &package.standard_verifier_bridge_digest,
+        &package.external_review_digest,
+        &package.threshold_output_certificate_digest,
+        &package.standard_verifier_compatibility_artifact_digest,
+        package.claim_boundary,
+        package.reviewed,
+    );
+    if package.distributed_nonce_producer_artifact_digest != expected_artifact_digest {
+        return P1DistributedNonceProducerArtifactAssessment::Invalid {
+            reason: "P1 distributed nonce producer artifact digest does not match payload",
+        };
+    }
+
+    P1DistributedNonceProducerArtifactAssessment::ArtifactReady(
+        P1DistributedNonceProducerArtifactCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            source_reference_digest: package.source_reference_digest,
+            coordinator_attestation_digest: package.coordinator_attestation_digest,
+            shamir_nonce_dkg_transcript_digest: package.shamir_nonce_dkg_transcript_digest,
+            active_set_digest: package.active_set_digest,
+            pairwise_mask_seed_commitment_digest: package.pairwise_mask_seed_commitment_digest,
+            nonce_share_commitment_digest: package.nonce_share_commitment_digest,
+            attempt_binding_digest: package.attempt_binding_digest,
+            abort_accountability_digest: package.abort_accountability_digest,
+            standard_verifier_bridge_digest: package.standard_verifier_bridge_digest,
+            external_review_digest: package.external_review_digest,
+            distributed_nonce_producer_artifact_digest: package
+                .distributed_nonce_producer_artifact_digest,
+            threshold_output_certificate_digest: package.threshold_output_certificate_digest,
+            standard_verifier_compatibility_artifact_digest: package
+                .standard_verifier_compatibility_artifact_digest,
+            claim_boundary: package.claim_boundary,
+        },
+    )
+}
+
 /// Assess whether external P1 backend emission evidence can feed the verifier closure contract.
 pub fn assess_p1_real_threshold_backend_emission_artifact(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
@@ -5798,6 +6455,19 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
                 return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason };
             }
         };
+    let distributed_nonce_producer_slot_artifact_digest =
+        match validate_p1_criterion2_proof_slot_artifact(
+            threshold_certificate,
+            &slot_artifacts.distributed_nonce_producer_artifact,
+            P1Criterion2ProofSlotArtifactKind::DistributedNonceProducer,
+            &package.distributed_nonce_producer_artifact_digest,
+            expected_review_evidence_digest,
+        ) {
+            Ok(digest) => digest,
+            Err(reason) => {
+                return P1SelectedBackendProofClosureArtifactAssessment::Invalid { reason };
+            }
+        };
 
     for (digest, reason) in [
         (
@@ -5911,6 +6581,10 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
         (
             &package.standard_verifier_compatibility_artifact_digest,
             "P1 proof-closure standard-verifier compatibility artifact digest is all zero",
+        ),
+        (
+            &package.distributed_nonce_producer_artifact_digest,
+            "P1 proof-closure distributed nonce-producer artifact digest is all zero",
         ),
         (
             &package.theorem_linkage_artifact_digest,
@@ -6054,8 +6728,13 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
         || transcript_binding_artifact_digest == external_review_artifact_digest
         || threshold_output_certificate_artifact_digest
             == real_recomputation_evidence_artifact_digest
+        || threshold_output_certificate_artifact_digest
+            == distributed_nonce_producer_slot_artifact_digest
+        || real_recomputation_evidence_artifact_digest
+            == distributed_nonce_producer_slot_artifact_digest
         || threshold_output_certificate_artifact_digest == external_review_artifact_digest
         || real_recomputation_evidence_artifact_digest == external_review_artifact_digest
+        || distributed_nonce_producer_slot_artifact_digest == external_review_artifact_digest
     {
         return P1SelectedBackendProofClosureArtifactAssessment::Invalid {
             reason: "P1 proof-closure Criterion 2 slot artifacts must be domain-separated",
@@ -6219,6 +6898,8 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
             standard_verifier_bridge_evidence_digest: package
                 .standard_verifier_bridge_evidence_digest,
             real_recomputation_evidence_digest: package.real_recomputation_evidence_digest,
+            distributed_nonce_producer_artifact_digest: package
+                .distributed_nonce_producer_artifact_digest,
             transcript_binding_digest: package.transcript_binding_digest,
             signer_set_digest: package.signer_set_digest,
             attempt_binding_digest: package.attempt_binding_digest,

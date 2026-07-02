@@ -110,6 +110,11 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "p1_criterion2_proof_slot_artifact_package",
         ),
         (
+            "distributed_nonce_producer_artifact_digest",
+            "p1_criterion2_distributed_nonce_producer_artifact_gate",
+            "p1_criterion2_proof_slot_artifact_package",
+        ),
+        (
             "standard_verifier_compatibility_artifact_digest",
             "p1_standard_verifier_compatibility_artifact_gate",
             "p1_standard_verifier_compatibility_artifact_package",
@@ -205,6 +210,10 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "real_recomputation_evidence_digest",
             "real_recomputation_evidence_artifact_digest",
         ),
+        (
+            "distributed_nonce_producer_artifact_digest",
+            "distributed_nonce_producer_artifact_digest",
+        ),
     ] {
         let slot = slots
             .iter()
@@ -256,7 +265,10 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         .iter()
         .find(|slot| slot["id"].as_str() == Some("distributed_nonce_producer_artifact_digest"))
         .expect("distributed nonce producer slot is present");
-    assert_eq!(nonce_producer_slot["current_status"], "required_unclosed");
+    assert_eq!(
+        nonce_producer_slot["current_status"],
+        "evidence_present_unclosed"
+    );
     assert_eq!(
         nonce_producer_slot["evidence_source"],
         "p1_criterion2_distributed_nonce_producer_artifact_gate"
