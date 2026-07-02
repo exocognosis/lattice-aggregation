@@ -23,6 +23,7 @@ use lattice_aggregation::{
             derive_p1_distributed_nonce_producer_artifact_digest,
             derive_p1_distributed_nonce_producer_artifact_package,
             derive_p1_distributed_nonce_producer_artifact_package_from_backend_output,
+            derive_p1_distributed_nonce_producer_artifact_package_from_capture,
             derive_p1_real_threshold_backend_emission_artifact_package,
             derive_p1_real_threshold_backend_emission_artifact_package_from_backend_output,
             derive_p1_real_threshold_backend_emission_evidence_digest,
@@ -53,8 +54,10 @@ use lattice_aggregation::{
             P1AggregateRecomputationClosureCertificate, P1AggregateRecomputationClosurePackage,
             P1Criterion2ProofSlotArtifactKind, P1Criterion2ProofSlotArtifactSources,
             P1DistributedNonceProducerArtifactAssessment,
-            P1DistributedNonceProducerArtifactPackage, P1DistributedNonceProducerClaimBoundary,
-            P1DistributedNonceProducerEvidence, P1RealThresholdBackendEmissionArtifactAssessment,
+            P1DistributedNonceProducerArtifactPackage, P1DistributedNonceProducerCapture,
+            P1DistributedNonceProducerClaimBoundary, P1DistributedNonceProducerEvidence,
+            P1DistributedNonceProducerRequestDigestBinding,
+            P1RealThresholdBackendEmissionArtifactAssessment,
             P1RealThresholdBackendEmissionArtifactPackage, P1RealThresholdBackendEmissionCapture,
             P1RealThresholdBackendEmissionOutput,
             P1RealThresholdBackendEmissionRequestDigestBinding,
@@ -5815,6 +5818,360 @@ fn p1_distributed_nonce_producer_backend_output_rejects_empty_implementation_mat
         err,
         ThresholdError::MalformedSerialization {
             reason: "P1 distributed nonce producer backend implementation material is empty",
+        }
+    );
+}
+
+fn synthetic_actual_distributed_nonce_producer_capture_json(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+) -> Value {
+    let request_binding = distributed_nonce_producer_request_binding();
+    let output = Mldsa65DistributedNonceProducerArtifact {
+        source_reference: b"external reviewed nonce producer source package v1",
+        backend_implementation: b"external reviewed nonce producer implementation v1",
+        coordinator_attestation: b"external tee coordinator attestation v1",
+        shamir_nonce_dkg_transcript: b"external shamir nonce dkg transcript v1",
+        pairwise_mask_seed_commitments: b"external pairwise mask seed commitments v1",
+        nonce_share_commitments: b"external nonce share commitments v1",
+        abort_accountability: b"external abort accountability transcript v1",
+        external_review: b"external nonce producer proof review v1",
+        claim_boundary: P1DistributedNonceProducerClaimBoundary::ProofReviewOnly,
+        reviewed: true,
+    };
+    let expected_package =
+        derive_p1_distributed_nonce_producer_artifact_package_from_backend_output(
+            threshold_certificate,
+            compatibility_certificate,
+            output,
+        )
+        .expect("synthetic nonce producer material should bind predecessor certificates");
+    let selected_profile_binding_digest =
+        SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+            .profile_binding_digest();
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    let standard_verifier_compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate);
+
+    json!({
+        "name": "synthetic-actual-distributed-nonce-producer-capture-for-importer-test",
+        "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+        "note": "Synthetic unit-test capture for nonce-producer importer behavior only; not checked proof evidence.",
+        "request": {
+            "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+            "name": request_binding.name,
+            "request_sha256": encode_hex(&request_binding.request_sha256),
+        },
+        "predecessors": {
+            "selected_profile_binding_digest_hex": encode_hex(&selected_profile_binding_digest),
+            "threshold_output_certificate_digest_hex": encode_hex(&threshold_output_certificate_digest),
+            "standard_verifier_compatibility_artifact_digest_hex": encode_hex(&standard_verifier_compatibility_artifact_digest),
+        },
+        "capture": {
+            "source_reference": {
+                "encoding": "utf8",
+                "value": "external reviewed nonce producer source package v1",
+            },
+            "backend_implementation": {
+                "encoding": "utf8",
+                "value": "external reviewed nonce producer implementation v1",
+            },
+            "coordinator_attestation": {
+                "encoding": "utf8",
+                "value": "external tee coordinator attestation v1",
+            },
+            "shamir_nonce_dkg_transcript": {
+                "encoding": "utf8",
+                "value": "external shamir nonce dkg transcript v1",
+            },
+            "pairwise_mask_seed_commitments": {
+                "encoding": "utf8",
+                "value": "external pairwise mask seed commitments v1",
+            },
+            "nonce_share_commitments": {
+                "encoding": "utf8",
+                "value": "external nonce share commitments v1",
+            },
+            "abort_accountability": {
+                "encoding": "utf8",
+                "value": "external abort accountability transcript v1",
+            },
+            "external_review": {
+                "encoding": "utf8",
+                "value": "external nonce producer proof review v1",
+            },
+            "reviewed": true,
+        },
+        "expected": {
+            "source_reference_digest_hex": encode_hex(&expected_package.source_reference_digest),
+            "backend_implementation_digest_hex": encode_hex(&expected_package.backend_implementation_digest),
+            "coordinator_attestation_digest_hex": encode_hex(&expected_package.coordinator_attestation_digest),
+            "shamir_nonce_dkg_transcript_digest_hex": encode_hex(&expected_package.shamir_nonce_dkg_transcript_digest),
+            "pairwise_mask_seed_commitment_digest_hex": encode_hex(&expected_package.pairwise_mask_seed_commitment_digest),
+            "nonce_share_commitment_digest_hex": encode_hex(&expected_package.nonce_share_commitment_digest),
+            "abort_accountability_digest_hex": encode_hex(&expected_package.abort_accountability_digest),
+            "external_review_digest_hex": encode_hex(&expected_package.external_review_digest),
+            "distributed_nonce_producer_artifact_digest_hex": encode_hex(&expected_package.distributed_nonce_producer_artifact_digest),
+        },
+    })
+}
+
+fn distributed_nonce_producer_request_binding(
+) -> P1DistributedNonceProducerRequestDigestBinding<'static> {
+    P1DistributedNonceProducerRequestDigestBinding {
+        name: "synthetic-actual-distributed-nonce-producer-request-for-importer-test",
+        request_sha256: digest(113),
+    }
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_feeds_artifact_gate_when_actual_evidence_is_present() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("synthetic actual nonce-producer capture should parse");
+
+    let package = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect("actual nonce-producer capture should feed artifact gate");
+
+    assert_eq!(
+        capture.producer_evidence(),
+        "p1_shamir_nonce_dkg_tee_external_capture"
+    );
+    let assessment = assess_p1_distributed_nonce_producer_artifact(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+    assert!(assessment.is_artifact_ready());
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_missing_request_binding() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json
+        .as_object_mut()
+        .expect("capture is object")
+        .remove("request");
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture without request still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("missing nonce-producer request binding must not import");
+
+    assert_eq!(
+        err,
+        ThresholdError::MalformedSerialization {
+            reason: "P1 distributed nonce-producer capture requires request digest binding",
+        }
+    );
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_stale_request_digest() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json["request"]["request_sha256"] = json!(encode_hex(&digest(114)));
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture with stale request digest still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("stale nonce-producer request digest must not import");
+
+    assert_eq!(err, ThresholdError::TranscriptMismatch);
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_missing_predecessor_digests() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json
+        .as_object_mut()
+        .expect("capture is object")
+        .remove("predecessors");
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture without predecessors still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("missing nonce-producer predecessor digests must not import");
+
+    assert_eq!(
+        err,
+        ThresholdError::MalformedSerialization {
+            reason:
+                "P1 distributed nonce-producer capture requires predecessor certificate digests",
+        }
+    );
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_stale_predecessor_digest() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json["predecessors"]["threshold_output_certificate_digest_hex"] =
+        json!(encode_hex(&digest(115)));
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture with stale predecessor digest still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("stale nonce-producer predecessor digest must not import");
+
+    assert_eq!(err, ThresholdError::TranscriptMismatch);
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_missing_expected_digests() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json
+        .as_object_mut()
+        .expect("capture is object")
+        .remove("expected");
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture without expected digests still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("missing nonce-producer expected digests must not import");
+
+    assert_eq!(
+        err,
+        ThresholdError::MalformedSerialization {
+            reason: "P1 distributed nonce-producer capture requires expected package digests",
+        }
+    );
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_expected_artifact_digest_drift() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json["expected"]["distributed_nonce_producer_artifact_digest_hex"] =
+        json!(encode_hex(&digest(116)));
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture with stale expected digest still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("stale nonce-producer expected artifact digest must not import");
+
+    assert_eq!(err, ThresholdError::TranscriptMismatch);
+}
+
+#[test]
+fn distributed_nonce_producer_capture_json_rejects_unsupported_byte_encoding() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let mut capture_json = synthetic_actual_distributed_nonce_producer_capture_json(
+        &threshold_certificate,
+        &compatibility_certificate,
+    );
+    capture_json["capture"]["backend_implementation"]["encoding"] = json!("base64");
+    let capture = P1DistributedNonceProducerCapture::decode_json(
+        &serde_json::to_vec(&capture_json).expect("synthetic capture encodes"),
+    )
+    .expect("capture with unsupported byte encoding still parses structurally");
+
+    let err = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        distributed_nonce_producer_request_binding(),
+        &capture,
+    )
+    .expect_err("unsupported nonce-producer byte encoding must not import");
+
+    assert_eq!(
+        err,
+        ThresholdError::MalformedSerialization {
+            reason: "unsupported P1 distributed nonce-producer capture byte encoding",
         }
     );
 }

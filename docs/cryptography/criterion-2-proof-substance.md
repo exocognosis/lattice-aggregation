@@ -78,6 +78,14 @@ The Criterion 2 proof payload requires these slots before any promotion:
   coordinator-attestation, Shamir nonce-DKG transcript, active-set,
   pairwise-mask, nonce-share commitment, attempt-binding,
   abort-accountability, standard-verifier bridge, and external-review digests.
+  The canonical backend handoff is the capture schema
+  `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`, bound to
+  request schema
+  `lattice-aggregation:p1-distributed-nonce-producer-request:v1`; importer
+  `derive_p1_distributed_nonce_producer_artifact_package_from_capture` requires
+  request name and `request_sha256`, predecessor certificate digests, decoded
+  nonce-producer material classes, and expected package digests before feeding
+  the artifact gate.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -261,7 +269,10 @@ The backend-output adapter
 `derive_p1_distributed_nonce_producer_artifact_package_from_backend_output`
 now hashes submitted `Mldsa65DistributedNonceProducerArtifact` material into
 the nonce-producer artifact package, including an explicit
-backend-implementation digest. The accepted
+backend-implementation digest. The capture importer
+`derive_p1_distributed_nonce_producer_artifact_package_from_capture` imports
+canonical `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
+envelopes with request, predecessor, and expected-digest bindings. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

@@ -2087,6 +2087,14 @@ def scan_documents(root):
         )
         and has_public_struct(
             rejection_equivalence_source,
+            "P1DistributedNonceProducerCapture",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1OwnedMldsa65DistributedNonceProducerArtifact",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
             "P1DistributedNonceProducerArtifactCertificate",
         )
         and has_public_enum(
@@ -2107,10 +2115,20 @@ def scan_documents(root):
         )
         and has_public_function(
             rejection_equivalence_source,
+            "derive_p1_distributed_nonce_producer_artifact_package_from_capture",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
             "derive_p1_distributed_nonce_producer_artifact_digest",
         )
         and has_rust_tokens(
             rejection_equivalence_source,
+            "P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SCHEMA",
+            "P1_DISTRIBUTED_NONCE_PRODUCER_REQUEST_SCHEMA",
+            "P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_EXTERNAL_EVIDENCE",
+            "P1DistributedNonceProducerCaptureRequestBinding",
+            "P1DistributedNonceProducerCaptureExpectedDigests",
+            "request_sha256",
             "HazmatPrfOutputOracle",
             "CentralizedExpandedSecretKeyHelper",
             "FixtureHarness",
@@ -2172,6 +2190,19 @@ def scan_documents(root):
             "provider",
             "single",
             "key",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "distributed",
+            "nonce",
+            "producer",
+            "capture",
+            "json",
+            "feeds",
+            "artifact",
+            "gate",
+            "actual",
+            "evidence",
         )
     )
     p1_standard_verifier_compatibility_artifact_gate = (
@@ -3473,7 +3504,12 @@ def classify_criteria(criteria, scan):
                     "attempt-binding, abort-accountability, "
                     "standard-verifier bridge, and external-review digests. "
                     "It also has a backend-output adapter that hashes "
-                    "submitted nonce-producer material into the gate package. "
+                    "submitted nonce-producer material into the gate package, "
+                    "plus a canonical capture importer for "
+                    "lattice-aggregation:p1-distributed-nonce-producer-capture:v1 "
+                    "envelopes with request digest binding, predecessor "
+                    "certificate digest binding, and expected package digest "
+                    "checks. "
                     "It rejects the hazmat PRF-output oracle, centralized "
                     "expanded-secret-key helper, fixture harnesses, and "
                     "ordinary single-key standard-provider output. This is "
@@ -3484,11 +3520,14 @@ def classify_criteria(criteria, scan):
                 )
                 blockers.append(
                     "The P1 distributed nonce-producer gate is implemented, "
-                    "and a backend-output adapter can derive its package from "
-                    "submitted nonce-producer material, but externally "
-                    "generated reviewed Shamir nonce-DKG/TEE producer material "
-                    "must still replace the hazmat PRF-output oracle before "
-                    "Criterion 2 can advance toward cryptographic closure."
+                    "a backend-output adapter can derive its package from "
+                    "submitted nonce-producer material, and a canonical "
+                    "capture importer can bind actual backend capture JSON to "
+                    "request, predecessor, and expected package digests. "
+                    "Externally generated reviewed Shamir nonce-DKG/TEE "
+                    "producer material must still replace the hazmat "
+                    "PRF-output oracle before Criterion 2 can advance toward "
+                    "cryptographic closure."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
