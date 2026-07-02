@@ -27,6 +27,7 @@
   "required_backend_artifacts": [
     "source_reference_digest",
     "selected_profile_binding_digest",
+    "backend_implementation_digest",
     "coordinator_attestation_digest",
     "shamir_nonce_dkg_transcript_digest",
     "active_set_digest",

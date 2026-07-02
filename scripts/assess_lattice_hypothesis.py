@@ -112,6 +112,7 @@ P1_NONCE_PRODUCER_REQUIRED_SLOT = (
 P1_NONCE_PRODUCER_REQUIRED_BACKEND_ARTIFACTS = [
     "source_reference_digest",
     "selected_profile_binding_digest",
+    "backend_implementation_digest",
     "coordinator_attestation_digest",
     "shamir_nonce_dkg_transcript_digest",
     "active_set_digest",
@@ -290,6 +291,9 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     "real_recomputation_evidence_digest": (
         "p1_criterion2_real_recomputation_evidence_artifact_gate"
     ),
+    "distributed_nonce_producer_artifact_digest": (
+        "p1_criterion2_distributed_nonce_producer_artifact_gate"
+    ),
     "standard_verifier_compatibility_artifact_digest": (
         "p1_standard_verifier_compatibility_artifact_gate"
     ),
@@ -315,14 +319,8 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     ),
     "external_review_digest": "p1_criterion2_external_review_artifact_gate",
 }
-CRITERION2_REQUIRED_UNCLOSED_SLOT_SOURCES = {
-    "distributed_nonce_producer_artifact_digest": (
-        "p1_criterion2_distributed_nonce_producer_artifact_gate"
-    ),
-}
 CRITERION2_ARTIFACT_SLOT_SOURCES = {
     **CRITERION2_EVIDENCE_PRESENT_SLOTS,
-    **CRITERION2_REQUIRED_UNCLOSED_SLOT_SOURCES,
 }
 CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     "standard_verifier_compatibility_artifact_digest": (
@@ -347,6 +345,9 @@ CRITERION2_DURABLE_CERTIFICATE_ACCESSORS = {
     ),
     "real_recomputation_evidence_digest": (
         "real_recomputation_evidence_artifact_digest"
+    ),
+    "distributed_nonce_producer_artifact_digest": (
+        "distributed_nonce_producer_artifact_digest"
     ),
 }
 CRITERION2_DURABLE_CERTIFICATE_SURFACE = (
@@ -2005,10 +2006,13 @@ def scan_documents(root):
             "ExternalReview",
             "ThresholdOutputCertificate",
             "RealRecomputationEvidence",
+            "DistributedNonceProducer",
             "threshold_output_certificate_artifact",
             "real_recomputation_evidence_artifact",
+            "distributed_nonce_producer_artifact",
             "threshold_output_certificate_artifact_digest",
             "real_recomputation_evidence_artifact_digest",
+            "distributed_nonce_producer_artifact_digest",
             "validate_p1_criterion2_proof_slot_artifact",
             "source_evidence_digest",
             "review_evidence_digest",
@@ -2061,6 +2065,113 @@ def scan_documents(root):
             "slot",
             "review",
             "tamper",
+        )
+    )
+    p1_distributed_nonce_producer_artifact_gate = (
+        p1_criterion2_proof_slot_artifact_gates
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1DistributedNonceProducerEvidence",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1DistributedNonceProducerClaimBoundary",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1DistributedNonceProducerArtifactPackage",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "Mldsa65DistributedNonceProducerArtifact",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
+            "P1DistributedNonceProducerArtifactCertificate",
+        )
+        and has_public_enum(
+            rejection_equivalence_source,
+            "P1DistributedNonceProducerArtifactAssessment",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "assess_p1_distributed_nonce_producer_artifact",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_distributed_nonce_producer_artifact_package",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
+            "derive_p1_distributed_nonce_producer_artifact_digest",
+        )
+        and has_rust_tokens(
+            rejection_equivalence_source,
+            "HazmatPrfOutputOracle",
+            "CentralizedExpandedSecretKeyHelper",
+            "FixtureHarness",
+            "StandardProviderSingleKey",
+            "ReviewedP1ShamirNonceDkgTee",
+            "source_reference_digest",
+            "backend_implementation_digest",
+            "coordinator_attestation_digest",
+            "shamir_nonce_dkg_transcript_digest",
+            "pairwise_mask_seed_commitment_digest",
+            "nonce_share_commitment_digest",
+            "abort_accountability_digest",
+            "claims_theorem_closure",
+            "claims_standard_verifier_compatibility_complete",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "distributed",
+            "nonce",
+            "producer",
+            "accepts",
+            "reviewed",
+            "shamir",
+            "nonce",
+            "dkg",
+            "tee",
+            "evidence",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "distributed",
+            "nonce",
+            "producer",
+            "rejects",
+            "hazmat",
+            "prf",
+            "output",
+            "oracle",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "distributed",
+            "nonce",
+            "producer",
+            "rejects",
+            "centralized",
+            "expanded",
+            "secret",
+            "key",
+            "helper",
+        )
+        and has_acceptance_test_function(
+            rejection_equivalence_test,
+            "distributed",
+            "nonce",
+            "producer",
+            "rejects",
+            "standard",
+            "provider",
+            "single",
+            "key",
         )
     )
     p1_standard_verifier_compatibility_artifact_gate = (
@@ -3063,6 +3174,9 @@ def scan_documents(root):
         "p1_criterion2_proof_slot_artifact_gates": (
             p1_criterion2_proof_slot_artifact_gates
         ),
+        "p1_distributed_nonce_producer_artifact_gate": (
+            p1_distributed_nonce_producer_artifact_gate
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -3332,9 +3446,10 @@ def classify_criteria(criteria, scan):
                     "Typed Criterion 2 proof-slot artifact packages are "
                     "present for P1; they domain-separate threshold-output "
                     "certificate, real recomputation, full KAT/validation, "
-                    "rejection-distribution review, norm-bound, hint-bound, "
-                    "challenge-bound, transcript-binding, theorem-linkage, "
-                    "and external-review evidence as evidence_present_unclosed "
+                    "distributed nonce-producer, rejection-distribution "
+                    "review, norm-bound, hint-bound, challenge-bound, "
+                    "transcript-binding, theorem-linkage, and "
+                    "external-review evidence as evidence_present_unclosed "
                     "only. All Criterion 2 proof slots have typed wrappers, "
                     "and the accepted proof-closure artifact certificate "
                     "carries durable predecessor slot artifact digests, "
@@ -3346,6 +3461,35 @@ def classify_criteria(criteria, scan):
                     "CAVP/ACVTS validation, FIPS validation, "
                     "rejection-distribution preservation, or theorem closure."
                 )
+            if scan.get("p1_distributed_nonce_producer_artifact_gate"):
+                partial_progress = True
+                observed.append(
+                    "P1 distributed nonce-producer artifact gate is present "
+                    "and fail-closed: it accepts only reviewed "
+                    "ReviewedP1ShamirNonceDkgTee producer evidence with "
+                    "source reference, backend implementation, coordinator "
+                    "attestation, Shamir nonce-DKG transcript, active-set, "
+                    "pairwise mask seed, nonce-share commitment, "
+                    "attempt-binding, abort-accountability, "
+                    "standard-verifier bridge, and external-review digests. "
+                    "It also has a backend-output adapter that hashes "
+                    "submitted nonce-producer material into the gate package. "
+                    "It rejects the hazmat PRF-output oracle, centralized "
+                    "expanded-secret-key helper, fixture harnesses, and "
+                    "ordinary single-key standard-provider output. This is "
+                    "evidence_present_unclosed only and does not claim theorem closure, "
+                    "selected-backend proof closure, production threshold "
+                    "ML-DSA security, rejection-distribution preservation, "
+                    "or completed standard-verifier compatibility."
+                )
+                blockers.append(
+                    "The P1 distributed nonce-producer gate is implemented, "
+                    "and a backend-output adapter can derive its package from "
+                    "submitted nonce-producer material, but externally "
+                    "generated reviewed Shamir nonce-DKG/TEE producer material "
+                    "must still replace the hazmat PRF-output oracle before "
+                    "Criterion 2 can advance toward cryptographic closure."
+                )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
                 observed.append(
@@ -3355,9 +3499,8 @@ def classify_criteria(criteria, scan):
                     "for the P1 TEE/HSM coordinator profile. It identifies "
                     "`derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key` "
                     "as the hazmat PRF-output oracle replacement target and "
-                    "requires `distributed_nonce_producer_artifact_digest` "
-                    "as required_unclosed evidence before distributed-nonce "
-                    "comparator output can be treated as reviewed producer "
+                    "targets `distributed_nonce_producer_artifact_digest` "
+                    "before distributed-nonce comparator output can be treated as reviewed producer "
                     "evidence. This does not claim theorem closure, "
                     "selected-backend proof closure, production threshold "
                     "ML-DSA security, or rejection-distribution preservation."

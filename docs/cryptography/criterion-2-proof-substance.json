@@ -52,10 +52,29 @@
       },
       {
         "id": "distributed_nonce_producer_artifact_digest",
-        "current_status": "required_unclosed",
+        "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_distributed_nonce_producer_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "certificate_surface": "p1_selected_backend_proof_closure_artifact_certificate",
+        "certificate_accessor": "distributed_nonce_producer_artifact_digest",
         "replacement_target": "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+        "gate_status": "fail_closed_for_hazmat_centralized_fixture_and_single_key_sources",
+        "backend_output_adapter": "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output",
+        "backend_output_material": "Mldsa65DistributedNonceProducerArtifact",
+        "backend_output_required_digests": [
+          "source_reference_digest",
+          "backend_implementation_digest",
+          "coordinator_attestation_digest",
+          "shamir_nonce_dkg_transcript_digest",
+          "active_set_digest",
+          "pairwise_mask_seed_commitment_digest",
+          "nonce_share_commitment_digest",
+          "attempt_binding_digest",
+          "abort_accountability_digest",
+          "standard_verifier_bridge_digest",
+          "external_review_digest"
+        ],
+        "backend_artifact_status": "backend_output_adapter_present_but_externally_generated_reviewed_shamir_nonce_dkg_producer_material_still_required",
         "selected_route_manifest": "docs/cryptography/p1-nonce-producer-selection.json",
         "producer_route": "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1",
         "claim_boundary": "conformance/proof-review evidence only"
@@ -212,6 +231,13 @@
         "slot_id": "real_recomputation_evidence_digest",
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
         "certificate_accessor": "real_recomputation_evidence_artifact_digest",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
+        "certificate_accessor": "distributed_nonce_producer_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only"
       }

@@ -357,7 +357,7 @@ class DocumentClassificationTests(unittest.TestCase):
             status["artifact_slot_statuses"][
                 "distributed_nonce_producer_artifact_digest"
             ],
-            "required_unclosed",
+            "evidence_present_unclosed",
         )
         self.assertEqual(
             status["artifact_slot_sources"][
@@ -1488,7 +1488,10 @@ class ReportGenerationTests(unittest.TestCase):
             "conformance/proof-review evidence only, "
             "threshold_output_certificate_digest, "
             "real_recomputation_evidence_digest. "
-            "required_unclosed producer slot for "
+            "ReviewedP1ShamirNonceDkgTee, "
+            "fail-closed hazmat PRF-output oracle, centralized expanded-secret-key helper, "
+            "fixture harness, and single-key standard-provider producer classes. "
+            "Backend-generated reviewed producer artifact still required for "
             "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1.\n\n"
             "## Theorem Links\n\n"
             "Correctness Lemma 7; Correctness Lemma 8; Noise Lemma D; "
@@ -1512,6 +1515,9 @@ class ReportGenerationTests(unittest.TestCase):
             ),
             "real_recomputation_evidence_digest": (
                 "p1_criterion2_real_recomputation_evidence_artifact_gate"
+            ),
+            "distributed_nonce_producer_artifact_digest": (
+                "p1_criterion2_distributed_nonce_producer_artifact_gate"
             ),
             "standard_verifier_compatibility_artifact_digest": (
                 "p1_standard_verifier_compatibility_artifact_gate"
@@ -1568,22 +1574,12 @@ class ReportGenerationTests(unittest.TestCase):
             "real_recomputation_evidence_digest": (
                 "real_recomputation_evidence_artifact_digest"
             ),
+            "distributed_nonce_producer_artifact_digest": (
+                "distributed_nonce_producer_artifact_digest"
+            ),
         }
 
         def criterion2_slot(slot):
-            if slot == "distributed_nonce_producer_artifact_digest":
-                return {
-                    "id": slot,
-                    "current_status": "required_unclosed",
-                    "evidence_source": (
-                        "p1_criterion2_distributed_nonce_producer_artifact_gate"
-                    ),
-                    "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-                    "replacement_target": (
-                        "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key"
-                    ),
-                    "claim_boundary": "conformance/proof-review evidence only",
-                }
             if slot not in evidence_sources:
                 return {"id": slot, "current_status": "required_unclosed"}
             return {
