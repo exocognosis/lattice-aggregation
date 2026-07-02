@@ -112,6 +112,28 @@ The Criterion 2 proof payload requires these slots before any promotion:
   That turns the previous API blocker into predicate-observability evidence for
   the next reviewed batch comparison against centralized ML-DSA rejection
   behavior.
+  The repo-owned comparator
+  `scripts/run_hazmat_rejection_equivalence_batch.py` is that first comparison
+  path: it generates a Rust emitter that calls centralized and threshold
+  per-attempt predicate APIs from the explicit backend, emits
+  `threshold_attempts`, `centralized_attempts`, `predicate_mismatches`,
+  `challenge_digest_matches`, `accepted_or_rejected_matches`, and
+  `close_candidate`, and hard-binds
+  `claims_rejection_distribution_preservation = false` plus
+  `claims_theorem_closure = false`. A live 3-of-5, 8-attempt smoke batch
+  produced artifact digest
+  `86115e5e8d50099b08f65ee1944ae996f4b5f80cd2407cd393f9648e0454021f`
+  with 17 predicate mismatches, including 8 challenge-digest mismatches and 3
+  accepted/rejected outcome mismatches. That is real rejection-sampling
+  comparison evidence, but it is not a close candidate.
+  A 10,000-validator, threshold-6,667, 1-attempt comparator run produced
+  artifact digest
+  `51b2e252360dfad0c06d863f41b8d0e5c6c63f39d24b55b77e3577d6a0f1a901`
+  with 4 predicate mismatches, including 1 challenge-digest mismatch and 1
+  accepted/rejected outcome mismatch; the emitted threshold signature still
+  passed both backend and repo standard-verifier checks. This shows the large
+  fan-in path can aggregate and compare, but the current sampling path does not
+  satisfy rejection-equivalence closure.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated

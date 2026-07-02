@@ -900,6 +900,43 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_hazmat_rejection_equivalence_batch_gate(self, root):
+        self.write_hazmat_threshold_backend_capture_adapter_gate(root)
+        (root / "scripts" / "run_hazmat_rejection_equivalence_batch.py").write_text(
+            "RUST_EMITTER_SOURCE = '''\n"
+            "derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key\n"
+            "derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met\n"
+            "lattice-aggregation:p1-rejection-equivalence-batch:v1\n"
+            "mldsa65-centralized-vs-threshold-rejection-batch\n"
+            "threshold_attempts\n"
+            "centralized_attempts\n"
+            "predicate_mismatches\n"
+            "challenge_digest_matches\n"
+            "accepted_or_rejected_matches\n"
+            "close_candidate\n"
+            "claims_rejection_distribution_preservation\n"
+            "claims_theorem_closure\n"
+            "''' \n"
+            "def write_emitter_project(): pass\n"
+            "def run_batch(): pass\n"
+            "def validate_crate_path(): pass\n"
+            "LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE\n"
+            "--backend-crate\n",
+            encoding="utf-8",
+        )
+        (root / "script_tests" / "test_run_hazmat_rejection_equivalence_batch.py").write_text(
+            "def test_build_emitter_project_pins_centralized_threshold_comparator_surface(): pass\n"
+            "def test_run_batch_invokes_generated_release_emitter_and_returns_stdout(): pass\n"
+            "derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key\n"
+            "mldsa65-centralized-vs-threshold-rejection-batch\n"
+            "threshold_attempts\n"
+            "centralized_attempts\n"
+            "predicate_mismatches\n"
+            "close_candidate\n"
+            "claims_rejection_distribution_preservation\n",
+            encoding="utf-8",
+        )
+
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
@@ -2185,6 +2222,37 @@ class ReportGenerationTests(unittest.TestCase):
             "does not by itself prove rejection-distribution preservation",
             aggregate_evidence,
         )
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_hazmat_rejection_equivalence_batch_updates_report_without_closing_proofs(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_hazmat_rejection_equivalence_batch_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_hazmat_rejection_equivalence_batch_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("centralized-vs-threshold", aggregate_evidence)
+        self.assertIn("predicate_mismatches", aggregate_evidence)
+        self.assertIn("close_candidate", aggregate_evidence)
+        self.assertIn("does not close the theorem", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):

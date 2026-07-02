@@ -1407,6 +1407,12 @@ def scan_documents(root):
     hazmat_threshold_backend_capture_adapter_test = read_optional(
         "script_tests/test_run_hazmat_threshold_backend_capture.py"
     )
+    hazmat_rejection_equivalence_batch = read_optional(
+        "scripts/run_hazmat_rejection_equivalence_batch.py"
+    )
+    hazmat_rejection_equivalence_batch_test = read_optional(
+        "script_tests/test_run_hazmat_rejection_equivalence_batch.py"
+    )
     real_threshold_backend_capture_schema_fixture = read_optional(
         "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
     )
@@ -2672,6 +2678,38 @@ def scan_documents(root):
             ]
         )
     )
+    p1_hazmat_rejection_equivalence_batch_gate = (
+        p1_hazmat_rejection_predicate_transcript_gate
+        and all(
+            token in hazmat_rejection_equivalence_batch
+            for token in [
+                "derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key",
+                "derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met",
+                "lattice-aggregation:p1-rejection-equivalence-batch:v1",
+                "mldsa65-centralized-vs-threshold-rejection-batch",
+                "threshold_attempts",
+                "centralized_attempts",
+                "predicate_mismatches",
+                "challenge_digest_matches",
+                "accepted_or_rejected_matches",
+                "close_candidate",
+                "claims_rejection_distribution_preservation",
+                "claims_theorem_closure",
+            ]
+        )
+        and all(
+            token in hazmat_rejection_equivalence_batch_test
+            for token in [
+                "test_build_emitter_project_pins_centralized_threshold_comparator_surface",
+                "test_run_batch_invokes_generated_release_emitter_and_returns_stdout",
+                "mldsa65-centralized-vs-threshold-rejection-batch",
+                "threshold_attempts",
+                "centralized_attempts",
+                "predicate_mismatches",
+                "close_candidate",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -2871,6 +2909,9 @@ def scan_documents(root):
         ),
         "p1_hazmat_rejection_predicate_transcript_gate": (
             p1_hazmat_rejection_predicate_transcript_gate
+        ),
+        "p1_hazmat_rejection_equivalence_batch_gate": (
+            p1_hazmat_rejection_equivalence_batch_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -3256,6 +3297,24 @@ def classify_criteria(criteria, scan):
                     "behavior, but it does not by itself prove "
                     "rejection-distribution preservation or move "
                     "aggregate_rejection_equivalence beyond partially_met."
+                )
+            if scan.get("p1_hazmat_rejection_equivalence_batch_gate"):
+                partial_progress = True
+                observed.append(
+                    "A hazmat centralized-vs-threshold rejection-equivalence "
+                    "batch comparator is present. It derives centralized "
+                    "ML-DSA per-attempt predicates and threshold per-attempt "
+                    "predicates from the explicit backend, records "
+                    "threshold_attempts, centralized_attempts, "
+                    "predicate_mismatches, challenge_digest_matches, "
+                    "accepted_or_rejected_matches, and close_candidate, and "
+                    "keeps claims_rejection_distribution_preservation and "
+                    "claims_theorem_closure false. This is the first runnable "
+                    "comparison harness for the actual rejection-sampling "
+                    "question, but any predicate_mismatches or insufficient "
+                    "accepted/rejected coverage mean it does not close the "
+                    "theorem or move aggregate_rejection_equivalence beyond "
+                    "partially_met."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):
