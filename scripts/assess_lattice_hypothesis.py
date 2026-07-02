@@ -2643,6 +2643,33 @@ def scan_documents(root):
             ]
         )
     )
+    p1_hazmat_rejection_transcript_boundary_gate = (
+        p1_hazmat_threshold_backend_capture_adapter_gate
+        and all(
+            token in hazmat_threshold_backend_capture_adapter
+            for token in [
+                "attempt_count",
+                "retry_count",
+                "accepted-attempt-only",
+                "rejection_predicate_fields_available",
+                "mask_seed_digest_hex",
+                "challenge_digest_hex",
+                "z_bound_result",
+                "r0_bound_result",
+                "ct0_bound_result",
+                "hint_bound_result",
+                "blocked_until_backend_exports_bound_level_rejection_transcript",
+            ]
+        )
+        and all(
+            token in hazmat_threshold_backend_capture_adapter_test
+            for token in [
+                "accepted-attempt-only",
+                "rejection_predicate_fields_available",
+                "blocked_until_backend_exports_bound_level_rejection_transcript",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -2839,6 +2866,9 @@ def scan_documents(root):
         ),
         "p1_hazmat_threshold_backend_capture_adapter_gate": (
             p1_hazmat_threshold_backend_capture_adapter_gate
+        ),
+        "p1_hazmat_rejection_transcript_boundary_gate": (
+            p1_hazmat_rejection_transcript_boundary_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -3210,6 +3240,20 @@ def classify_criteria(criteria, scan):
                     "conformance/proof-review infrastructure only; it does not "
                     "change aggregate_rejection_equivalence from partially_met "
                     "or the overall verdict from partially_proven."
+                )
+            if scan.get("p1_hazmat_rejection_transcript_boundary_gate"):
+                partial_progress = True
+                observed.append(
+                    "The hazmat threshold backend capture adapter now emits an "
+                    "accepted-attempt-only rejection transcript boundary: it "
+                    "records accepted attempt id, attempt count, and retry count "
+                    "while marking per-attempt ML-DSA rejection predicates as "
+                    "unavailable. The machine-visible blocker lists the missing "
+                    "mask-seed digest, challenge digest, and z/r0/ct0/hint "
+                    "bound results required for rejection-distribution review. "
+                    "This makes the next backend API gap explicit but does not "
+                    "prove rejection-distribution preservation or move "
+                    "aggregate_rejection_equivalence beyond partially_met."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

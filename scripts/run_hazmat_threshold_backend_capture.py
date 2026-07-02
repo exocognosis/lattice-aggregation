@@ -40,6 +40,11 @@ const CAPTURE_SCHEMA: &str = "lattice-aggregation:p1-real-threshold-backend-emis
 const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
 const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 const BACKEND_EVIDENCE: &str = "real_threshold_mldsa_external_capture";
+const REJECTION_TRANSCRIPT_CAPABILITY: &str = "accepted-attempt-only";
+const REJECTION_DISTRIBUTION_REVIEW_STATUS: &str =
+    "blocked_until_backend_exports_bound_level_rejection_transcript";
+const REJECTION_DISTRIBUTION_REVIEW_BLOCKER: &str =
+    "backend does not expose per-attempt ML-DSA rejection predicate results";
 
 #[derive(Deserialize)]
 struct ByteValue {
@@ -150,6 +155,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "validator_count": request.validator_count,
         "threshold": request.threshold,
         "accepted_attempt_id": attempts,
+        "attempt_count": u16::from(attempts) + 1,
+        "retry_count": attempts,
         "message_digest_hex": sha256_hex(&message),
         "public_key_digest_hex": sha256_hex(&public_key),
         "accepted_signature_digest_hex": sha256_hex(&signature),
@@ -157,7 +164,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "repo_pr69_hazmat_provider_accepts": repo_accepts,
         "mutated_message_rejected_by_both": mutated_message_rejected,
         "mutated_public_key_rejected_by_both": mutated_public_key_rejected,
-        "mutated_signature_rejected_by_both": mutated_signature_rejected
+        "mutated_signature_rejected_by_both": mutated_signature_rejected,
+        "rejection_transcript_capability": REJECTION_TRANSCRIPT_CAPABILITY,
+        "rejection_predicate_fields_available": false,
+        "rejection_predicate_fields_missing": [
+            "mask_seed_digest_hex",
+            "challenge_digest_hex",
+            "z_bound_result",
+            "r0_bound_result",
+            "ct0_bound_result",
+            "hint_bound_result",
+            "accepted_or_rejected"
+        ],
+        "rejection_distribution_review_status": REJECTION_DISTRIBUTION_REVIEW_STATUS,
+        "rejection_distribution_review_blocker": REJECTION_DISTRIBUTION_REVIEW_BLOCKER
     })
     .to_string();
 

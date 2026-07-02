@@ -858,6 +858,17 @@ class ReportGenerationTests(unittest.TestCase):
             "RUST_EMITTER_SOURCE = '''\n"
             "backend_external_pure_verifier_accepts\n"
             "repo_pr69_hazmat_provider_accepts\n"
+            "attempt_count\n"
+            "retry_count\n"
+            "accepted-attempt-only\n"
+            "rejection_predicate_fields_available\n"
+            "mask_seed_digest_hex\n"
+            "challenge_digest_hex\n"
+            "z_bound_result\n"
+            "r0_bound_result\n"
+            "ct0_bound_result\n"
+            "hint_bound_result\n"
+            "blocked_until_backend_exports_bound_level_rejection_transcript\n"
             "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\n"
             "real_threshold_mldsa_external_capture\n"
             "dytallix-pq-threshold hazmat-real-mldsa\n"
@@ -880,6 +891,9 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_run_capture_rejects_missing_or_invalid_backend_crate(): pass\n"
             "backend_external_pure_verifier_accepts\n"
             "repo_pr69_hazmat_provider_accepts\n"
+            "accepted-attempt-only\n"
+            "rejection_predicate_fields_available\n"
+            "blocked_until_backend_exports_bound_level_rejection_transcript\n"
             "Lattice Aggregation Current\n",
             encoding="utf-8",
         )
@@ -2129,6 +2143,45 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("mutation rejection", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_hazmat_rejection_transcript_boundary_updates_report_without_closing_proofs(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_hazmat_threshold_backend_capture_adapter_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_hazmat_threshold_backend_capture_adapter_gate"])
+        self.assertTrue(
+            scan["p1_hazmat_rejection_transcript_boundary_gate"]
+        )
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("accepted-attempt-only", aggregate_evidence)
+        self.assertIn("retry count", aggregate_evidence)
+        self.assertIn("per-attempt ML-DSA rejection predicates", aggregate_evidence)
+        self.assertIn("z/r0/ct0/hint", aggregate_evidence)
+        self.assertIn("machine-visible blocker", aggregate_evidence)
+        self.assertIn(
+            "does not prove rejection-distribution preservation",
+            aggregate_evidence,
+        )
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):

@@ -102,6 +102,14 @@ The Criterion 2 proof payload requires these slots before any promotion:
   backend and repo standard-verifier acceptance plus mutation rejection, and
   emits canonical request-bound capture JSON for the runner. It is
   `evidence_present_unclosed` conformance/proof-review infrastructure only.
+  Its backend transcript now records the accepted attempt id, attempt count, and
+  retry count, and explicitly marks the rejection-transcript capability as
+  `accepted-attempt-only`. The same transcript sets
+  `rejection_predicate_fields_available = false` and lists the missing
+  per-attempt `mask_seed_digest_hex`, `challenge_digest_hex`,
+  `z_bound_result`, `r0_bound_result`, `ct0_bound_result`, and
+  `hint_bound_result` fields. That boundary is the current backend API blocker
+  for turning the hazmat run into a real rejection-distribution review.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated
