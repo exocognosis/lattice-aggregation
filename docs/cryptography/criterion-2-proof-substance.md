@@ -70,11 +70,16 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`. The Rust gate
   now accepts only reviewed `ReviewedP1ShamirNonceDkgTee` evidence and rejects
   the hazmat PRF-output oracle, centralized expanded-secret-key helper, fixture
-  harnesses, and ordinary single-key standard-provider output. It remains
-  `evidence_present_unclosed` until a backend-generated reviewed P1 nonce
-  producer emits source, selected-profile, coordinator-attestation, Shamir
-  nonce-DKG transcript, active-set, pairwise-mask, attempt-binding,
+  harnesses, and ordinary single-key standard-provider output. The backend
+  output adapter
+  `derive_p1_distributed_nonce_producer_artifact_package_from_backend_output`
+  converts `Mldsa65DistributedNonceProducerArtifact` byte material into this
+  gate package and binds source-reference, backend-implementation,
+  coordinator-attestation, Shamir nonce-DKG transcript, active-set,
+  pairwise-mask, nonce-share commitment, attempt-binding,
   abort-accountability, standard-verifier bridge, and external-review digests.
+  It remains `evidence_present_unclosed` until externally generated reviewed P1
+  nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -251,7 +256,12 @@ slot claim boundary is `conformance/proof-review evidence only`.
 
 All Criterion 2 proof slots now have typed wrappers, while
 `distributed_nonce_producer_artifact_digest` remains unclosed until actual
-backend-generated producer evidence replaces the hazmat oracle. The accepted
+externally generated backend nonce-producer material replaces the hazmat oracle.
+The backend-output adapter
+`derive_p1_distributed_nonce_producer_artifact_package_from_backend_output`
+now hashes submitted `Mldsa65DistributedNonceProducerArtifact` material into
+the nonce-producer artifact package, including an explicit
+backend-implementation digest. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

@@ -93,6 +93,6 @@ helper, a fixture harness, or ordinary single-key standard-provider output.
 
 The first acceptable producer evidence class is a reviewed P1 Shamir nonce-DKG
 artifact with `distributed_nonce_producer_artifact_digest`, source reference,
-active-set binding, attempt binding, coordinator attestation, nonce-DKG
-transcript, pairwise mask commitments, abort-accountability evidence, and
-standard-verifier bridge digest.
+backend implementation digest, active-set binding, attempt binding,
+coordinator attestation, nonce-DKG transcript, pairwise mask commitments,
+abort-accountability evidence, and standard-verifier bridge digest.

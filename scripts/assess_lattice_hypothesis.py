@@ -112,6 +112,7 @@ P1_NONCE_PRODUCER_REQUIRED_SLOT = (
 P1_NONCE_PRODUCER_REQUIRED_BACKEND_ARTIFACTS = [
     "source_reference_digest",
     "selected_profile_binding_digest",
+    "backend_implementation_digest",
     "coordinator_attestation_digest",
     "shamir_nonce_dkg_transcript_digest",
     "active_set_digest",
@@ -2082,6 +2083,10 @@ def scan_documents(root):
         )
         and has_public_struct(
             rejection_equivalence_source,
+            "Mldsa65DistributedNonceProducerArtifact",
+        )
+        and has_public_struct(
+            rejection_equivalence_source,
             "P1DistributedNonceProducerArtifactCertificate",
         )
         and has_public_enum(
@@ -2098,6 +2103,10 @@ def scan_documents(root):
         )
         and has_public_function(
             rejection_equivalence_source,
+            "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output",
+        )
+        and has_public_function(
+            rejection_equivalence_source,
             "derive_p1_distributed_nonce_producer_artifact_digest",
         )
         and has_rust_tokens(
@@ -2108,6 +2117,7 @@ def scan_documents(root):
             "StandardProviderSingleKey",
             "ReviewedP1ShamirNonceDkgTee",
             "source_reference_digest",
+            "backend_implementation_digest",
             "coordinator_attestation_digest",
             "shamir_nonce_dkg_transcript_digest",
             "pairwise_mask_seed_commitment_digest",
@@ -3457,25 +3467,28 @@ def classify_criteria(criteria, scan):
                     "P1 distributed nonce-producer artifact gate is present "
                     "and fail-closed: it accepts only reviewed "
                     "ReviewedP1ShamirNonceDkgTee producer evidence with "
-                    "source reference, coordinator attestation, Shamir "
-                    "nonce-DKG transcript, active-set, pairwise mask seed, "
-                    "nonce-share commitment, attempt-binding, "
-                    "abort-accountability, standard-verifier bridge, and "
-                    "external-review digests. It rejects the hazmat "
-                    "PRF-output oracle, centralized expanded-secret-key "
-                    "helper, fixture harnesses, and ordinary single-key "
-                    "standard-provider output. This is evidence_present_unclosed "
-                    "only and does not claim theorem closure, "
+                    "source reference, backend implementation, coordinator "
+                    "attestation, Shamir nonce-DKG transcript, active-set, "
+                    "pairwise mask seed, nonce-share commitment, "
+                    "attempt-binding, abort-accountability, "
+                    "standard-verifier bridge, and external-review digests. "
+                    "It also has a backend-output adapter that hashes "
+                    "submitted nonce-producer material into the gate package. "
+                    "It rejects the hazmat PRF-output oracle, centralized "
+                    "expanded-secret-key helper, fixture harnesses, and "
+                    "ordinary single-key standard-provider output. This is "
+                    "evidence_present_unclosed only and does not claim theorem closure, "
                     "selected-backend proof closure, production threshold "
                     "ML-DSA security, rejection-distribution preservation, "
                     "or completed standard-verifier compatibility."
                 )
                 blockers.append(
                     "The P1 distributed nonce-producer gate is implemented, "
-                    "but a backend-generated reviewed Shamir nonce-DKG/TEE "
-                    "producer artifact must still replace the hazmat "
-                    "PRF-output oracle before Criterion 2 can advance toward "
-                    "cryptographic closure."
+                    "and a backend-output adapter can derive its package from "
+                    "submitted nonce-producer material, but externally "
+                    "generated reviewed Shamir nonce-DKG/TEE producer material "
+                    "must still replace the hazmat PRF-output oracle before "
+                    "Criterion 2 can advance toward cryptographic closure."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

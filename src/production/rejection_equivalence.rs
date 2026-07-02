@@ -1385,6 +1385,38 @@ impl P1DistributedNonceProducerClaimBoundary {
     }
 }
 
+/// Backend-generated ML-DSA-65 distributed nonce-producer artifact material.
+///
+/// This is the byte-material handoff for a reviewed external P1 nonce producer.
+/// It is converted into `P1DistributedNonceProducerArtifactPackage` by hashing
+/// each material class with domain separation and binding the result to the
+/// predecessor threshold-output and standard-verifier compatibility
+/// certificates. Supplying this material does not implement threshold signing
+/// inside this crate and does not close Criterion 2.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Mldsa65DistributedNonceProducerArtifact<'a> {
+    /// Reviewed source/reference package bytes for the nonce producer.
+    pub source_reference: &'a [u8],
+    /// Reviewed backend implementation bytes or implementation attestation.
+    pub backend_implementation: &'a [u8],
+    /// Coordinator TEE/HSM attestation evidence bytes.
+    pub coordinator_attestation: &'a [u8],
+    /// Shamir nonce-DKG transcript bytes.
+    pub shamir_nonce_dkg_transcript: &'a [u8],
+    /// Pairwise mask seed commitment bytes.
+    pub pairwise_mask_seed_commitments: &'a [u8],
+    /// Nonce-share commitment bytes.
+    pub nonce_share_commitments: &'a [u8],
+    /// Abort-accountability evidence bytes.
+    pub abort_accountability: &'a [u8],
+    /// External proof-review signoff bytes.
+    pub external_review: &'a [u8],
+    /// Explicit non-production claim boundary for the derived package.
+    pub claim_boundary: P1DistributedNonceProducerClaimBoundary,
+    /// Whether the external material has named review signoff.
+    pub reviewed: bool,
+}
+
 /// Submitted P1 distributed nonce-producer artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1DistributedNonceProducerArtifactPackage {
@@ -1396,6 +1428,8 @@ pub struct P1DistributedNonceProducerArtifactPackage {
     pub producer_evidence: P1DistributedNonceProducerEvidence,
     /// Digest of the reviewed source/reference material.
     pub source_reference_digest: [u8; 32],
+    /// Digest of the reviewed backend implementation material.
+    pub backend_implementation_digest: [u8; 32],
     /// Digest of the coordinator attestation or HSM/TEE identity evidence.
     pub coordinator_attestation_digest: [u8; 32],
     /// Digest of the Shamir nonce-DKG transcript.
@@ -1432,6 +1466,7 @@ pub struct P1DistributedNonceProducerArtifactCertificate {
     selected_profile: SelectedProductionBackendProfile,
     selected_profile_binding_digest: [u8; 32],
     source_reference_digest: [u8; 32],
+    backend_implementation_digest: [u8; 32],
     coordinator_attestation_digest: [u8; 32],
     shamir_nonce_dkg_transcript_digest: [u8; 32],
     active_set_digest: [u8; 32],
@@ -1461,6 +1496,11 @@ impl P1DistributedNonceProducerArtifactCertificate {
     /// Borrow the source/reference digest.
     pub const fn source_reference_digest(&self) -> &[u8; 32] {
         &self.source_reference_digest
+    }
+
+    /// Borrow the backend implementation digest.
+    pub const fn backend_implementation_digest(&self) -> &[u8; 32] {
+        &self.backend_implementation_digest
     }
 
     /// Borrow the coordinator attestation digest.
@@ -3774,6 +3814,7 @@ pub fn derive_p1_distributed_nonce_producer_artifact_digest(
         certificate.selected_profile_binding_digest(),
         P1DistributedNonceProducerEvidence::ReviewedP1ShamirNonceDkgTee,
         certificate.source_reference_digest(),
+        certificate.backend_implementation_digest(),
         certificate.coordinator_attestation_digest(),
         certificate.shamir_nonce_dkg_transcript_digest(),
         certificate.active_set_digest(),
@@ -3796,6 +3837,7 @@ fn derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
     selected_profile_binding_digest: &[u8; 32],
     producer_evidence: P1DistributedNonceProducerEvidence,
     source_reference_digest: &[u8; 32],
+    backend_implementation_digest: &[u8; 32],
     coordinator_attestation_digest: &[u8; 32],
     shamir_nonce_dkg_transcript_digest: &[u8; 32],
     active_set_digest: &[u8; 32],
@@ -3816,6 +3858,7 @@ fn derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
     hasher.update(selected_profile_binding_digest);
     hasher.update([producer_evidence.tag()]);
     hasher.update(source_reference_digest);
+    hasher.update(backend_implementation_digest);
     hasher.update(coordinator_attestation_digest);
     hasher.update(shamir_nonce_dkg_transcript_digest);
     hasher.update(active_set_digest);
@@ -3844,6 +3887,7 @@ pub fn derive_p1_distributed_nonce_producer_artifact_package(
     compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
     producer_evidence: P1DistributedNonceProducerEvidence,
     source_reference_digest: [u8; 32],
+    backend_implementation_digest: [u8; 32],
     coordinator_attestation_digest: [u8; 32],
     shamir_nonce_dkg_transcript_digest: [u8; 32],
     pairwise_mask_seed_commitment_digest: [u8; 32],
@@ -3863,6 +3907,7 @@ pub fn derive_p1_distributed_nonce_producer_artifact_package(
             threshold_certificate.selected_profile_binding_digest(),
             producer_evidence,
             &source_reference_digest,
+            &backend_implementation_digest,
             &coordinator_attestation_digest,
             &shamir_nonce_dkg_transcript_digest,
             threshold_certificate.signer_set_digest(),
@@ -3883,6 +3928,7 @@ pub fn derive_p1_distributed_nonce_producer_artifact_package(
         selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
         producer_evidence,
         source_reference_digest,
+        backend_implementation_digest,
         coordinator_attestation_digest,
         shamir_nonce_dkg_transcript_digest,
         active_set_digest: *threshold_certificate.signer_set_digest(),
@@ -3899,6 +3945,98 @@ pub fn derive_p1_distributed_nonce_producer_artifact_package(
         claim_boundary,
         reviewed,
     }
+}
+
+/// Derive a P1 distributed nonce-producer package from backend-emitted bytes.
+///
+/// This is the backend-side bridge for the existing nonce-producer gate. It
+/// hashes actual submitted material classes, binds them to predecessor
+/// certificates, and marks the evidence as reviewed P1 Shamir nonce-DKG/TEE
+/// provenance. It does not evaluate nonce sampling, does not prove rejection
+/// distribution preservation, and does not implement a threshold backend.
+pub fn derive_p1_distributed_nonce_producer_artifact_package_from_backend_output(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    output: Mldsa65DistributedNonceProducerArtifact<'_>,
+) -> Result<P1DistributedNonceProducerArtifactPackage, ThresholdError> {
+    for (bytes, reason) in [
+        (
+            output.source_reference,
+            "P1 distributed nonce producer source reference material is empty",
+        ),
+        (
+            output.backend_implementation,
+            "P1 distributed nonce producer backend implementation material is empty",
+        ),
+        (
+            output.coordinator_attestation,
+            "P1 distributed nonce producer coordinator attestation material is empty",
+        ),
+        (
+            output.shamir_nonce_dkg_transcript,
+            "P1 distributed nonce producer Shamir nonce-DKG transcript material is empty",
+        ),
+        (
+            output.pairwise_mask_seed_commitments,
+            "P1 distributed nonce producer pairwise mask seed commitment material is empty",
+        ),
+        (
+            output.nonce_share_commitments,
+            "P1 distributed nonce producer nonce-share commitment material is empty",
+        ),
+        (
+            output.abort_accountability,
+            "P1 distributed nonce producer abort-accountability material is empty",
+        ),
+        (
+            output.external_review,
+            "P1 distributed nonce producer external review material is empty",
+        ),
+    ] {
+        if bytes.is_empty() {
+            return Err(ThresholdError::MalformedSerialization { reason });
+        }
+    }
+
+    Ok(derive_p1_distributed_nonce_producer_artifact_package(
+        threshold_certificate,
+        compatibility_certificate,
+        P1DistributedNonceProducerEvidence::ReviewedP1ShamirNonceDkgTee,
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-source-reference:v1",
+            output.source_reference,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-backend-implementation:v1",
+            output.backend_implementation,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-coordinator-attestation:v1",
+            output.coordinator_attestation,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-shamir-nonce-dkg-transcript:v1",
+            output.shamir_nonce_dkg_transcript,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-pairwise-mask-seed-commitments:v1",
+            output.pairwise_mask_seed_commitments,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-nonce-share-commitments:v1",
+            output.nonce_share_commitments,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-abort-accountability:v1",
+            output.abort_accountability,
+        ),
+        digest_domain_separated_bytes(
+            b"lattice-aggregation:p1-distributed-nonce-producer-external-review:v1",
+            output.external_review,
+        ),
+        output.claim_boundary,
+        output.reviewed,
+    ))
 }
 
 /// Derive the digest binding a real-threshold backend emission artifact.
@@ -5634,6 +5772,10 @@ pub fn assess_p1_distributed_nonce_producer_artifact(
             "P1 distributed nonce producer source reference digest is all zero",
         ),
         (
+            &package.backend_implementation_digest,
+            "P1 distributed nonce producer backend implementation digest is all zero",
+        ),
+        (
             &package.coordinator_attestation_digest,
             "P1 distributed nonce producer coordinator attestation digest is all zero",
         ),
@@ -5739,6 +5881,7 @@ pub fn assess_p1_distributed_nonce_producer_artifact(
         &package.selected_profile_binding_digest,
         package.producer_evidence,
         &package.source_reference_digest,
+        &package.backend_implementation_digest,
         &package.coordinator_attestation_digest,
         &package.shamir_nonce_dkg_transcript_digest,
         &package.active_set_digest,
@@ -5764,6 +5907,7 @@ pub fn assess_p1_distributed_nonce_producer_artifact(
             selected_profile: package.selected_profile,
             selected_profile_binding_digest: package.selected_profile_binding_digest,
             source_reference_digest: package.source_reference_digest,
+            backend_implementation_digest: package.backend_implementation_digest,
             coordinator_attestation_digest: package.coordinator_attestation_digest,
             shamir_nonce_dkg_transcript_digest: package.shamir_nonce_dkg_transcript_digest,
             active_set_digest: package.active_set_digest,

@@ -281,6 +281,18 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         nonce_producer_slot["replacement_target"],
         "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key"
     );
+    assert_eq!(
+        nonce_producer_slot["backend_output_adapter"],
+        "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_output_material"],
+        "Mldsa65DistributedNonceProducerArtifact"
+    );
+    assert!(string_array_contains(
+        &nonce_producer_slot["backend_output_required_digests"],
+        "backend_implementation_digest",
+    ));
 }
 
 #[test]
