@@ -50,7 +50,7 @@ use lattice_aggregation::{
             AggregateRejectionEvidenceStrength, Mldsa65ProviderKatEvidence,
             P1AggregateRecomputationAssessment, P1AggregateRecomputationClosureCertificate,
             P1AggregateRecomputationClosurePackage, P1Criterion2ProofSlotArtifactKind,
-            P1DistributedNonceProducerArtifactAssessment,
+            P1Criterion2ProofSlotArtifactSources, P1DistributedNonceProducerArtifactAssessment,
             P1DistributedNonceProducerArtifactPackage, P1DistributedNonceProducerClaimBoundary,
             P1DistributedNonceProducerEvidence, P1RealThresholdBackendEmissionArtifactAssessment,
             P1RealThresholdBackendEmissionArtifactPackage, P1RealThresholdBackendEmissionCapture,
@@ -4388,12 +4388,14 @@ fn selected_backend_proof_closure_artifact_package(
     let proof_slot_artifacts = derive_p1_criterion2_proof_slot_artifacts(
         &threshold_certificate,
         &proof_artifacts,
-        digest(51),
-        digest(52),
-        digest(53),
-        digest(54),
-        P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly,
-        true,
+        P1Criterion2ProofSlotArtifactSources::new(
+            digest(51),
+            digest(52),
+            digest(53),
+            digest(54),
+            P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly,
+            true,
+        ),
     );
 
     derive_p1_selected_backend_proof_closure_artifact_package(

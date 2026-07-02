@@ -518,6 +518,45 @@ impl P1Criterion2ProofSlotArtifacts {
     }
 }
 
+/// Source digests and review metadata used to derive the typed Criterion 2
+/// proof-slot bundle.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1Criterion2ProofSlotArtifactSources {
+    /// Source digest for the full KAT or validation package slot.
+    pub full_kat_validation_source_digest: [u8; 32],
+    /// Source digest for the rejection-distribution review slot.
+    pub rejection_distribution_review_source_digest: [u8; 32],
+    /// Source digest for the distributed nonce-producer slot.
+    pub distributed_nonce_producer_source_digest: [u8; 32],
+    /// Source digest for the theorem-linkage slot.
+    pub theorem_linkage_source_digest: [u8; 32],
+    /// Claim boundary assigned to every derived proof-slot artifact.
+    pub claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    /// Review bit assigned to every derived proof-slot artifact.
+    pub reviewed: bool,
+}
+
+impl P1Criterion2ProofSlotArtifactSources {
+    /// Construct the source bundle for Criterion 2 proof-slot derivation.
+    pub const fn new(
+        full_kat_validation_source_digest: [u8; 32],
+        rejection_distribution_review_source_digest: [u8; 32],
+        distributed_nonce_producer_source_digest: [u8; 32],
+        theorem_linkage_source_digest: [u8; 32],
+        claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+        reviewed: bool,
+    ) -> Self {
+        Self {
+            full_kat_validation_source_digest,
+            rejection_distribution_review_source_digest,
+            distributed_nonce_producer_source_digest,
+            theorem_linkage_source_digest,
+            claim_boundary,
+            reviewed,
+        }
+    }
+}
+
 /// Reviewed P1 rejection-equivalence proof artifact digests.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1RejectionProofArtifacts {
@@ -3342,12 +3381,7 @@ pub fn derive_p1_criterion2_proof_slot_artifact(
 pub fn derive_p1_criterion2_proof_slot_artifacts(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
     proof_artifacts: &P1RejectionProofArtifacts,
-    full_kat_validation_source_digest: [u8; 32],
-    rejection_distribution_review_source_digest: [u8; 32],
-    distributed_nonce_producer_source_digest: [u8; 32],
-    theorem_linkage_source_digest: [u8; 32],
-    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
-    reviewed: bool,
+    sources: P1Criterion2ProofSlotArtifactSources,
 ) -> P1Criterion2ProofSlotArtifacts {
     let external_review_digest = *proof_artifacts.external_review_digest();
     let threshold_output_certificate_digest =
@@ -3356,90 +3390,90 @@ pub fn derive_p1_criterion2_proof_slot_artifacts(
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::FullKatValidation,
-            full_kat_validation_source_digest,
+            sources.full_kat_validation_source_digest,
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::RejectionDistributionReview,
-            rejection_distribution_review_source_digest,
+            sources.rejection_distribution_review_source_digest,
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::NormBound,
             *proof_artifacts.norm_bound_evidence_digest(),
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::HintBound,
             *proof_artifacts.hint_bound_evidence_digest(),
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::ChallengeBound,
             *proof_artifacts.challenge_bound_evidence_digest(),
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::TranscriptBinding,
             *proof_artifacts.transcript_binding_evidence_digest(),
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::TheoremLinkage,
-            theorem_linkage_source_digest,
+            sources.theorem_linkage_source_digest,
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::ExternalReview,
             external_review_digest,
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::ThresholdOutputCertificate,
             threshold_output_certificate_digest,
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::RealRecomputationEvidence,
             *proof_artifacts.real_recomputation_evidence_digest(),
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
         derive_p1_criterion2_proof_slot_artifact(
             threshold_certificate,
             P1Criterion2ProofSlotArtifactKind::DistributedNonceProducer,
-            distributed_nonce_producer_source_digest,
+            sources.distributed_nonce_producer_source_digest,
             external_review_digest,
-            claim_boundary,
-            reviewed,
+            sources.claim_boundary,
+            sources.reviewed,
         ),
     )
 }
