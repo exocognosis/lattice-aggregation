@@ -59,12 +59,26 @@ class HazmatRejectionEquivalenceBatchTests(unittest.TestCase):
             main_rs,
         )
         self.assertIn(
+            "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+            main_rs,
+        )
+        self.assertIn(
+            "derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share",
+            main_rs,
+        )
+        self.assertIn(
+            "split_mldsa65_distributed_nonce_prf_output",
+            main_rs,
+        )
+        self.assertIn(
             "lattice-aggregation:p1-rejection-equivalence-batch:v1",
             main_rs,
         )
         self.assertIn("mldsa65-centralized-vs-threshold-rejection-batch", main_rs)
         self.assertIn("centralized-rho-double-prime-kappa", main_rs)
+        self.assertIn("distributed-nonce-prf-output-shares", main_rs)
         self.assertIn("aligned_mask_domain", main_rs)
+        self.assertIn("distributed_nonce_prf_domain", main_rs)
         self.assertIn("mask_domain", main_rs)
         self.assertIn("threshold_attempts", main_rs)
         self.assertIn("centralized_attempts", main_rs)
@@ -75,6 +89,10 @@ class HazmatRejectionEquivalenceBatchTests(unittest.TestCase):
         self.assertIn("claims_rejection_distribution_preservation", main_rs)
         parsed = module.parse_args(["--backend-crate", "x", "--aligned-mask-domain"])
         self.assertTrue(parsed.aligned_mask_domain)
+        parsed = module.parse_args(
+            ["--backend-crate", "x", "--distributed-nonce-prf-domain"]
+        )
+        self.assertTrue(parsed.distributed_nonce_prf_domain)
 
     def test_run_batch_invokes_generated_release_emitter_and_returns_stdout(self):
         module = load_module()

@@ -150,6 +150,21 @@ The Criterion 2 proof payload requires these slots before any promotion:
   expanded secret-key material to align the mask domain and therefore does not
   replace a reviewed distributed nonce-DKG/PRF construction or close the
   theorem by itself.
+  The distributed-nonce-prf-output-shares mode consumes active-set-bound nonce
+  PRF output shares on the threshold contribution path instead of calling the
+  centralized masking helper. A live 3-of-5, 8-attempt distributed-nonce batch
+  produced artifact digest
+  `82f55f4f3ce5a76b8935d1b00a9ea2537993b590ca518120c714e5f2cdea20d8` with
+  zero predicate mismatches, accepted and rejected attempt coverage, both
+  verifier checks passing, and `close_candidate = true`. A live
+  10,000-validator, threshold-6,667, 8-attempt distributed-nonce batch produced
+  artifact digest
+  `5ca4d6d6a7a0f66a9eaca5b008832c96d84a11442c479856fbea378976f952b0` with
+  zero predicate mismatches, accepted and rejected attempt coverage, both
+  verifier checks passing, and `close_candidate = true`. This moves the
+  threshold masking contribution path past the centralized masking helper, but
+  the PRF-output oracle still derives the seed from expanded secret-key material
+  until a reviewed distributed PRF/MPC producer replaces it.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated

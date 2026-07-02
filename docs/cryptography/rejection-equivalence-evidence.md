@@ -235,6 +235,26 @@ the 10,000-validator fan-in path. It is not theorem closure yet because the
 aligned helper uses expanded secret-key material to place the aggregate mask in
 the centralized domain; a reviewed distributed nonce-DKG/PRF replacement must
 provide the same domain without central secret-key access.
+
+The comparator now also has a distributed-nonce-prf-output-shares mode. In this
+mode the threshold contribution path consumes active-set-bound nonce PRF output
+shares rather than calling the centralized masking helper:
+
+- 3-of-5, 8 attempts:
+  `82f55f4f3ce5a76b8935d1b00a9ea2537993b590ca518120c714e5f2cdea20d8`;
+  zero predicate mismatches, accepted and rejected attempt coverage, backend
+  and repo verifier acceptance, `close_candidate = true`.
+- 10,000 validators, threshold 6,667, 8 attempts:
+  `5ca4d6d6a7a0f66a9eaca5b008832c96d84a11442c479856fbea378976f952b0`;
+  zero predicate mismatches, accepted and rejected attempt coverage, backend
+  and repo verifier acceptance, `close_candidate = true`.
+
+This is a real step past the centralized masking helper on the threshold
+contribution path. It is still not final theorem closure because the current
+distributed nonce shares are fed by a hazmat PRF-output oracle; a reviewed
+distributed PRF/MPC producer must replace that oracle before this can be treated
+as cryptographic closure evidence rather than closure-candidate conformance
+evidence.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries

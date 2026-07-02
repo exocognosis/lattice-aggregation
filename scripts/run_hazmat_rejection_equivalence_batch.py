@@ -14,14 +14,17 @@ RUST_EMITTER_SOURCE = r'''use dytallix_pq_threshold::{
     mldsa65::{
         begin_mldsa65_threshold_attempt,
         derive_mldsa65_centralized_domain_masking_contribution_from_share,
+        derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key,
         derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key,
+        derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share,
         derive_mldsa65_expanded_secret_key_from_seed,
         derive_mldsa65_masking_contribution_from_share,
         derive_mldsa65_public_key_from_expanded_secret_key,
         derive_mldsa65_secret_contribution_from_share,
         derive_mldsa65_session_challenge_once_quorum_met,
         derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met,
-        finalize_mldsa65_session_signature_once_quorum_met, split_mldsa65_expanded_secret_key,
+        finalize_mldsa65_session_signature_once_quorum_met,
+        split_mldsa65_distributed_nonce_prf_output, split_mldsa65_expanded_secret_key,
         submit_mldsa65_masking_contribution, submit_mldsa65_secret_contribution,
         verify_mldsa65_external_pure, MLDSA65_KEYGEN_SEED_BYTES, MLDSA65_MU_BYTES,
     },
@@ -49,6 +52,7 @@ struct Config {
     threshold: u16,
     attempts: u8,
     aligned_mask_domain: bool,
+    distributed_nonce_prf_domain: bool,
 }
 
 fn main() {
@@ -91,6 +95,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             &central_rnd,
             attempt_id,
             config.aligned_mask_domain,
+            config.distributed_nonce_prf_domain,
         )?;
         let centralized_attempt =
             derive_centralized_attempt(original_secret.as_bytes(), &mu, &central_rnd, attempt_id)?;
@@ -155,7 +160,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             "threshold": config.threshold,
             "attempts": config.attempts,
             "aligned_mask_domain": config.aligned_mask_domain,
-            "mask_domain": if config.aligned_mask_domain { "centralized-rho-double-prime-kappa" } else { "threshold-share-derived-mask-seed" },
+            "distributed_nonce_prf_domain": config.distributed_nonce_prf_domain,
+            "mask_domain": mask_domain(&config),
             "message_digest_hex": sha256_hex(message),
             "public_key_digest_hex": sha256_hex(&public_key),
             "centralized_rnd_digest_hex": sha256_hex(&central_rnd)
@@ -177,7 +183,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     "threshold": config.threshold,
                     "attempts": config.attempts,
                     "aligned_mask_domain": config.aligned_mask_domain,
-                    "mask_domain": if config.aligned_mask_domain { "centralized-rho-double-prime-kappa" } else { "threshold-share-derived-mask-seed" },
+                    "distributed_nonce_prf_domain": config.distributed_nonce_prf_domain,
+                    "mask_domain": mask_domain(&config),
                     "message_digest_hex": sha256_hex(message),
                     "public_key_digest_hex": sha256_hex(&public_key)
                 },
@@ -196,6 +203,7 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
         threshold: 3,
         attempts: 16,
         aligned_mask_domain: false,
+        distributed_nonce_prf_domain: false,
     };
     let mut args = env::args().skip(1);
     while let Some(arg) = args.next() {
@@ -212,6 +220,9 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
             "--aligned-mask-domain" => {
                 config.aligned_mask_domain = true;
             }
+            "--distributed-nonce-prf-domain" => {
+                config.distributed_nonce_prf_domain = true;
+            }
             _ => return Err(format!("unknown argument: {arg}").into()),
         }
     }
@@ -221,7 +232,20 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
     if config.attempts == 0 {
         return Err("attempts must be nonzero".into());
     }
+    if config.aligned_mask_domain && config.distributed_nonce_prf_domain {
+        return Err("--aligned-mask-domain and --distributed-nonce-prf-domain are mutually exclusive".into());
+    }
     Ok(config)
+}
+
+fn mask_domain(config: &Config) -> &'static str {
+    if config.distributed_nonce_prf_domain {
+        "distributed-nonce-prf-output-shares"
+    } else if config.aligned_mask_domain {
+        "centralized-rho-double-prime-kappa"
+    } else {
+        "threshold-share-derived-mask-seed"
+    }
 }
 
 struct AttemptRecord {
@@ -261,10 +285,32 @@ fn derive_threshold_attempt(
     rnd: &[u8; MLDSA65_KEYGEN_SEED_BYTES],
     attempt_id: u8,
     aligned_mask_domain: bool,
+    distributed_nonce_prf_domain: bool,
 ) -> Result<AttemptRecord, Box<dyn std::error::Error>> {
     let mut session = begin_mldsa65_threshold_attempt(threshold, validator_count, mu)?;
     let masking_seed = [attempt_id; MLDSA65_MU_BYTES];
-    for (round, share) in shares.iter().take(threshold as usize).enumerate() {
+    let active_shares = shares.iter().take(threshold as usize).collect::<Vec<_>>();
+    let distributed_nonce_shares = if distributed_nonce_prf_domain {
+        let nonce_prf_output = derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key(
+            secret_key,
+            &mu,
+            rnd,
+        )?;
+        let active_receivers = active_shares
+            .iter()
+            .map(|share| share.receiver_index())
+            .collect::<Vec<_>>();
+        Some(split_mldsa65_distributed_nonce_prf_output(
+            threshold,
+            validator_count,
+            &active_receivers,
+            &nonce_prf_output,
+            u16::from(attempt_id),
+        )?)
+    } else {
+        None
+    };
+    for (round, share) in active_shares.iter().enumerate() {
         let contribution = if aligned_mask_domain {
             derive_mldsa65_centralized_domain_masking_contribution_from_share(
                 secret_key,
@@ -273,6 +319,11 @@ fn derive_threshold_attempt(
                 &mu,
                 rnd,
                 u16::from(attempt_id),
+            )?
+        } else if let Some(nonce_shares) = &distributed_nonce_shares {
+            derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(
+                share,
+                &nonce_shares[round],
             )?
         } else {
             derive_mldsa65_masking_contribution_from_share(share, &masking_seed, round as u16)?
@@ -571,6 +622,14 @@ def parse_args(argv):
         help="derive threshold masking contributions from the centralized ML-DSA rho''/kappa mask domain",
     )
     parser.add_argument(
+        "--distributed-nonce-prf-domain",
+        action="store_true",
+        help=(
+            "derive threshold masking contributions from active-set-bound "
+            "distributed nonce PRF output shares"
+        ),
+    )
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="run cargo without --release for adapter debugging",
@@ -588,6 +647,8 @@ def emitter_args_from_options(args):
         emitter_args.extend(["--attempts", str(args.attempts)])
     if args.aligned_mask_domain:
         emitter_args.append("--aligned-mask-domain")
+    if args.distributed_nonce_prf_domain:
+        emitter_args.append("--distributed-nonce-prf-domain")
     return emitter_args
 
 
