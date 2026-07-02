@@ -66,6 +66,10 @@
         "backend_capture_importer": "derive_p1_distributed_nonce_producer_artifact_package_from_capture",
         "backend_capture_binding": "capture embeds request schema, request name, request_sha256, predecessor certificate digests, decoded material classes, and expected package digests",
         "backend_capture_status": "evidence_present_unclosed",
+        "backend_capture_request_builder": "scripts/build_nonce_producer_request.py",
+        "backend_capture_runner": "scripts/run_nonce_producer_capture.py",
+        "backend_capture_runner_status": "evidence_present_unclosed",
+        "backend_capture_runner_precondition": "external command emits canonical P1 distributed nonce-producer capture JSON and is not localnet, deterministic, fixture, hazmat, centralized, or single-key provider material",
         "backend_output_required_digests": [
           "source_reference_digest",
           "backend_implementation_digest",

@@ -309,6 +309,18 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         nonce_producer_slot["backend_capture_binding"],
         "capture embeds request schema, request name, request_sha256, predecessor certificate digests, decoded material classes, and expected package digests"
     );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_request_builder"],
+        "scripts/build_nonce_producer_request.py"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_runner"],
+        "scripts/run_nonce_producer_capture.py"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_runner_status"],
+        "evidence_present_unclosed"
+    );
     assert!(string_array_contains(
         &nonce_producer_slot["backend_output_required_digests"],
         "backend_implementation_digest",

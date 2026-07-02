@@ -85,7 +85,12 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `derive_p1_distributed_nonce_producer_artifact_package_from_capture` requires
   request name and `request_sha256`, predecessor certificate digests, decoded
   nonce-producer material classes, and expected package digests before feeding
-  the artifact gate.
+  the artifact gate. The repo-generated request and runner path is
+  `scripts/build_nonce_producer_request.py` plus
+  `scripts/run_nonce_producer_capture.py`; the runner loads the request JSON,
+  requires the capture to echo the exact request digest, and rejects localnet,
+  deterministic, fixture, hazmat, centralized-helper, and ordinary single-key
+  provider command sources before writing importable capture artifacts.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -272,7 +277,11 @@ the nonce-producer artifact package, including an explicit
 backend-implementation digest. The capture importer
 `derive_p1_distributed_nonce_producer_artifact_package_from_capture` imports
 canonical `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
-envelopes with request, predecessor, and expected-digest bindings. The accepted
+envelopes with request, predecessor, and expected-digest bindings. Request
+builder `scripts/build_nonce_producer_request.py` and capture runner
+`scripts/run_nonce_producer_capture.py` create the executable handoff path for
+actual external nonce-producer captures while remaining
+`evidence_present_unclosed`. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through
