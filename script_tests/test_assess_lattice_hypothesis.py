@@ -353,6 +353,18 @@ class DocumentClassificationTests(unittest.TestCase):
             },
             status["artifact_fixture_refs"],
         )
+        self.assertEqual(
+            status["artifact_slot_statuses"][
+                "distributed_nonce_producer_artifact_digest"
+            ],
+            "required_unclosed",
+        )
+        self.assertEqual(
+            status["artifact_slot_sources"][
+                "distributed_nonce_producer_artifact_digest"
+            ],
+            "p1_criterion2_distributed_nonce_producer_artifact_gate",
+        )
 
     def test_criterion1_status_formalizes_open_mask_distribution_payload(self):
         module = load_module()
@@ -409,6 +421,40 @@ class DocumentClassificationTests(unittest.TestCase):
             "required_unclosed",
         )
         self.assertIn("Noise Lemma G", status["theorem_links"])
+
+    def test_p1_nonce_producer_selection_status_selects_shamir_nonce_dkg_route(self):
+        module = load_module()
+        markdown = (
+            (ROOT / "docs" / "cryptography" / "p1-nonce-producer-selection.md")
+            .read_text(encoding="utf-8")
+        )
+        manifest = (
+            (ROOT / "docs" / "cryptography" / "p1-nonce-producer-selection.json")
+            .read_text(encoding="utf-8")
+        )
+
+        status = module.p1_nonce_producer_selection_status(markdown, manifest)
+
+        self.assertEqual(status["status"], "p1_nonce_producer_route_selected")
+        self.assertEqual(
+            status["selected_route"],
+            "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1",
+        )
+        self.assertEqual(status["profile"], "P1 TEE/HSM coordinator")
+        self.assertEqual(
+            status["replacement_target"],
+            "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+        )
+        self.assertEqual(
+            status["required_artifact_slot"],
+            "distributed_nonce_producer_artifact_digest",
+        )
+        self.assertFalse(status["claims_theorem_closure"])
+        self.assertIn(
+            "shamir_nonce_dkg_transcript_digest",
+            status["required_backend_artifacts"],
+        )
+        self.assertIn("https://arxiv.org/abs/2601.20917", status["sources"])
 
 
 class ReportGenerationTests(unittest.TestCase):
@@ -1398,6 +1444,11 @@ class ReportGenerationTests(unittest.TestCase):
             "## Required Artifact Slots\n\n"
             "standard_verifier_compatibility_artifact_digest, "
             "real_threshold_backend_emission_artifact_digest, "
+            "distributed_nonce_producer_artifact_digest, "
+            "p1_criterion2_distributed_nonce_producer_artifact_gate, "
+            "hazmat PRF-output oracle, "
+            "P1 nonce producer selection, "
+            "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key, "
             "evidence_present_unclosed from "
             "p1_standard_verifier_compatibility_artifact_gate, "
             "p1_real_threshold_backend_output_gate, "
@@ -1436,7 +1487,9 @@ class ReportGenerationTests(unittest.TestCase):
             "p1_criterion2_external_review_artifact_gate, "
             "conformance/proof-review evidence only, "
             "threshold_output_certificate_digest, "
-            "real_recomputation_evidence_digest.\n\n"
+            "real_recomputation_evidence_digest. "
+            "required_unclosed producer slot for "
+            "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1.\n\n"
             "## Theorem Links\n\n"
             "Correctness Lemma 7; Correctness Lemma 8; Noise Lemma D; "
             "Noise Lemma F; Noise Lemma H; FST-L5; FST-L7.\n\n"
@@ -1516,6 +1569,56 @@ class ReportGenerationTests(unittest.TestCase):
                 "real_recomputation_evidence_artifact_digest"
             ),
         }
+
+        def criterion2_slot(slot):
+            if slot == "distributed_nonce_producer_artifact_digest":
+                return {
+                    "id": slot,
+                    "current_status": "required_unclosed",
+                    "evidence_source": (
+                        "p1_criterion2_distributed_nonce_producer_artifact_gate"
+                    ),
+                    "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+                    "replacement_target": (
+                        "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key"
+                    ),
+                    "claim_boundary": "conformance/proof-review evidence only",
+                }
+            if slot not in evidence_sources:
+                return {"id": slot, "current_status": "required_unclosed"}
+            return {
+                "id": slot,
+                "current_status": "evidence_present_unclosed",
+                "evidence_source": evidence_sources[slot],
+                "artifact_package": artifact_packages[slot],
+                "claim_boundary": "conformance/proof-review evidence only",
+                **(
+                    {
+                        "backend_capture_schema": (
+                            "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+                        ),
+                        "backend_capture_importer": (
+                            "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture"
+                        ),
+                        "backend_capture_fixture_path": (
+                            "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
+                        ),
+                    }
+                    if slot == "real_threshold_backend_emission_artifact_digest"
+                    else {}
+                ),
+                **(
+                    {
+                        "certificate_surface": (
+                            "p1_selected_backend_proof_closure_artifact_certificate"
+                        ),
+                        "certificate_accessor": certificate_accessors[slot],
+                    }
+                    if slot in certificate_accessors
+                    else {}
+                ),
+            }
+
         manifest = {
             "schema": "lattice-aggregation.criterion-2-proof-substance.v1",
             "criterion_id": "aggregate_rejection_equivalence",
@@ -1563,50 +1666,11 @@ class ReportGenerationTests(unittest.TestCase):
                     "FST-L7",
                 ],
                 "required_artifact_slots": [
-                    (
-                        {
-                            "id": slot,
-                            "current_status": "evidence_present_unclosed",
-                            "evidence_source": evidence_sources[slot],
-                            "artifact_package": artifact_packages[slot],
-                            "claim_boundary": (
-                                "conformance/proof-review evidence only"
-                            ),
-                            **(
-                                {
-                                    "backend_capture_schema": (
-                                        "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
-                                    ),
-                                    "backend_capture_importer": (
-                                        "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture"
-                                    ),
-                                    "backend_capture_fixture_path": (
-                                        "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
-                                    ),
-                                }
-                                if slot
-                                == "real_threshold_backend_emission_artifact_digest"
-                                else {}
-                            ),
-                            **(
-                                {
-                                    "certificate_surface": (
-                                        "p1_selected_backend_proof_closure_artifact_certificate"
-                                    ),
-                                    "certificate_accessor": (
-                                        certificate_accessors[slot]
-                                    ),
-                                }
-                                if slot in certificate_accessors
-                                else {}
-                            ),
-                        }
-                        if slot in evidence_sources
-                        else {"id": slot, "current_status": "required_unclosed"}
-                    )
+                    criterion2_slot(slot)
                     for slot in [
                         "threshold_output_certificate_digest",
                         "real_recomputation_evidence_digest",
+                        "distributed_nonce_producer_artifact_digest",
                         "standard_verifier_compatibility_artifact_digest",
                         "real_threshold_backend_emission_artifact_digest",
                         "rejection_distribution_review_digest",

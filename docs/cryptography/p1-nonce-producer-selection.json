@@ -1,0 +1,51 @@
+{
+  "schema": "lattice-aggregation.p1-nonce-producer-selection.v1",
+  "status": "p1_nonce_producer_route_selected",
+  "claim_boundary": {
+    "scope": "P1 nonce-producer route selection only",
+    "claims_theorem_closure": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_fips_validation": false,
+    "claims_cavp_acvts_validation": false
+  },
+  "selected_route": {
+    "name": "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1",
+    "profile": "P1 TEE/HSM coordinator",
+    "assumption": "TEE/HSM coordinator",
+    "output_target": "standard-size ML-DSA-65 signatures accepted by unmodified FIPS 204 verifiers"
+  },
+  "open_target": {
+    "replacement_target": "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+    "current_producer_boundary": "hazmat-prf-output-oracle",
+    "required_artifact_slot": "distributed_nonce_producer_artifact_digest",
+    "current_status": "required_unclosed",
+    "criterion2_evidence_source": "p1_criterion2_distributed_nonce_producer_artifact_gate"
+  },
+  "required_backend_artifacts": [
+    "source_reference_digest",
+    "selected_profile_binding_digest",
+    "coordinator_attestation_digest",
+    "shamir_nonce_dkg_transcript_digest",
+    "active_set_digest",
+    "pairwise_mask_seed_commitment_digest",
+    "nonce_share_commitment_digest",
+    "attempt_binding_digest",
+    "abort_accountability_digest",
+    "standard_verifier_bridge_digest",
+    "external_review_digest"
+  ],
+  "sources": [
+    "https://arxiv.org/abs/2601.20917",
+    "https://www.usenix.org/conference/usenixsecurity26/presentation/bienstock",
+    "https://www.usenix.org/conference/usenixsecurity26/presentation/celi",
+    "https://csrc.nist.gov/Projects/threshold-cryptography/tcall-1"
+  ],
+  "assessment": {
+    "criterion_status": "partially_met",
+    "overall_verdict": "partially_proven",
+    "does_not_change_overall_verdict": true
+  }
+}

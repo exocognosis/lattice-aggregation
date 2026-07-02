@@ -81,6 +81,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
     for required in [
         "threshold_output_certificate_digest",
         "real_recomputation_evidence_digest",
+        "distributed_nonce_producer_artifact_digest",
         "standard_verifier_compatibility_artifact_digest",
         "real_threshold_backend_emission_artifact_digest",
         "rejection_distribution_review_digest",
@@ -250,6 +251,23 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             .map(|(slot_id, _, _)| *slot_id)
             .collect::<Vec<_>>(),
         "only the Criterion 2 evidence-present allowlist may have evidence present"
+    );
+    let nonce_producer_slot = slots
+        .iter()
+        .find(|slot| slot["id"].as_str() == Some("distributed_nonce_producer_artifact_digest"))
+        .expect("distributed nonce producer slot is present");
+    assert_eq!(nonce_producer_slot["current_status"], "required_unclosed");
+    assert_eq!(
+        nonce_producer_slot["evidence_source"],
+        "p1_criterion2_distributed_nonce_producer_artifact_gate"
+    );
+    assert_eq!(
+        nonce_producer_slot["artifact_package"],
+        "p1_criterion2_proof_slot_artifact_package"
+    );
+    assert_eq!(
+        nonce_producer_slot["replacement_target"],
+        "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key"
     );
 }
 

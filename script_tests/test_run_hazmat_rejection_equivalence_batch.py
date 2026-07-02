@@ -86,7 +86,16 @@ class HazmatRejectionEquivalenceBatchTests(unittest.TestCase):
         self.assertIn("challenge_digest_matches", main_rs)
         self.assertIn("accepted_or_rejected_matches", main_rs)
         self.assertIn("close_candidate", main_rs)
+        self.assertIn("nonce_prf_producer", main_rs)
+        self.assertIn("hazmat-prf-output-oracle", main_rs)
+        self.assertIn("reviewed_distributed_nonce_producer_present", main_rs)
+        self.assertIn("distributed_nonce_producer_artifact_digest", main_rs)
+        self.assertIn(
+            "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+            main_rs,
+        )
         self.assertIn("claims_rejection_distribution_preservation", main_rs)
+        self.assertIn("claims_reviewed_distributed_nonce_producer", main_rs)
         parsed = module.parse_args(["--backend-crate", "x", "--aligned-mask-domain"])
         self.assertTrue(parsed.aligned_mask_domain)
         parsed = module.parse_args(

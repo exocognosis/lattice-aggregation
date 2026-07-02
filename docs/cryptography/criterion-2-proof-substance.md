@@ -58,6 +58,19 @@ The Criterion 2 proof payload requires these slots before any promotion:
   (`p1_criterion2_proof_slot_artifact_package`).
   Checked recomputation fixture:
   `tests/fixtures/p1_real_recomputation_artifact_fixture.json`.
+- `distributed_nonce_producer_artifact_digest`: `required_unclosed` from
+  `p1_criterion2_distributed_nonce_producer_artifact_gate`
+  (`p1_criterion2_proof_slot_artifact_package`). This is the producer slot
+  that must replace the current hazmat PRF-output oracle behind
+  `derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key`.
+  The P1 nonce producer selection is documented in
+  `docs/cryptography/p1-nonce-producer-selection.md` and
+  `docs/cryptography/p1-nonce-producer-selection.json` as
+  `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`. It remains
+  `required_unclosed` until a reviewed P1 nonce producer emits source,
+  selected-profile, coordinator-attestation, Shamir nonce-DKG transcript,
+  active-set, pairwise-mask, attempt-binding, abort-accountability,
+  standard-verifier bridge, and external-review digests.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -164,7 +177,12 @@ The Criterion 2 proof payload requires these slots before any promotion:
   verifier checks passing, and `close_candidate = true`. This moves the
   threshold masking contribution path past the centralized masking helper, but
   the PRF-output oracle still derives the seed from expanded secret-key material
-  until a reviewed distributed PRF/MPC producer replaces it.
+  until a reviewed distributed PRF/MPC producer replaces it. The required
+  producer slot is now explicit as
+  `distributed_nonce_producer_artifact_digest`; the selected P1 nonce producer
+  route is `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`, and
+  the current replacement target is
+  `derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key`.
   The actual backend capture runner
   (`derive_p1_verified_real_threshold_backend_emission_capture` and
   `scripts/run_backend_emission_capture.py`) may supply externally generated
@@ -217,14 +235,17 @@ The Criterion 2 proof payload requires these slots before any promotion:
 
 Typed Criterion 2 proof-slot artifact packages provide deterministic package
 shape, digest binding, review metadata, and proof-review claim boundaries for
-all listed slots, including the threshold-output certificate and real
-recomputation predecessor evidence. `evidence_present_unclosed` means the slot
-has typed evidence for review; `evidence_present_unclosed only` does not mean
+all listed slots, including the threshold-output certificate, real
+recomputation predecessor evidence, and the still-required distributed nonce
+producer artifact slot. `evidence_present_unclosed` means the slot has typed
+evidence for review; `required_unclosed` means the producer artifact is still
+missing. `evidence_present_unclosed only` does not mean
 Criterion 2 is met, selected-backend proof closure is complete,
 rejection-distribution preservation is proven, or the theorem is closed. The
 slot claim boundary is `conformance/proof-review evidence only`.
 
-All Criterion 2 proof slots now have typed `evidence_present_unclosed` wrappers.
+All Criterion 2 proof slots now have typed wrappers, while
+`distributed_nonce_producer_artifact_digest` remains `required_unclosed`.
 The accepted proof-closure artifact certificate also carries durable certificate evidence for the threshold-output certificate and real recomputation
 predecessor slot artifact digests through
 `P1SelectedBackendProofClosureArtifactCertificate::threshold_output_certificate_artifact_digest`

@@ -89,6 +89,54 @@ THESIS_OPERATING_PARAMETERS_EXPECTED = {
     ),
     "boundary": "conformance/proof-review evidence only",
 }
+
+P1_NONCE_PRODUCER_SELECTION_DOC = (
+    "docs/cryptography/p1-nonce-producer-selection.md"
+)
+P1_NONCE_PRODUCER_SELECTION_MANIFEST = (
+    "docs/cryptography/p1-nonce-producer-selection.json"
+)
+P1_NONCE_PRODUCER_SELECTION_SCHEMA = (
+    "lattice-aggregation.p1-nonce-producer-selection.v1"
+)
+P1_NONCE_PRODUCER_ROUTE = (
+    "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1"
+)
+P1_NONCE_PRODUCER_PROFILE = "P1 TEE/HSM coordinator"
+P1_NONCE_PRODUCER_REPLACEMENT_TARGET = (
+    "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key"
+)
+P1_NONCE_PRODUCER_REQUIRED_SLOT = (
+    "distributed_nonce_producer_artifact_digest"
+)
+P1_NONCE_PRODUCER_REQUIRED_BACKEND_ARTIFACTS = [
+    "source_reference_digest",
+    "selected_profile_binding_digest",
+    "coordinator_attestation_digest",
+    "shamir_nonce_dkg_transcript_digest",
+    "active_set_digest",
+    "pairwise_mask_seed_commitment_digest",
+    "nonce_share_commitment_digest",
+    "attempt_binding_digest",
+    "abort_accountability_digest",
+    "standard_verifier_bridge_digest",
+    "external_review_digest",
+]
+P1_NONCE_PRODUCER_SOURCES = [
+    "https://arxiv.org/abs/2601.20917",
+    "https://www.usenix.org/conference/usenixsecurity26/presentation/bienstock",
+    "https://www.usenix.org/conference/usenixsecurity26/presentation/celi",
+    "https://csrc.nist.gov/Projects/threshold-cryptography/tcall-1",
+]
+P1_NONCE_PRODUCER_FALSE_CLAIM_KEYS = [
+    "claims_theorem_closure",
+    "claims_selected_backend_proof_closure",
+    "claims_production_threshold_mldsa_security",
+    "claims_rejection_distribution_preservation",
+    "claims_standard_verifier_compatibility_complete",
+    "claims_fips_validation",
+    "claims_cavp_acvts_validation",
+]
 THESIS_CRITERION_ANCHORS = {
     "aggregate_mask_distribution": {
         "promotion_requires": [
@@ -223,6 +271,7 @@ CRITERION2_FALSE_CLAIM_KEYS = [
 CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "threshold_output_certificate_digest",
     "real_recomputation_evidence_digest",
+    "distributed_nonce_producer_artifact_digest",
     "standard_verifier_compatibility_artifact_digest",
     "real_threshold_backend_emission_artifact_digest",
     "rejection_distribution_review_digest",
@@ -266,6 +315,15 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     ),
     "external_review_digest": "p1_criterion2_external_review_artifact_gate",
 }
+CRITERION2_REQUIRED_UNCLOSED_SLOT_SOURCES = {
+    "distributed_nonce_producer_artifact_digest": (
+        "p1_criterion2_distributed_nonce_producer_artifact_gate"
+    ),
+}
+CRITERION2_ARTIFACT_SLOT_SOURCES = {
+    **CRITERION2_EVIDENCE_PRESENT_SLOTS,
+    **CRITERION2_REQUIRED_UNCLOSED_SLOT_SOURCES,
+}
 CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     "standard_verifier_compatibility_artifact_digest": (
         "p1_standard_verifier_compatibility_artifact_package"
@@ -275,7 +333,7 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     ),
     **{
         slot: "p1_criterion2_proof_slot_artifact_package"
-        for slot in CRITERION2_EVIDENCE_PRESENT_SLOTS
+        for slot in CRITERION2_ARTIFACT_SLOT_SOURCES
         if slot
         not in {
             "standard_verifier_compatibility_artifact_digest",
@@ -642,6 +700,96 @@ def thesis_operating_parameters_status(markdown, manifest_text):
     }
 
 
+def p1_nonce_producer_selection_status(markdown, manifest_text):
+    """Return source-backed P1 nonce-producer route selection status."""
+    normalized = normalize_whitespace(markdown)
+    manifest = parse_json_document(manifest_text)
+    claim_boundary = manifest.get("claim_boundary", {})
+    selected_route = manifest.get("selected_route", {})
+    open_target = manifest.get("open_target", {})
+    required_backend_artifacts = manifest.get("required_backend_artifacts", [])
+    sources = manifest.get("sources", [])
+
+    expected_markdown_tokens = [
+        "# p1 nonce producer selection",
+        "p1_nonce_producer_route_selected",
+        "fips 204-compatible threshold ml-dsa via shamir nonce dkg p1",
+        "p1 tee/hsm coordinator",
+        "distributed_nonce_producer_artifact_digest",
+        "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+        "shamir_nonce_dkg_transcript_digest",
+        "pairwise_mask_seed_commitment_digest",
+        "hazmat prf-output oracle",
+        "required_unclosed",
+        "not theorem closure",
+        "not selected-backend proof closure",
+        "not production threshold ml-dsa security",
+        "not rejection-distribution preservation",
+        "https://arxiv.org/abs/2601.20917",
+        "https://www.usenix.org/conference/usenixsecurity26/presentation/bienstock",
+        "https://www.usenix.org/conference/usenixsecurity26/presentation/celi",
+        "https://csrc.nist.gov/projects/threshold-cryptography/tcall-1",
+    ]
+    missing_evidence = [
+        token for token in expected_markdown_tokens if token not in normalized
+    ]
+    false_claims_pinned = all(
+        claim_boundary.get(key) is False
+        for key in P1_NONCE_PRODUCER_FALSE_CLAIM_KEYS
+    )
+    backend_artifacts_pinned = all(
+        artifact in required_backend_artifacts
+        for artifact in P1_NONCE_PRODUCER_REQUIRED_BACKEND_ARTIFACTS
+    )
+    sources_pinned = all(source in sources for source in P1_NONCE_PRODUCER_SOURCES)
+    manifest_ok = (
+        manifest.get("schema") == P1_NONCE_PRODUCER_SELECTION_SCHEMA
+        and manifest.get("status") == "p1_nonce_producer_route_selected"
+        and selected_route.get("name") == P1_NONCE_PRODUCER_ROUTE
+        and selected_route.get("profile") == P1_NONCE_PRODUCER_PROFILE
+        and selected_route.get("assumption") == "TEE/HSM coordinator"
+        and selected_route.get("output_target")
+        == "standard-size ML-DSA-65 signatures accepted by unmodified FIPS 204 verifiers"
+        and open_target.get("replacement_target")
+        == P1_NONCE_PRODUCER_REPLACEMENT_TARGET
+        and open_target.get("required_artifact_slot")
+        == P1_NONCE_PRODUCER_REQUIRED_SLOT
+        and open_target.get("current_status") == "required_unclosed"
+        and false_claims_pinned
+        and backend_artifacts_pinned
+        and sources_pinned
+    )
+    selected = bool(markdown.strip()) and manifest_ok and not missing_evidence
+    if not manifest:
+        missing_evidence.append(P1_NONCE_PRODUCER_SELECTION_MANIFEST)
+    if not markdown.strip():
+        missing_evidence.append(P1_NONCE_PRODUCER_SELECTION_DOC)
+    if manifest and not false_claims_pinned:
+        missing_evidence.append("claim_boundary false claims")
+    if manifest and not backend_artifacts_pinned:
+        missing_evidence.append("required_backend_artifacts")
+    if manifest and not sources_pinned:
+        missing_evidence.append("sources")
+
+    return {
+        "status": (
+            "p1_nonce_producer_route_selected"
+            if selected
+            else "missing_or_incomplete"
+        ),
+        "document_path": P1_NONCE_PRODUCER_SELECTION_DOC,
+        "manifest_path": P1_NONCE_PRODUCER_SELECTION_MANIFEST,
+        "selected_route": selected_route.get("name", ""),
+        "profile": selected_route.get("profile", ""),
+        "replacement_target": open_target.get("replacement_target", ""),
+        "required_artifact_slot": open_target.get("required_artifact_slot", ""),
+        "claims_theorem_closure": claim_boundary.get("claims_theorem_closure"),
+        "required_backend_artifacts": required_backend_artifacts,
+        "sources": sources,
+        "missing_evidence": sorted(set(missing_evidence)),
+    }
+
+
 def criterion1_proof_substance_status(markdown, manifest_text):
     """Return Criterion-1 proof-payload status without criterion promotion."""
     normalized = normalize_whitespace(markdown)
@@ -840,6 +988,10 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "criterion2_proof_payload_formalized",
         "mldsa65.verify(pk, m, sigma) = accept",
         "aggregateaccept(...) = true",
+        "distributed_nonce_producer_artifact_digest",
+        "p1_criterion2_distributed_nonce_producer_artifact_gate",
+        "hazmat prf-output oracle",
+        "p1 nonce producer selection",
         "standard_verifier_compatibility_artifact_digest",
         "evidence_present_unclosed",
         "evidence_present_unclosed only",
@@ -928,7 +1080,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
     )
     artifact_slots_pinned = (
         artifact_slot_statuses == CRITERION2_ARTIFACT_SLOT_STATUSES
-        and artifact_slot_sources == CRITERION2_EVIDENCE_PRESENT_SLOTS
+        and artifact_slot_sources == CRITERION2_ARTIFACT_SLOT_SOURCES
         and artifact_slot_packages == CRITERION2_EVIDENCE_PRESENT_PACKAGES
         and artifact_slot_certificate_accessors
         == CRITERION2_DURABLE_CERTIFICATE_ACCESSORS
@@ -1435,6 +1587,10 @@ def scan_documents(root):
     thesis_operating_parameters = thesis_operating_parameters_status(
         read_optional(THESIS_OPERATING_PARAMETERS_DOC),
         read_optional(THESIS_OPERATING_PARAMETERS_MANIFEST),
+    )
+    p1_nonce_producer_selection = p1_nonce_producer_selection_status(
+        read_optional(P1_NONCE_PRODUCER_SELECTION_DOC),
+        read_optional(P1_NONCE_PRODUCER_SELECTION_MANIFEST),
     )
     criterion1_proof_substance = criterion1_proof_substance_status(
         read_optional(CRITERION1_PROOF_SUBSTANCE_DOC),
@@ -2850,6 +3006,11 @@ def scan_documents(root):
             thesis_operating_parameters["status"]
             == "formalized_research_boundary"
         ),
+        "p1_nonce_producer_selection": p1_nonce_producer_selection,
+        "p1_nonce_producer_route_selected": (
+            p1_nonce_producer_selection["status"]
+            == "p1_nonce_producer_route_selected"
+        ),
         "criterion1_proof_substance": criterion1_proof_substance,
         "criterion1_proof_substance_formalized": (
             criterion1_proof_substance["status"]
@@ -3184,6 +3345,29 @@ def classify_criteria(criteria, scan):
                     "closure, production threshold ML-DSA security, "
                     "CAVP/ACVTS validation, FIPS validation, "
                     "rejection-distribution preservation, or theorem closure."
+                )
+            if scan.get("p1_nonce_producer_route_selected"):
+                partial_progress = True
+                observed.append(
+                    "P1 nonce-producer route selection is present and "
+                    "source-backed: the selected route is FIPS "
+                    "204-compatible threshold ML-DSA via Shamir Nonce DKG "
+                    "for the P1 TEE/HSM coordinator profile. It identifies "
+                    "`derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key` "
+                    "as the hazmat PRF-output oracle replacement target and "
+                    "requires `distributed_nonce_producer_artifact_digest` "
+                    "as required_unclosed evidence before distributed-nonce "
+                    "comparator output can be treated as reviewed producer "
+                    "evidence. This does not claim theorem closure, "
+                    "selected-backend proof closure, production threshold "
+                    "ML-DSA security, or rejection-distribution preservation."
+                )
+                blockers.append(
+                    "A selected P1 Shamir nonce-DKG producer route is "
+                    "documented, but the reviewed distributed nonce-producer "
+                    "artifact digest and backend-generated producer transcript "
+                    "are still required before the hazmat PRF-output oracle is "
+                    "replaced."
                 )
             if scan.get("p1_standard_verifier_compatibility_artifact_gate"):
                 partial_progress = True
@@ -3655,6 +3839,7 @@ def build_report(
         "claim_boundary": "research scaffold only",
         "selected_backend": scan["selected_backend_direction"],
         "thesis_operating_parameters": scan["thesis_operating_parameters"],
+        "p1_nonce_producer_selection": scan["p1_nonce_producer_selection"],
         "criterion1_proof_substance": scan["criterion1_proof_substance"],
         "criterion2_proof_substance": scan["criterion2_proof_substance"],
         "criterion3_proof_substance": scan["criterion3_proof_substance"],
@@ -3771,6 +3956,30 @@ def render_markdown(report):
         lines.append(
             "- Missing evidence tokens: "
             + ", ".join(thesis["missing_evidence"])
+        )
+
+    producer = report.get("p1_nonce_producer_selection", {})
+    lines.extend(["", "## P1 Nonce Producer Selection", ""])
+    lines.append(
+        f"- Status: `{producer.get('status', 'missing_or_incomplete')}`"
+    )
+    if producer.get("status") == "p1_nonce_producer_route_selected":
+        lines.append(f"- Route: {producer['selected_route']}")
+        lines.append(f"- Profile: {producer['profile']}")
+        lines.append(
+            f"- Replacement target: `{producer['replacement_target']}`"
+        )
+        lines.append(
+            f"- Required slot: `{producer['required_artifact_slot']}`"
+        )
+        lines.append(
+            "- Required backend artifacts: "
+            + ", ".join(producer["required_backend_artifacts"])
+        )
+    elif producer.get("missing_evidence"):
+        lines.append(
+            "- Missing evidence tokens: "
+            + ", ".join(producer["missing_evidence"])
         )
 
     criterion1 = report.get("criterion1_proof_substance", {})

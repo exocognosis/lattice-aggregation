@@ -45,6 +45,11 @@ const SCHEMA: &str = "lattice-aggregation:p1-rejection-equivalence-batch:v1";
 const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
 const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 const BACKEND_EVIDENCE: &str = "mldsa65-centralized-vs-threshold-rejection-batch";
+const HAZMAT_NONCE_PRF_PRODUCER: &str = "hazmat-prf-output-oracle";
+const DISTRIBUTED_NONCE_PRODUCER_ARTIFACT_SLOT: &str =
+    "distributed_nonce_producer_artifact_digest";
+const DISTRIBUTED_NONCE_PRODUCER_REPLACEMENT_TARGET: &str =
+    "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key";
 
 #[derive(Clone, Copy)]
 struct Config {
@@ -162,6 +167,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             "aligned_mask_domain": config.aligned_mask_domain,
             "distributed_nonce_prf_domain": config.distributed_nonce_prf_domain,
             "mask_domain": mask_domain(&config),
+            "nonce_prf_producer": nonce_prf_producer(&config),
+            "reviewed_distributed_nonce_producer_present": false,
+            "distributed_nonce_producer_artifact_digest": Value::Null,
+            "distributed_nonce_producer_artifact_slot": DISTRIBUTED_NONCE_PRODUCER_ARTIFACT_SLOT,
+            "nonce_prf_producer_replacement_target": DISTRIBUTED_NONCE_PRODUCER_REPLACEMENT_TARGET,
             "message_digest_hex": sha256_hex(message),
             "public_key_digest_hex": sha256_hex(&public_key),
             "centralized_rnd_digest_hex": sha256_hex(&central_rnd)
@@ -173,6 +183,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "claim_flags": {
             "claims_rejection_distribution_preservation": false,
             "claims_theorem_closure": false,
+            "claims_reviewed_distributed_nonce_producer": false,
             "close_candidate_requires_external_review": close_candidate
         },
         "artifact_digest_hex": sha256_hex(
@@ -185,6 +196,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     "aligned_mask_domain": config.aligned_mask_domain,
                     "distributed_nonce_prf_domain": config.distributed_nonce_prf_domain,
                     "mask_domain": mask_domain(&config),
+                    "nonce_prf_producer": nonce_prf_producer(&config),
+                    "reviewed_distributed_nonce_producer_present": false,
+                    "distributed_nonce_producer_artifact_digest": Value::Null,
+                    "distributed_nonce_producer_artifact_slot": DISTRIBUTED_NONCE_PRODUCER_ARTIFACT_SLOT,
                     "message_digest_hex": sha256_hex(message),
                     "public_key_digest_hex": sha256_hex(&public_key)
                 },
@@ -245,6 +260,14 @@ fn mask_domain(config: &Config) -> &'static str {
         "centralized-rho-double-prime-kappa"
     } else {
         "threshold-share-derived-mask-seed"
+    }
+}
+
+fn nonce_prf_producer(config: &Config) -> &'static str {
+    if config.distributed_nonce_prf_domain {
+        HAZMAT_NONCE_PRF_PRODUCER
+    } else {
+        "not-distributed-nonce-prf-mode"
     }
 }
 
