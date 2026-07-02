@@ -255,6 +255,12 @@ distributed nonce shares are fed by a hazmat PRF-output oracle; a reviewed
 distributed PRF/MPC producer must replace that oracle before this can be treated
 as cryptographic closure evidence rather than closure-candidate conformance
 evidence.
+The selected replacement route is now tracked in
+[`p1-nonce-producer-selection.md`](p1-nonce-producer-selection.md) as
+`FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`; Criterion 2 now
+requires `distributed_nonce_producer_artifact_digest` from
+`p1_criterion2_distributed_nonce_producer_artifact_gate` before the
+distributed-nonce comparator can count as reviewed producer evidence.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries

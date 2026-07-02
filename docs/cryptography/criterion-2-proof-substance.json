@@ -51,6 +51,16 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "id": "distributed_nonce_producer_artifact_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion2_distributed_nonce_producer_artifact_gate",
+        "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+        "replacement_target": "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+        "selected_route_manifest": "docs/cryptography/p1-nonce-producer-selection.json",
+        "producer_route": "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "id": "standard_verifier_compatibility_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
@@ -226,6 +236,8 @@
   ],
   "evidence_refs": [
     "docs/cryptography/rejection-equivalence-evidence.md",
+    "docs/cryptography/p1-nonce-producer-selection.md",
+    "docs/cryptography/p1-nonce-producer-selection.json",
     "docs/cryptography/proof-obligations.md",
     "docs/cryptography/noise-rejection-proof-plan.md",
     "docs/cryptography/formal-security-theorem.md",
