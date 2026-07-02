@@ -61,6 +61,11 @@
         "gate_status": "fail_closed_for_hazmat_centralized_fixture_and_single_key_sources",
         "backend_output_adapter": "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output",
         "backend_output_material": "Mldsa65DistributedNonceProducerArtifact",
+        "backend_capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+        "backend_capture_request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+        "backend_capture_importer": "derive_p1_distributed_nonce_producer_artifact_package_from_capture",
+        "backend_capture_binding": "capture embeds request schema, request name, request_sha256, predecessor certificate digests, decoded material classes, and expected package digests",
+        "backend_capture_status": "evidence_present_unclosed",
         "backend_output_required_digests": [
           "source_reference_digest",
           "backend_implementation_digest",

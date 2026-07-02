@@ -289,6 +289,26 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         nonce_producer_slot["backend_output_material"],
         "Mldsa65DistributedNonceProducerArtifact"
     );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_schema"],
+        "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_request_schema"],
+        "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_importer"],
+        "derive_p1_distributed_nonce_producer_artifact_package_from_capture"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_status"],
+        "evidence_present_unclosed"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_binding"],
+        "capture embeds request schema, request name, request_sha256, predecessor certificate digests, decoded material classes, and expected package digests"
+    );
     assert!(string_array_contains(
         &nonce_producer_slot["backend_output_required_digests"],
         "backend_implementation_digest",

@@ -1417,6 +1417,425 @@ pub struct Mldsa65DistributedNonceProducerArtifact<'a> {
     pub reviewed: bool,
 }
 
+/// Repo-generated request binding that a canonical nonce-producer capture must echo.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1DistributedNonceProducerRequestDigestBinding<'a> {
+    /// Name of the request manifest answered by the capture.
+    pub name: &'a str,
+    /// SHA-256 digest of the canonical request JSON.
+    pub request_sha256: [u8; 32],
+}
+
+/// Canonical JSON schema tag for P1 distributed nonce-producer captures.
+pub const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SCHEMA: &str =
+    "lattice-aggregation:p1-distributed-nonce-producer-capture:v1";
+/// Canonical JSON schema tag for P1 distributed nonce-producer requests.
+pub const P1_DISTRIBUTED_NONCE_PRODUCER_REQUEST_SCHEMA: &str =
+    "lattice-aggregation:p1-distributed-nonce-producer-request:v1";
+/// Evidence class for actual externally generated distributed nonce-producer captures.
+pub const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_EXTERNAL_EVIDENCE: &str =
+    "p1_shamir_nonce_dkg_tee_external_capture";
+const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_CLAIM_BOUNDARY: &str =
+    "conformance/proof-review evidence only";
+const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SELECTED_PROFILE: &str =
+    "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
+
+/// Canonical external capture envelope for P1 distributed nonce-producer artifacts.
+///
+/// The capture schema is the future backend-to-proof-gate handoff for reviewed
+/// nonce-DKG/PRF producer material. It carries source, implementation,
+/// attestation, transcript, commitment, abort-accountability, predecessor, and
+/// expected digest bindings. Importing this evidence does not close Criterion 2.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct P1DistributedNonceProducerCapture {
+    name: String,
+    schema: String,
+    claim_boundary: String,
+    selected_profile: String,
+    producer_evidence: String,
+    note: String,
+    #[serde(default)]
+    request: Option<P1DistributedNonceProducerCaptureRequestBinding>,
+    #[serde(default)]
+    predecessors: Option<P1DistributedNonceProducerCapturePredecessors>,
+    capture: P1DistributedNonceProducerCapturePayload,
+    #[serde(default)]
+    expected: Option<P1DistributedNonceProducerCaptureExpectedDigests>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct P1DistributedNonceProducerCaptureRequestBinding {
+    schema: String,
+    name: String,
+    request_sha256: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct P1DistributedNonceProducerCapturePredecessors {
+    selected_profile_binding_digest_hex: String,
+    threshold_output_certificate_digest_hex: String,
+    standard_verifier_compatibility_artifact_digest_hex: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct P1DistributedNonceProducerCapturePayload {
+    source_reference: P1DistributedNonceProducerCaptureBytes,
+    backend_implementation: P1DistributedNonceProducerCaptureBytes,
+    coordinator_attestation: P1DistributedNonceProducerCaptureBytes,
+    shamir_nonce_dkg_transcript: P1DistributedNonceProducerCaptureBytes,
+    pairwise_mask_seed_commitments: P1DistributedNonceProducerCaptureBytes,
+    nonce_share_commitments: P1DistributedNonceProducerCaptureBytes,
+    abort_accountability: P1DistributedNonceProducerCaptureBytes,
+    external_review: P1DistributedNonceProducerCaptureBytes,
+    reviewed: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct P1DistributedNonceProducerCaptureBytes {
+    encoding: String,
+    value: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct P1DistributedNonceProducerCaptureExpectedDigests {
+    source_reference_digest_hex: String,
+    backend_implementation_digest_hex: String,
+    coordinator_attestation_digest_hex: String,
+    shamir_nonce_dkg_transcript_digest_hex: String,
+    pairwise_mask_seed_commitment_digest_hex: String,
+    nonce_share_commitment_digest_hex: String,
+    abort_accountability_digest_hex: String,
+    external_review_digest_hex: String,
+    distributed_nonce_producer_artifact_digest_hex: String,
+}
+
+/// Owned nonce-producer material decoded from a canonical capture.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct P1OwnedMldsa65DistributedNonceProducerArtifact {
+    /// Reviewed source/reference package bytes for the nonce producer.
+    pub source_reference: Vec<u8>,
+    /// Reviewed backend implementation bytes or implementation attestation.
+    pub backend_implementation: Vec<u8>,
+    /// Coordinator TEE/HSM attestation evidence bytes.
+    pub coordinator_attestation: Vec<u8>,
+    /// Shamir nonce-DKG transcript bytes.
+    pub shamir_nonce_dkg_transcript: Vec<u8>,
+    /// Pairwise mask seed commitment bytes.
+    pub pairwise_mask_seed_commitments: Vec<u8>,
+    /// Nonce-share commitment bytes.
+    pub nonce_share_commitments: Vec<u8>,
+    /// Abort-accountability evidence bytes.
+    pub abort_accountability: Vec<u8>,
+    /// External proof-review signoff bytes.
+    pub external_review: Vec<u8>,
+    /// Explicit non-production claim boundary for the derived package.
+    pub claim_boundary: P1DistributedNonceProducerClaimBoundary,
+    /// Whether the external material has named review signoff.
+    pub reviewed: bool,
+}
+
+impl P1OwnedMldsa65DistributedNonceProducerArtifact {
+    /// Borrow this owned material as the existing nonce-producer adapter input.
+    pub fn as_nonce_producer_artifact(&self) -> Mldsa65DistributedNonceProducerArtifact<'_> {
+        Mldsa65DistributedNonceProducerArtifact {
+            source_reference: &self.source_reference,
+            backend_implementation: &self.backend_implementation,
+            coordinator_attestation: &self.coordinator_attestation,
+            shamir_nonce_dkg_transcript: &self.shamir_nonce_dkg_transcript,
+            pairwise_mask_seed_commitments: &self.pairwise_mask_seed_commitments,
+            nonce_share_commitments: &self.nonce_share_commitments,
+            abort_accountability: &self.abort_accountability,
+            external_review: &self.external_review,
+            claim_boundary: self.claim_boundary,
+            reviewed: self.reviewed,
+        }
+    }
+}
+
+impl P1DistributedNonceProducerCapture {
+    /// Decode a canonical P1 distributed nonce-producer capture from JSON.
+    pub fn decode_json(bytes: &[u8]) -> Result<Self, ThresholdError> {
+        serde_json::from_slice(bytes).map_err(|_| ThresholdError::MalformedSerialization {
+            reason: "P1 distributed nonce-producer capture JSON is malformed",
+        })
+    }
+
+    /// Encode this capture as stable pretty JSON for artifact handoff.
+    pub fn to_canonical_json(&self) -> Result<Vec<u8>, ThresholdError> {
+        let mut bytes = serde_json::to_vec_pretty(self).map_err(|_| {
+            ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture JSON could not be encoded",
+            }
+        })?;
+        bytes.push(b'\n');
+        Ok(bytes)
+    }
+
+    /// Return the capture name.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Return the capture schema tag.
+    pub fn schema(&self) -> &str {
+        &self.schema
+    }
+
+    /// Return the capture producer evidence class.
+    pub fn producer_evidence(&self) -> &str {
+        &self.producer_evidence
+    }
+
+    /// Return the capture note.
+    pub fn note(&self) -> &str {
+        &self.note
+    }
+
+    /// Return the nonce-producer request name carried by the capture.
+    pub fn request_name(&self) -> Option<&str> {
+        self.request.as_ref().map(|request| request.name.as_str())
+    }
+
+    /// Return the nonce-producer request SHA-256 hex binding if present.
+    pub fn request_sha256_hex(&self) -> Option<&str> {
+        self.request
+            .as_ref()
+            .map(|request| request.request_sha256.as_str())
+    }
+
+    /// Decode the capture into owned nonce-producer material.
+    pub fn to_nonce_producer_material(
+        &self,
+    ) -> Result<P1OwnedMldsa65DistributedNonceProducerArtifact, ThresholdError> {
+        self.validate_capture_header()?;
+        if self.producer_evidence != P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_EXTERNAL_EVIDENCE {
+            return Err(ThresholdError::BackendUnavailable {
+                reason: "P1 distributed nonce-producer capture requires actual P1 Shamir nonce-DKG/TEE producer evidence",
+            });
+        }
+
+        Ok(P1OwnedMldsa65DistributedNonceProducerArtifact {
+            source_reference: self.capture.source_reference.decode()?,
+            backend_implementation: self.capture.backend_implementation.decode()?,
+            coordinator_attestation: self.capture.coordinator_attestation.decode()?,
+            shamir_nonce_dkg_transcript: self.capture.shamir_nonce_dkg_transcript.decode()?,
+            pairwise_mask_seed_commitments: self.capture.pairwise_mask_seed_commitments.decode()?,
+            nonce_share_commitments: self.capture.nonce_share_commitments.decode()?,
+            abort_accountability: self.capture.abort_accountability.decode()?,
+            external_review: self.capture.external_review.decode()?,
+            claim_boundary: P1DistributedNonceProducerClaimBoundary::ProofReviewOnly,
+            reviewed: self.capture.reviewed,
+        })
+    }
+
+    fn validate_capture_header(&self) -> Result<(), ThresholdError> {
+        if self.schema != P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SCHEMA {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture schema mismatch",
+            });
+        }
+        if self.claim_boundary != P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_CLAIM_BOUNDARY {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture must remain proof-review-only",
+            });
+        }
+        if self.selected_profile != P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SELECTED_PROFILE {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture selected profile mismatch",
+            });
+        }
+        self.validated_request_binding()?;
+        Ok(())
+    }
+
+    fn validated_request_binding(&self) -> Result<(&str, [u8; 32]), ThresholdError> {
+        let Some(request) = &self.request else {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture requires request digest binding",
+            });
+        };
+        if request.schema != P1_DISTRIBUTED_NONCE_PRODUCER_REQUEST_SCHEMA
+            || request.name.trim().is_empty()
+        {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture requires request digest binding",
+            });
+        }
+        let request_sha256 = decode_hex_array::<32>(
+            &request.request_sha256,
+            "P1 distributed nonce-producer capture request SHA-256 hex is malformed",
+        )?;
+        if is_all_zero(&request_sha256) {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture requires request digest binding",
+            });
+        }
+        Ok((request.name.as_str(), request_sha256))
+    }
+
+    fn validate_expected_request_binding(
+        &self,
+        request_binding: P1DistributedNonceProducerRequestDigestBinding<'_>,
+    ) -> Result<(), ThresholdError> {
+        if request_binding.name.trim().is_empty() || is_all_zero(&request_binding.request_sha256) {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture requires request digest binding",
+            });
+        }
+        let (capture_name, capture_sha256) = self.validated_request_binding()?;
+        if capture_name != request_binding.name || capture_sha256 != request_binding.request_sha256
+        {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+        Ok(())
+    }
+
+    fn validate_predecessors(
+        &self,
+        threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+        compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    ) -> Result<(), ThresholdError> {
+        let Some(predecessors) = &self.predecessors else {
+            return Err(ThresholdError::MalformedSerialization {
+                reason:
+                    "P1 distributed nonce-producer capture requires predecessor certificate digests",
+            });
+        };
+
+        let selected_profile_binding_digest = decode_hex_array::<32>(
+            &predecessors.selected_profile_binding_digest_hex,
+            "P1 distributed nonce-producer capture selected profile binding digest hex is malformed",
+        )?;
+        if selected_profile_binding_digest
+            != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+                .profile_binding_digest()
+            || &selected_profile_binding_digest
+                != threshold_certificate.selected_profile_binding_digest()
+            || &selected_profile_binding_digest
+                != compatibility_certificate.selected_profile_binding_digest()
+        {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+
+        let threshold_output_certificate_digest = decode_hex_array::<32>(
+            &predecessors.threshold_output_certificate_digest_hex,
+            "P1 distributed nonce-producer capture threshold-output certificate digest hex is malformed",
+        )?;
+        if threshold_output_certificate_digest
+            != derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate)
+        {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+
+        let standard_verifier_compatibility_artifact_digest = decode_hex_array::<32>(
+            &predecessors.standard_verifier_compatibility_artifact_digest_hex,
+            "P1 distributed nonce-producer capture compatibility artifact digest hex is malformed",
+        )?;
+        if standard_verifier_compatibility_artifact_digest
+            != derive_p1_standard_verifier_compatibility_artifact_digest(compatibility_certificate)
+        {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+
+        Ok(())
+    }
+
+    fn validate_expected_digests(
+        &self,
+        package: &P1DistributedNonceProducerArtifactPackage,
+    ) -> Result<(), ThresholdError> {
+        let Some(expected) = &self.expected else {
+            return Err(ThresholdError::MalformedSerialization {
+                reason: "P1 distributed nonce-producer capture requires expected package digests",
+            });
+        };
+
+        for (actual, expected_hex, reason) in [
+            (
+                &package.source_reference_digest,
+                expected.source_reference_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected source reference digest mismatch",
+            ),
+            (
+                &package.backend_implementation_digest,
+                expected.backend_implementation_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected implementation digest mismatch",
+            ),
+            (
+                &package.coordinator_attestation_digest,
+                expected.coordinator_attestation_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected coordinator attestation digest mismatch",
+            ),
+            (
+                &package.shamir_nonce_dkg_transcript_digest,
+                expected.shamir_nonce_dkg_transcript_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected Shamir nonce-DKG transcript digest mismatch",
+            ),
+            (
+                &package.pairwise_mask_seed_commitment_digest,
+                expected.pairwise_mask_seed_commitment_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected pairwise mask seed commitment digest mismatch",
+            ),
+            (
+                &package.nonce_share_commitment_digest,
+                expected.nonce_share_commitment_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected nonce-share commitment digest mismatch",
+            ),
+            (
+                &package.abort_accountability_digest,
+                expected.abort_accountability_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected abort-accountability digest mismatch",
+            ),
+            (
+                &package.external_review_digest,
+                expected.external_review_digest_hex.as_str(),
+                "P1 distributed nonce-producer capture expected external review digest mismatch",
+            ),
+            (
+                &package.distributed_nonce_producer_artifact_digest,
+                expected
+                    .distributed_nonce_producer_artifact_digest_hex
+                    .as_str(),
+                "P1 distributed nonce-producer capture expected artifact digest mismatch",
+            ),
+        ] {
+            let expected_digest = decode_hex_array::<32>(
+                expected_hex,
+                "P1 distributed nonce-producer capture expected digest hex is malformed",
+            )?;
+            if actual != &expected_digest {
+                return Err(ThresholdError::TranscriptMismatch);
+            }
+            if is_all_zero(actual) {
+                return Err(ThresholdError::MalformedSerialization { reason });
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl P1DistributedNonceProducerCaptureBytes {
+    fn decode(&self) -> Result<Vec<u8>, ThresholdError> {
+        match self.encoding.as_str() {
+            "utf8" => Ok(self.value.as_bytes().to_vec()),
+            "hex" => decode_hex_vec(
+                &self.value,
+                "P1 distributed nonce-producer capture byte hex is malformed",
+            ),
+            _ => Err(ThresholdError::MalformedSerialization {
+                reason: "unsupported P1 distributed nonce-producer capture byte encoding",
+            }),
+        }
+    }
+}
+
 /// Submitted P1 distributed nonce-producer artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct P1DistributedNonceProducerArtifactPackage {
@@ -4037,6 +4456,30 @@ pub fn derive_p1_distributed_nonce_producer_artifact_package_from_backend_output
         output.claim_boundary,
         output.reviewed,
     ))
+}
+
+/// Derive a P1 distributed nonce-producer artifact package from capture JSON.
+///
+/// This is the canonical handoff from externally generated nonce-producer
+/// captures into the existing artifact gate. It rejects stale predecessor
+/// bindings and compares the derived package against the capture's expected
+/// digest inventory. The resulting package is still proof-review evidence only.
+pub fn derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    compatibility_certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
+    request_binding: P1DistributedNonceProducerRequestDigestBinding<'_>,
+    capture: &P1DistributedNonceProducerCapture,
+) -> Result<P1DistributedNonceProducerArtifactPackage, ThresholdError> {
+    capture.validate_expected_request_binding(request_binding)?;
+    let output = capture.to_nonce_producer_material()?;
+    capture.validate_predecessors(threshold_certificate, compatibility_certificate)?;
+    let package = derive_p1_distributed_nonce_producer_artifact_package_from_backend_output(
+        threshold_certificate,
+        compatibility_certificate,
+        output.as_nonce_producer_artifact(),
+    )?;
+    capture.validate_expected_digests(&package)?;
+    Ok(package)
 }
 
 /// Derive the digest binding a real-threshold backend emission artifact.
