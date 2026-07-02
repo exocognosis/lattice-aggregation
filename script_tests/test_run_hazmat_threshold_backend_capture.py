@@ -49,6 +49,27 @@ class HazmatThresholdBackendCaptureAdapterTests(unittest.TestCase):
         self.assertIn("backend_external_pure_verifier_accepts", main_rs)
         self.assertIn("repo_pr69_hazmat_provider_accepts", main_rs)
         self.assertIn(
+            "derive_mldsa65_session_rejection_predicate_transcript_once_quorum_met",
+            main_rs,
+        )
+        self.assertIn("attempt_count", main_rs)
+        self.assertIn("retry_count", main_rs)
+        self.assertIn("per-attempt-bound-predicates", main_rs)
+        self.assertIn("rejection_predicate_fields_available", main_rs)
+        self.assertIn("attempts", main_rs)
+        self.assertIn("mask_seed_digest_hex", main_rs)
+        self.assertIn("challenge_digest_hex", main_rs)
+        self.assertIn("z_bound_result", main_rs)
+        self.assertIn("r0_bound_result", main_rs)
+        self.assertIn("ct0_bound_result", main_rs)
+        self.assertIn("hint_bound_result", main_rs)
+        self.assertIn("accepted_or_rejected", main_rs)
+        self.assertNotIn("accepted-attempt-only", main_rs)
+        self.assertNotIn(
+            "blocked_until_backend_exports_bound_level_rejection_transcript",
+            main_rs,
+        )
+        self.assertIn(
             "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
             main_rs,
         )

@@ -181,6 +181,17 @@ request-bound capture JSON consumed by `scripts/run_backend_emission_capture.py`
 This adapter is a reproducibility path for actual backend capture evidence, not
 production threshold ML-DSA security, not rejection-distribution preservation,
 and not theorem closure.
+The capture transcript now carries per-attempt rejection-predicate evidence
+when the backend exposes the hazmat predicate transcript API: it records the
+accepted attempt id, attempt count, retry count, `per-attempt-bound-predicates`
+capability, and an `attempts[]` array with each attempt id, mask-seed digest,
+challenge digest, `z_bound_result`, `r0_bound_result`, `ct0_bound_result`,
+`hint_bound_result`, and `accepted_or_rejected`. This means the current run can
+prove accepted-output standard-verifier conformance, mutation rejection for the
+emitted tuple, and backend predicate observability for the signing attempts.
+It still does not prove rejection-distribution preservation until those
+attempt-level predicates are compared against centralized ML-DSA rejection
+behavior across reviewed batches.
 The checked
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
 fixture pins the future envelope, but it carries
