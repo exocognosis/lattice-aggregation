@@ -88,6 +88,12 @@
           "centralized nonce PRF oracle present",
           "deterministic test-vector plumbing present"
         ],
+        "backend_capture_attempt_runner": "scripts/run_admissible_nonce_producer_capture_attempt.py",
+        "backend_capture_attempt_status": "backend_readiness_blocked",
+        "backend_capture_attempt_artifact": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
+        "backend_capture_attempt_request": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+        "backend_capture_attempt_command_executed": false,
+        "backend_capture_attempt_promotion_rule": "only an admissible readiness manifest may promote the reused request into handoff replay; blocked readiness writes an attempt artifact without executing the backend command",
         "backend_handoff_replay": "scripts/run_nonce_producer_handoff_replay.py",
         "backend_handoff_replay_status": "evidence_present_unclosed",
         "backend_handoff_replay_artifact": "artifacts/nonce-producer-handoff/latest/manifest.json",
@@ -256,6 +262,13 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+        "current_status": "backend_readiness_blocked",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -323,11 +336,13 @@
     "tests/production_rejection_equivalence.rs",
     "scripts/emit_reviewed_nonce_producer_capture.py",
     "scripts/check_nonce_producer_backend_readiness.py",
+    "scripts/run_admissible_nonce_producer_capture_attempt.py",
     "scripts/run_nonce_producer_handoff_replay.py",
     "artifacts/nonce-producer-handoff/latest/manifest.json",
     "artifacts/nonce-producer-handoff/latest/request/request.json",
     "artifacts/nonce-producer-handoff/latest/capture/capture.json",
     "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+    "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
     "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",

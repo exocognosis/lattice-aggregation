@@ -2,13 +2,13 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/nonce-producer-admissible-cli`
-Commit: `e12da3427720a35d829f8f4e7466be4c9634743f`
+Branch: `codex/admissible-nonce-capture-attempt`
+Commit: `a6ab891f45ae7b4b202dfbae28c7db49822066cb`
 
 ## Criteria
 
 - `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (25 evidence entries, 8 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (26 evidence entries, 9 blockers)
 - `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
 - `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
 - `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)

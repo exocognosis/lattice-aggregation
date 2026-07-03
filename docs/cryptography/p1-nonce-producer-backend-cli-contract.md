@@ -67,6 +67,36 @@ It marks the local `dytallix-pq-threshold` candidate
 `backend_detected_not_admissible`; that is useful boundary evidence, not
 reviewed external nonce-producer evidence.
 
+## Capture Attempt Orchestrator
+
+The preferred external-backend attempt path is the readiness-gated orchestrator:
+
+```bash
+python3 scripts/run_admissible_nonce_producer_capture_attempt.py \
+  --root . \
+  --out artifacts/nonce-producer-capture-attempt/latest \
+  --backend-crate /path/to/backend-crate \
+  --backend-label reviewed-backend-candidate \
+  --backend-command /opt/p1-nonce-producer emit --request {request}
+```
+
+The `{request}` placeholder is mandatory. The orchestrator generates the exact
+request under `handoff/request/request.json`, substitutes that path into the
+backend command, runs the readiness preflight against the same request, and
+writes a top-level attempt manifest. If readiness is blocked, it records
+`backend_readiness_blocked`, writes the readiness artifacts, and does not
+execute the backend command. If readiness is admissible, it reuses the same
+request in `scripts/run_nonce_producer_handoff_replay.py` and records
+`capture_promoted`.
+
+The current checked attempt artifact is:
+
+- `artifacts/nonce-producer-capture-attempt/latest/manifest.json`
+
+It is boundary evidence only. A blocked attempt proves the repo failed closed
+before capture; it does not prove Criterion 2, production threshold ML-DSA
+security, rejection-distribution preservation, or theorem closure.
+
 ## Real Backend Handoff
 
 For a real external backend, `scripts/run_nonce_producer_handoff_replay.py`
