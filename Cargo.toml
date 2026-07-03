@@ -3,24 +3,24 @@ name = "lattice-aggregation"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Audit-oriented threshold ML-DSA-65 protocol boundary and simulation backend"
+description = "Audit-oriented threshold ML-DSA-65 protocol boundary and reviewed nonce-producer handoff profile"
 repository = "https://github.com/exocognosis/lattice-aggregation"
 homepage = "https://github.com/exocognosis/lattice-aggregation"
 readme = "README.md"
 keywords = ["post-quantum", "threshold", "mldsa", "lattice", "signatures"]
-categories = ["cryptography", "simulation"]
+categories = ["cryptography"]
 
 [lib]
 name = "lattice_aggregation"
 path = "src/lib.rs"
 
 [features]
-default = ["simulated"]
-simulated = []
-hazmat = []
-hazmat-real-mldsa = ["hazmat", "dep:ml-dsa"]
+default = []
+protocol-sim = []
+raw-mldsa-internals = []
+raw-real-mldsa = ["raw-mldsa-internals", "dep:ml-dsa"]
 coordinator-assisted = []
-production-mldsa65-coordinator = ["coordinator-assisted", "hazmat-real-mldsa"]
+production-mldsa65-coordinator = ["coordinator-assisted", "raw-real-mldsa"]
 
 [dependencies]
 async-trait = "0.1"

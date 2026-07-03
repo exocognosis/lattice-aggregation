@@ -45,7 +45,7 @@ class HazmatRejectionEquivalenceBatchTests(unittest.TestCase):
 
         self.assertIn(f'path = "{backend_crate.resolve()}"', cargo_toml)
         self.assertIn(f'path = "{repo_root.resolve()}"', cargo_toml)
-        self.assertIn('features = ["hazmat-real-mldsa"]', cargo_toml)
+        self.assertIn('features = ["raw-real-mldsa"]', cargo_toml)
         self.assertIn(
             "derive_mldsa65_centralized_rejection_predicate_transcript_from_expanded_secret_key",
             main_rs,

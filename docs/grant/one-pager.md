@@ -60,7 +60,7 @@ A publishable Rust research scaffold with a strong review boundary:
 
 - Type-state signing-session / aggregation API, deterministic simulation
   backend with ML-DSA-65-sized outputs, async actor/wire adapters, and an
-  opt-in `hazmat-real-mldsa` provider with a bounded NIST ACVP/FIPS204 sample
+  opt-in `raw-real-mldsa` provider with a bounded NIST ACVP/FIPS204 sample
   fixture.
 - Five-criterion evidence gates with closure-package frameworks, a Criterion 2
   proof-substance payload, and fixture-backed conformance gates.

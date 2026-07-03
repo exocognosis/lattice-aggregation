@@ -245,11 +245,11 @@ The default feature remains `simulated`.
 Use non-default gates with conservative names:
 
 - `coordinator-assisted`: enables coordinator profile types and adapter frames.
-- `hazmat-real-mldsa`: enables experimental real ML-DSA-65 primitives.
+- `raw-real-mldsa`: enables experimental real ML-DSA-65 primitives.
 - `production-mldsa65-coordinator`: reserved for a later evidence-backed
   promotion gate and must remain disabled until release gates pass.
 
-The presence of `hazmat-real-mldsa` or `coordinator-assisted` must not imply
+The presence of `raw-real-mldsa` or `coordinator-assisted` must not imply
 production approval.
 
 ### Module Layout

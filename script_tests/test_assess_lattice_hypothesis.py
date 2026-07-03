@@ -1201,7 +1201,7 @@ class ReportGenerationTests(unittest.TestCase):
             "accepted_or_rejected\n"
             "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\n"
             "real_threshold_mldsa_external_capture\n"
-            "dytallix-pq-threshold hazmat-real-mldsa\n"
+            "dytallix-pq-threshold raw-real-mldsa\n"
             "10_000\n"
             "6_667\n"
             "mutated_message_rejected\n"

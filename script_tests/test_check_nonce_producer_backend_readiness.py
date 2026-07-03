@@ -83,7 +83,7 @@ categories = ["cryptography", "simulation"]
 default = ["simulated"]
 simulated = []
 hazmat = []
-hazmat-real-mldsa = ["hazmat"]
+raw-real-mldsa = ["hazmat"]
 """
         source = """
 pub struct Mldsa65DistributedNoncePrfOutputShare;

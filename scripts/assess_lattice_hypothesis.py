@@ -3212,7 +3212,7 @@ def scan_documents(root):
                 "validate_crate_path",
                 "LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE",
                 "--backend-crate",
-                "dytallix-pq-threshold hazmat-real-mldsa",
+                "dytallix-pq-threshold raw-real-mldsa",
                 "backend_external_pure_verifier_accepts",
                 "repo_pr69_hazmat_provider_accepts",
                 "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
@@ -3674,7 +3674,7 @@ def classify_criteria(criteria, scan):
                         "present for fixed-seed ML-DSA-65 signatures, mutated "
                         "message/signature rejection, and a bounded "
                         "ACVP/FIPS204 sample-vector KAT under "
-                        "hazmat-real-mldsa; full KAT coverage and validation "
+                        "raw-real-mldsa; full KAT coverage and validation "
                         "remain separately gated."
                     )
                 else:

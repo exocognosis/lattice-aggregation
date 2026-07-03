@@ -14,7 +14,7 @@ Interactive threshold aggregation for **ML-DSA-65** (NIST FIPS 204 / Dilithium) 
 ![GitHub stars](https://img.shields.io/github/stars/exocognosis/lattice-aggregation)
 ![Rust](https://img.shields.io/badge/Rust-2021-orange)
 ![status: research preview](https://img.shields.io/badge/status-research--preview-blue)
-![license: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
+![license: MIT](https://img.shields.io/badge/license-MIT-green)
 ![post-quantum: ML-DSA-65 (FIPS 204)](https://img.shields.io/badge/post--quantum-ML--DSA--65%20(FIPS%20204)-7b3fe4)
 
 ![Lattice Aggregation protocol flow: threshold ML-DSA-65](docs/assets/lattice-aggregation-protocol-flow.png)
@@ -297,7 +297,7 @@ This repository turns those boundaries into Rust APIs, tests, wire types, actor 
 - interpolation, verifiable-secret-sharing support, and polynomial experiments in [src/crypto/](src/crypto/) and [src/low_level/](src/low_level/)
 - regression coverage for simulation flow, validation, transcript determinism, serialization, type-state compile failures, and documentation link integrity in [tests/](tests/)
 - reviewer packet in [docs/audit/](docs/audit/) and cryptographic notes in [docs/cryptography/](docs/cryptography/)
-- non-default `hazmat-real-mldsa` provider verification conformance, including a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture; this is not threshold aggregate verification or validation evidence
+- non-default `raw-real-mldsa` provider verification conformance, including a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture; this is not threshold aggregate verification or validation evidence
 - fixture-backed bridge conformance evidence for the P1 standard-verifier bridge package; this is not selected-backend aggregate output evidence
 - selected-backend aggregate-output artifact gate for P1; conformance/proof-review evidence only, not selected-backend proof closure, not production, not CAVP/ACVTS or FIPS validation, and not a completed standard-verifier compatibility proof
 - real standard-provider selected-backend aggregate-output package derivation for P1; this binds one provider-verified ML-DSA-65 candidate signature through `LocalAccept`, `AggregateAccept`, public recomputation, and bridge digest evidence, but it is not a real threshold aggregate signer or proof closure
@@ -534,7 +534,7 @@ The repository separates protocol shape from cryptographic backend implementatio
 
 - `simulated` is enabled by default and provides deterministic protocol-test behavior.
 - `hazmat` marks low-level experimental surfaces that should not be treated as stable production APIs.
-- `hazmat-real-mldsa` enables an opt-in ML-DSA-65 provider bridge and bounded ACVP sample-vector conformance tests for ordinary signatures; it is not a production threshold backend.
+- `raw-real-mldsa` enables an opt-in ML-DSA-65 provider bridge and bounded ACVP sample-vector conformance tests for ordinary signatures; it is not a production threshold backend.
 
 ## Roadmap Shape
 

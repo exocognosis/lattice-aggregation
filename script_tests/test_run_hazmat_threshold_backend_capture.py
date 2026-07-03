@@ -44,7 +44,7 @@ class HazmatThresholdBackendCaptureAdapterTests(unittest.TestCase):
 
         self.assertIn(f'path = "{backend_crate.resolve()}"', cargo_toml)
         self.assertIn(f'path = "{repo_root.resolve()}"', cargo_toml)
-        self.assertIn('features = ["hazmat-real-mldsa"]', cargo_toml)
+        self.assertIn('features = ["raw-real-mldsa"]', cargo_toml)
         self.assertNotIn("Lattice Aggregation Current", cargo_toml)
         self.assertIn("backend_external_pure_verifier_accepts", main_rs)
         self.assertIn("repo_pr69_hazmat_provider_accepts", main_rs)
