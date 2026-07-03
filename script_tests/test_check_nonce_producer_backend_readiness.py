@@ -165,6 +165,79 @@ class NonceProducerBackendReadinessTests(unittest.TestCase):
         self.assertIn("simulated default feature", blockers)
         self.assertIn("centralized nonce PRF oracle", blockers)
         self.assertIn("deterministic test-vector plumbing", blockers)
+        diagnostics = manifest["diagnostics"]
+        evidence_by_blocker = {
+            entry["blocker"]: entry["evidence"]
+            for entry in diagnostics["blocker_evidence"]
+        }
+        self.assertIn("hazmat feature present", evidence_by_blocker)
+        self.assertIn("simulated default feature present", evidence_by_blocker)
+        self.assertIn(
+            "research-grade simulation backend marker present",
+            evidence_by_blocker,
+        )
+        self.assertIn("centralized nonce PRF oracle present", evidence_by_blocker)
+        self.assertIn(
+            "deterministic test-vector plumbing present",
+            evidence_by_blocker,
+        )
+        self.assertIn(
+            "missing reviewed external capture contract marker",
+            evidence_by_blocker,
+        )
+        self.assertTrue(
+            any(
+                hit["path"] == "Cargo.toml" and "hazmat" in hit["value"]
+                for hit in evidence_by_blocker["hazmat feature present"]
+            )
+        )
+        self.assertTrue(
+            any(
+                hit["path"] == "Cargo.toml" and "simulated" in hit["value"]
+                for hit in evidence_by_blocker["simulated default feature present"]
+            )
+        )
+        self.assertTrue(
+            any(
+                hit["path"] == "Cargo.toml" and "simulation" in hit["value"]
+                for hit in evidence_by_blocker[
+                    "research-grade simulation backend marker present"
+                ]
+            )
+        )
+        self.assertTrue(
+            any(
+                hit["path"] == "src/low_level/mldsa65.rs"
+                and "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key"
+                in hit["value"]
+                for hit in evidence_by_blocker[
+                    "centralized nonce PRF oracle present"
+                ]
+            )
+        )
+        self.assertTrue(
+            any(
+                hit["path"] == "src/low_level/mldsa65.rs"
+                and "deterministic test-vector" in hit["value"]
+                for hit in evidence_by_blocker[
+                    "deterministic test-vector plumbing present"
+                ]
+            )
+        )
+        missing_marker = evidence_by_blocker[
+            "missing reviewed external capture contract marker"
+        ][0]
+        self.assertEqual(missing_marker["path"], "src/**/*.rs")
+        self.assertIn("p1_shamir_nonce_dkg_tee_external_capture", missing_marker["value"])
+        self.assertIn("abort_accountability", missing_marker["value"])
+        self.assertIn(
+            "remove hazmat Cargo features",
+            " ".join(diagnostics["remediation_order"]),
+        )
+        self.assertIn(
+            "add reviewed external capture contract markers",
+            " ".join(diagnostics["remediation_order"]),
+        )
         self.assertIn("backend_detected_not_admissible", summary)
         self.assertIn("does not prove Criterion 2", summary)
 

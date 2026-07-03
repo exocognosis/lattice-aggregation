@@ -75,6 +75,7 @@
         "backend_readiness_status": "backend_detected_not_admissible",
         "backend_readiness_artifact": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
         "backend_readiness_checked_candidate": "local-dytallix-pq-threshold-candidate",
+        "backend_readiness_diagnostics": "source-level blocker evidence plus ordered remediation for Cargo features, package metadata, centralized nonce PRF oracle symbols, deterministic test-vector plumbing, and missing reviewed capture markers",
         "backend_readiness_detected_interfaces": [
           "distributed_nonce_prf_output_share_interface",
           "distributed_nonce_prf_output_splitter",
@@ -94,6 +95,10 @@
         "backend_capture_attempt_request": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
         "backend_capture_attempt_command_executed": false,
         "backend_capture_attempt_promotion_rule": "only an admissible readiness manifest may promote the reused request into handoff replay; blocked readiness writes an attempt artifact without executing the backend command",
+        "backend_capture_attempt_failure_statuses": [
+          "capture_execution_failed",
+          "capture_validation_failed"
+        ],
         "backend_handoff_replay": "scripts/run_nonce_producer_handoff_replay.py",
         "backend_handoff_replay_status": "evidence_present_unclosed",
         "backend_handoff_replay_artifact": "artifacts/nonce-producer-handoff/latest/manifest.json",

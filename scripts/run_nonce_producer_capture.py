@@ -88,6 +88,26 @@ CAPTURE_PAYLOAD_FIELDS = {
 CAPTURE_BYTE_FIELDS = {"encoding", "value"}
 
 
+class NonceProducerCaptureExecutionError(RuntimeError):
+    """Capture command failed before producing a usable JSON envelope."""
+
+    phase = "execution"
+
+    def __init__(self, message, result):
+        super().__init__(message)
+        self.result = result
+
+
+class NonceProducerCaptureValidationError(ValueError):
+    """Capture command ran, but stdout failed request/capture validation."""
+
+    phase = "validation"
+
+    def __init__(self, message, result):
+        super().__init__(message)
+        self.result = result
+
+
 def sha256_text(text):
     """Return the SHA-256 digest for UTF-8 text."""
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -424,20 +444,26 @@ def build_report(
     validate_backend_command(list(backend_command))
     result = command_runner(list(backend_command), root, {})
     if result["exit_code"] != 0:
-        raise RuntimeError(
-            "nonce-producer capture command failed: "
-            + " ".join(backend_command)
-            + "\n"
-            + result.get("stderr", "")
+        raise NonceProducerCaptureExecutionError(
+            (
+                "nonce-producer capture command failed: "
+                + " ".join(backend_command)
+                + "\n"
+                + result.get("stderr", "")
+            ),
+            result,
         )
 
-    capture = parse_capture_json(result["stdout"])
-    request = load_request(request_path) if request_path else None
-    request_sha256 = (
-        validate_capture_matches_request(capture, request)
-        if request is not None
-        else capture["request"]["request_sha256"].lower()
-    )
+    try:
+        capture = parse_capture_json(result["stdout"])
+        request = load_request(request_path) if request_path else None
+        request_sha256 = (
+            validate_capture_matches_request(capture, request)
+            if request is not None
+            else capture["request"]["request_sha256"].lower()
+        )
+    except ValueError as exc:
+        raise NonceProducerCaptureValidationError(str(exc), result) from exc
     metadata = metadata_from_provider(metadata_provider, root)
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     capture_json = canonical_json(capture)

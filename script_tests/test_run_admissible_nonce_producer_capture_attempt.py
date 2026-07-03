@@ -106,6 +106,34 @@ subprocess.run(
     return emitter
 
 
+def write_failing_backend_emitter(root, *, stdout="", stderr="backend failed", code=7):
+    emitter = root / "failing_backend_emitter.py"
+    emitter.write_text(
+        f"""#!/usr/bin/env python3
+import sys
+
+sys.stdout.write({stdout!r})
+sys.stderr.write({stderr!r})
+raise SystemExit({code})
+""",
+        encoding="utf-8",
+    )
+    emitter.chmod(emitter.stat().st_mode | stat.S_IXUSR)
+    return emitter
+
+
+def write_invalid_capture_emitter(root):
+    emitter = root / "invalid_capture_emitter.py"
+    emitter.write_text(
+        """#!/usr/bin/env python3
+print("not canonical capture json")
+""",
+        encoding="utf-8",
+    )
+    emitter.chmod(emitter.stat().st_mode | stat.S_IXUSR)
+    return emitter
+
+
 class AdmissibleNonceProducerCaptureAttemptTests(unittest.TestCase):
     def test_attempt_blocks_hazmat_style_backend_before_capture_command_runs(self):
         module = load_module()
@@ -205,6 +233,72 @@ class AdmissibleNonceProducerCaptureAttemptTests(unittest.TestCase):
                     backend_command=[sys.executable, str(emitter), "--request", "stale.json"],
                     generated_at="2026-07-03T00:00:00Z",
                 )
+
+    def test_attempt_records_execution_failure_after_admissible_readiness(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            backend_crate = write_backend_crate(temp_root, hazmat=False)
+            emitter = write_failing_backend_emitter(
+                temp_root,
+                stdout="partial output",
+                stderr="backend unavailable",
+                code=7,
+            )
+            out_dir = temp_root / "attempt"
+
+            report = module.build_attempt(
+                ROOT,
+                out_dir,
+                backend_crate=backend_crate,
+                backend_command=[sys.executable, str(emitter), "--request", "{request}"],
+                backend_label="reviewed-backend-candidate",
+                generated_at="2026-07-03T00:00:00Z",
+            )
+
+            manifest = json.loads((out_dir / "manifest.json").read_text())
+            summary = (out_dir / "summary.md").read_text()
+
+        self.assertEqual(manifest["attempt_status"], "capture_execution_failed")
+        self.assertTrue(manifest["backend_command_executed"])
+        self.assertIsNone(manifest["handoff_manifest_path"])
+        self.assertEqual(manifest["capture_failure"]["phase"], "execution")
+        self.assertIn("backend unavailable", manifest["capture_failure"]["message"])
+        self.assertEqual(manifest["capture_failure"]["exit_code"], 7)
+        self.assertIn("partial output", manifest["capture_failure"]["stdout"])
+        self.assertIn("backend unavailable", manifest["capture_failure"]["stderr"])
+        self.assertIn("capture_execution_failed", summary)
+        self.assertEqual(report["manifest"], manifest)
+
+    def test_attempt_records_validation_failure_after_admissible_readiness(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            backend_crate = write_backend_crate(temp_root, hazmat=False)
+            emitter = write_invalid_capture_emitter(temp_root)
+            out_dir = temp_root / "attempt"
+
+            report = module.build_attempt(
+                ROOT,
+                out_dir,
+                backend_crate=backend_crate,
+                backend_command=[sys.executable, str(emitter), "--request", "{request}"],
+                backend_label="reviewed-backend-candidate",
+                generated_at="2026-07-03T00:00:00Z",
+            )
+
+            manifest = json.loads((out_dir / "manifest.json").read_text())
+
+        self.assertEqual(manifest["attempt_status"], "capture_validation_failed")
+        self.assertTrue(manifest["backend_command_executed"])
+        self.assertIsNone(manifest["handoff_manifest_path"])
+        self.assertEqual(manifest["capture_failure"]["phase"], "validation")
+        self.assertIn("canonical capture JSON", manifest["capture_failure"]["message"])
+        self.assertEqual(manifest["capture_failure"]["exit_code"], 0)
+        self.assertIn("not canonical capture json", manifest["capture_failure"]["stdout"])
+        self.assertEqual(report["manifest"], manifest)
 
 
 if __name__ == "__main__":

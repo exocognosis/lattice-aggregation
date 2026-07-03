@@ -4,7 +4,7 @@ This artifact records the executable decision point before promoting a P1 distri
 
 - Status: `backend_readiness_blocked`
 - Request: `p1-reviewed-nonce-producer-request-001`
-- Request SHA-256: `5d1f900653ab92467f7b84787b9ee1edb43aca066b11b9b2bafd5de74c0b3f22`
+- Request SHA-256: `655e1ae94ec957d92a574c3f1c559f89bc429b1a8b41421b3990d092e4b2d911`
 - Backend package: `dytallix-pq-threshold`
 - Backend command executed: `false`
 - Readiness status: `backend_detected_not_admissible`

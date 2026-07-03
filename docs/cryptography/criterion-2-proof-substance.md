@@ -113,8 +113,11 @@ The Criterion 2 proof payload requires these slots before any promotion:
   nonce-PRF interfaces. It also marks that candidate
   `backend_detected_not_admissible` because the checked source is still
   hazmat/simulated research backend material with a centralized nonce PRF
-  oracle and deterministic test-vector plumbing. This readiness artifact is a
-  fail-closed boundary check, not reviewed external nonce-producer evidence.
+  oracle and deterministic test-vector plumbing. The readiness artifact now
+  carries source-level blocker diagnostics and an ordered remediation list, so
+  backend work can target the exact Cargo/source markers that block capture
+  promotion. This readiness artifact is a fail-closed boundary check, not
+  reviewed external nonce-producer evidence.
   The handoff replay now requires an admissible backend-readiness manifest for
   every explicit external backend command, supports `--reuse-request` so the
   readiness manifest binds the exact request SHA-256, and records accepted
@@ -127,7 +130,9 @@ The Criterion 2 proof payload requires these slots before any promotion:
   checked artifact is `backend_readiness_blocked`: the backend command was not
   executed because the local candidate remained inadmissible. This is the
   executable fail-closed promotion decision, not reviewed external
-  nonce-producer evidence.
+  nonce-producer evidence. When readiness becomes admissible, the same runner
+  preserves failed backend attempts as `capture_execution_failed` or
+  `capture_validation_failed` instead of dropping command-output diagnostics.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -328,7 +333,8 @@ backend readiness artifact at
 the local `dytallix-pq-threshold` candidate has distributed nonce-PRF
 interfaces but is `backend_detected_not_admissible` because hazmat, simulated
 default, centralized nonce PRF oracle, and deterministic test-vector plumbing
-markers are still present. The handoff replay enforces that a real external
+markers are still present. It now includes source-level blocker diagnostics
+and remediation order for those markers. The handoff replay enforces that a real external
 backend command cannot be promoted without an admissible readiness manifest
 bound to the reused request SHA-256. The capture-attempt runner
 `scripts/run_admissible_nonce_producer_capture_attempt.py` records this

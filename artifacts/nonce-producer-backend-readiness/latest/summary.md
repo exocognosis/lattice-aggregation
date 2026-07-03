@@ -4,7 +4,7 @@ This artifact inspects a candidate backend before the executable nonce-producer 
 
 - Status: `backend_detected_not_admissible`
 - Backend package: `dytallix-pq-threshold`
-- Request SHA-256: `c1bf319849c5fa7d76f52dae3905d2d93126a6dcf38a2e5b169480fe1870e82e`
+- Request SHA-256: `7d5431b5eb4382f6ad0206ba4f0b1ff8d71c33dd287755c629b6f62170621560`
 - Source tree SHA-256: `6f48e83af3054be6ea8dbbce5e666a63229512faa2b73029955a2acca1b94e29`
 - Admissible for P1 handoff: `false`
 

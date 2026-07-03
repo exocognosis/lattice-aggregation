@@ -2396,6 +2396,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("non-importable capture shapes", aggregate_evidence)
         self.assertIn("backend readiness gate", aggregate_evidence)
         self.assertIn("backend_detected_not_admissible", aggregate_evidence)
+        self.assertIn("source-level blocker diagnostics", aggregate_evidence)
+        self.assertIn("remediation order", aggregate_evidence)
         self.assertIn("capture-attempt runner", aggregate_evidence)
         self.assertIn("backend_readiness_blocked", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
