@@ -152,6 +152,8 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "derive_p1_distributed_nonce_producer_artifact_package_from_capture",
             "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
             "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+            "scripts/build_nonce_producer_request.py",
+            "scripts/run_nonce_producer_capture.py",
             "request_sha256",
             "backend-implementation digest",
             "evidence_present_unclosed",

@@ -1554,6 +1554,18 @@ def scan_documents(root):
     backend_emission_request_builder_test = read_optional(
         "script_tests/test_build_backend_emission_request.py"
     )
+    nonce_producer_capture_runner = read_optional(
+        "scripts/run_nonce_producer_capture.py"
+    )
+    nonce_producer_capture_runner_test = read_optional(
+        "script_tests/test_run_nonce_producer_capture.py"
+    )
+    nonce_producer_request_builder = read_optional(
+        "scripts/build_nonce_producer_request.py"
+    )
+    nonce_producer_request_builder_test = read_optional(
+        "script_tests/test_build_nonce_producer_request.py"
+    )
     hazmat_threshold_backend_capture_adapter = read_optional(
         "scripts/run_hazmat_threshold_backend_capture.py"
     )
@@ -2203,6 +2215,82 @@ def scan_documents(root):
             "gate",
             "actual",
             "evidence",
+        )
+    )
+    p1_distributed_nonce_producer_request_gate = (
+        p1_distributed_nonce_producer_artifact_gate
+        and all(
+            token in nonce_producer_request_builder
+            for token in [
+                "REQUEST_SCHEMA",
+                "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+                "CAPTURE_SCHEMA",
+                "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+                "EXTERNAL_PRODUCER_EVIDENCE",
+                "p1_shamir_nonce_dkg_tee_external_capture",
+                "REQUEST_STATUS",
+                "evidence_present_unclosed",
+                "SELECTED_PROFILE",
+                "FORBIDDEN_REQUEST_NAME_TOKENS",
+                "build_request",
+                "write_artifacts",
+                "validate_digest",
+                "required_capture",
+                "forbidden_capture_sources",
+                "shamir_nonce_dkg_transcript",
+            ]
+        )
+        and all(
+            token in nonce_producer_request_builder_test
+            for token in [
+                "test_build_request_manifest_writes_external_nonce_producer_challenge_contract",
+                "test_build_request_manifest_rejects_simulation_names_and_bad_digests",
+                "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+                "p1_shamir_nonce_dkg_tee_external_capture",
+                "evidence_present_unclosed",
+            ]
+        )
+    )
+    p1_distributed_nonce_producer_capture_runner_gate = (
+        p1_distributed_nonce_producer_request_gate
+        and all(
+            token in nonce_producer_capture_runner
+            for token in [
+                "CAPTURE_SCHEMA",
+                "REQUEST_SCHEMA",
+                "EXTERNAL_PRODUCER_EVIDENCE",
+                "RUNNER_STATUS",
+                "FORBIDDEN_BACKEND_COMMAND_TOKENS",
+                "validate_backend_command",
+                "load_request",
+                "validate_request_binding",
+                "validate_capture_matches_request",
+                "validate_no_unknown_fields",
+                "validate_digest_object",
+                "validate_capture_bytes",
+                "parse_capture_json",
+                "build_report",
+                "write_artifacts",
+                "actual external nonce-producer evidence",
+                "request digest mismatch",
+                "missing {label} digest",
+                "hazmat",
+                "centralized",
+                "localnet",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_runner_test
+            for token in [
+                "test_build_report_invokes_nonce_producer_capture_runner_and_writes_importable_capture_json",
+                "test_build_report_rejects_capture_that_omits_or_stales_request_binding",
+                "test_build_report_rejects_hazmat_localnet_or_fixture_sources",
+                "test_build_report_rejects_non_importable_capture_shape_before_artifact_write",
+                "request_sha256",
+                "request digest mismatch",
+                "hazmat-centralized-prf",
+                "fixture_harness",
+            ]
         )
     )
     p1_standard_verifier_compatibility_artifact_gate = (
@@ -3208,6 +3296,12 @@ def scan_documents(root):
         "p1_distributed_nonce_producer_artifact_gate": (
             p1_distributed_nonce_producer_artifact_gate
         ),
+        "p1_distributed_nonce_producer_request_gate": (
+            p1_distributed_nonce_producer_request_gate
+        ),
+        "p1_distributed_nonce_producer_capture_runner_gate": (
+            p1_distributed_nonce_producer_capture_runner_gate
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -3528,6 +3622,49 @@ def classify_criteria(criteria, scan):
                     "producer material must still replace the hazmat "
                     "PRF-output oracle before Criterion 2 can advance toward "
                     "cryptographic closure."
+                )
+            if scan.get("p1_distributed_nonce_producer_request_gate"):
+                partial_progress = True
+                observed.append(
+                    "A repo-generated distributed nonce-producer request "
+                    "manifest is present for P1; it writes the challenge "
+                    "contract that an external Shamir nonce-DKG/TEE producer "
+                    "must answer, including predecessor certificate digests, "
+                    "required capture schema, required "
+                    "p1_shamir_nonce_dkg_tee_external_capture evidence class, "
+                    "the nonce-producer material inventory, and forbidden "
+                    "hazmat, centralized, fixture, localnet, deterministic, "
+                    "and single-key capture sources. This is "
+                    "evidence_present_unclosed conformance/proof-review "
+                    "evidence only, does not change "
+                    "aggregate_rejection_equivalence from partially_met, and "
+                    "does not change the overall verdict from "
+                    "partially_proven."
+                )
+            if scan.get("p1_distributed_nonce_producer_capture_runner_gate"):
+                partial_progress = True
+                observed.append(
+                    "The distributed nonce-producer capture runner is present "
+                    "for P1; it loads request JSON, requires capture schema "
+                    "lattice-aggregation:p1-distributed-nonce-producer-capture:v1, "
+                    "requires the capture to echo the exact request "
+                    "schema/name/SHA-256 binding, rejects stale request "
+                    "digests, rejects non-importable capture shapes before "
+                    "artifact write, and rejects localnet, deterministic, "
+                    "fixture, hazmat, centralized-helper, and single-key "
+                    "provider command sources. This creates the executable "
+                    "handoff for actual reviewed nonce-producer evidence, but "
+                    "remains evidence_present_unclosed and does not claim "
+                    "theorem closure, rejection-distribution preservation, or "
+                    "production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The distributed nonce-producer request and capture "
+                    "runner are present, but a reviewed external Shamir "
+                    "nonce-DKG/TEE producer must still emit a conforming "
+                    "capture whose expected package digests can be imported "
+                    "through the Rust gate before the hazmat PRF-output oracle "
+                    "is replaced."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
