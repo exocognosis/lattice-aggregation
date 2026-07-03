@@ -12,6 +12,7 @@ Available notes:
 - [Criterion 1 Proof Substance](criterion-1-proof-substance.md)
 - [Criterion 2 Proof Substance](criterion-2-proof-substance.md)
 - [P1 Nonce Producer Selection](p1-nonce-producer-selection.md)
+- [P1 Nonce Producer Backend CLI Contract](p1-nonce-producer-backend-cli-contract.md)
 - [Criterion 3 Proof Substance](criterion-3-proof-substance.md)
 - [10,000 Validator Standard-Verifier Gate](validator-10000-standard-verifier-gate.md)
 - [Formal Security Theorem](formal-security-theorem.md)

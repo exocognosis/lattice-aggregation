@@ -1,7 +1,7 @@
 {
-  "branch": "codex/repo-evidence-pipeline-dashboard",
+  "branch": "codex/real-nonce-producer-capture",
   "claim_boundary": "research scaffold only",
-  "commit": "24a27e7563b72fdb1eb18302ace0732e446dd852",
+  "commit": "ba95566031d7feabac172c25c7aa2c7f377c0f76",
   "criteria": [
     {
       "blocker_count": 3,
@@ -10,9 +10,9 @@
       "status": "partially_met"
     },
     {
-      "blocker_count": 7,
+      "blocker_count": 8,
       "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 24,
+      "observed_evidence_count": 25,
       "status": "partially_met"
     },
     {

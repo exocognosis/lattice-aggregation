@@ -2,13 +2,13 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/repo-evidence-pipeline-dashboard`
-Commit: `24a27e7563b72fdb1eb18302ace0732e446dd852`
+Branch: `codex/real-nonce-producer-capture`
+Commit: `ba95566031d7feabac172c25c7aa2c7f377c0f76`
 
 ## Criteria
 
 - `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (24 evidence entries, 7 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (25 evidence entries, 8 blockers)
 - `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
 - `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
 - `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)

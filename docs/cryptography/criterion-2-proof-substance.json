@@ -71,6 +71,23 @@
         "backend_capture_runner_status": "evidence_present_unclosed",
         "backend_capture_runner_precondition": "external command emits canonical P1 distributed nonce-producer capture JSON and is not localnet, deterministic, fixture, hazmat, centralized, or single-key provider material",
         "backend_cli_contract": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+        "backend_readiness_checker": "scripts/check_nonce_producer_backend_readiness.py",
+        "backend_readiness_status": "backend_detected_not_admissible",
+        "backend_readiness_artifact": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+        "backend_readiness_checked_candidate": "local-dytallix-pq-threshold-candidate",
+        "backend_readiness_detected_interfaces": [
+          "distributed_nonce_prf_output_share_interface",
+          "distributed_nonce_prf_output_splitter",
+          "distributed_nonce_masking_contribution"
+        ],
+        "backend_readiness_blockers": [
+          "missing reviewed external capture contract marker",
+          "hazmat feature present",
+          "simulated default feature present",
+          "research-grade simulation backend marker present",
+          "centralized nonce PRF oracle present",
+          "deterministic test-vector plumbing present"
+        ],
         "backend_handoff_replay": "scripts/run_nonce_producer_handoff_replay.py",
         "backend_handoff_replay_status": "evidence_present_unclosed",
         "backend_handoff_replay_artifact": "artifacts/nonce-producer-handoff/latest/manifest.json",
@@ -228,6 +245,13 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+        "current_status": "backend_detected_not_admissible",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -294,10 +318,12 @@
     "src/production/rejection_equivalence.rs",
     "tests/production_rejection_equivalence.rs",
     "scripts/emit_reviewed_nonce_producer_capture.py",
+    "scripts/check_nonce_producer_backend_readiness.py",
     "scripts/run_nonce_producer_handoff_replay.py",
     "artifacts/nonce-producer-handoff/latest/manifest.json",
     "artifacts/nonce-producer-handoff/latest/request/request.json",
     "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+    "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
     "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
