@@ -97,16 +97,27 @@ def source_inventory(backend_crate):
 
 def read_source_blob(backend_crate):
     """Read the backend source files used for marker-based readiness checks."""
+    return "\n".join(source["text"] for source in read_source_files(backend_crate))
+
+
+def read_source_files(backend_crate):
+    """Read backend source files with relative paths for diagnostics."""
     src_dir = Path(backend_crate) / "src"
     if not src_dir.is_dir():
-        return ""
-    parts = []
+        return []
+    files = []
     for path in sorted(src_dir.rglob("*.rs")):
         try:
-            parts.append(path.read_text(encoding="utf-8"))
+            text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
-            parts.append(path.read_text(encoding="utf-8", errors="ignore"))
-    return "\n".join(parts)
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        files.append(
+            {
+                "path": path.relative_to(Path(backend_crate)).as_posix(),
+                "text": text,
+            }
+        )
+    return files
 
 
 def feature_names(cargo):
@@ -216,6 +227,139 @@ def detected_blockers(capabilities):
     return blockers
 
 
+def cargo_evidence(key, value):
+    """Return a normalized Cargo.toml diagnostic evidence record."""
+    return {
+        "path": "Cargo.toml",
+        "line": None,
+        "value": f"{key} = {value}",
+    }
+
+
+def source_hits(source_files, *needles):
+    """Return line-level source hits for diagnostic marker evidence."""
+    lowered_needles = [needle.lower() for needle in needles]
+    hits = []
+    for source in source_files:
+        for line_number, line in enumerate(source["text"].splitlines(), start=1):
+            lowered_line = line.lower()
+            if any(needle in lowered_line for needle in lowered_needles):
+                hits.append(
+                    {
+                        "path": source["path"],
+                        "line": line_number,
+                        "value": line.strip(),
+                    }
+                )
+    return hits
+
+
+def blocker_evidence(cargo, source_files, blockers):
+    """Return concrete evidence records for each detected blocker."""
+    features = feature_names(cargo)
+    defaults = default_features(cargo)
+    categories = package_list(cargo, "categories")
+    description = package_value(cargo, "description", default="")
+    evidence = {}
+    if "missing reviewed external capture contract marker" in blockers:
+        evidence["missing reviewed external capture contract marker"] = [
+            {
+                "path": "src/**/*.rs",
+                "line": None,
+                "value": (
+                    "required markers not found together: "
+                    "p1_shamir_nonce_dkg_tee_external_capture, "
+                    "abort_accountability"
+                ),
+            }
+        ]
+    if "hazmat feature present" in blockers:
+        evidence["hazmat feature present"] = [
+            cargo_evidence("feature", feature)
+            for feature in features
+            if "hazmat" in feature.lower()
+        ]
+    if "simulated default feature present" in blockers:
+        evidence["simulated default feature present"] = [
+            cargo_evidence("default-feature", feature)
+            for feature in defaults
+            if feature.lower() == "simulated"
+        ]
+    if "research-grade simulation backend marker present" in blockers:
+        simulation_evidence = [
+            cargo_evidence("category", category)
+            for category in categories
+            if category.lower() == "simulation"
+        ]
+        if "research-grade" in description.lower() and "simulation" in description.lower():
+            simulation_evidence.append(cargo_evidence("description", description))
+        evidence["research-grade simulation backend marker present"] = (
+            simulation_evidence
+        )
+    if "centralized nonce PRF oracle present" in blockers:
+        evidence["centralized nonce PRF oracle present"] = source_hits(
+            source_files,
+            "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
+        )
+    if "deterministic test-vector plumbing present" in blockers:
+        evidence["deterministic test-vector plumbing present"] = source_hits(
+            source_files,
+            "deterministic test-vector",
+            "test-vector plumbing",
+        )
+    return [
+        {
+            "blocker": blocker,
+            "evidence": evidence.get(blocker, []),
+        }
+        for blocker in blockers
+    ]
+
+
+def remediation_order(blockers):
+    """Return the pragmatic remediation order for detected backend blockers."""
+    remediation_by_blocker = {
+        "hazmat feature present": (
+            "remove hazmat Cargo features from the capture backend crate or "
+            "split production capture into a separate non-hazmat package"
+        ),
+        "simulated default feature present": (
+            "remove simulated from Cargo default features for the capture "
+            "backend crate"
+        ),
+        "research-grade simulation backend marker present": (
+            "remove simulation package metadata from the reviewed capture "
+            "backend boundary"
+        ),
+        "centralized nonce PRF oracle present": (
+            "remove centralized nonce PRF oracle symbols from the capture "
+            "backend boundary"
+        ),
+        "deterministic test-vector plumbing present": (
+            "remove deterministic test-vector plumbing from the capture "
+            "backend boundary"
+        ),
+        "missing reviewed external capture contract marker": (
+            "add reviewed external capture contract markers for "
+            "p1_shamir_nonce_dkg_tee_external_capture and abort_accountability"
+        ),
+        "missing distributed nonce PRF output share interface": (
+            "add distributed nonce PRF output share interface"
+        ),
+        "missing distributed nonce PRF output splitter": (
+            "add distributed nonce PRF output splitter"
+        ),
+        "missing distributed nonce masking contribution converter": (
+            "add distributed nonce masking contribution converter"
+        ),
+    }
+    return [
+        remediation_by_blocker[blocker]
+        for blocker in blockers
+        if blocker in remediation_by_blocker
+    ]
+
+
 def render_summary(manifest):
     """Render a concise backend readiness summary."""
     admissible = manifest["admissibility"]["admissible_for_p1_nonce_handoff"]
@@ -249,7 +393,8 @@ def build_report(request_path, backend_crate, generated_at=None, backend_label=N
     request_sha256 = sha256_text(canonical_json(request))
     cargo = load_cargo_manifest(backend_crate)
     inventory, tree_digest = source_inventory(backend_crate)
-    source_blob = read_source_blob(backend_crate)
+    source_files = read_source_files(backend_crate)
+    source_blob = "\n".join(source["text"] for source in source_files)
     capabilities = detect_capabilities(cargo, source_blob)
     blockers = detected_blockers(capabilities)
     admissible = not blockers
@@ -291,6 +436,10 @@ def build_report(request_path, backend_crate, generated_at=None, backend_label=N
             "source_inventory": inventory,
         },
         "capabilities": capabilities,
+        "diagnostics": {
+            "blocker_evidence": blocker_evidence(cargo, source_files, blockers),
+            "remediation_order": remediation_order(blockers),
+        },
         "admissibility": {
             "admissible_for_p1_nonce_handoff": admissible,
             "detected_blockers": blockers,

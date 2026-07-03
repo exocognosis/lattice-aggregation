@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/admissible-nonce-capture-attempt`
-Commit: `a6ab891f45ae7b4b202dfbae28c7db49822066cb`
+Branch: `codex/nonce-readiness-diagnostics`
+Commit: `118186cd1b9b8cf7f29b4099d4d5da62f7a908e2`
 
 ## Criteria
 

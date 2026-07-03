@@ -16,6 +16,8 @@ CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 ATTEMPT_STATUS_BLOCKED = "backend_readiness_blocked"
 ATTEMPT_STATUS_PROMOTED = "capture_promoted"
+ATTEMPT_STATUS_EXECUTION_FAILED = "capture_execution_failed"
+ATTEMPT_STATUS_VALIDATION_FAILED = "capture_validation_failed"
 REQUEST_PLACEHOLDER = "{request}"
 
 
@@ -81,12 +83,16 @@ def attempt_manifest(
     backend_command,
     generated_at,
     handoff_manifest_path=None,
+    attempt_status=None,
+    capture_failure=None,
 ):
     """Build the top-level capture-attempt manifest."""
     out_dir = Path(out_dir)
     admissibility = readiness_manifest["admissibility"]
     admissible = admissibility["admissible_for_p1_nonce_handoff"]
-    status = ATTEMPT_STATUS_PROMOTED if admissible else ATTEMPT_STATUS_BLOCKED
+    status = attempt_status or (
+        ATTEMPT_STATUS_PROMOTED if admissible else ATTEMPT_STATUS_BLOCKED
+    )
     handoff_sha256 = (
         sha256_path(handoff_manifest_path) if handoff_manifest_path else None
     )
@@ -114,6 +120,7 @@ def attempt_manifest(
         "backend_command_template": list(backend_command_template),
         "backend_command": list(backend_command),
         "backend_command_executed": bool(admissible),
+        "capture_failure": capture_failure,
         "handoff_manifest_path": (
             relative_to_out(out_dir, handoff_manifest_path)
             if handoff_manifest_path
@@ -152,6 +159,10 @@ def render_summary(manifest):
         )
     if manifest["handoff_manifest_path"]:
         lines.append(f"- Handoff manifest: `{manifest['handoff_manifest_path']}`")
+    if manifest.get("capture_failure"):
+        lines.append(
+            f"- Capture failure phase: `{manifest['capture_failure']['phase']}`"
+        )
     lines.extend(
         [
             "",
@@ -181,6 +192,21 @@ def write_attempt_artifacts(out_dir, manifest):
     (out_dir / "manifest.json").write_text(canonical_json(manifest), encoding="utf-8")
     (out_dir / "summary.md").write_text(render_summary(manifest), encoding="utf-8")
     (out_dir / "SHA256SUMS").write_text(render_checksums(out_dir), encoding="utf-8")
+
+
+def capture_failure_record(phase, exc):
+    """Return a durable capture failure object for the attempt manifest."""
+    result = getattr(exc, "result", None)
+    failure = {
+        "phase": phase,
+        "error_type": type(exc).__name__,
+        "message": str(exc),
+    }
+    if isinstance(result, dict):
+        for key in ("command", "exit_code", "duration_seconds", "stdout", "stderr"):
+            if key in result:
+                failure[key] = result[key]
+    return failure
 
 
 def build_attempt(
@@ -234,16 +260,27 @@ def build_attempt(
 
     handoff_report = None
     handoff_manifest_path = None
+    attempt_status = (
+        ATTEMPT_STATUS_PROMOTED if admissible else ATTEMPT_STATUS_BLOCKED
+    )
+    capture_failure = None
     if admissible:
-        handoff_report = handoff.build_handoff(
-            root,
-            handoff_dir,
-            backend_command=command,
-            backend_readiness=readiness_manifest_path,
-            reuse_request=True,
-            generated_at=generated_at,
-        )
-        handoff_manifest_path = handoff_dir / "manifest.json"
+        try:
+            handoff_report = handoff.build_handoff(
+                root,
+                handoff_dir,
+                backend_command=command,
+                backend_readiness=readiness_manifest_path,
+                reuse_request=True,
+                generated_at=generated_at,
+            )
+            handoff_manifest_path = handoff_dir / "manifest.json"
+        except (RuntimeError, OSError) as exc:
+            attempt_status = ATTEMPT_STATUS_EXECUTION_FAILED
+            capture_failure = capture_failure_record("execution", exc)
+        except ValueError as exc:
+            attempt_status = ATTEMPT_STATUS_VALIDATION_FAILED
+            capture_failure = capture_failure_record("validation", exc)
 
     manifest = attempt_manifest(
         out_dir,
@@ -254,6 +291,8 @@ def build_attempt(
         command,
         generated_at,
         handoff_manifest_path=handoff_manifest_path,
+        attempt_status=attempt_status,
+        capture_failure=capture_failure,
     )
     write_attempt_artifacts(out_dir, manifest)
     return {

@@ -1,7 +1,7 @@
 {
-  "branch": "codex/admissible-nonce-capture-attempt",
+  "branch": "codex/nonce-readiness-diagnostics",
   "claim_boundary": "research scaffold only",
-  "commit": "a6ab891f45ae7b4b202dfbae28c7db49822066cb",
+  "commit": "118186cd1b9b8cf7f29b4099d4d5da62f7a908e2",
   "criteria": [
     {
       "blocker_count": 3,

@@ -53,11 +53,12 @@ python3 scripts/check_nonce_producer_backend_readiness.py \
 ```
 
 The preflight records the request SHA-256, source-tree checksums, Cargo package
-metadata, detected distributed nonce-PRF interfaces, and blockers. A backend is
-not admissible for this handoff while the report detects hazmat features,
-simulated defaults, centralized nonce-PRF oracles, deterministic test-vector
-plumbing, localnet/simulation markers, or missing reviewed external capture
-contract material.
+metadata, detected distributed nonce-PRF interfaces, source-level blocker
+diagnostics, and an ordered remediation list. A backend is not admissible for
+this handoff while the report detects hazmat features, simulated defaults,
+centralized nonce-PRF oracles, deterministic test-vector plumbing,
+localnet/simulation markers, or missing reviewed external capture contract
+material.
 
 The current checked readiness artifact is:
 
@@ -87,7 +88,10 @@ writes a top-level attempt manifest. If readiness is blocked, it records
 `backend_readiness_blocked`, writes the readiness artifacts, and does not
 execute the backend command. If readiness is admissible, it reuses the same
 request in `scripts/run_nonce_producer_handoff_replay.py` and records
-`capture_promoted`.
+`capture_promoted`. If readiness is admissible but the backend command fails
+or emits invalid capture JSON, the attempt still writes a durable top-level
+manifest with `capture_execution_failed` or `capture_validation_failed`,
+including the command failure phase and available command output.
 
 The current checked attempt artifact is:
 

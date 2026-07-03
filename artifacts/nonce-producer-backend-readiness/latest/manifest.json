@@ -212,7 +212,89 @@
   },
   "claim_boundary": "conformance/proof-review evidence only",
   "closure_boundary": "Backend readiness and source capability detection only; an actual reviewed capture and proof review remain required.",
-  "generated_at": "2026-07-03T15:27:38Z",
+  "diagnostics": {
+    "blocker_evidence": [
+      {
+        "blocker": "missing reviewed external capture contract marker",
+        "evidence": [
+          {
+            "line": null,
+            "path": "src/**/*.rs",
+            "value": "required markers not found together: p1_shamir_nonce_dkg_tee_external_capture, abort_accountability"
+          }
+        ]
+      },
+      {
+        "blocker": "hazmat feature present",
+        "evidence": [
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "feature = hazmat"
+          },
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "feature = hazmat-real-mldsa"
+          }
+        ]
+      },
+      {
+        "blocker": "simulated default feature present",
+        "evidence": [
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "default-feature = simulated"
+          }
+        ]
+      },
+      {
+        "blocker": "research-grade simulation backend marker present",
+        "evidence": [
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "category = simulation"
+          },
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "description = Research-grade threshold ML-DSA-65 API boundary and simulation backend"
+          }
+        ]
+      },
+      {
+        "blocker": "centralized nonce PRF oracle present",
+        "evidence": [
+          {
+            "line": 1521,
+            "path": "src/low_level/mldsa65.rs",
+            "value": "pub fn derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key("
+          }
+        ]
+      },
+      {
+        "blocker": "deterministic test-vector plumbing present",
+        "evidence": [
+          {
+            "line": 713,
+            "path": "src/low_level/mldsa65.rs",
+            "value": "/// producer; the splitter below is deterministic test-vector plumbing for that"
+          }
+        ]
+      }
+    ],
+    "remediation_order": [
+      "add reviewed external capture contract markers for p1_shamir_nonce_dkg_tee_external_capture and abort_accountability",
+      "remove hazmat Cargo features from the capture backend crate or split production capture into a separate non-hazmat package",
+      "remove simulated from Cargo default features for the capture backend crate",
+      "remove simulation package metadata from the reviewed capture backend boundary",
+      "remove centralized nonce PRF oracle symbols from the capture backend boundary",
+      "remove deterministic test-vector plumbing from the capture backend boundary"
+    ]
+  },
+  "generated_at": "2026-07-03T16:41:37Z",
   "next_capture_command": [
     "python3",
     "scripts/run_nonce_producer_handoff_replay.py",
@@ -242,7 +324,7 @@
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
     "name": "p1-reviewed-nonce-producer-request-001",
     "request_path": "artifacts/nonce-producer-handoff/latest/request/request.json",
-    "request_sha256": "c1bf319849c5fa7d76f52dae3905d2d93126a6dcf38a2e5b169480fe1870e82e",
+    "request_sha256": "7d5431b5eb4382f6ad0206ba4f0b1ff8d71c33dd287755c629b6f62170621560",
     "required_producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },

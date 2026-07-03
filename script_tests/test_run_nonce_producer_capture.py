@@ -163,6 +163,16 @@ def malformed_capture_runner(command, root, env):
     }
 
 
+def failing_capture_runner(command, root, env):
+    return {
+        "command": command,
+        "exit_code": 23,
+        "duration_seconds": 0.4,
+        "stdout": "partial stdout",
+        "stderr": "backend stderr",
+    }
+
+
 class NonceProducerCaptureRunnerTests(unittest.TestCase):
     def test_build_report_invokes_nonce_producer_capture_runner_and_writes_importable_capture_json(
         self,
@@ -215,6 +225,54 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertNotIn("localnet", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
         self.assertIn("does not prove Criterion 2", summary_md)
+
+    def test_build_report_raises_structured_execution_error_with_command_output(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "backend stderr") as caught:
+                module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=["/opt/nonce-producer", "emit-capture"],
+                    command_runner=failing_capture_runner,
+                    metadata_provider=fake_metadata,
+                )
+
+        self.assertEqual(caught.exception.phase, "execution")
+        self.assertEqual(caught.exception.result["exit_code"], 23)
+        self.assertEqual(caught.exception.result["stdout"], "partial stdout")
+        self.assertEqual(caught.exception.result["stderr"], "backend stderr")
+
+    def test_build_report_raises_structured_validation_error_with_command_output(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "canonical capture JSON") as caught:
+                module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=["/opt/nonce-producer", "emit-capture"],
+                    command_runner=lambda command, root, env: {
+                        "command": command,
+                        "exit_code": 0,
+                        "duration_seconds": 0.2,
+                        "stdout": "not json",
+                        "stderr": "warning",
+                    },
+                    metadata_provider=fake_metadata,
+                )
+
+        self.assertEqual(caught.exception.phase, "validation")
+        self.assertEqual(caught.exception.result["exit_code"], 0)
+        self.assertEqual(caught.exception.result["stdout"], "not json")
+        self.assertEqual(caught.exception.result["stderr"], "warning")
 
     def test_build_report_rejects_capture_that_omits_or_stales_request_binding(self):
         module = load_module()
