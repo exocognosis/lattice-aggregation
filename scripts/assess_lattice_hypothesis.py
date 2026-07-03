@@ -399,6 +399,15 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+        "current_status": (
+            "checked_handoff_replay_importable_until_actual_backend_evidence"
+        ),
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": (
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1004,6 +1013,12 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
         "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
+        "artifacts/nonce-producer-handoff/latest/manifest.json",
+        "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+        "scripts/run_nonce_producer_handoff_replay.py",
+        "scripts/emit_reviewed_nonce_producer_capture.py",
+        "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",

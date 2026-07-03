@@ -16,6 +16,15 @@ class CiWorkflowTests(unittest.TestCase):
             workflow,
         )
 
+    def test_ci_runs_nonce_producer_handoff_replay(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+
+        self.assertIn("Nonce producer handoff replay", workflow)
+        self.assertIn(
+            "python3 scripts/run_nonce_producer_handoff_replay.py --root . --out /tmp/lattice-nonce-producer-handoff-replay",
+            workflow,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

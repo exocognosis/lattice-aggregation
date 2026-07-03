@@ -112,6 +112,8 @@ const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGES
     "fcd09b72c5443409c02e407d45b150cde307aba9346b82d0e2e818109574eb83";
 const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "0cb401b91c79a1e0803fb2bf53fc5af89355e85642f42ca94283990874e70976";
+const EXPECTED_P1_NONCE_PRODUCER_HANDOFF_REPLAY_ARTIFACT_DIGEST_HEX: &str =
+    "69276321cc84439a43fa73dd0f3db5311779b13fed9a93f7125de0e76dfb4ffb";
 #[cfg(feature = "hazmat-real-mldsa")]
 const EXPECTED_P1_STANDARD_PROVIDER_SINGLE_KEY_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
     "56de4e8bb21b601c1985483b469fd4fc9d591efbb015fd08852574a821eb9074";
@@ -5953,6 +5955,54 @@ fn distributed_nonce_producer_capture_json_feeds_artifact_gate_when_actual_evide
     assert_eq!(
         capture.producer_evidence(),
         "p1_shamir_nonce_dkg_tee_external_capture"
+    );
+    let assessment = assess_p1_distributed_nonce_producer_artifact(
+        &threshold_certificate,
+        &compatibility_certificate,
+        Some(package),
+    );
+    assert!(assessment.is_artifact_ready());
+}
+
+#[test]
+fn checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer() {
+    let fixture = standard_verifier_bridge_fixture();
+    let threshold_certificate = selected_backend_threshold_output_artifact_certificate(&fixture);
+    let compatibility_certificate = standard_verifier_compatibility_artifact_certificate(&fixture);
+    let manifest: Value = serde_json::from_str(include_str!(
+        "../artifacts/nonce-producer-handoff/latest/manifest.json"
+    ))
+    .expect("nonce-producer handoff replay manifest should parse");
+    let capture = P1DistributedNonceProducerCapture::decode_json(include_bytes!(
+        "../artifacts/nonce-producer-handoff/latest/capture/capture.json"
+    ))
+    .expect("checked handoff replay capture should parse");
+    let request_name = manifest["request_name"]
+        .as_str()
+        .expect("handoff manifest carries request name");
+    let request_sha256_hex = manifest["request_sha256"]
+        .as_str()
+        .expect("handoff manifest carries request SHA-256");
+
+    let package = derive_p1_distributed_nonce_producer_artifact_package_from_capture(
+        &threshold_certificate,
+        &compatibility_certificate,
+        P1DistributedNonceProducerRequestDigestBinding {
+            name: request_name,
+            request_sha256: decode_hex_array(request_sha256_hex),
+        },
+        &capture,
+    )
+    .expect("checked handoff replay capture should feed the Rust importer");
+
+    assert_eq!(
+        capture.request_sha256_hex(),
+        Some(request_sha256_hex),
+        "capture must echo the exact generated request digest",
+    );
+    assert_eq!(
+        encode_hex(&package.distributed_nonce_producer_artifact_digest),
+        EXPECTED_P1_NONCE_PRODUCER_HANDOFF_REPLAY_ARTIFACT_DIGEST_HEX,
     );
     let assessment = assess_p1_distributed_nonce_producer_artifact(
         &threshold_certificate,
