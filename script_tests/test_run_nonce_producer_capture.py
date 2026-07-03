@@ -226,6 +226,56 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertIn("evidence_present_unclosed", summary_md)
         self.assertIn("does not prove Criterion 2", summary_md)
 
+    def test_build_report_rejects_local_replay_emitter_as_external_capture(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "quarantined local replay"):
+                module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=[
+                        "python3",
+                        "scripts/emit_reviewed_nonce_producer_capture.py",
+                        "--request",
+                        str(request_path),
+                    ],
+                    command_runner=fake_capture_runner,
+                    metadata_provider=fake_metadata,
+                )
+
+    def test_build_report_can_mark_local_replay_emitter_as_quarantined(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            report = module.build_report(
+                root,
+                request_path=request_path,
+                backend_command=[
+                    "python3",
+                    "scripts/emit_reviewed_nonce_producer_capture.py",
+                    "--request",
+                    str(request_path),
+                ],
+                command_runner=fake_capture_runner,
+                metadata_provider=fake_metadata,
+                allow_quarantined_replay=True,
+            )
+
+        manifest = report["manifest"]
+        self.assertEqual(
+            manifest["capture_source_profile"],
+            "quarantined_local_schema_replay",
+        )
+        self.assertTrue(manifest["quarantine"]["quarantined"])
+        self.assertIn("schema/importer replay only", manifest["quarantine"]["allowed_use"])
+
     def test_build_report_raises_structured_execution_error_with_command_output(self):
         module = load_module()
 

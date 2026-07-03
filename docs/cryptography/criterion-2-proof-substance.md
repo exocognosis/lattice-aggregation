@@ -102,8 +102,10 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer`
   imports that exact capture through
   `derive_p1_distributed_nonce_producer_artifact_package_from_capture`.
-  This replay proves the executable handoff is wired, not that an external
-  backend has closed Criterion 2.
+  This replay is now marked `quarantined_local_schema_replay`: it proves the
+  executable request/capture/import handoff is wired, not that an external
+  backend has closed Criterion 2. The explicit external-backend path rejects
+  that local replay emitter unless the runner is in quarantined replay mode.
   The backend readiness preflight
   `scripts/check_nonce_producer_backend_readiness.py` inspects candidate
   backend source before capture promotion. Its current artifact
@@ -116,8 +118,9 @@ The Criterion 2 proof payload requires these slots before any promotion:
   oracle and deterministic test-vector plumbing. The readiness artifact now
   carries source-level blocker diagnostics and an ordered remediation list, so
   backend work can target the exact Cargo/source markers that block capture
-  promotion. This readiness artifact is a fail-closed boundary check, not
-  reviewed external nonce-producer evidence.
+  promotion, and it classifies those markers as quarantined sources. This
+  readiness artifact is a fail-closed boundary check, not reviewed external
+  nonce-producer evidence.
   The handoff replay now requires an admissible backend-readiness manifest for
   every explicit external backend command, supports `--reuse-request` so the
   readiness manifest binds the exact request SHA-256, and records accepted
@@ -327,14 +330,17 @@ actual external nonce-producer captures while remaining
 `docs/cryptography/p1-nonce-producer-backend-cli-contract.md`, and checked
 replay artifacts under `artifacts/nonce-producer-handoff/latest/` bind a
 generated request, command metadata, capture logs, checksums, request SHA-256,
-and importer-accepted capture JSON for review. The accepted
+and importer-accepted capture JSON for review. The replay manifest now records
+`quarantined_local_schema_replay` so this fixture-style path cannot masquerade
+as an admissible external backend capture. The accepted
 backend readiness artifact at
 `artifacts/nonce-producer-backend-readiness/latest/manifest.json` records that
 the local `dytallix-pq-threshold` candidate has distributed nonce-PRF
 interfaces but is `backend_detected_not_admissible` because hazmat, simulated
 default, centralized nonce PRF oracle, and deterministic test-vector plumbing
-markers are still present. It now includes source-level blocker diagnostics
-and remediation order for those markers. The handoff replay enforces that a real external
+markers are still present. It now includes source-level blocker diagnostics,
+quarantined-source classification, and remediation order for those markers.
+The handoff replay enforces that a real external
 backend command cannot be promoted without an admissible readiness manifest
 bound to the reused request SHA-256. The capture-attempt runner
 `scripts/run_admissible_nonce_producer_capture_attempt.py` records this

@@ -69,13 +69,18 @@
         "backend_capture_request_builder": "scripts/build_nonce_producer_request.py",
         "backend_capture_runner": "scripts/run_nonce_producer_capture.py",
         "backend_capture_runner_status": "evidence_present_unclosed",
-        "backend_capture_runner_precondition": "external command emits canonical P1 distributed nonce-producer capture JSON and is not localnet, deterministic, fixture, hazmat, centralized, or single-key provider material",
+        "backend_capture_runner_precondition": "external command emits canonical P1 distributed nonce-producer capture JSON and is not localnet, deterministic, fixture, hazmat, centralized, single-key provider material, or the quarantined local replay emitter",
+        "backend_capture_source_profiles": [
+          "admissible_external_backend_capture",
+          "quarantined_local_schema_replay"
+        ],
         "backend_cli_contract": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
         "backend_readiness_checker": "scripts/check_nonce_producer_backend_readiness.py",
         "backend_readiness_status": "backend_detected_not_admissible",
         "backend_readiness_artifact": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
         "backend_readiness_checked_candidate": "local-dytallix-pq-threshold-candidate",
         "backend_readiness_diagnostics": "source-level blocker evidence plus ordered remediation for Cargo features, package metadata, centralized nonce PRF oracle symbols, deterministic test-vector plumbing, and missing reviewed capture markers",
+        "backend_readiness_quarantine": "hazmat, simulation, centralized-oracle, deterministic test-vector, fixture, localnet, and single-key paths are quarantined away from the admissible capture route",
         "backend_readiness_detected_interfaces": [
           "distributed_nonce_prf_output_share_interface",
           "distributed_nonce_prf_output_splitter",
@@ -102,6 +107,7 @@
         "backend_handoff_replay": "scripts/run_nonce_producer_handoff_replay.py",
         "backend_handoff_replay_status": "evidence_present_unclosed",
         "backend_handoff_replay_artifact": "artifacts/nonce-producer-handoff/latest/manifest.json",
+        "backend_handoff_replay_source_profile": "quarantined_local_schema_replay",
         "backend_handoff_replay_request": "artifacts/nonce-producer-handoff/latest/request/request.json",
         "backend_handoff_replay_capture": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
         "backend_handoff_readiness_required_for_explicit_backend_command": true,

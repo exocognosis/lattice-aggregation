@@ -2,16 +2,16 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/nonce-readiness-diagnostics`
-Commit: `118186cd1b9b8cf7f29b4099d4d5da62f7a908e2`
+Branch: `codex/quarantine-admissible-handoff`
+Commit: `817ae0e1281ba8c582705c8f764c04b917298b11`
 
 ## Criteria
 
-- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (26 evidence entries, 9 blockers)
-- `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
-- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
-- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)
+- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 4 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (26 evidence entries, 10 blockers)
+- `abort_retry_bias`: `partially_met` (3 evidence entries, 3 blockers)
+- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 3 blockers)
+- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 3 blockers)
 
 ## Proof Artifact Slots
 

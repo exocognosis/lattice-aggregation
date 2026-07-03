@@ -360,6 +360,26 @@ def remediation_order(blockers):
     ]
 
 
+def quarantine_record(blockers, blocker_records, remediation):
+    """Return explicit quarantine metadata for non-admissible backend surfaces."""
+    quarantined = bool(blockers)
+    return {
+        "policy": (
+            "hazmat, simulation, centralized-oracle, deterministic test-vector, "
+            "fixture, localnet, and single-key paths may remain only as "
+            "test/conformance fixtures; they are not admissible capture sources"
+        ),
+        "quarantined": quarantined,
+        "quarantined_sources": list(blockers),
+        "quarantine_evidence": blocker_records,
+        "safe_replacement_requirements": list(remediation),
+        "admissible_route": (
+            "explicit external backend command plus admissible readiness manifest "
+            "and request-bound reviewed P1 capture"
+        ),
+    }
+
+
 def render_summary(manifest):
     """Render a concise backend readiness summary."""
     admissible = manifest["admissibility"]["admissible_for_p1_nonce_handoff"]
@@ -376,6 +396,7 @@ def render_summary(manifest):
             f"- Request SHA-256: `{manifest['request']['request_sha256']}`",
             f"- Source tree SHA-256: `{manifest['backend']['source_tree_sha256']}`",
             f"- Admissible for P1 handoff: `{str(admissible).lower()}`",
+            f"- Quarantined sources: `{str(manifest['quarantine']['quarantined']).lower()}`",
             "",
             "This artifact does not prove Criterion 2, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
@@ -397,6 +418,8 @@ def build_report(request_path, backend_crate, generated_at=None, backend_label=N
     source_blob = "\n".join(source["text"] for source in source_files)
     capabilities = detect_capabilities(cargo, source_blob)
     blockers = detected_blockers(capabilities)
+    blocker_records = blocker_evidence(cargo, source_files, blockers)
+    remediation = remediation_order(blockers)
     admissible = not blockers
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -437,9 +460,10 @@ def build_report(request_path, backend_crate, generated_at=None, backend_label=N
         },
         "capabilities": capabilities,
         "diagnostics": {
-            "blocker_evidence": blocker_evidence(cargo, source_files, blockers),
-            "remediation_order": remediation_order(blockers),
+            "blocker_evidence": blocker_records,
+            "remediation_order": remediation,
         },
+        "quarantine": quarantine_record(blockers, blocker_records, remediation),
         "admissibility": {
             "admissible_for_p1_nonce_handoff": admissible,
             "detected_blockers": blockers,

@@ -238,6 +238,23 @@ class NonceProducerBackendReadinessTests(unittest.TestCase):
             "add reviewed external capture contract markers",
             " ".join(diagnostics["remediation_order"]),
         )
+        self.assertTrue(manifest["quarantine"]["quarantined"])
+        self.assertIn(
+            "centralized nonce PRF oracle present",
+            manifest["quarantine"]["quarantined_sources"],
+        )
+        self.assertIn(
+            "deterministic test-vector plumbing present",
+            manifest["quarantine"]["quarantined_sources"],
+        )
+        self.assertIn(
+            "explicit external backend command",
+            manifest["quarantine"]["admissible_route"],
+        )
+        self.assertIn(
+            "remove centralized nonce PRF oracle symbols",
+            " ".join(manifest["quarantine"]["safe_replacement_requirements"]),
+        )
         self.assertIn("backend_detected_not_admissible", summary)
         self.assertIn("does not prove Criterion 2", summary)
 
@@ -264,6 +281,9 @@ class NonceProducerBackendReadinessTests(unittest.TestCase):
         self.assertTrue(
             manifest["capabilities"]["reviewed_external_capture_contract"]
         )
+        self.assertFalse(manifest["quarantine"]["quarantined"])
+        self.assertEqual(manifest["quarantine"]["quarantined_sources"], [])
+        self.assertEqual(manifest["quarantine"]["safe_replacement_requirements"], [])
         self.assertIn("--backend-command", manifest["next_capture_command"])
         self.assertEqual(
             manifest["request"]["schema"],

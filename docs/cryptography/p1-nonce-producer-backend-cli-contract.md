@@ -13,7 +13,9 @@ validation, or theorem closure.
 
 ## Request Input
 
-The checked replay can generate the current request artifacts:
+The checked replay can generate the current request artifacts. This default
+path is a quarantined local schema/importer replay, not actual external
+backend evidence:
 
 ```bash
 python3 scripts/run_nonce_producer_handoff_replay.py \
@@ -118,10 +120,13 @@ python3 scripts/run_nonce_producer_handoff_replay.py \
     --request artifacts/nonce-producer-handoff/latest/request/request.json
 ```
 
-The backend command must read the request JSON path supplied by its own
-arguments and must write only canonical capture JSON to stdout. The handoff
-manifest records the accepted readiness schema, readiness SHA-256, package
-name, source-tree SHA-256, readiness status, and request SHA-256.
+The backend command must be an explicit external command, must read the request
+JSON path supplied by its own arguments, and must write only canonical capture
+JSON to stdout. The local checked replay emitter is rejected on this path as a
+quarantined local replay source. The handoff manifest records the accepted
+readiness schema, readiness SHA-256, package name, source-tree SHA-256,
+readiness status, request SHA-256, and whether the source profile is an
+`admissible_external_backend_capture` or a quarantined local replay.
 
 ## Capture Output
 
@@ -172,6 +177,7 @@ known scaffold sources:
 - hazmat PRF-output oracles
 - centralized expanded-secret-key helpers
 - ordinary single-key standard-provider output
+- the local checked replay emitter when used as an explicit external backend
 
 It also rejects missing, stale, or mismatched request digests; missing
 predecessor digests; missing expected digests; unknown capture fields; empty
@@ -188,11 +194,9 @@ The checked replay path is:
 - `artifacts/nonce-producer-handoff/latest/capture/capture.json`
 
 The checked replay emitter exists so CI and reviewers can verify the executable
-request/capture/import handoff. It is not a production threshold backend and it
-does not replace the required externally generated reviewed P1 nonce-producer
-material.
-It does not replace the required externally generated reviewed P1 nonce-producer material.
+request/capture/import handoff. It is not a production threshold backend, and
+does not replace the required externally generated reviewed P1 nonce-producer material.
 
-The replay manifest records `request_sha256`, `capture_sha256`,
-`backend_command_sha256`, command metadata, logs, checksums, and the imported
-capture path.
+The replay manifest records `quarantined_local_schema_replay`,
+`request_sha256`, `capture_sha256`, `backend_command_sha256`, command metadata,
+logs, checksums, and the imported capture path.

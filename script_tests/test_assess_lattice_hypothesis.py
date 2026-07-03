@@ -911,8 +911,13 @@ class ReportGenerationTests(unittest.TestCase):
             "REQUEST_SCHEMA = \"lattice-aggregation:p1-distributed-nonce-producer-request:v1\"\n"
             "EXTERNAL_PRODUCER_EVIDENCE = \"p1_shamir_nonce_dkg_tee_external_capture\"\n"
             "RUNNER_STATUS = \"evidence_present_unclosed\"\n"
+            "CAPTURE_SOURCE_PROFILE_EXTERNAL = \"admissible_external_backend_capture\"\n"
+            "CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY = \"quarantined_local_schema_replay\"\n"
+            "QUARANTINED_LOCAL_REPLAY_TOKENS = ('emit_reviewed_nonce_producer_capture.py',)\n"
             "FORBIDDEN_BACKEND_COMMAND_TOKENS = ('localnet', 'hazmat', 'centralized')\n"
             "def validate_backend_command(command): pass\n"
+            "def validate_capture_source_profile(command):\n"
+            "    raise ValueError('quarantined local replay')\n"
             "def load_request(path): pass\n"
             "def validate_request_binding(binding): pass\n"
             "def validate_capture_matches_request(capture, request):\n"
@@ -931,6 +936,9 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_build_report_invokes_nonce_producer_capture_runner_and_writes_importable_capture_json(): pass\n"
             "def test_build_report_rejects_capture_that_omits_or_stales_request_binding(): pass\n"
             "def test_build_report_rejects_hazmat_localnet_or_fixture_sources(): pass\n"
+            "def test_build_report_rejects_local_replay_emitter_as_external_capture(): pass\n"
+            "def test_build_report_can_mark_local_replay_emitter_as_quarantined(): pass\n"
+            "quarantined_local_schema_replay\n"
             "def test_build_report_rejects_non_importable_capture_shape_before_artifact_write(): pass\n"
             "request_sha256\n"
             "request digest mismatch\n"
@@ -940,11 +948,15 @@ class ReportGenerationTests(unittest.TestCase):
         )
         (root / "scripts" / "run_nonce_producer_handoff_replay.py").write_text(
             "READINESS_SCHEMA = \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\"\n"
+            "HANDOFF_SOURCE_PROFILE_EXTERNAL = \"admissible_external_backend_capture\"\n"
+            "HANDOFF_SOURCE_PROFILE_QUARANTINED_REPLAY = \"quarantined_local_schema_replay\"\n"
             "def validate_backend_readiness(backend_readiness, request_report):\n"
             "    raise ValueError('backend readiness is not admissible')\n"
             "backend_readiness = 'backend_readiness'\n"
             "backend_readiness_report = 'backend_readiness_report'\n"
             "reuse_request = 'reuse_request'\n"
+            "allow_quarantined_replay = True\n"
+            "handoff_source_profile = 'handoff_source_profile'\n"
             "raise ValueError('requires admissible backend readiness')\n"
             "backend_candidate_admissible_pending_capture = 'backend_candidate_admissible_pending_capture'\n",
             encoding="utf-8",
@@ -955,6 +967,9 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_handoff_replay_requires_readiness_for_explicit_backend_command(): pass\n"
             "def test_handoff_replay_rejects_blocked_backend_readiness(): pass\n"
             "def test_handoff_replay_accepts_admissible_readiness_bound_to_reused_request(): pass\n"
+            "def test_handoff_replay_rejects_quarantined_local_replay_as_external_backend(): pass\n"
+            "quarantined_local_schema_replay\n"
+            "admissible_external_backend_capture\n"
             "requires admissible backend readiness\n"
             "backend readiness is not admissible\n",
             encoding="utf-8",
@@ -964,6 +979,10 @@ class ReportGenerationTests(unittest.TestCase):
         ).write_text(
             "READINESS_SCHEMA = \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\"\n"
             "ENV_BACKEND_CRATE = \"LATTICE_NONCE_PRODUCER_BACKEND_CRATE\"\n"
+            "def quarantine_record(blockers, blocker_records, remediation):\n"
+            "    quarantined_sources = blockers\n"
+            "    safe_replacement_requirements = remediation\n"
+            "    return {'quarantined_sources': quarantined_sources, 'safe_replacement_requirements': safe_replacement_requirements}\n"
             "def detect_capabilities(cargo, source_blob):\n"
             "    return {'centralized_nonce_prf_oracle': True, 'simulated_default_feature': True, 'hazmat_feature': True, 'reviewed_external_capture_contract': False}\n"
             "def detected_blockers(capabilities):\n"
@@ -982,7 +1001,8 @@ class ReportGenerationTests(unittest.TestCase):
             "backend_detected_not_admissible\n"
             "centralized nonce PRF oracle\n"
             "simulated default feature\n"
-            "hazmat feature\n",
+            "hazmat feature\n"
+            "quarantined_sources\n",
             encoding="utf-8",
         )
         readiness_dir = (
@@ -995,6 +1015,10 @@ class ReportGenerationTests(unittest.TestCase):
             "  \"readiness_status\": \"backend_detected_not_admissible\",\n"
             "  \"backend\": {\"package_name\": \"dytallix-pq-threshold\"},\n"
             "  \"capabilities\": {\"distributed_nonce_prf_output_share_interface\": true},\n"
+            "  \"quarantine\": {\n"
+            "    \"quarantined_sources\": [\"centralized nonce PRF oracle present\"],\n"
+            "    \"safe_replacement_requirements\": [\"remove centralized nonce PRF oracle symbols\"]\n"
+            "  },\n"
             "  \"admissibility\": {\n"
             "    \"admissible_for_p1_nonce_handoff\": false,\n"
             "    \"detected_blockers\": [\n"
@@ -2394,9 +2418,12 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("exact request schema/name/SHA-256 binding", aggregate_evidence)
         self.assertIn("rejects stale request digests", aggregate_evidence)
         self.assertIn("non-importable capture shapes", aggregate_evidence)
+        self.assertIn("quarantined_local_schema_replay", aggregate_evidence)
+        self.assertIn("admissible_external_backend_capture", aggregate_evidence)
         self.assertIn("backend readiness gate", aggregate_evidence)
         self.assertIn("backend_detected_not_admissible", aggregate_evidence)
         self.assertIn("source-level blocker diagnostics", aggregate_evidence)
+        self.assertIn("quarantined sources", aggregate_evidence)
         self.assertIn("remediation order", aggregate_evidence)
         self.assertIn("capture-attempt runner", aggregate_evidence)
         self.assertIn("backend_readiness_blocked", aggregate_evidence)
