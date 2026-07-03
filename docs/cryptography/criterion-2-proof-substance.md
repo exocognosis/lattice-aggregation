@@ -115,6 +115,10 @@ The Criterion 2 proof payload requires these slots before any promotion:
   hazmat/simulated research backend material with a centralized nonce PRF
   oracle and deterministic test-vector plumbing. This readiness artifact is a
   fail-closed boundary check, not reviewed external nonce-producer evidence.
+  The handoff replay now requires an admissible backend-readiness manifest for
+  every explicit external backend command, supports `--reuse-request` so the
+  readiness manifest binds the exact request SHA-256, and records accepted
+  readiness metadata in the handoff manifest.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -315,7 +319,9 @@ backend readiness artifact at
 the local `dytallix-pq-threshold` candidate has distributed nonce-PRF
 interfaces but is `backend_detected_not_admissible` because hazmat, simulated
 default, centralized nonce PRF oracle, and deterministic test-vector plumbing
-markers are still present. The accepted
+markers are still present. The handoff replay enforces that a real external
+backend command cannot be promoted without an admissible readiness manifest
+bound to the reused request SHA-256. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

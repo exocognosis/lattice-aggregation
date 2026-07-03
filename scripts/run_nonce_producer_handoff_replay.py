@@ -13,10 +13,12 @@ from pathlib import Path
 HANDOFF_SCHEMA = "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1"
 REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+READINESS_SCHEMA = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
 EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
 CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 HANDOFF_STATUS = "evidence_present_unclosed"
+ADMISSIBLE_READINESS_STATUS = "backend_candidate_admissible_pending_capture"
 BRIDGE_PATH = "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
 COMPATIBILITY_PATH = (
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
@@ -101,6 +103,29 @@ def build_request_artifacts(root, out_dir, generated_at=None):
     return report
 
 
+def load_request_artifacts(out_dir):
+    """Load an already-generated nonce-producer request artifact set."""
+    out_dir = Path(out_dir)
+    request_path = out_dir / "request.json"
+    manifest_path = out_dir / "manifest.json"
+    request = load_json(request_path)
+    manifest = load_json(manifest_path)
+    if request.get("schema") != REQUEST_SCHEMA:
+        raise ValueError("nonce-producer handoff reuse request schema mismatch")
+    if manifest.get("request_schema") != REQUEST_SCHEMA:
+        raise ValueError("nonce-producer handoff reuse request manifest schema mismatch")
+    if manifest.get("request_sha256") != sha256_text(canonical_json(request)):
+        raise ValueError("nonce-producer handoff reuse request digest mismatch")
+    return {
+        "request": request,
+        "request_json": canonical_json(request),
+        "manifest": manifest,
+        "summary_md": (out_dir / "summary.md").read_text(encoding="utf-8")
+        if (out_dir / "summary.md").is_file()
+        else "",
+    }
+
+
 def default_backend_command(request_path):
     """Return the checked replay emitter command used by CI."""
     return [
@@ -129,22 +154,101 @@ def build_capture_artifacts(root, request_path, out_dir, backend_command=None, g
     return report
 
 
+def validate_backend_command_source(root, backend_command):
+    """Fail early for explicit backend commands that are known scaffold sources."""
+    if not backend_command:
+        return
+    runner = load_script_module(
+        root,
+        "run_nonce_producer_capture.py",
+        "run_nonce_producer_capture_for_command_validation",
+    )
+    runner.validate_backend_command(list(backend_command))
+
+
+def validate_backend_readiness(readiness_path, request_report):
+    """Validate an admissible backend-readiness manifest for the request."""
+    if not readiness_path:
+        raise ValueError(
+            "explicit nonce-producer backend command requires admissible backend readiness"
+        )
+    readiness_path = Path(readiness_path)
+    readiness = load_json(readiness_path)
+    if readiness.get("schema") != READINESS_SCHEMA:
+        raise ValueError("backend readiness schema mismatch")
+    if readiness.get("claim_boundary") != CLAIM_BOUNDARY:
+        raise ValueError("backend readiness claim boundary mismatch")
+    if readiness.get("selected_profile") != SELECTED_PROFILE:
+        raise ValueError("backend readiness selected profile mismatch")
+
+    request = readiness.get("request")
+    if not isinstance(request, dict):
+        raise ValueError("backend readiness requires request binding")
+    admissibility = readiness.get("admissibility")
+    if not isinstance(admissibility, dict):
+        raise ValueError("backend readiness requires admissibility result")
+    blockers = admissibility.get("detected_blockers")
+    if not isinstance(blockers, list):
+        raise ValueError("backend readiness requires detected blockers list")
+    if (
+        readiness.get("readiness_status") != ADMISSIBLE_READINESS_STATUS
+        or admissibility.get("admissible_for_p1_nonce_handoff") is not True
+        or blockers
+    ):
+        raise ValueError("backend readiness is not admissible")
+
+    request_sha256 = request_report["manifest"]["request_sha256"]
+    if (
+        request.get("schema") != REQUEST_SCHEMA
+        or request.get("name") != request_report["request"]["name"]
+        or request.get("request_sha256") != request_sha256
+        or request.get("capture_schema") != CAPTURE_SCHEMA
+        or request.get("required_producer_evidence") != EXTERNAL_PRODUCER_EVIDENCE
+    ):
+        raise ValueError("backend readiness request binding mismatch")
+
+    backend = readiness.get("backend")
+    if not isinstance(backend, dict):
+        raise ValueError("backend readiness requires backend metadata")
+    source_tree_sha256 = backend.get("source_tree_sha256")
+    if not isinstance(source_tree_sha256, str) or len(source_tree_sha256) != 64:
+        raise ValueError("backend readiness requires source tree digest")
+    return {
+        "schema": readiness["schema"],
+        "path": str(readiness_path),
+        "sha256": sha256_path(readiness_path),
+        "readiness_status": readiness["readiness_status"],
+        "package_name": backend.get("package_name", "unknown"),
+        "source_tree_sha256": source_tree_sha256,
+        "request_sha256": request_sha256,
+    }
+
+
 def render_summary(manifest):
     """Render a concise handoff replay summary."""
-    return "\n".join(
+    lines = [
+        "# Executable P1 Nonce-Producer Handoff Replay",
+        "",
+        "This artifact builds the current repo request and replays the "
+        "capture/import handoff through the external-command runner. It is "
+        f"{HANDOFF_STATUS} conformance/proof-review evidence only.",
+        "",
+        f"- Request schema: `{manifest['request_schema']}`",
+        f"- Capture schema: `{manifest['capture_schema']}`",
+        f"- Request: `{manifest['request_name']}`",
+        f"- Request SHA-256: `{manifest['request_sha256']}`",
+        f"- Capture SHA-256: `{manifest['capture_sha256']}`",
+        f"- Producer evidence: `{manifest['producer_evidence']}`",
+    ]
+    if manifest.get("backend_readiness"):
+        lines.extend(
+            [
+                f"- Backend readiness: `{manifest['backend_readiness']['readiness_status']}`",
+                f"- Backend package: `{manifest['backend_readiness']['package_name']}`",
+            ]
+        )
+    lines.extend(
         [
-            "# Executable P1 Nonce-Producer Handoff Replay",
-            "",
-            "This artifact builds the current repo request and replays the "
-            "capture/import handoff through the external-command runner. It is "
-            f"{HANDOFF_STATUS} conformance/proof-review evidence only.",
-            "",
-            f"- Request schema: `{manifest['request_schema']}`",
-            f"- Capture schema: `{manifest['capture_schema']}`",
-            f"- Request: `{manifest['request_name']}`",
-            f"- Request SHA-256: `{manifest['request_sha256']}`",
-            f"- Capture SHA-256: `{manifest['capture_sha256']}`",
-            f"- Producer evidence: `{manifest['producer_evidence']}`",
             "",
             "This replay does not prove Criterion 2, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
@@ -152,9 +256,17 @@ def render_summary(manifest):
             "",
         ]
     )
+    return "\n".join(lines)
 
 
-def build_manifest(root, out_dir, request_report, capture_report, generated_at):
+def build_manifest(
+    root,
+    out_dir,
+    request_report,
+    capture_report,
+    generated_at,
+    backend_readiness_report=None,
+):
     """Build the top-level handoff manifest."""
     out_dir = Path(out_dir)
     capture_manifest_path = out_dir / "capture" / "manifest.json"
@@ -177,6 +289,7 @@ def build_manifest(root, out_dir, request_report, capture_report, generated_at):
         "capture_sha256": capture_manifest["capture_sha256"],
         "capture_manifest_sha256": sha256_path(capture_manifest_path),
         "backend_command": capture_manifest["backend_command"],
+        "backend_readiness": backend_readiness_report,
         "predecessors": request_report["request"]["predecessors"],
         "request_dir": "request",
         "capture_dir": "capture",
@@ -210,7 +323,14 @@ def write_top_level_artifacts(out_dir, manifest):
     (out_dir / "SHA256SUMS").write_text(render_checksums(out_dir), encoding="utf-8")
 
 
-def build_handoff(root, out_dir, backend_command=None, generated_at=None):
+def build_handoff(
+    root,
+    out_dir,
+    backend_command=None,
+    backend_readiness=None,
+    reuse_request=False,
+    generated_at=None,
+):
     """Generate request, run capture command, and write replay artifacts."""
     root = Path(root)
     out_dir = Path(out_dir)
@@ -218,7 +338,18 @@ def build_handoff(root, out_dir, backend_command=None, generated_at=None):
     capture_dir = out_dir / "capture"
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
-    request_report = build_request_artifacts(root, request_dir, generated_at=generated_at)
+    request_report = (
+        load_request_artifacts(request_dir)
+        if reuse_request
+        else build_request_artifacts(root, request_dir, generated_at=generated_at)
+    )
+    backend_readiness_report = None
+    if backend_command:
+        validate_backend_command_source(root, backend_command)
+        backend_readiness_report = validate_backend_readiness(
+            backend_readiness,
+            request_report,
+        )
     capture_report = build_capture_artifacts(
         root,
         request_dir / "request.json",
@@ -226,7 +357,14 @@ def build_handoff(root, out_dir, backend_command=None, generated_at=None):
         backend_command=backend_command,
         generated_at=generated_at,
     )
-    manifest = build_manifest(root, out_dir, request_report, capture_report, generated_at)
+    manifest = build_manifest(
+        root,
+        out_dir,
+        request_report,
+        capture_report,
+        generated_at,
+        backend_readiness_report=backend_readiness_report,
+    )
     write_top_level_artifacts(out_dir, manifest)
     return {
         "manifest": manifest,
@@ -253,12 +391,30 @@ def parse_args(argv):
             "omit to use the checked replay emitter"
         ),
     )
+    parser.add_argument(
+        "--backend-readiness",
+        help=(
+            "admissible backend-readiness manifest required for an explicit "
+            "backend command"
+        ),
+    )
+    parser.add_argument(
+        "--reuse-request",
+        action="store_true",
+        help="reuse the existing request artifacts under --out/request",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv or sys.argv[1:])
-    build_handoff(Path(args.root), Path(args.out), backend_command=args.backend_command)
+    build_handoff(
+        Path(args.root),
+        Path(args.out),
+        backend_command=args.backend_command,
+        backend_readiness=args.backend_readiness,
+        reuse_request=args.reuse_request,
+    )
     print(f"wrote nonce-producer handoff replay artifacts to {args.out}")
 
 

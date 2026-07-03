@@ -1590,6 +1590,12 @@ def scan_documents(root):
     nonce_producer_capture_runner_test = read_optional(
         "script_tests/test_run_nonce_producer_capture.py"
     )
+    nonce_producer_handoff_replay = read_optional(
+        "scripts/run_nonce_producer_handoff_replay.py"
+    )
+    nonce_producer_handoff_replay_test = read_optional(
+        "script_tests/test_run_nonce_producer_handoff_replay.py"
+    )
     nonce_producer_backend_readiness = read_optional(
         "scripts/check_nonce_producer_backend_readiness.py"
     )
@@ -2353,6 +2359,19 @@ def scan_documents(root):
             ]
         )
         and all(
+            token in nonce_producer_handoff_replay
+            for token in [
+                "READINESS_SCHEMA",
+                "validate_backend_readiness",
+                "backend_readiness",
+                "backend_readiness_report",
+                "reuse_request",
+                "requires admissible backend readiness",
+                "backend readiness is not admissible",
+                "backend_candidate_admissible_pending_capture",
+            ]
+        )
+        and all(
             token in nonce_producer_backend_readiness_test
             for token in [
                 "test_readiness_report_blocks_hazmat_backend_but_records_nonce_capabilities",
@@ -2362,6 +2381,16 @@ def scan_documents(root):
                 "centralized nonce PRF oracle",
                 "simulated default feature",
                 "hazmat feature",
+            ]
+        )
+        and all(
+            token in nonce_producer_handoff_replay_test
+            for token in [
+                "test_handoff_replay_requires_readiness_for_explicit_backend_command",
+                "test_handoff_replay_rejects_blocked_backend_readiness",
+                "test_handoff_replay_accepts_admissible_readiness_bound_to_reused_request",
+                "requires admissible backend readiness",
+                "backend readiness is not admissible",
             ]
         )
         and all(
@@ -3770,7 +3799,12 @@ def classify_criteria(criteria, scan):
                     "deterministic test-vector plumbing. This is "
                     "evidence_present_unclosed boundary evidence only and "
                     "does not claim theorem closure, rejection-distribution "
-                    "preservation, or production threshold ML-DSA security."
+                    "preservation, or production threshold ML-DSA security. "
+                    "The handoff replay now requires an admissible readiness "
+                    "manifest before explicit external backend commands can "
+                    "be promoted, supports request reuse so the readiness "
+                    "manifest binds the exact request SHA-256, and records "
+                    "accepted readiness metadata in the handoff manifest."
                 )
                 blockers.append(
                     "The nonce-producer backend readiness gate confirms the "

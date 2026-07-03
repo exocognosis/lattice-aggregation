@@ -93,6 +93,10 @@
         "backend_handoff_replay_artifact": "artifacts/nonce-producer-handoff/latest/manifest.json",
         "backend_handoff_replay_request": "artifacts/nonce-producer-handoff/latest/request/request.json",
         "backend_handoff_replay_capture": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "backend_handoff_readiness_required_for_explicit_backend_command": true,
+        "backend_handoff_reuse_request_option": "--reuse-request",
+        "backend_handoff_readiness_option": "--backend-readiness",
+        "backend_handoff_readiness_binding": "admissible readiness manifest must bind request schema, request name, request_sha256, capture schema, producer evidence, package name, and source-tree digest before explicit backend capture promotion",
         "backend_handoff_replay_importer_test": "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "backend_output_required_digests": [
           "source_reference_digest",

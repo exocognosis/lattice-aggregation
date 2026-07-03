@@ -938,6 +938,27 @@ class ReportGenerationTests(unittest.TestCase):
             "fixture_harness\n",
             encoding="utf-8",
         )
+        (root / "scripts" / "run_nonce_producer_handoff_replay.py").write_text(
+            "READINESS_SCHEMA = \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\"\n"
+            "def validate_backend_readiness(backend_readiness, request_report):\n"
+            "    raise ValueError('backend readiness is not admissible')\n"
+            "backend_readiness = 'backend_readiness'\n"
+            "backend_readiness_report = 'backend_readiness_report'\n"
+            "reuse_request = 'reuse_request'\n"
+            "raise ValueError('requires admissible backend readiness')\n"
+            "backend_candidate_admissible_pending_capture = 'backend_candidate_admissible_pending_capture'\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_run_nonce_producer_handoff_replay.py"
+        ).write_text(
+            "def test_handoff_replay_requires_readiness_for_explicit_backend_command(): pass\n"
+            "def test_handoff_replay_rejects_blocked_backend_readiness(): pass\n"
+            "def test_handoff_replay_accepts_admissible_readiness_bound_to_reused_request(): pass\n"
+            "requires admissible backend readiness\n"
+            "backend readiness is not admissible\n",
+            encoding="utf-8",
+        )
         (
             root / "scripts" / "check_nonce_producer_backend_readiness.py"
         ).write_text(
