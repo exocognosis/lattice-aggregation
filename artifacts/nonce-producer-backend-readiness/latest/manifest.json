@@ -294,7 +294,7 @@
       "remove deterministic test-vector plumbing from the capture backend boundary"
     ]
   },
-  "generated_at": "2026-07-03T16:41:37Z",
+  "generated_at": "2026-07-03T17:30:16Z",
   "next_capture_command": [
     "python3",
     "scripts/run_nonce_producer_handoff_replay.py",
@@ -319,12 +319,105 @@
     "runner": "scripts/run_nonce_producer_capture.py",
     "stdout_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
   },
+  "quarantine": {
+    "admissible_route": "explicit external backend command plus admissible readiness manifest and request-bound reviewed P1 capture",
+    "policy": "hazmat, simulation, centralized-oracle, deterministic test-vector, fixture, localnet, and single-key paths may remain only as test/conformance fixtures; they are not admissible capture sources",
+    "quarantine_evidence": [
+      {
+        "blocker": "missing reviewed external capture contract marker",
+        "evidence": [
+          {
+            "line": null,
+            "path": "src/**/*.rs",
+            "value": "required markers not found together: p1_shamir_nonce_dkg_tee_external_capture, abort_accountability"
+          }
+        ]
+      },
+      {
+        "blocker": "hazmat feature present",
+        "evidence": [
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "feature = hazmat"
+          },
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "feature = hazmat-real-mldsa"
+          }
+        ]
+      },
+      {
+        "blocker": "simulated default feature present",
+        "evidence": [
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "default-feature = simulated"
+          }
+        ]
+      },
+      {
+        "blocker": "research-grade simulation backend marker present",
+        "evidence": [
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "category = simulation"
+          },
+          {
+            "line": null,
+            "path": "Cargo.toml",
+            "value": "description = Research-grade threshold ML-DSA-65 API boundary and simulation backend"
+          }
+        ]
+      },
+      {
+        "blocker": "centralized nonce PRF oracle present",
+        "evidence": [
+          {
+            "line": 1521,
+            "path": "src/low_level/mldsa65.rs",
+            "value": "pub fn derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key("
+          }
+        ]
+      },
+      {
+        "blocker": "deterministic test-vector plumbing present",
+        "evidence": [
+          {
+            "line": 713,
+            "path": "src/low_level/mldsa65.rs",
+            "value": "/// producer; the splitter below is deterministic test-vector plumbing for that"
+          }
+        ]
+      }
+    ],
+    "quarantined": true,
+    "quarantined_sources": [
+      "missing reviewed external capture contract marker",
+      "hazmat feature present",
+      "simulated default feature present",
+      "research-grade simulation backend marker present",
+      "centralized nonce PRF oracle present",
+      "deterministic test-vector plumbing present"
+    ],
+    "safe_replacement_requirements": [
+      "add reviewed external capture contract markers for p1_shamir_nonce_dkg_tee_external_capture and abort_accountability",
+      "remove hazmat Cargo features from the capture backend crate or split production capture into a separate non-hazmat package",
+      "remove simulated from Cargo default features for the capture backend crate",
+      "remove simulation package metadata from the reviewed capture backend boundary",
+      "remove centralized nonce PRF oracle symbols from the capture backend boundary",
+      "remove deterministic test-vector plumbing from the capture backend boundary"
+    ]
+  },
   "readiness_status": "backend_detected_not_admissible",
   "request": {
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
     "name": "p1-reviewed-nonce-producer-request-001",
     "request_path": "artifacts/nonce-producer-handoff/latest/request/request.json",
-    "request_sha256": "7d5431b5eb4382f6ad0206ba4f0b1ff8d71c33dd287755c629b6f62170621560",
+    "request_sha256": "ebb64173514bf6273e50dbd62ff5ad4e713ec20867ff9cca1c2a48886b1051d8",
     "required_producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },

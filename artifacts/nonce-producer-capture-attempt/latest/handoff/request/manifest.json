@@ -2,7 +2,7 @@
   "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
   "claim_boundary": "conformance/proof-review evidence only",
   "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-  "request_sha256": "655e1ae94ec957d92a574c3f1c559f89bc429b1a8b41421b3990d092e4b2d911",
+  "request_sha256": "ae07422c2f9be4e2328a893bdafecf577936323afad8906eaacafdbc7ebe586a",
   "request_status": "evidence_present_unclosed",
   "schema_version": 1
 }

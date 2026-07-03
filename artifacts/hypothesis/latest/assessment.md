@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/nonce-readiness-diagnostics`
-Commit: `118186cd1b9b8cf7f29b4099d4d5da62f7a908e2`
+Branch: `codex/quarantine-admissible-handoff`
+Commit: `817ae0e1281ba8c582705c8f764c04b917298b11`
 
 ## Testing Statement
 
@@ -95,6 +95,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: README keeps the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.
 - Blocker: Renyi-divergence evidence for epsilon_mask is still a release-readiness blocker.
+- Blocker: Executable scaffold command failed: cargo test --test proof_documentation_manifest
 
 ### Aggregate rejection checks match centralized ML-DSA rejection checks.
 
@@ -113,8 +114,8 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: Typed Criterion 2 proof-slot artifact packages are present for P1; they domain-separate threshold-output certificate, real recomputation, full KAT/validation, distributed nonce-producer, rejection-distribution review, norm-bound, hint-bound, challenge-bound, transcript-binding, theorem-linkage, and external-review evidence as evidence_present_unclosed only. All Criterion 2 proof slots have typed wrappers, and the accepted proof-closure artifact certificate carries durable predecessor slot artifact digests, but they remain conformance/proof-review evidence only and do not change aggregate_rejection_equivalence from partially_met, do not change the overall verdict from partially_proven, and do not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or theorem closure.
 - Evidence: P1 distributed nonce-producer artifact gate is present and fail-closed: it accepts only reviewed ReviewedP1ShamirNonceDkgTee producer evidence with source reference, backend implementation, coordinator attestation, Shamir nonce-DKG transcript, active-set, pairwise mask seed, nonce-share commitment, attempt-binding, abort-accountability, standard-verifier bridge, and external-review digests. It also has a backend-output adapter that hashes submitted nonce-producer material into the gate package, plus a canonical capture importer for lattice-aggregation:p1-distributed-nonce-producer-capture:v1 envelopes with request digest binding, predecessor certificate digest binding, and expected package digest checks. It rejects the hazmat PRF-output oracle, centralized expanded-secret-key helper, fixture harnesses, and ordinary single-key standard-provider output. This is evidence_present_unclosed only and does not claim theorem closure, selected-backend proof closure, production threshold ML-DSA security, rejection-distribution preservation, or completed standard-verifier compatibility.
 - Evidence: A repo-generated distributed nonce-producer request manifest is present for P1; it writes the challenge contract that an external Shamir nonce-DKG/TEE producer must answer, including predecessor certificate digests, required capture schema, required p1_shamir_nonce_dkg_tee_external_capture evidence class, the nonce-producer material inventory, and forbidden hazmat, centralized, fixture, localnet, deterministic, and single-key capture sources. This is evidence_present_unclosed conformance/proof-review evidence only, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.
-- Evidence: The distributed nonce-producer capture runner is present for P1; it loads request JSON, requires capture schema lattice-aggregation:p1-distributed-nonce-producer-capture:v1, requires the capture to echo the exact request schema/name/SHA-256 binding, rejects stale request digests, rejects non-importable capture shapes before artifact write, and rejects localnet, deterministic, fixture, hazmat, centralized-helper, and single-key provider command sources. This creates the executable handoff for actual reviewed nonce-producer evidence, but remains evidence_present_unclosed and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.
-- Evidence: A P1 nonce-producer backend readiness gate is present and artifact-backed; it binds the current request SHA-256, inspects a candidate backend source tree, detects distributed nonce-PRF output-share, splitter, and masking-contribution hooks, and records source-tree checksums plus source-level blocker diagnostics and a backend remediation order. The current dytallix-pq-threshold candidate is explicitly marked backend_detected_not_admissible because it is still hazmat/simulated research backend material with a centralized nonce PRF oracle and deterministic test-vector plumbing. This is evidence_present_unclosed boundary evidence only and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security. The handoff replay now requires an admissible readiness manifest before explicit external backend commands can be promoted, supports request reuse so the readiness manifest binds the exact request SHA-256, and records accepted readiness metadata in the handoff manifest.
+- Evidence: The distributed nonce-producer capture runner is present for P1; it loads request JSON, requires capture schema lattice-aggregation:p1-distributed-nonce-producer-capture:v1, requires the capture to echo the exact request schema/name/SHA-256 binding, rejects stale request digests, rejects non-importable capture shapes before artifact write, and rejects localnet, deterministic, fixture, hazmat, centralized-helper, and single-key provider command sources. It now quarantines the local checked replay emitter as quarantined_local_schema_replay so the schema/importer replay cannot masquerade as an admissible_external_backend_capture. This creates the executable handoff for actual reviewed nonce-producer evidence, but remains evidence_present_unclosed and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.
+- Evidence: A P1 nonce-producer backend readiness gate is present and artifact-backed; it binds the current request SHA-256, inspects a candidate backend source tree, detects distributed nonce-PRF output-share, splitter, and masking-contribution hooks, and records source-tree checksums plus source-level blocker diagnostics and a backend remediation order, and classifies hazmat, simulation, centralized-oracle, and deterministic test-vector markers as quarantined sources. The current dytallix-pq-threshold candidate is explicitly marked backend_detected_not_admissible because it is still hazmat/simulated research backend material with a centralized nonce PRF oracle and deterministic test-vector plumbing. This is evidence_present_unclosed boundary evidence only and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security. The handoff replay now requires an admissible readiness manifest before explicit external backend commands can be promoted, supports request reuse so the readiness manifest binds the exact request SHA-256, and records accepted readiness metadata in the handoff manifest.
 - Evidence: A P1 admissible nonce-producer capture-attempt runner is present and artifact-backed; it generates the exact request under the handoff directory, runs backend readiness against that request, requires an explicit {request}-bound backend command template, and records a backend_readiness_blocked attempt without executing the backend command when the candidate remains inadmissible. Only an admissible readiness manifest can promote the same reused request into the executable handoff replay. This is evidence_present_unclosed boundary evidence only and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.
 - Evidence: P1 nonce-producer route selection is present and source-backed: the selected route is FIPS 204-compatible threshold ML-DSA via Shamir Nonce DKG for the P1 TEE/HSM coordinator profile. It identifies `derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key` as the hazmat PRF-output oracle replacement target and targets `distributed_nonce_producer_artifact_digest` before distributed-nonce comparator output can be treated as reviewed producer evidence. This does not claim theorem closure, selected-backend proof closure, production threshold ML-DSA security, or rejection-distribution preservation.
 - Evidence: P1 standard-verifier compatibility artifact evidence is present; it binds `pk`, `m`, and `sigma` through provider identity/version, accept result, threshold-output certificate digest, recomputation evidence digest, bridge digest, and transcript binding. This fills the standard_verifier_compatibility_artifact_digest slot as evidence_present_unclosed only; it does not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.
@@ -134,6 +135,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Blocker: A selected P1 Shamir nonce-DKG producer route is documented, but the reviewed distributed nonce-producer artifact digest and backend-generated producer transcript are still required before the hazmat PRF-output oracle is replaced.
 - Blocker: P1 real-threshold backend emission ingestion artifact is present, but actual real threshold backend emissions, rejection-distribution preservation, full validation artifacts, and reviewed cryptographic proof remain open.
 - Blocker: Selected-backend proof-closure artifact package gating is present, but production threshold ML-DSA security, selected-backend proof closure, full ACVP/FIPS KAT coverage, external proof review, CAVP/ACVTS validation artifacts, FIPS validation, rejection-distribution preservation, and completed standard-verifier compatibility remain open; the proof-closure artifact package gate, threshold-output artifact gate, real standard-provider aggregate-output package, P1 recomputation gate, selected-backend aggregate-output artifact gate, and bounded sample-vector KAT are framework/conformance evidence only.
+- Blocker: Executable scaffold command failed: cargo test --test proof_documentation_manifest
 
 ### Selective aborts and retries do not bias accepted signatures.
 
@@ -143,6 +145,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: AbortRetryBiasProofPackage and AbortBiasClosureReport framework checks are present for leakage, distribution, threshold, and review artifacts.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: Abort leakage and retry-bias distribution analysis remain open proof obligations.
+- Blocker: Executable scaffold command failed: cargo test --test proof_documentation_manifest
 
 ### Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model.
 
@@ -154,6 +157,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: PartialSoundnessClosurePackage framework checks are present for proof-backed verifier, VSS/DKG, leakage, context, and review artifacts.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: Production local acceptance, partial verification, and hiding proof evidence are not complete.
+- Blocker: Executable scaffold command failed: cargo test --test proof_documentation_manifest
 
 ### Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation.
 
@@ -163,10 +167,10 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: Unauthorized aggregate reduction closure package framework records protocol grammar, deterministic classifier, base theorem, hybrid-bound, simulator, and review slots.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: Threshold unforgeability reduction is stated as a target, not a completed proof.
+- Blocker: Executable scaffold command failed: cargo test --test proof_documentation_manifest
 
 ## Command Summary
 
-Passed: 11; failed: 0; all passed: `True`.
-- Cargo scaffold checks completed
+Passed: 10; failed: 1; all passed: `False`.
 - Simulation harness emitted duration, abort, and bandwidth telemetry.
 - Rust test output reported passing test suites.

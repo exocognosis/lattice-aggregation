@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import pathlib
 import tempfile
 import unittest
@@ -77,6 +78,34 @@ def write_admissible_readiness(path, request, request_sha256):
     return readiness
 
 
+def write_external_nonce_producer_shim(path):
+    script = f"""#!/usr/bin/env python3
+import importlib.util
+import pathlib
+import sys
+
+request = None
+root = pathlib.Path({str(ROOT)!r})
+for index, arg in enumerate(sys.argv):
+    if arg == "--request":
+        request = pathlib.Path(sys.argv[index + 1])
+    if arg == "--root":
+        root = pathlib.Path(sys.argv[index + 1])
+if request is None:
+    raise SystemExit("--request is required")
+spec = importlib.util.spec_from_file_location(
+    "reviewed_nonce_producer_capture",
+    root / "scripts" / "emit_reviewed_nonce_producer_capture.py",
+)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+sys.stdout.write(module.canonical_json(module.build_capture(request, root=root)))
+"""
+    path.write_text(script, encoding="utf-8")
+    os.chmod(path, 0o755)
+    return path
+
+
 class NonceProducerHandoffReplayTests(unittest.TestCase):
     def test_handoff_replay_generates_request_capture_and_provenance(self):
         module = load_module(HANDOFF_SCRIPT, "run_nonce_producer_handoff_replay")
@@ -125,6 +154,19 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
             handoff_manifest["external_capture_provenance"],
             capture_manifest["external_capture_provenance"],
         )
+        self.assertEqual(
+            capture_manifest["capture_source_profile"],
+            "quarantined_local_schema_replay",
+        )
+        self.assertEqual(
+            handoff_manifest["handoff_source_profile"],
+            "quarantined_local_schema_replay",
+        )
+        self.assertTrue(handoff_manifest["quarantine"]["quarantined"])
+        self.assertIn(
+            "schema/importer replay only",
+            handoff_manifest["quarantine"]["allowed_use"],
+        )
         command_text = " ".join(capture_manifest["backend_command"]).lower()
         for forbidden in (
             "hazmat",
@@ -140,6 +182,7 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
         self.assertIn("request/request.json", checksums)
         self.assertIn("capture/capture.json", checksums)
         self.assertIn("evidence_present_unclosed", summary_md)
+        self.assertIn("quarantined local", summary_md)
         self.assertIn("does not prove Criterion 2", summary_md)
 
     def test_handoff_replay_rejects_forbidden_backend_command_sources(self):
@@ -205,13 +248,21 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
                 request_report["request"],
                 request_report["manifest"]["request_sha256"],
             )
+            producer = write_external_nonce_producer_shim(
+                pathlib.Path(temp_dir) / "reviewed_nonce_producer"
+            )
 
             report = module.build_handoff(
                 ROOT,
                 out_dir,
-                backend_command=module.default_backend_command(
-                    out_dir / "request" / "request.json"
-                ),
+                backend_command=[
+                    str(producer),
+                    "emit",
+                    "--request",
+                    str(out_dir / "request" / "request.json"),
+                    "--root",
+                    str(ROOT),
+                ],
                 backend_readiness=readiness_path,
                 reuse_request=True,
                 generated_at="2026-07-03T00:00:00Z",
@@ -239,6 +290,41 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
             report["manifest"]["backend_readiness"],
             handoff_manifest["backend_readiness"],
         )
+        self.assertEqual(
+            handoff_manifest["handoff_source_profile"],
+            "admissible_external_backend_capture",
+        )
+        self.assertFalse(handoff_manifest["quarantine"]["quarantined"])
+
+    def test_handoff_replay_rejects_quarantined_local_replay_as_external_backend(self):
+        module = load_module(HANDOFF_SCRIPT, "run_nonce_producer_handoff_replay")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_dir = pathlib.Path(temp_dir) / "handoff"
+            request_dir = out_dir / "request"
+            request_report = module.build_request_artifacts(
+                ROOT,
+                request_dir,
+                generated_at="2026-07-03T00:00:00Z",
+            )
+            readiness_path = pathlib.Path(temp_dir) / "readiness.json"
+            write_admissible_readiness(
+                readiness_path,
+                request_report["request"],
+                request_report["manifest"]["request_sha256"],
+            )
+
+            with self.assertRaisesRegex(ValueError, "quarantined local replay"):
+                module.build_handoff(
+                    ROOT,
+                    out_dir,
+                    backend_command=module.default_backend_command(
+                        out_dir / "request" / "request.json"
+                    ),
+                    backend_readiness=readiness_path,
+                    reuse_request=True,
+                    generated_at="2026-07-03T00:00:00Z",
+                )
 
     def test_reviewed_capture_emitter_binds_exact_request_digest_and_expected_package(self):
         handoff = load_module(HANDOFF_SCRIPT, "run_nonce_producer_handoff_replay")

@@ -19,6 +19,8 @@ CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 HANDOFF_STATUS = "evidence_present_unclosed"
 ADMISSIBLE_READINESS_STATUS = "backend_candidate_admissible_pending_capture"
+HANDOFF_SOURCE_PROFILE_EXTERNAL = "admissible_external_backend_capture"
+HANDOFF_SOURCE_PROFILE_QUARANTINED_REPLAY = "quarantined_local_schema_replay"
 BRIDGE_PATH = "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
 COMPATIBILITY_PATH = (
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json"
@@ -136,7 +138,14 @@ def default_backend_command(request_path):
     ]
 
 
-def build_capture_artifacts(root, request_path, out_dir, backend_command=None, generated_at=None):
+def build_capture_artifacts(
+    root,
+    request_path,
+    out_dir,
+    backend_command=None,
+    generated_at=None,
+    allow_quarantined_replay=False,
+):
     """Run the capture runner against the configured backend command."""
     runner = load_script_module(
         root,
@@ -149,6 +158,7 @@ def build_capture_artifacts(root, request_path, out_dir, backend_command=None, g
         command,
         request_path=request_path,
         generated_at=generated_at,
+        allow_quarantined_replay=allow_quarantined_replay,
     )
     runner.write_artifacts(report, out_dir)
     return report
@@ -247,6 +257,9 @@ def render_summary(manifest):
                 f"- Backend package: `{manifest['backend_readiness']['package_name']}`",
             ]
         )
+    lines.append(f"- Handoff source profile: `{manifest['handoff_source_profile']}`")
+    if manifest["quarantine"]["quarantined"]:
+        lines.append("- Quarantine: `quarantined local schema/importer replay only`")
     lines.extend(
         [
             "",
@@ -273,6 +286,18 @@ def build_manifest(
     request_manifest_path = out_dir / "request" / "manifest.json"
     capture_manifest = load_json(capture_manifest_path)
     request_manifest = load_json(request_manifest_path)
+    handoff_source_profile = capture_manifest.get(
+        "capture_source_profile",
+        HANDOFF_SOURCE_PROFILE_EXTERNAL,
+    )
+    quarantine = capture_manifest.get(
+        "quarantine",
+        {
+            "quarantined": False,
+            "reason": None,
+            "allowed_use": "explicit external backend capture gated by admissible readiness",
+        },
+    )
     return {
         "schema": HANDOFF_SCHEMA,
         "schema_version": 1,
@@ -280,6 +305,8 @@ def build_manifest(
         "handoff_status": HANDOFF_STATUS,
         "claim_boundary": CLAIM_BOUNDARY,
         "selected_profile": SELECTED_PROFILE,
+        "handoff_source_profile": handoff_source_profile,
+        "quarantine": quarantine,
         "request_schema": REQUEST_SCHEMA,
         "capture_schema": CAPTURE_SCHEMA,
         "producer_evidence": EXTERNAL_PRODUCER_EVIDENCE,
@@ -344,6 +371,7 @@ def build_handoff(
         else build_request_artifacts(root, request_dir, generated_at=generated_at)
     )
     backend_readiness_report = None
+    explicit_backend_command = backend_command is not None
     if backend_command:
         validate_backend_command_source(root, backend_command)
         backend_readiness_report = validate_backend_readiness(
@@ -356,6 +384,7 @@ def build_handoff(
         capture_dir,
         backend_command=backend_command,
         generated_at=generated_at,
+        allow_quarantined_replay=not explicit_backend_command,
     )
     manifest = build_manifest(
         root,

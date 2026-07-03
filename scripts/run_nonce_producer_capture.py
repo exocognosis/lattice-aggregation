@@ -20,6 +20,12 @@ RUNNER_STATUS = "evidence_present_unclosed"
 EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
     "lattice-aggregation:external-capture-provenance:v1"
 )
+CAPTURE_SOURCE_PROFILE_EXTERNAL = "admissible_external_backend_capture"
+CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY = "quarantined_local_schema_replay"
+QUARANTINED_LOCAL_REPLAY_TOKENS = (
+    "emit_reviewed_nonce_producer_capture.py",
+    "emit_reviewed_nonce_producer_capture",
+)
 FORBIDDEN_BACKEND_COMMAND_TOKENS = (
     "localnet",
     "validator_localnet",
@@ -163,6 +169,44 @@ def validate_backend_command(command):
                 "forbidden backend command source for actual nonce-producer capture: "
                 + token
             )
+
+
+def is_quarantined_local_replay_command(command):
+    """Return true for the checked local replay emitter used only as a fixture."""
+    command_text = " ".join(command).lower()
+    return any(token in command_text for token in QUARANTINED_LOCAL_REPLAY_TOKENS)
+
+
+def validate_capture_source_profile(command, allow_quarantined_replay=False):
+    """Classify command source as external or quarantined local schema replay."""
+    if is_quarantined_local_replay_command(command):
+        if not allow_quarantined_replay:
+            raise ValueError(
+                "quarantined local replay source cannot be used as actual "
+                "external nonce-producer capture"
+            )
+        return CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY
+    return CAPTURE_SOURCE_PROFILE_EXTERNAL
+
+
+def quarantine_record(capture_source_profile):
+    """Return capture quarantine metadata for the runner manifest."""
+    quarantined = capture_source_profile == CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY
+    return {
+        "quarantined": quarantined,
+        "reason": (
+            "local checked replay emitter exercises the request/capture/import "
+            "schema but is not an independently generated backend capture"
+            if quarantined
+            else None
+        ),
+        "allowed_use": (
+            "schema/importer replay only; not actual backend evidence; not "
+            "Criterion 2 closure evidence"
+            if quarantined
+            else "explicit external backend capture gated by admissible readiness"
+        ),
+    }
 
 
 def capture_value(command, root, fallback="unknown"):
@@ -401,8 +445,7 @@ def validate_no_unknown_fields(value, allowed_fields, label):
 
 def render_summary(generated_at, metadata, manifest):
     """Render a concise nonce-producer capture summary."""
-    return "\n".join(
-        [
+    lines = [
             "# Distributed Nonce-Producer Capture Runner Summary",
             "",
             "This artifact records externally generated nonce-producer capture "
@@ -417,8 +460,16 @@ def render_summary(generated_at, metadata, manifest):
             f"- Request: `{manifest['request_name']}`",
             f"- Request SHA-256: `{manifest['request_sha256']}`",
             f"- Producer evidence: `{manifest['producer_evidence']}`",
+            f"- Capture source profile: `{manifest['capture_source_profile']}`",
             f"- Runner status: `{RUNNER_STATUS}`",
             f"- Claim boundary: `{manifest['claim_boundary']}`",
+        ]
+    if manifest["quarantine"]["quarantined"]:
+        lines.append(
+            "- Quarantine: `quarantined local schema/importer replay only`"
+        )
+    lines.extend(
+        [
             "",
             "This runner does not prove Criterion 2, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
@@ -426,6 +477,7 @@ def render_summary(generated_at, metadata, manifest):
             "",
         ]
     )
+    return "\n".join(lines)
 
 
 def build_report(
@@ -435,6 +487,7 @@ def build_report(
     command_runner=run_command,
     metadata_provider=collect_metadata,
     generated_at=None,
+    allow_quarantined_replay=False,
 ):
     """Run an external nonce-producer command and build in-memory artifacts."""
     if not backend_command:
@@ -442,6 +495,10 @@ def build_report(
 
     root = Path(root)
     validate_backend_command(list(backend_command))
+    capture_source_profile = validate_capture_source_profile(
+        list(backend_command),
+        allow_quarantined_replay=allow_quarantined_replay,
+    )
     result = command_runner(list(backend_command), root, {})
     if result["exit_code"] != 0:
         raise NonceProducerCaptureExecutionError(
@@ -479,6 +536,8 @@ def build_report(
         "request_sha256": request_sha256,
         "request_path": str(request_path) if request_path else None,
         "producer_evidence": EXTERNAL_PRODUCER_EVIDENCE,
+        "capture_source_profile": capture_source_profile,
+        "quarantine": quarantine_record(capture_source_profile),
         "backend_command": list(backend_command),
         "command_duration_seconds": result["duration_seconds"],
         "exit_code": result["exit_code"],

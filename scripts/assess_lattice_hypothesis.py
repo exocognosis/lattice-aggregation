@@ -2330,7 +2330,11 @@ def scan_documents(root):
                 "EXTERNAL_PRODUCER_EVIDENCE",
                 "RUNNER_STATUS",
                 "FORBIDDEN_BACKEND_COMMAND_TOKENS",
+                "CAPTURE_SOURCE_PROFILE_EXTERNAL",
+                "CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY",
+                "QUARANTINED_LOCAL_REPLAY_TOKENS",
                 "validate_backend_command",
+                "validate_capture_source_profile",
                 "load_request",
                 "validate_request_binding",
                 "validate_capture_matches_request",
@@ -2343,6 +2347,7 @@ def scan_documents(root):
                 "actual external nonce-producer evidence",
                 "request digest mismatch",
                 "missing {label} digest",
+                "quarantined local replay",
                 "hazmat",
                 "centralized",
                 "localnet",
@@ -2354,6 +2359,9 @@ def scan_documents(root):
                 "test_build_report_invokes_nonce_producer_capture_runner_and_writes_importable_capture_json",
                 "test_build_report_rejects_capture_that_omits_or_stales_request_binding",
                 "test_build_report_rejects_hazmat_localnet_or_fixture_sources",
+                "test_build_report_rejects_local_replay_emitter_as_external_capture",
+                "test_build_report_can_mark_local_replay_emitter_as_quarantined",
+                "quarantined_local_schema_replay",
                 "test_build_report_rejects_non_importable_capture_shape_before_artifact_write",
                 "request_sha256",
                 "request digest mismatch",
@@ -2373,12 +2381,15 @@ def scan_documents(root):
                 "LATTICE_NONCE_PRODUCER_BACKEND_CRATE",
                 "detect_capabilities",
                 "detected_blockers",
+                "quarantine_record",
                 "admissible_for_p1_nonce_handoff",
                 "backend_detected_not_admissible",
                 "backend_candidate_admissible_pending_capture",
                 "centralized_nonce_prf_oracle",
                 "simulated_default_feature",
                 "hazmat_feature",
+                "quarantined_sources",
+                "safe_replacement_requirements",
                 "reviewed_external_capture_contract",
             ]
         )
@@ -2390,6 +2401,8 @@ def scan_documents(root):
                 "backend_readiness",
                 "backend_readiness_report",
                 "reuse_request",
+                "allow_quarantined_replay",
+                "handoff_source_profile",
                 "requires admissible backend readiness",
                 "backend readiness is not admissible",
                 "backend_candidate_admissible_pending_capture",
@@ -2405,6 +2418,7 @@ def scan_documents(root):
                 "centralized nonce PRF oracle",
                 "simulated default feature",
                 "hazmat feature",
+                "quarantined_sources",
             ]
         )
         and all(
@@ -2413,6 +2427,9 @@ def scan_documents(root):
                 "test_handoff_replay_requires_readiness_for_explicit_backend_command",
                 "test_handoff_replay_rejects_blocked_backend_readiness",
                 "test_handoff_replay_accepts_admissible_readiness_bound_to_reused_request",
+                "test_handoff_replay_rejects_quarantined_local_replay_as_external_backend",
+                "quarantined_local_schema_replay",
+                "admissible_external_backend_capture",
                 "requires admissible backend readiness",
                 "backend readiness is not admissible",
             ]
@@ -2429,6 +2446,8 @@ def scan_documents(root):
                 "simulated default feature present",
                 "deterministic test-vector plumbing present",
                 "admissible_for_p1_nonce_handoff",
+                "quarantined_sources",
+                "safe_replacement_requirements",
             ]
         )
     )
@@ -3840,11 +3859,14 @@ def classify_criteria(criteria, scan):
                     "digests, rejects non-importable capture shapes before "
                     "artifact write, and rejects localnet, deterministic, "
                     "fixture, hazmat, centralized-helper, and single-key "
-                    "provider command sources. This creates the executable "
-                    "handoff for actual reviewed nonce-producer evidence, but "
-                    "remains evidence_present_unclosed and does not claim "
-                    "theorem closure, rejection-distribution preservation, or "
-                    "production threshold ML-DSA security."
+                    "provider command sources. It now quarantines the local "
+                    "checked replay emitter as quarantined_local_schema_replay "
+                    "so the schema/importer replay cannot masquerade as an "
+                    "admissible_external_backend_capture. This creates the "
+                    "executable handoff for actual reviewed nonce-producer "
+                    "evidence, but remains evidence_present_unclosed and does "
+                    "not claim theorem closure, rejection-distribution "
+                    "preservation, or production threshold ML-DSA security."
                 )
                 blockers.append(
                     "The distributed nonce-producer request and capture "
@@ -3863,7 +3885,9 @@ def classify_criteria(criteria, scan):
                     "detects distributed nonce-PRF output-share, splitter, "
                     "and masking-contribution hooks, and records source-tree "
                     "checksums plus source-level blocker diagnostics and a "
-                    "backend remediation order. The current "
+                    "backend remediation order, and classifies hazmat, "
+                    "simulation, centralized-oracle, and deterministic "
+                    "test-vector markers as quarantined sources. The current "
                     "dytallix-pq-threshold candidate "
                     "is explicitly marked backend_detected_not_admissible "
                     "because it is still hazmat/simulated research backend "

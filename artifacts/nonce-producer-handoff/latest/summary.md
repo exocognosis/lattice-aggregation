@@ -5,8 +5,10 @@ This artifact builds the current repo request and replays the capture/import han
 - Request schema: `lattice-aggregation:p1-distributed-nonce-producer-request:v1`
 - Capture schema: `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
 - Request: `p1-reviewed-nonce-producer-request-001`
-- Request SHA-256: `7d5431b5eb4382f6ad0206ba4f0b1ff8d71c33dd287755c629b6f62170621560`
-- Capture SHA-256: `d9bad459e2c14c615d0d24b1d57ac3a82badedc4573612ca7be71f6506eafea2`
+- Request SHA-256: `ebb64173514bf6273e50dbd62ff5ad4e713ec20867ff9cca1c2a48886b1051d8`
+- Capture SHA-256: `18fb7229ae1d1cfa1933c9f385cb48156cf5764dfe0ef8b66a978d057d19b368`
 - Producer evidence: `p1_shamir_nonce_dkg_tee_external_capture`
+- Handoff source profile: `quarantined_local_schema_replay`
+- Quarantine: `quarantined local schema/importer replay only`
 
 This replay does not prove Criterion 2, rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.
