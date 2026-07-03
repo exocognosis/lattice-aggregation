@@ -4206,15 +4206,145 @@ def readme_comparison(scan):
     ]
 
 
+def artifact_slot_dashboard(report):
+    """Summarize proof-substance artifact slots by status."""
+    dashboard = {}
+    for report_key, label in [
+        ("criterion1_proof_substance", "criterion_1"),
+        ("criterion2_proof_substance", "criterion_2"),
+        ("criterion3_proof_substance", "criterion_3"),
+    ]:
+        status = report.get(report_key, {})
+        slot_statuses = status.get("artifact_slot_statuses", {})
+        by_status = {}
+        for slot_id, slot_status in slot_statuses.items():
+            by_status.setdefault(slot_status, []).append(slot_id)
+        dashboard[label] = {
+            "status": status.get("status", "missing_or_incomplete"),
+            "criterion_id": status.get("criterion_id", ""),
+            "artifact_slot_statuses": {
+                key: sorted(value) for key, value in sorted(by_status.items())
+            },
+        }
+    return dashboard
+
+
+def external_capture_provenance_requirements():
+    """Return the durable provenance fields required for external captures."""
+    return {
+        "schema": "lattice-aggregation:external-capture-provenance:v1",
+        "required_fields": [
+            "request_schema",
+            "request_name",
+            "request_sha256",
+            "capture_schema",
+            "capture_sha256",
+            "backend_command_sha256",
+            "evidence_class",
+            "runner_status",
+            "claim_boundary",
+            "expected_digest_fields",
+            "metadata_fields",
+        ],
+        "metadata_fields": [
+            "commit",
+            "branch",
+            "dirty",
+            "cargo_version",
+            "rustc_version",
+            "os",
+            "python_version",
+            "cargo_lock_sha256",
+        ],
+        "claim_boundary": "conformance/proof-review evidence only",
+        "status": "evidence_present_unclosed",
+    }
+
+
+def build_closure_dashboard(report):
+    """Build a compact current-closure dashboard from an assessment report."""
+    criteria = []
+    for criterion in report.get("criteria", []):
+        criteria.append(
+            {
+                "id": criterion.get("id", ""),
+                "status": criterion.get("status", ""),
+                "observed_evidence_count": len(criterion.get("observed_evidence", [])),
+                "blocker_count": len(criterion.get("blockers", [])),
+            }
+        )
+    return {
+        "schema": "lattice-aggregation.current-closure-dashboard.v1",
+        "claim_boundary": report.get("claim_boundary", "research scaffold only"),
+        "overall_verdict": report.get("overall_verdict", ""),
+        "commit": report.get("commit", ""),
+        "branch": report.get("branch", ""),
+        "criteria": criteria,
+        "proof_artifact_slots": artifact_slot_dashboard(report),
+        "external_capture_provenance_requirements": (
+            external_capture_provenance_requirements()
+        ),
+        "non_closure_guards": [
+            "not theorem closure",
+            "not selected-backend proof closure",
+            "not production threshold ML-DSA security",
+            "not CAVP/ACVTS validation",
+            "not FIPS validation",
+            "not rejection-distribution preservation",
+        ],
+    }
+
+
+def render_closure_dashboard_markdown(dashboard):
+    """Render the current-closure dashboard as Markdown."""
+    lines = [
+        "# Current Closure Dashboard",
+        "",
+        f"Overall verdict: `{dashboard['overall_verdict']}`",
+        f"Claim boundary: `{dashboard['claim_boundary']}`",
+        f"Branch: `{dashboard['branch']}`",
+        f"Commit: `{dashboard['commit']}`",
+        "",
+        "## Criteria",
+        "",
+    ]
+    for criterion in dashboard.get("criteria", []):
+        lines.append(
+            f"- `{criterion['id']}`: `{criterion['status']}` "
+            f"({criterion['observed_evidence_count']} evidence entries, "
+            f"{criterion['blocker_count']} blockers)"
+        )
+    lines.extend(["", "## Proof Artifact Slots", ""])
+    for criterion_id, slot_summary in dashboard.get("proof_artifact_slots", {}).items():
+        lines.append(f"### {criterion_id}")
+        lines.append(f"- Status: `{slot_summary['status']}`")
+        for slot_status, slots in slot_summary.get("artifact_slot_statuses", {}).items():
+            lines.append(f"- `{slot_status}`: {', '.join(slots) if slots else 'none'}")
+        lines.append("")
+    lines.extend(["## Non-Closure Guards", ""])
+    for guard in dashboard.get("non_closure_guards", []):
+        lines.append(f"- {guard}")
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def write_reports(report, out_dir):
-    """Write JSON and Markdown assessment reports."""
+    """Write JSON, Markdown, and dashboard assessment reports."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    dashboard = build_closure_dashboard(report)
     (out_dir / "assessment.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     (out_dir / "assessment.md").write_text(render_markdown(report), encoding="utf-8")
+    (out_dir / "closure-dashboard.json").write_text(
+        json.dumps(dashboard, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    (out_dir / "closure-dashboard.md").write_text(
+        render_closure_dashboard_markdown(dashboard),
+        encoding="utf-8",
+    )
 
 
 def render_markdown(report):

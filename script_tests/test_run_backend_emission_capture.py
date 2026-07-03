@@ -280,6 +280,23 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
         self.assertEqual(
             manifest["backend_command"], ["/opt/threshold-backend", "emit-capture"]
         )
+        provenance = manifest["external_capture_provenance"]
+        self.assertEqual(
+            provenance["schema"],
+            "lattice-aggregation:external-capture-provenance:v1",
+        )
+        self.assertEqual(provenance["request_sha256"], request_sha256(external_request()))
+        self.assertEqual(provenance["capture_sha256"], manifest["capture_sha256"])
+        self.assertEqual(provenance["evidence_class"], manifest["backend_evidence"])
+        self.assertEqual(provenance["runner_status"], "evidence_present_unclosed")
+        self.assertEqual(
+            provenance["claim_boundary"], "conformance/proof-review evidence only"
+        )
+        self.assertIn(
+            "backend_implementation_digest_hex", provenance["expected_digest_fields"]
+        )
+        self.assertIn("cargo_lock_sha256", provenance["metadata_fields"])
+        self.assertIn("backend_command_sha256", provenance)
         self.assertNotIn("validator_localnet", " ".join(manifest["backend_command"]))
         self.assertNotIn("run_simulation_benchmarks", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)

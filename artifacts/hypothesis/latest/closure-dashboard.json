@@ -1,0 +1,128 @@
+{
+  "branch": "codex/repo-evidence-pipeline-dashboard",
+  "claim_boundary": "research scaffold only",
+  "commit": "24a27e7563b72fdb1eb18302ace0732e446dd852",
+  "criteria": [
+    {
+      "blocker_count": 3,
+      "id": "aggregate_mask_distribution",
+      "observed_evidence_count": 3,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 7,
+      "id": "aggregate_rejection_equivalence",
+      "observed_evidence_count": 24,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 2,
+      "id": "abort_retry_bias",
+      "observed_evidence_count": 3,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 2,
+      "id": "partial_contribution_soundness",
+      "observed_evidence_count": 5,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 2,
+      "id": "unauthorized_aggregate_reduction",
+      "observed_evidence_count": 3,
+      "status": "partially_met"
+    }
+  ],
+  "external_capture_provenance_requirements": {
+    "claim_boundary": "conformance/proof-review evidence only",
+    "metadata_fields": [
+      "commit",
+      "branch",
+      "dirty",
+      "cargo_version",
+      "rustc_version",
+      "os",
+      "python_version",
+      "cargo_lock_sha256"
+    ],
+    "required_fields": [
+      "request_schema",
+      "request_name",
+      "request_sha256",
+      "capture_schema",
+      "capture_sha256",
+      "backend_command_sha256",
+      "evidence_class",
+      "runner_status",
+      "claim_boundary",
+      "expected_digest_fields",
+      "metadata_fields"
+    ],
+    "schema": "lattice-aggregation:external-capture-provenance:v1",
+    "status": "evidence_present_unclosed"
+  },
+  "non_closure_guards": [
+    "not theorem closure",
+    "not selected-backend proof closure",
+    "not production threshold ML-DSA security",
+    "not CAVP/ACVTS validation",
+    "not FIPS validation",
+    "not rejection-distribution preservation"
+  ],
+  "overall_verdict": "partially_proven",
+  "proof_artifact_slots": {
+    "criterion_1": {
+      "artifact_slot_statuses": {
+        "required_unclosed": [
+          "aggregate_distribution_artifact_digest",
+          "centralized_distribution_artifact_digest",
+          "external_review_digest",
+          "min_entropy_review_digest",
+          "parameter_selection_digest",
+          "renyi_bound_proof_digest",
+          "selected_mask_construction_digest"
+        ]
+      },
+      "criterion_id": "aggregate_mask_distribution",
+      "status": "criterion1_proof_payload_formalized"
+    },
+    "criterion_2": {
+      "artifact_slot_statuses": {
+        "evidence_present_unclosed": [
+          "challenge_bound_artifact_digest",
+          "distributed_nonce_producer_artifact_digest",
+          "external_review_digest",
+          "full_kat_validation_artifact_digest",
+          "hint_bound_artifact_digest",
+          "norm_bound_artifact_digest",
+          "real_recomputation_evidence_digest",
+          "real_threshold_backend_emission_artifact_digest",
+          "rejection_distribution_review_digest",
+          "standard_verifier_compatibility_artifact_digest",
+          "theorem_linkage_artifact_digest",
+          "threshold_output_certificate_digest",
+          "transcript_binding_evidence_digest"
+        ]
+      },
+      "criterion_id": "aggregate_rejection_equivalence",
+      "status": "criterion2_proof_payload_formalized"
+    },
+    "criterion_3": {
+      "artifact_slot_statuses": {
+        "required_unclosed": [
+          "accepted_signature_distribution_proof_digest",
+          "adversarial_abort_policy_corpus_digest",
+          "external_review_digest",
+          "formal_abort_leakage_model_digest",
+          "retry_domain_separation_proof_digest",
+          "sample_size_bucket_rationale_digest",
+          "timeout_retry_policy_digest"
+        ]
+      },
+      "criterion_id": "abort_retry_bias",
+      "status": "criterion3_proof_payload_formalized"
+    }
+  },
+  "schema": "lattice-aggregation.current-closure-dashboard.v1"
+}

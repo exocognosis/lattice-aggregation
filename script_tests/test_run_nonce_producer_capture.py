@@ -199,6 +199,19 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertEqual(manifest["request_sha256"], request_sha256(external_request()))
         self.assertEqual(manifest["producer_evidence"], "p1_shamir_nonce_dkg_tee_external_capture")
         self.assertEqual(manifest["backend_command"], ["/opt/nonce-producer", "emit-capture"])
+        provenance = manifest["external_capture_provenance"]
+        self.assertEqual(
+            provenance["schema"],
+            "lattice-aggregation:external-capture-provenance:v1",
+        )
+        self.assertEqual(provenance["request_sha256"], request_sha256(external_request()))
+        self.assertEqual(provenance["capture_sha256"], manifest["capture_sha256"])
+        self.assertEqual(provenance["evidence_class"], manifest["producer_evidence"])
+        self.assertEqual(provenance["runner_status"], "evidence_present_unclosed")
+        self.assertEqual(provenance["claim_boundary"], "conformance/proof-review evidence only")
+        self.assertIn("backend_implementation_digest_hex", provenance["expected_digest_fields"])
+        self.assertIn("cargo_lock_sha256", provenance["metadata_fields"])
+        self.assertIn("backend_command_sha256", provenance)
         self.assertNotIn("localnet", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
         self.assertIn("does not prove Criterion 2", summary_md)

@@ -285,7 +285,36 @@
     "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
     "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
     "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
-    "tests/fixtures/p1_theorem_linkage_artifact_fixture.json"
+    "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
+    "artifacts/hypothesis/latest/assessment.json",
+    "artifacts/hypothesis/latest/assessment.md",
+    "artifacts/hypothesis/latest/closure-dashboard.json",
+    "artifacts/hypothesis/latest/closure-dashboard.md"
+  ],
+  "repo_evidence_pipeline": {
+    "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
+    "status": "evidence_present_unclosed",
+    "claim_boundary": "research scaffold only",
+    "artifacts": {
+      "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
+      "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",
+      "artifacts/hypothesis/latest/closure-dashboard.json": "artifacts/hypothesis/latest/closure-dashboard.json",
+      "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md"
+    }
+  },
+  "external_capture_provenance_requirements": [
+    "request_schema",
+    "request_name",
+    "request_sha256",
+    "capture_schema",
+    "capture_sha256",
+    "backend_command_sha256",
+    "evidence_class",
+    "runner_status",
+    "claim_boundary",
+    "expected_digest_fields",
+    "metadata_fields",
+    "cargo_lock_sha256"
   ],
   "assessment": {
     "criterion_status": "partially_met",

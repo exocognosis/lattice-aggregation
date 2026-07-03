@@ -28,6 +28,9 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
 
+      - name: Python script tests
+        run: python3 -m unittest discover -s script_tests -p 'test_*.py'
+
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
