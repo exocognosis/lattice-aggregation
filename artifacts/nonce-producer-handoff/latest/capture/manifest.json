@@ -1,0 +1,64 @@
+{
+  "backend_command": [
+    "python3",
+    "scripts/emit_reviewed_nonce_producer_capture.py",
+    "--request",
+    "artifacts/nonce-producer-handoff/latest/request/request.json"
+  ],
+  "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+  "capture_sha256": "29387522558a34ee0dbafcb3c9248613427e33cb4b323c650990a175bcf29b71",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "command_duration_seconds": 0.028,
+  "exit_code": 0,
+  "external_capture_provenance": {
+    "backend_command_sha256": "fee955c5bd3fd0ad16c8eaf00f6d43424f697107d10d365e25b6925ef3c9a84e",
+    "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+    "capture_sha256": "29387522558a34ee0dbafcb3c9248613427e33cb4b323c650990a175bcf29b71",
+    "claim_boundary": "conformance/proof-review evidence only",
+    "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
+    "expected_digest_fields": [
+      "abort_accountability_digest_hex",
+      "backend_implementation_digest_hex",
+      "coordinator_attestation_digest_hex",
+      "distributed_nonce_producer_artifact_digest_hex",
+      "external_review_digest_hex",
+      "nonce_share_commitment_digest_hex",
+      "pairwise_mask_seed_commitment_digest_hex",
+      "shamir_nonce_dkg_transcript_digest_hex",
+      "source_reference_digest_hex"
+    ],
+    "metadata_fields": [
+      "branch",
+      "cargo_lock_sha256",
+      "cargo_version",
+      "commit",
+      "dirty",
+      "os",
+      "python_version",
+      "rustc_version"
+    ],
+    "request_name": "p1-reviewed-nonce-producer-request-001",
+    "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+    "request_sha256": "c1bf319849c5fa7d76f52dae3905d2d93126a6dcf38a2e5b169480fe1870e82e",
+    "runner_status": "evidence_present_unclosed",
+    "schema": "lattice-aggregation:external-capture-provenance:v1"
+  },
+  "generated_at": "2026-07-03T04:11:52Z",
+  "metadata": {
+    "branch": "codex/executable-backend-handoff",
+    "cargo_lock_sha256": "7f8a1640ad2200429278e4da75c6f5b8a687c55c8b10d8dfdfcc9776f0aea7b8",
+    "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "commit": "b80fbd8730680a8145fcc22c76bff8f055eac1ed",
+    "dirty": true,
+    "os": "macOS-26.5.2-arm64-arm-64bit",
+    "python_version": "3.12.8",
+    "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
+  },
+  "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+  "request_name": "p1-reviewed-nonce-producer-request-001",
+  "request_path": "artifacts/nonce-producer-handoff/latest/request/request.json",
+  "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "request_sha256": "c1bf319849c5fa7d76f52dae3905d2d93126a6dcf38a2e5b169480fe1870e82e",
+  "runner_status": "evidence_present_unclosed",
+  "schema_version": 1
+}

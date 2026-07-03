@@ -91,6 +91,19 @@ The Criterion 2 proof payload requires these slots before any promotion:
   requires the capture to echo the exact request digest, and rejects localnet,
   deterministic, fixture, hazmat, centralized-helper, and ordinary single-key
   provider command sources before writing importable capture artifacts.
+  The exact external backend CLI contract is documented in
+  `docs/cryptography/p1-nonce-producer-backend-cli-contract.md`. The checked
+  replay path `scripts/run_nonce_producer_handoff_replay.py` invokes
+  `scripts/emit_reviewed_nonce_producer_capture.py`, writes
+  `artifacts/nonce-producer-handoff/latest/manifest.json`, and stores the bound
+  request and capture at
+  `artifacts/nonce-producer-handoff/latest/request/request.json` and
+  `artifacts/nonce-producer-handoff/latest/capture/capture.json`. Rust test
+  `checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer`
+  imports that exact capture through
+  `derive_p1_distributed_nonce_producer_artifact_package_from_capture`.
+  This replay proves the executable handoff is wired, not that an external
+  backend has closed Criterion 2.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -281,7 +294,11 @@ envelopes with request, predecessor, and expected-digest bindings. Request
 builder `scripts/build_nonce_producer_request.py` and capture runner
 `scripts/run_nonce_producer_capture.py` create the executable handoff path for
 actual external nonce-producer captures while remaining
-`evidence_present_unclosed`. The accepted
+`evidence_present_unclosed`. The precise CLI contract is
+`docs/cryptography/p1-nonce-producer-backend-cli-contract.md`, and checked
+replay artifacts under `artifacts/nonce-producer-handoff/latest/` bind a
+generated request, command metadata, capture logs, checksums, request SHA-256,
+and importer-accepted capture JSON for review. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through
