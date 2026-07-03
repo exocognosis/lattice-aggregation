@@ -145,3 +145,29 @@ fn criterion3_manifest_links_existing_evidence_surfaces() {
         );
     }
 }
+
+#[test]
+fn criterion3_manifest_links_repo_evidence_pipeline_artifacts() {
+    let manifest = manifest();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let pipeline = &manifest["repo_evidence_pipeline"];
+
+    assert_eq!(
+        pipeline["schema"],
+        "lattice-aggregation.repo-evidence-pipeline.v1"
+    );
+    assert_eq!(pipeline["status"], "evidence_present_unclosed");
+    assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    for artifact in [
+        "artifacts/hypothesis/latest/assessment.json",
+        "artifacts/hypothesis/latest/assessment.md",
+        "artifacts/hypothesis/latest/closure-dashboard.json",
+        "artifacts/hypothesis/latest/closure-dashboard.md",
+    ] {
+        assert_eq!(pipeline["artifacts"][artifact], artifact);
+        assert!(
+            root.join(artifact).exists(),
+            "repo evidence artifact is missing: {artifact}"
+        );
+    }
+}

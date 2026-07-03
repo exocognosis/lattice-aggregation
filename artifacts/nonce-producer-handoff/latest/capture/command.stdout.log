@@ -1,0 +1,64 @@
+{
+  "capture": {
+    "abort_accountability": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 abort accountability transcript v1"
+    },
+    "backend_implementation": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 nonce producer implementation v1"
+    },
+    "coordinator_attestation": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 coordinator attestation v1"
+    },
+    "external_review": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 nonce producer proof review v1"
+    },
+    "nonce_share_commitments": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 nonce share commitments v1"
+    },
+    "pairwise_mask_seed_commitments": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 pairwise mask seed commitments v1"
+    },
+    "reviewed": true,
+    "shamir_nonce_dkg_transcript": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 Shamir nonce DKG transcript v1"
+    },
+    "source_reference": {
+      "encoding": "utf8",
+      "value": "reviewed external P1 nonce producer source package v1"
+    }
+  },
+  "claim_boundary": "conformance/proof-review evidence only",
+  "expected": {
+    "abort_accountability_digest_hex": "08ced1e31ed8d742aa56f74850d4eb8f9082fee8fe8b1bb07b6dcbd4d02579e4",
+    "backend_implementation_digest_hex": "8e0834411d0ddaa280cc0f25aa4a267b2be3380abfb3201da81ab88649971bd2",
+    "coordinator_attestation_digest_hex": "409cc1f0525b7187e07f03db9535d0e0b584d1c8310b81a9b571ce47a1b76dc3",
+    "distributed_nonce_producer_artifact_digest_hex": "69276321cc84439a43fa73dd0f3db5311779b13fed9a93f7125de0e76dfb4ffb",
+    "external_review_digest_hex": "636a9ad2f7b40831cdac98ef916c51492de63895faae2155b707ef3598b92585",
+    "nonce_share_commitment_digest_hex": "c10379971c927d07d1eb36ae8586da1ce6912bda61096a6d99479173a757d4f8",
+    "pairwise_mask_seed_commitment_digest_hex": "bf9fcc16f5cd852d508146cd56bf27bef3cc45d1b83ea7df0629bac489fdb4ad",
+    "shamir_nonce_dkg_transcript_digest_hex": "6b542eee3035e9c53f51dddd46e2e84adf84b1a8b2c42fad8cf8a339dda2e67c",
+    "source_reference_digest_hex": "63c79bb3bf126f74c98fef69da79cadfc5287915800a0de34ab8372a227be75d"
+  },
+  "name": "p1-reviewed-nonce-producer-capture-001",
+  "note": "Reviewed P1 nonce-producer capture replay for the executable handoff gate; proof-review evidence only and not theorem closure.",
+  "predecessors": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "standard_verifier_compatibility_artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f"
+  },
+  "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+  "request": {
+    "name": "p1-reviewed-nonce-producer-request-001",
+    "request_sha256": "7d5431b5eb4382f6ad0206ba4f0b1ff8d71c33dd287755c629b6f62170621560",
+    "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
+  },
+  "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

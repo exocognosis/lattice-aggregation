@@ -353,6 +353,22 @@ class DocumentClassificationTests(unittest.TestCase):
             },
             status["artifact_fixture_refs"],
         )
+        self.assertIn(
+            {
+                "slot_id": "distributed_nonce_producer_artifact_digest",
+                "fixture_path": (
+                    "artifacts/nonce-producer-handoff/latest/capture/capture.json"
+                ),
+                "schema": (
+                    "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+                ),
+                "current_status": (
+                    "checked_handoff_replay_importable_until_actual_backend_evidence"
+                ),
+                "claim_boundary": "conformance/proof-review evidence only",
+            },
+            status["artifact_fixture_refs"],
+        )
         self.assertEqual(
             status["artifact_slot_statuses"][
                 "distributed_nonce_producer_artifact_digest"
@@ -789,6 +805,248 @@ class ReportGenerationTests(unittest.TestCase):
             "framework/conformance evidence only\n"
             "does not claim production threshold ML-DSA security\n"
             "blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature\n",
+            encoding="utf-8",
+        )
+
+    def write_p1_distributed_nonce_producer_capture_runner_gate(self, root):
+        (root / "scripts").mkdir(parents=True, exist_ok=True)
+        (root / "script_tests").mkdir(parents=True, exist_ok=True)
+        rejection_equivalence_path = (
+            root / "src" / "production" / "rejection_equivalence.rs"
+        )
+        rejection_equivalence_path.write_text(
+            rejection_equivalence_path.read_text(encoding="utf-8")
+            + "pub enum P1Criterion2DistributedNonceProducerSlotKind { "
+            + "DistributedNonceProducer }\n"
+            + "pub struct P1Criterion2DistributedNonceProducerSlotTokens {\n"
+            + "pub distributed_nonce_producer_artifact: P1Criterion2ProofSlotArtifact,\n"
+            + "pub distributed_nonce_producer_artifact_digest: [u8; 32],\n"
+            + "}\n"
+            + "pub enum P1DistributedNonceProducerEvidence { "
+            + "HazmatPrfOutputOracle, CentralizedExpandedSecretKeyHelper, "
+            + "FixtureHarness, StandardProviderSingleKey, "
+            + "ReviewedP1ShamirNonceDkgTee }\n"
+            + "pub enum P1DistributedNonceProducerClaimBoundary { "
+            + "ProofReviewOnly, ProductionClaim }\n"
+            + "pub struct P1DistributedNonceProducerArtifactPackage {\n"
+            + "pub source_reference_digest: [u8; 32],\n"
+            + "pub backend_implementation_digest: [u8; 32],\n"
+            + "pub coordinator_attestation_digest: [u8; 32],\n"
+            + "pub shamir_nonce_dkg_transcript_digest: [u8; 32],\n"
+            + "pub pairwise_mask_seed_commitment_digest: [u8; 32],\n"
+            + "pub nonce_share_commitment_digest: [u8; 32],\n"
+            + "pub abort_accountability_digest: [u8; 32],\n"
+            + "}\n"
+            + "pub struct Mldsa65DistributedNonceProducerArtifact;\n"
+            + "pub struct P1DistributedNonceProducerCapture;\n"
+            + "pub struct P1OwnedMldsa65DistributedNonceProducerArtifact;\n"
+            + "pub struct P1DistributedNonceProducerArtifactCertificate;\n"
+            + "pub struct P1DistributedNonceProducerCaptureRequestBinding { "
+            + "pub request_sha256: [u8; 32] }\n"
+            + "pub struct P1DistributedNonceProducerCaptureExpectedDigests;\n"
+            + "pub enum P1DistributedNonceProducerArtifactAssessment { "
+            + "BlockedFailClosed, ArtifactReady }\n"
+            + "pub const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SCHEMA: &str = "
+            + "\"lattice-aggregation:p1-distributed-nonce-producer-capture:v1\";\n"
+            + "pub const P1_DISTRIBUTED_NONCE_PRODUCER_REQUEST_SCHEMA: &str = "
+            + "\"lattice-aggregation:p1-distributed-nonce-producer-request:v1\";\n"
+            + "pub const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_EXTERNAL_EVIDENCE: &str = "
+            + "\"p1_shamir_nonce_dkg_tee_external_capture\";\n"
+            + "impl P1DistributedNonceProducerArtifactCertificate {\n"
+            + "pub fn claims_theorem_closure(&self) {}\n"
+            + "pub fn claims_standard_verifier_compatibility_complete(&self) {}\n"
+            + "}\n"
+            + "pub fn assess_p1_distributed_nonce_producer_artifact() {}\n"
+            + "pub fn derive_p1_distributed_nonce_producer_artifact_package() {}\n"
+            + "pub fn derive_p1_distributed_nonce_producer_artifact_package_from_backend_output() {}\n"
+            + "pub fn derive_p1_distributed_nonce_producer_artifact_package_from_capture() {}\n"
+            + "pub fn derive_p1_distributed_nonce_producer_artifact_digest() {}\n",
+            encoding="utf-8",
+        )
+        test_path = root / "tests" / "production_rejection_equivalence.rs"
+        test_path.write_text(
+            test_path.read_text(encoding="utf-8")
+            + "#[test]\n"
+            + "fn p1_criterion2_typed_slot_kind_drift_is_rejected() {}\n"
+            + "#[test]\n"
+            + "fn p1_criterion2_unreviewed_typed_slot_is_rejected() {}\n"
+            + "#[test]\n"
+            + "fn p1_criterion2_typed_slot_digest_drift_is_rejected() {}\n"
+            + "#[test]\n"
+            + "fn distributed_nonce_producer_accepts_reviewed_shamir_nonce_dkg_tee_evidence() {}\n"
+            + "#[test]\n"
+            + "fn distributed_nonce_producer_rejects_hazmat_prf_output_oracle() {}\n"
+            + "#[test]\n"
+            + "fn distributed_nonce_producer_rejects_centralized_expanded_secret_key_helper() {}\n"
+            + "#[test]\n"
+            + "fn distributed_nonce_producer_rejects_standard_provider_single_key() {}\n"
+            + "#[test]\n"
+            + "fn distributed_nonce_producer_capture_json_feeds_artifact_gate_actual_evidence() {}\n",
+            encoding="utf-8",
+        )
+        (root / "scripts" / "build_nonce_producer_request.py").write_text(
+            "REQUEST_SCHEMA = \"lattice-aggregation:p1-distributed-nonce-producer-request:v1\"\n"
+            "CAPTURE_SCHEMA = \"lattice-aggregation:p1-distributed-nonce-producer-capture:v1\"\n"
+            "EXTERNAL_PRODUCER_EVIDENCE = \"p1_shamir_nonce_dkg_tee_external_capture\"\n"
+            "REQUEST_STATUS = \"evidence_present_unclosed\"\n"
+            "SELECTED_PROFILE = \"ML-DSA-65 coordinator-assisted Shamir nonce DKG P1\"\n"
+            "FORBIDDEN_REQUEST_NAME_TOKENS = ('localnet', 'simulation', 'fixture')\n"
+            "required_capture = ['shamir_nonce_dkg_transcript']\n"
+            "forbidden_capture_sources = ['hazmat PRF-output oracle', 'centralized expanded-secret-key helper']\n"
+            "def build_request(): pass\n"
+            "def write_artifacts(): pass\n"
+            "def validate_digest(value, field): pass\n",
+            encoding="utf-8",
+        )
+        (root / "script_tests" / "test_build_nonce_producer_request.py").write_text(
+            "def test_build_request_manifest_writes_external_nonce_producer_challenge_contract(): pass\n"
+            "def test_build_request_manifest_rejects_simulation_names_and_bad_digests(): pass\n"
+            "lattice-aggregation:p1-distributed-nonce-producer-request:v1\n"
+            "p1_shamir_nonce_dkg_tee_external_capture\n"
+            "evidence_present_unclosed\n",
+            encoding="utf-8",
+        )
+        (root / "scripts" / "run_nonce_producer_capture.py").write_text(
+            "CAPTURE_SCHEMA = \"lattice-aggregation:p1-distributed-nonce-producer-capture:v1\"\n"
+            "REQUEST_SCHEMA = \"lattice-aggregation:p1-distributed-nonce-producer-request:v1\"\n"
+            "EXTERNAL_PRODUCER_EVIDENCE = \"p1_shamir_nonce_dkg_tee_external_capture\"\n"
+            "RUNNER_STATUS = \"evidence_present_unclosed\"\n"
+            "FORBIDDEN_BACKEND_COMMAND_TOKENS = ('localnet', 'hazmat', 'centralized')\n"
+            "def validate_backend_command(command): pass\n"
+            "def load_request(path): pass\n"
+            "def validate_request_binding(binding): pass\n"
+            "def validate_capture_matches_request(capture, request):\n"
+            "    raise ValueError('request digest mismatch')\n"
+            "def validate_no_unknown_fields(value, allowed_fields, label): pass\n"
+            "def validate_digest_object(value, required_fields, label):\n"
+            "    raise ValueError('missing {label} digest')\n"
+            "def validate_capture_bytes(value, field): pass\n"
+            "def parse_capture_json(stdout):\n"
+            "    raise ValueError('actual external nonce-producer evidence')\n"
+            "def build_report(): pass\n"
+            "def write_artifacts(): pass\n",
+            encoding="utf-8",
+        )
+        (root / "script_tests" / "test_run_nonce_producer_capture.py").write_text(
+            "def test_build_report_invokes_nonce_producer_capture_runner_and_writes_importable_capture_json(): pass\n"
+            "def test_build_report_rejects_capture_that_omits_or_stales_request_binding(): pass\n"
+            "def test_build_report_rejects_hazmat_localnet_or_fixture_sources(): pass\n"
+            "def test_build_report_rejects_non_importable_capture_shape_before_artifact_write(): pass\n"
+            "request_sha256\n"
+            "request digest mismatch\n"
+            "hazmat-centralized-prf\n"
+            "fixture_harness\n",
+            encoding="utf-8",
+        )
+        (root / "scripts" / "run_nonce_producer_handoff_replay.py").write_text(
+            "READINESS_SCHEMA = \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\"\n"
+            "def validate_backend_readiness(backend_readiness, request_report):\n"
+            "    raise ValueError('backend readiness is not admissible')\n"
+            "backend_readiness = 'backend_readiness'\n"
+            "backend_readiness_report = 'backend_readiness_report'\n"
+            "reuse_request = 'reuse_request'\n"
+            "raise ValueError('requires admissible backend readiness')\n"
+            "backend_candidate_admissible_pending_capture = 'backend_candidate_admissible_pending_capture'\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_run_nonce_producer_handoff_replay.py"
+        ).write_text(
+            "def test_handoff_replay_requires_readiness_for_explicit_backend_command(): pass\n"
+            "def test_handoff_replay_rejects_blocked_backend_readiness(): pass\n"
+            "def test_handoff_replay_accepts_admissible_readiness_bound_to_reused_request(): pass\n"
+            "requires admissible backend readiness\n"
+            "backend readiness is not admissible\n",
+            encoding="utf-8",
+        )
+        (
+            root / "scripts" / "check_nonce_producer_backend_readiness.py"
+        ).write_text(
+            "READINESS_SCHEMA = \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\"\n"
+            "ENV_BACKEND_CRATE = \"LATTICE_NONCE_PRODUCER_BACKEND_CRATE\"\n"
+            "def detect_capabilities(cargo, source_blob):\n"
+            "    return {'centralized_nonce_prf_oracle': True, 'simulated_default_feature': True, 'hazmat_feature': True, 'reviewed_external_capture_contract': False}\n"
+            "def detected_blockers(capabilities):\n"
+            "    return ['centralized nonce PRF oracle present', 'simulated default feature present', 'hazmat feature present']\n"
+            "admissible_for_p1_nonce_handoff = False\n"
+            "backend_detected_not_admissible = 'backend_detected_not_admissible'\n"
+            "backend_candidate_admissible_pending_capture = 'backend_candidate_admissible_pending_capture'\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_check_nonce_producer_backend_readiness.py"
+        ).write_text(
+            "def test_readiness_report_blocks_hazmat_backend_but_records_nonce_capabilities(): pass\n"
+            "def test_readiness_report_marks_clean_reviewed_candidate_as_capture_admissible(): pass\n"
+            "def test_readiness_report_rejects_missing_backend_crate(): pass\n"
+            "backend_detected_not_admissible\n"
+            "centralized nonce PRF oracle\n"
+            "simulated default feature\n"
+            "hazmat feature\n",
+            encoding="utf-8",
+        )
+        readiness_dir = (
+            root / "artifacts" / "nonce-producer-backend-readiness" / "latest"
+        )
+        readiness_dir.mkdir(parents=True, exist_ok=True)
+        (readiness_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
+            "  \"readiness_status\": \"backend_detected_not_admissible\",\n"
+            "  \"backend\": {\"package_name\": \"dytallix-pq-threshold\"},\n"
+            "  \"capabilities\": {\"distributed_nonce_prf_output_share_interface\": true},\n"
+            "  \"admissibility\": {\n"
+            "    \"admissible_for_p1_nonce_handoff\": false,\n"
+            "    \"detected_blockers\": [\n"
+            "      \"centralized nonce PRF oracle present\",\n"
+            "      \"hazmat feature present\",\n"
+            "      \"simulated default feature present\",\n"
+            "      \"deterministic test-vector plumbing present\"\n"
+            "    ]\n"
+            "  }\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        (
+            root / "scripts" / "run_admissible_nonce_producer_capture_attempt.py"
+        ).write_text(
+            "ATTEMPT_SCHEMA = \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\"\n"
+            "ATTEMPT_STATUS_BLOCKED = \"backend_readiness_blocked\"\n"
+            "ATTEMPT_STATUS_PROMOTED = \"capture_promoted\"\n"
+            "REQUEST_PLACEHOLDER = \"{request}\"\n"
+            "def substitute_request_placeholder(backend_command, request_path): pass\n"
+            "backend_command_executed = False\n"
+            "def build_attempt():\n"
+            "    reuse_request=True\n",
+            encoding="utf-8",
+        )
+        (
+            root
+            / "script_tests"
+            / "test_run_admissible_nonce_producer_capture_attempt.py"
+        ).write_text(
+            "def test_attempt_blocks_hazmat_style_backend_before_capture_command_runs(): pass\n"
+            "def test_attempt_promotes_capture_only_after_admissible_readiness(): pass\n"
+            "def test_attempt_requires_request_placeholder_in_backend_command(): pass\n"
+            "backend_readiness_blocked\n"
+            "capture_promoted\n"
+            "backend_command_executed\n",
+            encoding="utf-8",
+        )
+        attempt_dir = (
+            root / "artifacts" / "nonce-producer-capture-attempt" / "latest"
+        )
+        attempt_dir.mkdir(parents=True, exist_ok=True)
+        (attempt_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\",\n"
+            "  \"attempt_status\": \"backend_readiness_blocked\",\n"
+            "  \"request_path\": \"handoff/request/request.json\",\n"
+            "  \"readiness_schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
+            "  \"backend_command_executed\": false,\n"
+            "  \"admissible_for_p1_nonce_handoff\": false,\n"
+            "  \"detected_blockers\": [\"hazmat feature present\"]\n"
+            "}\n",
             encoding="utf-8",
         )
 
@@ -1463,6 +1721,22 @@ class ReportGenerationTests(unittest.TestCase):
             "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json, "
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json, "
             "tests/fixtures/p1_theorem_linkage_artifact_fixture.json, "
+            "artifacts/nonce-producer-handoff/latest/manifest.json, "
+            "artifacts/nonce-producer-handoff/latest/capture/capture.json, "
+            "artifacts/nonce-producer-backend-readiness/latest/manifest.json, "
+            "artifacts/nonce-producer-capture-attempt/latest/manifest.json, "
+            "docs/cryptography/p1-nonce-producer-backend-cli-contract.md, "
+            "scripts/run_nonce_producer_handoff_replay.py, "
+            "scripts/emit_reviewed_nonce_producer_capture.py, "
+            "scripts/check_nonce_producer_backend_readiness.py, "
+            "scripts/run_admissible_nonce_producer_capture_attempt.py, "
+            "backend_detected_not_admissible, "
+            "backend_readiness_blocked, "
+            "capture-attempt runner, "
+            "distributed nonce-PRF interfaces, "
+            "centralized nonce PRF oracle, "
+            "deterministic test-vector plumbing, "
+            "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
             "checked standard-verifier compatibility fixture, "
@@ -1768,6 +2042,47 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": "distributed_nonce_producer_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/nonce-producer-handoff/latest/capture/capture.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+                        ),
+                        "current_status": (
+                            "checked_handoff_replay_importable_until_actual_backend_evidence"
+                        ),
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
+                        "slot_id": "distributed_nonce_producer_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
+                        ),
+                        "current_status": "backend_detected_not_admissible",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
+                        "slot_id": "distributed_nonce_producer_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
+                        ),
+                        "current_status": "backend_readiness_blocked",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -2039,6 +2354,60 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("selected-backend aggregate-output artifact gate", markdown)
         self.assertIn("p1_selected_backend_proof_closure_artifact_gate", str(scan))
         self.assertIn("p1_selected_backend_threshold_output_artifact_gate", str(scan))
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_p1_distributed_nonce_producer_capture_runner_updates_report_without_closing_proofs(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_distributed_nonce_producer_capture_runner_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_distributed_nonce_producer_artifact_gate"])
+        self.assertTrue(scan["p1_distributed_nonce_producer_request_gate"])
+        self.assertTrue(scan["p1_distributed_nonce_producer_capture_runner_gate"])
+        self.assertTrue(scan["p1_nonce_producer_backend_readiness_gate"])
+        self.assertTrue(scan["p1_nonce_producer_capture_attempt_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+        aggregate_blockers = "\n".join(aggregate["blockers"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("repo-generated distributed nonce-producer request", aggregate_evidence)
+        self.assertIn("external Shamir nonce-DKG/TEE producer", aggregate_evidence)
+        self.assertIn("required capture schema", aggregate_evidence)
+        self.assertIn("p1_shamir_nonce_dkg_tee_external_capture", aggregate_evidence)
+        self.assertIn("distributed nonce-producer capture runner", aggregate_evidence)
+        self.assertIn("exact request schema/name/SHA-256 binding", aggregate_evidence)
+        self.assertIn("rejects stale request digests", aggregate_evidence)
+        self.assertIn("non-importable capture shapes", aggregate_evidence)
+        self.assertIn("backend readiness gate", aggregate_evidence)
+        self.assertIn("backend_detected_not_admissible", aggregate_evidence)
+        self.assertIn("capture-attempt runner", aggregate_evidence)
+        self.assertIn("backend_readiness_blocked", aggregate_evidence)
+        self.assertIn("backend command", aggregate_evidence)
+        self.assertIn("distributed nonce-PRF", aggregate_evidence)
+        self.assertIn("evidence_present_unclosed", aggregate_evidence)
+        self.assertIn("theorem closure", aggregate_evidence)
+        self.assertIn("production threshold ML-DSA security", aggregate_evidence)
+        self.assertIn("reviewed external Shamir nonce-DKG/TEE producer", aggregate_blockers)
+        self.assertIn("blocked before backend execution", aggregate_blockers)
+        self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
+        self.assertIn("centralized nonce-PRF oracle", aggregate_blockers)
+        self.assertIn("deterministic test-vector", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
     def test_validator_10000_gate_updates_report_without_claiming_equivalence(self):
@@ -2856,14 +3225,32 @@ class ReportGenerationTests(unittest.TestCase):
 
             saved = json.loads((out_dir / "assessment.json").read_text(encoding="utf-8"))
             markdown = (out_dir / "assessment.md").read_text(encoding="utf-8")
+            dashboard = json.loads(
+                (out_dir / "closure-dashboard.json").read_text(encoding="utf-8")
+            )
+            dashboard_markdown = (out_dir / "closure-dashboard.md").read_text(
+                encoding="utf-8"
+            )
 
         self.assertIn("testing_statement", report)
         self.assertEqual(report["overall_verdict"], "partially_proven")
         self.assertEqual(report["claim_boundary"], "research scaffold only")
         self.assertEqual(report["commands"], [])
         self.assertEqual(saved["overall_verdict"], "partially_proven")
+        self.assertEqual(
+            dashboard["schema"],
+            "lattice-aggregation.current-closure-dashboard.v1",
+        )
+        self.assertEqual(dashboard["overall_verdict"], "partially_proven")
+        self.assertEqual(dashboard["claim_boundary"], "research scaffold only")
+        self.assertIn("criteria", dashboard)
+        self.assertIn("proof_artifact_slots", dashboard)
+        self.assertIn("external_capture_provenance_requirements", dashboard)
+        self.assertIn("not theorem closure", dashboard["non_closure_guards"])
         self.assertIn("# Lattice Aggregation Hypothesis Assessment", markdown)
         self.assertIn("partially_proven", markdown)
+        self.assertIn("# Current Closure Dashboard", dashboard_markdown)
+        self.assertIn("partially_proven", dashboard_markdown)
 
     def test_build_report_uses_command_runner_when_enabled(self):
         module = load_module()

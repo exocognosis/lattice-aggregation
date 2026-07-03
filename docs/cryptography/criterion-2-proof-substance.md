@@ -85,7 +85,49 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `derive_p1_distributed_nonce_producer_artifact_package_from_capture` requires
   request name and `request_sha256`, predecessor certificate digests, decoded
   nonce-producer material classes, and expected package digests before feeding
-  the artifact gate.
+  the artifact gate. The repo-generated request and runner path is
+  `scripts/build_nonce_producer_request.py` plus
+  `scripts/run_nonce_producer_capture.py`; the runner loads the request JSON,
+  requires the capture to echo the exact request digest, and rejects localnet,
+  deterministic, fixture, hazmat, centralized-helper, and ordinary single-key
+  provider command sources before writing importable capture artifacts.
+  The exact external backend CLI contract is documented in
+  `docs/cryptography/p1-nonce-producer-backend-cli-contract.md`. The checked
+  replay path `scripts/run_nonce_producer_handoff_replay.py` invokes
+  `scripts/emit_reviewed_nonce_producer_capture.py`, writes
+  `artifacts/nonce-producer-handoff/latest/manifest.json`, and stores the bound
+  request and capture at
+  `artifacts/nonce-producer-handoff/latest/request/request.json` and
+  `artifacts/nonce-producer-handoff/latest/capture/capture.json`. Rust test
+  `checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer`
+  imports that exact capture through
+  `derive_p1_distributed_nonce_producer_artifact_package_from_capture`.
+  This replay proves the executable handoff is wired, not that an external
+  backend has closed Criterion 2.
+  The backend readiness preflight
+  `scripts/check_nonce_producer_backend_readiness.py` inspects candidate
+  backend source before capture promotion. Its current artifact
+  `artifacts/nonce-producer-backend-readiness/latest/manifest.json` binds the
+  repo-generated request SHA-256, records candidate source-tree checksums, and
+  confirms the local `dytallix-pq-threshold` candidate exposes distributed
+  nonce-PRF interfaces. It also marks that candidate
+  `backend_detected_not_admissible` because the checked source is still
+  hazmat/simulated research backend material with a centralized nonce PRF
+  oracle and deterministic test-vector plumbing. This readiness artifact is a
+  fail-closed boundary check, not reviewed external nonce-producer evidence.
+  The handoff replay now requires an admissible backend-readiness manifest for
+  every explicit external backend command, supports `--reuse-request` so the
+  readiness manifest binds the exact request SHA-256, and records accepted
+  readiness metadata in the handoff manifest.
+  The readiness-gated capture-attempt runner
+  `scripts/run_admissible_nonce_producer_capture_attempt.py` now generates the
+  exact handoff request, runs readiness against that request, requires a
+  `{request}`-bound backend command template, and writes
+  `artifacts/nonce-producer-capture-attempt/latest/manifest.json`. Its current
+  checked artifact is `backend_readiness_blocked`: the backend command was not
+  executed because the local candidate remained inadmissible. This is the
+  executable fail-closed promotion decision, not reviewed external
+  nonce-producer evidence.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -272,7 +314,29 @@ the nonce-producer artifact package, including an explicit
 backend-implementation digest. The capture importer
 `derive_p1_distributed_nonce_producer_artifact_package_from_capture` imports
 canonical `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
-envelopes with request, predecessor, and expected-digest bindings. The accepted
+envelopes with request, predecessor, and expected-digest bindings. Request
+builder `scripts/build_nonce_producer_request.py` and capture runner
+`scripts/run_nonce_producer_capture.py` create the executable handoff path for
+actual external nonce-producer captures while remaining
+`evidence_present_unclosed`. The precise CLI contract is
+`docs/cryptography/p1-nonce-producer-backend-cli-contract.md`, and checked
+replay artifacts under `artifacts/nonce-producer-handoff/latest/` bind a
+generated request, command metadata, capture logs, checksums, request SHA-256,
+and importer-accepted capture JSON for review. The accepted
+backend readiness artifact at
+`artifacts/nonce-producer-backend-readiness/latest/manifest.json` records that
+the local `dytallix-pq-threshold` candidate has distributed nonce-PRF
+interfaces but is `backend_detected_not_admissible` because hazmat, simulated
+default, centralized nonce PRF oracle, and deterministic test-vector plumbing
+markers are still present. The handoff replay enforces that a real external
+backend command cannot be promoted without an admissible readiness manifest
+bound to the reused request SHA-256. The capture-attempt runner
+`scripts/run_admissible_nonce_producer_capture_attempt.py` records this
+promotion decision as
+`artifacts/nonce-producer-capture-attempt/latest/manifest.json`; the current
+checked status is `backend_readiness_blocked`, with
+`backend_command_executed = false`, so no capture is promoted from the
+inadmissible candidate. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

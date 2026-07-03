@@ -309,6 +309,18 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         nonce_producer_slot["backend_capture_binding"],
         "capture embeds request schema, request name, request_sha256, predecessor certificate digests, decoded material classes, and expected package digests"
     );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_request_builder"],
+        "scripts/build_nonce_producer_request.py"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_runner"],
+        "scripts/run_nonce_producer_capture.py"
+    );
+    assert_eq!(
+        nonce_producer_slot["backend_capture_runner_status"],
+        "evidence_present_unclosed"
+    );
     assert!(string_array_contains(
         &nonce_producer_slot["backend_output_required_digests"],
         "backend_implementation_digest",
@@ -365,6 +377,85 @@ fn criterion2_manifest_links_existing_evidence_surfaces() {
             "criterion-2 evidence ref is missing: {relative}"
         );
     }
+}
+
+#[test]
+fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
+    let manifest = manifest();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let pipeline = &manifest["repo_evidence_pipeline"];
+
+    assert_eq!(
+        pipeline["schema"],
+        "lattice-aggregation.repo-evidence-pipeline.v1"
+    );
+    assert_eq!(pipeline["status"], "evidence_present_unclosed");
+    assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    for artifact in [
+        "artifacts/hypothesis/latest/assessment.json",
+        "artifacts/hypothesis/latest/assessment.md",
+        "artifacts/hypothesis/latest/closure-dashboard.json",
+        "artifacts/hypothesis/latest/closure-dashboard.md",
+    ] {
+        assert_eq!(pipeline["artifacts"][artifact], artifact);
+        assert!(
+            root.join(artifact).exists(),
+            "repo evidence artifact is missing: {artifact}"
+        );
+    }
+
+    let provenance_requirements = manifest["external_capture_provenance_requirements"]
+        .as_array()
+        .expect("external_capture_provenance_requirements is an array");
+    for required in [
+        "request_sha256",
+        "capture_sha256",
+        "backend_command_sha256",
+        "evidence_class",
+        "runner_status",
+        "claim_boundary",
+        "expected_digest_fields",
+        "metadata_fields",
+        "cargo_lock_sha256",
+    ] {
+        assert!(
+            string_array_contains(
+                &serde_json::Value::Array(provenance_requirements.clone()),
+                required,
+            ),
+            "Criterion 2 must require external capture provenance field {required}"
+        );
+    }
+
+    let nonce_slot = manifest["proof_payload"]["required_artifact_slots"]
+        .as_array()
+        .expect("required_artifact_slots is an array")
+        .iter()
+        .find(|entry| entry["id"].as_str() == Some("distributed_nonce_producer_artifact_digest"))
+        .expect("distributed nonce-producer slot is present");
+    for path_field in [
+        "backend_cli_contract",
+        "backend_handoff_replay",
+        "backend_handoff_replay_artifact",
+        "backend_handoff_replay_request",
+        "backend_handoff_replay_capture",
+    ] {
+        let relative = nonce_slot[path_field]
+            .as_str()
+            .unwrap_or_else(|| panic!("{path_field} is a string"));
+        assert!(
+            root.join(relative).exists(),
+            "distributed nonce-producer handoff ref is missing: {relative}"
+        );
+    }
+    assert_eq!(
+        nonce_slot["backend_handoff_replay_status"],
+        "evidence_present_unclosed"
+    );
+    assert_eq!(
+        nonce_slot["backend_handoff_replay_importer_test"],
+        "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer"
+    );
 }
 
 #[test]
@@ -463,5 +554,38 @@ fn criterion2_manifest_links_checked_fixture_refs() {
         )
         .exists(),
         "capture schema fixture must be checked in"
+    );
+
+    let nonce_handoff_ref = fixture_refs
+        .iter()
+        .find(|entry| {
+            entry["fixture_path"].as_str()
+                == Some("artifacts/nonce-producer-handoff/latest/capture/capture.json")
+        })
+        .expect("distributed nonce-producer checked handoff replay is linked");
+    assert_eq!(
+        nonce_handoff_ref["slot_id"],
+        "distributed_nonce_producer_artifact_digest"
+    );
+    assert_eq!(
+        nonce_handoff_ref["schema"],
+        "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+    );
+    assert_eq!(
+        nonce_handoff_ref["current_status"],
+        "checked_handoff_replay_importable_until_actual_backend_evidence"
+    );
+    assert_eq!(
+        nonce_handoff_ref["claim_boundary"],
+        "conformance/proof-review evidence only"
+    );
+    assert!(
+        root.join(
+            nonce_handoff_ref["fixture_path"]
+                .as_str()
+                .expect("nonce handoff fixture_path is a string")
+        )
+        .exists(),
+        "distributed nonce-producer checked handoff capture must be checked in"
     );
 }

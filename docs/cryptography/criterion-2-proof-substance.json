@@ -66,6 +66,44 @@
         "backend_capture_importer": "derive_p1_distributed_nonce_producer_artifact_package_from_capture",
         "backend_capture_binding": "capture embeds request schema, request name, request_sha256, predecessor certificate digests, decoded material classes, and expected package digests",
         "backend_capture_status": "evidence_present_unclosed",
+        "backend_capture_request_builder": "scripts/build_nonce_producer_request.py",
+        "backend_capture_runner": "scripts/run_nonce_producer_capture.py",
+        "backend_capture_runner_status": "evidence_present_unclosed",
+        "backend_capture_runner_precondition": "external command emits canonical P1 distributed nonce-producer capture JSON and is not localnet, deterministic, fixture, hazmat, centralized, or single-key provider material",
+        "backend_cli_contract": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+        "backend_readiness_checker": "scripts/check_nonce_producer_backend_readiness.py",
+        "backend_readiness_status": "backend_detected_not_admissible",
+        "backend_readiness_artifact": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+        "backend_readiness_checked_candidate": "local-dytallix-pq-threshold-candidate",
+        "backend_readiness_detected_interfaces": [
+          "distributed_nonce_prf_output_share_interface",
+          "distributed_nonce_prf_output_splitter",
+          "distributed_nonce_masking_contribution"
+        ],
+        "backend_readiness_blockers": [
+          "missing reviewed external capture contract marker",
+          "hazmat feature present",
+          "simulated default feature present",
+          "research-grade simulation backend marker present",
+          "centralized nonce PRF oracle present",
+          "deterministic test-vector plumbing present"
+        ],
+        "backend_capture_attempt_runner": "scripts/run_admissible_nonce_producer_capture_attempt.py",
+        "backend_capture_attempt_status": "backend_readiness_blocked",
+        "backend_capture_attempt_artifact": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
+        "backend_capture_attempt_request": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+        "backend_capture_attempt_command_executed": false,
+        "backend_capture_attempt_promotion_rule": "only an admissible readiness manifest may promote the reused request into handoff replay; blocked readiness writes an attempt artifact without executing the backend command",
+        "backend_handoff_replay": "scripts/run_nonce_producer_handoff_replay.py",
+        "backend_handoff_replay_status": "evidence_present_unclosed",
+        "backend_handoff_replay_artifact": "artifacts/nonce-producer-handoff/latest/manifest.json",
+        "backend_handoff_replay_request": "artifacts/nonce-producer-handoff/latest/request/request.json",
+        "backend_handoff_replay_capture": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "backend_handoff_readiness_required_for_explicit_backend_command": true,
+        "backend_handoff_reuse_request_option": "--reuse-request",
+        "backend_handoff_readiness_option": "--backend-readiness",
+        "backend_handoff_readiness_binding": "admissible readiness manifest must bind request schema, request name, request_sha256, capture schema, producer evidence, package name, and source-tree digest before explicit backend capture promotion",
+        "backend_handoff_replay_importer_test": "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "backend_output_required_digests": [
           "source_reference_digest",
           "backend_implementation_digest",
@@ -210,6 +248,27 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+        "current_status": "checked_handoff_replay_importable_until_actual_backend_evidence",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+        "current_status": "backend_detected_not_admissible",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+        "current_status": "backend_readiness_blocked",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -269,11 +328,21 @@
     "docs/cryptography/rejection-equivalence-evidence.md",
     "docs/cryptography/p1-nonce-producer-selection.md",
     "docs/cryptography/p1-nonce-producer-selection.json",
+    "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
     "docs/cryptography/proof-obligations.md",
     "docs/cryptography/noise-rejection-proof-plan.md",
     "docs/cryptography/formal-security-theorem.md",
     "src/production/rejection_equivalence.rs",
     "tests/production_rejection_equivalence.rs",
+    "scripts/emit_reviewed_nonce_producer_capture.py",
+    "scripts/check_nonce_producer_backend_readiness.py",
+    "scripts/run_admissible_nonce_producer_capture_attempt.py",
+    "scripts/run_nonce_producer_handoff_replay.py",
+    "artifacts/nonce-producer-handoff/latest/manifest.json",
+    "artifacts/nonce-producer-handoff/latest/request/request.json",
+    "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+    "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+    "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
     "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
@@ -281,7 +350,36 @@
     "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
     "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
     "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
-    "tests/fixtures/p1_theorem_linkage_artifact_fixture.json"
+    "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
+    "artifacts/hypothesis/latest/assessment.json",
+    "artifacts/hypothesis/latest/assessment.md",
+    "artifacts/hypothesis/latest/closure-dashboard.json",
+    "artifacts/hypothesis/latest/closure-dashboard.md"
+  ],
+  "repo_evidence_pipeline": {
+    "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
+    "status": "evidence_present_unclosed",
+    "claim_boundary": "research scaffold only",
+    "artifacts": {
+      "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
+      "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",
+      "artifacts/hypothesis/latest/closure-dashboard.json": "artifacts/hypothesis/latest/closure-dashboard.json",
+      "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md"
+    }
+  },
+  "external_capture_provenance_requirements": [
+    "request_schema",
+    "request_name",
+    "request_sha256",
+    "capture_schema",
+    "capture_sha256",
+    "backend_command_sha256",
+    "evidence_class",
+    "runner_status",
+    "claim_boundary",
+    "expected_digest_fields",
+    "metadata_fields",
+    "cargo_lock_sha256"
   ],
   "assessment": {
     "criterion_status": "partially_met",

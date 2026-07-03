@@ -1,0 +1,38 @@
+{
+  "claim_boundary": "conformance/proof-review evidence only",
+  "forbidden_capture_sources": [
+    "hazmat PRF-output oracle",
+    "centralized expanded-secret-key helper",
+    "fixture harness",
+    "ordinary single-key standard-provider output",
+    "localnet",
+    "deterministic simulation"
+  ],
+  "generated_at": "2026-07-03T16:03:31Z",
+  "name": "p1-reviewed-nonce-producer-request-001",
+  "predecessors": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "standard_verifier_compatibility_artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f"
+  },
+  "request_status": "evidence_present_unclosed",
+  "required_capture": {
+    "claim_boundary": "conformance/proof-review evidence only",
+    "material": [
+      "source_reference",
+      "backend_implementation",
+      "coordinator_attestation",
+      "shamir_nonce_dkg_transcript",
+      "pairwise_mask_seed_commitments",
+      "nonce_share_commitments",
+      "abort_accountability",
+      "external_review"
+    ],
+    "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+    "reviewed": true,
+    "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+    "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+  },
+  "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

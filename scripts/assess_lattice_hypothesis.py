@@ -399,6 +399,35 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+        "current_status": (
+            "checked_handoff_replay_importable_until_actual_backend_evidence"
+        ),
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": (
+            "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
+        ),
+        "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+        "current_status": "backend_detected_not_admissible",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": (
+            "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
+        ),
+        "schema": (
+            "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
+        ),
+        "current_status": "backend_readiness_blocked",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": (
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1004,6 +1033,22 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json",
         "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
+        "artifacts/nonce-producer-handoff/latest/manifest.json",
+        "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+        "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
+        "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+        "scripts/run_nonce_producer_handoff_replay.py",
+        "scripts/emit_reviewed_nonce_producer_capture.py",
+        "scripts/check_nonce_producer_backend_readiness.py",
+        "scripts/run_admissible_nonce_producer_capture_attempt.py",
+        "backend_detected_not_admissible",
+        "backend_readiness_blocked",
+        "capture-attempt runner",
+        "distributed nonce-prf interfaces",
+        "centralized nonce prf oracle",
+        "deterministic test-vector plumbing",
+        "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
@@ -1553,6 +1598,42 @@ def scan_documents(root):
     )
     backend_emission_request_builder_test = read_optional(
         "script_tests/test_build_backend_emission_request.py"
+    )
+    nonce_producer_capture_runner = read_optional(
+        "scripts/run_nonce_producer_capture.py"
+    )
+    nonce_producer_capture_runner_test = read_optional(
+        "script_tests/test_run_nonce_producer_capture.py"
+    )
+    nonce_producer_handoff_replay = read_optional(
+        "scripts/run_nonce_producer_handoff_replay.py"
+    )
+    nonce_producer_handoff_replay_test = read_optional(
+        "script_tests/test_run_nonce_producer_handoff_replay.py"
+    )
+    nonce_producer_backend_readiness = read_optional(
+        "scripts/check_nonce_producer_backend_readiness.py"
+    )
+    nonce_producer_backend_readiness_test = read_optional(
+        "script_tests/test_check_nonce_producer_backend_readiness.py"
+    )
+    nonce_producer_backend_readiness_manifest = read_optional(
+        "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
+    )
+    nonce_producer_capture_attempt = read_optional(
+        "scripts/run_admissible_nonce_producer_capture_attempt.py"
+    )
+    nonce_producer_capture_attempt_test = read_optional(
+        "script_tests/test_run_admissible_nonce_producer_capture_attempt.py"
+    )
+    nonce_producer_capture_attempt_manifest = read_optional(
+        "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
+    )
+    nonce_producer_request_builder = read_optional(
+        "scripts/build_nonce_producer_request.py"
+    )
+    nonce_producer_request_builder_test = read_optional(
+        "script_tests/test_build_nonce_producer_request.py"
     )
     hazmat_threshold_backend_capture_adapter = read_optional(
         "scripts/run_hazmat_threshold_backend_capture.py"
@@ -2203,6 +2284,195 @@ def scan_documents(root):
             "gate",
             "actual",
             "evidence",
+        )
+    )
+    p1_distributed_nonce_producer_request_gate = (
+        p1_distributed_nonce_producer_artifact_gate
+        and all(
+            token in nonce_producer_request_builder
+            for token in [
+                "REQUEST_SCHEMA",
+                "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+                "CAPTURE_SCHEMA",
+                "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+                "EXTERNAL_PRODUCER_EVIDENCE",
+                "p1_shamir_nonce_dkg_tee_external_capture",
+                "REQUEST_STATUS",
+                "evidence_present_unclosed",
+                "SELECTED_PROFILE",
+                "FORBIDDEN_REQUEST_NAME_TOKENS",
+                "build_request",
+                "write_artifacts",
+                "validate_digest",
+                "required_capture",
+                "forbidden_capture_sources",
+                "shamir_nonce_dkg_transcript",
+            ]
+        )
+        and all(
+            token in nonce_producer_request_builder_test
+            for token in [
+                "test_build_request_manifest_writes_external_nonce_producer_challenge_contract",
+                "test_build_request_manifest_rejects_simulation_names_and_bad_digests",
+                "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+                "p1_shamir_nonce_dkg_tee_external_capture",
+                "evidence_present_unclosed",
+            ]
+        )
+    )
+    p1_distributed_nonce_producer_capture_runner_gate = (
+        p1_distributed_nonce_producer_request_gate
+        and all(
+            token in nonce_producer_capture_runner
+            for token in [
+                "CAPTURE_SCHEMA",
+                "REQUEST_SCHEMA",
+                "EXTERNAL_PRODUCER_EVIDENCE",
+                "RUNNER_STATUS",
+                "FORBIDDEN_BACKEND_COMMAND_TOKENS",
+                "validate_backend_command",
+                "load_request",
+                "validate_request_binding",
+                "validate_capture_matches_request",
+                "validate_no_unknown_fields",
+                "validate_digest_object",
+                "validate_capture_bytes",
+                "parse_capture_json",
+                "build_report",
+                "write_artifacts",
+                "actual external nonce-producer evidence",
+                "request digest mismatch",
+                "missing {label} digest",
+                "hazmat",
+                "centralized",
+                "localnet",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_runner_test
+            for token in [
+                "test_build_report_invokes_nonce_producer_capture_runner_and_writes_importable_capture_json",
+                "test_build_report_rejects_capture_that_omits_or_stales_request_binding",
+                "test_build_report_rejects_hazmat_localnet_or_fixture_sources",
+                "test_build_report_rejects_non_importable_capture_shape_before_artifact_write",
+                "request_sha256",
+                "request digest mismatch",
+                "hazmat-centralized-prf",
+                "fixture_harness",
+            ]
+        )
+    )
+    p1_nonce_producer_backend_readiness_gate = (
+        p1_distributed_nonce_producer_capture_runner_gate
+        and all(
+            token in nonce_producer_backend_readiness
+            for token in [
+                "READINESS_SCHEMA",
+                "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+                "ENV_BACKEND_CRATE",
+                "LATTICE_NONCE_PRODUCER_BACKEND_CRATE",
+                "detect_capabilities",
+                "detected_blockers",
+                "admissible_for_p1_nonce_handoff",
+                "backend_detected_not_admissible",
+                "backend_candidate_admissible_pending_capture",
+                "centralized_nonce_prf_oracle",
+                "simulated_default_feature",
+                "hazmat_feature",
+                "reviewed_external_capture_contract",
+            ]
+        )
+        and all(
+            token in nonce_producer_handoff_replay
+            for token in [
+                "READINESS_SCHEMA",
+                "validate_backend_readiness",
+                "backend_readiness",
+                "backend_readiness_report",
+                "reuse_request",
+                "requires admissible backend readiness",
+                "backend readiness is not admissible",
+                "backend_candidate_admissible_pending_capture",
+            ]
+        )
+        and all(
+            token in nonce_producer_backend_readiness_test
+            for token in [
+                "test_readiness_report_blocks_hazmat_backend_but_records_nonce_capabilities",
+                "test_readiness_report_marks_clean_reviewed_candidate_as_capture_admissible",
+                "test_readiness_report_rejects_missing_backend_crate",
+                "backend_detected_not_admissible",
+                "centralized nonce PRF oracle",
+                "simulated default feature",
+                "hazmat feature",
+            ]
+        )
+        and all(
+            token in nonce_producer_handoff_replay_test
+            for token in [
+                "test_handoff_replay_requires_readiness_for_explicit_backend_command",
+                "test_handoff_replay_rejects_blocked_backend_readiness",
+                "test_handoff_replay_accepts_admissible_readiness_bound_to_reused_request",
+                "requires admissible backend readiness",
+                "backend readiness is not admissible",
+            ]
+        )
+        and all(
+            token in nonce_producer_backend_readiness_manifest
+            for token in [
+                "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+                "backend_detected_not_admissible",
+                "dytallix-pq-threshold",
+                "distributed_nonce_prf_output_share_interface",
+                "centralized nonce PRF oracle present",
+                "hazmat feature present",
+                "simulated default feature present",
+                "deterministic test-vector plumbing present",
+                "admissible_for_p1_nonce_handoff",
+            ]
+        )
+    )
+    p1_nonce_producer_capture_attempt_gate = (
+        p1_nonce_producer_backend_readiness_gate
+        and all(
+            token in nonce_producer_capture_attempt
+            for token in [
+                "ATTEMPT_SCHEMA",
+                "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+                "ATTEMPT_STATUS_BLOCKED",
+                "backend_readiness_blocked",
+                "ATTEMPT_STATUS_PROMOTED",
+                "capture_promoted",
+                "REQUEST_PLACEHOLDER",
+                "{request}",
+                "substitute_request_placeholder",
+                "backend_command_executed",
+                "build_attempt",
+                "reuse_request=True",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_attempt_test
+            for token in [
+                "test_attempt_blocks_hazmat_style_backend_before_capture_command_runs",
+                "test_attempt_promotes_capture_only_after_admissible_readiness",
+                "test_attempt_requires_request_placeholder_in_backend_command",
+                "backend_readiness_blocked",
+                "capture_promoted",
+                "backend_command_executed",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_attempt_manifest
+            for token in [
+                "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+                "backend_readiness_blocked",
+                "backend_command_executed",
+                "admissible_for_p1_nonce_handoff",
+                "detected_blockers",
+                "handoff/request/request.json",
+                "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+            ]
         )
     )
     p1_standard_verifier_compatibility_artifact_gate = (
@@ -3208,6 +3478,18 @@ def scan_documents(root):
         "p1_distributed_nonce_producer_artifact_gate": (
             p1_distributed_nonce_producer_artifact_gate
         ),
+        "p1_distributed_nonce_producer_request_gate": (
+            p1_distributed_nonce_producer_request_gate
+        ),
+        "p1_distributed_nonce_producer_capture_runner_gate": (
+            p1_distributed_nonce_producer_capture_runner_gate
+        ),
+        "p1_nonce_producer_backend_readiness_gate": (
+            p1_nonce_producer_backend_readiness_gate
+        ),
+        "p1_nonce_producer_capture_attempt_gate": (
+            p1_nonce_producer_capture_attempt_gate
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -3528,6 +3810,107 @@ def classify_criteria(criteria, scan):
                     "producer material must still replace the hazmat "
                     "PRF-output oracle before Criterion 2 can advance toward "
                     "cryptographic closure."
+                )
+            if scan.get("p1_distributed_nonce_producer_request_gate"):
+                partial_progress = True
+                observed.append(
+                    "A repo-generated distributed nonce-producer request "
+                    "manifest is present for P1; it writes the challenge "
+                    "contract that an external Shamir nonce-DKG/TEE producer "
+                    "must answer, including predecessor certificate digests, "
+                    "required capture schema, required "
+                    "p1_shamir_nonce_dkg_tee_external_capture evidence class, "
+                    "the nonce-producer material inventory, and forbidden "
+                    "hazmat, centralized, fixture, localnet, deterministic, "
+                    "and single-key capture sources. This is "
+                    "evidence_present_unclosed conformance/proof-review "
+                    "evidence only, does not change "
+                    "aggregate_rejection_equivalence from partially_met, and "
+                    "does not change the overall verdict from "
+                    "partially_proven."
+                )
+            if scan.get("p1_distributed_nonce_producer_capture_runner_gate"):
+                partial_progress = True
+                observed.append(
+                    "The distributed nonce-producer capture runner is present "
+                    "for P1; it loads request JSON, requires capture schema "
+                    "lattice-aggregation:p1-distributed-nonce-producer-capture:v1, "
+                    "requires the capture to echo the exact request "
+                    "schema/name/SHA-256 binding, rejects stale request "
+                    "digests, rejects non-importable capture shapes before "
+                    "artifact write, and rejects localnet, deterministic, "
+                    "fixture, hazmat, centralized-helper, and single-key "
+                    "provider command sources. This creates the executable "
+                    "handoff for actual reviewed nonce-producer evidence, but "
+                    "remains evidence_present_unclosed and does not claim "
+                    "theorem closure, rejection-distribution preservation, or "
+                    "production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The distributed nonce-producer request and capture "
+                    "runner are present, but a reviewed external Shamir "
+                    "nonce-DKG/TEE producer must still emit a conforming "
+                    "capture whose expected package digests can be imported "
+                    "through the Rust gate before the hazmat PRF-output oracle "
+                    "is replaced."
+                )
+            if scan.get("p1_nonce_producer_backend_readiness_gate"):
+                partial_progress = True
+                observed.append(
+                    "A P1 nonce-producer backend readiness gate is present "
+                    "and artifact-backed; it binds the current request "
+                    "SHA-256, inspects a candidate backend source tree, "
+                    "detects distributed nonce-PRF output-share, splitter, "
+                    "and masking-contribution hooks, and records source-tree "
+                    "checksums. The current dytallix-pq-threshold candidate "
+                    "is explicitly marked backend_detected_not_admissible "
+                    "because it is still hazmat/simulated research backend "
+                    "material with a centralized nonce PRF oracle and "
+                    "deterministic test-vector plumbing. This is "
+                    "evidence_present_unclosed boundary evidence only and "
+                    "does not claim theorem closure, rejection-distribution "
+                    "preservation, or production threshold ML-DSA security. "
+                    "The handoff replay now requires an admissible readiness "
+                    "manifest before explicit external backend commands can "
+                    "be promoted, supports request reuse so the readiness "
+                    "manifest binds the exact request SHA-256, and records "
+                    "accepted readiness metadata in the handoff manifest."
+                )
+                blockers.append(
+                    "The nonce-producer backend readiness gate confirms the "
+                    "current dytallix-pq-threshold candidate has useful "
+                    "distributed nonce-PRF interfaces, but it is not "
+                    "admissible for the P1 external handoff until hazmat, "
+                    "simulated-default, centralized nonce-PRF oracle, and "
+                    "deterministic test-vector sources are removed or "
+                    "replaced by a reviewed external Shamir nonce-DKG/TEE "
+                    "capture."
+                )
+            if scan.get("p1_nonce_producer_capture_attempt_gate"):
+                partial_progress = True
+                observed.append(
+                    "A P1 admissible nonce-producer capture-attempt runner is "
+                    "present and artifact-backed; it generates the exact "
+                    "request under the handoff directory, runs backend "
+                    "readiness against that request, requires an explicit "
+                    "{request}-bound backend command template, and records a "
+                    "backend_readiness_blocked attempt without executing the "
+                    "backend command when the candidate remains inadmissible. "
+                    "Only an admissible readiness manifest can promote the "
+                    "same reused request into the executable handoff replay. "
+                    "This is evidence_present_unclosed boundary evidence "
+                    "only and does not claim theorem closure, "
+                    "rejection-distribution preservation, or production "
+                    "threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The P1 admissible capture-attempt runner closes the "
+                    "operational gap between readiness preflight and capture "
+                    "promotion, but the current artifact is blocked before "
+                    "backend execution. A reviewed external backend still "
+                    "must pass readiness and emit a conforming request-bound "
+                    "capture before the distributed nonce-producer slot can "
+                    "advance beyond evidence_present_unclosed."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
@@ -4069,15 +4452,145 @@ def readme_comparison(scan):
     ]
 
 
+def artifact_slot_dashboard(report):
+    """Summarize proof-substance artifact slots by status."""
+    dashboard = {}
+    for report_key, label in [
+        ("criterion1_proof_substance", "criterion_1"),
+        ("criterion2_proof_substance", "criterion_2"),
+        ("criterion3_proof_substance", "criterion_3"),
+    ]:
+        status = report.get(report_key, {})
+        slot_statuses = status.get("artifact_slot_statuses", {})
+        by_status = {}
+        for slot_id, slot_status in slot_statuses.items():
+            by_status.setdefault(slot_status, []).append(slot_id)
+        dashboard[label] = {
+            "status": status.get("status", "missing_or_incomplete"),
+            "criterion_id": status.get("criterion_id", ""),
+            "artifact_slot_statuses": {
+                key: sorted(value) for key, value in sorted(by_status.items())
+            },
+        }
+    return dashboard
+
+
+def external_capture_provenance_requirements():
+    """Return the durable provenance fields required for external captures."""
+    return {
+        "schema": "lattice-aggregation:external-capture-provenance:v1",
+        "required_fields": [
+            "request_schema",
+            "request_name",
+            "request_sha256",
+            "capture_schema",
+            "capture_sha256",
+            "backend_command_sha256",
+            "evidence_class",
+            "runner_status",
+            "claim_boundary",
+            "expected_digest_fields",
+            "metadata_fields",
+        ],
+        "metadata_fields": [
+            "commit",
+            "branch",
+            "dirty",
+            "cargo_version",
+            "rustc_version",
+            "os",
+            "python_version",
+            "cargo_lock_sha256",
+        ],
+        "claim_boundary": "conformance/proof-review evidence only",
+        "status": "evidence_present_unclosed",
+    }
+
+
+def build_closure_dashboard(report):
+    """Build a compact current-closure dashboard from an assessment report."""
+    criteria = []
+    for criterion in report.get("criteria", []):
+        criteria.append(
+            {
+                "id": criterion.get("id", ""),
+                "status": criterion.get("status", ""),
+                "observed_evidence_count": len(criterion.get("observed_evidence", [])),
+                "blocker_count": len(criterion.get("blockers", [])),
+            }
+        )
+    return {
+        "schema": "lattice-aggregation.current-closure-dashboard.v1",
+        "claim_boundary": report.get("claim_boundary", "research scaffold only"),
+        "overall_verdict": report.get("overall_verdict", ""),
+        "commit": report.get("commit", ""),
+        "branch": report.get("branch", ""),
+        "criteria": criteria,
+        "proof_artifact_slots": artifact_slot_dashboard(report),
+        "external_capture_provenance_requirements": (
+            external_capture_provenance_requirements()
+        ),
+        "non_closure_guards": [
+            "not theorem closure",
+            "not selected-backend proof closure",
+            "not production threshold ML-DSA security",
+            "not CAVP/ACVTS validation",
+            "not FIPS validation",
+            "not rejection-distribution preservation",
+        ],
+    }
+
+
+def render_closure_dashboard_markdown(dashboard):
+    """Render the current-closure dashboard as Markdown."""
+    lines = [
+        "# Current Closure Dashboard",
+        "",
+        f"Overall verdict: `{dashboard['overall_verdict']}`",
+        f"Claim boundary: `{dashboard['claim_boundary']}`",
+        f"Branch: `{dashboard['branch']}`",
+        f"Commit: `{dashboard['commit']}`",
+        "",
+        "## Criteria",
+        "",
+    ]
+    for criterion in dashboard.get("criteria", []):
+        lines.append(
+            f"- `{criterion['id']}`: `{criterion['status']}` "
+            f"({criterion['observed_evidence_count']} evidence entries, "
+            f"{criterion['blocker_count']} blockers)"
+        )
+    lines.extend(["", "## Proof Artifact Slots", ""])
+    for criterion_id, slot_summary in dashboard.get("proof_artifact_slots", {}).items():
+        lines.append(f"### {criterion_id}")
+        lines.append(f"- Status: `{slot_summary['status']}`")
+        for slot_status, slots in slot_summary.get("artifact_slot_statuses", {}).items():
+            lines.append(f"- `{slot_status}`: {', '.join(slots) if slots else 'none'}")
+        lines.append("")
+    lines.extend(["## Non-Closure Guards", ""])
+    for guard in dashboard.get("non_closure_guards", []):
+        lines.append(f"- {guard}")
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def write_reports(report, out_dir):
-    """Write JSON and Markdown assessment reports."""
+    """Write JSON, Markdown, and dashboard assessment reports."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    dashboard = build_closure_dashboard(report)
     (out_dir / "assessment.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     (out_dir / "assessment.md").write_text(render_markdown(report), encoding="utf-8")
+    (out_dir / "closure-dashboard.json").write_text(
+        json.dumps(dashboard, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    (out_dir / "closure-dashboard.md").write_text(
+        render_closure_dashboard_markdown(dashboard),
+        encoding="utf-8",
+    )
 
 
 def render_markdown(report):
