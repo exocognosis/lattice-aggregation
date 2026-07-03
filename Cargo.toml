@@ -2,8 +2,13 @@
 name = "dytallix-pq-threshold"
 version = "0.1.0"
 edition = "2021"
-license = "Apache-2.0"
+license = "MIT"
 description = "Research-grade threshold ML-DSA-65 API boundary and simulation backend"
+repository = "https://github.com/exocognosis/lattice-aggregation"
+homepage = "https://github.com/exocognosis/lattice-aggregation"
+readme = "README.md"
+keywords = ["post-quantum", "threshold", "mldsa", "lattice", "signatures"]
+categories = ["cryptography", "simulation"]
 
 [lib]
 name = "dytallix_pq_threshold"

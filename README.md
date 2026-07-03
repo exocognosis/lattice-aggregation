@@ -1,10 +1,30 @@
-# ML-DSA Lattice Aggregator
+# dytallix-pq-threshold
 
-Rust research scaffold for threshold-style ML-DSA-65 aggregation on validator
-networks. The project studies whether an L1 can replace a growing set of
-individual post-quantum validator signatures with one standard-size ML-DSA-65
-signature while preserving the verification path expected by unmodified
-ML-DSA verifiers.
+ML-DSA Lattice Aggregator is a Rust research artifact for threshold-style
+ML-DSA-65 aggregation on validator networks. The project studies whether an L1
+can replace a growing set of individual post-quantum validator signatures with
+one standard-size ML-DSA-65 signature while preserving the verification path
+expected by unmodified ML-DSA verifiers.
+
+[![CI](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml/badge.svg)](https://github.com/exocognosis/lattice-aggregation/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+## At A Glance
+
+- **Project identity:** the Rust package is `dytallix-pq-threshold`, the library
+  crate is `dytallix_pq_threshold`, and the public GitHub repository is
+  [`exocognosis/lattice-aggregation`](https://github.com/exocognosis/lattice-aggregation).
+- **What this is:** a publishable research scaffold for threshold-style
+  ML-DSA-65 protocol integration, reproducible Section V artifacts, hazmat
+  conformance experiments, and proof-boundary review.
+- **What is implemented:** typed protocol boundaries, deterministic simulations,
+  feature-gated hazmat ML-DSA-65 internals, actor and wire adapters, benchmark
+  exporters, artifact fixtures, and manifest tests.
+- **What this is not:** production-ready cryptography, a FIPS-validated module,
+  a malicious-secure threshold ML-DSA proof, or an externally audited
+  implementation.
+- **Fast verification:** run `scripts/reproduce-section-v.sh` from the repository
+  root, or use the full local checks in [Quickstart](#quickstart).
 
 ## The Problem
 

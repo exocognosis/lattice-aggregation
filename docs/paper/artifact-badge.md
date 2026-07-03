@@ -27,9 +27,9 @@ venue package includes:
 - the benchmark reproducibility manifest, and
 - the cryptographic claim-boundary and proof-obligation documents.
 
-This readiness statement does not choose or imply a software license. The
-author must separately confirm any archive access terms, venue requirements,
-and license decisions before submission.
+This readiness statement does not add legal terms beyond the top-level
+`LICENSE` file. The author must separately confirm any archive access terms and
+venue requirements before submission.
 
 ## Evaluation Readiness
 
@@ -80,8 +80,7 @@ Do not describe the current artifact as:
 - side-channel safe,
 - externally audited,
 - FIPS validated, or
-- covered by a chosen software license unless that license has been explicitly
-  approved and added through the project release process.
+- covered by reuse terms beyond the top-level `LICENSE` file.
 
 The badge package can support availability and evaluation review for the
 documented research artifact. It does not by itself establish production

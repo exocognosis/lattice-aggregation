@@ -5,9 +5,10 @@ Date: 2026-05-27
 ## Scope
 
 This page provides a citation placeholder for the research artifact package.
-It does not choose a software license, assign copyright terms, or make legal
-availability claims. Fill the fields below before submission using the final
-paper metadata, artifact archive metadata, and venue instructions.
+It does not add legal terms beyond the top-level `LICENSE` file, assign
+copyright terms, or make legal availability claims. Fill the fields below
+before submission using the final paper metadata, artifact archive metadata,
+and venue instructions.
 
 The artifact should be described conservatively as a research scaffold for
 threshold-style ML-DSA-65 with a feature-gated hazmat backend. It is not
@@ -16,7 +17,8 @@ production-ready and not a security proof.
 ## Placeholder BibTeX
 
 Replace every `TODO` field before submission. Do not invent author names,
-publisher names, archive identifiers, or license terms.
+publisher names, archive identifiers, or license terms beyond the top-level
+`LICENSE` file.
 
 ```bibtex
 @misc{TODO-artifact-key,
@@ -46,8 +48,9 @@ Before submission, the author should fill or verify:
 - Venue-specific fields such as conference name, proceedings metadata, or
   artifact appendix identifier.
 
-Do not add license terms or reuse permissions here unless the project owner has
-explicitly approved them and the final archive metadata reflects that decision.
+Do not add license terms or reuse permissions beyond the top-level `LICENSE`
+file unless the project owner has explicitly approved them and the final archive
+metadata reflects that decision.
 
 ## Review References
 
@@ -71,4 +74,5 @@ artifacts, and documentation for threshold-style ML-DSA-65 research.
 
 Unsafe wording: cite it as a production-ready threshold ML-DSA-65
 implementation, a completed security proof, a FIPS-validated module, or a
-licensed release unless those facts are explicitly established elsewhere.
+release carrying reuse terms beyond the top-level `LICENSE` file unless those
+facts are explicitly established elsewhere.
