@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/real-nonce-producer-capture`
-Commit: `ba95566031d7feabac172c25c7aa2c7f377c0f76`
+Branch: `codex/nonce-producer-admissible-cli`
+Commit: `e12da3427720a35d829f8f4e7466be4c9634743f`
 
 ## Criteria
 

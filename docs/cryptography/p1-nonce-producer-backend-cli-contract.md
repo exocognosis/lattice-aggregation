@@ -11,10 +11,38 @@ only. A conforming capture does not prove Criterion 2, rejection-distribution
 preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
 validation, or theorem closure.
 
+## Request Input
+
+The checked replay can generate the current request artifacts:
+
+```bash
+python3 scripts/run_nonce_producer_handoff_replay.py \
+  --root . \
+  --out artifacts/nonce-producer-handoff/latest
+```
+
+The request JSON schema is:
+
+```text
+lattice-aggregation:p1-distributed-nonce-producer-request:v1
+```
+
+The request binds:
+
+- request `name`
+- request SHA-256 over canonical sorted JSON
+- selected profile binding digest
+- threshold-output certificate digest
+- standard-verifier compatibility artifact digest
+- required capture schema
+- required producer evidence class
+- required material classes
+- proof-review-only claim boundary
+
 ## Backend Readiness Preflight
 
 Before attempting to promote a backend capture, run the candidate source through
-the readiness preflight:
+the readiness preflight against the exact generated request:
 
 ```bash
 python3 scripts/check_nonce_producer_backend_readiness.py \
@@ -39,45 +67,27 @@ It marks the local `dytallix-pq-threshold` candidate
 `backend_detected_not_admissible`; that is useful boundary evidence, not
 reviewed external nonce-producer evidence.
 
-## Request Input
+## Real Backend Handoff
 
-The repo generates the backend request with:
-
-```bash
-python3 scripts/run_nonce_producer_handoff_replay.py \
-  --root . \
-  --out artifacts/nonce-producer-handoff/latest
-```
-
-For a real external backend, pass the backend command after
-`--backend-command`. The backend command must read the request JSON path supplied
-by its own arguments and must write only canonical capture JSON to stdout:
+For a real external backend, `scripts/run_nonce_producer_handoff_replay.py`
+requires an admissible backend-readiness manifest before it will run an
+explicit `--backend-command`. Use `--reuse-request` so the handoff runner does
+not regenerate a different request SHA-256 after the readiness preflight:
 
 ```bash
 python3 scripts/run_nonce_producer_handoff_replay.py \
   --root . \
   --out artifacts/nonce-producer-handoff/latest \
+  --reuse-request \
+  --backend-readiness artifacts/nonce-producer-backend-readiness/latest/manifest.json \
   --backend-command /opt/p1-nonce-producer emit \
     --request artifacts/nonce-producer-handoff/latest/request/request.json
 ```
 
-The request JSON schema is:
-
-```text
-lattice-aggregation:p1-distributed-nonce-producer-request:v1
-```
-
-The request binds:
-
-- request `name`
-- request SHA-256 over canonical sorted JSON
-- selected profile binding digest
-- threshold-output certificate digest
-- standard-verifier compatibility artifact digest
-- required capture schema
-- required producer evidence class
-- required material classes
-- proof-review-only claim boundary
+The backend command must read the request JSON path supplied by its own
+arguments and must write only canonical capture JSON to stdout. The handoff
+manifest records the accepted readiness schema, readiness SHA-256, package
+name, source-tree SHA-256, readiness status, and request SHA-256.
 
 ## Capture Output
 
