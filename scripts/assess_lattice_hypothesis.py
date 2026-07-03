@@ -424,7 +424,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "schema": (
             "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
         ),
-        "current_status": "capture_execution_failed",
+        "current_status": "capture_promoted",
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
@@ -1043,19 +1043,20 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "scripts/check_nonce_producer_backend_readiness.py",
         "scripts/run_admissible_nonce_producer_capture_attempt.py",
         "backend_candidate_admissible_pending_capture",
-        "capture_execution_failed",
+        "capture_promoted",
         "capture-attempt runner",
         "distributed nonce-prf interfaces",
         "no detected blockers",
-        "/opt/p1-nonce-producer",
-        "not installed in this environment",
+        "repo_reference_cli_capture",
+        "reference cli",
+        "not actual backend evidence",
         "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
         "checked real-threshold backend emission ingestion fixture harness",
         "actual single-key ml-dsa-65 negative-control emission fixture",
-        "no capture is promoted",
+        "reference cli handoff replay only",
         "standardprovidersinglekey",
         "checked rejection-distribution review fixture",
         "checked theorem-linkage fixture",
@@ -2491,10 +2492,12 @@ def scan_documents(root):
             token in nonce_producer_capture_attempt_manifest
             for token in [
                 "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
-                "capture_execution_failed",
+                "capture_promoted",
                 "backend_command_executed",
                 "admissible_for_p1_nonce_handoff",
                 "\"detected_blockers\": []",
+                "repo_reference_cli_capture",
+                "\"quarantined\": true",
                 "handoff/request/request.json",
                 "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
             ]
@@ -3921,11 +3924,13 @@ def classify_criteria(criteria, scan):
                     "request under the handoff directory, runs backend "
                     "readiness against that request, requires an explicit "
                     "{request}-bound backend command template, and records a "
-                    "capture_execution_failed attempt after the current "
-                    "candidate passes readiness and the explicit external "
-                    "backend command is executed. This moves the checked "
-                    "artifact past readiness quarantine and up to the missing "
-                    "external P1 nonce-producer binary boundary. "
+                    "capture_promoted attempt after the current candidate "
+                    "passes readiness and the repo reference CLI command "
+                    "successfully emits importable capture JSON. The promoted "
+                    "handoff is marked repo_reference_cli_capture and "
+                    "quarantined as reference CLI evidence, so it proves the "
+                    "executable process/JSON/import contract rather than an "
+                    "independently generated threshold backend. "
                     "This is evidence_present_unclosed boundary evidence "
                     "only and does not claim theorem closure, "
                     "rejection-distribution preservation, or production "
@@ -3934,13 +3939,14 @@ def classify_criteria(criteria, scan):
                 blockers.append(
                     "The P1 admissible capture-attempt runner closes the "
                     "operational gap between readiness preflight and capture "
-                    "promotion, and the current artifact now reaches external "
-                    "backend execution. It fails because the configured "
-                    "`/opt/p1-nonce-producer` command is unavailable. A "
-                    "reviewed external backend binary still must be installed "
-                    "or provided and emit a conforming request-bound capture "
-                    "before the distributed nonce-producer slot can advance "
-                    "beyond evidence_present_unclosed."
+                    "promotion, and the current artifact now promotes a "
+                    "request-bound reference CLI capture through the same "
+                    "handoff/import path. That reference CLI is quarantined "
+                    "as not actual backend evidence, so a reviewed external "
+                    "backend binary still must be installed or provided and "
+                    "emit a conforming request-bound capture before the "
+                    "distributed nonce-producer slot can advance beyond "
+                    "evidence_present_unclosed."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

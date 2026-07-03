@@ -126,15 +126,16 @@ The Criterion 2 proof payload requires these slots before any promotion:
   exact handoff request, runs readiness against that request, requires a
   `{request}`-bound backend command template, and writes
   `artifacts/nonce-producer-capture-attempt/latest/manifest.json`. Its current
-  checked artifact is `capture_execution_failed`: the current backend profile
-  passed readiness, the explicit `/opt/p1-nonce-producer emit --request ...`
-  command path was reached, and execution failed because that external command
-  is not installed in this environment. This is the executable fail-closed
-  promotion decision, not reviewed external nonce-producer evidence. The runner
-  preserves failed backend attempts as `capture_execution_failed` or
-  `capture_validation_failed` instead of dropping command-output diagnostics.
-  It remains `evidence_present_unclosed` until externally generated reviewed P1
-  nonce-producer material replaces the hazmat oracle.
+  checked artifact is `capture_promoted`: the current backend profile passed
+  readiness, the repo reference CLI emitted canonical request-bound capture
+  JSON, and the handoff/import path wrote a promoted manifest. The promoted
+  source profile is `repo_reference_cli_capture`, with quarantine text stating
+  that this is reference CLI handoff replay only, not actual backend evidence
+  and not Criterion 2 closure evidence. The runner preserves failed backend
+  attempts as `capture_execution_failed` or `capture_validation_failed` instead
+  of dropping command-output diagnostics. It remains `evidence_present_unclosed`
+  until externally generated reviewed P1 nonce-producer material replaces the
+  hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -340,10 +341,10 @@ bound to the reused request SHA-256. The capture-attempt runner
 `scripts/run_admissible_nonce_producer_capture_attempt.py` records this
 promotion decision as
 `artifacts/nonce-producer-capture-attempt/latest/manifest.json`; the current
-checked status is `capture_execution_failed`, with
-`backend_command_executed = true`, because the configured
-`/opt/p1-nonce-producer` command is not installed in this environment. No
-capture is promoted from the failed external execution. The accepted
+checked status is `capture_promoted`, with `backend_command_executed = true`
+and handoff source profile `repo_reference_cli_capture`. The promoted capture
+is quarantined as reference CLI replay only: it exercises the external
+process/JSON/import contract but is not actual backend evidence. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

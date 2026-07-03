@@ -1,0 +1,73 @@
+{
+  "backend_command": [
+    "python3",
+    "scripts/p1_nonce_producer_reference_cli.py",
+    "emit",
+    "--request",
+    "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+    "--root",
+    "."
+  ],
+  "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+  "capture_sha256": "20594e85cb9bd296db1addc7a84d70a8d1f80f8365b27f71d7c00b6e30011015",
+  "capture_source_profile": "repo_reference_cli_capture",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "command_duration_seconds": 0.033,
+  "exit_code": 0,
+  "external_capture_provenance": {
+    "backend_command_sha256": "cfc6e24b497c03c8401a0bf4dba1d80b3e6d84f812db6ed69047ad84b41002a8",
+    "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+    "capture_sha256": "20594e85cb9bd296db1addc7a84d70a8d1f80f8365b27f71d7c00b6e30011015",
+    "claim_boundary": "conformance/proof-review evidence only",
+    "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
+    "expected_digest_fields": [
+      "abort_accountability_digest_hex",
+      "backend_implementation_digest_hex",
+      "coordinator_attestation_digest_hex",
+      "distributed_nonce_producer_artifact_digest_hex",
+      "external_review_digest_hex",
+      "nonce_share_commitment_digest_hex",
+      "pairwise_mask_seed_commitment_digest_hex",
+      "shamir_nonce_dkg_transcript_digest_hex",
+      "source_reference_digest_hex"
+    ],
+    "metadata_fields": [
+      "branch",
+      "cargo_lock_sha256",
+      "cargo_version",
+      "commit",
+      "dirty",
+      "os",
+      "python_version",
+      "rustc_version"
+    ],
+    "request_name": "p1-reviewed-nonce-producer-request-001",
+    "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+    "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+    "runner_status": "evidence_present_unclosed",
+    "schema": "lattice-aggregation:external-capture-provenance:v1"
+  },
+  "generated_at": "2026-07-03T20:19:48Z",
+  "metadata": {
+    "branch": "codex/p1-admissible-backend-profile",
+    "cargo_lock_sha256": "7f8a1640ad2200429278e4da75c6f5b8a687c55c8b10d8dfdfcc9776f0aea7b8",
+    "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "commit": "07048fa7743d1fe09677f6eb8c6d6feb1f55a033",
+    "dirty": true,
+    "os": "macOS-26.5.2-arm64-arm-64bit",
+    "python_version": "3.12.8",
+    "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
+  },
+  "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+  "quarantine": {
+    "allowed_use": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
+    "quarantined": true,
+    "reason": "repo reference CLI exercises the external process and JSON contract but is not independently generated threshold backend evidence"
+  },
+  "request_name": "p1-reviewed-nonce-producer-request-001",
+  "request_path": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+  "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+  "runner_status": "evidence_present_unclosed",
+  "schema_version": 1
+}

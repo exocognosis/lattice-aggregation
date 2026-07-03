@@ -276,6 +276,35 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertTrue(manifest["quarantine"]["quarantined"])
         self.assertIn("schema/importer replay only", manifest["quarantine"]["allowed_use"])
 
+    def test_build_report_marks_repo_reference_cli_as_non_closing_reference(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            report = module.build_report(
+                root,
+                request_path=request_path,
+                backend_command=[
+                    "python3",
+                    "scripts/p1_nonce_producer_reference_cli.py",
+                    "--request",
+                    str(request_path),
+                ],
+                command_runner=fake_capture_runner,
+                metadata_provider=fake_metadata,
+            )
+
+        manifest = report["manifest"]
+        self.assertEqual(
+            manifest["capture_source_profile"],
+            "repo_reference_cli_capture",
+        )
+        self.assertTrue(manifest["quarantine"]["quarantined"])
+        self.assertIn("reference CLI", manifest["quarantine"]["reason"])
+        self.assertIn("not actual backend evidence", manifest["quarantine"]["allowed_use"])
+
     def test_build_report_raises_structured_execution_error_with_command_output(self):
         module = load_module()
 

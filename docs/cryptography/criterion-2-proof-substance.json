@@ -95,11 +95,12 @@
           "deterministic test-vector plumbing present"
         ],
         "backend_capture_attempt_runner": "scripts/run_admissible_nonce_producer_capture_attempt.py",
-        "backend_capture_attempt_status": "capture_execution_failed",
+        "backend_capture_attempt_status": "capture_promoted",
         "backend_capture_attempt_artifact": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
         "backend_capture_attempt_request": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
         "backend_capture_attempt_command_executed": true,
-        "backend_capture_attempt_failure": "configured external command /opt/p1-nonce-producer is not installed in this environment",
+        "backend_capture_attempt_source_profile": "repo_reference_cli_capture",
+        "backend_capture_attempt_quarantine": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
         "backend_capture_attempt_promotion_rule": "only an admissible readiness manifest may promote the reused request into handoff replay; after readiness passes, command execution or validation failures are preserved as durable non-closing attempt artifacts",
         "backend_capture_attempt_failure_statuses": [
           "capture_execution_failed",
@@ -277,7 +278,7 @@
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "fixture_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
         "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
-        "current_status": "capture_execution_failed",
+        "current_status": "capture_promoted",
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {

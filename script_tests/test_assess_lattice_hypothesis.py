@@ -1062,12 +1062,14 @@ class ReportGenerationTests(unittest.TestCase):
         (attempt_dir / "manifest.json").write_text(
             "{\n"
             "  \"schema\": \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\",\n"
-            "  \"attempt_status\": \"capture_execution_failed\",\n"
+            "  \"attempt_status\": \"capture_promoted\",\n"
             "  \"request_path\": \"handoff/request/request.json\",\n"
             "  \"readiness_schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
             "  \"backend_command_executed\": true,\n"
             "  \"admissible_for_p1_nonce_handoff\": true,\n"
-            "  \"detected_blockers\": []\n"
+            "  \"detected_blockers\": [],\n"
+            "  \"handoff_source_profile\": \"repo_reference_cli_capture\",\n"
+            "  \"handoff_quarantine\": {\"quarantined\": true, \"allowed_use\": \"reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence\"}\n"
             "}\n",
             encoding="utf-8",
         )
@@ -1753,19 +1755,20 @@ class ReportGenerationTests(unittest.TestCase):
             "scripts/check_nonce_producer_backend_readiness.py, "
             "scripts/run_admissible_nonce_producer_capture_attempt.py, "
             "backend_candidate_admissible_pending_capture, "
-            "capture_execution_failed, "
+            "capture_promoted, "
             "capture-attempt runner, "
             "distributed nonce-PRF interfaces, "
             "no detected blockers, "
-            "/opt/p1-nonce-producer, "
-            "not installed in this environment, "
+            "repo_reference_cli_capture, "
+            "reference CLI, "
+            "not actual backend evidence, "
             "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
             "checked standard-verifier compatibility fixture, "
             "checked real-threshold backend emission ingestion fixture harness, "
             "actual single-key ML-DSA-65 negative-control emission fixture, "
-            "no capture is promoted, "
+            "reference CLI handoff replay only, "
             "StandardProviderSingleKey, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
@@ -2100,7 +2103,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "schema": (
                             "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
                         ),
-                        "current_status": "capture_execution_failed",
+                        "current_status": "capture_promoted",
                         "claim_boundary": (
                             "conformance/proof-review evidence only"
                         ),
@@ -2424,7 +2427,9 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("no detected blockers", aggregate_evidence)
         self.assertIn("readiness quarantine", aggregate_evidence)
         self.assertIn("capture-attempt runner", aggregate_evidence)
-        self.assertIn("capture_execution_failed", aggregate_evidence)
+        self.assertIn("capture_promoted", aggregate_evidence)
+        self.assertIn("repo_reference_cli_capture", aggregate_evidence)
+        self.assertIn("reference CLI", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
@@ -2432,8 +2437,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("reviewed external Shamir nonce-DKG/TEE producer", aggregate_blockers)
         self.assertIn("backend readiness gate is now admissible", aggregate_blockers)
-        self.assertIn("external backend execution", aggregate_blockers)
-        self.assertIn("/opt/p1-nonce-producer", aggregate_blockers)
+        self.assertIn("reference CLI capture", aggregate_blockers)
+        self.assertIn("not actual backend evidence", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
