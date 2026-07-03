@@ -98,8 +98,23 @@
     "docs/cryptography/noise-rejection-proof-plan.md",
     "docs/cryptography/proof-obligations.md",
     "src/production/mask_distribution.rs",
-    "tests/production_mask_distribution.rs"
+    "tests/production_mask_distribution.rs",
+    "artifacts/hypothesis/latest/assessment.json",
+    "artifacts/hypothesis/latest/assessment.md",
+    "artifacts/hypothesis/latest/closure-dashboard.json",
+    "artifacts/hypothesis/latest/closure-dashboard.md"
   ],
+  "repo_evidence_pipeline": {
+    "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
+    "status": "evidence_present_unclosed",
+    "claim_boundary": "research scaffold only",
+    "artifacts": {
+      "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
+      "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",
+      "artifacts/hypothesis/latest/closure-dashboard.json": "artifacts/hypothesis/latest/closure-dashboard.json",
+      "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md"
+    }
+  },
   "assessment": {
     "criterion_status": "partially_met",
     "overall_verdict": "partially_proven",

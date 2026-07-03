@@ -17,6 +17,9 @@ EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
 CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 RUNNER_STATUS = "evidence_present_unclosed"
+EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
+    "lattice-aggregation:external-capture-provenance:v1"
+)
 FORBIDDEN_BACKEND_COMMAND_TOKENS = (
     "localnet",
     "validator_localnet",
@@ -182,6 +185,26 @@ def metadata_from_provider(provider, root):
         return provider(root)
     except TypeError:
         return provider()
+
+
+def build_external_capture_provenance(capture, manifest, metadata):
+    """Build durable provenance for an externally emitted capture."""
+    return {
+        "schema": EXTERNAL_CAPTURE_PROVENANCE_SCHEMA,
+        "request_schema": capture["request"]["schema"],
+        "request_name": capture["request"]["name"],
+        "request_sha256": manifest["request_sha256"],
+        "capture_schema": manifest["capture_schema"],
+        "capture_sha256": manifest["capture_sha256"],
+        "backend_command_sha256": sha256_text(
+            canonical_json(manifest["backend_command"])
+        ),
+        "evidence_class": manifest["producer_evidence"],
+        "runner_status": RUNNER_STATUS,
+        "claim_boundary": CLAIM_BOUNDARY,
+        "expected_digest_fields": sorted(EXPECTED_DIGEST_FIELDS),
+        "metadata_fields": sorted(metadata),
+    }
 
 
 def parse_capture_json(stdout):
@@ -436,6 +459,11 @@ def build_report(
         "metadata": metadata,
         "capture_sha256": sha256_text(capture_json),
     }
+    manifest["external_capture_provenance"] = build_external_capture_provenance(
+        capture,
+        manifest,
+        metadata,
+    )
     summary_md = render_summary(generated_at, metadata, manifest)
 
     return {

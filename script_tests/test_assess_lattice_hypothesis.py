@@ -3030,14 +3030,32 @@ class ReportGenerationTests(unittest.TestCase):
 
             saved = json.loads((out_dir / "assessment.json").read_text(encoding="utf-8"))
             markdown = (out_dir / "assessment.md").read_text(encoding="utf-8")
+            dashboard = json.loads(
+                (out_dir / "closure-dashboard.json").read_text(encoding="utf-8")
+            )
+            dashboard_markdown = (out_dir / "closure-dashboard.md").read_text(
+                encoding="utf-8"
+            )
 
         self.assertIn("testing_statement", report)
         self.assertEqual(report["overall_verdict"], "partially_proven")
         self.assertEqual(report["claim_boundary"], "research scaffold only")
         self.assertEqual(report["commands"], [])
         self.assertEqual(saved["overall_verdict"], "partially_proven")
+        self.assertEqual(
+            dashboard["schema"],
+            "lattice-aggregation.current-closure-dashboard.v1",
+        )
+        self.assertEqual(dashboard["overall_verdict"], "partially_proven")
+        self.assertEqual(dashboard["claim_boundary"], "research scaffold only")
+        self.assertIn("criteria", dashboard)
+        self.assertIn("proof_artifact_slots", dashboard)
+        self.assertIn("external_capture_provenance_requirements", dashboard)
+        self.assertIn("not theorem closure", dashboard["non_closure_guards"])
         self.assertIn("# Lattice Aggregation Hypothesis Assessment", markdown)
         self.assertIn("partially_proven", markdown)
+        self.assertIn("# Current Closure Dashboard", dashboard_markdown)
+        self.assertIn("partially_proven", dashboard_markdown)
 
     def test_build_report_uses_command_runner_when_enabled(self):
         module = load_module()

@@ -380,6 +380,55 @@ fn criterion2_manifest_links_existing_evidence_surfaces() {
 }
 
 #[test]
+fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
+    let manifest = manifest();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let pipeline = &manifest["repo_evidence_pipeline"];
+
+    assert_eq!(
+        pipeline["schema"],
+        "lattice-aggregation.repo-evidence-pipeline.v1"
+    );
+    assert_eq!(pipeline["status"], "evidence_present_unclosed");
+    assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    for artifact in [
+        "artifacts/hypothesis/latest/assessment.json",
+        "artifacts/hypothesis/latest/assessment.md",
+        "artifacts/hypothesis/latest/closure-dashboard.json",
+        "artifacts/hypothesis/latest/closure-dashboard.md",
+    ] {
+        assert_eq!(pipeline["artifacts"][artifact], artifact);
+        assert!(
+            root.join(artifact).exists(),
+            "repo evidence artifact is missing: {artifact}"
+        );
+    }
+
+    let provenance_requirements = manifest["external_capture_provenance_requirements"]
+        .as_array()
+        .expect("external_capture_provenance_requirements is an array");
+    for required in [
+        "request_sha256",
+        "capture_sha256",
+        "backend_command_sha256",
+        "evidence_class",
+        "runner_status",
+        "claim_boundary",
+        "expected_digest_fields",
+        "metadata_fields",
+        "cargo_lock_sha256",
+    ] {
+        assert!(
+            string_array_contains(
+                &serde_json::Value::Array(provenance_requirements.clone()),
+                required,
+            ),
+            "Criterion 2 must require external capture provenance field {required}"
+        );
+    }
+}
+
+#[test]
 fn criterion2_manifest_links_checked_fixture_refs() {
     let manifest = manifest();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
