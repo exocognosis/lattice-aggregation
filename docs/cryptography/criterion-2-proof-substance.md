@@ -119,6 +119,15 @@ The Criterion 2 proof payload requires these slots before any promotion:
   every explicit external backend command, supports `--reuse-request` so the
   readiness manifest binds the exact request SHA-256, and records accepted
   readiness metadata in the handoff manifest.
+  The readiness-gated capture-attempt runner
+  `scripts/run_admissible_nonce_producer_capture_attempt.py` now generates the
+  exact handoff request, runs readiness against that request, requires a
+  `{request}`-bound backend command template, and writes
+  `artifacts/nonce-producer-capture-attempt/latest/manifest.json`. Its current
+  checked artifact is `backend_readiness_blocked`: the backend command was not
+  executed because the local candidate remained inadmissible. This is the
+  executable fail-closed promotion decision, not reviewed external
+  nonce-producer evidence.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -321,7 +330,13 @@ interfaces but is `backend_detected_not_admissible` because hazmat, simulated
 default, centralized nonce PRF oracle, and deterministic test-vector plumbing
 markers are still present. The handoff replay enforces that a real external
 backend command cannot be promoted without an admissible readiness manifest
-bound to the reused request SHA-256. The accepted
+bound to the reused request SHA-256. The capture-attempt runner
+`scripts/run_admissible_nonce_producer_capture_attempt.py` records this
+promotion decision as
+`artifacts/nonce-producer-capture-attempt/latest/manifest.json`; the current
+checked status is `backend_readiness_blocked`, with
+`backend_command_executed = false`, so no capture is promoted from the
+inadmissible candidate. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

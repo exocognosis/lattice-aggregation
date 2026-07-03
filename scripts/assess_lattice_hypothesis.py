@@ -417,6 +417,17 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": (
+            "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
+        ),
+        "schema": (
+            "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
+        ),
+        "current_status": "backend_readiness_blocked",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": (
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1025,11 +1036,15 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "artifacts/nonce-producer-handoff/latest/manifest.json",
         "artifacts/nonce-producer-handoff/latest/capture/capture.json",
         "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
+        "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
         "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
         "scripts/run_nonce_producer_handoff_replay.py",
         "scripts/emit_reviewed_nonce_producer_capture.py",
         "scripts/check_nonce_producer_backend_readiness.py",
+        "scripts/run_admissible_nonce_producer_capture_attempt.py",
         "backend_detected_not_admissible",
+        "backend_readiness_blocked",
+        "capture-attempt runner",
         "distributed nonce-prf interfaces",
         "centralized nonce prf oracle",
         "deterministic test-vector plumbing",
@@ -1604,6 +1619,15 @@ def scan_documents(root):
     )
     nonce_producer_backend_readiness_manifest = read_optional(
         "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
+    )
+    nonce_producer_capture_attempt = read_optional(
+        "scripts/run_admissible_nonce_producer_capture_attempt.py"
+    )
+    nonce_producer_capture_attempt_test = read_optional(
+        "script_tests/test_run_admissible_nonce_producer_capture_attempt.py"
+    )
+    nonce_producer_capture_attempt_manifest = read_optional(
+        "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
     )
     nonce_producer_request_builder = read_optional(
         "scripts/build_nonce_producer_request.py"
@@ -2405,6 +2429,49 @@ def scan_documents(root):
                 "simulated default feature present",
                 "deterministic test-vector plumbing present",
                 "admissible_for_p1_nonce_handoff",
+            ]
+        )
+    )
+    p1_nonce_producer_capture_attempt_gate = (
+        p1_nonce_producer_backend_readiness_gate
+        and all(
+            token in nonce_producer_capture_attempt
+            for token in [
+                "ATTEMPT_SCHEMA",
+                "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+                "ATTEMPT_STATUS_BLOCKED",
+                "backend_readiness_blocked",
+                "ATTEMPT_STATUS_PROMOTED",
+                "capture_promoted",
+                "REQUEST_PLACEHOLDER",
+                "{request}",
+                "substitute_request_placeholder",
+                "backend_command_executed",
+                "build_attempt",
+                "reuse_request=True",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_attempt_test
+            for token in [
+                "test_attempt_blocks_hazmat_style_backend_before_capture_command_runs",
+                "test_attempt_promotes_capture_only_after_admissible_readiness",
+                "test_attempt_requires_request_placeholder_in_backend_command",
+                "backend_readiness_blocked",
+                "capture_promoted",
+                "backend_command_executed",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_attempt_manifest
+            for token in [
+                "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+                "backend_readiness_blocked",
+                "backend_command_executed",
+                "admissible_for_p1_nonce_handoff",
+                "detected_blockers",
+                "handoff/request/request.json",
+                "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
             ]
         )
     )
@@ -3420,6 +3487,9 @@ def scan_documents(root):
         "p1_nonce_producer_backend_readiness_gate": (
             p1_nonce_producer_backend_readiness_gate
         ),
+        "p1_nonce_producer_capture_attempt_gate": (
+            p1_nonce_producer_capture_attempt_gate
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -3815,6 +3885,32 @@ def classify_criteria(criteria, scan):
                     "deterministic test-vector sources are removed or "
                     "replaced by a reviewed external Shamir nonce-DKG/TEE "
                     "capture."
+                )
+            if scan.get("p1_nonce_producer_capture_attempt_gate"):
+                partial_progress = True
+                observed.append(
+                    "A P1 admissible nonce-producer capture-attempt runner is "
+                    "present and artifact-backed; it generates the exact "
+                    "request under the handoff directory, runs backend "
+                    "readiness against that request, requires an explicit "
+                    "{request}-bound backend command template, and records a "
+                    "backend_readiness_blocked attempt without executing the "
+                    "backend command when the candidate remains inadmissible. "
+                    "Only an admissible readiness manifest can promote the "
+                    "same reused request into the executable handoff replay. "
+                    "This is evidence_present_unclosed boundary evidence "
+                    "only and does not claim theorem closure, "
+                    "rejection-distribution preservation, or production "
+                    "threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The P1 admissible capture-attempt runner closes the "
+                    "operational gap between readiness preflight and capture "
+                    "promotion, but the current artifact is blocked before "
+                    "backend execution. A reviewed external backend still "
+                    "must pass readiness and emit a conforming request-bound "
+                    "capture before the distributed nonce-producer slot can "
+                    "advance beyond evidence_present_unclosed."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

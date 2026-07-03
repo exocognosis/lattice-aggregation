@@ -1007,6 +1007,48 @@ class ReportGenerationTests(unittest.TestCase):
             "}\n",
             encoding="utf-8",
         )
+        (
+            root / "scripts" / "run_admissible_nonce_producer_capture_attempt.py"
+        ).write_text(
+            "ATTEMPT_SCHEMA = \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\"\n"
+            "ATTEMPT_STATUS_BLOCKED = \"backend_readiness_blocked\"\n"
+            "ATTEMPT_STATUS_PROMOTED = \"capture_promoted\"\n"
+            "REQUEST_PLACEHOLDER = \"{request}\"\n"
+            "def substitute_request_placeholder(backend_command, request_path): pass\n"
+            "backend_command_executed = False\n"
+            "def build_attempt():\n"
+            "    reuse_request=True\n",
+            encoding="utf-8",
+        )
+        (
+            root
+            / "script_tests"
+            / "test_run_admissible_nonce_producer_capture_attempt.py"
+        ).write_text(
+            "def test_attempt_blocks_hazmat_style_backend_before_capture_command_runs(): pass\n"
+            "def test_attempt_promotes_capture_only_after_admissible_readiness(): pass\n"
+            "def test_attempt_requires_request_placeholder_in_backend_command(): pass\n"
+            "backend_readiness_blocked\n"
+            "capture_promoted\n"
+            "backend_command_executed\n",
+            encoding="utf-8",
+        )
+        attempt_dir = (
+            root / "artifacts" / "nonce-producer-capture-attempt" / "latest"
+        )
+        attempt_dir.mkdir(parents=True, exist_ok=True)
+        (attempt_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\",\n"
+            "  \"attempt_status\": \"backend_readiness_blocked\",\n"
+            "  \"request_path\": \"handoff/request/request.json\",\n"
+            "  \"readiness_schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
+            "  \"backend_command_executed\": false,\n"
+            "  \"admissible_for_p1_nonce_handoff\": false,\n"
+            "  \"detected_blockers\": [\"hazmat feature present\"]\n"
+            "}\n",
+            encoding="utf-8",
+        )
 
     def write_p1_real_threshold_backend_actual_capture_runner_gate(self, root):
         self.write_p1_real_threshold_backend_output_gate(root)
@@ -1682,11 +1724,15 @@ class ReportGenerationTests(unittest.TestCase):
             "artifacts/nonce-producer-handoff/latest/manifest.json, "
             "artifacts/nonce-producer-handoff/latest/capture/capture.json, "
             "artifacts/nonce-producer-backend-readiness/latest/manifest.json, "
+            "artifacts/nonce-producer-capture-attempt/latest/manifest.json, "
             "docs/cryptography/p1-nonce-producer-backend-cli-contract.md, "
             "scripts/run_nonce_producer_handoff_replay.py, "
             "scripts/emit_reviewed_nonce_producer_capture.py, "
             "scripts/check_nonce_producer_backend_readiness.py, "
+            "scripts/run_admissible_nonce_producer_capture_attempt.py, "
             "backend_detected_not_admissible, "
+            "backend_readiness_blocked, "
+            "capture-attempt runner, "
             "distributed nonce-PRF interfaces, "
             "centralized nonce PRF oracle, "
             "deterministic test-vector plumbing, "
@@ -2024,6 +2070,19 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": "distributed_nonce_producer_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
+                        ),
+                        "current_status": "backend_readiness_blocked",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -2319,6 +2378,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_distributed_nonce_producer_request_gate"])
         self.assertTrue(scan["p1_distributed_nonce_producer_capture_runner_gate"])
         self.assertTrue(scan["p1_nonce_producer_backend_readiness_gate"])
+        self.assertTrue(scan["p1_nonce_producer_capture_attempt_gate"])
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -2336,11 +2396,15 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("non-importable capture shapes", aggregate_evidence)
         self.assertIn("backend readiness gate", aggregate_evidence)
         self.assertIn("backend_detected_not_admissible", aggregate_evidence)
+        self.assertIn("capture-attempt runner", aggregate_evidence)
+        self.assertIn("backend_readiness_blocked", aggregate_evidence)
+        self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("theorem closure", aggregate_evidence)
         self.assertIn("production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("reviewed external Shamir nonce-DKG/TEE producer", aggregate_blockers)
+        self.assertIn("blocked before backend execution", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertIn("centralized nonce-PRF oracle", aggregate_blockers)
         self.assertIn("deterministic test-vector", aggregate_blockers)

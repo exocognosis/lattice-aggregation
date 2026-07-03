@@ -1,7 +1,7 @@
 {
-  "branch": "codex/nonce-producer-admissible-cli",
+  "branch": "codex/admissible-nonce-capture-attempt",
   "claim_boundary": "research scaffold only",
-  "commit": "e12da3427720a35d829f8f4e7466be4c9634743f",
+  "commit": "a6ab891f45ae7b4b202dfbae28c7db49822066cb",
   "criteria": [
     {
       "blocker_count": 3,
@@ -10,9 +10,9 @@
       "status": "partially_met"
     },
     {
-      "blocker_count": 8,
+      "blocker_count": 9,
       "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 25,
+      "observed_evidence_count": 26,
       "status": "partially_met"
     },
     {
