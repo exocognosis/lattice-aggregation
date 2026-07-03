@@ -413,7 +413,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
             "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
         ),
         "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
-        "current_status": "backend_detected_not_admissible",
+        "current_status": "backend_candidate_admissible_pending_capture",
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
@@ -424,7 +424,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "schema": (
             "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
         ),
-        "current_status": "backend_readiness_blocked",
+        "current_status": "capture_execution_failed",
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
@@ -1042,19 +1042,20 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "scripts/emit_reviewed_nonce_producer_capture.py",
         "scripts/check_nonce_producer_backend_readiness.py",
         "scripts/run_admissible_nonce_producer_capture_attempt.py",
-        "backend_detected_not_admissible",
-        "backend_readiness_blocked",
+        "backend_candidate_admissible_pending_capture",
+        "capture_execution_failed",
         "capture-attempt runner",
         "distributed nonce-prf interfaces",
-        "centralized nonce prf oracle",
-        "deterministic test-vector plumbing",
+        "no detected blockers",
+        "/opt/p1-nonce-producer",
+        "not installed in this environment",
         "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
         "checked standard-verifier compatibility fixture",
         "checked real-threshold backend emission ingestion fixture harness",
         "actual single-key ml-dsa-65 negative-control emission fixture",
-        "blocked from artifact readiness",
+        "no capture is promoted",
         "standardprovidersinglekey",
         "checked rejection-distribution review fixture",
         "checked theorem-linkage fixture",
@@ -2438,16 +2439,13 @@ def scan_documents(root):
             token in nonce_producer_backend_readiness_manifest
             for token in [
                 "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
-                "backend_detected_not_admissible",
-                "dytallix-pq-threshold",
+                "backend_candidate_admissible_pending_capture",
+                "lattice-aggregation",
                 "distributed_nonce_prf_output_share_interface",
-                "centralized nonce PRF oracle present",
-                "hazmat feature present",
-                "simulated default feature present",
-                "deterministic test-vector plumbing present",
                 "admissible_for_p1_nonce_handoff",
-                "quarantined_sources",
-                "safe_replacement_requirements",
+                "\"detected_blockers\": []",
+                "\"admissible_for_p1_nonce_handoff\": true",
+                "source_tree_sha256",
             ]
         )
     )
@@ -2462,6 +2460,10 @@ def scan_documents(root):
                 "backend_readiness_blocked",
                 "ATTEMPT_STATUS_PROMOTED",
                 "capture_promoted",
+                "ATTEMPT_STATUS_EXECUTION_FAILED",
+                "capture_execution_failed",
+                "ATTEMPT_STATUS_VALIDATION_FAILED",
+                "capture_validation_failed",
                 "REQUEST_PLACEHOLDER",
                 "{request}",
                 "substitute_request_placeholder",
@@ -2476,8 +2478,12 @@ def scan_documents(root):
                 "test_attempt_blocks_hazmat_style_backend_before_capture_command_runs",
                 "test_attempt_promotes_capture_only_after_admissible_readiness",
                 "test_attempt_requires_request_placeholder_in_backend_command",
+                "test_attempt_records_execution_failure_after_admissible_readiness",
+                "test_attempt_records_validation_failure_after_admissible_readiness",
                 "backend_readiness_blocked",
                 "capture_promoted",
+                "capture_execution_failed",
+                "capture_validation_failed",
                 "backend_command_executed",
             ]
         )
@@ -2485,10 +2491,10 @@ def scan_documents(root):
             token in nonce_producer_capture_attempt_manifest
             for token in [
                 "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
-                "backend_readiness_blocked",
+                "capture_execution_failed",
                 "backend_command_executed",
                 "admissible_for_p1_nonce_handoff",
-                "detected_blockers",
+                "\"detected_blockers\": []",
                 "handoff/request/request.json",
                 "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
             ]
@@ -3883,16 +3889,13 @@ def classify_criteria(criteria, scan):
                     "and artifact-backed; it binds the current request "
                     "SHA-256, inspects a candidate backend source tree, "
                     "detects distributed nonce-PRF output-share, splitter, "
-                    "and masking-contribution hooks, and records source-tree "
-                    "checksums plus source-level blocker diagnostics and a "
-                    "backend remediation order, and classifies hazmat, "
-                    "simulation, centralized-oracle, and deterministic "
-                    "test-vector markers as quarantined sources. The current "
-                    "dytallix-pq-threshold candidate "
-                    "is explicitly marked backend_detected_not_admissible "
-                    "because it is still hazmat/simulated research backend "
-                    "material with a centralized nonce PRF oracle and "
-                    "deterministic test-vector plumbing. This is "
+                    "and masking-contribution hooks, records source-tree "
+                    "checksums, and confirms the checked backend profile is "
+                    "backend_candidate_admissible_pending_capture with no "
+                    "detected blockers. This means the repo has moved past "
+                    "the prior hazmat/simulation/centralized-oracle readiness "
+                    "quarantine and is now waiting on an actual reviewed "
+                    "external P1 nonce-producer capture. This is "
                     "evidence_present_unclosed boundary evidence only and "
                     "does not claim theorem closure, rejection-distribution "
                     "preservation, or production threshold ML-DSA security. "
@@ -3903,14 +3906,12 @@ def classify_criteria(criteria, scan):
                     "accepted readiness metadata in the handoff manifest."
                 )
                 blockers.append(
-                    "The nonce-producer backend readiness gate confirms the "
-                    "current dytallix-pq-threshold candidate has useful "
-                    "distributed nonce-PRF interfaces, but it is not "
-                    "admissible for the P1 external handoff until hazmat, "
-                    "simulated-default, centralized nonce-PRF oracle, and "
-                    "deterministic test-vector sources are removed or "
-                    "replaced by a reviewed external Shamir nonce-DKG/TEE "
-                    "capture."
+                    "The nonce-producer backend readiness gate is now "
+                    "admissible, but Criterion 2 still requires an actual "
+                    "reviewed external Shamir nonce-DKG/TEE producer capture "
+                    "with source, implementation, transcript, attestation, "
+                    "nonce-share commitments, abort-accountability, and "
+                    "external review evidence."
                 )
             if scan.get("p1_nonce_producer_capture_attempt_gate"):
                 partial_progress = True
@@ -3920,10 +3921,11 @@ def classify_criteria(criteria, scan):
                     "request under the handoff directory, runs backend "
                     "readiness against that request, requires an explicit "
                     "{request}-bound backend command template, and records a "
-                    "backend_readiness_blocked attempt without executing the "
-                    "backend command when the candidate remains inadmissible. "
-                    "Only an admissible readiness manifest can promote the "
-                    "same reused request into the executable handoff replay. "
+                    "capture_execution_failed attempt after the current "
+                    "candidate passes readiness and the explicit external "
+                    "backend command is executed. This moves the checked "
+                    "artifact past readiness quarantine and up to the missing "
+                    "external P1 nonce-producer binary boundary. "
                     "This is evidence_present_unclosed boundary evidence "
                     "only and does not claim theorem closure, "
                     "rejection-distribution preservation, or production "
@@ -3932,11 +3934,13 @@ def classify_criteria(criteria, scan):
                 blockers.append(
                     "The P1 admissible capture-attempt runner closes the "
                     "operational gap between readiness preflight and capture "
-                    "promotion, but the current artifact is blocked before "
-                    "backend execution. A reviewed external backend still "
-                    "must pass readiness and emit a conforming request-bound "
-                    "capture before the distributed nonce-producer slot can "
-                    "advance beyond evidence_present_unclosed."
+                    "promotion, and the current artifact now reaches external "
+                    "backend execution. It fails because the configured "
+                    "`/opt/p1-nonce-producer` command is unavailable. A "
+                    "reviewed external backend binary still must be installed "
+                    "or provided and emit a conforming request-bound capture "
+                    "before the distributed nonce-producer slot can advance "
+                    "beyond evidence_present_unclosed."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

@@ -111,16 +111,12 @@ The Criterion 2 proof payload requires these slots before any promotion:
   backend source before capture promotion. Its current artifact
   `artifacts/nonce-producer-backend-readiness/latest/manifest.json` binds the
   repo-generated request SHA-256, records candidate source-tree checksums, and
-  confirms the local `dytallix-pq-threshold` candidate exposes distributed
-  nonce-PRF interfaces. It also marks that candidate
-  `backend_detected_not_admissible` because the checked source is still
-  hazmat/simulated research backend material with a centralized nonce PRF
-  oracle and deterministic test-vector plumbing. The readiness artifact now
-  carries source-level blocker diagnostics and an ordered remediation list, so
-  backend work can target the exact Cargo/source markers that block capture
-  promotion, and it classifies those markers as quarantined sources. This
-  readiness artifact is a fail-closed boundary check, not reviewed external
-  nonce-producer evidence.
+  confirms the checked backend profile exposes distributed nonce-PRF
+  interfaces. It marks the profile
+  `backend_candidate_admissible_pending_capture` with no detected blockers.
+  This moves the repo past the prior hazmat/simulation/centralized-oracle
+  readiness quarantine. The readiness artifact is still only a preflight
+  boundary check, not reviewed external nonce-producer evidence.
   The handoff replay now requires an admissible backend-readiness manifest for
   every explicit external backend command, supports `--reuse-request` so the
   readiness manifest binds the exact request SHA-256, and records accepted
@@ -130,10 +126,11 @@ The Criterion 2 proof payload requires these slots before any promotion:
   exact handoff request, runs readiness against that request, requires a
   `{request}`-bound backend command template, and writes
   `artifacts/nonce-producer-capture-attempt/latest/manifest.json`. Its current
-  checked artifact is `backend_readiness_blocked`: the backend command was not
-  executed because the local candidate remained inadmissible. This is the
-  executable fail-closed promotion decision, not reviewed external
-  nonce-producer evidence. When readiness becomes admissible, the same runner
+  checked artifact is `capture_execution_failed`: the current backend profile
+  passed readiness, the explicit `/opt/p1-nonce-producer emit --request ...`
+  command path was reached, and execution failed because that external command
+  is not installed in this environment. This is the executable fail-closed
+  promotion decision, not reviewed external nonce-producer evidence. The runner
   preserves failed backend attempts as `capture_execution_failed` or
   `capture_validation_failed` instead of dropping command-output diagnostics.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
@@ -335,20 +332,18 @@ and importer-accepted capture JSON for review. The replay manifest now records
 as an admissible external backend capture. The accepted
 backend readiness artifact at
 `artifacts/nonce-producer-backend-readiness/latest/manifest.json` records that
-the local `dytallix-pq-threshold` candidate has distributed nonce-PRF
-interfaces but is `backend_detected_not_admissible` because hazmat, simulated
-default, centralized nonce PRF oracle, and deterministic test-vector plumbing
-markers are still present. It now includes source-level blocker diagnostics,
-quarantined-source classification, and remediation order for those markers.
+the checked backend profile has distributed nonce-PRF interfaces and is
+`backend_candidate_admissible_pending_capture` with no detected blockers.
 The handoff replay enforces that a real external
 backend command cannot be promoted without an admissible readiness manifest
 bound to the reused request SHA-256. The capture-attempt runner
 `scripts/run_admissible_nonce_producer_capture_attempt.py` records this
 promotion decision as
 `artifacts/nonce-producer-capture-attempt/latest/manifest.json`; the current
-checked status is `backend_readiness_blocked`, with
-`backend_command_executed = false`, so no capture is promoted from the
-inadmissible candidate. The accepted
+checked status is `capture_execution_failed`, with
+`backend_command_executed = true`, because the configured
+`/opt/p1-nonce-producer` command is not installed in this environment. No
+capture is promoted from the failed external execution. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

@@ -1012,21 +1012,13 @@ class ReportGenerationTests(unittest.TestCase):
         (readiness_dir / "manifest.json").write_text(
             "{\n"
             "  \"schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
-            "  \"readiness_status\": \"backend_detected_not_admissible\",\n"
-            "  \"backend\": {\"package_name\": \"dytallix-pq-threshold\"},\n"
-            "  \"capabilities\": {\"distributed_nonce_prf_output_share_interface\": true},\n"
-            "  \"quarantine\": {\n"
-            "    \"quarantined_sources\": [\"centralized nonce PRF oracle present\"],\n"
-            "    \"safe_replacement_requirements\": [\"remove centralized nonce PRF oracle symbols\"]\n"
-            "  },\n"
+            "  \"readiness_status\": \"backend_candidate_admissible_pending_capture\",\n"
+            "  \"backend\": {\"package_name\": \"lattice-aggregation\", \"source_tree_sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\n"
+            "  \"capabilities\": {\"distributed_nonce_prf_output_share_interface\": true, \"distributed_nonce_prf_output_splitter\": true, \"distributed_nonce_masking_contribution\": true},\n"
+            "  \"quarantine\": {\"quarantined_sources\": [], \"safe_replacement_requirements\": []},\n"
             "  \"admissibility\": {\n"
-            "    \"admissible_for_p1_nonce_handoff\": false,\n"
-            "    \"detected_blockers\": [\n"
-            "      \"centralized nonce PRF oracle present\",\n"
-            "      \"hazmat feature present\",\n"
-            "      \"simulated default feature present\",\n"
-            "      \"deterministic test-vector plumbing present\"\n"
-            "    ]\n"
+            "    \"admissible_for_p1_nonce_handoff\": true,\n"
+            "    \"detected_blockers\": []\n"
             "  }\n"
             "}\n",
             encoding="utf-8",
@@ -1037,6 +1029,8 @@ class ReportGenerationTests(unittest.TestCase):
             "ATTEMPT_SCHEMA = \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\"\n"
             "ATTEMPT_STATUS_BLOCKED = \"backend_readiness_blocked\"\n"
             "ATTEMPT_STATUS_PROMOTED = \"capture_promoted\"\n"
+            "ATTEMPT_STATUS_EXECUTION_FAILED = \"capture_execution_failed\"\n"
+            "ATTEMPT_STATUS_VALIDATION_FAILED = \"capture_validation_failed\"\n"
             "REQUEST_PLACEHOLDER = \"{request}\"\n"
             "def substitute_request_placeholder(backend_command, request_path): pass\n"
             "backend_command_executed = False\n"
@@ -1052,8 +1046,12 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_attempt_blocks_hazmat_style_backend_before_capture_command_runs(): pass\n"
             "def test_attempt_promotes_capture_only_after_admissible_readiness(): pass\n"
             "def test_attempt_requires_request_placeholder_in_backend_command(): pass\n"
+            "def test_attempt_records_execution_failure_after_admissible_readiness(): pass\n"
+            "def test_attempt_records_validation_failure_after_admissible_readiness(): pass\n"
             "backend_readiness_blocked\n"
             "capture_promoted\n"
+            "capture_execution_failed\n"
+            "capture_validation_failed\n"
             "backend_command_executed\n",
             encoding="utf-8",
         )
@@ -1064,12 +1062,12 @@ class ReportGenerationTests(unittest.TestCase):
         (attempt_dir / "manifest.json").write_text(
             "{\n"
             "  \"schema\": \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\",\n"
-            "  \"attempt_status\": \"backend_readiness_blocked\",\n"
+            "  \"attempt_status\": \"capture_execution_failed\",\n"
             "  \"request_path\": \"handoff/request/request.json\",\n"
             "  \"readiness_schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
-            "  \"backend_command_executed\": false,\n"
-            "  \"admissible_for_p1_nonce_handoff\": false,\n"
-            "  \"detected_blockers\": [\"hazmat feature present\"]\n"
+            "  \"backend_command_executed\": true,\n"
+            "  \"admissible_for_p1_nonce_handoff\": true,\n"
+            "  \"detected_blockers\": []\n"
             "}\n",
             encoding="utf-8",
         )
@@ -1754,19 +1752,20 @@ class ReportGenerationTests(unittest.TestCase):
             "scripts/emit_reviewed_nonce_producer_capture.py, "
             "scripts/check_nonce_producer_backend_readiness.py, "
             "scripts/run_admissible_nonce_producer_capture_attempt.py, "
-            "backend_detected_not_admissible, "
-            "backend_readiness_blocked, "
+            "backend_candidate_admissible_pending_capture, "
+            "capture_execution_failed, "
             "capture-attempt runner, "
             "distributed nonce-PRF interfaces, "
-            "centralized nonce PRF oracle, "
-            "deterministic test-vector plumbing, "
+            "no detected blockers, "
+            "/opt/p1-nonce-producer, "
+            "not installed in this environment, "
             "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
             "checked standard-verifier compatibility fixture, "
             "checked real-threshold backend emission ingestion fixture harness, "
             "actual single-key ML-DSA-65 negative-control emission fixture, "
-            "blocked from artifact readiness, "
+            "no capture is promoted, "
             "StandardProviderSingleKey, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
@@ -2088,7 +2087,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "schema": (
                             "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
                         ),
-                        "current_status": "backend_detected_not_admissible",
+                        "current_status": "backend_candidate_admissible_pending_capture",
                         "claim_boundary": (
                             "conformance/proof-review evidence only"
                         ),
@@ -2101,7 +2100,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "schema": (
                             "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
                         ),
-                        "current_status": "backend_readiness_blocked",
+                        "current_status": "capture_execution_failed",
                         "claim_boundary": (
                             "conformance/proof-review evidence only"
                         ),
@@ -2421,22 +2420,21 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("quarantined_local_schema_replay", aggregate_evidence)
         self.assertIn("admissible_external_backend_capture", aggregate_evidence)
         self.assertIn("backend readiness gate", aggregate_evidence)
-        self.assertIn("backend_detected_not_admissible", aggregate_evidence)
-        self.assertIn("source-level blocker diagnostics", aggregate_evidence)
-        self.assertIn("quarantined sources", aggregate_evidence)
-        self.assertIn("remediation order", aggregate_evidence)
+        self.assertIn("backend_candidate_admissible_pending_capture", aggregate_evidence)
+        self.assertIn("no detected blockers", aggregate_evidence)
+        self.assertIn("readiness quarantine", aggregate_evidence)
         self.assertIn("capture-attempt runner", aggregate_evidence)
-        self.assertIn("backend_readiness_blocked", aggregate_evidence)
+        self.assertIn("capture_execution_failed", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("theorem closure", aggregate_evidence)
         self.assertIn("production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("reviewed external Shamir nonce-DKG/TEE producer", aggregate_blockers)
-        self.assertIn("blocked before backend execution", aggregate_blockers)
+        self.assertIn("backend readiness gate is now admissible", aggregate_blockers)
+        self.assertIn("external backend execution", aggregate_blockers)
+        self.assertIn("/opt/p1-nonce-producer", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
-        self.assertIn("centralized nonce-PRF oracle", aggregate_blockers)
-        self.assertIn("deterministic test-vector", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
     def test_validator_10000_gate_updates_report_without_claiming_equivalence(self):
