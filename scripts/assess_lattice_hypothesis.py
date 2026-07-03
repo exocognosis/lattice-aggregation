@@ -408,6 +408,15 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": (
+            "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
+        ),
+        "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+        "current_status": "backend_detected_not_admissible",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": (
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1015,9 +1024,15 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "artifacts/nonce-producer-handoff/latest/manifest.json",
         "artifacts/nonce-producer-handoff/latest/capture/capture.json",
+        "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
         "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
         "scripts/run_nonce_producer_handoff_replay.py",
         "scripts/emit_reviewed_nonce_producer_capture.py",
+        "scripts/check_nonce_producer_backend_readiness.py",
+        "backend_detected_not_admissible",
+        "distributed nonce-prf interfaces",
+        "centralized nonce prf oracle",
+        "deterministic test-vector plumbing",
         "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
@@ -1574,6 +1589,15 @@ def scan_documents(root):
     )
     nonce_producer_capture_runner_test = read_optional(
         "script_tests/test_run_nonce_producer_capture.py"
+    )
+    nonce_producer_backend_readiness = read_optional(
+        "scripts/check_nonce_producer_backend_readiness.py"
+    )
+    nonce_producer_backend_readiness_test = read_optional(
+        "script_tests/test_check_nonce_producer_backend_readiness.py"
+    )
+    nonce_producer_backend_readiness_manifest = read_optional(
+        "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
     )
     nonce_producer_request_builder = read_optional(
         "scripts/build_nonce_producer_request.py"
@@ -2305,6 +2329,53 @@ def scan_documents(root):
                 "request digest mismatch",
                 "hazmat-centralized-prf",
                 "fixture_harness",
+            ]
+        )
+    )
+    p1_nonce_producer_backend_readiness_gate = (
+        p1_distributed_nonce_producer_capture_runner_gate
+        and all(
+            token in nonce_producer_backend_readiness
+            for token in [
+                "READINESS_SCHEMA",
+                "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+                "ENV_BACKEND_CRATE",
+                "LATTICE_NONCE_PRODUCER_BACKEND_CRATE",
+                "detect_capabilities",
+                "detected_blockers",
+                "admissible_for_p1_nonce_handoff",
+                "backend_detected_not_admissible",
+                "backend_candidate_admissible_pending_capture",
+                "centralized_nonce_prf_oracle",
+                "simulated_default_feature",
+                "hazmat_feature",
+                "reviewed_external_capture_contract",
+            ]
+        )
+        and all(
+            token in nonce_producer_backend_readiness_test
+            for token in [
+                "test_readiness_report_blocks_hazmat_backend_but_records_nonce_capabilities",
+                "test_readiness_report_marks_clean_reviewed_candidate_as_capture_admissible",
+                "test_readiness_report_rejects_missing_backend_crate",
+                "backend_detected_not_admissible",
+                "centralized nonce PRF oracle",
+                "simulated default feature",
+                "hazmat feature",
+            ]
+        )
+        and all(
+            token in nonce_producer_backend_readiness_manifest
+            for token in [
+                "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+                "backend_detected_not_admissible",
+                "dytallix-pq-threshold",
+                "distributed_nonce_prf_output_share_interface",
+                "centralized nonce PRF oracle present",
+                "hazmat feature present",
+                "simulated default feature present",
+                "deterministic test-vector plumbing present",
+                "admissible_for_p1_nonce_handoff",
             ]
         )
     )
@@ -3317,6 +3388,9 @@ def scan_documents(root):
         "p1_distributed_nonce_producer_capture_runner_gate": (
             p1_distributed_nonce_producer_capture_runner_gate
         ),
+        "p1_nonce_producer_backend_readiness_gate": (
+            p1_nonce_producer_backend_readiness_gate
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -3680,6 +3754,33 @@ def classify_criteria(criteria, scan):
                     "capture whose expected package digests can be imported "
                     "through the Rust gate before the hazmat PRF-output oracle "
                     "is replaced."
+                )
+            if scan.get("p1_nonce_producer_backend_readiness_gate"):
+                partial_progress = True
+                observed.append(
+                    "A P1 nonce-producer backend readiness gate is present "
+                    "and artifact-backed; it binds the current request "
+                    "SHA-256, inspects a candidate backend source tree, "
+                    "detects distributed nonce-PRF output-share, splitter, "
+                    "and masking-contribution hooks, and records source-tree "
+                    "checksums. The current dytallix-pq-threshold candidate "
+                    "is explicitly marked backend_detected_not_admissible "
+                    "because it is still hazmat/simulated research backend "
+                    "material with a centralized nonce PRF oracle and "
+                    "deterministic test-vector plumbing. This is "
+                    "evidence_present_unclosed boundary evidence only and "
+                    "does not claim theorem closure, rejection-distribution "
+                    "preservation, or production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The nonce-producer backend readiness gate confirms the "
+                    "current dytallix-pq-threshold candidate has useful "
+                    "distributed nonce-PRF interfaces, but it is not "
+                    "admissible for the P1 external handoff until hazmat, "
+                    "simulated-default, centralized nonce-PRF oracle, and "
+                    "deterministic test-vector sources are removed or "
+                    "replaced by a reviewed external Shamir nonce-DKG/TEE "
+                    "capture."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

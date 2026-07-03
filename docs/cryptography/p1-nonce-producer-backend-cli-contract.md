@@ -11,6 +11,34 @@ only. A conforming capture does not prove Criterion 2, rejection-distribution
 preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
 validation, or theorem closure.
 
+## Backend Readiness Preflight
+
+Before attempting to promote a backend capture, run the candidate source through
+the readiness preflight:
+
+```bash
+python3 scripts/check_nonce_producer_backend_readiness.py \
+  --request artifacts/nonce-producer-handoff/latest/request/request.json \
+  --backend-crate /path/to/backend-crate \
+  --backend-label reviewed-backend-candidate \
+  --out artifacts/nonce-producer-backend-readiness/latest
+```
+
+The preflight records the request SHA-256, source-tree checksums, Cargo package
+metadata, detected distributed nonce-PRF interfaces, and blockers. A backend is
+not admissible for this handoff while the report detects hazmat features,
+simulated defaults, centralized nonce-PRF oracles, deterministic test-vector
+plumbing, localnet/simulation markers, or missing reviewed external capture
+contract material.
+
+The current checked readiness artifact is:
+
+- `artifacts/nonce-producer-backend-readiness/latest/manifest.json`
+
+It marks the local `dytallix-pq-threshold` candidate
+`backend_detected_not_admissible`; that is useful boundary evidence, not
+reviewed external nonce-producer evidence.
+
 ## Request Input
 
 The repo generates the backend request with:
@@ -119,7 +147,6 @@ The checked replay emitter exists so CI and reviewers can verify the executable
 request/capture/import handoff. It is not a production threshold backend and it
 does not replace the required externally generated reviewed P1 nonce-producer
 material.
-
 It does not replace the required externally generated reviewed P1 nonce-producer material.
 
 The replay manifest records `request_sha256`, `capture_sha256`,

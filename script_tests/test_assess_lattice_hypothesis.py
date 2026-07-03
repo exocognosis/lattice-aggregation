@@ -938,6 +938,54 @@ class ReportGenerationTests(unittest.TestCase):
             "fixture_harness\n",
             encoding="utf-8",
         )
+        (
+            root / "scripts" / "check_nonce_producer_backend_readiness.py"
+        ).write_text(
+            "READINESS_SCHEMA = \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\"\n"
+            "ENV_BACKEND_CRATE = \"LATTICE_NONCE_PRODUCER_BACKEND_CRATE\"\n"
+            "def detect_capabilities(cargo, source_blob):\n"
+            "    return {'centralized_nonce_prf_oracle': True, 'simulated_default_feature': True, 'hazmat_feature': True, 'reviewed_external_capture_contract': False}\n"
+            "def detected_blockers(capabilities):\n"
+            "    return ['centralized nonce PRF oracle present', 'simulated default feature present', 'hazmat feature present']\n"
+            "admissible_for_p1_nonce_handoff = False\n"
+            "backend_detected_not_admissible = 'backend_detected_not_admissible'\n"
+            "backend_candidate_admissible_pending_capture = 'backend_candidate_admissible_pending_capture'\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_check_nonce_producer_backend_readiness.py"
+        ).write_text(
+            "def test_readiness_report_blocks_hazmat_backend_but_records_nonce_capabilities(): pass\n"
+            "def test_readiness_report_marks_clean_reviewed_candidate_as_capture_admissible(): pass\n"
+            "def test_readiness_report_rejects_missing_backend_crate(): pass\n"
+            "backend_detected_not_admissible\n"
+            "centralized nonce PRF oracle\n"
+            "simulated default feature\n"
+            "hazmat feature\n",
+            encoding="utf-8",
+        )
+        readiness_dir = (
+            root / "artifacts" / "nonce-producer-backend-readiness" / "latest"
+        )
+        readiness_dir.mkdir(parents=True, exist_ok=True)
+        (readiness_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-nonce-producer-backend-readiness:v1\",\n"
+            "  \"readiness_status\": \"backend_detected_not_admissible\",\n"
+            "  \"backend\": {\"package_name\": \"dytallix-pq-threshold\"},\n"
+            "  \"capabilities\": {\"distributed_nonce_prf_output_share_interface\": true},\n"
+            "  \"admissibility\": {\n"
+            "    \"admissible_for_p1_nonce_handoff\": false,\n"
+            "    \"detected_blockers\": [\n"
+            "      \"centralized nonce PRF oracle present\",\n"
+            "      \"hazmat feature present\",\n"
+            "      \"simulated default feature present\",\n"
+            "      \"deterministic test-vector plumbing present\"\n"
+            "    ]\n"
+            "  }\n"
+            "}\n",
+            encoding="utf-8",
+        )
 
     def write_p1_real_threshold_backend_actual_capture_runner_gate(self, root):
         self.write_p1_real_threshold_backend_output_gate(root)
@@ -1612,9 +1660,15 @@ class ReportGenerationTests(unittest.TestCase):
             "tests/fixtures/p1_theorem_linkage_artifact_fixture.json, "
             "artifacts/nonce-producer-handoff/latest/manifest.json, "
             "artifacts/nonce-producer-handoff/latest/capture/capture.json, "
+            "artifacts/nonce-producer-backend-readiness/latest/manifest.json, "
             "docs/cryptography/p1-nonce-producer-backend-cli-contract.md, "
             "scripts/run_nonce_producer_handoff_replay.py, "
             "scripts/emit_reviewed_nonce_producer_capture.py, "
+            "scripts/check_nonce_producer_backend_readiness.py, "
+            "backend_detected_not_admissible, "
+            "distributed nonce-PRF interfaces, "
+            "centralized nonce PRF oracle, "
+            "deterministic test-vector plumbing, "
             "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
@@ -1936,6 +1990,19 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": "distributed_nonce_producer_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/nonce-producer-backend-readiness/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
+                        ),
+                        "current_status": "backend_detected_not_admissible",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -2230,6 +2297,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_distributed_nonce_producer_artifact_gate"])
         self.assertTrue(scan["p1_distributed_nonce_producer_request_gate"])
         self.assertTrue(scan["p1_distributed_nonce_producer_capture_runner_gate"])
+        self.assertTrue(scan["p1_nonce_producer_backend_readiness_gate"])
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -2245,11 +2313,16 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("exact request schema/name/SHA-256 binding", aggregate_evidence)
         self.assertIn("rejects stale request digests", aggregate_evidence)
         self.assertIn("non-importable capture shapes", aggregate_evidence)
+        self.assertIn("backend readiness gate", aggregate_evidence)
+        self.assertIn("backend_detected_not_admissible", aggregate_evidence)
+        self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("theorem closure", aggregate_evidence)
         self.assertIn("production threshold ML-DSA security", aggregate_evidence)
         self.assertIn("reviewed external Shamir nonce-DKG/TEE producer", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
+        self.assertIn("centralized nonce-PRF oracle", aggregate_blockers)
+        self.assertIn("deterministic test-vector", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
     def test_validator_10000_gate_updates_report_without_claiming_equivalence(self):

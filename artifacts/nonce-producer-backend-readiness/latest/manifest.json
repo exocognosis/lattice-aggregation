@@ -1,0 +1,252 @@
+{
+  "admissibility": {
+    "admissible_for_p1_nonce_handoff": false,
+    "blocked_reason": "candidate backend is not admissible for the P1 external nonce-producer handoff until blockers are removed",
+    "detected_blockers": [
+      "missing reviewed external capture contract marker",
+      "hazmat feature present",
+      "simulated default feature present",
+      "research-grade simulation backend marker present",
+      "centralized nonce PRF oracle present",
+      "deterministic test-vector plumbing present"
+    ],
+    "requirements_to_become_admissible": [
+      "external command emits canonical P1 distributed nonce-producer capture JSON",
+      "capture binds the exact request schema, request name, and request SHA-256",
+      "capture source is not hazmat, localnet, simulation, fixture, centralized, or single-key material",
+      "capture carries reviewed Shamir nonce-DKG/TEE transcript, coordinator attestation, nonce-share commitments, abort accountability, and external review evidence"
+    ]
+  },
+  "backend": {
+    "cargo_toml_sha256": "704d417e22578a5ba574be6359da5ce729967dfb64387b3dd4c4c8bc9196e473",
+    "categories": [
+      "cryptography",
+      "simulation"
+    ],
+    "crate_path": "local-dytallix-pq-threshold-candidate",
+    "default_features": [
+      "simulated"
+    ],
+    "description": "Research-grade threshold ML-DSA-65 API boundary and simulation backend",
+    "features": [
+      "default",
+      "experimental-vss",
+      "hazmat",
+      "hazmat-real-mldsa",
+      "simulated"
+    ],
+    "package_name": "dytallix-pq-threshold",
+    "repository": "https://github.com/exocognosis/lattice-aggregation",
+    "source_file_count": 31,
+    "source_inventory": [
+      {
+        "path": "Cargo.lock",
+        "sha256": "2fe59c8c2a59bf7eae241c81fab6b0ad66489aee0b966e05a423be69b649d9f9",
+        "size_bytes": 21662
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "704d417e22578a5ba574be6359da5ce729967dfb64387b3dd4c4c8bc9196e473",
+        "size_bytes": 941
+      },
+      {
+        "path": "src/adapter/actor.rs",
+        "sha256": "15f4d5aed8dadb35de301ffa8b8707f20d9e3b1f5bffe7722c255e70846122b5",
+        "size_bytes": 65990
+      },
+      {
+        "path": "src/adapter/evidence.rs",
+        "sha256": "d3068ccad27b5799a45731e596f276ea64704a8106ef622dec479ccfae1a07b5",
+        "size_bytes": 8893
+      },
+      {
+        "path": "src/adapter/traits.rs",
+        "sha256": "7c7f441826db4e246cb293f7fa0bd95372763d6045e9b5900b5bf92a176b7f53",
+        "size_bytes": 1573
+      },
+      {
+        "path": "src/adapter/wire.rs",
+        "sha256": "56ed569fb1aedc8c73bf6e1eae511d641b0d695883259bd4980041ae85f7b3b8",
+        "size_bytes": 28731
+      },
+      {
+        "path": "src/adapter.rs",
+        "sha256": "b4e9a19c117204248653729ec337b94bfd46fb9a1e03d0c75b7afcde3f06e87c",
+        "size_bytes": 332
+      },
+      {
+        "path": "src/aggregation.rs",
+        "sha256": "1215d1a28beec131322233ae6792029e0feac9c9b5272143ba401ece4f893032",
+        "size_bytes": 1471
+      },
+      {
+        "path": "src/backend.rs",
+        "sha256": "9cbc6d21d8a60a07207044792118a62788ea1b6aa9808cc26e745d9b98e7f914",
+        "size_bytes": 6356
+      },
+      {
+        "path": "src/collections.rs",
+        "sha256": "0ea7e0ffca0edb0a4c001d760a67f2029253fdd7f68131feb82b5aad3fafaeee",
+        "size_bytes": 5484
+      },
+      {
+        "path": "src/crypto/contribution_proof.rs",
+        "sha256": "97a5e6eb1be96380cefca64e8c4723bc8a2f7cfca662f0ea2e22ba46d19e2e95",
+        "size_bytes": 21797
+      },
+      {
+        "path": "src/crypto/interpolation.rs",
+        "sha256": "759e33fd032a413b85b75cd803ef9fb77df2023c178456915b906c7104a965ac",
+        "size_bytes": 7747
+      },
+      {
+        "path": "src/crypto/production_policy.rs",
+        "sha256": "92fa7152bfbd0b57fbcf12a55dc6ddcab58ec1438f68ffc5db4196a9980400a8",
+        "size_bytes": 2729
+      },
+      {
+        "path": "src/crypto/vss.rs",
+        "sha256": "0f8949c6c7ad8a470c9d8b7c6688c84bbc397bbc3de6a701f63edf98fe9a2fb0",
+        "size_bytes": 41611
+      },
+      {
+        "path": "src/crypto.rs",
+        "sha256": "35c92a3e8487fe36e697497f7735a60d0575fb85fd2df6db67573e29a0286a07",
+        "size_bytes": 413
+      },
+      {
+        "path": "src/dkg.rs",
+        "sha256": "d7e2cbedfc6a95c59c68c2cfb44ef03c1ff5d97badc5f445e592f1aa2b54eb09",
+        "size_bytes": 3103
+      },
+      {
+        "path": "src/errors.rs",
+        "sha256": "fb650a076b768604a540cac90cf51a64aa4303c49bc06e100cdccf516a345d54",
+        "size_bytes": 3147
+      },
+      {
+        "path": "src/lib.rs",
+        "sha256": "29c92f8e2d22191ea558d8f196fe1ecce3917a8469017716e5583f880a83d7d8",
+        "size_bytes": 1366
+      },
+      {
+        "path": "src/low_level/mldsa65.rs",
+        "sha256": "932566b73f99c16062184ac1f79d126c347f21b584424602b60eef793fd77d09",
+        "size_bytes": 138135
+      },
+      {
+        "path": "src/low_level/poly.rs",
+        "sha256": "6ba9af701a35e8d104970bba7de65ac4a33cc836c0a0664c5877d00d9a20579f",
+        "size_bytes": 2314
+      },
+      {
+        "path": "src/low_level.rs",
+        "sha256": "29ba4d3b7dbe014c6f2b1541ae590ebc1f1346f8ae88d0cd1eea534430215276",
+        "size_bytes": 261
+      },
+      {
+        "path": "src/main.rs",
+        "sha256": "5bd591959b85bb0a521030926ed7887b8bd21f5d863673f0f9b3a1c15fd98ff9",
+        "size_bytes": 12323
+      },
+      {
+        "path": "src/protocol.rs",
+        "sha256": "d4cac591654be496abfd59754ed0d19c58df3b81ae5b1e4173ee3f9c381aa57d",
+        "size_bytes": 8254
+      },
+      {
+        "path": "src/serialization.rs",
+        "sha256": "95ef1b2bdf600d646b3c2f18989b481201040750e8b364267d3e92cb707d66eb",
+        "size_bytes": 2904
+      },
+      {
+        "path": "src/transcript.rs",
+        "sha256": "a8f0681ca55b79e17fe876995e99766474c76081998b992eac31ac31b61a5156",
+        "size_bytes": 3635
+      },
+      {
+        "path": "src/types.rs",
+        "sha256": "7852180cd0e5ce499b68dcfefb19c749c7030166ac9263f4005b085ce48fba80",
+        "size_bytes": 3113
+      },
+      {
+        "path": "src/utils/exporter.rs",
+        "sha256": "4caf0a711d998fdd3718f87e52e98c6a92617ee015cce8a515822cfefda578c1",
+        "size_bytes": 5862
+      },
+      {
+        "path": "src/utils/hazmat_artifacts.rs",
+        "sha256": "9b5d2c8ad2b168c35427a117197cad0ad818eee4ae6e0b9b2c6f874dd7404d0b",
+        "size_bytes": 37777
+      },
+      {
+        "path": "src/utils/hazmat_fuzz.rs",
+        "sha256": "c8689998738231a17f2b74993e0a8a6ac1cf819bf0bd9c2e96966ee87fe9cd2c",
+        "size_bytes": 4913
+      },
+      {
+        "path": "src/utils/hazmat_simulation.rs",
+        "sha256": "31a181ba87008f73c4e53597b9da51607dff5ba7090a396d940557bff0b75eab",
+        "size_bytes": 32164
+      },
+      {
+        "path": "src/utils.rs",
+        "sha256": "e7e46be145a8c29b6208c9cc52d358d2644c410c3921c733c27aabcac8bcc24f",
+        "size_bytes": 265
+      }
+    ],
+    "source_tree_sha256": "6f48e83af3054be6ea8dbbce5e666a63229512faa2b73029955a2acca1b94e29",
+    "version": "0.1.0"
+  },
+  "capabilities": {
+    "centralized_nonce_prf_oracle": true,
+    "deterministic_test_vector_plumbing": true,
+    "distributed_nonce_masking_contribution": true,
+    "distributed_nonce_prf_output_share_interface": true,
+    "distributed_nonce_prf_output_splitter": true,
+    "hazmat_feature": true,
+    "research_grade_simulation_description": true,
+    "reviewed_external_capture_contract": false,
+    "simulated_default_feature": true,
+    "simulation_category": true
+  },
+  "claim_boundary": "conformance/proof-review evidence only",
+  "closure_boundary": "Backend readiness and source capability detection only; an actual reviewed capture and proof review remain required.",
+  "generated_at": "2026-07-03T15:27:38Z",
+  "next_capture_command": [
+    "python3",
+    "scripts/run_nonce_producer_handoff_replay.py",
+    "--root",
+    ".",
+    "--out",
+    "artifacts/nonce-producer-handoff/latest",
+    "--backend-command",
+    "/opt/p1-nonce-producer",
+    "emit",
+    "--request",
+    "artifacts/nonce-producer-handoff/latest/request/request.json"
+  ],
+  "next_external_cli_contract": {
+    "backend_command_shape": [
+      "/opt/p1-nonce-producer",
+      "emit",
+      "--request",
+      "artifacts/nonce-producer-handoff/latest/request/request.json"
+    ],
+    "contract_document": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+    "runner": "scripts/run_nonce_producer_capture.py",
+    "stdout_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+  },
+  "readiness_status": "backend_detected_not_admissible",
+  "request": {
+    "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+    "name": "p1-reviewed-nonce-producer-request-001",
+    "request_path": "artifacts/nonce-producer-handoff/latest/request/request.json",
+    "request_sha256": "c1bf319849c5fa7d76f52dae3905d2d93126a6dcf38a2e5b169480fe1870e82e",
+    "required_producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+    "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
+  },
+  "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

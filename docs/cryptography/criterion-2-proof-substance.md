@@ -104,6 +104,17 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `derive_p1_distributed_nonce_producer_artifact_package_from_capture`.
   This replay proves the executable handoff is wired, not that an external
   backend has closed Criterion 2.
+  The backend readiness preflight
+  `scripts/check_nonce_producer_backend_readiness.py` inspects candidate
+  backend source before capture promotion. Its current artifact
+  `artifacts/nonce-producer-backend-readiness/latest/manifest.json` binds the
+  repo-generated request SHA-256, records candidate source-tree checksums, and
+  confirms the local `dytallix-pq-threshold` candidate exposes distributed
+  nonce-PRF interfaces. It also marks that candidate
+  `backend_detected_not_admissible` because the checked source is still
+  hazmat/simulated research backend material with a centralized nonce PRF
+  oracle and deterministic test-vector plumbing. This readiness artifact is a
+  fail-closed boundary check, not reviewed external nonce-producer evidence.
   It remains `evidence_present_unclosed` until externally generated reviewed P1
   nonce-producer material replaces the hazmat oracle.
 - `standard_verifier_compatibility_artifact_digest`:
@@ -299,6 +310,12 @@ actual external nonce-producer captures while remaining
 replay artifacts under `artifacts/nonce-producer-handoff/latest/` bind a
 generated request, command metadata, capture logs, checksums, request SHA-256,
 and importer-accepted capture JSON for review. The accepted
+backend readiness artifact at
+`artifacts/nonce-producer-backend-readiness/latest/manifest.json` records that
+the local `dytallix-pq-threshold` candidate has distributed nonce-PRF
+interfaces but is `backend_detected_not_admissible` because hazmat, simulated
+default, centralized nonce PRF oracle, and deterministic test-vector plumbing
+markers are still present. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through
