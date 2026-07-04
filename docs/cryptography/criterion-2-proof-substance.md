@@ -158,6 +158,13 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `scripts/verify_actual_nonce_producer_capture.py --strict` once a real
   outside-repo capture file exists. This is still an intake path only, not the
   missing capture evidence itself.
+  Batch 6 hardens that intake with a required
+  `outside_repo_review_manifest` using schema
+  `lattice-aggregation:p1-external-nonce-producer-capture-review:v1`; the
+  review must be `reviewed_external_capture_ready`, bind the request, capture,
+  capture-file, readiness, and backend source-tree digests, and record explicit
+  checks excluding hazmat, centralized-helper, fixture, localnet/simulation, and
+  single-key standard-provider sources.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -376,8 +383,11 @@ command-origin guard rejects unmarked repo-local backend commands and records
 capture must come from an independently installed backend outside the repo
 rather than another repo wrapper. The Batch 5 file-intake script
 `scripts/stage_external_nonce_producer_capture.py` can stage a preexisting
-outside-repo capture file into attempt-compatible handoff artifacts, but no
-such reviewed external capture file is checked in. The accepted
+outside-repo capture file into attempt-compatible handoff artifacts only when a
+matching Batch 6 `outside_repo_review_manifest` with
+`reviewed_external_capture_ready` status binds the capture/readiness evidence,
+but no such reviewed external capture file and review dossier are checked in.
+The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

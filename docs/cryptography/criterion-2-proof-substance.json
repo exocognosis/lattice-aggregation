@@ -114,6 +114,27 @@
         "external_capture_file_intake": "scripts/stage_external_nonce_producer_capture.py",
         "external_capture_file_origin_required": "outside_repo_capture_file",
         "external_capture_file_intake_mode": "preexisting_external_capture_file",
+        "external_capture_review_manifest_schema": "lattice-aggregation:p1-external-nonce-producer-capture-review:v1",
+        "external_capture_review_manifest_origin_required": "outside_repo_review_manifest",
+        "external_capture_review_status_required": "reviewed_external_capture_ready",
+        "external_capture_review_required_bindings": [
+          "request_sha256",
+          "capture_sha256",
+          "capture_file_sha256",
+          "readiness_manifest_sha256",
+          "backend_source_tree_sha256",
+          "reviewer_identity_digest_hex",
+          "operator_identity_digest_hex",
+          "capture_environment_digest_hex",
+          "backend_command_digest_hex"
+        ],
+        "external_capture_review_required_source_exclusions": [
+          "hazmat_prf_oracle",
+          "centralized_expanded_secret_key_helper",
+          "fixture_harness",
+          "localnet_or_deterministic_simulation",
+          "single_key_standard_provider_output"
+        ],
         "external_capture_file_intake_status": "available_but_waiting_for_reviewed_external_capture_file",
         "backend_capture_attempt_failure_statuses": [
           "capture_execution_failed",

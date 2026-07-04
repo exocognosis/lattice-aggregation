@@ -169,6 +169,7 @@ python3 scripts/stage_external_nonce_producer_capture.py \
   --request artifacts/nonce-producer-handoff/latest/request/request.json \
   --readiness artifacts/nonce-producer-backend-readiness/latest/manifest.json \
   --capture-file /path/outside/repo/p1-nonce-producer-capture.json \
+  --review-manifest /path/outside/repo/p1-nonce-producer-review.json \
   --out artifacts/nonce-producer-external-capture-intake/latest
 
 python3 scripts/verify_actual_nonce_producer_capture.py \
@@ -178,12 +179,28 @@ python3 scripts/verify_actual_nonce_producer_capture.py \
   --strict
 ```
 
-The intake rejects repo-local capture files, requires admissible readiness,
-validates the exact request digest and capture schema through the same capture
-runner checks, and writes an attempt-compatible handoff with
-`preexisting_external_capture_file` provenance. This still does not prove
-Criterion 2; it only gives a strict path for a real external capture file to
-occupy the actual backend slot.
+Batch 6 hardens this path with an external review dossier. The intake now
+rejects repo-local capture files, repo-local review manifests, missing review
+manifests, mismatched capture/readiness bindings, and failed review checks. The
+review manifest schema is:
+
+```text
+lattice-aggregation:p1-external-nonce-producer-capture-review:v1
+```
+
+The review must carry `reviewed_external_capture_ready`, bind the request
+SHA-256, canonical capture SHA-256, capture-file SHA-256, readiness manifest
+SHA-256, backend source-tree SHA-256, reviewer/operator/environment/command
+digests, and explicit checks excluding hazmat PRF oracles, centralized
+expanded-secret-key helpers, fixture harnesses, localnet/deterministic
+simulation, and single-key standard-provider output.
+
+The intake validates the exact request digest and capture schema through the
+same capture runner checks, then writes an attempt-compatible handoff with
+`preexisting_external_capture_file` provenance and
+`outside_repo_review_manifest` evidence. This still does not prove Criterion 2;
+it only gives a strict path for a real external capture file plus review dossier
+to occupy the actual backend slot.
 
 ## Real Backend Handoff
 

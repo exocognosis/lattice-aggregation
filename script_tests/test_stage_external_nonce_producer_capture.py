@@ -12,6 +12,7 @@ ACTUAL_GATE_SCRIPT = ROOT / "scripts" / "verify_actual_nonce_producer_capture.py
 REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
 READINESS_SCHEMA = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
+REVIEW_SCHEMA = "lattice-aggregation:p1-external-nonce-producer-capture-review:v1"
 
 
 def load_module(path, name):
@@ -173,6 +174,57 @@ def admissible_readiness(request):
     }
 
 
+def external_review_manifest(request, capture, readiness, capture_path, readiness_path):
+    capture_json = canonical_json(capture)
+    return {
+        "schema": REVIEW_SCHEMA,
+        "schema_version": 1,
+        "generated_at": "2026-07-04T00:00:02Z",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "review_status": "reviewed_external_capture_ready",
+        "capture": {
+            "schema": capture["schema"],
+            "producer_evidence": capture["producer_evidence"],
+            "request_schema": request["schema"],
+            "request_name": request["name"],
+            "request_sha256": request_sha256(request),
+            "capture_sha256": sha256_text(capture_json),
+            "capture_file_sha256": hashlib.sha256(capture_path.read_bytes()).hexdigest(),
+        },
+        "readiness": {
+            "schema": readiness["schema"],
+            "readiness_status": readiness["readiness_status"],
+            "manifest_sha256": hashlib.sha256(readiness_path.read_bytes()).hexdigest(),
+            "source_tree_sha256": readiness["backend"]["source_tree_sha256"],
+        },
+        "review": {
+            "external_review_digest_hex": "12" * 32,
+            "reviewer_identity_digest_hex": "23" * 32,
+            "operator_identity_digest_hex": "34" * 32,
+            "capture_environment_digest_hex": "45" * 32,
+            "backend_command_digest_hex": "56" * 32,
+        },
+        "checks": {
+            "external_backend_operated_outside_repo": True,
+            "capture_generated_outside_repo": True,
+            "request_binding_reviewed": True,
+            "predecessor_digests_reviewed": True,
+            "material_digests_reviewed": True,
+            "readiness_source_tree_reviewed": True,
+            "no_hazmat_prf_oracle": True,
+            "no_centralized_expanded_secret_key_helper": True,
+            "no_fixture_harness": True,
+            "no_localnet_or_deterministic_simulation": True,
+            "no_single_key_standard_provider_output": True,
+        },
+        "closure_boundary": (
+            "External capture review dossier only; theorem closure and "
+            "rejection-distribution preservation remain open."
+        ),
+    }
+
+
 def fake_metadata(root):
     return {
         "commit": "abc123",
@@ -202,16 +254,30 @@ class StageExternalNonceProducerCaptureTests(unittest.TestCase):
             request_path = repo_root / "request.json"
             readiness_path = repo_root / "readiness.json"
             capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
             out_dir = repo_root / "intake"
+            readiness = admissible_readiness(request)
+            capture = external_capture(request)
             write_json(request_path, request)
-            write_json(readiness_path, admissible_readiness(request))
-            write_json(capture_path, external_capture(request))
+            write_json(readiness_path, readiness)
+            write_json(capture_path, capture)
+            write_json(
+                review_path,
+                external_review_manifest(
+                    request,
+                    capture,
+                    readiness,
+                    capture_path,
+                    readiness_path,
+                ),
+            )
 
             report = module.build_intake(
                 repo_root,
                 request_path,
                 readiness_path,
                 capture_path,
+                review_path,
                 generated_at="2026-07-04T00:00:02Z",
                 metadata_provider=fake_metadata,
             )
@@ -246,6 +312,18 @@ class StageExternalNonceProducerCaptureTests(unittest.TestCase):
         self.assertEqual(
             capture_manifest["capture_source_profile"],
             "admissible_external_backend_capture",
+        )
+        self.assertEqual(
+            attempt["external_capture_review"]["schema"],
+            REVIEW_SCHEMA,
+        )
+        self.assertEqual(
+            handoff["external_capture_review"]["review_status"],
+            "reviewed_external_capture_ready",
+        )
+        self.assertEqual(
+            capture_manifest["external_capture_review"]["capture_file_sha256"],
+            attempt["capture_file_sha256"],
         )
         self.assertTrue(gate_report["manifest"]["actual_external_capture_ready"])
         self.assertEqual(gate_report["manifest"]["gate_status"], "actual_external_capture_ready")
@@ -327,6 +405,70 @@ class StageExternalNonceProducerCaptureTests(unittest.TestCase):
                     request_path,
                     readiness_path,
                     capture_path,
+                    metadata_provider=fake_metadata,
+                )
+
+    def test_missing_review_manifest_is_rejected_before_promotion(self):
+        module = load_module(SCRIPT, "stage_external_nonce_producer_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = external_request()
+            request_path = repo_root / "request.json"
+            readiness_path = repo_root / "readiness.json"
+            capture_path = external_dir / "capture.json"
+            write_json(request_path, request)
+            write_json(readiness_path, admissible_readiness(request))
+            write_json(capture_path, external_capture(request))
+
+            with self.assertRaisesRegex(ValueError, "external review manifest"):
+                module.build_intake(
+                    repo_root,
+                    request_path,
+                    readiness_path,
+                    capture_path,
+                    external_dir / "missing-review.json",
+                    metadata_provider=fake_metadata,
+                )
+
+    def test_mismatched_review_manifest_is_rejected_before_promotion(self):
+        module = load_module(SCRIPT, "stage_external_nonce_producer_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = external_request()
+            readiness = admissible_readiness(request)
+            capture = external_capture(request)
+            request_path = repo_root / "request.json"
+            readiness_path = repo_root / "readiness.json"
+            capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
+            write_json(request_path, request)
+            write_json(readiness_path, readiness)
+            write_json(capture_path, capture)
+            review = external_review_manifest(
+                request,
+                capture,
+                readiness,
+                capture_path,
+                readiness_path,
+            )
+            review["checks"]["no_hazmat_prf_oracle"] = False
+            write_json(review_path, review)
+
+            with self.assertRaisesRegex(ValueError, "external review check failed"):
+                module.build_intake(
+                    repo_root,
+                    request_path,
+                    readiness_path,
+                    capture_path,
+                    review_path,
                     metadata_provider=fake_metadata,
                 )
 

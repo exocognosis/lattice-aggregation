@@ -1058,6 +1058,8 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "actual_external_capture_missing",
         "outside_repo_capture_file",
         "preexisting_external_capture_file",
+        "outside_repo_review_manifest",
+        "reviewed_external_capture_ready",
         "capture-attempt runner",
         "distributed nonce-prf interfaces",
         "no detected blockers",
@@ -2608,13 +2610,20 @@ def scan_documents(root):
                 "ATTEMPT_SCHEMA",
                 "HANDOFF_SCHEMA",
                 "CAPTURE_FILE_ORIGIN_EXTERNAL",
+                "EXTERNAL_CAPTURE_REVIEW_SCHEMA",
+                "REVIEW_FILE_ORIGIN_EXTERNAL",
                 "outside_repo_capture_file",
                 "repo_local_capture_file",
+                "outside_repo_review_manifest",
+                "reviewed_external_capture_ready",
                 "preexisting_external_capture_file",
                 "admissible_external_backend_capture",
                 "require_outside_repo_capture_file",
+                "require_outside_repo_review_manifest",
                 "validate_readiness",
+                "validate_external_review_manifest",
                 "validate_capture_matches_request",
+                "REQUIRED_REVIEW_CHECKS",
                 "build_intake",
                 "write_artifacts",
                 "does not prove Criterion 2",
@@ -2627,8 +2636,12 @@ def scan_documents(root):
                 "test_repo_local_capture_file_is_rejected_before_promotion",
                 "test_blocked_or_stale_readiness_is_rejected_before_promotion",
                 "test_stale_capture_request_digest_is_rejected_before_promotion",
+                "test_missing_review_manifest_is_rejected_before_promotion",
+                "test_mismatched_review_manifest_is_rejected_before_promotion",
                 "actual_external_capture_ready",
                 "outside_repo_capture_file",
+                "external review manifest",
+                "external review check failed",
                 "repo-local capture file",
                 "request digest mismatch",
             ]
@@ -4136,23 +4149,28 @@ def classify_criteria(criteria, scan):
                 observed.append(
                     "A P1 external nonce-producer capture-file intake path is "
                     "present; it stages a preexisting outside_repo_capture_file "
-                    "only after admissible readiness, rejects repo-local "
-                    "capture files, validates the exact request digest through "
-                    "the capture runner, writes attempt-compatible handoff "
-                    "artifacts with preexisting_external_capture_file "
-                    "provenance, and can make the actual-external gate ready "
-                    "in tests only for non-quarantined "
-                    "admissible_external_backend_capture material. This is "
-                    "evidence_present_unclosed boundary evidence only and "
-                    "does not claim theorem closure, rejection-distribution "
-                    "preservation, or production threshold ML-DSA security."
+                    "only after admissible readiness and a matching "
+                    "outside_repo_review_manifest with "
+                    "reviewed_external_capture_ready status. It rejects "
+                    "repo-local capture files, missing review dossiers, and "
+                    "failed external-review checks; validates the exact "
+                    "request digest through the capture runner; writes "
+                    "attempt-compatible handoff artifacts with "
+                    "preexisting_external_capture_file provenance; and can "
+                    "make the actual-external gate ready in tests only for "
+                    "non-quarantined admissible_external_backend_capture "
+                    "material. This is evidence_present_unclosed boundary "
+                    "evidence only and does not claim theorem closure, "
+                    "rejection-distribution preservation, or production "
+                    "threshold ML-DSA security."
                 )
                 blockers.append(
                     "The external capture-file intake is executable, but the "
                     "repo still needs a real outside-repo reviewed nonce-DKG/TEE "
-                    "capture file from an independently operated backend "
-                    "before the current checked actual-external artifact can "
-                    "move from actual_external_capture_missing to ready."
+                    "capture file plus a matching external review dossier from "
+                    "an independently operated backend before the current "
+                    "checked actual-external artifact can move from "
+                    "actual_external_capture_missing to ready."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
