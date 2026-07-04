@@ -276,6 +276,7 @@ CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "standard_verifier_compatibility_artifact_digest",
     "real_threshold_backend_emission_artifact_digest",
     "external_backend_cryptographic_closure_candidate",
+    "external_backend_evidence_attempt",
     "rejection_distribution_review_digest",
     "theorem_linkage_artifact_digest",
     "full_kat_validation_artifact_digest",
@@ -303,6 +304,9 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     ),
     "external_backend_cryptographic_closure_candidate": (
         "p1_external_backend_cryptographic_closure_candidate_gate"
+    ),
+    "external_backend_evidence_attempt": (
+        "p1_external_backend_evidence_attempt_gate"
     ),
     "rejection_distribution_review_digest": (
         "p1_criterion2_rejection_distribution_review_artifact_gate"
@@ -336,6 +340,9 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     "external_backend_cryptographic_closure_candidate": (
         "p1_external_backend_cryptographic_closure_candidate_package"
     ),
+    "external_backend_evidence_attempt": (
+        "p1_external_backend_evidence_attempt_artifact"
+    ),
     **{
         slot: "p1_criterion2_proof_slot_artifact_package"
         for slot in CRITERION2_ARTIFACT_SLOT_SOURCES
@@ -344,6 +351,7 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
             "standard_verifier_compatibility_artifact_digest",
             "real_threshold_backend_emission_artifact_digest",
             "external_backend_cryptographic_closure_candidate",
+            "external_backend_evidence_attempt",
         }
     },
 }
@@ -481,6 +489,17 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "current_status": "evidence_present_unclosed",
         "close_candidate": False,
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
+        "slot_id": "external_backend_evidence_attempt",
+        "fixture_path": (
+            "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json"
+        ),
+        "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+        "current_status": "blocked_external_evidence_missing",
+        "close_candidate": False,
+        "source_exclusion_passed": False,
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
@@ -1087,6 +1106,13 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
         "close_candidate = false",
         "actual external nonce capture",
+        "external_backend_evidence_attempt",
+        "p1_external_backend_evidence_attempt_gate",
+        "p1_external_backend_evidence_attempt_artifact",
+        "scripts/run_p1_external_backend_evidence_attempt.py",
+        "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+        "blocked_external_evidence_missing",
+        "source_exclusion_passed",
         "evidence_present_unclosed",
         "evidence_present_unclosed only",
         "typed criterion 2 proof-slot artifact packages",
@@ -1673,6 +1699,12 @@ def scan_documents(root):
     backend_emission_request_builder_test = read_optional(
         "script_tests/test_build_backend_emission_request.py"
     )
+    backend_emission_request_manifest = read_optional(
+        "artifacts/backend-emission-request/latest/manifest.json"
+    )
+    backend_emission_request_json = read_optional(
+        "artifacts/backend-emission-request/latest/request.json"
+    )
     nonce_producer_capture_runner = read_optional(
         "scripts/run_nonce_producer_capture.py"
     )
@@ -1744,6 +1776,15 @@ def scan_documents(root):
     )
     p1_external_backend_closure_candidate_manifest = read_optional(
         "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json"
+    )
+    p1_external_backend_evidence_attempt_runner = read_optional(
+        "scripts/run_p1_external_backend_evidence_attempt.py"
+    )
+    p1_external_backend_evidence_attempt_test = read_optional(
+        "script_tests/test_run_p1_external_backend_evidence_attempt.py"
+    )
+    p1_external_backend_evidence_attempt_manifest = read_optional(
+        "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json"
     )
     real_threshold_backend_capture_schema_fixture = read_optional(
         "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
@@ -3370,6 +3411,32 @@ def scan_documents(root):
                 "evidence_present_unclosed",
             ]
         )
+        and all(
+            token in backend_emission_request_manifest
+            for token in [
+                "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+                "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+                "\"request_status\": \"evidence_present_unclosed\"",
+                "\"request_sha256\"",
+            ]
+        )
+        and all(
+            token in backend_emission_request_json
+            for token in [
+                "\"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\"",
+                "\"name\": \"p1-real-threshold-backend-emission-request-001\"",
+                "\"validator_count\": 10000",
+                "\"threshold\": 6667",
+                "\"aggregate_signature_len\": 3309",
+                "\"selected_profile_binding_digest_hex\"",
+                "\"threshold_output_certificate_digest_hex\"",
+                "\"standard_verifier_compatibility_artifact_digest_hex\"",
+                "\"backend_evidence\": \"real_threshold_mldsa_external_capture\"",
+                "\"mutated_message_rejected\": true",
+                "\"mutated_public_key_rejected\": true",
+                "\"mutated_signature_rejected\": true",
+            ]
+        )
     )
     p1_real_threshold_backend_request_capture_binding_gate = (
         p1_real_threshold_backend_emission_request_gate
@@ -3579,6 +3646,60 @@ def scan_documents(root):
                 "\"claims_selected_backend_proof_closure\": false",
                 "actual external nonce capture is not ready",
                 "real threshold backend emission capture is missing",
+            ]
+        )
+    )
+    p1_external_backend_evidence_attempt_gate = (
+        p1_external_backend_cryptographic_closure_candidate_gate
+        and all(
+            token in p1_external_backend_evidence_attempt_runner
+            for token in [
+                "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+                "p1-external-backend-evidence-attempt-v1",
+                "external_evidence_close_candidate_ready",
+                "blocked_external_evidence_missing",
+                "FORBIDDEN_SOURCE_MARKERS",
+                "source_marker_blockers",
+                "strict_external_nonce_capture_ready",
+                "real_threshold_emission_present",
+                "standard_verifier_acceptance_present",
+                "mutation_rejection_complete",
+                "rejection_distribution_comparison_present",
+                "comparison_close_candidate",
+                "source_exclusion_passed",
+                "claims_theorem_closure",
+                "claims_rejection_distribution_preservation",
+                "claims_selected_backend_proof_closure",
+                "not theorem closure",
+            ]
+        )
+        and all(
+            token in p1_external_backend_evidence_attempt_test
+            for token in [
+                "test_missing_external_inputs_write_blocked_attempt_and_candidate",
+                "test_complete_external_bundle_writes_ready_candidate_without_closure_claims",
+                "test_rejects_hazmat_or_simulation_source_markers_before_candidate_ready",
+                "test_strict_main_returns_two_until_close_candidate_ready",
+                "blocked_external_evidence_missing",
+                "external_evidence_close_candidate_ready",
+                "source_exclusion_passed",
+                "claims_theorem_closure",
+                "claims_rejection_distribution_preservation",
+            ]
+        )
+        and all(
+            token in p1_external_backend_evidence_attempt_manifest
+            for token in [
+                "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+                "p1-external-backend-evidence-attempt-v1",
+                "\"attempt_status\": \"blocked_external_evidence_missing\"",
+                "\"close_candidate\": false",
+                "\"source_exclusion_passed\": false",
+                "\"claims_theorem_closure\": false",
+                "\"claims_rejection_distribution_preservation\": false",
+                "\"claims_selected_backend_proof_closure\": false",
+                "actual external nonce capture is not ready",
+                "repo_reference_cli_capture",
             ]
         )
     )
@@ -3816,6 +3937,9 @@ def scan_documents(root):
         ),
         "p1_external_backend_cryptographic_closure_candidate_gate": (
             p1_external_backend_cryptographic_closure_candidate_gate
+        ),
+        "p1_external_backend_evidence_attempt_gate": (
+            p1_external_backend_evidence_attempt_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -4385,16 +4509,20 @@ def classify_criteria(criteria, scan):
                 partial_progress = True
                 observed.append(
                     "A repo-generated real-threshold backend emission request "
-                    "manifest is present for P1; it writes the P1 challenge "
-                    "contract that an external backend must answer, including "
-                    "10,000 validators, threshold 6,667, message bytes, "
-                    "predecessor certificate digests, required capture schema, "
-                    "external RealThresholdMldsa evidence class, mutation "
-                    "rejection requirements, and forbidden localnet/simulation "
-                    "capture sources. This is evidence_present_unclosed "
-                    "conformance/proof-review evidence only, does not change "
-                    "aggregate_rejection_equivalence from partially_met, and "
-                    "does not change the overall verdict from partially_proven."
+                    "artifact is present for P1 at "
+                    "artifacts/backend-emission-request/latest/request.json; "
+                    "it writes the P1 challenge contract that an external "
+                    "backend must answer, including 10,000 validators, "
+                    "threshold 6,667, message bytes, predecessor certificate "
+                    "digests, required capture schema, external "
+                    "RealThresholdMldsa evidence class, mutation rejection "
+                    "requirements, forbidden localnet/simulation capture "
+                    "sources, and a request SHA-256 recorded in "
+                    "artifacts/backend-emission-request/latest/manifest.json. "
+                    "This is evidence_present_unclosed conformance/proof-review "
+                    "evidence only, does not change aggregate_rejection_equivalence "
+                    "from partially_met, and does not change the overall verdict "
+                    "from partially_proven."
                 )
             if scan.get("p1_real_threshold_backend_request_capture_binding_gate"):
                 partial_progress = True
@@ -4488,6 +4616,23 @@ def classify_criteria(criteria, scan):
                     "close the theorem or move aggregate_rejection_equivalence "
                     "beyond partially_met until the actual external backend "
                     "captures and proof review are present."
+                )
+            if scan.get("p1_external_backend_evidence_attempt_gate"):
+                partial_progress = True
+                observed.append(
+                    "A Batch 8 external-backend evidence attempt runner is "
+                    "present. It groups the strict actual external nonce gate, "
+                    "real-threshold backend emission capture, standard-verifier "
+                    "acceptance evidence, mutation rejection evidence, "
+                    "rejection-distribution comparison, and source_exclusion_passed "
+                    "guard into the Batch 7 close_candidate artifact. The current "
+                    "checked attempt is blocked_external_evidence_missing and "
+                    "keeps claims_theorem_closure, "
+                    "claims_rejection_distribution_preservation, and "
+                    "claims_selected_backend_proof_closure false; it does not "
+                    "close the theorem or move aggregate_rejection_equivalence "
+                    "beyond partially_met until real external inputs and proof "
+                    "review replace the blocked slots."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

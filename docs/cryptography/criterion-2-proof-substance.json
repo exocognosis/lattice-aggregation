@@ -184,6 +184,9 @@
         "backend_output_adapter": "derive_p1_verified_real_threshold_backend_emission_artifact_package",
         "backend_emission_request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
         "backend_emission_request_builder": "scripts/build_backend_emission_request.py",
+        "backend_emission_request_artifact": "artifacts/backend-emission-request/latest/request.json",
+        "backend_emission_request_manifest": "artifacts/backend-emission-request/latest/manifest.json",
+        "backend_emission_request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
         "backend_emission_request_status": "evidence_present_unclosed",
         "backend_emission_request_claim_boundary": "conformance/proof-review evidence only",
         "backend_request_capture_binding": "capture embeds request schema, request name, and request_sha256; runner rejects missing, stale, or mismatched request bindings",
@@ -219,6 +222,30 @@
         ],
         "certificate_surface": "p1_external_backend_cryptographic_closure_candidate_certificate",
         "certificate_accessor": "candidate_artifact_digest",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "claims_theorem_closure": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false
+      },
+      {
+        "id": "external_backend_evidence_attempt",
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_external_backend_evidence_attempt_gate",
+        "artifact_package": "p1_external_backend_evidence_attempt_artifact",
+        "artifact_schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+        "artifact_path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+        "runner": "scripts/run_p1_external_backend_evidence_attempt.py",
+        "attempt_status": "blocked_external_evidence_missing",
+        "close_candidate": false,
+        "source_exclusion_passed": false,
+        "requires": [
+          "strict actual external nonce-producer gate",
+          "request-bound real-threshold backend emission capture",
+          "standard-verifier acceptance evidence",
+          "complete mutation-rejection evidence",
+          "distributed-nonce-prf-output-shares rejection-distribution comparison",
+          "source exclusion for hazmat/simulation/localnet/fixture/single-key/repo-reference capture sources"
+        ],
         "claim_boundary": "conformance/proof-review evidence only",
         "claims_theorem_closure": false,
         "claims_rejection_distribution_preservation": false,
@@ -354,6 +381,15 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "slot_id": "external_backend_evidence_attempt",
+        "fixture_path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+        "current_status": "blocked_external_evidence_missing",
+        "close_candidate": false,
+        "source_exclusion_passed": false,
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -405,6 +441,7 @@
     "reviewed rejection-distribution preservation argument",
     "reviewed standard-verifier compatibility argument",
     "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
+    "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true",
     "theorem-linkage review"
   ],
   "failure_conditions": [
@@ -434,6 +471,8 @@
     "scripts/stage_external_nonce_producer_capture.py",
     "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
     "script_tests/test_build_p1_external_backend_cryptographic_closure_candidate.py",
+    "scripts/run_p1_external_backend_evidence_attempt.py",
+    "script_tests/test_run_p1_external_backend_evidence_attempt.py",
     "scripts/run_nonce_producer_handoff_replay.py",
     "artifacts/nonce-producer-handoff/latest/manifest.json",
     "artifacts/nonce-producer-handoff/latest/request/request.json",
@@ -444,6 +483,13 @@
     "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
     "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md",
     "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS",
+    "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+    "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
+    "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+    "artifacts/backend-emission-request/latest/request.json",
+    "artifacts/backend-emission-request/latest/manifest.json",
+    "artifacts/backend-emission-request/latest/summary.md",
+    "artifacts/backend-emission-request/latest/SHA256SUMS",
     "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
@@ -468,7 +514,14 @@
       "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md",
       "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md",
-      "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS"
+      "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS",
+      "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+      "artifacts/p1-external-backend-evidence-attempt/latest/summary.md": "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
+      "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS": "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+      "artifacts/backend-emission-request/latest/request.json": "artifacts/backend-emission-request/latest/request.json",
+      "artifacts/backend-emission-request/latest/manifest.json": "artifacts/backend-emission-request/latest/manifest.json",
+      "artifacts/backend-emission-request/latest/summary.md": "artifacts/backend-emission-request/latest/summary.md",
+      "artifacts/backend-emission-request/latest/SHA256SUMS": "artifacts/backend-emission-request/latest/SHA256SUMS"
     }
   },
   "external_capture_provenance_requirements": [
@@ -487,7 +540,10 @@
     "actual_external_nonce_capture_manifest_sha256",
     "real_threshold_backend_emission_capture_sha256",
     "rejection_distribution_batch_sha256",
-    "closure_candidate_manifest_sha256"
+    "closure_candidate_manifest_sha256",
+    "external_backend_evidence_attempt_manifest_sha256",
+    "backend_emission_request_manifest_sha256",
+    "source_exclusion_passed"
   ],
   "assessment": {
     "criterion_status": "partially_met",
@@ -496,6 +552,10 @@
     "report_status": "criterion2_proof_payload_formalized",
     "batch7_external_backend_closure_candidate_status": "evidence_present_unclosed",
     "batch7_external_backend_close_candidate": false,
-    "batch7_claim_boundary": "conformance/proof-review evidence only"
+    "batch7_claim_boundary": "conformance/proof-review evidence only",
+    "batch8_external_backend_evidence_attempt_status": "blocked_external_evidence_missing",
+    "batch8_external_backend_close_candidate": false,
+    "batch8_source_exclusion_passed": false,
+    "batch8_claim_boundary": "conformance/proof-review evidence only"
   }
 }

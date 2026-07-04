@@ -1,7 +1,7 @@
 {
-  "branch": "codex/p1-external-backend-closure-candidate",
+  "branch": "codex/p1-real-external-evidence-attempt",
   "claim_boundary": "research scaffold only",
-  "commit": "380dce34ac92c915e5dfa0ca936a05e17d548c2c",
+  "commit": "0e196a5f70617e325001792b7b18e225555453b8",
   "criteria": [
     {
       "blocker_count": 3,
@@ -12,7 +12,7 @@
     {
       "blocker_count": 12,
       "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 30,
+      "observed_evidence_count": 31,
       "status": "partially_met"
     },
     {
@@ -93,6 +93,7 @@
           "challenge_bound_artifact_digest",
           "distributed_nonce_producer_artifact_digest",
           "external_backend_cryptographic_closure_candidate",
+          "external_backend_evidence_attempt",
           "external_review_digest",
           "full_kat_validation_artifact_digest",
           "hint_bound_artifact_digest",

@@ -266,6 +266,16 @@ The checked manifest is still `close_candidate = false` because those actual
 external evidence slots are not all present. A future `close_candidate = true`
 manifest would be closure-candidate evidence for review, not a completed theorem
 proof or a claim of rejection-distribution preservation.
+Batch 8 adds the grouped execution layer:
+`scripts/run_p1_external_backend_evidence_attempt.py` writes
+`artifacts/p1-external-backend-evidence-attempt/latest/manifest.json` after
+running the Batch 7 candidate builder over the strict nonce gate, backend
+emission capture, verifier/mutation evidence, and rejection batch. Its current
+status is `blocked_external_evidence_missing`; `source_exclusion_passed = false`
+because the available nonce path is still `repo_reference_cli_capture`. A future
+ready attempt requires both `close_candidate = true` and
+`source_exclusion_passed = true`, while keeping theorem-closure and
+rejection-distribution-preservation claims false until external proof review.
 The selected replacement route is now tracked in
 [`p1-nonce-producer-selection.md`](p1-nonce-producer-selection.md) as
 `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`; Criterion 2 now
