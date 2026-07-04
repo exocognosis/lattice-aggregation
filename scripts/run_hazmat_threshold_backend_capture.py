@@ -86,7 +86,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let seed =
         core::array::from_fn(|index| (index as u8).wrapping_mul(43).wrapping_add(21));
     let source_package = format!(
-        "dytallix-pq-threshold hazmat-real-mldsa request_sha256={}",
+        "dytallix-pq-threshold raw-real-mldsa request_sha256={}",
         request_sha256
     );
     let implementation = "threshold session external-pure mu bridge using Shamir expanded-key shares, quorum masking contributions, quorum secret contributions, backend external verifier, and PR69 HazmatMldsa65Provider";
@@ -150,7 +150,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let transcript = json!({
-        "backend": "dytallix-pq-threshold hazmat-real-mldsa",
+        "backend": "dytallix-pq-threshold raw-real-mldsa",
         "validator_count": request.validator_count,
         "threshold": request.threshold,
         "accepted_attempt_id": accepted_attempt_id,
@@ -407,13 +407,13 @@ def write_emitter_project(work_dir, repo_root, backend_crate):
             (
                 "dytallix-pq-threshold = { "
                 f"path = {toml_path(backend_crate)}, "
-                'features = ["hazmat-real-mldsa"], '
+                'features = ["raw-real-mldsa"], '
                 "default-features = false }"
             ),
             (
                 "lattice-aggregation = { "
                 f"path = {toml_path(repo_root)}, "
-                'features = ["hazmat-real-mldsa"], '
+                'features = ["raw-real-mldsa"], '
                 "default-features = false }"
             ),
             'serde = { version = "1", features = ["derive"] }',
@@ -478,7 +478,7 @@ def parse_args(argv):
         "--backend-crate",
         default=os.environ.get("LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE"),
         help=(
-            "path to a dytallix-pq-threshold checkout with hazmat-real-mldsa; "
+            "path to a dytallix-pq-threshold checkout with raw-real-mldsa; "
             "also read from LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE"
         ),
     )

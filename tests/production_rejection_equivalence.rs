@@ -18,7 +18,9 @@ use lattice_aggregation::{
             assess_p1_selected_backend_proof_closure_artifact,
             assess_p1_selected_backend_threshold_output_artifact,
             assess_p1_standard_verifier_compatibility_artifact,
-            assess_rejection_equivalence_closure, derive_p1_criterion2_proof_slot_artifact_digest,
+            assess_rejection_equivalence_closure,
+            derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share,
+            derive_p1_criterion2_proof_slot_artifact_digest,
             derive_p1_criterion2_proof_slot_artifacts,
             derive_p1_distributed_nonce_producer_artifact_digest,
             derive_p1_distributed_nonce_producer_artifact_package,
@@ -44,16 +46,17 @@ use lattice_aggregation::{
             derive_p1_verified_real_threshold_backend_emission_artifact_package,
             derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture,
             derive_p1_verified_real_threshold_backend_emission_capture,
-            derive_standard_verifier_bridge_evidence_digest, AcvpFips204EvidenceSource,
+            derive_standard_verifier_bridge_evidence_digest,
+            split_mldsa65_distributed_nonce_prf_output, AcvpFips204EvidenceSource,
             AggregateRecomputationTranscript, AggregateRejectionClosureAssessment,
             AggregateRejectionClosurePackage, AggregateRejectionClosureStatus,
             AggregateRejectionConformanceBoundary, AggregateRejectionEquivalenceEvidence,
             AggregateRejectionEquivalenceGate, AggregateRejectionEvidenceDigest,
-            AggregateRejectionEvidenceStrength, Mldsa65DistributedNonceProducerArtifact,
-            Mldsa65ProviderKatEvidence, P1AggregateRecomputationAssessment,
-            P1AggregateRecomputationClosureCertificate, P1AggregateRecomputationClosurePackage,
-            P1Criterion2ProofSlotArtifactKind, P1Criterion2ProofSlotArtifactSources,
-            P1DistributedNonceProducerArtifactAssessment,
+            AggregateRejectionEvidenceStrength, Mldsa65DistributedNoncePrfOutputShare,
+            Mldsa65DistributedNonceProducerArtifact, Mldsa65ProviderKatEvidence,
+            P1AggregateRecomputationAssessment, P1AggregateRecomputationClosureCertificate,
+            P1AggregateRecomputationClosurePackage, P1Criterion2ProofSlotArtifactKind,
+            P1Criterion2ProofSlotArtifactSources, P1DistributedNonceProducerArtifactAssessment,
             P1DistributedNonceProducerArtifactPackage, P1DistributedNonceProducerCapture,
             P1DistributedNonceProducerClaimBoundary, P1DistributedNonceProducerEvidence,
             P1DistributedNonceProducerRequestDigestBinding,
@@ -92,7 +95,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use sha3::{Digest, Sha3_256};
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 use lattice_aggregation::production::rejection_equivalence::{
     derive_p1_real_recomputation_evidence_digest,
     derive_p1_selected_backend_aggregate_artifact_package,
@@ -114,9 +117,70 @@ const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_PACKAGE
     "0cb401b91c79a1e0803fb2bf53fc5af89355e85642f42ca94283990874e70976";
 const EXPECTED_P1_NONCE_PRODUCER_HANDOFF_REPLAY_ARTIFACT_DIGEST_HEX: &str =
     "69276321cc84439a43fa73dd0f3db5311779b13fed9a93f7125de0e76dfb4ffb";
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 const EXPECTED_P1_STANDARD_PROVIDER_SINGLE_KEY_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "56de4e8bb21b601c1985483b469fd4fc9d591efbb015fd08852574a821eb9074";
+    "0177b6a03ac1be89f49e3ef0438385a5280c940c54e95382df1fb1b10fdadf36";
+
+#[test]
+fn distributed_nonce_prf_output_import_splits_and_binds_masking_contributions() {
+    let request_sha256 = [0xA5; 32];
+    let validators = [ValidatorId(11), ValidatorId(12), ValidatorId(13)];
+    let producer_output = (0u8..96).collect::<Vec<_>>();
+
+    let shares: Vec<Mldsa65DistributedNoncePrfOutputShare> =
+        split_mldsa65_distributed_nonce_prf_output(request_sha256, &producer_output, &validators)
+            .expect("externally emitted share stream should split by validator");
+
+    assert_eq!(shares.len(), validators.len());
+    assert_eq!(shares[0].validator(), ValidatorId(11));
+    assert_eq!(shares[0].request_sha256(), request_sha256);
+    assert_eq!(shares[0].share_index(), 0);
+
+    let mut expected_first_share = [0u8; 32];
+    expected_first_share.copy_from_slice(&producer_output[..32]);
+    assert_eq!(shares[0].output_share(), expected_first_share);
+    assert_ne!(shares[0].commitment_digest(), [0u8; 32]);
+
+    let first_mask =
+        derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(&shares[0]);
+    let second_mask =
+        derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(&shares[1]);
+    assert_ne!(first_mask, second_mask);
+
+    let repeat =
+        split_mldsa65_distributed_nonce_prf_output(request_sha256, &producer_output, &validators)
+            .expect("same external share stream should replay identically");
+    assert_eq!(shares, repeat);
+    assert_eq!(
+        first_mask,
+        derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(&repeat[0])
+    );
+
+    let short_output_err = split_mldsa65_distributed_nonce_prf_output(
+        request_sha256,
+        &producer_output[..95],
+        &validators,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        short_output_err,
+        ThresholdError::MalformedSerialization { reason }
+            if reason == "P1 distributed nonce PRF output length does not match validator set"
+    ));
+
+    let duplicate_validator_err = split_mldsa65_distributed_nonce_prf_output(
+        request_sha256,
+        &producer_output,
+        &[ValidatorId(11), ValidatorId(11), ValidatorId(13)],
+    )
+    .unwrap_err();
+    assert_eq!(
+        duplicate_validator_err,
+        ThresholdError::DuplicateValidator {
+            validator: ValidatorId(11),
+        }
+    );
+}
 
 struct AcceptingProvider;
 
@@ -204,7 +268,7 @@ fn real_threshold_backend_emission_capture_schema_fixture() -> P1RealThresholdBa
     .expect("P1 real-threshold backend emission capture schema fixture should parse")
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn standard_provider_single_key_emission_artifact_fixture(
 ) -> P1StandardProviderSingleKeyEmissionArtifactFixture {
     serde_json::from_str(include_str!(
@@ -294,7 +358,7 @@ fn real_threshold_backend_emission_capture_schema_fixture_package_digest() -> [u
     hasher.finalize().into()
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn standard_provider_single_key_emission_artifact_fixture_package_digest() -> [u8; 32] {
     let mut hasher = Sha3_256::new();
     hasher.update(
@@ -580,7 +644,7 @@ struct P1RealThresholdBackendEmissionArtifactFixture {
     expected: RealThresholdBackendEmissionExpectedDigests,
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[derive(Deserialize)]
 struct P1StandardProviderSingleKeyEmissionArtifactFixture {
     name: String,
@@ -650,7 +714,7 @@ struct RealThresholdBackendEmissionCaptureFixture {
     reviewed: bool,
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[derive(Deserialize)]
 struct StandardProviderSingleKeyEmissionCaptureFixture {
     validator_count: u32,
@@ -750,7 +814,7 @@ struct RealThresholdBackendEmissionExpectedDigests {
     accepted_signature_digest_hex: String,
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[derive(Deserialize)]
 struct StandardProviderSingleKeyEmissionExpectedDigests {
     selected_profile_binding_digest_hex: String,
@@ -1084,7 +1148,7 @@ impl RealThresholdBackendEmissionExpectedDigests {
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl StandardProviderSingleKeyEmissionExpectedDigests {
     fn selected_profile_binding_digest(&self) -> [u8; 32] {
         decode_hex_array(&self.selected_profile_binding_digest_hex)
@@ -1246,21 +1310,21 @@ fn signature_from_fill_byte(byte: u8) -> ThresholdSignature {
     ThresholdSignature([byte; 3309])
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn threshold_public_key_from(encoded: &[u8]) -> ThresholdPublicKey {
     let mut bytes = [0u8; 1952];
     bytes.copy_from_slice(encoded);
     ThresholdPublicKey(bytes)
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn threshold_signature_from(encoded: &[u8]) -> ThresholdSignature {
     let mut bytes = [0u8; 3309];
     bytes.copy_from_slice(encoded);
     ThresholdSignature(bytes)
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn real_mldsa_transcript(
     public_key: ThresholdPublicKey,
     application_message: &[u8],
@@ -1289,7 +1353,7 @@ fn real_mldsa_transcript(
     .unwrap()
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn real_mldsa_accepted_partials(
     transcript: &ProductionSigningTranscript,
 ) -> Vec<lattice_aggregation::production::acceptance::AcceptedPartialContribution> {
@@ -2506,7 +2570,7 @@ fn real_threshold_backend_capture_json_rejects_unsupported_byte_encoding() {
     );
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn standard_provider_single_key_emission_fixture_verifies_real_mldsa_but_cannot_replace_threshold_backend_evidence(
 ) {
@@ -4124,7 +4188,7 @@ fn p1_recomputation_certificate() -> P1AggregateRecomputationClosureCertificate 
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn p1_recomputation_certificate_for_output(
     standard_verifier_bridge_evidence_digest: [u8; 32],
     real_recomputation_evidence_digest: [u8; 32],
@@ -4555,7 +4619,7 @@ fn real_threshold_backend_evidence_digest(
     hasher.finalize().into()
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn standard_provider_single_key_backend_evidence_digest(
     fixture: &P1StandardProviderSingleKeyEmissionArtifactFixture,
 ) -> [u8; 32] {
@@ -4636,7 +4700,7 @@ fn real_threshold_backend_emission_artifact_package_from_fixture(
     )
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn standard_provider_single_key_emission_artifact_package_from_fixture(
     emission_fixture: &P1StandardProviderSingleKeyEmissionArtifactFixture,
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
@@ -4811,7 +4875,7 @@ fn p1_selected_backend_aggregate_artifact_accepts_bound_acceptance_and_recomputa
     assert!(!certificate.claims_completed_cryptographic_proof());
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn p1_selected_backend_aggregate_artifact_accepts_real_mldsa_output_package() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;
@@ -4905,7 +4969,7 @@ fn p1_selected_backend_aggregate_artifact_accepts_real_mldsa_output_package() {
     assert!(!certificate.claims_completed_cryptographic_proof());
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn p1_selected_backend_threshold_output_artifact_accepts_real_mldsa_package() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;
@@ -5035,7 +5099,7 @@ fn p1_selected_backend_threshold_output_artifact_accepts_real_mldsa_package() {
     assert!(!certificate.claims_completed_cryptographic_proof());
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn p1_selected_backend_aggregate_artifact_deriver_rejects_stale_recomputation_output() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;

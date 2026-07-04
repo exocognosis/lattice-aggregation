@@ -22,9 +22,14 @@ EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
 )
 CAPTURE_SOURCE_PROFILE_EXTERNAL = "admissible_external_backend_capture"
 CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY = "quarantined_local_schema_replay"
+CAPTURE_SOURCE_PROFILE_REFERENCE_CLI = "repo_reference_cli_capture"
 QUARANTINED_LOCAL_REPLAY_TOKENS = (
     "emit_reviewed_nonce_producer_capture.py",
     "emit_reviewed_nonce_producer_capture",
+)
+REFERENCE_CLI_TOKENS = (
+    "p1_nonce_producer_reference_cli.py",
+    "p1_nonce_producer_reference_cli",
 )
 FORBIDDEN_BACKEND_COMMAND_TOKENS = (
     "localnet",
@@ -177,6 +182,12 @@ def is_quarantined_local_replay_command(command):
     return any(token in command_text for token in QUARANTINED_LOCAL_REPLAY_TOKENS)
 
 
+def is_reference_cli_command(command):
+    """Return true for the repo-owned reference CLI that exercises the contract."""
+    command_text = " ".join(command).lower()
+    return any(token in command_text for token in REFERENCE_CLI_TOKENS)
+
+
 def validate_capture_source_profile(command, allow_quarantined_replay=False):
     """Classify command source as external or quarantined local schema replay."""
     if is_quarantined_local_replay_command(command):
@@ -186,12 +197,27 @@ def validate_capture_source_profile(command, allow_quarantined_replay=False):
                 "external nonce-producer capture"
             )
         return CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY
+    if is_reference_cli_command(command):
+        return CAPTURE_SOURCE_PROFILE_REFERENCE_CLI
     return CAPTURE_SOURCE_PROFILE_EXTERNAL
 
 
 def quarantine_record(capture_source_profile):
     """Return capture quarantine metadata for the runner manifest."""
     quarantined = capture_source_profile == CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY
+    if capture_source_profile == CAPTURE_SOURCE_PROFILE_REFERENCE_CLI:
+        return {
+            "quarantined": True,
+            "reason": (
+                "repo reference CLI exercises the external process and JSON "
+                "contract but is not independently generated threshold "
+                "backend evidence"
+            ),
+            "allowed_use": (
+                "reference CLI handoff replay only; not actual backend "
+                "evidence; not Criterion 2 closure evidence"
+            ),
+        }
     return {
         "quarantined": quarantined,
         "reason": (
@@ -465,9 +491,13 @@ def render_summary(generated_at, metadata, manifest):
             f"- Claim boundary: `{manifest['claim_boundary']}`",
         ]
     if manifest["quarantine"]["quarantined"]:
-        lines.append(
-            "- Quarantine: `quarantined local schema/importer replay only`"
+        quarantine_label = (
+            "quarantined local schema/importer replay only"
+            if manifest["capture_source_profile"]
+            == CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY
+            else manifest["quarantine"]["allowed_use"]
         )
+        lines.append(f"- Quarantine: `{quarantine_label}`")
     lines.extend(
         [
             "",

@@ -1,4 +1,4 @@
-#![cfg(any(feature = "coordinator-assisted", feature = "hazmat-real-mldsa"))]
+#![cfg(any(feature = "coordinator-assisted", feature = "raw-real-mldsa"))]
 
 use lattice_aggregation::{
     production::provider::{StandardMldsa65Provider, UnavailableMldsa65Provider},
@@ -18,7 +18,7 @@ fn unavailable_provider_fails_closed() {
     );
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn hazmat_provider_verifies_mldsa65_signature_from_fixed_seed() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;
@@ -36,7 +36,7 @@ fn hazmat_provider_verifies_mldsa65_signature_from_fixed_seed() {
     );
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn hazmat_provider_rejects_mutated_message_and_signature() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;
@@ -60,7 +60,7 @@ fn hazmat_provider_rejects_mutated_message_and_signature() {
     );
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn hazmat_provider_verifies_mldsa65_kats() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;
@@ -146,21 +146,21 @@ fn hazmat_provider_verifies_mldsa65_kats() {
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn threshold_public_key_from(encoded: &[u8]) -> ThresholdPublicKey {
     let mut bytes = [0u8; 1952];
     bytes.copy_from_slice(encoded);
     ThresholdPublicKey(bytes)
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn threshold_signature_from(encoded: &[u8]) -> ThresholdSignature {
     let mut bytes = [0u8; 3309];
     bytes.copy_from_slice(encoded);
     ThresholdSignature(bytes)
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn decode_hex(hex: &str) -> Vec<u8> {
     assert!(
         hex.len().is_multiple_of(2),
@@ -177,7 +177,7 @@ fn decode_hex(hex: &str) -> Vec<u8> {
         .collect()
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn hex_nibble(byte: u8) -> u8 {
     match byte {
         b'0'..=b'9' => byte - b'0',

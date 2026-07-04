@@ -18,7 +18,7 @@ continue to use the stricter claim boundaries in
 [side-channel-boundary.md](side-channel-boundary.md).
 
 The repository also contains a non-default production coordinator candidate
-behind `coordinator-assisted` and `hazmat-real-mldsa` gates. That surface is a
+behind `coordinator-assisted` and `raw-real-mldsa` gates. That surface is a
 hazmat/conformance profile boundary only: the optional provider bridge can run
 standard ML-DSA-65 verification smoke checks, but it is not a production
 threshold ML-DSA security claim and does not establish aggregate threshold

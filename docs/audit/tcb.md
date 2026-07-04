@@ -7,7 +7,7 @@ Date: 2026-05-26
 This document identifies what a reviewer would need to trust for the current
 research scaffold and the non-default production-candidate skeleton. The
 production-candidate surfaces exist under `coordinator-assisted` and
-`hazmat-real-mldsa`, but this document is a triage aid, not an audit result,
+`raw-real-mldsa`, but this document is a triage aid, not an audit result,
 certification statement, proof package, or production-readiness claim.
 There is an opt-in hazmat ML-DSA-65 provider verifier for ordinary signature
 conformance, including a bounded NIST ACVP-Server FIPS204 sample fixture. There
@@ -80,9 +80,9 @@ hazmat paths are compiled:
 - `simulated` is enabled by default and supports scaffold behavior only.
 - `coordinator-assisted` exposes a non-default coordinator profile boundary for
   hazmat conformance and review.
-- `hazmat-real-mldsa` exposes the production-candidate provider boundary and
+- `raw-real-mldsa` exposes the production-candidate provider boundary and
   KAT-gated skeleton.
-- `hazmat-real-mldsa` implies `hazmat`; neither gate should be treated as
+- `raw-real-mldsa` implies `hazmat`; neither gate should be treated as
   production approval.
 - No `experimental-vss` feature is declared in the current `Cargo.toml`.
 

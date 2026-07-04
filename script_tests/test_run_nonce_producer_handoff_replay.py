@@ -216,18 +216,28 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             out_dir = pathlib.Path(temp_dir) / "handoff"
             request_path = out_dir / "request" / "request.json"
+            readiness_path = pathlib.Path(temp_dir) / "blocked_readiness.json"
+            readiness = json.loads(
+                (
+                    ROOT
+                    / "artifacts"
+                    / "nonce-producer-backend-readiness"
+                    / "latest"
+                    / "manifest.json"
+                ).read_text(encoding="utf-8")
+            )
+            readiness["readiness_status"] = "backend_detected_not_admissible"
+            readiness["admissibility"]["admissible_for_p1_nonce_handoff"] = False
+            readiness["admissibility"]["detected_blockers"] = [
+                "hazmat feature present",
+            ]
+            readiness_path.write_text(json.dumps(readiness), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "backend readiness is not admissible"):
                 module.build_handoff(
                     ROOT,
                     out_dir,
                     backend_command=module.default_backend_command(request_path),
-                    backend_readiness=(
-                        ROOT
-                        / "artifacts"
-                        / "nonce-producer-backend-readiness"
-                        / "latest"
-                        / "manifest.json"
-                    ),
+                    backend_readiness=readiness_path,
                     generated_at="2026-07-03T00:00:00Z",
                 )
 

@@ -25,7 +25,7 @@
     },
     "backend_implementation": {
       "encoding": "utf8",
-      "value": "lattice-aggregation hazmat-real-mldsa provider path using ml-dsa-0.1.1; single-key standard-provider emission"
+      "value": "lattice-aggregation raw-real-mldsa provider path using ml-dsa-0.1.1; single-key standard-provider emission"
     },
     "backend_transcript": {
       "encoding": "utf8",
@@ -40,11 +40,11 @@
     "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
     "threshold_output_certificate_digest_hex": "5536ccec43018860ee5251e30685e7d68f27a1e4d94c1653546a2991b427be8a",
     "standard_verifier_compatibility_artifact_digest_hex": "0d8ccf4bf3d3dcfd8eb6d6a989b66fcd4e8737f31867257112e9ca0144ed1cd4",
-    "backend_evidence_digest_hex": "7555a9f944e84049407c0bc9389f29f1eabd27f30bccfef1e97924157df9970b",
+    "backend_evidence_digest_hex": "7c8deae35a94ac39acb87e439a68656fe11bd05a6bde8bef2580a909aecd8b37",
     "backend_source_package_digest_hex": "c94e5db8eb0fb3d8f595c8ef6770d97580c9cc3b69353bbd289701b1718d2cb9",
-    "backend_implementation_digest_hex": "30a6c1060c421abc8abcc8a174d4a8645c830c72c077efa9c032145fc14557bd",
+    "backend_implementation_digest_hex": "e969752e3ea7777d175d38a98f905bbf5c6cf2c299576a2bd6fb30880c103a5b",
     "backend_transcript_digest_hex": "2f6721c8d8dfbef12abca87d43276aea9751df38d678224df7660fe08f0d7cc3",
-    "artifact_digest_hex": "ccc1365e2a052b4f499d900f3986decaa9e7ce8554c19992bea0a8d91b9efe2b",
+    "artifact_digest_hex": "207d8058786f505989bb1a3a43930cb6f0b1fdf47321a4ea7fe1d88039fa73f5",
     "public_key_digest_hex": "75ddc31a6ca288bf242f884eaf50e0b07c95c5706413918379f45ba1a6958dbe",
     "message_digest_hex": "2e04238d7b1abc79980171015e5f754a87cb7bfd9e65f63670e6bf3d3b023e54",
     "transcript_binding_digest_hex": "86eb3bdb9f3e4f10414f8e6f44588c20a1e2adb2f70568f0c7ac8b51a9da194e",

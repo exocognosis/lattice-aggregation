@@ -66,9 +66,9 @@ The current checked readiness artifact is:
 
 - `artifacts/nonce-producer-backend-readiness/latest/manifest.json`
 
-It marks the local `dytallix-pq-threshold` candidate
-`backend_detected_not_admissible`; that is useful boundary evidence, not
-reviewed external nonce-producer evidence.
+It marks the checked backend profile
+`backend_candidate_admissible_pending_capture` with no detected blockers; that
+is useful boundary evidence, not reviewed external nonce-producer evidence.
 
 ## Capture Attempt Orchestrator
 
@@ -99,9 +99,51 @@ The current checked attempt artifact is:
 
 - `artifacts/nonce-producer-capture-attempt/latest/manifest.json`
 
-It is boundary evidence only. A blocked attempt proves the repo failed closed
-before capture; it does not prove Criterion 2, production threshold ML-DSA
-security, rejection-distribution preservation, or theorem closure.
+It is boundary evidence only. The checked Batch 2 artifact uses
+`scripts/p1_nonce_producer_reference_cli.py` and records `capture_promoted`
+with handoff source profile `repo_reference_cli_capture`. That reference CLI
+proves the request-bound external process, capture JSON, provenance, and Rust
+import path are wired. It is quarantined as not actual backend evidence and
+does not prove Criterion 2, production threshold ML-DSA security,
+rejection-distribution preservation, or theorem closure.
+
+## Reference CLI Replay
+
+The repo-owned reference CLI can exercise the exact command contract without
+requiring the final external backend binary:
+
+```bash
+python3 scripts/run_admissible_nonce_producer_capture_attempt.py \
+  --root . \
+  --out artifacts/nonce-producer-capture-attempt/latest \
+  --backend-crate . \
+  --backend-label lattice-aggregation-reference-cli \
+  --backend-command python3 scripts/p1_nonce_producer_reference_cli.py \
+    emit --request {request} --root .
+```
+
+The resulting handoff source profile is `repo_reference_cli_capture`, not
+`admissible_external_backend_capture`. This replay is suitable for CI and
+reviewing the executable handoff contract, but it cannot replace an
+independently generated reviewed threshold nonce-producer capture.
+
+## Actual External Gate
+
+Batch 3 adds a separate gate for the actual external backend slot:
+
+```bash
+python3 scripts/verify_actual_nonce_producer_capture.py \
+  --root . \
+  --attempt artifacts/nonce-producer-capture-attempt/latest/manifest.json \
+  --out artifacts/nonce-producer-actual-external-gate/latest
+```
+
+The gate accepts only a promoted handoff whose source profile is
+`admissible_external_backend_capture` and whose quarantine record is false. The
+current checked artifact is `actual_external_capture_missing` because the
+promoted handoff is `repo_reference_cli_capture`. Use `--strict` when a real
+external backend is available and CI should fail until the actual external slot
+is ready.
 
 ## Real Backend Handoff
 

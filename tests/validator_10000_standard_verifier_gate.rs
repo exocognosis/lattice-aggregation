@@ -21,7 +21,7 @@ fn simulated_10000_validator_aggregate_is_standard_sized_but_verifier_blocked() 
     );
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn hazmat_standard_verifier_rejects_simulated_10000_validator_aggregate() {
     use lattice_aggregation::production::provider::{

@@ -557,13 +557,13 @@ def write_emitter_project(work_dir, repo_root, backend_crate):
             (
                 "dytallix-pq-threshold = { "
                 f"path = {toml_path(backend_crate)}, "
-                'features = ["hazmat-real-mldsa"], '
+                'features = ["raw-real-mldsa"], '
                 "default-features = false }"
             ),
             (
                 "lattice-aggregation = { "
                 f"path = {toml_path(repo_root)}, "
-                'features = ["hazmat-real-mldsa"], '
+                'features = ["raw-real-mldsa"], '
                 "default-features = false }"
             ),
             'serde_json = "1"',
@@ -623,7 +623,7 @@ def parse_args(argv):
         "--backend-crate",
         default=os.environ.get("LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE"),
         help=(
-            "path to a dytallix-pq-threshold checkout with hazmat-real-mldsa; "
+            "path to a dytallix-pq-threshold checkout with raw-real-mldsa; "
             "also read from LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE"
         ),
     )

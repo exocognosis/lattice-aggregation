@@ -39,7 +39,7 @@ categories = ["cryptography", "simulation"]
 default = ["simulated"]
 simulated = []
 hazmat = []
-hazmat-real-mldsa = ["hazmat"]
+raw-real-mldsa = ["hazmat"]
 """
         source = """
 pub struct Mldsa65DistributedNoncePrfOutputShare;
@@ -217,6 +217,54 @@ class AdmissibleNonceProducerCaptureAttemptTests(unittest.TestCase):
         self.assertIn(str(out_dir / "handoff" / "request" / "request.json"), handoff["backend_command"])
         self.assertNotIn("{request}", handoff["backend_command"])
         self.assertEqual(report["handoff"]["manifest"], handoff)
+
+    def test_attempt_promotes_repo_reference_cli_without_claiming_external_backend(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            backend_crate = write_backend_crate(temp_root, hazmat=False)
+            out_dir = temp_root / "attempt"
+
+            report = module.build_attempt(
+                ROOT,
+                out_dir,
+                backend_crate=backend_crate,
+                backend_command=[
+                    sys.executable,
+                    str(ROOT / "scripts" / "p1_nonce_producer_reference_cli.py"),
+                    "--request",
+                    "{request}",
+                    "--root",
+                    str(ROOT),
+                ],
+                backend_label="repo-reference-cli-candidate",
+                generated_at="2026-07-03T00:00:00Z",
+            )
+
+            manifest = json.loads((out_dir / "manifest.json").read_text())
+            handoff = json.loads((out_dir / "handoff" / "manifest.json").read_text())
+            summary = (out_dir / "summary.md").read_text()
+            handoff_summary = (out_dir / "handoff" / "summary.md").read_text()
+
+        self.assertEqual(manifest["attempt_status"], "capture_promoted")
+        self.assertEqual(
+            manifest["handoff_source_profile"],
+            "repo_reference_cli_capture",
+        )
+        self.assertTrue(manifest["handoff_quarantine"]["quarantined"])
+        self.assertIn(
+            "not actual backend evidence",
+            manifest["handoff_quarantine"]["allowed_use"],
+        )
+        self.assertEqual(
+            handoff["handoff_source_profile"],
+            manifest["handoff_source_profile"],
+        )
+        self.assertIn("repo_reference_cli_capture", summary)
+        self.assertIn("not actual backend evidence", handoff_summary)
+        self.assertIn("does not prove Criterion 2", summary)
+        self.assertEqual(report["manifest"], manifest)
 
     def test_attempt_requires_request_placeholder_in_backend_command(self):
         module = load_module()

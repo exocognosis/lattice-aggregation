@@ -259,7 +259,13 @@ def render_summary(manifest):
         )
     lines.append(f"- Handoff source profile: `{manifest['handoff_source_profile']}`")
     if manifest["quarantine"]["quarantined"]:
-        lines.append("- Quarantine: `quarantined local schema/importer replay only`")
+        quarantine_label = (
+            "quarantined local schema/importer replay only"
+            if manifest["handoff_source_profile"]
+            == HANDOFF_SOURCE_PROFILE_QUARANTINED_REPLAY
+            else manifest["quarantine"]["allowed_use"]
+        )
+        lines.append(f"- Quarantine: `{quarantine_label}`")
     lines.extend(
         [
             "",

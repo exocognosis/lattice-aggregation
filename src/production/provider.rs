@@ -3,7 +3,7 @@
 use crate::{ThresholdError, ThresholdPublicKey, ThresholdSignature};
 use sha3::{Digest, Sha3_256};
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 use ml_dsa::{EncodedVerifyingKey, KeyInit, MlDsa65, Signature, VerifyingKey};
 
 /// Standard ML-DSA-65 verification provider.
@@ -60,11 +60,11 @@ impl StandardMldsa65Provider for UnavailableMldsa65Provider {
 }
 
 /// Hazmat provider wrapper for optional ML-DSA-65 KAT and smoke compatibility checks.
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct HazmatMldsa65Provider;
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl StandardMldsa65Provider for HazmatMldsa65Provider {
     fn verify(
         public_key: &ThresholdPublicKey,
@@ -75,7 +75,7 @@ impl StandardMldsa65Provider for HazmatMldsa65Provider {
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl HazmatMldsa65Provider {
     /// Verify a standard ML-DSA-65 signature over an application message and
     /// FIPS 204 context string.
@@ -93,7 +93,7 @@ impl HazmatMldsa65Provider {
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn decode_verifier_inputs(
     public_key: &ThresholdPublicKey,
     signature: &ThresholdSignature,

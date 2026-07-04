@@ -96,6 +96,7 @@ def attempt_manifest(
     handoff_sha256 = (
         sha256_path(handoff_manifest_path) if handoff_manifest_path else None
     )
+    handoff_manifest = load_json(handoff_manifest_path) if handoff_manifest_path else None
     return {
         "schema": ATTEMPT_SCHEMA,
         "schema_version": 1,
@@ -127,6 +128,12 @@ def attempt_manifest(
             else None
         ),
         "handoff_manifest_sha256": handoff_sha256,
+        "handoff_source_profile": (
+            handoff_manifest.get("handoff_source_profile") if handoff_manifest else None
+        ),
+        "handoff_quarantine": (
+            handoff_manifest.get("quarantine") if handoff_manifest else None
+        ),
         "closure_boundary": (
             "Capture-attempt orchestration only; an actual reviewed external "
             "threshold nonce producer and proof review remain required for "
@@ -159,6 +166,17 @@ def render_summary(manifest):
         )
     if manifest["handoff_manifest_path"]:
         lines.append(f"- Handoff manifest: `{manifest['handoff_manifest_path']}`")
+    if manifest.get("handoff_source_profile"):
+        lines.append(
+            f"- Handoff source profile: `{manifest['handoff_source_profile']}`"
+        )
+    handoff_quarantine = manifest.get("handoff_quarantine") or {}
+    if handoff_quarantine.get("quarantined"):
+        lines.append(
+            "- Handoff quarantine: `"
+            + handoff_quarantine["allowed_use"]
+            + "`"
+        )
     if manifest.get("capture_failure"):
         lines.append(
             f"- Capture failure phase: `{manifest['capture_failure']['phase']}`"

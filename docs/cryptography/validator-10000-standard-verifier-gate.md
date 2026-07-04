@@ -151,7 +151,7 @@ For the current hazmat threshold backend experiment, the repo-owned adapter is
 `scripts/run_hazmat_threshold_backend_capture.py`. The adapter requires an
 explicit `--backend-crate` path, or
 `LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE`, to a `dytallix-pq-threshold` checkout
-with `hazmat-real-mldsa`; it then generates a temporary Rust emitter, runs the
+with `raw-real-mldsa`; it then generates a temporary Rust emitter, runs the
 10,000-validator threshold session, bridges the session to the standard
 external-message verifier boundary, checks backend and repo-provider acceptance,
 checks mutated message/public-key/signature rejection, and prints canonical

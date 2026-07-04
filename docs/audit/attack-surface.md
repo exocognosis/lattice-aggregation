@@ -11,7 +11,7 @@ side-channel resistance.
 
 The current checkout exposes a default simulated scaffold plus non-default
 production-candidate skeleton surfaces under `coordinator-assisted` and
-`hazmat-real-mldsa`. Those skeleton surfaces are hazmat/conformance boundaries
+`raw-real-mldsa`. Those skeleton surfaces are hazmat/conformance boundaries
 only; they are not production threshold ML-DSA security, FIPS validation,
 audited backend evidence, or proof evidence. Reviewers should read this map
 together with the claim boundaries in
@@ -23,7 +23,7 @@ and the [release-readiness checklist](../benchmarks/release-readiness-checklist.
 ## First-Pass Review Order
 
 1. `Cargo.toml` feature gates: confirm which code exists under `simulated`,
-   `coordinator-assisted`, `hazmat`, and `hazmat-real-mldsa`.
+   `coordinator-assisted`, `hazmat`, and `raw-real-mldsa`.
 2. `src/adapter/wire.rs`: inspect canonical wire encoding, version handling,
    length checks, and message variants.
 3. `src/production/provider.rs`, `src/production/transcript.rs`,
@@ -52,7 +52,7 @@ and the [release-readiness checklist](../benchmarks/release-readiness-checklist.
 | default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure scaffold behavior cannot be described as production cryptography. | Research and simulation only. |
 | `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; not production threshold ML-DSA security. |
 | `hazmat` | Marker gate reserved for hazmat experiments | Ensure no production API silently depends on hazmat behavior. | Not a production assurance boundary. |
-| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, bounded ACVP sample fixture, context-aware hazmat verifier, and final verifier boundary before any compatibility language. | No production assurance boundary until full KAT, audit, proof, side-channel, validation, and release gates pass. |
+| `raw-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, bounded ACVP sample fixture, context-aware hazmat verifier, and final verifier boundary before any compatibility language. | No production assurance boundary until full KAT, audit, proof, side-channel, validation, and release gates pass. |
 
 Feature-gate risk is mainly claim confusion and accidental promotion. A reviewer
 should confirm that production-labeled constructors fail closed and that passing

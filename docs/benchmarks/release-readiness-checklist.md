@@ -23,7 +23,7 @@ review.
 
 The review must explicitly state whether it covers the default simulated
 backend, the non-default `coordinator-assisted` profile, the
-`hazmat-real-mldsa` production-candidate skeleton, or another backend not
+`raw-real-mldsa` production-candidate skeleton, or another backend not
 present in this checkout.
 
 For construction-selection review, the current selected production-candidate
@@ -74,7 +74,7 @@ migration candidates that require separate review.
 - Complete FIPS/ACVP-style ML-DSA-65 provider KATs for the selected provider
   and link the vectors, logs, tool versions, and reviewer sign-off.
 - Keep the checked-in NIST ACVP-Server FIPS204 `ML-DSA-sigVer` ML-DSA-65 sample
-  fixture passing under `hazmat-real-mldsa`, with source commit and SHA-256
+  fixture passing under `raw-real-mldsa`, with source commit and SHA-256
   digests recorded. Treat this as sample-vector conformance only; CAVP/ACVTS
   validation claims require lab/Prod-server vector sets, validation transcripts,
   certificate identifiers, prerequisite validation references, and reviewer

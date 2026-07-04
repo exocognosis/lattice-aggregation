@@ -1426,6 +1426,171 @@ pub struct P1DistributedNonceProducerRequestDigestBinding<'a> {
     pub request_sha256: [u8; 32],
 }
 
+/// Byte length for one imported ML-DSA-65 distributed nonce PRF output share.
+pub const MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES: usize = 32;
+
+const MLDSA65_DISTRIBUTED_NONCE_PRF_SHARE_COMMITMENT_DOMAIN: &[u8] =
+    b"lattice-aggregation:p1:distributed-nonce-prf-output-share-commitment:v1";
+const MLDSA65_DISTRIBUTED_NONCE_PRF_MASKING_CONTRIBUTION_DOMAIN: &[u8] =
+    b"lattice-aggregation:p1:distributed-nonce-prf-masking-contribution:v1";
+
+/// Imported output share from a reviewed ML-DSA-65 distributed nonce PRF producer.
+///
+/// This type is the repo-side handoff boundary for externally generated P1
+/// nonce material. It binds one producer-supplied output share to the request
+/// digest and validator identity; it does not generate nonce material inside
+/// this crate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Mldsa65DistributedNoncePrfOutputShare {
+    validator: ValidatorId,
+    request_sha256: [u8; 32],
+    share_index: u16,
+    output_share: [u8; MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES],
+    commitment_digest: [u8; 32],
+}
+
+impl Mldsa65DistributedNoncePrfOutputShare {
+    /// Construct a request-bound imported nonce PRF output share.
+    pub const fn new(
+        validator: ValidatorId,
+        request_sha256: [u8; 32],
+        share_index: u16,
+        output_share: [u8; MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES],
+        commitment_digest: [u8; 32],
+    ) -> Self {
+        Self {
+            validator,
+            request_sha256,
+            share_index,
+            output_share,
+            commitment_digest,
+        }
+    }
+
+    /// Return the validator associated with this imported share.
+    pub const fn validator(self) -> ValidatorId {
+        self.validator
+    }
+
+    /// Return the canonical request SHA-256 digest this share answers.
+    pub const fn request_sha256(self) -> [u8; 32] {
+        self.request_sha256
+    }
+
+    /// Return the canonical share index from the producer output stream.
+    pub const fn share_index(self) -> u16 {
+        self.share_index
+    }
+
+    /// Return the imported nonce PRF output share bytes.
+    pub const fn output_share(self) -> [u8; MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES] {
+        self.output_share
+    }
+
+    /// Return the request-bound commitment digest for this imported share.
+    pub const fn commitment_digest(self) -> [u8; 32] {
+        self.commitment_digest
+    }
+}
+
+/// Split externally emitted ML-DSA-65 distributed nonce PRF output into shares.
+///
+/// The input buffer must already be emitted by a reviewed P1 backend capture:
+/// one 32-byte output share per validator, ordered identically to
+/// `validators`. This function only normalizes those bytes into request-bound
+/// evidence objects for later import and masking-contribution derivation.
+pub fn split_mldsa65_distributed_nonce_prf_output(
+    request_sha256: [u8; 32],
+    producer_output: &[u8],
+    validators: &[ValidatorId],
+) -> Result<Vec<Mldsa65DistributedNoncePrfOutputShare>, ThresholdError> {
+    if validators.is_empty() {
+        return Err(ThresholdError::InvalidThresholdParameters {
+            threshold: 0,
+            total_nodes: 0,
+        });
+    }
+    let expected_len = validators
+        .len()
+        .checked_mul(MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES)
+        .ok_or(ThresholdError::MalformedSerialization {
+            reason: "P1 distributed nonce PRF output share length overflow",
+        })?;
+    if producer_output.len() != expected_len {
+        return Err(ThresholdError::MalformedSerialization {
+            reason: "P1 distributed nonce PRF output length does not match validator set",
+        });
+    }
+
+    let mut seen_validators = std::collections::BTreeSet::new();
+    let mut shares = Vec::with_capacity(validators.len());
+    for (offset, (validator, chunk)) in validators
+        .iter()
+        .copied()
+        .zip(producer_output.chunks_exact(MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES))
+        .enumerate()
+    {
+        if !seen_validators.insert(validator.0) {
+            return Err(ThresholdError::DuplicateValidator { validator });
+        }
+        let share_index =
+            u16::try_from(offset).map_err(|_| ThresholdError::InvalidThresholdParameters {
+                threshold: u16::MAX,
+                total_nodes: u16::MAX,
+            })?;
+        let mut output_share = [0u8; MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES];
+        output_share.copy_from_slice(chunk);
+        let commitment_digest = mldsa65_distributed_nonce_prf_share_commitment_digest(
+            request_sha256,
+            validator,
+            share_index,
+            &output_share,
+        );
+        shares.push(Mldsa65DistributedNoncePrfOutputShare::new(
+            validator,
+            request_sha256,
+            share_index,
+            output_share,
+            commitment_digest,
+        ));
+    }
+    Ok(shares)
+}
+
+/// Derive the request-bound masking contribution from an imported nonce PRF share.
+///
+/// This conversion binds the reviewed backend output share to the request,
+/// validator, share index, and commitment digest. It is intentionally separate
+/// from nonce generation so the admissible route remains an external backend
+/// capture followed by repo-side import checks.
+pub fn derive_mldsa65_distributed_nonce_prf_masking_contribution_from_share(
+    nonce_share: &Mldsa65DistributedNoncePrfOutputShare,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(MLDSA65_DISTRIBUTED_NONCE_PRF_MASKING_CONTRIBUTION_DOMAIN);
+    hasher.update(nonce_share.request_sha256);
+    hasher.update(nonce_share.validator.0.to_be_bytes());
+    hasher.update(nonce_share.share_index.to_be_bytes());
+    hasher.update(nonce_share.output_share);
+    hasher.update(nonce_share.commitment_digest);
+    hasher.finalize().into()
+}
+
+fn mldsa65_distributed_nonce_prf_share_commitment_digest(
+    request_sha256: [u8; 32],
+    validator: ValidatorId,
+    share_index: u16,
+    output_share: &[u8; MLDSA65_DISTRIBUTED_NONCE_PRF_OUTPUT_SHARE_BYTES],
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(MLDSA65_DISTRIBUTED_NONCE_PRF_SHARE_COMMITMENT_DOMAIN);
+    hasher.update(request_sha256);
+    hasher.update(validator.0.to_be_bytes());
+    hasher.update(share_index.to_be_bytes());
+    hasher.update(output_share);
+    hasher.finalize().into()
+}
+
 /// Canonical JSON schema tag for P1 distributed nonce-producer captures.
 pub const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SCHEMA: &str =
     "lattice-aggregation:p1-distributed-nonce-producer-capture:v1";
