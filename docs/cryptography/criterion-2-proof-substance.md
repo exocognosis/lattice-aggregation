@@ -143,6 +143,13 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `actual_external_capture_missing`: it requires
   `admissible_external_backend_capture` with quarantine false and rejects the
   current `repo_reference_cli_capture` as not actual backend evidence.
+  Batch 4 hardens the capture-runner source boundary: accepted external
+  captures now record `backend_command_origin =
+  outside_repo_executable_or_script`, while unmarked repo-local backend
+  wrappers are rejected before they can be classified as
+  `admissible_external_backend_capture`. This prevents a repo-local script from
+  satisfying the actual external slot, but it still does not supply the missing
+  independently generated nonce-DKG/TEE capture.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -355,7 +362,11 @@ process/JSON/import contract but is not actual backend evidence. The accepted
 actual-external gate artifact at
 `artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
 `actual_external_capture_missing`, so the distributed nonce-producer slot still
-cannot be treated as reviewed external backend evidence. The accepted
+cannot be treated as reviewed external backend evidence. The Batch 4
+command-origin guard rejects unmarked repo-local backend commands and records
+`outside_repo_executable_or_script` for accepted external commands, so the next
+capture must come from an independently installed backend outside the repo
+rather than another repo wrapper. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

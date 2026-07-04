@@ -5,8 +5,8 @@ This artifact builds the current repo request and replays the capture/import han
 - Request schema: `lattice-aggregation:p1-distributed-nonce-producer-request:v1`
 - Capture schema: `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
 - Request: `p1-reviewed-nonce-producer-request-001`
-- Request SHA-256: `ebb64173514bf6273e50dbd62ff5ad4e713ec20867ff9cca1c2a48886b1051d8`
-- Capture SHA-256: `18fb7229ae1d1cfa1933c9f385cb48156cf5764dfe0ef8b66a978d057d19b368`
+- Request SHA-256: `527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047`
+- Capture SHA-256: `66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64`
 - Producer evidence: `p1_shamir_nonce_dkg_tee_external_capture`
 - Handoff source profile: `quarantined_local_schema_replay`
 - Quarantine: `quarantined local schema/importer replay only`

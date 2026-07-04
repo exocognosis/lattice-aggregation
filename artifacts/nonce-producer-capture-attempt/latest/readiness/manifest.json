@@ -15,7 +15,7 @@
     "categories": [
       "cryptography"
     ],
-    "crate_path": "lattice-aggregation-reference-cli",
+    "crate_path": "lattice-aggregation-current",
     "default_features": [],
     "description": "Audit-oriented threshold ML-DSA-65 protocol boundary and reviewed nonce-producer handoff profile",
     "features": [
@@ -272,7 +272,7 @@
     "blocker_evidence": [],
     "remediation_order": []
   },
-  "generated_at": "2026-07-03T20:19:48Z",
+  "generated_at": "2026-07-04T04:10:56Z",
   "next_capture_command": [
     "python3",
     "scripts/run_nonce_producer_handoff_replay.py",
@@ -310,7 +310,7 @@
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
     "name": "p1-reviewed-nonce-producer-request-001",
     "request_path": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
-    "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
     "required_producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },

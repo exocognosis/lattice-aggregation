@@ -6,6 +6,6 @@ This request is the repo-generated challenge contract for an external P1 distrib
 - Request schema: `lattice-aggregation:p1-distributed-nonce-producer-request:v1`
 - Required capture schema: `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
 - Required producer evidence: `p1_shamir_nonce_dkg_tee_external_capture`
-- Request SHA-256: `ebb64173514bf6273e50dbd62ff5ad4e713ec20867ff9cca1c2a48886b1051d8`
+- Request SHA-256: `527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047`
 
 This request does not prove Criterion 2, rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.

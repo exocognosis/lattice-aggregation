@@ -12,9 +12,9 @@
     "package_name": "lattice-aggregation",
     "path": "artifacts/nonce-producer-capture-attempt/latest/readiness/manifest.json",
     "readiness_status": "backend_candidate_admissible_pending_capture",
-    "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
     "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
-    "sha256": "8472413555534fd1a326b3af7c9fd3126b8c33457c390914edc7cbeacecd19ca",
+    "sha256": "ab554865cb765e9a628b18683102807d9fd452ff740e18449ea1f2668b8fe0e2",
     "source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75"
   },
   "capture_artifacts": [
@@ -30,15 +30,15 @@
     "selected_profile"
   ],
   "capture_dir": "capture",
-  "capture_manifest_sha256": "2f0cf7cd1fc9c314b0a687c714ea31a27751fd99a09265c6fdaae7cdc9c1fdda",
+  "capture_manifest_sha256": "7c624ed97bd21a17900113f550a307e95fb4f53a6be318b95c92e64910df137a",
   "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-  "capture_sha256": "20594e85cb9bd296db1addc7a84d70a8d1f80f8365b27f71d7c00b6e30011015",
+  "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
   "claim_boundary": "conformance/proof-review evidence only",
   "closure_boundary": "Executable handoff replay only; a real external threshold backend capture and proof review remain required.",
   "external_capture_provenance": {
     "backend_command_sha256": "cfc6e24b497c03c8401a0bf4dba1d80b3e6d84f812db6ed69047ad84b41002a8",
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-    "capture_sha256": "20594e85cb9bd296db1addc7a84d70a8d1f80f8365b27f71d7c00b6e30011015",
+    "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
     "claim_boundary": "conformance/proof-review evidence only",
     "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
     "expected_digest_fields": [
@@ -64,11 +64,11 @@
     ],
     "request_name": "p1-reviewed-nonce-producer-request-001",
     "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-    "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
-  "generated_at": "2026-07-03T20:19:48Z",
+  "generated_at": "2026-07-04T04:10:56Z",
   "handoff_source_profile": "repo_reference_cli_capture",
   "handoff_status": "evidence_present_unclosed",
   "predecessors": {
@@ -94,10 +94,10 @@
     "selected_profile"
   ],
   "request_dir": "request",
-  "request_manifest_sha256": "45f29d7485c66db53620fca5326ae70730d2b9a6d846d0a720a46fab2fffd0a4",
+  "request_manifest_sha256": "2e8b4370e12a1a096bb5bd4964a969a6bf07caa0e5ca142825b4127797574fff",
   "request_name": "p1-reviewed-nonce-producer-request-001",
   "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-  "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+  "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
   "schema": "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"

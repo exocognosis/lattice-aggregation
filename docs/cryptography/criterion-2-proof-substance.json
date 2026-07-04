@@ -70,9 +70,12 @@
         "backend_capture_runner": "scripts/run_nonce_producer_capture.py",
         "backend_capture_runner_status": "evidence_present_unclosed",
         "backend_capture_runner_precondition": "external command emits canonical P1 distributed nonce-producer capture JSON and is not localnet, deterministic, fixture, hazmat, centralized, single-key provider material, or the quarantined local replay emitter",
+        "backend_capture_command_origin_guard": "repo-local backend command wrappers are rejected before they can be classified as admissible_external_backend_capture",
+        "backend_capture_required_command_origin": "outside_repo_executable_or_script",
         "backend_capture_source_profiles": [
           "admissible_external_backend_capture",
-          "quarantined_local_schema_replay"
+          "quarantined_local_schema_replay",
+          "repo_reference_cli_capture"
         ],
         "backend_cli_contract": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
         "backend_readiness_checker": "scripts/check_nonce_producer_backend_readiness.py",

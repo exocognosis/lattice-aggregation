@@ -56,7 +56,7 @@
   "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
   "request": {
     "name": "p1-reviewed-nonce-producer-request-001",
-    "request_sha256": "8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },
   "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",

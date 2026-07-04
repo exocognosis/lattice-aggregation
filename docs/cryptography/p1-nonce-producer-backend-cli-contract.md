@@ -145,6 +145,19 @@ promoted handoff is `repo_reference_cli_capture`. Use `--strict` when a real
 external backend is available and CI should fail until the actual external slot
 is ready.
 
+## External Command-Origin Guard
+
+Batch 4 hardens the external-command boundary. The capture runner records
+`backend_command_origin` and rejects an unmarked repo-local backend wrapper
+before it can be classified as `admissible_external_backend_capture`.
+
+Accepted actual-external commands must resolve to
+`outside_repo_executable_or_script`; repo-owned emitters remain either
+`quarantined_local_schema_replay` or `repo_reference_cli_capture`, and neither
+can satisfy the actual external backend slot. This is an intake guard only: a
+non-quarantined external command still has to emit a request-bound reviewed
+capture whose package digests import through the Rust gate.
+
 ## Real Backend Handoff
 
 For a real external backend, `scripts/run_nonce_producer_handoff_replay.py`

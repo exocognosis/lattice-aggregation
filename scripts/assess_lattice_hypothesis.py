@@ -2393,6 +2393,31 @@ def scan_documents(root):
             ]
         )
     )
+    p1_nonce_producer_external_origin_guard = (
+        p1_distributed_nonce_producer_capture_runner_gate
+        and all(
+            token in nonce_producer_capture_runner
+            for token in [
+                "COMMAND_ORIGIN_EXTERNAL",
+                "COMMAND_ORIGIN_REPO_LOCAL",
+                "backend_command_origin",
+                "backend_command_path_candidates",
+                "repo-local backend command",
+                "outside_repo_executable_or_script",
+                "repo_local_executable_or_script",
+            ]
+        )
+        and all(
+            token in nonce_producer_capture_runner_test
+            for token in [
+                "test_build_report_rejects_repo_local_wrapper_as_actual_external_backend",
+                "test_build_report_records_outside_repo_command_origin_for_external_backend",
+                "backend_command_origin",
+                "repo-local backend command",
+                "outside_repo_executable_or_script",
+            ]
+        )
+    )
     p1_nonce_producer_backend_readiness_gate = (
         p1_distributed_nonce_producer_capture_runner_gate
         and all(
@@ -3575,6 +3600,9 @@ def scan_documents(root):
         "p1_distributed_nonce_producer_capture_runner_gate": (
             p1_distributed_nonce_producer_capture_runner_gate
         ),
+        "p1_nonce_producer_external_origin_guard": (
+            p1_nonce_producer_external_origin_guard
+        ),
         "p1_nonce_producer_backend_readiness_gate": (
             p1_nonce_producer_backend_readiness_gate
         ),
@@ -3950,6 +3978,27 @@ def classify_criteria(criteria, scan):
                     "capture whose expected package digests can be imported "
                     "through the Rust gate before the hazmat PRF-output oracle "
                     "is replaced."
+                )
+            if scan.get("p1_nonce_producer_external_origin_guard"):
+                partial_progress = True
+                observed.append(
+                    "A P1 external command-origin guard is present in the "
+                    "nonce-producer capture runner; it records "
+                    "backend_command_origin as outside_repo_executable_or_script "
+                    "for accepted external commands and rejects an unmarked "
+                    "repo-local backend command before it can be classified as "
+                    "admissible_external_backend_capture. This hardens the "
+                    "actual-backend handoff boundary but remains "
+                    "evidence_present_unclosed and does not claim theorem "
+                    "closure, rejection-distribution preservation, or "
+                    "production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The external command-origin guard prevents repo-local "
+                    "wrappers from satisfying the actual external backend slot, "
+                    "but Criterion 2 still needs an independently installed "
+                    "backend command outside the repo to emit a reviewed, "
+                    "request-bound capture with non-quarantined provenance."
                 )
             if scan.get("p1_nonce_producer_backend_readiness_gate"):
                 partial_progress = True

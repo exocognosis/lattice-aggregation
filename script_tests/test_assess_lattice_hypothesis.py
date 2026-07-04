@@ -913,11 +913,17 @@ class ReportGenerationTests(unittest.TestCase):
             "RUNNER_STATUS = \"evidence_present_unclosed\"\n"
             "CAPTURE_SOURCE_PROFILE_EXTERNAL = \"admissible_external_backend_capture\"\n"
             "CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY = \"quarantined_local_schema_replay\"\n"
+            "COMMAND_ORIGIN_EXTERNAL = \"outside_repo_executable_or_script\"\n"
+            "COMMAND_ORIGIN_REPO_LOCAL = \"repo_local_executable_or_script\"\n"
             "QUARANTINED_LOCAL_REPLAY_TOKENS = ('emit_reviewed_nonce_producer_capture.py',)\n"
             "FORBIDDEN_BACKEND_COMMAND_TOKENS = ('localnet', 'hazmat', 'centralized')\n"
             "def validate_backend_command(command): pass\n"
-            "def validate_capture_source_profile(command):\n"
+            "def backend_command_path_candidates(command): pass\n"
+            "def backend_command_origin(root, command):\n"
+            "    return 'outside_repo_executable_or_script'\n"
+            "def validate_capture_source_profile(root, command):\n"
             "    raise ValueError('quarantined local replay')\n"
+            "raise ValueError('repo-local backend command')\n"
             "def load_request(path): pass\n"
             "def validate_request_binding(binding): pass\n"
             "def validate_capture_matches_request(capture, request):\n"
@@ -938,6 +944,11 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_build_report_rejects_hazmat_localnet_or_fixture_sources(): pass\n"
             "def test_build_report_rejects_local_replay_emitter_as_external_capture(): pass\n"
             "def test_build_report_can_mark_local_replay_emitter_as_quarantined(): pass\n"
+            "def test_build_report_rejects_repo_local_wrapper_as_actual_external_backend(): pass\n"
+            "def test_build_report_records_outside_repo_command_origin_for_external_backend(): pass\n"
+            "backend_command_origin\n"
+            "repo-local backend command\n"
+            "outside_repo_executable_or_script\n"
             "quarantined_local_schema_replay\n"
             "def test_build_report_rejects_non_importable_capture_shape_before_artifact_write(): pass\n"
             "request_sha256\n"
@@ -2464,6 +2475,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_nonce_producer_backend_readiness_gate"])
         self.assertTrue(scan["p1_nonce_producer_capture_attempt_gate"])
         self.assertTrue(scan["p1_actual_external_nonce_producer_gate"])
+        self.assertTrue(scan["p1_nonce_producer_external_origin_guard"])
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -2491,6 +2503,9 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("reference CLI", aggregate_evidence)
         self.assertIn("actual external nonce-producer capture gate", aggregate_evidence)
         self.assertIn("actual_external_capture_missing", aggregate_evidence)
+        self.assertIn("external command-origin guard", aggregate_evidence)
+        self.assertIn("repo-local backend command", aggregate_evidence)
+        self.assertIn("outside_repo_executable_or_script", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
@@ -2502,6 +2517,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("not actual backend evidence", aggregate_blockers)
         self.assertIn("actual external nonce-producer gate", aggregate_blockers)
         self.assertIn("admissible_external_backend_capture", aggregate_blockers)
+        self.assertIn("independently installed backend command", aggregate_blockers)
+        self.assertIn("outside the repo", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
