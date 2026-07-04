@@ -127,6 +127,24 @@ The resulting handoff source profile is `repo_reference_cli_capture`, not
 reviewing the executable handoff contract, but it cannot replace an
 independently generated reviewed threshold nonce-producer capture.
 
+## Actual External Gate
+
+Batch 3 adds a separate gate for the actual external backend slot:
+
+```bash
+python3 scripts/verify_actual_nonce_producer_capture.py \
+  --root . \
+  --attempt artifacts/nonce-producer-capture-attempt/latest/manifest.json \
+  --out artifacts/nonce-producer-actual-external-gate/latest
+```
+
+The gate accepts only a promoted handoff whose source profile is
+`admissible_external_backend_capture` and whose quarantine record is false. The
+current checked artifact is `actual_external_capture_missing` because the
+promoted handoff is `repo_reference_cli_capture`. Use `--strict` when a real
+external backend is available and CI should fail until the actual external slot
+is ready.
+
 ## Real Backend Handoff
 
 For a real external backend, `scripts/run_nonce_producer_handoff_replay.py`

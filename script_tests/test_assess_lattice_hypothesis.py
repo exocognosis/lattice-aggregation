@@ -1073,6 +1073,47 @@ class ReportGenerationTests(unittest.TestCase):
             "}\n",
             encoding="utf-8",
         )
+        (
+            root / "scripts" / "verify_actual_nonce_producer_capture.py"
+        ).write_text(
+            "GATE_SCHEMA = \"lattice-aggregation:p1-actual-external-nonce-producer-gate:v1\"\n"
+            "EXPECTED_SOURCE_PROFILE = \"admissible_external_backend_capture\"\n"
+            "STATUS_READY = \"actual_external_capture_ready\"\n"
+            "STATUS_MISSING = \"actual_external_capture_missing\"\n"
+            "def source_profile_blockers(label, source_profile, quarantine): pass\n"
+            "def build_report(root, attempt_path): pass\n"
+            "def write_artifacts(report, out_dir): pass\n"
+            "--strict\n"
+            "repo_reference_cli_capture\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_verify_actual_nonce_producer_capture.py"
+        ).write_text(
+            "def test_reference_cli_promoted_capture_is_blocked_from_actual_external_slot(): pass\n"
+            "def test_non_quarantined_external_capture_satisfies_actual_external_slot(): pass\n"
+            "def test_strict_mode_exits_nonzero_when_actual_external_capture_is_missing(): pass\n"
+            "repo_reference_cli_capture\n"
+            "admissible_external_backend_capture\n"
+            "actual_external_capture_missing\n"
+            "actual_external_capture_ready\n",
+            encoding="utf-8",
+        )
+        actual_gate_dir = (
+            root / "artifacts" / "nonce-producer-actual-external-gate" / "latest"
+        )
+        actual_gate_dir.mkdir(parents=True, exist_ok=True)
+        (actual_gate_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-actual-external-nonce-producer-gate:v1\",\n"
+            "  \"gate_status\": \"actual_external_capture_missing\",\n"
+            "  \"actual_external_capture_ready\": false,\n"
+            "  \"attempt_source_profile\": \"repo_reference_cli_capture\",\n"
+            "  \"expected_source_profile\": \"admissible_external_backend_capture\",\n"
+            "  \"blockers\": [\"reference CLI handoff replay only; not actual backend evidence\"]\n"
+            "}\n",
+            encoding="utf-8",
+        )
 
     def write_p1_real_threshold_backend_actual_capture_runner_gate(self, root):
         self.write_p1_real_threshold_backend_output_gate(root)
@@ -1749,17 +1790,21 @@ class ReportGenerationTests(unittest.TestCase):
             "artifacts/nonce-producer-handoff/latest/capture/capture.json, "
             "artifacts/nonce-producer-backend-readiness/latest/manifest.json, "
             "artifacts/nonce-producer-capture-attempt/latest/manifest.json, "
+            "artifacts/nonce-producer-actual-external-gate/latest/manifest.json, "
             "docs/cryptography/p1-nonce-producer-backend-cli-contract.md, "
             "scripts/run_nonce_producer_handoff_replay.py, "
             "scripts/emit_reviewed_nonce_producer_capture.py, "
             "scripts/check_nonce_producer_backend_readiness.py, "
             "scripts/run_admissible_nonce_producer_capture_attempt.py, "
+            "scripts/verify_actual_nonce_producer_capture.py, "
             "backend_candidate_admissible_pending_capture, "
             "capture_promoted, "
+            "actual_external_capture_missing, "
             "capture-attempt runner, "
             "distributed nonce-PRF interfaces, "
             "no detected blockers, "
             "repo_reference_cli_capture, "
+            "admissible_external_backend_capture, "
             "reference CLI, "
             "not actual backend evidence, "
             "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer, "
@@ -2109,6 +2154,19 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": "distributed_nonce_producer_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/nonce-producer-actual-external-gate/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1"
+                        ),
+                        "current_status": "actual_external_capture_missing",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -2405,6 +2463,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_distributed_nonce_producer_capture_runner_gate"])
         self.assertTrue(scan["p1_nonce_producer_backend_readiness_gate"])
         self.assertTrue(scan["p1_nonce_producer_capture_attempt_gate"])
+        self.assertTrue(scan["p1_actual_external_nonce_producer_gate"])
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -2430,6 +2489,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("capture_promoted", aggregate_evidence)
         self.assertIn("repo_reference_cli_capture", aggregate_evidence)
         self.assertIn("reference CLI", aggregate_evidence)
+        self.assertIn("actual external nonce-producer capture gate", aggregate_evidence)
+        self.assertIn("actual_external_capture_missing", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
@@ -2439,6 +2500,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("backend readiness gate is now admissible", aggregate_blockers)
         self.assertIn("reference CLI capture", aggregate_blockers)
         self.assertIn("not actual backend evidence", aggregate_blockers)
+        self.assertIn("actual external nonce-producer gate", aggregate_blockers)
+        self.assertIn("admissible_external_backend_capture", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 

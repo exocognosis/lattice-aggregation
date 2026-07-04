@@ -136,6 +136,13 @@ The Criterion 2 proof payload requires these slots before any promotion:
   of dropping command-output diagnostics. It remains `evidence_present_unclosed`
   until externally generated reviewed P1 nonce-producer material replaces the
   hazmat oracle.
+  Batch 3 adds `scripts/verify_actual_nonce_producer_capture.py`, which gates
+  the promoted handoff before it can occupy the actual external backend slot.
+  Its current artifact
+  `artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
+  `actual_external_capture_missing`: it requires
+  `admissible_external_backend_capture` with quarantine false and rejects the
+  current `repo_reference_cli_capture` as not actual backend evidence.
 - `standard_verifier_compatibility_artifact_digest`:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
@@ -345,6 +352,10 @@ checked status is `capture_promoted`, with `backend_command_executed = true`
 and handoff source profile `repo_reference_cli_capture`. The promoted capture
 is quarantined as reference CLI replay only: it exercises the external
 process/JSON/import contract but is not actual backend evidence. The accepted
+actual-external gate artifact at
+`artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
+`actual_external_capture_missing`, so the distributed nonce-producer slot still
+cannot be treated as reviewed external backend evidence. The accepted
 proof-closure artifact certificate also carries durable certificate evidence
 for the threshold-output certificate, real recomputation predecessor, and
 distributed nonce-producer artifact digests through

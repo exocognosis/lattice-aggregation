@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-admissible-backend-profile`
-Commit: `07048fa7743d1fe09677f6eb8c6d6feb1f55a033`
+Commit: `fc3d82e924278f63d3499308d1e847d01b113e29`
 
 ## Testing Statement
 

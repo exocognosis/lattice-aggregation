@@ -25,6 +25,16 @@ class CiWorkflowTests(unittest.TestCase):
             workflow,
         )
 
+    def test_ci_runs_actual_external_nonce_producer_gate_non_strict(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+
+        self.assertIn("Actual external nonce producer gate", workflow)
+        self.assertIn(
+            "python3 scripts/verify_actual_nonce_producer_capture.py --root . --attempt artifacts/nonce-producer-capture-attempt/latest/manifest.json --out /tmp/lattice-actual-external-nonce-producer-gate",
+            workflow,
+        )
+        self.assertNotIn("verify_actual_nonce_producer_capture.py --strict", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -428,6 +428,15 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
+        "slot_id": "distributed_nonce_producer_artifact_digest",
+        "fixture_path": (
+            "artifacts/nonce-producer-actual-external-gate/latest/manifest.json"
+        ),
+        "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
+        "current_status": "actual_external_capture_missing",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": (
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -1042,12 +1051,15 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "scripts/emit_reviewed_nonce_producer_capture.py",
         "scripts/check_nonce_producer_backend_readiness.py",
         "scripts/run_admissible_nonce_producer_capture_attempt.py",
+        "scripts/verify_actual_nonce_producer_capture.py",
         "backend_candidate_admissible_pending_capture",
         "capture_promoted",
+        "actual_external_capture_missing",
         "capture-attempt runner",
         "distributed nonce-prf interfaces",
         "no detected blockers",
         "repo_reference_cli_capture",
+        "admissible_external_backend_capture",
         "reference cli",
         "not actual backend evidence",
         "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
@@ -1630,6 +1642,15 @@ def scan_documents(root):
     )
     nonce_producer_capture_attempt_manifest = read_optional(
         "artifacts/nonce-producer-capture-attempt/latest/manifest.json"
+    )
+    nonce_producer_actual_external_gate = read_optional(
+        "scripts/verify_actual_nonce_producer_capture.py"
+    )
+    nonce_producer_actual_external_gate_test = read_optional(
+        "script_tests/test_verify_actual_nonce_producer_capture.py"
+    )
+    nonce_producer_actual_external_gate_manifest = read_optional(
+        "artifacts/nonce-producer-actual-external-gate/latest/manifest.json"
     )
     nonce_producer_request_builder = read_optional(
         "scripts/build_nonce_producer_request.py"
@@ -2500,6 +2521,48 @@ def scan_documents(root):
                 "\"quarantined\": true",
                 "handoff/request/request.json",
                 "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+            ]
+        )
+    )
+    p1_actual_external_nonce_producer_gate = (
+        p1_nonce_producer_capture_attempt_gate
+        and all(
+            token in nonce_producer_actual_external_gate
+            for token in [
+                "GATE_SCHEMA",
+                "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
+                "EXPECTED_SOURCE_PROFILE",
+                "admissible_external_backend_capture",
+                "actual_external_capture_ready",
+                "actual_external_capture_missing",
+                "repo_reference_cli_capture",
+                "source_profile_blockers",
+                "build_report",
+                "write_artifacts",
+                "--strict",
+            ]
+        )
+        and all(
+            token in nonce_producer_actual_external_gate_test
+            for token in [
+                "test_reference_cli_promoted_capture_is_blocked_from_actual_external_slot",
+                "test_non_quarantined_external_capture_satisfies_actual_external_slot",
+                "test_strict_mode_exits_nonzero_when_actual_external_capture_is_missing",
+                "repo_reference_cli_capture",
+                "admissible_external_backend_capture",
+                "actual_external_capture_missing",
+                "actual_external_capture_ready",
+            ]
+        )
+        and all(
+            token in nonce_producer_actual_external_gate_manifest
+            for token in [
+                "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
+                "actual_external_capture_missing",
+                "\"actual_external_capture_ready\": false",
+                "repo_reference_cli_capture",
+                "admissible_external_backend_capture",
+                "not actual backend evidence",
             ]
         )
     )
@@ -3518,6 +3581,9 @@ def scan_documents(root):
         "p1_nonce_producer_capture_attempt_gate": (
             p1_nonce_producer_capture_attempt_gate
         ),
+        "p1_actual_external_nonce_producer_gate": (
+            p1_actual_external_nonce_producer_gate
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -3947,6 +4013,28 @@ def classify_criteria(criteria, scan):
                     "emit a conforming request-bound capture before the "
                     "distributed nonce-producer slot can advance beyond "
                     "evidence_present_unclosed."
+                )
+            if scan.get("p1_actual_external_nonce_producer_gate"):
+                partial_progress = True
+                observed.append(
+                    "A P1 actual external nonce-producer capture gate is "
+                    "present and artifact-backed; it requires the promoted "
+                    "handoff source profile to be "
+                    "admissible_external_backend_capture with quarantine false "
+                    "before the distributed nonce-producer slot can be treated "
+                    "as actual external backend evidence. The current artifact "
+                    "is actual_external_capture_missing because the promoted "
+                    "capture is repo_reference_cli_capture. This is "
+                    "evidence_present_unclosed boundary evidence only and "
+                    "does not claim theorem closure, rejection-distribution "
+                    "preservation, or production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The actual external nonce-producer gate blocks the "
+                    "current promoted reference CLI capture from satisfying "
+                    "the reviewed external backend slot. A non-quarantined "
+                    "admissible_external_backend_capture from an independently "
+                    "generated reviewed backend is still required."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
