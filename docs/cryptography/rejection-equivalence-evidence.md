@@ -255,6 +255,17 @@ distributed nonce shares are fed by a hazmat PRF-output oracle; a reviewed
 distributed PRF/MPC producer must replace that oracle before this can be treated
 as cryptographic closure evidence rather than closure-candidate conformance
 evidence.
+Batch 7 now records that closure-candidate composition explicitly. The Rust
+`P1ExternalBackendCryptographicClosureCandidatePackage` and
+`scripts/build_p1_external_backend_cryptographic_closure_candidate.py` bundle the
+strict actual external nonce gate, real-threshold backend emission capture,
+standard-verifier acceptance evidence, complete mutation rejection evidence, and
+this rejection-distribution comparison into
+`artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`.
+The checked manifest is still `close_candidate = false` because those actual
+external evidence slots are not all present. A future `close_candidate = true`
+manifest would be closure-candidate evidence for review, not a completed theorem
+proof or a claim of rejection-distribution preservation.
 The selected replacement route is now tracked in
 [`p1-nonce-producer-selection.md`](p1-nonce-producer-selection.md) as
 `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`; Criterion 2 now

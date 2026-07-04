@@ -202,6 +202,29 @@
         "fixture_status": "checked_ingestion_fixture_harness_blocked_until_actual_backend_evidence"
       },
       {
+        "id": "external_backend_cryptographic_closure_candidate",
+        "current_status": "evidence_present_unclosed",
+        "evidence_source": "p1_external_backend_cryptographic_closure_candidate_gate",
+        "artifact_package": "p1_external_backend_cryptographic_closure_candidate_package",
+        "artifact_schema": "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
+        "artifact_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+        "builder": "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
+        "close_candidate": false,
+        "requires": [
+          "strict actual external nonce-producer gate",
+          "request-bound real-threshold backend emission capture",
+          "standard-verifier acceptance evidence",
+          "complete mutation-rejection evidence",
+          "distributed-nonce-prf-output-shares rejection-distribution comparison"
+        ],
+        "certificate_surface": "p1_external_backend_cryptographic_closure_candidate_certificate",
+        "certificate_accessor": "candidate_artifact_digest",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "claims_theorem_closure": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false
+      },
+      {
         "id": "rejection_distribution_review_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_rejection_distribution_review_artifact_gate",
@@ -323,6 +346,14 @@
         "claim_boundary": "conformance/proof-review evidence only"
       },
       {
+        "slot_id": "external_backend_cryptographic_closure_candidate",
+        "fixture_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
+        "current_status": "evidence_present_unclosed",
+        "close_candidate": false,
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -358,6 +389,13 @@
         "certificate_accessor": "distributed_nonce_producer_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "slot_id": "external_backend_cryptographic_closure_candidate",
+        "certificate_surface": "P1ExternalBackendCryptographicClosureCandidateCertificate",
+        "certificate_accessor": "candidate_artifact_digest",
+        "current_status": "evidence_present_unclosed",
+        "claim_boundary": "conformance/proof-review evidence only"
       }
     ]
   },
@@ -366,6 +404,7 @@
     "full KAT/validation artifact package",
     "reviewed rejection-distribution preservation argument",
     "reviewed standard-verifier compatibility argument",
+    "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
     "theorem-linkage review"
   ],
   "failure_conditions": [
@@ -393,6 +432,8 @@
     "scripts/run_admissible_nonce_producer_capture_attempt.py",
     "scripts/verify_actual_nonce_producer_capture.py",
     "scripts/stage_external_nonce_producer_capture.py",
+    "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
+    "script_tests/test_build_p1_external_backend_cryptographic_closure_candidate.py",
     "scripts/run_nonce_producer_handoff_replay.py",
     "artifacts/nonce-producer-handoff/latest/manifest.json",
     "artifacts/nonce-producer-handoff/latest/request/request.json",
@@ -400,6 +441,9 @@
     "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
     "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
     "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
+    "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+    "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md",
+    "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS",
     "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
@@ -421,7 +465,10 @@
       "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
       "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",
       "artifacts/hypothesis/latest/closure-dashboard.json": "artifacts/hypothesis/latest/closure-dashboard.json",
-      "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md"
+      "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md",
+      "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+      "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md",
+      "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS"
     }
   },
   "external_capture_provenance_requirements": [
@@ -436,12 +483,19 @@
     "claim_boundary",
     "expected_digest_fields",
     "metadata_fields",
-    "cargo_lock_sha256"
+    "cargo_lock_sha256",
+    "actual_external_nonce_capture_manifest_sha256",
+    "real_threshold_backend_emission_capture_sha256",
+    "rejection_distribution_batch_sha256",
+    "closure_candidate_manifest_sha256"
   ],
   "assessment": {
     "criterion_status": "partially_met",
     "overall_verdict": "partially_proven",
     "does_not_change_overall_verdict": true,
-    "report_status": "criterion2_proof_payload_formalized"
+    "report_status": "criterion2_proof_payload_formalized",
+    "batch7_external_backend_closure_candidate_status": "evidence_present_unclosed",
+    "batch7_external_backend_close_candidate": false,
+    "batch7_claim_boundary": "conformance/proof-review evidence only"
   }
 }

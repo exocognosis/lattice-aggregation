@@ -3308,6 +3308,152 @@ impl P1SelectedBackendProofClosureArtifactCertificate {
     }
 }
 
+/// Submitted Batch 7 external-backend cryptographic closure-candidate package.
+///
+/// This is a wrapper over actual distributed nonce-producer evidence, real
+/// threshold backend emission evidence, standard-verifier compatibility
+/// evidence, and a rejection-distribution comparison artifact. Readiness here
+/// means the artifact bundle is coherent enough for proof review; it is not
+/// theorem closure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1ExternalBackendCryptographicClosureCandidatePackage {
+    /// Selected backend profile this closure-candidate package claims to bind.
+    pub selected_profile: SelectedProductionBackendProfile,
+    /// Digest binding the selected backend profile.
+    pub selected_profile_binding_digest: [u8; 32],
+    /// Digest of the predecessor selected-backend threshold-output certificate.
+    pub threshold_output_certificate_digest: [u8; 32],
+    /// Digest of the accepted distributed nonce-producer artifact.
+    pub distributed_nonce_producer_artifact_digest: [u8; 32],
+    /// Accepted distributed nonce-producer artifact certificate.
+    pub distributed_nonce_producer_artifact: P1DistributedNonceProducerArtifactCertificate,
+    /// Digest of the accepted real-threshold backend emission artifact.
+    pub real_threshold_backend_emission_artifact_digest: [u8; 32],
+    /// Accepted real-threshold backend emission artifact certificate.
+    pub real_threshold_backend_emission_artifact: P1RealThresholdBackendEmissionArtifactCertificate,
+    /// Digest of the standard-verifier compatibility artifact.
+    pub standard_verifier_compatibility_artifact_digest: [u8; 32],
+    /// Accepted standard-verifier compatibility artifact certificate.
+    pub standard_verifier_compatibility_artifact:
+        P1StandardVerifierCompatibilityArtifactCertificate,
+    /// Digest of the rejection-distribution comparison artifact.
+    pub rejection_distribution_comparison_digest: [u8; 32],
+    /// Typed rejection-distribution comparison artifact.
+    pub rejection_distribution_comparison_artifact: P1Criterion2ProofSlotArtifact,
+    /// Digest of the full Batch 7 candidate package.
+    pub candidate_artifact_digest: [u8; 32],
+    /// Explicit non-production claim boundary.
+    pub claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    /// Whether this candidate package has a named review signoff.
+    pub reviewed: bool,
+}
+
+/// Accepted Batch 7 external-backend cryptographic closure-candidate certificate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct P1ExternalBackendCryptographicClosureCandidateCertificate {
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: [u8; 32],
+    threshold_output_certificate_digest: [u8; 32],
+    distributed_nonce_producer_artifact_digest: [u8; 32],
+    real_threshold_backend_emission_artifact_digest: [u8; 32],
+    standard_verifier_compatibility_artifact_digest: [u8; 32],
+    rejection_distribution_comparison_digest: [u8; 32],
+    candidate_artifact_digest: [u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+}
+
+impl P1ExternalBackendCryptographicClosureCandidateCertificate {
+    /// Return the selected backend profile bound to the candidate artifact.
+    pub const fn selected_profile(self) -> SelectedProductionBackendProfile {
+        self.selected_profile
+    }
+
+    /// Borrow the selected profile binding digest.
+    pub const fn selected_profile_binding_digest(&self) -> &[u8; 32] {
+        &self.selected_profile_binding_digest
+    }
+
+    /// Borrow the predecessor threshold-output certificate digest.
+    pub const fn threshold_output_certificate_digest(&self) -> &[u8; 32] {
+        &self.threshold_output_certificate_digest
+    }
+
+    /// Borrow the distributed nonce-producer artifact digest.
+    pub const fn distributed_nonce_producer_artifact_digest(&self) -> &[u8; 32] {
+        &self.distributed_nonce_producer_artifact_digest
+    }
+
+    /// Borrow the real-threshold backend emission artifact digest.
+    pub const fn real_threshold_backend_emission_artifact_digest(&self) -> &[u8; 32] {
+        &self.real_threshold_backend_emission_artifact_digest
+    }
+
+    /// Borrow the standard-verifier compatibility artifact digest.
+    pub const fn standard_verifier_compatibility_artifact_digest(&self) -> &[u8; 32] {
+        &self.standard_verifier_compatibility_artifact_digest
+    }
+
+    /// Borrow the rejection-distribution comparison artifact digest.
+    pub const fn rejection_distribution_comparison_digest(&self) -> &[u8; 32] {
+        &self.rejection_distribution_comparison_digest
+    }
+
+    /// Borrow the full candidate artifact digest.
+    pub const fn candidate_artifact_digest(&self) -> &[u8; 32] {
+        &self.candidate_artifact_digest
+    }
+
+    /// Return the explicit non-production claim boundary.
+    pub const fn claim_boundary(self) -> P1SelectedBackendProofClosureClaimBoundary {
+        self.claim_boundary
+    }
+
+    /// Candidate readiness does not mark Criterion 2 as met.
+    pub const fn claims_criterion2_met(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim selected-backend proof closure.
+    pub const fn claims_selected_backend_proof_closure(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim completed standard-verifier compatibility proof.
+    pub const fn claims_standard_verifier_compatibility(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim rejection-distribution preservation.
+    pub const fn claims_rejection_distribution_preservation(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim production threshold ML-DSA security.
+    pub const fn claims_production_threshold_mldsa_security(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim CAVP/ACVTS validation.
+    pub const fn claims_cavp_acvts_validation(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim FIPS validation.
+    pub const fn claims_fips_validation(self) -> bool {
+        false
+    }
+
+    /// Candidate readiness does not claim theorem closure.
+    pub const fn claims_theorem_closure(self) -> bool {
+        false
+    }
+
+    /// This certificate gates artifacts; it does not replace cryptographic proof.
+    pub const fn claims_completed_cryptographic_proof(self) -> bool {
+        false
+    }
+}
+
 /// Result of assessing a selected-backend threshold-output artifact package.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[allow(clippy::large_enum_variant)]
@@ -3373,6 +3519,41 @@ impl P1SelectedBackendProofClosureArtifactAssessment {
     ) -> Option<&P1SelectedBackendProofClosureArtifactCertificate> {
         match self {
             Self::ArtifactReady(certificate) => Some(certificate),
+            Self::Missing { .. } | Self::Invalid { .. } => None,
+        }
+    }
+}
+
+/// Result of assessing a Batch 7 external-backend cryptographic closure candidate.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::large_enum_variant)]
+pub enum P1ExternalBackendCryptographicClosureCandidateAssessment {
+    /// No package or required evidence digest was supplied.
+    Missing {
+        /// Static reason for the missing-evidence assessment.
+        reason: &'static str,
+    },
+    /// A supplied package failed deterministic validation.
+    Invalid {
+        /// Static reason for the invalid-evidence assessment.
+        reason: &'static str,
+    },
+    /// The external-backend candidate package is ready for proof review.
+    CandidateReady(P1ExternalBackendCryptographicClosureCandidateCertificate),
+}
+
+impl P1ExternalBackendCryptographicClosureCandidateAssessment {
+    /// Return true when the candidate artifact is ready for proof review.
+    pub const fn is_candidate_ready(self) -> bool {
+        matches!(self, Self::CandidateReady(_))
+    }
+
+    /// Borrow the closure-candidate certificate when present.
+    pub const fn closure_candidate_certificate(
+        &self,
+    ) -> Option<&P1ExternalBackendCryptographicClosureCandidateCertificate> {
+        match self {
+            Self::CandidateReady(certificate) => Some(certificate),
             Self::Missing { .. } | Self::Invalid { .. } => None,
         }
     }
@@ -4803,6 +4984,57 @@ fn derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
     hasher.finalize().into()
 }
 
+/// Derive the digest binding a Batch 7 external-backend closure candidate.
+///
+/// This digest commits to actual distributed nonce-producer evidence, real
+/// threshold backend emission evidence, standard-verifier acceptance evidence,
+/// and rejection-distribution comparison evidence. It remains a proof-review
+/// candidate binding and does not claim theorem closure.
+pub fn derive_p1_external_backend_cryptographic_closure_candidate_digest(
+    certificate: &P1ExternalBackendCryptographicClosureCandidateCertificate,
+) -> [u8; 32] {
+    derive_p1_external_backend_cryptographic_closure_candidate_digest_from_fields(
+        certificate.selected_profile(),
+        certificate.selected_profile_binding_digest(),
+        certificate.threshold_output_certificate_digest(),
+        certificate.distributed_nonce_producer_artifact_digest(),
+        certificate.real_threshold_backend_emission_artifact_digest(),
+        certificate.standard_verifier_compatibility_artifact_digest(),
+        certificate.rejection_distribution_comparison_digest(),
+        certificate.claim_boundary(),
+        true,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn derive_p1_external_backend_cryptographic_closure_candidate_digest_from_fields(
+    selected_profile: SelectedProductionBackendProfile,
+    selected_profile_binding_digest: &[u8; 32],
+    threshold_output_certificate_digest: &[u8; 32],
+    distributed_nonce_producer_artifact_digest: &[u8; 32],
+    real_threshold_backend_emission_artifact_digest: &[u8; 32],
+    standard_verifier_compatibility_artifact_digest: &[u8; 32],
+    rejection_distribution_comparison_digest: &[u8; 32],
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    reviewed: bool,
+) -> [u8; 32] {
+    let mut hasher = Sha3_256::new();
+    hasher.update(b"lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1");
+    hasher.update(selected_profile.profile_binding_digest());
+    hasher.update(selected_profile_binding_digest);
+    hasher.update(threshold_output_certificate_digest);
+    hasher.update(distributed_nonce_producer_artifact_digest);
+    hasher.update(real_threshold_backend_emission_artifact_digest);
+    hasher.update(standard_verifier_compatibility_artifact_digest);
+    hasher.update(rejection_distribution_comparison_digest);
+    match claim_boundary {
+        P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly => hasher.update([0]),
+        P1SelectedBackendProofClosureClaimBoundary::ProductionClaim => hasher.update([1]),
+    }
+    hasher.update([u8::from(reviewed)]);
+    hasher.finalize().into()
+}
+
 /// Derive a P1 real-threshold backend emission package from backend output material.
 ///
 /// This constructor is the intended import adapter for actual backend-generated
@@ -5169,6 +5401,66 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
         theorem_linkage_artifact_digest: *proof_slot_artifacts
             .theorem_linkage_artifact
             .artifact_digest(),
+        claim_boundary,
+        reviewed,
+    }
+}
+
+/// Derive a Batch 7 external-backend cryptographic closure-candidate package.
+///
+/// The returned package composes accepted child certificates for the actual
+/// distributed nonce-producer path, real threshold backend emission path,
+/// standard verifier compatibility path, and rejection-distribution comparison
+/// slot. It remains conformance/proof-review evidence only.
+pub fn derive_p1_external_backend_cryptographic_closure_candidate_package(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    distributed_nonce_producer_artifact: &P1DistributedNonceProducerArtifactCertificate,
+    real_threshold_backend_emission_artifact: &P1RealThresholdBackendEmissionArtifactCertificate,
+    standard_verifier_compatibility_artifact: &P1StandardVerifierCompatibilityArtifactCertificate,
+    rejection_distribution_comparison_artifact: P1Criterion2ProofSlotArtifact,
+    claim_boundary: P1SelectedBackendProofClosureClaimBoundary,
+    reviewed: bool,
+) -> P1ExternalBackendCryptographicClosureCandidatePackage {
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    let distributed_nonce_producer_artifact_digest =
+        derive_p1_distributed_nonce_producer_artifact_digest(distributed_nonce_producer_artifact);
+    let real_threshold_backend_emission_artifact_digest =
+        derive_p1_real_threshold_backend_emission_artifact_digest(
+            real_threshold_backend_emission_artifact,
+        );
+    let standard_verifier_compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(
+            standard_verifier_compatibility_artifact,
+        );
+    let rejection_distribution_comparison_digest =
+        *rejection_distribution_comparison_artifact.artifact_digest();
+    let candidate_artifact_digest =
+        derive_p1_external_backend_cryptographic_closure_candidate_digest_from_fields(
+            threshold_certificate.selected_profile(),
+            threshold_certificate.selected_profile_binding_digest(),
+            &threshold_output_certificate_digest,
+            &distributed_nonce_producer_artifact_digest,
+            &real_threshold_backend_emission_artifact_digest,
+            &standard_verifier_compatibility_artifact_digest,
+            &rejection_distribution_comparison_digest,
+            claim_boundary,
+            reviewed,
+        );
+
+    P1ExternalBackendCryptographicClosureCandidatePackage {
+        selected_profile: threshold_certificate.selected_profile(),
+        selected_profile_binding_digest: *threshold_certificate.selected_profile_binding_digest(),
+        threshold_output_certificate_digest,
+        distributed_nonce_producer_artifact_digest,
+        distributed_nonce_producer_artifact: *distributed_nonce_producer_artifact,
+        real_threshold_backend_emission_artifact_digest,
+        real_threshold_backend_emission_artifact: *real_threshold_backend_emission_artifact,
+        standard_verifier_compatibility_artifact_digest,
+        standard_verifier_compatibility_artifact: *standard_verifier_compatibility_artifact,
+        rejection_distribution_comparison_digest,
+        rejection_distribution_comparison_artifact,
+        candidate_artifact_digest,
         claim_boundary,
         reviewed,
     }
@@ -7700,6 +7992,287 @@ pub fn assess_p1_selected_backend_proof_closure_artifact(
             standard_verifier_compatibility_artifact_digest: package
                 .standard_verifier_compatibility_artifact_digest,
             theorem_linkage_artifact_digest: package.theorem_linkage_artifact_digest,
+            claim_boundary: package.claim_boundary,
+        },
+    )
+}
+
+/// Assess whether a Batch 7 external-backend closure candidate binds the real
+/// backend handoff artifacts tightly enough for proof review.
+pub fn assess_p1_external_backend_cryptographic_closure_candidate(
+    threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
+    package: Option<P1ExternalBackendCryptographicClosureCandidatePackage>,
+) -> P1ExternalBackendCryptographicClosureCandidateAssessment {
+    let Some(package) = package else {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Missing {
+            reason: "missing P1 external backend cryptographic closure candidate package",
+        };
+    };
+
+    if !package.reviewed {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate must be reviewed",
+        };
+    }
+    if package.claim_boundary != P1SelectedBackendProofClosureClaimBoundary::ProofReviewOnly {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate must remain proof-review-only",
+        };
+    }
+    if threshold_certificate.claim_boundary() != P1ThresholdOutputClaimBoundary::ProofReviewOnly {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason:
+                "P1 external backend closure candidate threshold-output certificate must remain proof-review-only",
+        };
+    }
+    if package.selected_profile
+        != SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate must bind the selected ML-DSA-65 coordinator-assisted profile",
+        };
+    }
+    if package.selected_profile != threshold_certificate.selected_profile() {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate selected profile does not match threshold-output certificate",
+        };
+    }
+
+    let rejection_distribution_comparison_digest = match validate_p1_criterion2_proof_slot_artifact(
+        threshold_certificate,
+        &package.rejection_distribution_comparison_artifact,
+        P1Criterion2ProofSlotArtifactKind::RejectionDistributionReview,
+        &package
+            .rejection_distribution_comparison_artifact
+            .source_evidence_digest,
+        &package
+            .rejection_distribution_comparison_artifact
+            .review_evidence_digest,
+    ) {
+        Ok(digest) => digest,
+        Err(reason) => {
+            return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid { reason };
+        }
+    };
+
+    for (digest, reason) in [
+        (
+            &package.selected_profile_binding_digest,
+            "P1 external backend closure candidate profile binding digest is all zero",
+        ),
+        (
+            &package.threshold_output_certificate_digest,
+            "P1 external backend closure candidate threshold-output certificate digest is all zero",
+        ),
+        (
+            &package.distributed_nonce_producer_artifact_digest,
+            "P1 external backend closure candidate distributed nonce-producer artifact digest is all zero",
+        ),
+        (
+            &package.real_threshold_backend_emission_artifact_digest,
+            "P1 external backend closure candidate real-threshold backend emission artifact digest is all zero",
+        ),
+        (
+            &package.standard_verifier_compatibility_artifact_digest,
+            "P1 external backend closure candidate standard-verifier compatibility artifact digest is all zero",
+        ),
+        (
+            &package.rejection_distribution_comparison_digest,
+            "P1 external backend closure candidate rejection-distribution comparison digest is all zero",
+        ),
+        (
+            &package.candidate_artifact_digest,
+            "P1 external backend closure candidate artifact digest is all zero",
+        ),
+    ] {
+        if is_all_zero(digest) {
+            return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid { reason };
+        }
+    }
+
+    if package.selected_profile_binding_digest != package.selected_profile.profile_binding_digest()
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason:
+                "P1 external backend closure candidate profile binding digest does not match selected profile",
+        };
+    }
+    if &package.selected_profile_binding_digest
+        != threshold_certificate.selected_profile_binding_digest()
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate profile binding digest does not match threshold-output certificate",
+        };
+    }
+
+    let threshold_output_certificate_digest =
+        derive_p1_selected_backend_threshold_output_certificate_digest(threshold_certificate);
+    if package.threshold_output_certificate_digest != threshold_output_certificate_digest {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate threshold-output certificate digest does not match certificate",
+        };
+    }
+    if package.rejection_distribution_comparison_digest != rejection_distribution_comparison_digest
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate rejection-distribution comparison digest does not match typed Criterion 2 slot artifact",
+        };
+    }
+
+    let nonce_certificate = package.distributed_nonce_producer_artifact;
+    let expected_nonce_artifact_digest =
+        derive_p1_distributed_nonce_producer_artifact_digest(&nonce_certificate);
+    if package.distributed_nonce_producer_artifact_digest != expected_nonce_artifact_digest {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate distributed nonce-producer digest does not match certificate",
+        };
+    }
+    if nonce_certificate.selected_profile() != threshold_certificate.selected_profile()
+        || nonce_certificate.selected_profile_binding_digest()
+            != threshold_certificate.selected_profile_binding_digest()
+        || nonce_certificate.threshold_output_certificate_digest()
+            != &threshold_output_certificate_digest
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate distributed nonce-producer certificate does not bind the threshold-output certificate",
+        };
+    }
+    if nonce_certificate.claim_boundary()
+        != P1DistributedNonceProducerClaimBoundary::ProofReviewOnly
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate distributed nonce-producer certificate must remain proof-review-only",
+        };
+    }
+
+    let backend_certificate = package.real_threshold_backend_emission_artifact;
+    let expected_backend_artifact_digest =
+        derive_p1_real_threshold_backend_emission_artifact_digest(&backend_certificate);
+    if package.real_threshold_backend_emission_artifact_digest != expected_backend_artifact_digest {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission digest does not match certificate",
+        };
+    }
+    if backend_certificate.selected_profile() != threshold_certificate.selected_profile()
+        || backend_certificate.selected_profile_binding_digest()
+            != threshold_certificate.selected_profile_binding_digest()
+        || backend_certificate.threshold_output_certificate_digest()
+            != &threshold_output_certificate_digest
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission certificate does not bind the threshold-output certificate",
+        };
+    }
+    if backend_certificate.validator_count() != 10_000
+        || backend_certificate.threshold() != 6_667
+        || backend_certificate.aggregate_signature_len() != MLDSA65_SIGNATURE_BYTES
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission must bind 10,000 validators with threshold 6,667 and a standard-size signature",
+        };
+    }
+    if backend_certificate.verifier_result() != P1StandardVerifierCompatibilityResult::Accept {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission must bind an accepted standard verifier result",
+        };
+    }
+    if !backend_certificate.mutation_rejection_corpus_complete() {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission requires complete mutation rejection evidence",
+        };
+    }
+    if backend_certificate.claim_boundary()
+        != P1RealThresholdVerifierClosureClaimBoundary::ProofReviewOnly
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission certificate must remain proof-review-only",
+        };
+    }
+
+    let compatibility_certificate = package.standard_verifier_compatibility_artifact;
+    let expected_compatibility_artifact_digest =
+        derive_p1_standard_verifier_compatibility_artifact_digest(&compatibility_certificate);
+    if package.standard_verifier_compatibility_artifact_digest
+        != expected_compatibility_artifact_digest
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate standard-verifier compatibility digest does not match certificate",
+        };
+    }
+    if compatibility_certificate.selected_profile() != threshold_certificate.selected_profile()
+        || compatibility_certificate.selected_profile_binding_digest()
+            != threshold_certificate.selected_profile_binding_digest()
+        || compatibility_certificate.threshold_output_certificate_digest()
+            != &threshold_output_certificate_digest
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate standard-verifier compatibility certificate does not bind the threshold-output certificate",
+        };
+    }
+    if compatibility_certificate.verifier_result() != P1StandardVerifierCompatibilityResult::Accept
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate compatibility certificate must bind an accepted verifier result",
+        };
+    }
+    if compatibility_certificate.claim_boundary()
+        != P1StandardVerifierCompatibilityClaimBoundary::ProofReviewOnly
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate compatibility certificate must remain proof-review-only",
+        };
+    }
+    if nonce_certificate.standard_verifier_compatibility_artifact_digest()
+        != &expected_compatibility_artifact_digest
+        || backend_certificate.standard_verifier_compatibility_artifact_digest()
+            != &expected_compatibility_artifact_digest
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate child certificates do not bind the same standard-verifier compatibility artifact",
+        };
+    }
+    if backend_certificate.public_key_digest() != compatibility_certificate.public_key_digest()
+        || backend_certificate.message_digest() != compatibility_certificate.message_digest()
+        || backend_certificate.accepted_signature_digest()
+            != compatibility_certificate.accepted_signature_digest()
+    {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate real-threshold backend emission tuple does not match compatibility certificate",
+        };
+    }
+
+    let expected_candidate_artifact_digest =
+        derive_p1_external_backend_cryptographic_closure_candidate_digest_from_fields(
+            package.selected_profile,
+            &package.selected_profile_binding_digest,
+            &package.threshold_output_certificate_digest,
+            &package.distributed_nonce_producer_artifact_digest,
+            &package.real_threshold_backend_emission_artifact_digest,
+            &package.standard_verifier_compatibility_artifact_digest,
+            &package.rejection_distribution_comparison_digest,
+            package.claim_boundary,
+            package.reviewed,
+        );
+    if package.candidate_artifact_digest != expected_candidate_artifact_digest {
+        return P1ExternalBackendCryptographicClosureCandidateAssessment::Invalid {
+            reason: "P1 external backend closure candidate artifact digest does not match payload",
+        };
+    }
+
+    P1ExternalBackendCryptographicClosureCandidateAssessment::CandidateReady(
+        P1ExternalBackendCryptographicClosureCandidateCertificate {
+            selected_profile: package.selected_profile,
+            selected_profile_binding_digest: package.selected_profile_binding_digest,
+            threshold_output_certificate_digest: package.threshold_output_certificate_digest,
+            distributed_nonce_producer_artifact_digest: package
+                .distributed_nonce_producer_artifact_digest,
+            real_threshold_backend_emission_artifact_digest: package
+                .real_threshold_backend_emission_artifact_digest,
+            standard_verifier_compatibility_artifact_digest: package
+                .standard_verifier_compatibility_artifact_digest,
+            rejection_distribution_comparison_digest: package
+                .rejection_distribution_comparison_digest,
+            candidate_artifact_digest: package.candidate_artifact_digest,
             claim_boundary: package.claim_boundary,
         },
     )
