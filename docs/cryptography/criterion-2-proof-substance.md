@@ -461,6 +461,25 @@ The theorem-linkage slot is now backed by the checked
 can inspect the bound theorem-linkage source evidence, review digest,
 threshold-output certificate digest, transcript binding, and typed slot artifact
 digest without promoting the slot beyond `evidence_present_unclosed`.
+Batch 7 adds
+`P1ExternalBackendCryptographicClosureCandidatePackage` and
+`scripts/build_p1_external_backend_cryptographic_closure_candidate.py` as the
+first umbrella candidate gate for the actual cryptographic closure attempt. Its
+Criterion 2 evidence source is
+`p1_external_backend_cryptographic_closure_candidate_gate`, and the package class
+is `p1_external_backend_cryptographic_closure_candidate_package`. The gate
+composes the strict actual external nonce-producer gate, request-bound
+real-threshold backend emission capture, standard-verifier acceptance evidence,
+mutation-rejection evidence, and `distributed-nonce-prf-output-shares`
+rejection-distribution comparison into
+`artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`.
+The current checked artifact is `evidence_present_unclosed` with
+`close_candidate = false`: the actual external nonce capture, real threshold
+backend capture, standard-verifier acceptance evidence, mutation-rejection
+evidence, and rejection-distribution comparison slots are still blocked. Even a
+future `close_candidate = true` artifact remains proof-review evidence only; it
+does not by itself prove Criterion 2, rejection-distribution preservation,
+selected-backend proof closure, or theorem closure.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.
@@ -489,6 +508,8 @@ linked:
 - full KAT/validation artifact package;
 - reviewed rejection-distribution preservation argument;
 - reviewed standard-verifier compatibility argument;
+- reviewed Batch 7 external-backend closure-candidate bundle populated from
+  actual external nonce and real-threshold backend captures;
 - theorem-linkage review.
 
 The existing selected-backend proof-closure artifact package gate is necessary

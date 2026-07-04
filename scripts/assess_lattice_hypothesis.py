@@ -275,6 +275,7 @@ CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "distributed_nonce_producer_artifact_digest",
     "standard_verifier_compatibility_artifact_digest",
     "real_threshold_backend_emission_artifact_digest",
+    "external_backend_cryptographic_closure_candidate",
     "rejection_distribution_review_digest",
     "theorem_linkage_artifact_digest",
     "full_kat_validation_artifact_digest",
@@ -299,6 +300,9 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     ),
     "real_threshold_backend_emission_artifact_digest": (
         "p1_real_threshold_backend_output_gate"
+    ),
+    "external_backend_cryptographic_closure_candidate": (
+        "p1_external_backend_cryptographic_closure_candidate_gate"
     ),
     "rejection_distribution_review_digest": (
         "p1_criterion2_rejection_distribution_review_artifact_gate"
@@ -329,6 +333,9 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     "real_threshold_backend_emission_artifact_digest": (
         "p1_real_threshold_backend_emission_artifact_package"
     ),
+    "external_backend_cryptographic_closure_candidate": (
+        "p1_external_backend_cryptographic_closure_candidate_package"
+    ),
     **{
         slot: "p1_criterion2_proof_slot_artifact_package"
         for slot in CRITERION2_ARTIFACT_SLOT_SOURCES
@@ -336,6 +343,7 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
         not in {
             "standard_verifier_compatibility_artifact_digest",
             "real_threshold_backend_emission_artifact_digest",
+            "external_backend_cryptographic_closure_candidate",
         }
     },
 }
@@ -349,13 +357,38 @@ CRITERION2_DURABLE_CERTIFICATE_ACCESSORS = {
     "distributed_nonce_producer_artifact_digest": (
         "distributed_nonce_producer_artifact_digest"
     ),
+    "external_backend_cryptographic_closure_candidate": (
+        "candidate_artifact_digest"
+    ),
 }
-CRITERION2_DURABLE_CERTIFICATE_SURFACE = (
-    "p1_selected_backend_proof_closure_artifact_certificate"
-)
-CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACE = (
-    "P1SelectedBackendProofClosureArtifactCertificate"
-)
+CRITERION2_DURABLE_CERTIFICATE_SURFACES = {
+    "threshold_output_certificate_digest": (
+        "p1_selected_backend_proof_closure_artifact_certificate"
+    ),
+    "real_recomputation_evidence_digest": (
+        "p1_selected_backend_proof_closure_artifact_certificate"
+    ),
+    "distributed_nonce_producer_artifact_digest": (
+        "p1_selected_backend_proof_closure_artifact_certificate"
+    ),
+    "external_backend_cryptographic_closure_candidate": (
+        "p1_external_backend_cryptographic_closure_candidate_certificate"
+    ),
+}
+CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACES = {
+    "threshold_output_certificate_digest": (
+        "P1SelectedBackendProofClosureArtifactCertificate"
+    ),
+    "real_recomputation_evidence_digest": (
+        "P1SelectedBackendProofClosureArtifactCertificate"
+    ),
+    "distributed_nonce_producer_artifact_digest": (
+        "P1SelectedBackendProofClosureArtifactCertificate"
+    ),
+    "external_backend_cryptographic_closure_candidate": (
+        "P1ExternalBackendCryptographicClosureCandidateCertificate"
+    ),
+}
 CRITERION2_ARTIFACT_FIXTURE_REFS = [
     {
         "slot_id": "threshold_output_certificate_digest",
@@ -434,6 +467,20 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
         "current_status": "actual_external_capture_missing",
+        "claim_boundary": "conformance/proof-review evidence only",
+    },
+    {
+        "slot_id": "external_backend_cryptographic_closure_candidate",
+        "fixture_path": (
+            "artifacts/p1-external-backend-cryptographic-closure-candidate/"
+            "latest/manifest.json"
+        ),
+        "schema": (
+            "lattice-aggregation:p1-external-backend-cryptographic-closure-"
+            "candidate:v1"
+        ),
+        "current_status": "evidence_present_unclosed",
+        "close_candidate": False,
         "claim_boundary": "conformance/proof-review evidence only",
     },
     {
@@ -1032,6 +1079,14 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "hazmat prf-output oracle",
         "p1 nonce producer selection",
         "standard_verifier_compatibility_artifact_digest",
+        "external_backend_cryptographic_closure_candidate",
+        "p1_external_backend_cryptographic_closure_candidate_gate",
+        "p1_external_backend_cryptographic_closure_candidate_package",
+        "p1externalbackendcryptographicclosurecandidatepackage",
+        "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
+        "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+        "close_candidate = false",
+        "actual external nonce capture",
         "evidence_present_unclosed",
         "evidence_present_unclosed only",
         "typed criterion 2 proof-slot artifact packages",
@@ -1153,14 +1208,14 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         == CRITERION2_DURABLE_CERTIFICATE_ACCESSORS.keys()
         and all(
             slot_by_id.get(slot_id, {}).get("certificate_surface")
-            == CRITERION2_DURABLE_CERTIFICATE_SURFACE
+            == CRITERION2_DURABLE_CERTIFICATE_SURFACES[slot_id]
             for slot_id in CRITERION2_DURABLE_CERTIFICATE_ACCESSORS
         )
         and all(
             durable_certificate_evidence_by_slot.get(slot_id, {}).get(
                 "certificate_surface"
             )
-            == CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACE
+            == CRITERION2_DURABLE_CERTIFICATE_EVIDENCE_SURFACES[slot_id]
             and durable_certificate_evidence_by_slot.get(slot_id, {}).get(
                 "certificate_accessor"
             )
@@ -1680,6 +1735,15 @@ def scan_documents(root):
     )
     hazmat_rejection_equivalence_batch_test = read_optional(
         "script_tests/test_run_hazmat_rejection_equivalence_batch.py"
+    )
+    p1_external_backend_closure_candidate_builder = read_optional(
+        "scripts/build_p1_external_backend_cryptographic_closure_candidate.py"
+    )
+    p1_external_backend_closure_candidate_builder_test = read_optional(
+        "script_tests/test_build_p1_external_backend_cryptographic_closure_candidate.py"
+    )
+    p1_external_backend_closure_candidate_manifest = read_optional(
+        "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json"
     )
     real_threshold_backend_capture_schema_fixture = read_optional(
         "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json"
@@ -3463,6 +3527,61 @@ def scan_documents(root):
             ]
         )
     )
+    p1_external_backend_cryptographic_closure_candidate_gate = (
+        p1_actual_external_nonce_producer_gate
+        and p1_real_threshold_backend_request_capture_binding_gate
+        and p1_hazmat_rejection_equivalence_batch_gate
+        and all(
+            token in p1_external_backend_closure_candidate_builder
+            for token in [
+                "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
+                "p1-external-backend-cryptographic-closure-candidate-v1",
+                "actual_external_capture_ready",
+                "admissible_external_backend_capture",
+                "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
+                "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+                "real_threshold_mldsa_external_capture",
+                "lattice-aggregation:p1-rejection-equivalence-batch:v1",
+                "distributed-nonce-prf-output-shares",
+                "predicate_mismatch_count",
+                "challenge_digest_matches",
+                "accepted_or_rejected_matches",
+                "standard_verifier_accepts_threshold_signature",
+                "repo_provider_accepts_threshold_signature",
+                "close_candidate",
+                "claims_theorem_closure",
+                "claims_rejection_distribution_preservation",
+                "evidence_present_unclosed",
+                "not theorem closure",
+            ]
+        )
+        and all(
+            token in p1_external_backend_closure_candidate_builder_test
+            for token in [
+                "test_missing_inputs_build_blocked_nonclosure_candidate",
+                "test_complete_evidence_bundle_computes_close_candidate_without_claiming_closure",
+                "test_distribution_comparison_must_also_be_close_candidate",
+                "actual external nonce capture is not ready",
+                "rejection-distribution comparison is not a close candidate",
+                "claims_theorem_closure",
+                "claims_rejection_distribution_preservation",
+            ]
+        )
+        and all(
+            token in p1_external_backend_closure_candidate_manifest
+            for token in [
+                "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
+                "p1-external-backend-cryptographic-closure-candidate-v1",
+                "\"status\": \"evidence_present_unclosed\"",
+                "\"close_candidate\": false",
+                "\"claims_theorem_closure\": false",
+                "\"claims_rejection_distribution_preservation\": false",
+                "\"claims_selected_backend_proof_closure\": false",
+                "actual external nonce capture is not ready",
+                "real threshold backend emission capture is missing",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -3694,6 +3813,9 @@ def scan_documents(root):
         ),
         "p1_hazmat_rejection_equivalence_batch_gate": (
             p1_hazmat_rejection_equivalence_batch_gate
+        ),
+        "p1_external_backend_cryptographic_closure_candidate_gate": (
+            p1_external_backend_cryptographic_closure_candidate_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -4347,7 +4469,25 @@ def classify_criteria(criteria, scan):
                     "does not close the theorem or move "
                     "aggregate_rejection_equivalence beyond partially_met "
                     "without reviewed distributed nonce-DKG replacement and "
-                    "external review."
+                        "external review."
+                )
+            if scan.get("p1_external_backend_cryptographic_closure_candidate_gate"):
+                partial_progress = True
+                observed.append(
+                    "A Batch 7 external-backend cryptographic closure-candidate "
+                    "artifact gate is present. It composes the strict actual "
+                    "external nonce-producer gate, request-bound real-threshold "
+                    "backend emission capture, standard-verifier acceptance "
+                    "evidence, mutation rejection evidence, and "
+                    "distributed-nonce-prf-output-shares rejection comparison "
+                    "into one computed close_candidate manifest. The current "
+                    "checked artifact remains evidence_present_unclosed with "
+                    "claims_theorem_closure, "
+                    "claims_rejection_distribution_preservation, and "
+                    "claims_selected_backend_proof_closure false; it does not "
+                    "close the theorem or move aggregate_rejection_equivalence "
+                    "beyond partially_met until the actual external backend "
+                    "captures and proof review are present."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

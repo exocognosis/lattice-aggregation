@@ -145,6 +145,24 @@ promoted handoff is `repo_reference_cli_capture`. Use `--strict` when a real
 external backend is available and CI should fail until the actual external slot
 is ready.
 
+Batch 7 consumes this gate through
+`scripts/build_p1_external_backend_cryptographic_closure_candidate.py`:
+
+```bash
+python3 scripts/build_p1_external_backend_cryptographic_closure_candidate.py \
+  --root . \
+  --nonce-gate artifacts/nonce-producer-actual-external-gate/latest/manifest.json \
+  --backend-manifest artifacts/backend-emission-capture/latest/manifest.json \
+  --backend-capture artifacts/backend-emission-capture/latest/capture.json \
+  --rejection-batch artifacts/p1-rejection-equivalence-batch/latest/batch.json \
+  --out artifacts/p1-external-backend-cryptographic-closure-candidate/latest
+```
+
+That builder computes `close_candidate`; it does not accept a manual closure
+claim and it keeps `claims_theorem_closure`,
+`claims_rejection_distribution_preservation`, and
+`claims_selected_backend_proof_closure` false.
+
 ## External Command-Origin Guard
 
 Batch 4 hardens the external-command boundary. The capture runner records
