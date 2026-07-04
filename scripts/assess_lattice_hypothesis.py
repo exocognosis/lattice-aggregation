@@ -1699,6 +1699,12 @@ def scan_documents(root):
     backend_emission_request_builder_test = read_optional(
         "script_tests/test_build_backend_emission_request.py"
     )
+    backend_emission_request_manifest = read_optional(
+        "artifacts/backend-emission-request/latest/manifest.json"
+    )
+    backend_emission_request_json = read_optional(
+        "artifacts/backend-emission-request/latest/request.json"
+    )
     nonce_producer_capture_runner = read_optional(
         "scripts/run_nonce_producer_capture.py"
     )
@@ -3405,6 +3411,32 @@ def scan_documents(root):
                 "evidence_present_unclosed",
             ]
         )
+        and all(
+            token in backend_emission_request_manifest
+            for token in [
+                "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+                "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+                "\"request_status\": \"evidence_present_unclosed\"",
+                "\"request_sha256\"",
+            ]
+        )
+        and all(
+            token in backend_emission_request_json
+            for token in [
+                "\"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\"",
+                "\"name\": \"p1-real-threshold-backend-emission-request-001\"",
+                "\"validator_count\": 10000",
+                "\"threshold\": 6667",
+                "\"aggregate_signature_len\": 3309",
+                "\"selected_profile_binding_digest_hex\"",
+                "\"threshold_output_certificate_digest_hex\"",
+                "\"standard_verifier_compatibility_artifact_digest_hex\"",
+                "\"backend_evidence\": \"real_threshold_mldsa_external_capture\"",
+                "\"mutated_message_rejected\": true",
+                "\"mutated_public_key_rejected\": true",
+                "\"mutated_signature_rejected\": true",
+            ]
+        )
     )
     p1_real_threshold_backend_request_capture_binding_gate = (
         p1_real_threshold_backend_emission_request_gate
@@ -4477,16 +4509,20 @@ def classify_criteria(criteria, scan):
                 partial_progress = True
                 observed.append(
                     "A repo-generated real-threshold backend emission request "
-                    "manifest is present for P1; it writes the P1 challenge "
-                    "contract that an external backend must answer, including "
-                    "10,000 validators, threshold 6,667, message bytes, "
-                    "predecessor certificate digests, required capture schema, "
-                    "external RealThresholdMldsa evidence class, mutation "
-                    "rejection requirements, and forbidden localnet/simulation "
-                    "capture sources. This is evidence_present_unclosed "
-                    "conformance/proof-review evidence only, does not change "
-                    "aggregate_rejection_equivalence from partially_met, and "
-                    "does not change the overall verdict from partially_proven."
+                    "artifact is present for P1 at "
+                    "artifacts/backend-emission-request/latest/request.json; "
+                    "it writes the P1 challenge contract that an external "
+                    "backend must answer, including 10,000 validators, "
+                    "threshold 6,667, message bytes, predecessor certificate "
+                    "digests, required capture schema, external "
+                    "RealThresholdMldsa evidence class, mutation rejection "
+                    "requirements, forbidden localnet/simulation capture "
+                    "sources, and a request SHA-256 recorded in "
+                    "artifacts/backend-emission-request/latest/manifest.json. "
+                    "This is evidence_present_unclosed conformance/proof-review "
+                    "evidence only, does not change aggregate_rejection_equivalence "
+                    "from partially_met, and does not change the overall verdict "
+                    "from partially_proven."
                 )
             if scan.get("p1_real_threshold_backend_request_capture_binding_gate"):
                 partial_progress = True

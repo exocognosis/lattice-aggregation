@@ -199,8 +199,11 @@ The Criterion 2 proof payload requires these slots before any promotion:
   required capture schema, external `RealThresholdMldsa` evidence class, and
   mutation-rejection requirements. The capture runner loads this request JSON
   and requires the backend capture to echo the exact request digest before
-  writing artifacts. It remains `evidence_present_unclosed` and is not proof
-  closure.
+  writing artifacts. The current checked request is
+  `artifacts/backend-emission-request/latest/request.json`, with request
+  SHA-256 `804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1`
+  recorded in `artifacts/backend-emission-request/latest/manifest.json`. It
+  remains `evidence_present_unclosed` and is not proof closure.
   The repo-owned hazmat threshold backend capture adapter
   `scripts/run_hazmat_threshold_backend_capture.py` is the explicit-backend
   bridge for the current 10,000-validator experiment: it requires

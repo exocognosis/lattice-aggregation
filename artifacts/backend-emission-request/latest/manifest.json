@@ -1,0 +1,8 @@
+{
+  "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+  "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
+  "request_status": "evidence_present_unclosed",
+  "schema_version": 1
+}

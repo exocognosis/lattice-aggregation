@@ -184,6 +184,9 @@
         "backend_output_adapter": "derive_p1_verified_real_threshold_backend_emission_artifact_package",
         "backend_emission_request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
         "backend_emission_request_builder": "scripts/build_backend_emission_request.py",
+        "backend_emission_request_artifact": "artifacts/backend-emission-request/latest/request.json",
+        "backend_emission_request_manifest": "artifacts/backend-emission-request/latest/manifest.json",
+        "backend_emission_request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
         "backend_emission_request_status": "evidence_present_unclosed",
         "backend_emission_request_claim_boundary": "conformance/proof-review evidence only",
         "backend_request_capture_binding": "capture embeds request schema, request name, and request_sha256; runner rejects missing, stale, or mismatched request bindings",
@@ -483,6 +486,10 @@
     "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
     "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
     "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+    "artifacts/backend-emission-request/latest/request.json",
+    "artifacts/backend-emission-request/latest/manifest.json",
+    "artifacts/backend-emission-request/latest/summary.md",
+    "artifacts/backend-emission-request/latest/SHA256SUMS",
     "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
     "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
@@ -510,7 +517,11 @@
       "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS",
       "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "artifacts/p1-external-backend-evidence-attempt/latest/summary.md": "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
-      "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS": "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS"
+      "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS": "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+      "artifacts/backend-emission-request/latest/request.json": "artifacts/backend-emission-request/latest/request.json",
+      "artifacts/backend-emission-request/latest/manifest.json": "artifacts/backend-emission-request/latest/manifest.json",
+      "artifacts/backend-emission-request/latest/summary.md": "artifacts/backend-emission-request/latest/summary.md",
+      "artifacts/backend-emission-request/latest/SHA256SUMS": "artifacts/backend-emission-request/latest/SHA256SUMS"
     }
   },
   "external_capture_provenance_requirements": [
@@ -531,6 +542,7 @@
     "rejection_distribution_batch_sha256",
     "closure_candidate_manifest_sha256",
     "external_backend_evidence_attempt_manifest_sha256",
+    "backend_emission_request_manifest_sha256",
     "source_exclusion_passed"
   ],
   "assessment": {

@@ -26,7 +26,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-04T18:51:44Z",
+  "generated_at": "2026-07-04T19:01:03Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",

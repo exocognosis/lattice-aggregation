@@ -1271,6 +1271,45 @@ class ReportGenerationTests(unittest.TestCase):
             "evidence_present_unclosed\n",
             encoding="utf-8",
         )
+        artifact_dir = root / "artifacts" / "backend-emission-request" / "latest"
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        (artifact_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"capture_schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\",\n"
+            "  \"claim_boundary\": \"conformance/proof-review evidence only\",\n"
+            "  \"request_schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\",\n"
+            "  \"request_sha256\": \"1111111111111111111111111111111111111111111111111111111111111111\",\n"
+            "  \"request_status\": \"evidence_present_unclosed\",\n"
+            "  \"schema_version\": 1\n"
+            "}\n",
+            encoding="utf-8",
+        )
+        (artifact_dir / "request.json").write_text(
+            "{\n"
+            "  \"aggregate_signature_len\": 3309,\n"
+            "  \"claim_boundary\": \"conformance/proof-review evidence only\",\n"
+            "  \"message\": {\"encoding\": \"hex\", \"value\": \"74657374\"},\n"
+            "  \"name\": \"p1-real-threshold-backend-emission-request-001\",\n"
+            "  \"predecessors\": {\n"
+            "    \"selected_profile_binding_digest_hex\": \"2222222222222222222222222222222222222222222222222222222222222222\",\n"
+            "    \"standard_verifier_compatibility_artifact_digest_hex\": \"3333333333333333333333333333333333333333333333333333333333333333\",\n"
+            "    \"threshold_output_certificate_digest_hex\": \"4444444444444444444444444444444444444444444444444444444444444444\"\n"
+            "  },\n"
+            "  \"request_status\": \"evidence_present_unclosed\",\n"
+            "  \"required_capture\": {\n"
+            "    \"backend_evidence\": \"real_threshold_mldsa_external_capture\",\n"
+            "    \"mutated_message_rejected\": true,\n"
+            "    \"mutated_public_key_rejected\": true,\n"
+            "    \"mutated_signature_rejected\": true,\n"
+            "    \"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\"\n"
+            "  },\n"
+            "  \"schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\",\n"
+            "  \"selected_profile\": \"ML-DSA-65 coordinator-assisted Shamir nonce DKG P1\",\n"
+            "  \"threshold\": 6667,\n"
+            "  \"validator_count\": 10000\n"
+            "}\n",
+            encoding="utf-8",
+        )
 
     def write_hazmat_threshold_backend_capture_adapter_gate(self, root):
         self.write_p1_real_threshold_backend_emission_request_gate(root)
@@ -3008,6 +3047,8 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertEqual(aggregate["status"], "partially_met")
         self.assertIn("repo-generated real-threshold backend emission request", aggregate_evidence)
+        self.assertIn("artifacts/backend-emission-request/latest/request.json", aggregate_evidence)
+        self.assertIn("request SHA-256", aggregate_evidence)
         self.assertIn("P1 challenge contract", aggregate_evidence)
         self.assertIn("required capture schema", aggregate_evidence)
         self.assertIn("exact repo-generated request digest", aggregate_evidence)

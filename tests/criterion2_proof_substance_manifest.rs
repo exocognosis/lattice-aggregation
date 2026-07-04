@@ -193,6 +193,18 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                     "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
                 );
                 assert_eq!(
+                    slot["backend_emission_request_artifact"],
+                    "artifacts/backend-emission-request/latest/request.json"
+                );
+                assert_eq!(
+                    slot["backend_emission_request_manifest"],
+                    "artifacts/backend-emission-request/latest/manifest.json"
+                );
+                assert_eq!(
+                    slot["backend_emission_request_sha256"],
+                    "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1"
+                );
+                assert_eq!(
                     slot["backend_capture_importer"],
                     "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture"
                 );
@@ -448,6 +460,10 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
         "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
         "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+        "artifacts/backend-emission-request/latest/request.json",
+        "artifacts/backend-emission-request/latest/manifest.json",
+        "artifacts/backend-emission-request/latest/summary.md",
+        "artifacts/backend-emission-request/latest/SHA256SUMS",
     ] {
         assert_eq!(pipeline["artifacts"][artifact], artifact);
         assert!(
