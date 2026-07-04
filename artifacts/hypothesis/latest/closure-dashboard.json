@@ -1,7 +1,7 @@
 {
   "branch": "codex/p1-admissible-backend-profile",
   "claim_boundary": "research scaffold only",
-  "commit": "fc3d82e924278f63d3499308d1e847d01b113e29",
+  "commit": "514ff11af3afce329b453dbabe1b0dd2e630e437",
   "criteria": [
     {
       "blocker_count": 3,
@@ -10,9 +10,9 @@
       "status": "partially_met"
     },
     {
-      "blocker_count": 9,
+      "blocker_count": 12,
       "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 26,
+      "observed_evidence_count": 29,
       "status": "partially_met"
     },
     {

@@ -305,6 +305,57 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertIn("reference CLI", manifest["quarantine"]["reason"])
         self.assertIn("not actual backend evidence", manifest["quarantine"]["allowed_use"])
 
+    def test_build_report_rejects_repo_local_wrapper_as_actual_external_backend(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            wrapper = root / "tools" / "nonce_backend_wrapper.py"
+            wrapper.parent.mkdir(parents=True)
+            wrapper.write_text("print('backend wrapper')\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "repo-local backend command"):
+                module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=["python3", str(wrapper)],
+                    command_runner=fake_capture_runner,
+                    metadata_provider=fake_metadata,
+                )
+
+    def test_build_report_records_outside_repo_command_origin_for_external_backend(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            outside = pathlib.Path(temp_dir).parent / "reviewed_nonce_backend.py"
+            outside.write_text("print('external backend')\n", encoding="utf-8")
+            try:
+                report = module.build_report(
+                    root,
+                    request_path=request_path,
+                    backend_command=["python3", str(outside), "emit"],
+                    command_runner=fake_capture_runner,
+                    metadata_provider=fake_metadata,
+                )
+            finally:
+                outside.unlink(missing_ok=True)
+
+        manifest = report["manifest"]
+        self.assertEqual(
+            manifest["capture_source_profile"],
+            "admissible_external_backend_capture",
+        )
+        self.assertEqual(
+            manifest["backend_command_origin"],
+            "outside_repo_executable_or_script",
+        )
+        self.assertFalse(manifest["quarantine"]["quarantined"])
+
     def test_build_report_raises_structured_execution_error_with_command_output(self):
         module = load_module()
 

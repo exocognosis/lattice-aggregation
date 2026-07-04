@@ -23,6 +23,8 @@ EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
 CAPTURE_SOURCE_PROFILE_EXTERNAL = "admissible_external_backend_capture"
 CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY = "quarantined_local_schema_replay"
 CAPTURE_SOURCE_PROFILE_REFERENCE_CLI = "repo_reference_cli_capture"
+COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
+COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
 QUARANTINED_LOCAL_REPLAY_TOKENS = (
     "emit_reviewed_nonce_producer_capture.py",
     "emit_reviewed_nonce_producer_capture",
@@ -188,17 +190,79 @@ def is_reference_cli_command(command):
     return any(token in command_text for token in REFERENCE_CLI_TOKENS)
 
 
-def validate_capture_source_profile(command, allow_quarantined_replay=False):
+def is_python_executable(value):
+    """Return true when a command path names a Python interpreter."""
+    name = Path(value).name.lower()
+    return name == "python" or name.startswith("python3")
+
+
+def looks_like_path(value):
+    """Return true when a command token should be interpreted as a path."""
+    return (
+        value.startswith(("/", "./", "../", "~"))
+        or "/" in value
+        or "\\" in value
+    )
+
+
+def backend_command_path_candidates(command):
+    """Return executable/script path tokens that can identify command origin."""
+    command = list(command)
+    if not command:
+        return []
+    if is_python_executable(command[0]):
+        for arg in command[1:]:
+            if arg in {"-c", "-m"}:
+                return []
+            if arg.startswith("-"):
+                continue
+            return [arg] if looks_like_path(arg) else []
+        return []
+    return [command[0]] if looks_like_path(command[0]) else []
+
+
+def resolve_command_path(root, token):
+    """Resolve a command path token without requiring it to exist."""
+    path = Path(token).expanduser()
+    if not path.is_absolute():
+        path = Path(root) / path
+    return path.resolve(strict=False)
+
+
+def path_is_within(child, parent):
+    """Return true when child resolves inside parent."""
+    try:
+        child.relative_to(parent)
+        return True
+    except ValueError:
+        return False
+
+
+def backend_command_origin(root, command):
+    """Classify whether the command path is outside the repository."""
+    repo_root = Path(root).resolve(strict=False)
+    for token in backend_command_path_candidates(command):
+        if path_is_within(resolve_command_path(repo_root, token), repo_root):
+            return COMMAND_ORIGIN_REPO_LOCAL
+    return COMMAND_ORIGIN_EXTERNAL
+
+
+def validate_capture_source_profile(root, command, allow_quarantined_replay=False):
     """Classify command source as external or quarantined local schema replay."""
     if is_quarantined_local_replay_command(command):
         if not allow_quarantined_replay:
             raise ValueError(
                 "quarantined local replay source cannot be used as actual "
                 "external nonce-producer capture"
-            )
+        )
         return CAPTURE_SOURCE_PROFILE_QUARANTINED_REPLAY
     if is_reference_cli_command(command):
         return CAPTURE_SOURCE_PROFILE_REFERENCE_CLI
+    if backend_command_origin(root, command) == COMMAND_ORIGIN_REPO_LOCAL:
+        raise ValueError(
+            "repo-local backend command cannot be classified as "
+            f"{CAPTURE_SOURCE_PROFILE_EXTERNAL}"
+        )
     return CAPTURE_SOURCE_PROFILE_EXTERNAL
 
 
@@ -525,7 +589,9 @@ def build_report(
 
     root = Path(root)
     validate_backend_command(list(backend_command))
+    command_origin = backend_command_origin(root, list(backend_command))
     capture_source_profile = validate_capture_source_profile(
+        root,
         list(backend_command),
         allow_quarantined_replay=allow_quarantined_replay,
     )
@@ -567,6 +633,7 @@ def build_report(
         "request_path": str(request_path) if request_path else None,
         "producer_evidence": EXTERNAL_PRODUCER_EVIDENCE,
         "capture_source_profile": capture_source_profile,
+        "backend_command_origin": command_origin,
         "quarantine": quarantine_record(capture_source_profile),
         "backend_command": list(backend_command),
         "command_duration_seconds": result["duration_seconds"],

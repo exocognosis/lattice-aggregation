@@ -4,7 +4,7 @@ This artifact inspects a candidate backend before the executable nonce-producer 
 
 - Status: `backend_candidate_admissible_pending_capture`
 - Backend package: `lattice-aggregation`
-- Request SHA-256: `8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253`
+- Request SHA-256: `527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047`
 - Source tree SHA-256: `c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75`
 - Admissible for P1 handoff: `true`
 - Quarantined sources: `false`

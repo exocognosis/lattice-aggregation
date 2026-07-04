@@ -5,16 +5,17 @@
     "--request",
     "artifacts/nonce-producer-handoff/latest/request/request.json"
   ],
+  "backend_command_origin": "repo_local_executable_or_script",
   "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-  "capture_sha256": "18fb7229ae1d1cfa1933c9f385cb48156cf5764dfe0ef8b66a978d057d19b368",
+  "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
   "capture_source_profile": "quarantined_local_schema_replay",
   "claim_boundary": "conformance/proof-review evidence only",
-  "command_duration_seconds": 0.026,
+  "command_duration_seconds": 0.029,
   "exit_code": 0,
   "external_capture_provenance": {
     "backend_command_sha256": "fee955c5bd3fd0ad16c8eaf00f6d43424f697107d10d365e25b6925ef3c9a84e",
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-    "capture_sha256": "18fb7229ae1d1cfa1933c9f385cb48156cf5764dfe0ef8b66a978d057d19b368",
+    "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
     "claim_boundary": "conformance/proof-review evidence only",
     "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
     "expected_digest_fields": [
@@ -40,16 +41,16 @@
     ],
     "request_name": "p1-reviewed-nonce-producer-request-001",
     "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-    "request_sha256": "ebb64173514bf6273e50dbd62ff5ad4e713ec20867ff9cca1c2a48886b1051d8",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
-  "generated_at": "2026-07-03T17:30:10Z",
+  "generated_at": "2026-07-04T04:10:56Z",
   "metadata": {
-    "branch": "codex/quarantine-admissible-handoff",
+    "branch": "codex/p1-admissible-backend-profile",
     "cargo_lock_sha256": "7f8a1640ad2200429278e4da75c6f5b8a687c55c8b10d8dfdfcc9776f0aea7b8",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "817ae0e1281ba8c582705c8f764c04b917298b11",
+    "commit": "db0619370dcd62542804c3fc4dce216f50eb182e",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",
@@ -64,7 +65,7 @@
   "request_name": "p1-reviewed-nonce-producer-request-001",
   "request_path": "artifacts/nonce-producer-handoff/latest/request/request.json",
   "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-  "request_sha256": "ebb64173514bf6273e50dbd62ff5ad4e713ec20867ff9cca1c2a48886b1051d8",
+  "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
   "runner_status": "evidence_present_unclosed",
   "schema_version": 1
 }

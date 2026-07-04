@@ -5,8 +5,8 @@ This artifact builds the current repo request and replays the capture/import han
 - Request schema: `lattice-aggregation:p1-distributed-nonce-producer-request:v1`
 - Capture schema: `lattice-aggregation:p1-distributed-nonce-producer-capture:v1`
 - Request: `p1-reviewed-nonce-producer-request-001`
-- Request SHA-256: `8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253`
-- Capture SHA-256: `20594e85cb9bd296db1addc7a84d70a8d1f80f8365b27f71d7c00b6e30011015`
+- Request SHA-256: `527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047`
+- Capture SHA-256: `66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64`
 - Producer evidence: `p1_shamir_nonce_dkg_tee_external_capture`
 - Backend readiness: `backend_candidate_admissible_pending_capture`
 - Backend package: `lattice-aggregation`

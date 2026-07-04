@@ -4,7 +4,7 @@ This artifact records the executable decision point before promoting a P1 distri
 
 - Status: `capture_promoted`
 - Request: `p1-reviewed-nonce-producer-request-001`
-- Request SHA-256: `8e9dd7c33e9af31f3c40a8b3c54ad0737a48972ce128c596ecc70420b16a7253`
+- Request SHA-256: `527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047`
 - Backend package: `lattice-aggregation`
 - Backend command executed: `true`
 - Readiness status: `backend_candidate_admissible_pending_capture`

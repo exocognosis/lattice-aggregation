@@ -1,7 +1,7 @@
 {
   "actual_external_capture_ready": false,
   "attempt_manifest_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
-  "attempt_manifest_sha256": "40ea1d4cdfaf3673490f9f212047b80b9535bfd720f2a7b39ee3920e2f7d285e",
+  "attempt_manifest_sha256": "39e3913bca5167ee4e75679ed1132e3bf8f77154d2c5dea6bcfd3687082a52e6",
   "attempt_quarantine": {
     "allowed_use": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
     "quarantined": true,
@@ -19,9 +19,9 @@
   "closure_boundary": "Actual external nonce-producer capture gate only; even a ready capture remains proof-review evidence until rejection-distribution and theorem obligations are discharged.",
   "expected_source_profile": "admissible_external_backend_capture",
   "gate_status": "actual_external_capture_missing",
-  "generated_at": "2026-07-04T02:25:32Z",
+  "generated_at": "2026-07-04T04:11:10Z",
   "handoff_manifest_path": "artifacts/nonce-producer-capture-attempt/latest/handoff/manifest.json",
-  "handoff_manifest_sha256": "535004691d57e36d7624d550fa859bd0da38ec7b87633032773dce42ecb11019",
+  "handoff_manifest_sha256": "62bc108d3772baf4465dadc151bf1fa18d568aa223dba3af3f121b6d83b7c502",
   "handoff_quarantine": {
     "allowed_use": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
     "quarantined": true,
