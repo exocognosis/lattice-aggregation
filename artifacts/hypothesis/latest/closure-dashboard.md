@@ -3,12 +3,12 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-admissible-backend-profile`
-Commit: `db0619370dcd62542804c3fc4dce216f50eb182e`
+Commit: `514ff11af3afce329b453dbabe1b0dd2e630e437`
 
 ## Criteria
 
 - `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (27 evidence entries, 10 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (29 evidence entries, 12 blockers)
 - `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
 - `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
 - `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)

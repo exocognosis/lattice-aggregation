@@ -1052,9 +1052,12 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "scripts/check_nonce_producer_backend_readiness.py",
         "scripts/run_admissible_nonce_producer_capture_attempt.py",
         "scripts/verify_actual_nonce_producer_capture.py",
+        "scripts/stage_external_nonce_producer_capture.py",
         "backend_candidate_admissible_pending_capture",
         "capture_promoted",
         "actual_external_capture_missing",
+        "outside_repo_capture_file",
+        "preexisting_external_capture_file",
         "capture-attempt runner",
         "distributed nonce-prf interfaces",
         "no detected blockers",
@@ -1651,6 +1654,12 @@ def scan_documents(root):
     )
     nonce_producer_actual_external_gate_manifest = read_optional(
         "artifacts/nonce-producer-actual-external-gate/latest/manifest.json"
+    )
+    nonce_producer_external_capture_file_intake = read_optional(
+        "scripts/stage_external_nonce_producer_capture.py"
+    )
+    nonce_producer_external_capture_file_intake_test = read_optional(
+        "script_tests/test_stage_external_nonce_producer_capture.py"
     )
     nonce_producer_request_builder = read_optional(
         "scripts/build_nonce_producer_request.py"
@@ -2588,6 +2597,40 @@ def scan_documents(root):
                 "repo_reference_cli_capture",
                 "admissible_external_backend_capture",
                 "not actual backend evidence",
+            ]
+        )
+    )
+    p1_external_nonce_producer_capture_file_intake = (
+        p1_actual_external_nonce_producer_gate
+        and all(
+            token in nonce_producer_external_capture_file_intake
+            for token in [
+                "ATTEMPT_SCHEMA",
+                "HANDOFF_SCHEMA",
+                "CAPTURE_FILE_ORIGIN_EXTERNAL",
+                "outside_repo_capture_file",
+                "repo_local_capture_file",
+                "preexisting_external_capture_file",
+                "admissible_external_backend_capture",
+                "require_outside_repo_capture_file",
+                "validate_readiness",
+                "validate_capture_matches_request",
+                "build_intake",
+                "write_artifacts",
+                "does not prove Criterion 2",
+            ]
+        )
+        and all(
+            token in nonce_producer_external_capture_file_intake_test
+            for token in [
+                "test_outside_repo_capture_file_stages_non_quarantined_attempt_for_actual_gate",
+                "test_repo_local_capture_file_is_rejected_before_promotion",
+                "test_blocked_or_stale_readiness_is_rejected_before_promotion",
+                "test_stale_capture_request_digest_is_rejected_before_promotion",
+                "actual_external_capture_ready",
+                "outside_repo_capture_file",
+                "repo-local capture file",
+                "request digest mismatch",
             ]
         )
     )
@@ -3612,6 +3655,9 @@ def scan_documents(root):
         "p1_actual_external_nonce_producer_gate": (
             p1_actual_external_nonce_producer_gate
         ),
+        "p1_external_nonce_producer_capture_file_intake": (
+            p1_external_nonce_producer_capture_file_intake
+        ),
         "p1_standard_verifier_compatibility_artifact_gate": (
             p1_standard_verifier_compatibility_artifact_gate
         ),
@@ -4084,6 +4130,29 @@ def classify_criteria(criteria, scan):
                     "the reviewed external backend slot. A non-quarantined "
                     "admissible_external_backend_capture from an independently "
                     "generated reviewed backend is still required."
+                )
+            if scan.get("p1_external_nonce_producer_capture_file_intake"):
+                partial_progress = True
+                observed.append(
+                    "A P1 external nonce-producer capture-file intake path is "
+                    "present; it stages a preexisting outside_repo_capture_file "
+                    "only after admissible readiness, rejects repo-local "
+                    "capture files, validates the exact request digest through "
+                    "the capture runner, writes attempt-compatible handoff "
+                    "artifacts with preexisting_external_capture_file "
+                    "provenance, and can make the actual-external gate ready "
+                    "in tests only for non-quarantined "
+                    "admissible_external_backend_capture material. This is "
+                    "evidence_present_unclosed boundary evidence only and "
+                    "does not claim theorem closure, rejection-distribution "
+                    "preservation, or production threshold ML-DSA security."
+                )
+                blockers.append(
+                    "The external capture-file intake is executable, but the "
+                    "repo still needs a real outside-repo reviewed nonce-DKG/TEE "
+                    "capture file from an independently operated backend "
+                    "before the current checked actual-external artifact can "
+                    "move from actual_external_capture_missing to ready."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

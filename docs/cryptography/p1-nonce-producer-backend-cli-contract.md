@@ -158,6 +158,33 @@ can satisfy the actual external backend slot. This is an intake guard only: a
 non-quarantined external command still has to emit a request-bound reviewed
 capture whose package digests import through the Rust gate.
 
+## External Capture-File Intake
+
+Batch 5 adds a file-based intake path for reviewed captures already emitted by
+an independently operated backend outside the repo:
+
+```bash
+python3 scripts/stage_external_nonce_producer_capture.py \
+  --root . \
+  --request artifacts/nonce-producer-handoff/latest/request/request.json \
+  --readiness artifacts/nonce-producer-backend-readiness/latest/manifest.json \
+  --capture-file /path/outside/repo/p1-nonce-producer-capture.json \
+  --out artifacts/nonce-producer-external-capture-intake/latest
+
+python3 scripts/verify_actual_nonce_producer_capture.py \
+  --root . \
+  --attempt artifacts/nonce-producer-external-capture-intake/latest/manifest.json \
+  --out artifacts/nonce-producer-actual-external-gate/latest \
+  --strict
+```
+
+The intake rejects repo-local capture files, requires admissible readiness,
+validates the exact request digest and capture schema through the same capture
+runner checks, and writes an attempt-compatible handoff with
+`preexisting_external_capture_file` provenance. This still does not prove
+Criterion 2; it only gives a strict path for a real external capture file to
+occupy the actual backend slot.
+
 ## Real Backend Handoff
 
 For a real external backend, `scripts/run_nonce_producer_handoff_replay.py`

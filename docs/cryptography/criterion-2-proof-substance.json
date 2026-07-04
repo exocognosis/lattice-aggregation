@@ -111,6 +111,10 @@
         "actual_external_capture_gate_expected_source_profile": "admissible_external_backend_capture",
         "actual_external_capture_gate_current_source_profile": "repo_reference_cli_capture",
         "actual_external_capture_gate_blocker": "current promoted reference CLI capture is quarantined and is not actual backend evidence",
+        "external_capture_file_intake": "scripts/stage_external_nonce_producer_capture.py",
+        "external_capture_file_origin_required": "outside_repo_capture_file",
+        "external_capture_file_intake_mode": "preexisting_external_capture_file",
+        "external_capture_file_intake_status": "available_but_waiting_for_reviewed_external_capture_file",
         "backend_capture_attempt_failure_statuses": [
           "capture_execution_failed",
           "capture_validation_failed"
@@ -367,6 +371,7 @@
     "scripts/check_nonce_producer_backend_readiness.py",
     "scripts/run_admissible_nonce_producer_capture_attempt.py",
     "scripts/verify_actual_nonce_producer_capture.py",
+    "scripts/stage_external_nonce_producer_capture.py",
     "scripts/run_nonce_producer_handoff_replay.py",
     "artifacts/nonce-producer-handoff/latest/manifest.json",
     "artifacts/nonce-producer-handoff/latest/request/request.json",

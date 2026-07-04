@@ -1125,6 +1125,36 @@ class ReportGenerationTests(unittest.TestCase):
             "}\n",
             encoding="utf-8",
         )
+        (
+            root / "scripts" / "stage_external_nonce_producer_capture.py"
+        ).write_text(
+            "ATTEMPT_SCHEMA = \"lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1\"\n"
+            "HANDOFF_SCHEMA = \"lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1\"\n"
+            "CAPTURE_FILE_ORIGIN_EXTERNAL = \"outside_repo_capture_file\"\n"
+            "CAPTURE_FILE_ORIGIN_REPO_LOCAL = \"repo_local_capture_file\"\n"
+            "BACKEND_EXECUTION_MODE = \"preexisting_external_capture_file\"\n"
+            "CAPTURE_SOURCE_PROFILE_EXTERNAL = \"admissible_external_backend_capture\"\n"
+            "def require_outside_repo_capture_file(root, capture_file): pass\n"
+            "def validate_readiness(readiness_path, request, request_sha256): pass\n"
+            "def validate_capture_matches_request(capture, request): pass\n"
+            "def build_intake(): pass\n"
+            "def write_artifacts(): pass\n"
+            "does not prove Criterion 2\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_stage_external_nonce_producer_capture.py"
+        ).write_text(
+            "def test_outside_repo_capture_file_stages_non_quarantined_attempt_for_actual_gate(): pass\n"
+            "def test_repo_local_capture_file_is_rejected_before_promotion(): pass\n"
+            "def test_blocked_or_stale_readiness_is_rejected_before_promotion(): pass\n"
+            "def test_stale_capture_request_digest_is_rejected_before_promotion(): pass\n"
+            "actual_external_capture_ready\n"
+            "outside_repo_capture_file\n"
+            "repo-local capture file\n"
+            "request digest mismatch\n",
+            encoding="utf-8",
+        )
 
     def write_p1_real_threshold_backend_actual_capture_runner_gate(self, root):
         self.write_p1_real_threshold_backend_output_gate(root)
@@ -1808,9 +1838,12 @@ class ReportGenerationTests(unittest.TestCase):
             "scripts/check_nonce_producer_backend_readiness.py, "
             "scripts/run_admissible_nonce_producer_capture_attempt.py, "
             "scripts/verify_actual_nonce_producer_capture.py, "
+            "scripts/stage_external_nonce_producer_capture.py, "
             "backend_candidate_admissible_pending_capture, "
             "capture_promoted, "
             "actual_external_capture_missing, "
+            "outside_repo_capture_file, "
+            "preexisting_external_capture_file, "
             "capture-attempt runner, "
             "distributed nonce-PRF interfaces, "
             "no detected blockers, "
@@ -2476,6 +2509,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertTrue(scan["p1_nonce_producer_capture_attempt_gate"])
         self.assertTrue(scan["p1_actual_external_nonce_producer_gate"])
         self.assertTrue(scan["p1_nonce_producer_external_origin_guard"])
+        self.assertTrue(scan["p1_external_nonce_producer_capture_file_intake"])
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -2506,6 +2540,9 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("external command-origin guard", aggregate_evidence)
         self.assertIn("repo-local backend command", aggregate_evidence)
         self.assertIn("outside_repo_executable_or_script", aggregate_evidence)
+        self.assertIn("external nonce-producer capture-file intake", aggregate_evidence)
+        self.assertIn("outside_repo_capture_file", aggregate_evidence)
+        self.assertIn("preexisting_external_capture_file", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
@@ -2519,6 +2556,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("admissible_external_backend_capture", aggregate_blockers)
         self.assertIn("independently installed backend command", aggregate_blockers)
         self.assertIn("outside the repo", aggregate_blockers)
+        self.assertIn("external capture-file intake", aggregate_blockers)
+        self.assertIn("actual_external_capture_missing", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 

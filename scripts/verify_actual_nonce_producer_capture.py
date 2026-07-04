@@ -14,6 +14,7 @@ ATTEMPT_SCHEMA = "lattice-aggregation:p1-admissible-nonce-producer-capture-attem
 HANDOFF_SCHEMA = "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1"
 CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 EXPECTED_SOURCE_PROFILE = "admissible_external_backend_capture"
+REFERENCE_SOURCE_PROFILE = "repo_reference_cli_capture"
 STATUS_READY = "actual_external_capture_ready"
 STATUS_MISSING = "actual_external_capture_missing"
 
