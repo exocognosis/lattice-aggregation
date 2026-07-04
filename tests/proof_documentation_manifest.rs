@@ -160,6 +160,11 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
             "blocked_external_evidence_missing",
             "source_exclusion_passed",
+            "lattice-aggregation:p1-external-backend-evidence-package-review:v1",
+            "reviewed_external_backend_evidence_ready",
+            "outside_repo_review_manifest",
+            "review_package_binds_inputs",
+            "reviewed external evidence package is missing",
             "Mldsa65DistributedNonceProducerArtifact",
             "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output",
             "derive_p1_distributed_nonce_producer_artifact_package_from_capture",
@@ -1324,6 +1329,7 @@ fn blocker_evidence_docs_keep_claim_boundary() {
             "`artifacts/p1-external-backend-evidence-attempt/latest/manifest.json`",
             "`blocked_external_evidence_missing`",
             "`source_exclusion_passed = false`",
+            "`review_package_binds_inputs`",
         ],
     );
     assert_contains_all(

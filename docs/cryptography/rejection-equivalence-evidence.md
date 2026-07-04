@@ -276,6 +276,14 @@ because the available nonce path is still `repo_reference_cli_capture`. A future
 ready attempt requires both `close_candidate = true` and
 `source_exclusion_passed = true`, while keeping theorem-closure and
 rejection-distribution-preservation claims false until external proof review.
+Batch 9 adds the reviewed external evidence package precondition to that grouped
+attempt. A ready attempt must also carry schema
+`lattice-aggregation:p1-external-backend-evidence-package-review:v1` from
+`outside_repo_review_manifest` origin, with `review_package_binds_inputs`
+recorded as true over the actual nonce gate, backend capture, rejection batch,
+and Batch 7 candidate digest, plus source-exclusion and review-digest checks.
+The checked attempt remains blocked because the reviewed external evidence
+package is missing; this is a proof-review gate, not theorem closure.
 The selected replacement route is now tracked in
 [`p1-nonce-producer-selection.md`](p1-nonce-producer-selection.md) as
 `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`; Criterion 2 now

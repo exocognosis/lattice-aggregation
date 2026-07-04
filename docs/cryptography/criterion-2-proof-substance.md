@@ -498,6 +498,17 @@ is `blocked_external_evidence_missing` with `close_candidate = false`, because
 the actual external nonce capture still resolves to `repo_reference_cli_capture`
 and the real backend/rejection artifacts are absent. This is the first grouped
 attempt harness for the closure run, not theorem closure.
+Batch 9 hardens the same grouped attempt with a reviewed external evidence
+package gate. The runner now accepts `--review-package` pointing at schema
+`lattice-aggregation:p1-external-backend-evidence-package-review:v1`; the
+package must have `reviewed_external_backend_evidence_ready` status,
+`outside_repo_review_manifest` origin, `admissible_external_backend_capture`
+source profile, `review_package_binds_inputs = true` over the actual external
+nonce gate, real-threshold backend capture, rejection batch, and Batch 7
+candidate digest, plus source-exclusion and review-digest checks. The checked
+attempt records `review_package_present = false` and
+`reviewed external evidence package is missing`, so Criterion 2 remains
+`partially_met`.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.
@@ -530,6 +541,8 @@ linked:
   actual external nonce and real-threshold backend captures;
 - reviewed Batch 8 grouped external-evidence attempt with `source_exclusion_passed`
   true and `close_candidate = true`;
+- reviewed Batch 9 external evidence package with `review_package_binds_inputs`
+  true, source exclusions passed, and review digests present;
 - theorem-linkage review.
 
 The existing selected-backend proof-closure artifact package gate is necessary

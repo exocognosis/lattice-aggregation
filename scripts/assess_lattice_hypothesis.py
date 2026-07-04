@@ -3703,6 +3703,47 @@ def scan_documents(root):
             ]
         )
     )
+    p1_external_backend_evidence_package_review_gate = (
+        p1_external_backend_evidence_attempt_gate
+        and all(
+            token in p1_external_backend_evidence_attempt_runner
+            for token in [
+                "lattice-aggregation:p1-external-backend-evidence-package-review:v1",
+                "reviewed_external_backend_evidence_ready",
+                "outside_repo_review_manifest",
+                "review_package_checks",
+                "review_package_expected_input_sha256s",
+                "review_package_present",
+                "review_package_binds_inputs",
+                "review_package_claim_boundary_passed",
+                "review_package_source_exclusions_passed",
+                "review_package_review_digests_present",
+                "--review-package",
+            ]
+        )
+        and all(
+            token in p1_external_backend_evidence_attempt_test
+            for token in [
+                "test_complete_external_bundle_without_review_package_remains_blocked",
+                "test_review_package_digest_drift_blocks_close_candidate",
+                "reviewed external evidence package is missing",
+                "review package input digest mismatch",
+                "review_package_binds_inputs",
+            ]
+        )
+        and all(
+            token in p1_external_backend_evidence_attempt_manifest
+            for token in [
+                "p1-external-backend-evidence-package-review",
+                "\"review_package_present\": false",
+                "\"review_package_binds_inputs\": false",
+                "\"review_package_claim_boundary_passed\": false",
+                "\"review_package_source_exclusions_passed\": false",
+                "\"review_package_review_digests_present\": false",
+                "reviewed external evidence package is missing",
+            ]
+        )
+    )
     abort_bias_evidence_gate = (
         has_public_struct(abort_bias_source, "AbortBiasEvidence")
         and has_public_struct(abort_bias_source, "RetryBiasEvidenceReport")
@@ -3940,6 +3981,9 @@ def scan_documents(root):
         ),
         "p1_external_backend_evidence_attempt_gate": (
             p1_external_backend_evidence_attempt_gate
+        ),
+        "p1_external_backend_evidence_package_review_gate": (
+            p1_external_backend_evidence_package_review_gate
         ),
         "abort_bias_evidence_gate": abort_bias_evidence_gate,
         "abort_bias_closure_framework": abort_bias_closure_framework,
@@ -4633,6 +4677,25 @@ def classify_criteria(criteria, scan):
                     "close the theorem or move aggregate_rejection_equivalence "
                     "beyond partially_met until real external inputs and proof "
                     "review replace the blocked slots."
+                )
+            if scan.get("p1_external_backend_evidence_package_review_gate"):
+                partial_progress = True
+                observed.append(
+                    "A Batch 9 reviewed external evidence package gate is "
+                    "present inside the grouped external-backend evidence "
+                    "attempt. It requires schema "
+                    "lattice-aggregation:p1-external-backend-evidence-package-review:v1, "
+                    "reviewed_external_backend_evidence_ready status, "
+                    "outside_repo_review_manifest origin, exact "
+                    "review_package_binds_inputs digest binding for the nonce "
+                    "gate, real-threshold backend capture, rejection batch, "
+                    "and Batch 7 candidate digest, plus source-exclusion and "
+                    "review-digest checks before a close_candidate attempt can "
+                    "be treated as externally reviewed evidence. The current "
+                    "checked attempt remains blocked_external_evidence_missing "
+                    "because the reviewed external evidence package is absent; "
+                    "this does not close the theorem or move "
+                    "aggregate_rejection_equivalence beyond partially_met."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):
