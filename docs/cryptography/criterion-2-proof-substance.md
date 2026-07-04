@@ -480,6 +480,21 @@ evidence, and rejection-distribution comparison slots are still blocked. Even a
 future `close_candidate = true` artifact remains proof-review evidence only; it
 does not by itself prove Criterion 2, rejection-distribution preservation,
 selected-backend proof closure, or theorem closure.
+Batch 8 adds `scripts/run_p1_external_backend_evidence_attempt.py` as the grouped
+external-evidence attempt runner. Its Criterion 2 evidence source is
+`p1_external_backend_evidence_attempt_gate`, its artifact package label is
+`p1_external_backend_evidence_attempt_artifact`, and it writes
+`artifacts/p1-external-backend-evidence-attempt/latest/manifest.json`. The runner
+executes the Batch 7 builder over the actual external nonce gate, real-threshold
+backend emission capture, standard-verifier acceptance evidence, mutation
+rejection evidence, and rejection-distribution comparison, then adds
+`source_exclusion_passed` to reject hazmat, simulation, localnet, fixture,
+test-vector, single-key, repo-reference, and quarantined replay markers before a
+close candidate can be treated as external evidence. The current checked attempt
+is `blocked_external_evidence_missing` with `close_candidate = false`, because
+the actual external nonce capture still resolves to `repo_reference_cli_capture`
+and the real backend/rejection artifacts are absent. This is the first grouped
+attempt harness for the closure run, not theorem closure.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.
@@ -510,6 +525,8 @@ linked:
 - reviewed standard-verifier compatibility argument;
 - reviewed Batch 7 external-backend closure-candidate bundle populated from
   actual external nonce and real-threshold backend captures;
+- reviewed Batch 8 grouped external-evidence attempt with `source_exclusion_passed`
+  true and `close_candidate = true`;
 - theorem-linkage review.
 
 The existing selected-backend proof-closure artifact package gate is necessary

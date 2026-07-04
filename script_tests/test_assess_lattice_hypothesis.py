@@ -1439,6 +1439,73 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_p1_external_backend_evidence_attempt_gate(self, root):
+        self.write_p1_external_backend_closure_candidate_gate(root)
+        (
+            root / "scripts" / "run_p1_external_backend_evidence_attempt.py"
+        ).write_text(
+            "SCHEMA = \"lattice-aggregation:p1-external-backend-evidence-attempt:v1\"\n"
+            "NAME = \"p1-external-backend-evidence-attempt-v1\"\n"
+            "STATUS_READY = \"external_evidence_close_candidate_ready\"\n"
+            "STATUS_BLOCKED = \"blocked_external_evidence_missing\"\n"
+            "FORBIDDEN_SOURCE_MARKERS = (\"hazmat\", \"simulation\", \"localnet\", \"fixture\")\n"
+            "def source_marker_blockers(): pass\n"
+            "def build_report(): pass\n"
+            "def write_artifacts(): pass\n"
+            "strict_external_nonce_capture_ready\n"
+            "real_threshold_emission_present\n"
+            "standard_verifier_acceptance_present\n"
+            "mutation_rejection_complete\n"
+            "rejection_distribution_comparison_present\n"
+            "comparison_close_candidate\n"
+            "source_exclusion_passed\n"
+            "claims_theorem_closure\n"
+            "claims_rejection_distribution_preservation\n"
+            "claims_selected_backend_proof_closure\n"
+            "not theorem closure\n",
+            encoding="utf-8",
+        )
+        (
+            root / "script_tests" / "test_run_p1_external_backend_evidence_attempt.py"
+        ).write_text(
+            "def test_missing_external_inputs_write_blocked_attempt_and_candidate(): pass\n"
+            "def test_complete_external_bundle_writes_ready_candidate_without_closure_claims(): pass\n"
+            "def test_rejects_hazmat_or_simulation_source_markers_before_candidate_ready(): pass\n"
+            "def test_strict_main_returns_two_until_close_candidate_ready(): pass\n"
+            "blocked_external_evidence_missing\n"
+            "external_evidence_close_candidate_ready\n"
+            "source_exclusion_passed\n"
+            "claims_theorem_closure\n"
+            "claims_rejection_distribution_preservation\n",
+            encoding="utf-8",
+        )
+        artifact_dir = (
+            root
+            / "artifacts"
+            / "p1-external-backend-evidence-attempt"
+            / "latest"
+        )
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        (artifact_dir / "manifest.json").write_text(
+            "{\n"
+            "  \"schema\": \"lattice-aggregation:p1-external-backend-evidence-attempt:v1\",\n"
+            "  \"name\": \"p1-external-backend-evidence-attempt-v1\",\n"
+            "  \"attempt_status\": \"blocked_external_evidence_missing\",\n"
+            "  \"close_candidate\": false,\n"
+            "  \"claims_theorem_closure\": false,\n"
+            "  \"claims_rejection_distribution_preservation\": false,\n"
+            "  \"claims_selected_backend_proof_closure\": false,\n"
+            "  \"checks\": {\n"
+            "    \"source_exclusion_passed\": false\n"
+            "  },\n"
+            "  \"blockers\": [\n"
+            "    \"actual external nonce capture is not ready\",\n"
+            "    \"forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture\"\n"
+            "  ]\n"
+            "}\n",
+            encoding="utf-8",
+        )
+
     def write_blocker_evidence_gates(self, root):
         (root / "src" / "production").mkdir(parents=True, exist_ok=True)
         (root / "tests").mkdir(parents=True, exist_ok=True)
@@ -1895,6 +1962,13 @@ class ReportGenerationTests(unittest.TestCase):
             "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json, "
             "close_candidate = false, "
             "actual external nonce capture, "
+            "external_backend_evidence_attempt, "
+            "p1_external_backend_evidence_attempt_gate, "
+            "p1_external_backend_evidence_attempt_artifact, "
+            "scripts/run_p1_external_backend_evidence_attempt.py, "
+            "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json, "
+            "blocked_external_evidence_missing, "
+            "source_exclusion_passed, "
             "distributed_nonce_producer_artifact_digest, "
             "p1_criterion2_distributed_nonce_producer_artifact_gate, "
             "hazmat PRF-output oracle, "
@@ -2006,6 +2080,9 @@ class ReportGenerationTests(unittest.TestCase):
             "external_backend_cryptographic_closure_candidate": (
                 "p1_external_backend_cryptographic_closure_candidate_gate"
             ),
+            "external_backend_evidence_attempt": (
+                "p1_external_backend_evidence_attempt_gate"
+            ),
             "rejection_distribution_review_digest": (
                 "p1_criterion2_rejection_distribution_review_artifact_gate"
             ),
@@ -2041,6 +2118,9 @@ class ReportGenerationTests(unittest.TestCase):
             "external_backend_cryptographic_closure_candidate": (
                 "p1_external_backend_cryptographic_closure_candidate_package"
             ),
+            "external_backend_evidence_attempt": (
+                "p1_external_backend_evidence_attempt_artifact"
+            ),
             **{
                 slot: "p1_criterion2_proof_slot_artifact_package"
                 for slot in evidence_sources
@@ -2049,6 +2129,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "standard_verifier_compatibility_artifact_digest",
                         "real_threshold_backend_emission_artifact_digest",
                         "external_backend_cryptographic_closure_candidate",
+                        "external_backend_evidence_attempt",
                     }
             },
         }
@@ -2208,6 +2289,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "standard_verifier_compatibility_artifact_digest",
                         "real_threshold_backend_emission_artifact_digest",
                         "external_backend_cryptographic_closure_candidate",
+                        "external_backend_evidence_attempt",
                         "rejection_distribution_review_digest",
                         "theorem_linkage_artifact_digest",
                         "full_kat_validation_artifact_digest",
@@ -2377,6 +2459,23 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                     },
                     {
+                        "slot_id": "external_backend_evidence_attempt",
+                        "fixture_path": (
+                            "artifacts/p1-external-backend-evidence-attempt/"
+                            "latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-external-backend-evidence-"
+                            "attempt:v1"
+                        ),
+                        "current_status": "blocked_external_evidence_missing",
+                        "close_candidate": False,
+                        "source_exclusion_passed": False,
+                        "claim_boundary": (
+                            "conformance/proof-review evidence only"
+                        ),
+                    },
+                    {
                         "slot_id": "rejection_distribution_review_digest",
                         "fixture_path": (
                             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json"
@@ -2410,6 +2509,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "reviewed rejection-distribution preservation argument",
                 "reviewed standard-verifier compatibility argument",
                 "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
+                "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true",
                 "theorem-linkage review",
             ],
             "failure_conditions": [
@@ -2429,6 +2529,9 @@ class ReportGenerationTests(unittest.TestCase):
                 "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
                 "script_tests/test_build_p1_external_backend_cryptographic_closure_candidate.py",
                 "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+                "scripts/run_p1_external_backend_evidence_attempt.py",
+                "script_tests/test_run_p1_external_backend_evidence_attempt.py",
+                "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
             ],
             "assessment": {
                 "criterion_status": "partially_met",
@@ -3053,6 +3156,37 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("Batch 7 external-backend", aggregate_evidence)
         self.assertIn("computed close_candidate manifest", aggregate_evidence)
         self.assertIn("claims_theorem_closure", aggregate_evidence)
+        self.assertIn("does not close the theorem", aggregate_evidence)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_external_backend_evidence_attempt_updates_report_without_closing_theorem(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_external_backend_evidence_attempt_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_external_backend_evidence_attempt_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("Batch 8 external-backend evidence attempt", aggregate_evidence)
+        self.assertIn("source_exclusion_passed", aggregate_evidence)
+        self.assertIn("blocked_external_evidence_missing", aggregate_evidence)
         self.assertIn("does not close the theorem", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 

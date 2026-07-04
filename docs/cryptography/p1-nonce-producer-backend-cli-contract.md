@@ -163,6 +163,27 @@ claim and it keeps `claims_theorem_closure`,
 `claims_rejection_distribution_preservation`, and
 `claims_selected_backend_proof_closure` false.
 
+Batch 8 groups the full external-evidence attempt through
+`scripts/run_p1_external_backend_evidence_attempt.py`:
+
+```bash
+python3 scripts/run_p1_external_backend_evidence_attempt.py \
+  --root . \
+  --nonce-gate artifacts/nonce-producer-actual-external-gate/latest/manifest.json \
+  --backend-manifest artifacts/backend-emission-capture/latest/manifest.json \
+  --backend-capture artifacts/backend-emission-capture/latest/capture.json \
+  --rejection-batch artifacts/p1-rejection-equivalence-batch/latest/batch.json \
+  --candidate-out artifacts/p1-external-backend-cryptographic-closure-candidate/latest \
+  --out artifacts/p1-external-backend-evidence-attempt/latest
+```
+
+The Batch 8 runner writes `blocked_external_evidence_missing` until the grouped
+inputs produce `close_candidate = true` and `source_exclusion_passed = true`. It
+rejects hazmat, simulation, localnet, fixture, deterministic, test-vector,
+single-key, repo-reference, and quarantined replay markers before an attempt can
+be treated as real external evidence. It also keeps all theorem-closure and
+production-security claims false.
+
 ## External Command-Origin Guard
 
 Batch 4 hardens the external-command boundary. The capture runner records

@@ -2,13 +2,13 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/p1-external-backend-closure-candidate`
-Commit: `380dce34ac92c915e5dfa0ca936a05e17d548c2c`
+Branch: `codex/p1-real-external-evidence-attempt`
+Commit: `ae7e0e7956958db165be475d1dec612b6a83b6d0`
 
 ## Criteria
 
 - `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (30 evidence entries, 12 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (31 evidence entries, 12 blockers)
 - `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
 - `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
 - `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)
@@ -21,7 +21,7 @@ Commit: `380dce34ac92c915e5dfa0ca936a05e17d548c2c`
 
 ### criterion_2
 - Status: `criterion2_proof_payload_formalized`
-- `evidence_present_unclosed`: challenge_bound_artifact_digest, distributed_nonce_producer_artifact_digest, external_backend_cryptographic_closure_candidate, external_review_digest, full_kat_validation_artifact_digest, hint_bound_artifact_digest, norm_bound_artifact_digest, real_recomputation_evidence_digest, real_threshold_backend_emission_artifact_digest, rejection_distribution_review_digest, standard_verifier_compatibility_artifact_digest, theorem_linkage_artifact_digest, threshold_output_certificate_digest, transcript_binding_evidence_digest
+- `evidence_present_unclosed`: challenge_bound_artifact_digest, distributed_nonce_producer_artifact_digest, external_backend_cryptographic_closure_candidate, external_backend_evidence_attempt, external_review_digest, full_kat_validation_artifact_digest, hint_bound_artifact_digest, norm_bound_artifact_digest, real_recomputation_evidence_digest, real_threshold_backend_emission_artifact_digest, rejection_distribution_review_digest, standard_verifier_compatibility_artifact_digest, theorem_linkage_artifact_digest, threshold_output_certificate_digest, transcript_binding_evidence_digest
 
 ### criterion_3
 - Status: `criterion3_proof_payload_formalized`

@@ -1,18 +1,24 @@
 {
+  "attempt_digest_sha256": "e26a2027022efdf5fa49ae0adf7fc93893481c63a7aef5ca2dd832c09a5fcdb7",
+  "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "actual external nonce capture is not ready",
     "real threshold backend emission capture is missing",
     "standard-verifier acceptance evidence is missing",
     "mutation rejection evidence is incomplete",
     "rejection-distribution comparison is missing",
-    "rejection-distribution comparison is not a close candidate"
+    "rejection-distribution comparison is not a close candidate",
+    "forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture"
   ],
   "candidate_digest_sha256": "8ea49737a1dc9bc3b600660635b82b3c2db2923afb604a045bf3a0aaaaa51ab2",
+  "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+  "candidate_manifest_sha256": "6e10ef8c85f1b3513fa791924035ec3a2553e819454ad39c59304a2568b11312",
   "checks": {
     "comparison_close_candidate": false,
     "mutation_rejection_complete": false,
     "real_threshold_emission_present": false,
     "rejection_distribution_comparison_present": false,
+    "source_exclusion_passed": false,
     "standard_verifier_acceptance_present": false,
     "strict_external_nonce_capture_ready": false
   },
@@ -25,13 +31,18 @@
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
   "close_candidate": false,
-  "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
+  "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
   "generated_at": "2026-07-04T18:51:44Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
       "sha256": "03c86affc66e4d390e8c672074cdc02ad95e36bd856278e2368f50acaf161227"
+    },
+    "closure_candidate_manifest": {
+      "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+      "present": true,
+      "sha256": "6e10ef8c85f1b3513fa791924035ec3a2553e819454ad39c59304a2568b11312"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
@@ -49,9 +60,8 @@
       "sha256": null
     }
   },
-  "name": "p1-external-backend-cryptographic-closure-candidate-v1",
-  "schema": "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
+  "name": "p1-external-backend-evidence-attempt-v1",
+  "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
   "schema_version": 1,
-  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
-  "status": "evidence_present_unclosed"
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 }

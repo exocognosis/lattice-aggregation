@@ -85,6 +85,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         "standard_verifier_compatibility_artifact_digest",
         "real_threshold_backend_emission_artifact_digest",
         "external_backend_cryptographic_closure_candidate",
+        "external_backend_evidence_attempt",
         "rejection_distribution_review_digest",
         "theorem_linkage_artifact_digest",
         "full_kat_validation_artifact_digest",
@@ -129,6 +130,11 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "external_backend_cryptographic_closure_candidate",
             "p1_external_backend_cryptographic_closure_candidate_gate",
             "p1_external_backend_cryptographic_closure_candidate_package",
+        ),
+        (
+            "external_backend_evidence_attempt",
+            "p1_external_backend_evidence_attempt_gate",
+            "p1_external_backend_evidence_attempt_artifact",
         ),
         (
             "rejection_distribution_review_digest",
@@ -209,6 +215,26 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                     "scripts/build_p1_external_backend_cryptographic_closure_candidate.py"
                 );
                 assert_eq!(slot["close_candidate"], false);
+                assert_eq!(slot["claims_theorem_closure"], false);
+                assert_eq!(slot["claims_rejection_distribution_preservation"], false);
+                assert_eq!(slot["claims_selected_backend_proof_closure"], false);
+            }
+            if slot_id == "external_backend_evidence_attempt" {
+                assert_eq!(
+                    slot["artifact_schema"],
+                    "lattice-aggregation:p1-external-backend-evidence-attempt:v1"
+                );
+                assert_eq!(
+                    slot["artifact_path"],
+                    "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json"
+                );
+                assert_eq!(
+                    slot["runner"],
+                    "scripts/run_p1_external_backend_evidence_attempt.py"
+                );
+                assert_eq!(slot["attempt_status"], "blocked_external_evidence_missing");
+                assert_eq!(slot["close_candidate"], false);
+                assert_eq!(slot["source_exclusion_passed"], false);
                 assert_eq!(slot["claims_theorem_closure"], false);
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
@@ -419,6 +445,9 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
         "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/summary.md",
         "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/SHA256SUMS",
+        "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+        "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
+        "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
     ] {
         assert_eq!(pipeline["artifacts"][artifact], artifact);
         assert!(
@@ -444,6 +473,8 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "real_threshold_backend_emission_capture_sha256",
         "rejection_distribution_batch_sha256",
         "closure_candidate_manifest_sha256",
+        "external_backend_evidence_attempt_manifest_sha256",
+        "source_exclusion_passed",
     ] {
         assert!(
             string_array_contains(
@@ -520,6 +551,11 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
         ),
         (
+            "external_backend_evidence_attempt",
+            "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+            "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+        ),
+        (
             "rejection_distribution_review_digest",
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
             "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -541,9 +577,19 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             fixture_ref["claim_boundary"],
             "conformance/proof-review evidence only"
         );
-        assert_eq!(fixture_ref["current_status"], "evidence_present_unclosed");
+        if slot_id != "external_backend_evidence_attempt" {
+            assert_eq!(fixture_ref["current_status"], "evidence_present_unclosed");
+        }
         if slot_id == "external_backend_cryptographic_closure_candidate" {
             assert_eq!(fixture_ref["close_candidate"], false);
+        }
+        if slot_id == "external_backend_evidence_attempt" {
+            assert_eq!(
+                fixture_ref["current_status"],
+                "blocked_external_evidence_missing"
+            );
+            assert_eq!(fixture_ref["close_candidate"], false);
+            assert_eq!(fixture_ref["source_exclusion_passed"], false);
         }
         assert!(
             root.join(
