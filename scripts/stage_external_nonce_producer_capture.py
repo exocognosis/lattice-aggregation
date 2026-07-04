@@ -28,6 +28,32 @@ CAPTURE_COMMAND = "external-capture-file"
 EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
     "lattice-aggregation:external-capture-provenance:v1"
 )
+EXTERNAL_CAPTURE_REVIEW_SCHEMA = (
+    "lattice-aggregation:p1-external-nonce-producer-capture-review:v1"
+)
+EXTERNAL_CAPTURE_REVIEW_STATUS = "reviewed_external_capture_ready"
+REVIEW_FILE_ORIGIN_EXTERNAL = "outside_repo_review_manifest"
+REVIEW_FILE_ORIGIN_REPO_LOCAL = "repo_local_review_manifest"
+REQUIRED_REVIEW_DIGEST_FIELDS = (
+    "external_review_digest_hex",
+    "reviewer_identity_digest_hex",
+    "operator_identity_digest_hex",
+    "capture_environment_digest_hex",
+    "backend_command_digest_hex",
+)
+REQUIRED_REVIEW_CHECKS = (
+    "external_backend_operated_outside_repo",
+    "capture_generated_outside_repo",
+    "request_binding_reviewed",
+    "predecessor_digests_reviewed",
+    "material_digests_reviewed",
+    "readiness_source_tree_reviewed",
+    "no_hazmat_prf_oracle",
+    "no_centralized_expanded_secret_key_helper",
+    "no_fixture_harness",
+    "no_localnet_or_deterministic_simulation",
+    "no_single_key_standard_provider_output",
+)
 
 
 def canonical_json(data):
@@ -93,6 +119,41 @@ def require_outside_repo_capture_file(root, capture_file):
     return origin
 
 
+def review_file_origin(root, review_manifest):
+    """Classify whether the review manifest lives outside the repository."""
+    repo_root = resolve_path(root)
+    review_path = resolve_path(review_manifest)
+    if path_is_within(review_path, repo_root):
+        return REVIEW_FILE_ORIGIN_REPO_LOCAL
+    return REVIEW_FILE_ORIGIN_EXTERNAL
+
+
+def require_outside_repo_review_manifest(root, review_manifest):
+    """Reject missing or repo-local review manifests before promotion."""
+    if review_manifest is None:
+        raise ValueError("external review manifest is required")
+    review_manifest = Path(review_manifest)
+    if not review_manifest.exists():
+        raise ValueError("external review manifest not found")
+    origin = review_file_origin(root, review_manifest)
+    if origin != REVIEW_FILE_ORIGIN_EXTERNAL:
+        raise ValueError(
+            "repo-local external review manifest cannot be staged as "
+            f"{CAPTURE_SOURCE_PROFILE_EXTERNAL}"
+        )
+    return origin
+
+
+def require_hex_digest(value, field):
+    """Validate a lowercase hex SHA-256 digest string."""
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or any(char not in "0123456789abcdef" for char in value)
+    ):
+        raise ValueError(f"external review digest field invalid: {field}")
+
+
 def validate_readiness(readiness_path, request, request_sha256):
     """Validate an admissible readiness manifest bound to the request."""
     readiness = load_json(readiness_path)
@@ -139,6 +200,87 @@ def validate_readiness(readiness_path, request, request_sha256):
     return readiness
 
 
+def validate_external_review_manifest(
+    root,
+    review_manifest_path,
+    request,
+    request_sha256,
+    readiness,
+    readiness_path,
+    capture,
+    capture_json,
+    capture_file,
+):
+    """Validate review dossier binding for an outside-repo capture file."""
+    origin = require_outside_repo_review_manifest(root, review_manifest_path)
+    review_manifest_path = Path(review_manifest_path)
+    review = load_json(review_manifest_path)
+    if review.get("schema") != EXTERNAL_CAPTURE_REVIEW_SCHEMA:
+        raise ValueError("external review manifest schema mismatch")
+    if review.get("claim_boundary") != CLAIM_BOUNDARY:
+        raise ValueError("external review manifest claim boundary mismatch")
+    if review.get("selected_profile") != SELECTED_PROFILE:
+        raise ValueError("external review manifest selected profile mismatch")
+    if review.get("review_status") != EXTERNAL_CAPTURE_REVIEW_STATUS:
+        raise ValueError("external review manifest is not ready")
+
+    capture_binding = review.get("capture")
+    if not isinstance(capture_binding, dict):
+        raise ValueError("external review manifest requires capture binding")
+    expected_capture = {
+        "schema": CAPTURE_SCHEMA,
+        "producer_evidence": EXTERNAL_PRODUCER_EVIDENCE,
+        "request_schema": REQUEST_SCHEMA,
+        "request_name": request["name"],
+        "request_sha256": request_sha256,
+        "capture_sha256": sha256_text(capture_json),
+        "capture_file_sha256": sha256_path(capture_file),
+    }
+    for field, expected in expected_capture.items():
+        if capture_binding.get(field) != expected:
+            raise ValueError(f"external review capture binding mismatch: {field}")
+
+    readiness_binding = review.get("readiness")
+    if not isinstance(readiness_binding, dict):
+        raise ValueError("external review manifest requires readiness binding")
+    expected_readiness = {
+        "schema": READINESS_SCHEMA,
+        "readiness_status": readiness["readiness_status"],
+        "manifest_sha256": sha256_path(readiness_path),
+        "source_tree_sha256": readiness["backend"]["source_tree_sha256"],
+    }
+    for field, expected in expected_readiness.items():
+        if readiness_binding.get(field) != expected:
+            raise ValueError(f"external review readiness binding mismatch: {field}")
+
+    review_fields = review.get("review")
+    if not isinstance(review_fields, dict):
+        raise ValueError("external review manifest requires review digests")
+    for field in REQUIRED_REVIEW_DIGEST_FIELDS:
+        require_hex_digest(review_fields.get(field), field)
+
+    checks = review.get("checks")
+    if not isinstance(checks, dict):
+        raise ValueError("external review manifest requires checks")
+    for field in REQUIRED_REVIEW_CHECKS:
+        if checks.get(field) is not True:
+            raise ValueError(f"external review check failed: {field}")
+
+    return {
+        "schema": review["schema"],
+        "path": str(review_manifest_path),
+        "sha256": sha256_path(review_manifest_path),
+        "review_file_origin": origin,
+        "review_status": review["review_status"],
+        "capture_sha256": expected_capture["capture_sha256"],
+        "capture_file_sha256": expected_capture["capture_file_sha256"],
+        "readiness_manifest_sha256": expected_readiness["manifest_sha256"],
+        "readiness_source_tree_sha256": expected_readiness["source_tree_sha256"],
+        "review": {field: review_fields[field] for field in REQUIRED_REVIEW_DIGEST_FIELDS},
+        "checks": {field: checks[field] for field in REQUIRED_REVIEW_CHECKS},
+    }
+
+
 def readiness_summary(readiness_path, readiness, request_sha256):
     """Return readiness metadata for handoff and attempt manifests."""
     backend = readiness["backend"]
@@ -159,6 +301,7 @@ def build_capture_manifest(
     capture_file,
     capture_file_origin_value,
     capture_json,
+    review_report,
     metadata,
     generated_at,
 ):
@@ -190,6 +333,7 @@ def build_capture_manifest(
         },
         "metadata": metadata,
         "capture_sha256": sha256_text(capture_json),
+        "external_capture_review": review_report,
     }
     manifest["external_capture_provenance"] = {
         "schema": EXTERNAL_CAPTURE_PROVENANCE_SCHEMA,
@@ -206,6 +350,8 @@ def build_capture_manifest(
         "metadata_fields": sorted(metadata),
         "capture_file_sha256": manifest["capture_file_sha256"],
         "capture_file_origin": capture_file_origin_value,
+        "review_manifest_sha256": review_report["sha256"],
+        "review_status": review_report["review_status"],
     }
     return manifest
 
@@ -215,6 +361,7 @@ def build_handoff_manifest(
     request_sha256,
     capture_manifest,
     readiness_report,
+    review_report,
     generated_at,
 ):
     """Build the handoff manifest consumed by the actual-external gate."""
@@ -241,6 +388,7 @@ def build_handoff_manifest(
         "backend_command": capture_manifest["backend_command"],
         "backend_execution_mode": BACKEND_EXECUTION_MODE,
         "backend_readiness": readiness_report,
+        "external_capture_review": review_report,
         "predecessors": request["predecessors"],
         "request_dir": "request",
         "capture_dir": "capture",
@@ -262,6 +410,7 @@ def build_attempt_manifest(
     readiness_report,
     capture_file,
     capture_manifest,
+    review_report,
     generated_at,
 ):
     """Build the attempt manifest consumed by verify_actual_nonce_producer_capture."""
@@ -290,6 +439,9 @@ def build_attempt_manifest(
         "backend_execution_mode": BACKEND_EXECUTION_MODE,
         "capture_file_path": str(capture_file),
         "capture_file_sha256": capture_manifest["capture_file_sha256"],
+        "external_review_manifest_path": "review/manifest.json",
+        "external_review_manifest_sha256": review_report["sha256"],
+        "external_capture_review": review_report,
         "capture_failure": None,
         "handoff_manifest_path": "handoff/manifest.json",
         "handoff_manifest_sha256": None,
@@ -320,6 +472,7 @@ def render_summary(attempt_manifest):
             f"- Backend execution mode: `{attempt_manifest['backend_execution_mode']}`",
             f"- Handoff source profile: `{attempt_manifest['handoff_source_profile']}`",
             f"- Capture file SHA-256: `{attempt_manifest['capture_file_sha256']}`",
+            f"- External review SHA-256: `{attempt_manifest['external_review_manifest_sha256']}`",
             "",
             "This intake does not prove Criterion 2, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
@@ -334,6 +487,7 @@ def build_intake(
     request_path,
     readiness_path,
     capture_file,
+    review_manifest_path=None,
     generated_at=None,
     metadata_provider=None,
 ):
@@ -356,6 +510,17 @@ def build_intake(
     capture = runner.parse_capture_json(raw_capture_json)
     request_sha256 = runner.validate_capture_matches_request(capture, request)
     capture_json = canonical_json(capture)
+    review_report = validate_external_review_manifest(
+        root,
+        review_manifest_path,
+        request,
+        request_sha256,
+        readiness,
+        readiness_path,
+        capture,
+        capture_json,
+        capture_file,
+    )
     metadata_provider = metadata_provider or runner.collect_metadata
     metadata = runner.metadata_from_provider(metadata_provider, root)
     readiness_report = readiness_summary(readiness_path, readiness, request_sha256)
@@ -366,6 +531,7 @@ def build_intake(
         capture_file,
         capture_file_origin_value,
         capture_json,
+        review_report,
         metadata,
         generated_at,
     )
@@ -374,6 +540,7 @@ def build_intake(
         request_sha256,
         capture_manifest,
         readiness_report,
+        review_report,
         generated_at,
     )
     attempt_manifest = build_attempt_manifest(
@@ -384,6 +551,7 @@ def build_intake(
         readiness_report,
         capture_file,
         capture_manifest,
+        review_report,
         generated_at,
     )
     return {
@@ -394,6 +562,8 @@ def build_intake(
         "capture_json": capture_json,
         "capture_manifest": capture_manifest,
         "capture_summary_md": render_capture_summary(capture_manifest),
+        "review_json": canonical_json(load_json(review_manifest_path)),
+        "review_summary_md": render_review_summary(review_report),
         "handoff_manifest": handoff_manifest,
         "handoff_summary_md": render_handoff_summary(handoff_manifest),
     }
@@ -408,8 +578,26 @@ def render_capture_summary(manifest):
             f"- Capture source profile: `{manifest['capture_source_profile']}`",
             f"- Capture file origin: `{manifest['capture_file_origin']}`",
             f"- Capture SHA-256: `{manifest['capture_sha256']}`",
+            f"- External review SHA-256: `{manifest['external_capture_review']['sha256']}`",
             "",
             "This capture file remains conformance/proof-review evidence only.",
+            "",
+        ]
+    )
+
+
+def render_review_summary(report):
+    """Render a concise external review summary."""
+    return "\n".join(
+        [
+            "# P1 External Nonce-Producer Capture Review",
+            "",
+            f"- Review status: `{report['review_status']}`",
+            f"- Review file origin: `{report['review_file_origin']}`",
+            f"- Review SHA-256: `{report['sha256']}`",
+            f"- Capture SHA-256: `{report['capture_sha256']}`",
+            "",
+            "This review dossier remains conformance/proof-review evidence only.",
             "",
         ]
     )
@@ -439,6 +627,8 @@ def artifact_files(report):
         "summary.md": report["summary_md"],
         "request/request.json": report["request_json"],
         "readiness/manifest.json": report["readiness_json"],
+        "review/manifest.json": report["review_json"],
+        "review/summary.md": report["review_summary_md"],
         "handoff/manifest.json": canonical_json(report["handoff_manifest"]),
         "handoff/summary.md": report["handoff_summary_md"],
         "handoff/capture/capture.json": report["capture_json"],
@@ -494,6 +684,11 @@ def parse_args(argv):
         help="external capture JSON file produced outside the repository",
     )
     parser.add_argument(
+        "--review-manifest",
+        required=True,
+        help="external review manifest binding the capture, request, and readiness evidence",
+    )
+    parser.add_argument(
         "--out",
         default="artifacts/nonce-producer-external-capture-intake/latest",
         help="output directory",
@@ -508,6 +703,7 @@ def main(argv=None):
         Path(args.request),
         Path(args.readiness),
         Path(args.capture_file),
+        Path(args.review_manifest),
     )
     write_artifacts(report, Path(args.out))
     print(f"wrote external nonce-producer capture intake artifacts to {args.out}")

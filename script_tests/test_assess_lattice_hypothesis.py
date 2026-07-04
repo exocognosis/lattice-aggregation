@@ -1132,10 +1132,16 @@ class ReportGenerationTests(unittest.TestCase):
             "HANDOFF_SCHEMA = \"lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1\"\n"
             "CAPTURE_FILE_ORIGIN_EXTERNAL = \"outside_repo_capture_file\"\n"
             "CAPTURE_FILE_ORIGIN_REPO_LOCAL = \"repo_local_capture_file\"\n"
+            "EXTERNAL_CAPTURE_REVIEW_SCHEMA = \"lattice-aggregation:p1-external-nonce-producer-capture-review:v1\"\n"
+            "REVIEW_FILE_ORIGIN_EXTERNAL = \"outside_repo_review_manifest\"\n"
+            "reviewed_external_capture_ready\n"
             "BACKEND_EXECUTION_MODE = \"preexisting_external_capture_file\"\n"
             "CAPTURE_SOURCE_PROFILE_EXTERNAL = \"admissible_external_backend_capture\"\n"
+            "REQUIRED_REVIEW_CHECKS = ()\n"
             "def require_outside_repo_capture_file(root, capture_file): pass\n"
+            "def require_outside_repo_review_manifest(root, review_manifest): pass\n"
             "def validate_readiness(readiness_path, request, request_sha256): pass\n"
+            "def validate_external_review_manifest(root, review_manifest, request, request_sha256, readiness, readiness_path, capture, capture_json, capture_file): pass\n"
             "def validate_capture_matches_request(capture, request): pass\n"
             "def build_intake(): pass\n"
             "def write_artifacts(): pass\n"
@@ -1149,8 +1155,12 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_repo_local_capture_file_is_rejected_before_promotion(): pass\n"
             "def test_blocked_or_stale_readiness_is_rejected_before_promotion(): pass\n"
             "def test_stale_capture_request_digest_is_rejected_before_promotion(): pass\n"
+            "def test_missing_review_manifest_is_rejected_before_promotion(): pass\n"
+            "def test_mismatched_review_manifest_is_rejected_before_promotion(): pass\n"
             "actual_external_capture_ready\n"
             "outside_repo_capture_file\n"
+            "external review manifest\n"
+            "external review check failed\n"
             "repo-local capture file\n"
             "request digest mismatch\n",
             encoding="utf-8",
@@ -1844,6 +1854,8 @@ class ReportGenerationTests(unittest.TestCase):
             "actual_external_capture_missing, "
             "outside_repo_capture_file, "
             "preexisting_external_capture_file, "
+            "outside_repo_review_manifest, "
+            "reviewed_external_capture_ready, "
             "capture-attempt runner, "
             "distributed nonce-PRF interfaces, "
             "no detected blockers, "
@@ -2542,6 +2554,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("outside_repo_executable_or_script", aggregate_evidence)
         self.assertIn("external nonce-producer capture-file intake", aggregate_evidence)
         self.assertIn("outside_repo_capture_file", aggregate_evidence)
+        self.assertIn("outside_repo_review_manifest", aggregate_evidence)
+        self.assertIn("reviewed_external_capture_ready", aggregate_evidence)
         self.assertIn("preexisting_external_capture_file", aggregate_evidence)
         self.assertIn("backend command", aggregate_evidence)
         self.assertIn("distributed nonce-PRF", aggregate_evidence)
@@ -2551,6 +2565,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("reviewed external Shamir nonce-DKG/TEE producer", aggregate_blockers)
         self.assertIn("backend readiness gate is now admissible", aggregate_blockers)
         self.assertIn("reference CLI capture", aggregate_blockers)
+        self.assertIn("external review dossier", aggregate_blockers)
         self.assertIn("not actual backend evidence", aggregate_blockers)
         self.assertIn("actual external nonce-producer gate", aggregate_blockers)
         self.assertIn("admissible_external_backend_capture", aggregate_blockers)

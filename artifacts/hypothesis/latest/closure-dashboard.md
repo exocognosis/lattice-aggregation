@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/p1-admissible-backend-profile`
-Commit: `514ff11af3afce329b453dbabe1b0dd2e630e437`
+Branch: `codex/p1-external-capture-review-ledger`
+Commit: `561d7f7b2e0adca53e3a9ec56bfe8f25fab23882`
 
 ## Criteria
 

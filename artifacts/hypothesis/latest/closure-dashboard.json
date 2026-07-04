@@ -1,7 +1,7 @@
 {
-  "branch": "codex/p1-admissible-backend-profile",
+  "branch": "codex/p1-external-capture-review-ledger",
   "claim_boundary": "research scaffold only",
-  "commit": "514ff11af3afce329b453dbabe1b0dd2e630e437",
+  "commit": "561d7f7b2e0adca53e3a9ec56bfe8f25fab23882",
   "criteria": [
     {
       "blocker_count": 3,
