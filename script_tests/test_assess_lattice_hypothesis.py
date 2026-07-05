@@ -1311,6 +1311,42 @@ class ReportGenerationTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_p1_real_threshold_backend_capture_file_intake_gate(self, root):
+        self.write_p1_real_threshold_backend_emission_request_gate(root)
+        (root / "scripts" / "stage_external_backend_emission_capture.py").write_text(
+            "CAPTURE_FILE_ORIGIN_EXTERNAL = \"outside_repo_capture_file\"\n"
+            "REVIEW_FILE_ORIGIN_EXTERNAL = \"outside_repo_review_manifest\"\n"
+            "BACKEND_EXECUTION_MODE = \"preexisting_external_capture_file\"\n"
+            "EXTERNAL_CAPTURE_REVIEW_SCHEMA = \"lattice-aggregation:p1-external-backend-emission-capture-review:v1\"\n"
+            "EXTERNAL_CAPTURE_REVIEW_STATUS = \"reviewed_external_backend_emission_capture_ready\"\n"
+            "def validate_external_review_manifest(): pass\n"
+            "def validate_capture_matches_request(): pass\n"
+            "standard_verifier_acceptance_reviewed\n"
+            "no_single_key_standard_provider_output\n"
+            "repo-local capture file\n"
+            "request digest mismatch\n"
+            "def write_artifacts(): pass\n"
+            "does not prove Criterion 2\n",
+            encoding="utf-8",
+        )
+        (
+            root
+            / "script_tests"
+            / "test_stage_external_backend_emission_capture.py"
+        ).write_text(
+            "def test_outside_repo_capture_file_writes_batch8_consumable_backend_capture(): pass\n"
+            "def test_repo_local_capture_file_is_rejected_before_artifact_write(): pass\n"
+            "def test_missing_or_failed_review_manifest_is_rejected_before_artifact_write(): pass\n"
+            "def test_stale_capture_request_digest_is_rejected_before_artifact_write(): pass\n"
+            "lattice-aggregation:p1-external-backend-emission-capture-review:v1\n"
+            "reviewed_external_backend_emission_capture_ready\n"
+            "preexisting_external_capture_file\n"
+            "outside_repo_capture_file\n"
+            "outside_repo_review_manifest\n"
+            "close_candidate\n",
+            encoding="utf-8",
+        )
+
     def write_hazmat_threshold_backend_capture_adapter_gate(self, root):
         self.write_p1_real_threshold_backend_emission_request_gate(root)
         (root / "scripts" / "run_hazmat_threshold_backend_capture.py").write_text(
@@ -3055,6 +3091,47 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("rejects stale or missing request bindings", aggregate_evidence)
         self.assertIn("evidence_present_unclosed", aggregate_evidence)
         self.assertIn("does not change aggregate_rejection_equivalence", aggregate_evidence)
+        self.assertNotIn("completely_proven", markdown)
+
+    def test_p1_real_threshold_backend_capture_file_intake_updates_report_without_closure(
+        self,
+    ):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+            self.write_selected_backend_aggregate_artifact_gate(root)
+            self.write_p1_real_threshold_backend_capture_file_intake_gate(root)
+
+            scan = module.scan_documents(root)
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        self.assertTrue(scan["p1_real_threshold_backend_request_capture_binding_gate"])
+        self.assertTrue(scan["p1_real_threshold_backend_capture_file_intake_gate"])
+        self.assertEqual(report["overall_verdict"], "partially_proven")
+        criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
+        aggregate = criteria_by_id["aggregate_rejection_equivalence"]
+        aggregate_evidence = "\n".join(aggregate["observed_evidence"])
+
+        self.assertEqual(aggregate["status"], "partially_met")
+        self.assertIn("backend-emission capture-file intake", aggregate_evidence)
+        self.assertIn("outside_repo_capture_file", aggregate_evidence)
+        self.assertIn("outside_repo_review_manifest", aggregate_evidence)
+        self.assertIn(
+            "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
+            aggregate_evidence,
+        )
+        self.assertIn("reviewed_external_backend_emission_capture_ready", aggregate_evidence)
+        self.assertIn("preexisting_external_capture_file", aggregate_evidence)
+        self.assertIn("stale request bindings", aggregate_evidence)
+        self.assertIn("single-key standard-provider sources", aggregate_evidence)
+        self.assertIn("does not close Criterion 2", aggregate_evidence)
+        self.assertIn("theorem closure", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_hazmat_threshold_backend_capture_adapter_updates_report_without_closing_proofs(

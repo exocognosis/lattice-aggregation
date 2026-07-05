@@ -204,6 +204,20 @@ The Criterion 2 proof payload requires these slots before any promotion:
   SHA-256 `804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1`
   recorded in `artifacts/backend-emission-request/latest/manifest.json`. It
   remains `evidence_present_unclosed` and is not proof closure.
+  Backend emission now also has a file-based intake path:
+  `scripts/stage_external_backend_emission_capture.py`. That path stages a
+  preexisting `outside_repo_capture_file` into
+  `artifacts/backend-emission-capture/latest`, requires a separate
+  `outside_repo_review_manifest` with schema
+  `lattice-aggregation:p1-external-backend-emission-capture-review:v1`, requires
+  review status `reviewed_external_backend_emission_capture_ready`, validates
+  the exact request digest through the canonical backend capture runner, records
+  `preexisting_external_capture_file` provenance, and rejects repo-local files,
+  missing or failed review manifests, stale request bindings,
+  localnet/simulation, fixture, and single-key standard-provider sources before
+  artifact write. This is an executable intake path only; it does not supply the
+  missing real external backend capture, does not prove Criterion 2, and does
+  not prove rejection-distribution preservation or theorem closure.
   The repo-owned hazmat threshold backend capture adapter
   `scripts/run_hazmat_threshold_backend_capture.py` is the explicit-backend
   bridge for the current 10,000-validator experiment: it requires

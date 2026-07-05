@@ -241,6 +241,28 @@ same capture runner checks, then writes an attempt-compatible handoff with
 it only gives a strict path for a real external capture file plus review dossier
 to occupy the actual backend slot.
 
+The backend-emission side has the analogous reviewed file intake for a real
+threshold signature capture:
+
+```bash
+python3 scripts/stage_external_backend_emission_capture.py \
+  --root . \
+  --request artifacts/backend-emission-request/latest/request.json \
+  --capture-file /path/outside/repo/p1-backend-emission-capture.json \
+  --review-manifest /path/outside/repo/p1-backend-emission-review.json \
+  --out artifacts/backend-emission-capture/latest
+```
+
+The backend-emission review manifest must use schema
+`lattice-aggregation:p1-external-backend-emission-capture-review:v1`, carry
+`reviewed_external_backend_emission_capture_ready`, bind the request SHA-256,
+canonical capture SHA-256, capture-file SHA-256, reviewer/operator/environment
+and command digests, and record explicit checks for standard-verifier
+acceptance, mutation rejection, and exclusion of localnet/deterministic
+simulation, fixture harness, and single-key standard-provider output. The
+staged artifact remains `evidence_present_unclosed` until the rest of the
+external nonce gate and reviewed rejection-distribution batch also pass.
+
 ## Real Backend Handoff
 
 For a real external backend, `scripts/run_nonce_producer_handoff_replay.py`
