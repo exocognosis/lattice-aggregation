@@ -1,0 +1,37 @@
+{
+  "capture": {
+    "backend_evidence": "real_threshold_mldsa_external_capture",
+    "capture_file_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "capture_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "request_name": "p1-real-threshold-backend-emission-request-001",
+    "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+    "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
+    "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+  },
+  "checks": {
+    "backend_material_digests_reviewed": true,
+    "capture_generated_outside_repo": true,
+    "external_backend_operated_outside_repo": true,
+    "mutation_rejection_reviewed": true,
+    "no_fixture_harness": true,
+    "no_localnet_or_deterministic_simulation": true,
+    "no_single_key_standard_provider_output": true,
+    "predecessor_digests_reviewed": true,
+    "request_binding_reviewed": true,
+    "standard_verifier_acceptance_reviewed": true
+  },
+  "claim_boundary": "conformance/proof-review evidence only",
+  "closure_boundary": "external backend-emission capture review dossier only",
+  "generated_at": "1970-01-01T00:00:00Z",
+  "review": {
+    "backend_command_digest_hex": "0558e9db5efe2ac20b654b975dc921e1e21c9e35cb12a8756a1b34343470d0c4",
+    "capture_environment_digest_hex": "95c8e45049444e7a66e498575061210231d1ab687f4dad88eab7e652cc11caed",
+    "external_review_digest_hex": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "operator_identity_digest_hex": "b67d17f1b506c2ad05e95721df132e63ca32ca453d97bfe20404fc7d2a8983d8",
+    "reviewer_identity_digest_hex": "559b08c54d4488d73bec4d832658de1e77265ae452f4b6ae5b298c28f9ec4f49"
+  },
+  "review_status": "reviewed_external_backend_emission_capture_ready",
+  "schema": "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

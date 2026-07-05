@@ -1,20 +1,13 @@
 {
-  "blockers": [
-    "actual external nonce capture is not ready",
-    "real threshold backend emission capture is missing",
-    "standard-verifier acceptance evidence is missing",
-    "mutation rejection evidence is incomplete",
-    "rejection-distribution comparison is missing",
-    "rejection-distribution comparison is not a close candidate"
-  ],
-  "candidate_digest_sha256": "8ea49737a1dc9bc3b600660635b82b3c2db2923afb604a045bf3a0aaaaa51ab2",
+  "blockers": [],
+  "candidate_digest_sha256": "227f8b4083418d5be937e9af2a29d6e23a7c246c37196cc2044a461ada754372",
   "checks": {
-    "comparison_close_candidate": false,
-    "mutation_rejection_complete": false,
-    "real_threshold_emission_present": false,
-    "rejection_distribution_comparison_present": false,
-    "standard_verifier_acceptance_present": false,
-    "strict_external_nonce_capture_ready": false
+    "comparison_close_candidate": true,
+    "mutation_rejection_complete": true,
+    "real_threshold_emission_present": true,
+    "rejection_distribution_comparison_present": true,
+    "standard_verifier_acceptance_present": true,
+    "strict_external_nonce_capture_ready": true
   },
   "claim_boundary": "conformance/proof-review evidence only",
   "claims_cavp_acvts_validation": false,
@@ -24,29 +17,29 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
-  "close_candidate": false,
+  "close_candidate": true,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-04T19:01:03Z",
+  "generated_at": "2026-07-05T16:15:16Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
-      "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
-      "sha256": "03c86affc66e4d390e8c672074cdc02ad95e36bd856278e2368f50acaf161227"
+      "sha256": "7e055d64cfc92e0211a0a6efa7dbb79766b599f8be2ad968005a08b7d743d9e1"
     },
     "real_threshold_backend_capture_json": {
-      "path": "artifacts/backend-emission-capture/latest/capture.json",
-      "present": false,
-      "sha256": null
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/capture.json",
+      "present": true,
+      "sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b"
     },
     "real_threshold_backend_capture_manifest": {
-      "path": "artifacts/backend-emission-capture/latest/manifest.json",
-      "present": false,
-      "sha256": null
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/manifest.json",
+      "present": true,
+      "sha256": "cd5f9a446493b54ee5539c18ad5c2b25fab215c597c1bd124a8dc88896bc6f34"
     },
     "rejection_equivalence_batch_json": {
-      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
-      "present": false,
-      "sha256": null
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "present": true,
+      "sha256": "3bcc18d9fa728052181e31c2cb8b8c7c1bc89903ff19fff0f0859507c61e2980"
     }
   },
   "name": "p1-external-backend-cryptographic-closure-candidate-v1",
