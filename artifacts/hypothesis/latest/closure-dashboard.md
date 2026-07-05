@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/batch9-external-evidence-import`
-Commit: `a59222c3945fd305764c4eaf15452f9b05dcfe20`
+Branch: `codex/theorem-closure-readiness-gates`
+Commit: `5867e5ac9f82a788c57b459b349ead70eeae4b86`
 
 ## Criteria
 

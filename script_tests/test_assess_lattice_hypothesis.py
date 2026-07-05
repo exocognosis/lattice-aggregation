@@ -2302,6 +2302,7 @@ class ReportGenerationTests(unittest.TestCase):
             "status": "formalized_open_proof_payload",
             "claim_boundary": {
                 "scope": "criterion-2 proof payload only",
+                "claims_theorem_closure": False,
                 "claims_criterion_met": False,
                 "claims_selected_backend_proof_closure": False,
                 "claims_standard_verifier_compatibility_complete": False,

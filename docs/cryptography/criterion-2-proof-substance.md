@@ -545,6 +545,12 @@ linked:
   true, source exclusions passed, and review digests present;
 - theorem-linkage review.
 
+`scripts/assess_theorem_closure_readiness.py` records these blockers in
+`artifacts/theorem-closure-readiness/latest/manifest.json` before theorem
+closure assessment can begin. A future
+`ready_for_theorem_closure_assessment` result is only an assessment-entry
+preflight; it is not Criterion 2 closure and not theorem closure.
+
 The existing selected-backend proof-closure artifact package gate is necessary
 but not sufficient for criterion-2 promotion. `ClosureReady` and
 `ArtifactReady` mean the relevant framework has all typed evidence digests

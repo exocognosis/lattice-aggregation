@@ -261,6 +261,7 @@ CRITERION2_PROOF_SUBSTANCE_SCHEMA = (
 )
 CRITERION2_ID = "aggregate_rejection_equivalence"
 CRITERION2_FALSE_CLAIM_KEYS = [
+    "claims_theorem_closure",
     "claims_criterion_met",
     "claims_selected_backend_proof_closure",
     "claims_standard_verifier_compatibility_complete",
