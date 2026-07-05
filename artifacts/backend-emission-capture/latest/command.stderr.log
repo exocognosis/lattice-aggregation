@@ -1,0 +1,55 @@
+    Updating crates.io index
+     Locking 47 packages to latest compatible versions
+      Adding generic-array v0.14.7 (available: v0.14.9)
+      Adding sha2 v0.10.9 (available: v0.11.0)
+      Adding sha3 v0.10.9 (available: v0.12.0)
+   Compiling typenum v1.20.1
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.46
+   Compiling libc v0.2.186
+   Compiling version_check v0.9.5
+   Compiling cmov v0.5.4
+   Compiling autocfg v1.5.1
+   Compiling serde_core v1.0.228
+   Compiling ctutils v0.4.2
+   Compiling generic-array v0.14.7
+   Compiling cfg-if v1.0.4
+   Compiling num-traits v0.2.19
+   Compiling thiserror v1.0.69
+   Compiling zmij v1.0.21
+   Compiling hybrid-array v0.4.13
+   Compiling serde v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling crypto-common v0.2.2
+   Compiling cpufeatures v0.2.17
+   Compiling cpufeatures v0.3.0
+   Compiling keccak v0.2.0
+   Compiling keccak v0.1.6
+   Compiling digest v0.11.3
+   Compiling sponge-cursor v0.1.0
+   Compiling syn v2.0.118
+   Compiling serde_json v1.0.150
+   Compiling pin-project-lite v0.2.17
+   Compiling shake v0.1.0
+   Compiling module-lattice v0.2.3
+   Compiling signature v3.0.0
+   Compiling sha3 v0.10.9
+   Compiling memchr v2.8.2
+   Compiling itoa v1.0.18
+   Compiling ml-dsa v0.1.1
+   Compiling sha2 v0.10.9
+   Compiling tokio-macros v2.7.0
+   Compiling thiserror-impl v1.0.69
+   Compiling zeroize_derive v1.5.0
+   Compiling serde_derive v1.0.228
+   Compiling async-trait v0.1.89
+   Compiling zeroize v1.9.0
+   Compiling tokio v1.52.3
+   Compiling dytallix-pq-threshold v0.1.0 (/private/tmp/dytallix-threshold-rejection-transcript)
+   Compiling lattice-aggregation v0.1.0 (/private/tmp/lattice-closure-status.XVa8RO/repo)
+   Compiling p1-external-backend-emitter v0.1.0 (/private/tmp/p1-external-backend-emitter)
+    Finished `release` profile [optimized] target(s) in 11.24s
+     Running `/private/tmp/p1-external-backend-emitter/target/release/p1-external-backend-emitter artifacts/backend-emission-request/latest/request.json`

@@ -1,23 +1,21 @@
 {
-  "attempt_digest_sha256": "1f62c5047bb21de99e639eb19c07f810814b27758eeab9596ed16bad0a1dd6c2",
+  "attempt_digest_sha256": "982e22be0f27d7f53297265fe52ff25221b6cde5b5f7490ab53141e78359007a",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "actual external nonce capture is not ready",
-    "real threshold backend emission capture is missing",
-    "standard-verifier acceptance evidence is missing",
-    "mutation rejection evidence is incomplete",
-    "rejection-distribution comparison is missing",
-    "rejection-distribution comparison is not a close candidate",
+    "rejection-distribution comparison is incomplete",
     "forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture",
+    "forbidden external-evidence source marker in real-threshold backend capture: hazmat",
+    "forbidden external-evidence source marker in rejection-distribution batch: hazmat",
     "reviewed external evidence package is missing"
   ],
-  "candidate_digest_sha256": "8ea49737a1dc9bc3b600660635b82b3c2db2923afb604a045bf3a0aaaaa51ab2",
+  "candidate_digest_sha256": "07fac86908ae7b8a12fcc2c36f0f5c41aadc54413f6ab668e9ade71917bec1ae",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "1b39f94ea130b747328d75c019cb00eccdf9043c4e33d26f1888e07f48deb4fb",
+  "candidate_manifest_sha256": "dc63ee3c1e0a2fa0a7c92c4da541545d4144db2add3b335e0eba8a7b2bc663b3",
   "checks": {
-    "comparison_close_candidate": false,
-    "mutation_rejection_complete": false,
-    "real_threshold_emission_present": false,
+    "comparison_close_candidate": true,
+    "mutation_rejection_complete": true,
+    "real_threshold_emission_present": true,
     "rejection_distribution_comparison_present": false,
     "review_package_binds_inputs": false,
     "review_package_claim_boundary_passed": false,
@@ -25,7 +23,7 @@
     "review_package_review_digests_present": false,
     "review_package_source_exclusions_passed": false,
     "source_exclusion_passed": false,
-    "standard_verifier_acceptance_present": false,
+    "standard_verifier_acceptance_present": true,
     "strict_external_nonce_capture_ready": false
   },
   "claim_boundary": "conformance/proof-review evidence only",
@@ -38,7 +36,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-04T21:08:23Z",
+  "generated_at": "2026-07-05T01:57:43Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -48,22 +46,22 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "1b39f94ea130b747328d75c019cb00eccdf9043c4e33d26f1888e07f48deb4fb"
+      "sha256": "dc63ee3c1e0a2fa0a7c92c4da541545d4144db2add3b335e0eba8a7b2bc663b3"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
-      "present": false,
-      "sha256": null
+      "present": true,
+      "sha256": "76a902728e91e3a1eb6e6f86419f58227913944f27dde922615dec9d96195207"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
-      "present": false,
-      "sha256": null
+      "present": true,
+      "sha256": "39cf757a1ea81c88f97416d2bb9d61dc27f7c68d38583a88fc2ac4533ba50ee8"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
-      "present": false,
-      "sha256": null
+      "present": true,
+      "sha256": "8af6be573e80cb33769eaff1a5ebbaaa661eb4a8c8b0d1d72688d263906c266f"
     },
     "reviewed_external_evidence_package": {
       "path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
