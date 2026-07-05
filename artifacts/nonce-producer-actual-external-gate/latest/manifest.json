@@ -1,34 +1,29 @@
 {
-  "actual_external_capture_ready": false,
-  "attempt_manifest_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
-  "attempt_manifest_sha256": "39e3913bca5167ee4e75679ed1132e3bf8f77154d2c5dea6bcfd3687082a52e6",
+  "actual_external_capture_ready": true,
+  "attempt_manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-external-capture-intake/latest/manifest.json",
+  "attempt_manifest_sha256": "d2f3e2037afa122261989754276290b4252d789ff5998c1746f8c88745af14d9",
   "attempt_quarantine": {
-    "allowed_use": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
-    "quarantined": true,
-    "reason": "repo reference CLI exercises the external process and JSON contract but is not independently generated threshold backend evidence"
+    "allowed_use": "preexisting external backend capture file gated by admissible readiness",
+    "quarantined": false,
+    "reason": null
   },
-  "attempt_source_profile": "repo_reference_cli_capture",
+  "attempt_source_profile": "admissible_external_backend_capture",
   "attempt_status": "capture_promoted",
-  "blockers": [
-    "attempt handoff source profile is repo_reference_cli_capture, not admissible_external_backend_capture",
-    "attempt handoff is quarantined as reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence; actual external backend evidence is required",
-    "handoff manifest source profile is repo_reference_cli_capture, not admissible_external_backend_capture",
-    "handoff manifest is quarantined as reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence; actual external backend evidence is required"
-  ],
+  "blockers": [],
   "claim_boundary": "conformance/proof-review evidence only",
   "closure_boundary": "Actual external nonce-producer capture gate only; even a ready capture remains proof-review evidence until rejection-distribution and theorem obligations are discharged.",
   "expected_source_profile": "admissible_external_backend_capture",
-  "gate_status": "actual_external_capture_missing",
-  "generated_at": "2026-07-04T04:11:10Z",
-  "handoff_manifest_path": "artifacts/nonce-producer-capture-attempt/latest/handoff/manifest.json",
-  "handoff_manifest_sha256": "62bc108d3772baf4465dadc151bf1fa18d568aa223dba3af3f121b6d83b7c502",
+  "gate_status": "actual_external_capture_ready",
+  "generated_at": "2026-07-05T16:27:05Z",
+  "handoff_manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-external-capture-intake/latest/handoff/manifest.json",
+  "handoff_manifest_sha256": "0569f5304a857860a27053d69aa2c0905d7020e01126d96ab34b508ba391fbb2",
   "handoff_quarantine": {
-    "allowed_use": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
-    "quarantined": true,
-    "reason": "repo reference CLI exercises the external process and JSON contract but is not independently generated threshold backend evidence"
+    "allowed_use": "preexisting external backend capture file gated by admissible readiness",
+    "quarantined": false,
+    "reason": null
   },
-  "handoff_source_profile": "repo_reference_cli_capture",
-  "root": ".",
+  "handoff_source_profile": "admissible_external_backend_capture",
+  "root": "/Users/rickglenn/Documents/Lattice Aggregation Current",
   "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
   "schema_version": 1
 }

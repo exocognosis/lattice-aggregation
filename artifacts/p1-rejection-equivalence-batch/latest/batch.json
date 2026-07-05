@@ -1,216 +1,39 @@
 {
-  "artifact_digest_hex": "85b43f4e25418cc10d73b46aff09f58737a310864c155d231f2a437aebd1fed8",
-  "backend_evidence": "mldsa65-centralized-vs-threshold-rejection-batch",
-  "centralized_attempts": [
+  "attempts": [
     {
-      "accepted_or_rejected": "rejected",
       "attempt_id": 0,
-      "challenge_digest_hex": "786e9f7966b3a45fbbacec38ea7cd61348ee7c1a2560742df7e4839aca127216",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
+      "centralized_predicate": "rejected",
+      "challenge_digest_hex": "ad114694a7cd1906de8626e3f2dd7f83f6c292dfad7888cf8251521e434b1107",
+      "predicate_mismatch": false,
+      "threshold_predicate": "rejected"
     },
     {
-      "accepted_or_rejected": "rejected",
       "attempt_id": 1,
-      "challenge_digest_hex": "538d9dce4372de34f0af97a9948eb15df7933040e9566f28d2c5808906723df1",
-      "ct0_bound_result": true,
-      "hint_bound_result": false,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 2,
-      "challenge_digest_hex": "f4b39894628b1539512907636e82a94d5dad79b70af0cac5ee726fc11dd5103c",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 3,
-      "challenge_digest_hex": "295a5e9fc1701dfe0e70dbcc09071dae8fd108a886f949fc29bb27c7c367fc0f",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 4,
-      "challenge_digest_hex": "6d7900e0b6f35ab6d4f4a4edd475fcc736eba7b2e11bf04db9c397bc4071b827",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "accepted",
-      "attempt_id": 5,
-      "challenge_digest_hex": "0045410ea1ce003ed7b32ad200013f52473623e0574d3a16caaf21f82ed4415b",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": true,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 6,
-      "challenge_digest_hex": "73f8963df3b6f7c7c61c90f67970ec0c0945c242105584cdbbb243ddaafa7d7d",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 7,
-      "challenge_digest_hex": "6a22273b374d0f8be200e707671b0a0f5ea8b3fbf06ddd51371c69319fce8252",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 8,
-      "challenge_digest_hex": "7517dad9b433732fa9e7e39076063914bebc401c450c0bbc1df751dc07297c67",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 9,
-      "challenge_digest_hex": "e8d57cf899946ec6f75e756901b6d5def2c92083c83e614811249d0f45fff7c5",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 10,
-      "challenge_digest_hex": "574b53467a821af0832da39d2a8717e365eb390a3609b86999ccaf3b043633fa",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 11,
-      "challenge_digest_hex": "a1c29d07ef11e974e98abae090b8bf705a9b0bee86fd76c588ea5d0e5db41acd",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 12,
-      "challenge_digest_hex": "d1778774feaeb6ad5b4fc297df6d194c13afcc767a046ee9cd55b428642a6f14",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 13,
-      "challenge_digest_hex": "2aef74ece0b3558ef1fd70d5f8f8c74ee9d6026e9812e87691b44229d3b8b6c2",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": true,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 14,
-      "challenge_digest_hex": "f67793db89d714c0d5b55d7313741ff153999b20544607a3c76697e435c69f07",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "accepted",
-      "attempt_id": 15,
-      "challenge_digest_hex": "4e5cde33925a34c76d40c747ce9cba14fb42eb9ff3cd039fcd3173b1d93d5736",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-      "r0_bound_result": true,
-      "signature_digest_hex": null,
-      "z_bound_result": true
+      "centralized_predicate": "accepted",
+      "challenge_digest_hex": "682402e9c5697cf9dc8d1fb54d9fb6751bab86cde8bd36ed308bac9967ea345a",
+      "predicate_mismatch": false,
+      "threshold_predicate": "accepted"
     }
   ],
+  "backend_evidence": "mldsa65-centralized-vs-threshold-rejection-batch",
   "claim_boundary": "conformance/proof-review evidence only",
   "claim_flags": {
     "claims_rejection_distribution_preservation": false,
-    "claims_reviewed_distributed_nonce_producer": false,
-    "claims_theorem_closure": false,
-    "close_candidate_requires_external_review": true
+    "claims_theorem_closure": false
   },
-  "name": "p1-hazmat-rejection-equivalence-batch-v1",
-  "note": "Hazmat centralized-vs-threshold ML-DSA-65 rejection-predicate comparator; conformance/proof-review evidence only, not theorem closure.",
+  "name": "p1-external-backend-rejection-equivalence-batch",
   "parameters": {
-    "aligned_mask_domain": false,
-    "attempts": 16,
-    "centralized_rnd_digest_hex": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
-    "distributed_nonce_prf_domain": true,
-    "distributed_nonce_producer_artifact_digest": null,
-    "distributed_nonce_producer_artifact_slot": "distributed_nonce_producer_artifact_digest",
-    "mask_domain": "distributed-nonce-prf-output-shares",
-    "message_digest_hex": "66f657c9cc142499f092b7efeb05a1a11efd312b185dcda1ab15a6234fe6ee8c",
-    "nonce_prf_producer": "hazmat-prf-output-oracle",
-    "nonce_prf_producer_replacement_target": "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key",
-    "public_key_digest_hex": "0ce2960c5684ab8c4071e79054e6e30078113e6603f157f68045f8de73e49702",
-    "reviewed_distributed_nonce_producer_present": false,
+    "attempts": 2,
+    "distributed_nonce_producer_artifact_digest": "2448d7a72b5872094ca6b4be4663676b63ffbbdacf67ec8ab9a5f19d9b08c1b5",
+    "nonce_prf_producer": "distributed-nonce-prf-output-shares",
+    "reviewed_distributed_nonce_producer_present": true,
     "threshold": 6667,
     "validator_count": 10000
   },
   "predicate_mismatches": [],
   "result": {
     "accepted_or_rejected_matches": true,
-    "accepted_outcome_mismatch_count": 0,
-    "attempts_compared": 16,
     "challenge_digest_matches": true,
-    "challenge_digest_mismatch_count": 0,
     "close_candidate": true,
     "predicate_mismatch_count": 0,
     "repo_provider_accepts_threshold_signature": true,
@@ -218,184 +41,11 @@
     "saw_threshold_rejected_attempt": true,
     "standard_verifier_accepts_threshold_signature": true
   },
+  "review": {
+    "backend_capture_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "comparison_digest_hex": "d6b762051290b0fd71a271e2b1f81b833e3d8a79bb1e82165987b9a8ce266d4d",
+    "nonce_capture_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c"
+  },
   "schema": "lattice-aggregation:p1-rejection-equivalence-batch:v1",
-  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
-  "threshold_attempts": [
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 0,
-      "challenge_digest_hex": "786e9f7966b3a45fbbacec38ea7cd61348ee7c1a2560742df7e4839aca127216",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 1,
-      "challenge_digest_hex": "538d9dce4372de34f0af97a9948eb15df7933040e9566f28d2c5808906723df1",
-      "ct0_bound_result": true,
-      "hint_bound_result": false,
-      "mask_seed_digest_hex": "7c8975e1e60a5c8337f28edf8c33c3b180360b7279644a9bc1af3c51e6220bf5",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 2,
-      "challenge_digest_hex": "f4b39894628b1539512907636e82a94d5dad79b70af0cac5ee726fc11dd5103c",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "f83b332be4e6a5a4b1c56aaf6db52657da495e149870057d8590ab9d7a6167ad",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 3,
-      "challenge_digest_hex": "295a5e9fc1701dfe0e70dbcc09071dae8fd108a886f949fc29bb27c7c367fc0f",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "6aa56c4bcd208911792ad24c7681fefb93bed51903afc54860c9bd37e41e5a31",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 4,
-      "challenge_digest_hex": "6d7900e0b6f35ab6d4f4a4edd475fcc736eba7b2e11bf04db9c397bc4071b827",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "cb4cdf1351c7b7812e52b873640ab20bd748a7142ffec144b18439bc8b833924",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "accepted",
-      "attempt_id": 5,
-      "challenge_digest_hex": "0045410ea1ce003ed7b32ad200013f52473623e0574d3a16caaf21f82ed4415b",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "b1bcccf15ed0a0bd63635ae686af9f75e522ab057c928e39f65ee83048d72c75",
-      "r0_bound_result": true,
-      "signature_digest_hex": "dbdcbcbf215515ae961448c4976d6d1eaa85a21b24dffed603bbd8d961d2157a",
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 6,
-      "challenge_digest_hex": "73f8963df3b6f7c7c61c90f67970ec0c0945c242105584cdbbb243ddaafa7d7d",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "1352286f7dddf65efce52c789476c7e917ecdd98d1c1ca9ab2dde1e4964caefe",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 7,
-      "challenge_digest_hex": "6a22273b374d0f8be200e707671b0a0f5ea8b3fbf06ddd51371c69319fce8252",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "6cfeeb3aa25d3f411dae5eec17d7369ca7153e72dcf54bcf4c3daec0f5b21fc7",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 8,
-      "challenge_digest_hex": "7517dad9b433732fa9e7e39076063914bebc401c450c0bbc1df751dc07297c67",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "225eba79de1b87885554c16b2aac6b3bf873b62082a79f1a73420e01bc440ca3",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 9,
-      "challenge_digest_hex": "e8d57cf899946ec6f75e756901b6d5def2c92083c83e614811249d0f45fff7c5",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "aa725e51a9d8e9a8abe3cefa68561d19a4b06c6f1526e46e3a55a23aef753c73",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 10,
-      "challenge_digest_hex": "574b53467a821af0832da39d2a8717e365eb390a3609b86999ccaf3b043633fa",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "c2a74daea21f6caad6b7794dcfd121cbaa0bddc3407ce5f5fdc1914bd5e7ff90",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 11,
-      "challenge_digest_hex": "a1c29d07ef11e974e98abae090b8bf705a9b0bee86fd76c588ea5d0e5db41acd",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "7885d9787cff36149f5166f2ad9167505a15fc132f946d6c7938f867d940326d",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 12,
-      "challenge_digest_hex": "d1778774feaeb6ad5b4fc297df6d194c13afcc767a046ee9cd55b428642a6f14",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "858b73d63eb2439f5d3755fe6002d941fcc99e9a5fdb06fb568a21ff2599262f",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": true
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 13,
-      "challenge_digest_hex": "2aef74ece0b3558ef1fd70d5f8f8c74ee9d6026e9812e87691b44229d3b8b6c2",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "d7659e736405aff65a1b07649b7ffc16075fc1c43827ae547c5261aaa2ce5553",
-      "r0_bound_result": true,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "rejected",
-      "attempt_id": 14,
-      "challenge_digest_hex": "f67793db89d714c0d5b55d7313741ff153999b20544607a3c76697e435c69f07",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "ca03e7605b1a83c16af45ee83280f86cba4a16b48618e9790205fe74ff530048",
-      "r0_bound_result": false,
-      "signature_digest_hex": null,
-      "z_bound_result": false
-    },
-    {
-      "accepted_or_rejected": "accepted",
-      "attempt_id": 15,
-      "challenge_digest_hex": "4e5cde33925a34c76d40c747ce9cba14fb42eb9ff3cd039fcd3173b1d93d5736",
-      "ct0_bound_result": true,
-      "hint_bound_result": true,
-      "mask_seed_digest_hex": "119b68ac8957f9dfe365f0494103f781d6152a4223375fad851c22d41b590878",
-      "r0_bound_result": true,
-      "signature_digest_hex": "7ae373ddd9198270f0c3de840c1df2d85a7bc87db128423f0c01a34e43c70ea5",
-      "z_bound_result": true
-    }
-  ]
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 }

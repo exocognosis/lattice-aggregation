@@ -1,20 +1,12 @@
-# Real-Threshold Backend Capture Runner Summary
+# Real-Threshold Backend Capture File Intake
 
-This artifact records externally generated backend capture material for the canonical P1 importer. It is evidence_present_unclosed conformance/proof-review evidence only.
+This artifact stages a preexisting external backend-emission capture file for the Batch 8 real-threshold evidence slot. It is evidence_present_unclosed conformance/proof-review evidence only.
 
-- Generated at: `2026-07-05T01:52:06Z`
-- Commit: `8d24d9260d22022b2523c6eb1829cd130d344548`
-- Branch: `codex/theorem-closure-readiness-gates`
-- Capture schema: `lattice-aggregation:p1-real-threshold-backend-emission-capture:v1`
-- Request schema: `lattice-aggregation:p1-real-threshold-backend-emission-request:v1`
-- Request: `p1-real-threshold-backend-emission-request-001`
+- Status: `evidence_present_unclosed`
+- Backend execution mode: `preexisting_external_capture_file`
+- Capture file origin: `outside_repo_capture_file`
+- Capture SHA-256: `6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b`
+- External review SHA-256: `e1d74868e62f7265c191d8dced0026bc3c007492dbbc01b360cafeed6f457b9b`
 - Request SHA-256: `804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1`
-- Backend evidence: `real_threshold_mldsa_external_capture`
-- Backend command origin: `outside_repo_executable_or_script`
-- Validator target: `10000`
-- Threshold target: `6667`
-- Signature length: `3309`
-- Runner status: `evidence_present_unclosed`
-- Claim boundary: `conformance/proof-review evidence only`
 
-This runner does not prove Criterion 2, rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.
+This intake does not prove Criterion 2, rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.

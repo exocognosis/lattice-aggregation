@@ -5,18 +5,18 @@ This artifact groups the actual external nonce gate, real-threshold backend emis
 - Status: `blocked_external_evidence_missing`
 - Close candidate: `false`
 - Claim boundary: `conformance/proof-review evidence only`
-- Candidate manifest SHA-256: `c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f`
+- Candidate manifest SHA-256: `02b3c984aef99885f5fa6f48dfa5a86d653d98d8483d861f9f6addc7e09720dc`
 - Review package SHA-256: `None`
-- Attempt digest SHA-256: `9da3bd741a09d48f595f1b060633c5ad89d9b3b3aecc57b6f2819513691f7b9e`
+- Attempt digest SHA-256: `4f0478c121f7aac22682587e7fd25d7c5ea6f6d03d526f6374305b3348166b76`
 
 Checks:
-- `strict_external_nonce_capture_ready`: `false`
+- `strict_external_nonce_capture_ready`: `true`
 - `real_threshold_emission_present`: `true`
 - `standard_verifier_acceptance_present`: `true`
 - `mutation_rejection_complete`: `true`
-- `rejection_distribution_comparison_present`: `false`
+- `rejection_distribution_comparison_present`: `true`
 - `comparison_close_candidate`: `true`
-- `source_exclusion_passed`: `false`
+- `source_exclusion_passed`: `true`
 - `review_package_present`: `false`
 - `review_package_binds_inputs`: `false`
 - `review_package_claim_boundary_passed`: `false`
@@ -24,11 +24,6 @@ Checks:
 - `review_package_review_digests_present`: `false`
 
 Blockers:
-- actual external nonce capture is not ready
-- rejection-distribution comparison is incomplete
-- forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture
-- forbidden external-evidence source marker in real-threshold backend capture: hazmat
-- forbidden external-evidence source marker in rejection-distribution batch: hazmat
 - reviewed external evidence package is missing
 
 This is not theorem closure. It does not prove Criterion 2, rejection-distribution preservation, selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or completed cryptographic proof.

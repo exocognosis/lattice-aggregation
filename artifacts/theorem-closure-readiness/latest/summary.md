@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; not theorem closure`
-- Readiness digest SHA-256: `762a6a35355c859774dfd5d61ab430a83cc3e42781322ccb53f6f455e0d2befa`
+- Readiness digest SHA-256: `626a8837428aae61c41626e3a48b4119ae5a42447dac97e653cb51d874b41537`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -16,10 +16,10 @@ Checks:
 - `hypothesis_boundary_is_research_scaffold_only`: `true`
 - `hypothesis_not_already_completely_proven`: `true`
 - `external_closure_candidate_manifest_present`: `true`
-- `external_closure_candidate_ready`: `false`
+- `external_closure_candidate_ready`: `true`
 - `external_evidence_attempt_manifest_present`: `true`
 - `external_evidence_attempt_ready`: `false`
-- `external_source_exclusions_passed`: `false`
+- `external_source_exclusions_passed`: `true`
 - `external_review_package_binds_inputs`: `false`
 - `external_review_package_ready`: `false`
 - `theorem_review_manifest_present`: `false`
@@ -40,12 +40,7 @@ Checks:
 - `review_claims_fips_validation_false`: `false`
 
 Blocker Groups:
-- `external_backend_evidence`: `6` blocker(s)
-  - actual external nonce capture is not ready
-  - rejection-distribution comparison is incomplete
-  - forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture
-  - forbidden external-evidence source marker in real-threshold backend capture: hazmat
-  - forbidden external-evidence source marker in rejection-distribution batch: hazmat
+- `external_backend_evidence`: `1` blocker(s)
   - reviewed external evidence package is missing
 - `proof_payload_review`: `1` blocker(s)
   - theorem review manifest is missing required ready flag: proof_payload_reviewed
