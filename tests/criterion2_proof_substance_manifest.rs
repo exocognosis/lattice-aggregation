@@ -247,6 +247,19 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                 assert_eq!(slot["attempt_status"], "blocked_external_evidence_missing");
                 assert_eq!(slot["close_candidate"], false);
                 assert_eq!(slot["source_exclusion_passed"], false);
+                assert_eq!(
+                    slot["review_package_schema"],
+                    "lattice-aggregation:p1-external-backend-evidence-package-review:v1"
+                );
+                assert_eq!(
+                    slot["review_package_path"],
+                    "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json"
+                );
+                assert_eq!(slot["review_package_present"], false);
+                assert_eq!(slot["review_package_binds_inputs"], false);
+                assert_eq!(slot["review_package_claim_boundary_passed"], false);
+                assert_eq!(slot["review_package_source_exclusions_passed"], false);
+                assert_eq!(slot["review_package_review_digests_present"], false);
                 assert_eq!(slot["claims_theorem_closure"], false);
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
@@ -491,6 +504,8 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "closure_candidate_manifest_sha256",
         "external_backend_evidence_attempt_manifest_sha256",
         "source_exclusion_passed",
+        "review_package_binds_inputs",
+        "review_package_review_digests_present",
     ] {
         assert!(
             string_array_contains(

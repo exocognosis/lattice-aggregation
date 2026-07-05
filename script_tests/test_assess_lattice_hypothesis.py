@@ -1487,8 +1487,13 @@ class ReportGenerationTests(unittest.TestCase):
             "NAME = \"p1-external-backend-evidence-attempt-v1\"\n"
             "STATUS_READY = \"external_evidence_close_candidate_ready\"\n"
             "STATUS_BLOCKED = \"blocked_external_evidence_missing\"\n"
+            "REVIEW_PACKAGE_SCHEMA = \"lattice-aggregation:p1-external-backend-evidence-package-review:v1\"\n"
+            "REVIEW_STATUS_READY = \"reviewed_external_backend_evidence_ready\"\n"
+            "REVIEW_SOURCE_ORIGIN = \"outside_repo_review_manifest\"\n"
             "FORBIDDEN_SOURCE_MARKERS = (\"hazmat\", \"simulation\", \"localnet\", \"fixture\")\n"
             "def source_marker_blockers(): pass\n"
+            "def review_package_checks(): pass\n"
+            "def review_package_expected_input_sha256s(): pass\n"
             "def build_report(): pass\n"
             "def write_artifacts(): pass\n"
             "strict_external_nonce_capture_ready\n"
@@ -1498,6 +1503,12 @@ class ReportGenerationTests(unittest.TestCase):
             "rejection_distribution_comparison_present\n"
             "comparison_close_candidate\n"
             "source_exclusion_passed\n"
+            "review_package_present\n"
+            "review_package_binds_inputs\n"
+            "review_package_claim_boundary_passed\n"
+            "review_package_source_exclusions_passed\n"
+            "review_package_review_digests_present\n"
+            "--review-package\n"
             "claims_theorem_closure\n"
             "claims_rejection_distribution_preservation\n"
             "claims_selected_backend_proof_closure\n"
@@ -1509,11 +1520,16 @@ class ReportGenerationTests(unittest.TestCase):
         ).write_text(
             "def test_missing_external_inputs_write_blocked_attempt_and_candidate(): pass\n"
             "def test_complete_external_bundle_writes_ready_candidate_without_closure_claims(): pass\n"
+            "def test_complete_external_bundle_without_review_package_remains_blocked(): pass\n"
+            "def test_review_package_digest_drift_blocks_close_candidate(): pass\n"
             "def test_rejects_hazmat_or_simulation_source_markers_before_candidate_ready(): pass\n"
             "def test_strict_main_returns_two_until_close_candidate_ready(): pass\n"
             "blocked_external_evidence_missing\n"
             "external_evidence_close_candidate_ready\n"
             "source_exclusion_passed\n"
+            "review_package_binds_inputs\n"
+            "reviewed external evidence package is missing\n"
+            "review package input digest mismatch\n"
             "claims_theorem_closure\n"
             "claims_rejection_distribution_preservation\n",
             encoding="utf-8",
@@ -1531,14 +1547,21 @@ class ReportGenerationTests(unittest.TestCase):
             "  \"name\": \"p1-external-backend-evidence-attempt-v1\",\n"
             "  \"attempt_status\": \"blocked_external_evidence_missing\",\n"
             "  \"close_candidate\": false,\n"
+            "  \"review_package_path\": \"artifacts/p1-external-backend-evidence-package-review/latest/manifest.json\",\n"
             "  \"claims_theorem_closure\": false,\n"
             "  \"claims_rejection_distribution_preservation\": false,\n"
             "  \"claims_selected_backend_proof_closure\": false,\n"
             "  \"checks\": {\n"
-            "    \"source_exclusion_passed\": false\n"
+            "    \"source_exclusion_passed\": false,\n"
+            "    \"review_package_present\": false,\n"
+            "    \"review_package_binds_inputs\": false,\n"
+            "    \"review_package_claim_boundary_passed\": false,\n"
+            "    \"review_package_source_exclusions_passed\": false,\n"
+            "    \"review_package_review_digests_present\": false\n"
             "  },\n"
             "  \"blockers\": [\n"
             "    \"actual external nonce capture is not ready\",\n"
+            "    \"reviewed external evidence package is missing\",\n"
             "    \"forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture\"\n"
             "  ]\n"
             "}\n",
@@ -3219,6 +3242,7 @@ class ReportGenerationTests(unittest.TestCase):
             markdown = module.render_markdown(report)
 
         self.assertTrue(scan["p1_external_backend_evidence_attempt_gate"])
+        self.assertTrue(scan.get("p1_external_backend_evidence_package_review_gate"))
         self.assertEqual(report["overall_verdict"], "partially_proven")
         criteria_by_id = {criterion["id"]: criterion for criterion in report["criteria"]}
         aggregate = criteria_by_id["aggregate_rejection_equivalence"]
@@ -3226,6 +3250,8 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertEqual(aggregate["status"], "partially_met")
         self.assertIn("Batch 8 external-backend evidence attempt", aggregate_evidence)
+        self.assertIn("Batch 9 reviewed external evidence package", aggregate_evidence)
+        self.assertIn("review_package_binds_inputs", aggregate_evidence)
         self.assertIn("source_exclusion_passed", aggregate_evidence)
         self.assertIn("blocked_external_evidence_missing", aggregate_evidence)
         self.assertIn("does not close the theorem", aggregate_evidence)

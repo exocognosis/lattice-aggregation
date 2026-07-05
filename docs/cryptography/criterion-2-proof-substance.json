@@ -238,13 +238,21 @@
         "attempt_status": "blocked_external_evidence_missing",
         "close_candidate": false,
         "source_exclusion_passed": false,
+        "review_package_schema": "lattice-aggregation:p1-external-backend-evidence-package-review:v1",
+        "review_package_path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
+        "review_package_present": false,
+        "review_package_binds_inputs": false,
+        "review_package_claim_boundary_passed": false,
+        "review_package_source_exclusions_passed": false,
+        "review_package_review_digests_present": false,
         "requires": [
           "strict actual external nonce-producer gate",
           "request-bound real-threshold backend emission capture",
           "standard-verifier acceptance evidence",
           "complete mutation-rejection evidence",
           "distributed-nonce-prf-output-shares rejection-distribution comparison",
-          "source exclusion for hazmat/simulation/localnet/fixture/single-key/repo-reference capture sources"
+          "source exclusion for hazmat/simulation/localnet/fixture/single-key/repo-reference capture sources",
+          "reviewed external evidence package with outside_repo_review_manifest origin and exact input digest binding"
         ],
         "claim_boundary": "conformance/proof-review evidence only",
         "claims_theorem_closure": false,
@@ -442,6 +450,7 @@
     "reviewed standard-verifier compatibility argument",
     "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
     "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true",
+    "reviewed Batch 9 external evidence package with review_package_binds_inputs true, source exclusions passed, and review digests present",
     "theorem-linkage review"
   ],
   "failure_conditions": [
@@ -543,7 +552,9 @@
     "closure_candidate_manifest_sha256",
     "external_backend_evidence_attempt_manifest_sha256",
     "backend_emission_request_manifest_sha256",
-    "source_exclusion_passed"
+    "source_exclusion_passed",
+    "review_package_binds_inputs",
+    "review_package_review_digests_present"
   ],
   "assessment": {
     "criterion_status": "partially_met",
@@ -556,6 +567,9 @@
     "batch8_external_backend_evidence_attempt_status": "blocked_external_evidence_missing",
     "batch8_external_backend_close_candidate": false,
     "batch8_source_exclusion_passed": false,
-    "batch8_claim_boundary": "conformance/proof-review evidence only"
+    "batch8_claim_boundary": "conformance/proof-review evidence only",
+    "batch9_review_package_present": false,
+    "batch9_review_package_binds_inputs": false,
+    "batch9_review_package_status": "review_package_missing"
   }
 }
