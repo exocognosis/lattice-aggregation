@@ -44,9 +44,11 @@ REQUIRED_REVIEW_CHECKS = (
     "backend_material_digests_reviewed",
     "mutation_rejection_reviewed",
     "standard_verifier_acceptance_reviewed",
+    "centralized_standard_provider_output_disclosed",
+    "threshold_core_limitations_reviewed",
     "no_localnet_or_deterministic_simulation",
     "no_fixture_harness",
-    "no_single_key_standard_provider_output",
+    "no_undisclosed_single_key_standard_provider_output",
 )
 
 
@@ -202,6 +204,8 @@ def validate_external_review_manifest(
     for field in REQUIRED_REVIEW_CHECKS:
         if checks.get(field) is not True:
             raise ValueError(f"external review check failed: {field}")
+    if checks.get("real_distributed_threshold_core_verified") is not False:
+        raise ValueError("external review must not claim verified distributed threshold core")
 
     return {
         "schema": review["schema"],

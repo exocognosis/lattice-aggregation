@@ -78,6 +78,16 @@ class ThresholdBackendP1Tests(unittest.TestCase):
             "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
         )
         self.assertEqual(capture["backend_evidence"], "real_threshold_mldsa_external_capture")
+        self.assertEqual(
+            capture["cryptographic_core"]["core_mode"],
+            "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+        )
+        self.assertFalse(
+            capture["cryptographic_core"]["distributed_threshold_core"][
+                "partial_signing_over_secret_shares"
+            ]
+        )
+        self.assertIn("threshold_core_accounting_digest_hex", capture["expected"])
         self.assertEqual(len(bytes.fromhex(capture["capture"]["public_key_hex"])), 1952)
         self.assertEqual(
             len(bytes.fromhex(capture["capture"]["aggregate_signature_hex"])),
@@ -94,6 +104,9 @@ class ThresholdBackendP1Tests(unittest.TestCase):
             review["review_status"],
             "reviewed_external_backend_emission_capture_ready",
         )
+        self.assertTrue(review["checks"]["centralized_standard_provider_output_disclosed"])
+        self.assertFalse(review["checks"]["real_distributed_threshold_core_verified"])
+        self.assertFalse(review["checks"]["no_single_key_standard_provider_output"])
         self.assertEqual(manifest["runner_status"], "evidence_present_unclosed")
         self.assertEqual(
             manifest["backend_execution_mode"],
@@ -187,6 +200,12 @@ class ThresholdBackendP1Tests(unittest.TestCase):
             capture["producer_evidence"],
             "p1_shamir_nonce_dkg_tee_external_capture",
         )
+        self.assertEqual(
+            capture["threshold_nonce_accounting"]["coefficient_count"],
+            6667,
+        )
+        self.assertFalse(capture["threshold_nonce_accounting"]["live_network_capture"])
+        self.assertIn("threshold_nonce_accounting_digest_hex", capture["expected"])
         self.assertEqual(
             len(capture["expected"]["distributed_nonce_producer_artifact_digest_hex"]),
             64,
