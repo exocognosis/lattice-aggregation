@@ -69,6 +69,13 @@ def backend_manifest():
             "schema": "lattice-aggregation:external-capture-provenance:v1",
             "runner_status": "evidence_present_unclosed",
         },
+        "external_capture_review": {
+            "checks": {
+                "no_fixture_harness": True,
+                "no_localnet_or_deterministic_simulation": True,
+                "no_single_key_standard_provider_output": True,
+            },
+        },
     }
 
 

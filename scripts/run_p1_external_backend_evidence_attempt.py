@@ -131,13 +131,26 @@ def source_marker_blockers(*documents):
     for label, document in documents:
         if document is None:
             continue
-        encoded = json.dumps(document, sort_keys=True).lower()
-        for marker in FORBIDDEN_SOURCE_MARKERS:
-            if marker in encoded:
-                blockers.append(
-                    f"forbidden external-evidence source marker in {label}: {marker}"
-                )
+        for value in string_values(document):
+            lowered = value.lower()
+            for marker in FORBIDDEN_SOURCE_MARKERS:
+                if marker in lowered:
+                    blockers.append(
+                        f"forbidden external-evidence source marker in {label}: {marker}"
+                    )
     return blockers
+
+
+def string_values(value):
+    """Yield only JSON string values, not field names, for source-marker checks."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for item in value:
+            yield from string_values(item)
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from string_values(item)
 
 
 def build_report(
