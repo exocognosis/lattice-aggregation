@@ -1,7 +1,7 @@
 {
-  "branch": "codex/batch9-external-evidence-import",
+  "branch": "codex/theorem-closure-readiness-gates",
   "claim_boundary": "research scaffold only",
-  "commit": "a59222c3945fd305764c4eaf15452f9b05dcfe20",
+  "commit": "5867e5ac9f82a788c57b459b349ead70eeae4b86",
   "criteria": [
     {
       "blocker_count": 3,

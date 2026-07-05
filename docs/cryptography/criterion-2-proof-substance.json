@@ -4,6 +4,7 @@
   "status": "formalized_open_proof_payload",
   "claim_boundary": {
     "scope": "criterion-2 proof payload only",
+    "claims_theorem_closure": false,
     "claims_criterion_met": false,
     "claims_selected_backend_proof_closure": false,
     "claims_standard_verifier_compatibility_complete": false,
@@ -527,6 +528,9 @@
       "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "artifacts/p1-external-backend-evidence-attempt/latest/summary.md": "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
       "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS": "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+      "artifacts/theorem-closure-readiness/latest/manifest.json": "artifacts/theorem-closure-readiness/latest/manifest.json",
+      "artifacts/theorem-closure-readiness/latest/summary.md": "artifacts/theorem-closure-readiness/latest/summary.md",
+      "artifacts/theorem-closure-readiness/latest/SHA256SUMS": "artifacts/theorem-closure-readiness/latest/SHA256SUMS",
       "artifacts/backend-emission-request/latest/request.json": "artifacts/backend-emission-request/latest/request.json",
       "artifacts/backend-emission-request/latest/manifest.json": "artifacts/backend-emission-request/latest/manifest.json",
       "artifacts/backend-emission-request/latest/summary.md": "artifacts/backend-emission-request/latest/summary.md",
@@ -570,6 +574,8 @@
     "batch8_claim_boundary": "conformance/proof-review evidence only",
     "batch9_review_package_present": false,
     "batch9_review_package_binds_inputs": false,
-    "batch9_review_package_status": "review_package_missing"
+    "batch9_review_package_status": "review_package_missing",
+    "theorem_closure_readiness_status": "blocked_before_theorem_closure_assessment",
+    "theorem_closure_assessment_ready": false
   }
 }

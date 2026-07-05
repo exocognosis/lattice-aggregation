@@ -55,6 +55,7 @@ fn criterion2_manifest_preserves_non_claim_boundary() {
 
     assert_eq!(boundary["scope"], "criterion-2 proof payload only");
     for key in [
+        "claims_theorem_closure",
         "claims_criterion_met",
         "claims_selected_backend_proof_closure",
         "claims_standard_verifier_compatibility_complete",
@@ -462,6 +463,14 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
     );
     assert_eq!(pipeline["status"], "evidence_present_unclosed");
     assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    assert_eq!(
+        manifest["assessment"]["theorem_closure_readiness_status"],
+        "blocked_before_theorem_closure_assessment"
+    );
+    assert_eq!(
+        manifest["assessment"]["theorem_closure_assessment_ready"],
+        false
+    );
     for artifact in [
         "artifacts/hypothesis/latest/assessment.json",
         "artifacts/hypothesis/latest/assessment.md",
@@ -473,6 +482,9 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
         "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
         "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+        "artifacts/theorem-closure-readiness/latest/manifest.json",
+        "artifacts/theorem-closure-readiness/latest/summary.md",
+        "artifacts/theorem-closure-readiness/latest/SHA256SUMS",
         "artifacts/backend-emission-request/latest/request.json",
         "artifacts/backend-emission-request/latest/manifest.json",
         "artifacts/backend-emission-request/latest/summary.md",

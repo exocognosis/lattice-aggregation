@@ -298,8 +298,9 @@ cryptographic theorem.
 
 ## FST-9. Explicit Limitations
 
-Limitation FST-X1. No production threshold ML-DSA protocol is selected in the
-available documentation.
+Limitation FST-X1. The selected P1 threshold ML-DSA route is a review
+direction only; the production security model, full protocol specification,
+and proof remain open.
 
 Limitation FST-X2. No formal DKG, dealer, or share-verification proof is
 present.
