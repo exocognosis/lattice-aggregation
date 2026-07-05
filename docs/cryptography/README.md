@@ -30,6 +30,7 @@ Available notes:
 - [Aggregate Rejection-Equivalence Evidence](rejection-equivalence-evidence.md)
 - [Side-Channel and Constant-Time Boundary](side-channel-boundary.md)
 - [Thesis and Operating Parameters](thesis-operating-parameters.md)
+- [Theorem Closure Assessment Readiness](theorem-closure-assessment-readiness.md)
 - [Unauthorized Aggregate Reduction Manifest](unauthorized-aggregate-reduction.md)
 - [Proof-Grade VSS/DKG Security Plan](vss-dkg-security-plan.md)
 - [Abort/Retry Bias Evidence Checks](abort-retry-bias-evidence.md)

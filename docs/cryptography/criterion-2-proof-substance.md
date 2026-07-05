@@ -215,9 +215,11 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `preexisting_external_capture_file` provenance, and rejects repo-local files,
   missing or failed review manifests, stale request bindings,
   localnet/simulation, fixture, and single-key standard-provider sources before
-  artifact write. This is an executable intake path only; it does not supply the
-  missing real external backend capture, does not prove Criterion 2, and does
-  not prove rejection-distribution preservation or theorem closure.
+  artifact write. The executable checks are pinned by
+  `script_tests/test_stage_external_backend_emission_capture.py`. This is an
+  executable intake path only; it does not supply the missing real external
+  backend capture, does not prove Criterion 2, and does not prove
+  rejection-distribution preservation or theorem closure.
   The repo-owned hazmat threshold backend capture adapter
   `scripts/run_hazmat_threshold_backend_capture.py` is the explicit-backend
   bridge for the current 10,000-validator experiment: it requires
@@ -512,6 +514,17 @@ is `blocked_external_evidence_missing` with `close_candidate = false`, because
 the actual external nonce capture still resolves to `repo_reference_cli_capture`
 and the real backend/rejection artifacts are absent. This is the first grouped
 attempt harness for the closure run, not theorem closure.
+Batch 9 hardens the same grouped attempt with a reviewed external evidence
+package gate. The runner now accepts `--review-package` pointing at schema
+`lattice-aggregation:p1-external-backend-evidence-package-review:v1`; the
+package must have `reviewed_external_backend_evidence_ready` status,
+`outside_repo_review_manifest` origin, `admissible_external_backend_capture`
+source profile, `review_package_binds_inputs = true` over the actual external
+nonce gate, real-threshold backend capture, rejection batch, and Batch 7
+candidate digest, plus source-exclusion and review-digest checks. The checked
+attempt records `review_package_present = false` and
+`reviewed external evidence package is missing`, so Criterion 2 remains
+`partially_met`.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, not proof closure by themselves.
@@ -544,7 +557,15 @@ linked:
   actual external nonce and real-threshold backend captures;
 - reviewed Batch 8 grouped external-evidence attempt with `source_exclusion_passed`
   true and `close_candidate = true`;
+- reviewed Batch 9 external evidence package with `review_package_binds_inputs`
+  true, source exclusions passed, and review digests present;
 - theorem-linkage review.
+
+`scripts/assess_theorem_closure_readiness.py` records these blockers in
+`artifacts/theorem-closure-readiness/latest/manifest.json` before theorem
+closure assessment can begin. A future
+`ready_for_theorem_closure_assessment` result is only an assessment-entry
+preflight; it is not Criterion 2 closure and not theorem closure.
 
 The existing selected-backend proof-closure artifact package gate is necessary
 but not sufficient for criterion-2 promotion. `ClosureReady` and

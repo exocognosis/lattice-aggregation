@@ -81,12 +81,12 @@
     "schema": "lattice-aggregation:p1-external-nonce-producer-capture-review:v1",
     "sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214"
   },
-  "generated_at": "2026-07-05T16:15:16Z",
+  "generated_at": "2026-07-05T16:27:04Z",
   "metadata": {
     "branch": "codex/p1-real-external-evidence-attempt",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "3721097176a8de349029e09e02c1f603bc707ef2",
+    "commit": "e46614f86dfdfed81e61b85f935d0b0bfd5c5303",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",

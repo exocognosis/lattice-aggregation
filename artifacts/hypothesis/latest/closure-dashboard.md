@@ -3,15 +3,15 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `a342d65012d51328cd3a23627712633a036d6294`
+Commit: `e46614f86dfdfed81e61b85f935d0b0bfd5c5303`
 
 ## Criteria
 
-- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (32 evidence entries, 12 blockers)
-- `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
-- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
-- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)
+- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 4 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 11 blockers)
+- `abort_retry_bias`: `partially_met` (3 evidence entries, 3 blockers)
+- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 3 blockers)
+- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 3 blockers)
 
 ## Proof Artifact Slots
 

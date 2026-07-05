@@ -55,6 +55,7 @@ fn criterion2_manifest_preserves_non_claim_boundary() {
 
     assert_eq!(boundary["scope"], "criterion-2 proof payload only");
     for key in [
+        "claims_theorem_closure",
         "claims_criterion_met",
         "claims_selected_backend_proof_closure",
         "claims_standard_verifier_compatibility_complete",
@@ -271,6 +272,19 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                 assert_eq!(slot["attempt_status"], "blocked_external_evidence_missing");
                 assert_eq!(slot["close_candidate"], false);
                 assert_eq!(slot["source_exclusion_passed"], false);
+                assert_eq!(
+                    slot["review_package_schema"],
+                    "lattice-aggregation:p1-external-backend-evidence-package-review:v1"
+                );
+                assert_eq!(
+                    slot["review_package_path"],
+                    "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json"
+                );
+                assert_eq!(slot["review_package_present"], false);
+                assert_eq!(slot["review_package_binds_inputs"], false);
+                assert_eq!(slot["review_package_claim_boundary_passed"], false);
+                assert_eq!(slot["review_package_source_exclusions_passed"], false);
+                assert_eq!(slot["review_package_review_digests_present"], false);
                 assert_eq!(slot["claims_theorem_closure"], false);
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
@@ -459,6 +473,15 @@ fn criterion2_manifest_links_existing_evidence_surfaces() {
             "criterion-2 evidence ref is missing: {relative}"
         );
     }
+    for required in [
+        "scripts/stage_external_backend_emission_capture.py",
+        "script_tests/test_stage_external_backend_emission_capture.py",
+    ] {
+        assert!(
+            string_array_contains(&serde_json::Value::Array(evidence_refs.clone()), required),
+            "Criterion 2 evidence refs must link {required}"
+        );
+    }
 }
 
 #[test]
@@ -473,6 +496,14 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
     );
     assert_eq!(pipeline["status"], "evidence_present_unclosed");
     assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    assert_eq!(
+        manifest["assessment"]["theorem_closure_readiness_status"],
+        "blocked_before_theorem_closure_assessment"
+    );
+    assert_eq!(
+        manifest["assessment"]["theorem_closure_assessment_ready"],
+        false
+    );
     for artifact in [
         "artifacts/hypothesis/latest/assessment.json",
         "artifacts/hypothesis/latest/assessment.md",
@@ -484,6 +515,9 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
         "artifacts/p1-external-backend-evidence-attempt/latest/summary.md",
         "artifacts/p1-external-backend-evidence-attempt/latest/SHA256SUMS",
+        "artifacts/theorem-closure-readiness/latest/manifest.json",
+        "artifacts/theorem-closure-readiness/latest/summary.md",
+        "artifacts/theorem-closure-readiness/latest/SHA256SUMS",
         "artifacts/backend-emission-request/latest/request.json",
         "artifacts/backend-emission-request/latest/manifest.json",
         "artifacts/backend-emission-request/latest/summary.md",
@@ -514,10 +548,9 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "rejection_distribution_batch_sha256",
         "closure_candidate_manifest_sha256",
         "external_backend_evidence_attempt_manifest_sha256",
-        "backend_emission_request_manifest_sha256",
-        "backend_emission_capture_review_manifest_sha256",
-        "backend_emission_capture_file_sha256",
         "source_exclusion_passed",
+        "review_package_binds_inputs",
+        "review_package_review_digests_present",
     ] {
         assert!(
             string_array_contains(

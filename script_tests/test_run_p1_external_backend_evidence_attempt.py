@@ -69,13 +69,6 @@ def backend_manifest():
             "schema": "lattice-aggregation:external-capture-provenance:v1",
             "runner_status": "evidence_present_unclosed",
         },
-        "external_capture_review": {
-            "checks": {
-                "no_fixture_harness": True,
-                "no_localnet_or_deterministic_simulation": True,
-                "no_single_key_standard_provider_output": True,
-            },
-        },
     }
 
 
@@ -157,6 +150,81 @@ def rejection_batch(close_candidate=True):
     }
 
 
+def reviewed_external_evidence_package(
+    module,
+    nonce_path,
+    backend_manifest_path,
+    backend_capture_path,
+    rejection_batch_path,
+    candidate_digest_sha256,
+):
+    return {
+        "schema": "lattice-aggregation:p1-external-backend-evidence-package-review:v1",
+        "name": "batch9-reviewed-external-evidence-package",
+        "claim_boundary": "conformance/proof-review evidence only",
+        "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "review_status": "reviewed_external_backend_evidence_ready",
+        "source_origin": "outside_repo_review_manifest",
+        "package_source_profile": "admissible_external_backend_capture",
+        "input_sha256s": {
+            "actual_external_nonce_gate_manifest": module.sha256_path(nonce_path),
+            "real_threshold_backend_capture_manifest": module.sha256_path(
+                backend_manifest_path
+            ),
+            "real_threshold_backend_capture_json": module.sha256_path(
+                backend_capture_path
+            ),
+            "rejection_equivalence_batch_json": module.sha256_path(
+                rejection_batch_path
+            ),
+            "candidate_digest_sha256": candidate_digest_sha256,
+        },
+        "review_digests": {
+            "external_review_digest_hex": "12" * 32,
+            "reviewer_identity_digest_hex": "34" * 32,
+            "operator_identity_digest_hex": "56" * 32,
+            "external_source_package_digest_hex": "78" * 32,
+            "capture_environment_digest_hex": "9a" * 32,
+            "backend_command_digest_hex": "bc" * 32,
+        },
+        "source_exclusions": {
+            "hazmat_prf_oracle": False,
+            "centralized_expanded_secret_key_helper": False,
+            "fixture_harness": False,
+            "localnet_or_deterministic_simulation": False,
+            "single_key_standard_provider_output": False,
+        },
+        "claim_flags": {
+            "claims_theorem_closure": False,
+            "claims_rejection_distribution_preservation": False,
+            "claims_selected_backend_proof_closure": False,
+            "claims_production_threshold_mldsa_security": False,
+            "claims_cavp_acvts_validation": False,
+            "claims_fips_validation": False,
+        },
+    }
+
+
+def build_candidate_digest(
+    module,
+    root,
+    nonce_path,
+    backend_manifest_path,
+    backend_capture_path,
+    rejection_batch_path,
+):
+    candidate_builder = module.load_closure_candidate_builder()
+    candidate_report = candidate_builder.build_report(
+        root,
+        nonce_gate_path=nonce_path,
+        backend_manifest_path=backend_manifest_path,
+        backend_capture_path=backend_capture_path,
+        rejection_batch_path=rejection_batch_path,
+        generated_at="2026-07-04T00:00:00Z",
+    )
+    return candidate_report["manifest"]["candidate_digest_sha256"]
+
+
 class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
     def test_missing_external_inputs_write_blocked_attempt_and_candidate(self):
         module = load_module()
@@ -180,7 +248,7 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
         self.assertIn("actual external nonce capture", " ".join(manifest["blockers"]))
         self.assertIn("not theorem closure", report["summary_md"])
 
-    def test_complete_external_bundle_writes_ready_candidate_without_closure_claims(self):
+    def test_complete_external_bundle_without_review_package_remains_blocked(self):
         module = load_module()
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -189,8 +257,6 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
             backend_manifest_path = root / "backend" / "manifest.json"
             backend_capture_path = root / "backend" / "capture.json"
             rejection_batch_path = root / "rejection" / "batch.json"
-            out_dir = root / "attempt"
-            candidate_dir = root / "candidate"
             write_json(nonce_path, actual_nonce_gate(True))
             write_json(backend_manifest_path, backend_manifest())
             write_json(backend_capture_path, backend_capture())
@@ -202,6 +268,62 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
                 backend_manifest_path=backend_manifest_path,
                 backend_capture_path=backend_capture_path,
                 rejection_batch_path=rejection_batch_path,
+                generated_at="2026-07-04T00:00:00Z",
+            )
+
+        manifest = report["manifest"]
+        self.assertEqual(manifest["attempt_status"], "blocked_external_evidence_missing")
+        self.assertFalse(manifest["close_candidate"])
+        self.assertFalse(manifest["checks"]["review_package_present"])
+        self.assertFalse(manifest["checks"]["review_package_binds_inputs"])
+        self.assertIn(
+            "reviewed external evidence package is missing",
+            " ".join(manifest["blockers"]),
+        )
+
+    def test_complete_external_bundle_writes_ready_candidate_without_closure_claims(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_batch_path = root / "rejection" / "batch.json"
+            review_package_path = root / "review" / "manifest.json"
+            out_dir = root / "attempt"
+            candidate_dir = root / "candidate"
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, backend_manifest())
+            write_json(backend_capture_path, backend_capture())
+            write_json(rejection_batch_path, rejection_batch(True))
+            candidate_digest = build_candidate_digest(
+                module,
+                root,
+                nonce_path,
+                backend_manifest_path,
+                backend_capture_path,
+                rejection_batch_path,
+            )
+            write_json(
+                review_package_path,
+                reviewed_external_evidence_package(
+                    module,
+                    nonce_path,
+                    backend_manifest_path,
+                    backend_capture_path,
+                    rejection_batch_path,
+                    candidate_digest,
+                ),
+            )
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_batch_path,
+                review_package_path=review_package_path,
                 candidate_out=candidate_dir,
                 generated_at="2026-07-04T00:00:00Z",
             )
@@ -222,6 +344,56 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
         self.assertFalse(manifest["claims_theorem_closure"])
         self.assertFalse(manifest["claims_selected_backend_proof_closure"])
         self.assertFalse(manifest["claims_production_threshold_mldsa_security"])
+
+    def test_review_package_digest_drift_blocks_close_candidate(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_batch_path = root / "rejection" / "batch.json"
+            review_package_path = root / "review" / "manifest.json"
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, backend_manifest())
+            write_json(backend_capture_path, backend_capture())
+            write_json(rejection_batch_path, rejection_batch(True))
+            candidate_digest = build_candidate_digest(
+                module,
+                root,
+                nonce_path,
+                backend_manifest_path,
+                backend_capture_path,
+                rejection_batch_path,
+            )
+            package = reviewed_external_evidence_package(
+                module,
+                nonce_path,
+                backend_manifest_path,
+                backend_capture_path,
+                rejection_batch_path,
+                candidate_digest,
+            )
+            package["input_sha256s"]["real_threshold_backend_capture_json"] = "00" * 32
+            write_json(review_package_path, package)
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_batch_path,
+                review_package_path=review_package_path,
+                generated_at="2026-07-04T00:00:00Z",
+            )
+
+        manifest = report["manifest"]
+        self.assertEqual(manifest["attempt_status"], "blocked_external_evidence_missing")
+        self.assertFalse(manifest["close_candidate"])
+        self.assertTrue(manifest["checks"]["review_package_present"])
+        self.assertFalse(manifest["checks"]["review_package_binds_inputs"])
+        self.assertIn("review package input digest mismatch", " ".join(manifest["blockers"]))
 
     def test_rejects_hazmat_or_simulation_source_markers_before_candidate_ready(self):
         module = load_module()

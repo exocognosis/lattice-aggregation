@@ -1,6 +1,6 @@
 {
   "blockers": [],
-  "candidate_digest_sha256": "227f8b4083418d5be937e9af2a29d6e23a7c246c37196cc2044a461ada754372",
+  "candidate_digest_sha256": "86d8a3dca45f9718d383402489f81d418a9090f024d45a77fa2b131ab0de2b6d",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
@@ -19,12 +19,12 @@
   "claims_theorem_closure": false,
   "close_candidate": true,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-05T16:15:16Z",
+  "generated_at": "2026-07-05T16:27:05Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
-      "sha256": "7e055d64cfc92e0211a0a6efa7dbb79766b599f8be2ad968005a08b7d743d9e1"
+      "sha256": "752dda64bd11706dc2d3b9db5c8c26022f2397c2cd9906027e98aa6c0a37c617"
     },
     "real_threshold_backend_capture_json": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/capture.json",
@@ -34,7 +34,7 @@
     "real_threshold_backend_capture_manifest": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "cd5f9a446493b54ee5539c18ad5c2b25fab215c597c1bd124a8dc88896bc6f34"
+      "sha256": "062dac48ca18dcea4e1999f32e6feb35c1739bc0b3fe45a4220e65b5c466ed5a"
     },
     "rejection_equivalence_batch_json": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-rejection-equivalence-batch/latest/batch.json",

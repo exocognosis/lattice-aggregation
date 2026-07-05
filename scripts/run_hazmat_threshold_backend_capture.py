@@ -10,6 +10,8 @@ import tempfile
 from pathlib import Path
 
 
+DEFAULT_BACKEND_FEATURE = "raw-real-mldsa"
+
 RUST_EMITTER_SOURCE = r'''use dytallix_pq_threshold::{
     mldsa65::{
         begin_mldsa65_threshold_attempt, derive_mldsa65_expanded_secret_key_from_seed,
@@ -388,11 +390,18 @@ def validate_crate_path(path, label):
     return path
 
 
-def write_emitter_project(work_dir, repo_root, backend_crate):
+def write_emitter_project(
+    work_dir,
+    repo_root,
+    backend_crate,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
+):
     """Write the temporary Rust emitter project for one capture run."""
     work_dir = Path(work_dir)
     repo_root = validate_crate_path(repo_root, "repo root")
     backend_crate = validate_crate_path(backend_crate, "backend crate")
+    if not backend_feature:
+        raise ValueError("backend feature is required")
     src_dir = work_dir / "src"
     src_dir.mkdir(parents=True, exist_ok=True)
     cargo_toml = "\n".join(
@@ -407,7 +416,7 @@ def write_emitter_project(work_dir, repo_root, backend_crate):
             (
                 "dytallix-pq-threshold = { "
                 f"path = {toml_path(backend_crate)}, "
-                'features = ["raw-real-mldsa"], '
+                f"features = [{json.dumps(backend_feature)}], "
                 "default-features = false }"
             ),
             (
@@ -443,12 +452,18 @@ def run_capture(
     work_dir,
     command_runner=subprocess.run,
     release=True,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
 ):
     """Build and run the generated emitter, returning capture JSON stdout."""
     request_path = Path(request_path)
     if not request_path.is_file():
         raise ValueError(f"request JSON does not exist: {request_path}")
-    write_emitter_project(work_dir, repo_root, backend_crate)
+    write_emitter_project(
+        work_dir,
+        repo_root,
+        backend_crate,
+        backend_feature=backend_feature,
+    )
     completed = command_runner(
         cargo_command(request_path, release=release),
         cwd=Path(work_dir),
@@ -483,6 +498,17 @@ def parse_args(argv):
         ),
     )
     parser.add_argument(
+        "--backend-feature",
+        default=os.environ.get(
+            "LATTICE_HAZMAT_THRESHOLD_BACKEND_FEATURE",
+            DEFAULT_BACKEND_FEATURE,
+        ),
+        help=(
+            "backend crate feature exposing the hazmat ML-DSA APIs; also read "
+            "from LATTICE_HAZMAT_THRESHOLD_BACKEND_FEATURE"
+        ),
+    )
+    parser.add_argument(
         "--repo-root",
         default=Path(__file__).resolve().parents[1],
         help="path to this lattice-aggregation checkout",
@@ -512,6 +538,7 @@ def main(argv=None):
             backend_crate=args.backend_crate,
             work_dir=args.work_dir,
             release=not args.debug,
+            backend_feature=args.backend_feature,
         )
     else:
         with tempfile.TemporaryDirectory(prefix="lattice-hazmat-capture-") as temp_dir:
@@ -521,6 +548,7 @@ def main(argv=None):
                 backend_crate=args.backend_crate,
                 work_dir=Path(temp_dir) / "emitter",
                 release=not args.debug,
+                backend_feature=args.backend_feature,
             )
     sys.stdout.write(stdout)
 

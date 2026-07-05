@@ -30,6 +30,8 @@ FORBIDDEN_BACKEND_COMMAND_TOKENS = (
     "simulation",
     "simulated",
 )
+COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
+COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
 TOP_LEVEL_FIELDS = {
     "name",
     "schema",
@@ -126,7 +128,7 @@ def run_command(command, root, env):
     }
 
 
-def validate_backend_command(command):
+def validate_backend_command(root, command):
     """Reject known non-cryptographic capture sources before execution."""
     command_text = " ".join(command).lower()
     for token in FORBIDDEN_BACKEND_COMMAND_TOKENS:
@@ -135,6 +137,70 @@ def validate_backend_command(command):
                 "forbidden backend command source for actual real-threshold capture: "
                 + token
             )
+    origin = backend_command_origin(root, command)
+    if origin == COMMAND_ORIGIN_REPO_LOCAL:
+        raise ValueError(
+            "repo-local backend command cannot be used as actual "
+            "external real-threshold capture"
+        )
+    return origin
+
+
+def is_python_executable(value):
+    """Return true when a command path names a Python interpreter."""
+    name = Path(value).name.lower()
+    return name == "python" or name.startswith("python3")
+
+
+def looks_like_path(value):
+    """Return true when a command token should be interpreted as a path."""
+    return (
+        value.startswith(("/", "./", "../", "~"))
+        or "/" in value
+        or "\\" in value
+    )
+
+
+def backend_command_path_candidates(command):
+    """Return executable/script path tokens that can identify command origin."""
+    command = list(command)
+    if not command:
+        return []
+    if is_python_executable(command[0]):
+        for arg in command[1:]:
+            if arg in {"-c", "-m"}:
+                return []
+            if arg.startswith("-"):
+                continue
+            return [arg] if looks_like_path(arg) else []
+        return []
+    return [command[0]] if looks_like_path(command[0]) else []
+
+
+def resolve_command_path(root, token):
+    """Resolve a command path token without requiring it to exist."""
+    path = Path(token).expanduser()
+    if not path.is_absolute():
+        path = Path(root) / path
+    return path.resolve(strict=False)
+
+
+def path_is_within(child, parent):
+    """Return true when child resolves inside parent."""
+    try:
+        child.relative_to(parent)
+        return True
+    except ValueError:
+        return False
+
+
+def backend_command_origin(root, command):
+    """Classify whether the command path is outside the repository."""
+    repo_root = Path(root).resolve(strict=False)
+    for token in backend_command_path_candidates(command):
+        if path_is_within(resolve_command_path(repo_root, token), repo_root):
+            return COMMAND_ORIGIN_REPO_LOCAL
+    return COMMAND_ORIGIN_EXTERNAL
 
 
 def capture_value(command, root, fallback="unknown"):
@@ -191,6 +257,7 @@ def build_external_capture_provenance(capture, manifest, metadata):
         "backend_command_sha256": sha256_text(
             canonical_json(manifest["backend_command"])
         ),
+        "backend_command_origin": manifest["backend_command_origin"],
         "evidence_class": manifest["backend_evidence"],
         "runner_status": RUNNER_STATUS,
         "claim_boundary": CLAIM_BOUNDARY,
@@ -466,6 +533,7 @@ def render_summary(generated_at, metadata, manifest):
             f"- Request: `{manifest['request_name']}`",
             f"- Request SHA-256: `{manifest['request_sha256']}`",
             f"- Backend evidence: `{manifest['backend_evidence']}`",
+            f"- Backend command origin: `{manifest['backend_command_origin']}`",
             f"- Validator target: `{manifest['validator_count']}`",
             f"- Threshold target: `{manifest['threshold']}`",
             f"- Signature length: `{manifest['aggregate_signature_len']}`",
@@ -493,7 +561,7 @@ def build_report(
         raise ValueError("backend capture runner requires a backend command")
 
     root = Path(root)
-    validate_backend_command(list(backend_command))
+    command_origin = validate_backend_command(root, list(backend_command))
     result = command_runner(list(backend_command), root, {})
     if result["exit_code"] != 0:
         raise RuntimeError(
@@ -526,6 +594,7 @@ def build_report(
         "request_sha256": request_sha256,
         "request_path": str(request_path) if request_path else None,
         "backend_evidence": EXTERNAL_BACKEND_EVIDENCE,
+        "backend_command_origin": command_origin,
         "backend_command": list(backend_command),
         "command_duration_seconds": result["duration_seconds"],
         "exit_code": result["exit_code"],

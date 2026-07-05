@@ -125,6 +125,40 @@ class HazmatThresholdBackendCaptureAdapterTests(unittest.TestCase):
         self.assertEqual(kwargs["stdout"], module.subprocess.PIPE)
         self.assertEqual(kwargs["stderr"], module.subprocess.PIPE)
 
+    def test_build_emitter_project_allows_backend_feature_override(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            backend_crate = root / "backend"
+            repo_root = root / "repo"
+            work_dir = root / "emitter"
+            backend_crate.mkdir()
+            repo_root.mkdir()
+            (backend_crate / "Cargo.toml").write_text(
+                "[package]\nname = \"dytallix-pq-threshold\"\n",
+                encoding="utf-8",
+            )
+            (repo_root / "Cargo.toml").write_text(
+                "[package]\nname = \"lattice-aggregation\"\n",
+                encoding="utf-8",
+            )
+
+            module.write_emitter_project(
+                work_dir,
+                repo_root,
+                backend_crate,
+                backend_feature="hazmat-real-mldsa",
+            )
+
+            cargo_toml = (work_dir / "Cargo.toml").read_text(encoding="utf-8")
+
+        backend_line = next(
+            line for line in cargo_toml.splitlines() if line.startswith("dytallix-pq-threshold")
+        )
+        self.assertIn('features = ["hazmat-real-mldsa"]', backend_line)
+        self.assertNotIn('features = ["raw-real-mldsa"]', backend_line)
+
     def test_run_capture_rejects_missing_or_invalid_backend_crate(self):
         module = load_module()
 

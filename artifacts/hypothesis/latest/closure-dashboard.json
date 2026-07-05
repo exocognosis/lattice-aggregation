@@ -1,34 +1,34 @@
 {
   "branch": "codex/p1-real-external-evidence-attempt",
   "claim_boundary": "research scaffold only",
-  "commit": "a342d65012d51328cd3a23627712633a036d6294",
+  "commit": "e46614f86dfdfed81e61b85f935d0b0bfd5c5303",
   "criteria": [
     {
-      "blocker_count": 3,
+      "blocker_count": 4,
       "id": "aggregate_mask_distribution",
       "observed_evidence_count": 3,
       "status": "partially_met"
     },
     {
-      "blocker_count": 12,
+      "blocker_count": 11,
       "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 32,
+      "observed_evidence_count": 28,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "abort_retry_bias",
       "observed_evidence_count": 3,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "partial_contribution_soundness",
       "observed_evidence_count": 5,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "unauthorized_aggregate_reduction",
       "observed_evidence_count": 3,
       "status": "partially_met"

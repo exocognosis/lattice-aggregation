@@ -14,6 +14,10 @@ SCHEMA = "lattice-aggregation:p1-external-backend-evidence-attempt:v1"
 NAME = "p1-external-backend-evidence-attempt-v1"
 CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+REVIEW_PACKAGE_SCHEMA = "lattice-aggregation:p1-external-backend-evidence-package-review:v1"
+REVIEW_STATUS_READY = "reviewed_external_backend_evidence_ready"
+REVIEW_SOURCE_ORIGIN = "outside_repo_review_manifest"
+REVIEW_SOURCE_PROFILE = "admissible_external_backend_capture"
 STATUS_READY = "external_evidence_close_candidate_ready"
 STATUS_BLOCKED = "blocked_external_evidence_missing"
 FORBIDDEN_SOURCE_MARKERS = (
@@ -42,6 +46,29 @@ REQUIRED_CANDIDATE_CHECK_KEYS = (
     "rejection_distribution_comparison_present",
     "comparison_close_candidate",
 )
+REQUIRED_REVIEW_DIGEST_KEYS = (
+    "external_review_digest_hex",
+    "reviewer_identity_digest_hex",
+    "operator_identity_digest_hex",
+    "external_source_package_digest_hex",
+    "capture_environment_digest_hex",
+    "backend_command_digest_hex",
+)
+REQUIRED_REVIEW_SOURCE_EXCLUSIONS = (
+    "hazmat_prf_oracle",
+    "centralized_expanded_secret_key_helper",
+    "fixture_harness",
+    "localnet_or_deterministic_simulation",
+    "single_key_standard_provider_output",
+)
+REQUIRED_REVIEW_CLAIM_FLAGS = (
+    "claims_theorem_closure",
+    "claims_rejection_distribution_preservation",
+    "claims_selected_backend_proof_closure",
+    "claims_production_threshold_mldsa_security",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+)
 
 
 def canonical_json(data):
@@ -68,6 +95,17 @@ def load_json_if_present(path):
     if not path.is_file():
         return None
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def is_nonzero_hex_digest(value):
+    """Return true for a nonzero 32-byte hex digest string."""
+    if not isinstance(value, str) or len(value) != 64:
+        return False
+    try:
+        raw = bytes.fromhex(value)
+    except ValueError:
+        return False
+    return raw != b"\x00" * 32
 
 
 def input_record(path):
@@ -108,6 +146,16 @@ def default_candidate_out(root):
         / "artifacts"
         / "p1-external-backend-cryptographic-closure-candidate"
         / "latest"
+    )
+
+
+def default_review_package(root):
+    return (
+        Path(root)
+        / "artifacts"
+        / "p1-external-backend-evidence-package-review"
+        / "latest"
+        / "manifest.json"
     )
 
 
@@ -153,12 +201,91 @@ def string_values(value):
             yield from string_values(item)
 
 
+def review_package_expected_input_sha256s(
+    nonce_gate_path,
+    backend_manifest_path,
+    backend_capture_path,
+    rejection_batch_path,
+    candidate_digest_sha256,
+):
+    """Build the input digest map a reviewed external evidence package must bind."""
+    return {
+        "actual_external_nonce_gate_manifest": sha256_path(nonce_gate_path),
+        "real_threshold_backend_capture_manifest": sha256_path(backend_manifest_path),
+        "real_threshold_backend_capture_json": sha256_path(backend_capture_path),
+        "rejection_equivalence_batch_json": sha256_path(rejection_batch_path),
+        "candidate_digest_sha256": candidate_digest_sha256,
+    }
+
+
+def review_package_checks(review_package, expected_input_sha256s, blockers):
+    """Validate the independently reviewed external evidence package."""
+    present = isinstance(review_package, dict)
+    if not present:
+        blockers.append("reviewed external evidence package is missing")
+        return {
+            "review_package_present": False,
+            "review_package_binds_inputs": False,
+            "review_package_claim_boundary_passed": False,
+            "review_package_source_exclusions_passed": False,
+            "review_package_review_digests_present": False,
+        }
+
+    input_sha256s = review_package.get("input_sha256s")
+    review_digests = review_package.get("review_digests")
+    source_exclusions = review_package.get("source_exclusions")
+    claim_flags = review_package.get("claim_flags")
+    boundary_passed = (
+        review_package.get("schema") == REVIEW_PACKAGE_SCHEMA
+        and review_package.get("claim_boundary") == CLAIM_BOUNDARY
+        and review_package.get("selected_profile") == SELECTED_PROFILE
+        and review_package.get("review_status") == REVIEW_STATUS_READY
+        and review_package.get("source_origin") == REVIEW_SOURCE_ORIGIN
+        and review_package.get("package_source_profile") == REVIEW_SOURCE_PROFILE
+        and isinstance(claim_flags, dict)
+        and all(claim_flags.get(flag) is False for flag in REQUIRED_REVIEW_CLAIM_FLAGS)
+    )
+    binds_inputs = isinstance(input_sha256s, dict) and all(
+        input_sha256s.get(key) == value
+        for key, value in expected_input_sha256s.items()
+        if value is not None
+    )
+    binds_inputs = binds_inputs and all(
+        input_sha256s.get(key) is not None for key in expected_input_sha256s
+    )
+    source_exclusions_passed = isinstance(source_exclusions, dict) and all(
+        source_exclusions.get(key) is False for key in REQUIRED_REVIEW_SOURCE_EXCLUSIONS
+    )
+    review_digests_present = isinstance(review_digests, dict) and all(
+        is_nonzero_hex_digest(review_digests.get(key))
+        for key in REQUIRED_REVIEW_DIGEST_KEYS
+    )
+
+    if not boundary_passed:
+        blockers.append("reviewed external evidence package boundary is invalid")
+    if not binds_inputs:
+        blockers.append("review package input digest mismatch")
+    if not source_exclusions_passed:
+        blockers.append("review package source exclusions failed")
+    if not review_digests_present:
+        blockers.append("review package digests are incomplete")
+
+    return {
+        "review_package_present": True,
+        "review_package_binds_inputs": binds_inputs,
+        "review_package_claim_boundary_passed": boundary_passed,
+        "review_package_source_exclusions_passed": source_exclusions_passed,
+        "review_package_review_digests_present": review_digests_present,
+    }
+
+
 def build_report(
     root,
     nonce_gate_path=None,
     backend_manifest_path=None,
     backend_capture_path=None,
     rejection_batch_path=None,
+    review_package_path=None,
     candidate_out=None,
     generated_at=None,
 ):
@@ -168,6 +295,7 @@ def build_report(
     backend_manifest_path = Path(backend_manifest_path or default_backend_manifest(root))
     backend_capture_path = Path(backend_capture_path or default_backend_capture(root))
     rejection_batch_path = Path(rejection_batch_path or default_rejection_batch(root))
+    review_package_path = Path(review_package_path or default_review_package(root))
     candidate_out = Path(candidate_out or default_candidate_out(root))
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -175,6 +303,7 @@ def build_report(
     backend_manifest = load_json_if_present(backend_manifest_path)
     backend_capture = load_json_if_present(backend_capture_path)
     rejection_batch = load_json_if_present(rejection_batch_path)
+    review_package = load_json_if_present(review_package_path)
 
     candidate_builder = load_closure_candidate_builder()
     candidate_report = candidate_builder.build_report(
@@ -194,6 +323,18 @@ def build_report(
         ("real-threshold backend capture", backend_capture),
         ("rejection-distribution batch", rejection_batch),
     )
+    review_blockers = []
+    review_checks = review_package_checks(
+        review_package,
+        review_package_expected_input_sha256s(
+            nonce_gate_path,
+            backend_manifest_path,
+            backend_capture_path,
+            rejection_batch_path,
+            candidate_manifest.get("candidate_digest_sha256"),
+        ),
+        review_blockers,
+    )
     missing_check_blockers = [
         f"closure candidate missing required check: {key}"
         for key in REQUIRED_CANDIDATE_CHECK_KEYS
@@ -203,15 +344,20 @@ def build_report(
         **{key: False for key in REQUIRED_CANDIDATE_CHECK_KEYS},
         **candidate_manifest["checks"],
         "source_exclusion_passed": not source_blockers,
+        **review_checks,
     }
     blockers = list(
         dict.fromkeys(
-            candidate_manifest["blockers"] + source_blockers + missing_check_blockers
+            candidate_manifest["blockers"]
+            + source_blockers
+            + review_blockers
+            + missing_check_blockers
         )
     )
     close_candidate = (
         bool(candidate_manifest["close_candidate"])
         and not source_blockers
+        and all(review_checks.values())
         and not missing_check_blockers
     )
     claim_flags = {
@@ -235,6 +381,7 @@ def build_report(
             "real_threshold_backend_capture_manifest": input_record(backend_manifest_path),
             "real_threshold_backend_capture_json": input_record(backend_capture_path),
             "rejection_equivalence_batch_json": input_record(rejection_batch_path),
+            "reviewed_external_evidence_package": input_record(review_package_path),
             "closure_candidate_manifest": input_record(candidate_manifest_path),
         },
     }
@@ -252,6 +399,8 @@ def build_report(
         "inputs": digest_material["inputs"],
         "candidate_manifest_path": str(candidate_manifest_path),
         "candidate_manifest_sha256": sha256_path(candidate_manifest_path),
+        "review_package_path": str(review_package_path),
+        "review_package_sha256": sha256_path(review_package_path),
         "candidate_digest_sha256": candidate_manifest.get("candidate_digest_sha256"),
         "attempt_digest_sha256": sha256_text(canonical_json(digest_material)),
         **claim_flags,
@@ -273,13 +422,14 @@ def render_summary(manifest):
         "",
         "This artifact groups the actual external nonce gate, real-threshold backend "
         "emission capture, standard-verifier acceptance evidence, mutation rejection "
-        "evidence, and rejection-distribution comparison into the Batch 7 "
-        "closure-candidate gate.",
+        "evidence, rejection-distribution comparison, and independently reviewed "
+        "external evidence package into the Batch 7 closure-candidate gate.",
         "",
         f"- Status: `{manifest['attempt_status']}`",
         f"- Close candidate: `{str(manifest['close_candidate']).lower()}`",
         f"- Claim boundary: `{manifest['claim_boundary']}`",
         f"- Candidate manifest SHA-256: `{manifest['candidate_manifest_sha256']}`",
+        f"- Review package SHA-256: `{manifest['review_package_sha256']}`",
         f"- Attempt digest SHA-256: `{manifest['attempt_digest_sha256']}`",
         "",
         "Checks:",
@@ -350,6 +500,11 @@ def parse_args(argv):
         help="rejection-equivalence batch JSON",
     )
     parser.add_argument(
+        "--review-package",
+        default=None,
+        help="reviewed external evidence package manifest",
+    )
+    parser.add_argument(
         "--candidate-out",
         default=None,
         help="Batch 7 closure-candidate output directory",
@@ -375,6 +530,7 @@ def main(argv=None):
         backend_manifest_path=args.backend_manifest,
         backend_capture_path=args.backend_capture,
         rejection_batch_path=args.rejection_batch,
+        review_package_path=args.review_package,
         candidate_out=args.candidate_out,
     )
     write_artifacts(report, Path(args.out))

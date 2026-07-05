@@ -14,7 +14,7 @@
     "source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75"
   },
   "capture_dir": "capture",
-  "capture_manifest_sha256": "d77cc20bdf53bed7099b23f3849914919d2eeca35678427f6ff62a8a35f04f8d",
+  "capture_manifest_sha256": "9240c9c8a4b053e5c1cef2812609816da53d9840392168c2011c3e7d63ab9040",
   "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
   "capture_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
   "claim_boundary": "conformance/proof-review evidence only",
@@ -87,7 +87,7 @@
     "schema": "lattice-aggregation:p1-external-nonce-producer-capture-review:v1",
     "sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214"
   },
-  "generated_at": "2026-07-05T16:15:16Z",
+  "generated_at": "2026-07-05T16:27:04Z",
   "handoff_source_profile": "admissible_external_backend_capture",
   "handoff_status": "evidence_present_unclosed",
   "predecessors": {

@@ -52,9 +52,9 @@
   },
   "external_review_manifest_path": "review/manifest.json",
   "external_review_manifest_sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214",
-  "generated_at": "2026-07-05T16:15:16Z",
+  "generated_at": "2026-07-05T16:27:04Z",
   "handoff_manifest_path": "handoff/manifest.json",
-  "handoff_manifest_sha256": "340b418927f18ac3b44b05a0fcfd9040e0d1e3c255a06a59e3509ddf822424cc",
+  "handoff_manifest_sha256": "0569f5304a857860a27053d69aa2c0905d7020e01126d96ab34b508ba391fbb2",
   "handoff_quarantine": {
     "allowed_use": "preexisting external backend capture file gated by admissible readiness",
     "quarantined": false,
