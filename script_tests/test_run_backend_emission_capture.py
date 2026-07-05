@@ -280,6 +280,10 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
         self.assertEqual(
             manifest["backend_command"], ["/opt/threshold-backend", "emit-capture"]
         )
+        self.assertEqual(
+            manifest["backend_command_origin"],
+            "outside_repo_executable_or_script",
+        )
         provenance = manifest["external_capture_provenance"]
         self.assertEqual(
             provenance["schema"],
@@ -297,6 +301,10 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
         )
         self.assertIn("cargo_lock_sha256", provenance["metadata_fields"])
         self.assertIn("backend_command_sha256", provenance)
+        self.assertEqual(
+            provenance["backend_command_origin"],
+            "outside_repo_executable_or_script",
+        )
         self.assertNotIn("validator_localnet", " ".join(manifest["backend_command"]))
         self.assertNotIn("run_simulation_benchmarks", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
@@ -394,6 +402,34 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
                     root,
                     backend_command=["./localnet-capture", "emit-capture-json"],
                     command_runner=forged_external_capture_runner,
+                    metadata_provider=fake_metadata,
+                )
+
+    def test_build_report_rejects_repo_local_backend_command_before_execution(self):
+        module = load_module()
+
+        def unexpected_runner(command, root, env):
+            raise AssertionError("repo-local backend command should not execute")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            repo_command = root / "scripts" / "emit_backend_capture.py"
+            repo_command.parent.mkdir(parents=True)
+            repo_command.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "repo-local backend command"):
+                module.build_report(
+                    root,
+                    backend_command=[str(repo_command), "emit-capture-json"],
+                    command_runner=unexpected_runner,
+                    metadata_provider=fake_metadata,
+                )
+
+            with self.assertRaisesRegex(ValueError, "repo-local backend command"):
+                module.build_report(
+                    root,
+                    backend_command=["python3", str(repo_command), "emit-capture-json"],
+                    command_runner=unexpected_runner,
                     metadata_provider=fake_metadata,
                 )
 

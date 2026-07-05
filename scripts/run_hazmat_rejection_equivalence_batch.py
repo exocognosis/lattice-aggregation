@@ -2,6 +2,7 @@
 """Run a hazmat threshold-vs-centralized ML-DSA rejection-predicate batch."""
 
 import argparse
+import importlib.util
 import json
 import os
 import subprocess
@@ -9,6 +10,16 @@ import sys
 import tempfile
 from pathlib import Path
 
+
+DEFAULT_BACKEND_FEATURE = "raw-real-mldsa"
+ATTEMPT_SCHEMA = "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
+HANDOFF_SCHEMA = "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1"
+EXPECTED_SOURCE_PROFILE = "admissible_external_backend_capture"
+CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
+DISTRIBUTED_NONCE_DIGEST_FIELD = "distributed_nonce_producer_artifact_digest_hex"
 
 RUST_EMITTER_SOURCE = r'''use dytallix_pq_threshold::{
     mldsa65::{
@@ -46,18 +57,21 @@ const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
 const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 const BACKEND_EVIDENCE: &str = "mldsa65-centralized-vs-threshold-rejection-batch";
 const HAZMAT_NONCE_PRF_PRODUCER: &str = "hazmat-prf-output-oracle";
+const REVIEWED_DISTRIBUTED_NONCE_PRF_PRODUCER: &str =
+    "distributed-nonce-prf-output-shares";
 const DISTRIBUTED_NONCE_PRODUCER_ARTIFACT_SLOT: &str =
     "distributed_nonce_producer_artifact_digest";
 const DISTRIBUTED_NONCE_PRODUCER_REPLACEMENT_TARGET: &str =
     "derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key";
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct Config {
     validator_count: u16,
     threshold: u16,
     attempts: u8,
     aligned_mask_domain: bool,
     distributed_nonce_prf_domain: bool,
+    reviewed_distributed_nonce_producer_artifact_digest: Option<String>,
 }
 
 fn main() {
@@ -153,6 +167,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "close_candidate": close_candidate
     });
 
+    let reviewed_distributed_nonce_producer_present =
+        reviewed_distributed_nonce_producer_present(&config);
+    let distributed_nonce_producer_artifact_digest =
+        distributed_nonce_producer_artifact_digest(&config);
+
     let artifact = json!({
         "name": "p1-hazmat-rejection-equivalence-batch-v1",
         "schema": SCHEMA,
@@ -168,8 +187,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             "distributed_nonce_prf_domain": config.distributed_nonce_prf_domain,
             "mask_domain": mask_domain(&config),
             "nonce_prf_producer": nonce_prf_producer(&config),
-            "reviewed_distributed_nonce_producer_present": false,
-            "distributed_nonce_producer_artifact_digest": Value::Null,
+            "reviewed_distributed_nonce_producer_present": reviewed_distributed_nonce_producer_present,
+            "distributed_nonce_producer_artifact_digest": distributed_nonce_producer_artifact_digest.clone(),
             "distributed_nonce_producer_artifact_slot": DISTRIBUTED_NONCE_PRODUCER_ARTIFACT_SLOT,
             "nonce_prf_producer_replacement_target": DISTRIBUTED_NONCE_PRODUCER_REPLACEMENT_TARGET,
             "message_digest_hex": sha256_hex(message),
@@ -183,7 +202,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "claim_flags": {
             "claims_rejection_distribution_preservation": false,
             "claims_theorem_closure": false,
-            "claims_reviewed_distributed_nonce_producer": false,
+            "claims_reviewed_distributed_nonce_producer": reviewed_distributed_nonce_producer_present,
             "close_candidate_requires_external_review": close_candidate
         },
         "artifact_digest_hex": sha256_hex(
@@ -197,8 +216,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     "distributed_nonce_prf_domain": config.distributed_nonce_prf_domain,
                     "mask_domain": mask_domain(&config),
                     "nonce_prf_producer": nonce_prf_producer(&config),
-                    "reviewed_distributed_nonce_producer_present": false,
-                    "distributed_nonce_producer_artifact_digest": Value::Null,
+                    "reviewed_distributed_nonce_producer_present": reviewed_distributed_nonce_producer_present,
+                    "distributed_nonce_producer_artifact_digest": distributed_nonce_producer_artifact_digest,
                     "distributed_nonce_producer_artifact_slot": DISTRIBUTED_NONCE_PRODUCER_ARTIFACT_SLOT,
                     "message_digest_hex": sha256_hex(message),
                     "public_key_digest_hex": sha256_hex(&public_key)
@@ -219,6 +238,7 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
         attempts: 16,
         aligned_mask_domain: false,
         distributed_nonce_prf_domain: false,
+        reviewed_distributed_nonce_producer_artifact_digest: None,
     };
     let mut args = env::args().skip(1);
     while let Some(arg) = args.next() {
@@ -238,6 +258,15 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
             "--distributed-nonce-prf-domain" => {
                 config.distributed_nonce_prf_domain = true;
             }
+            "--distributed-nonce-producer-artifact-digest" => {
+                let digest = args
+                    .next()
+                    .ok_or("missing --distributed-nonce-producer-artifact-digest value")?;
+                if !is_nonzero_hex_sha256(&digest) {
+                    return Err("invalid --distributed-nonce-producer-artifact-digest value".into());
+                }
+                config.reviewed_distributed_nonce_producer_artifact_digest = Some(digest.to_ascii_lowercase());
+            }
             _ => return Err(format!("unknown argument: {arg}").into()),
         }
     }
@@ -249,6 +278,13 @@ fn parse_config() -> Result<Config, Box<dyn std::error::Error>> {
     }
     if config.aligned_mask_domain && config.distributed_nonce_prf_domain {
         return Err("--aligned-mask-domain and --distributed-nonce-prf-domain are mutually exclusive".into());
+    }
+    if config.reviewed_distributed_nonce_producer_artifact_digest.is_some()
+        && !config.distributed_nonce_prf_domain
+    {
+        return Err(
+            "--distributed-nonce-producer-artifact-digest requires --distributed-nonce-prf-domain".into(),
+        );
     }
     Ok(config)
 }
@@ -265,10 +301,39 @@ fn mask_domain(config: &Config) -> &'static str {
 
 fn nonce_prf_producer(config: &Config) -> &'static str {
     if config.distributed_nonce_prf_domain {
-        HAZMAT_NONCE_PRF_PRODUCER
+        if reviewed_distributed_nonce_producer_present(config) {
+            REVIEWED_DISTRIBUTED_NONCE_PRF_PRODUCER
+        } else {
+            HAZMAT_NONCE_PRF_PRODUCER
+        }
     } else {
         "not-distributed-nonce-prf-mode"
     }
+}
+
+fn reviewed_distributed_nonce_producer_present(config: &Config) -> bool {
+    config.distributed_nonce_prf_domain
+        && config
+            .reviewed_distributed_nonce_producer_artifact_digest
+            .is_some()
+}
+
+fn distributed_nonce_producer_artifact_digest(config: &Config) -> Value {
+    match &config.reviewed_distributed_nonce_producer_artifact_digest {
+        Some(digest) if reviewed_distributed_nonce_producer_present(config) => {
+            Value::String(digest.clone())
+        }
+        _ => Value::Null,
+    }
+}
+
+fn is_nonzero_hex_sha256(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .as_bytes()
+            .iter()
+            .all(|byte| byte.is_ascii_hexdigit())
+        && value.as_bytes().iter().any(|byte| *byte != b'0')
 }
 
 struct AttemptRecord {
@@ -538,11 +603,144 @@ def validate_crate_path(path, label):
     return path
 
 
-def write_emitter_project(work_dir, repo_root, backend_crate):
+def load_nonce_capture_runner():
+    """Load the nonce-producer capture validator used by the intake path."""
+    script = Path(__file__).resolve().parent / "run_nonce_producer_capture.py"
+    spec = importlib.util.spec_from_file_location(
+        "run_nonce_producer_capture_for_rejection_batch",
+        script,
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_json(path, label):
+    """Load JSON from a path with a domain-specific error."""
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"reviewed nonce-producer {label} is missing or invalid") from exc
+
+
+def is_nonzero_hex_digest(value):
+    """Return true for a nonzero 32-byte hex digest string."""
+    if not isinstance(value, str) or len(value) != 64:
+        return False
+    try:
+        raw = bytes.fromhex(value)
+    except ValueError:
+        return False
+    return raw != b"\x00" * 32
+
+
+def require_source_profile(label, source_profile, quarantine):
+    """Require an admissible external source profile and non-quarantined record."""
+    if source_profile != EXPECTED_SOURCE_PROFILE:
+        raise ValueError(
+            f"reviewed nonce-producer {label} source profile is not "
+            f"{EXPECTED_SOURCE_PROFILE}"
+        )
+    if not isinstance(quarantine, dict):
+        raise ValueError(f"reviewed nonce-producer {label} quarantine is missing")
+    if quarantine.get("quarantined") is not False:
+        raise ValueError(f"reviewed nonce-producer {label} is quarantined")
+
+
+def resolve_manifest_relative(manifest_path, relative_path, label):
+    """Resolve a relative path from a manifest directory."""
+    if not isinstance(relative_path, str) or not relative_path:
+        raise ValueError(f"reviewed nonce-producer {label} path is missing")
+    relative = Path(relative_path)
+    if relative.is_absolute():
+        return relative
+    return Path(manifest_path).parent / relative
+
+
+def extract_reviewed_distributed_nonce_producer_artifact_digest(attempt_path):
+    """Validate a staged actual-external nonce-producer attempt and extract its digest."""
+    attempt_path = Path(attempt_path)
+    attempt = load_json(attempt_path, "attempt manifest")
+    if attempt.get("schema") != ATTEMPT_SCHEMA:
+        raise ValueError("reviewed nonce-producer attempt schema mismatch")
+    if attempt.get("claim_boundary") != CLAIM_BOUNDARY:
+        raise ValueError("reviewed nonce-producer attempt claim boundary mismatch")
+    if attempt.get("selected_profile") != SELECTED_PROFILE:
+        raise ValueError("reviewed nonce-producer attempt selected profile mismatch")
+    if attempt.get("attempt_status") != "capture_promoted":
+        raise ValueError("reviewed nonce-producer attempt is not promoted")
+    if attempt.get("backend_command_executed") is not True:
+        raise ValueError("reviewed nonce-producer backend command was not executed")
+    require_source_profile(
+        "attempt handoff",
+        attempt.get("handoff_source_profile"),
+        attempt.get("handoff_quarantine"),
+    )
+
+    handoff_path = resolve_manifest_relative(
+        attempt_path,
+        attempt.get("handoff_manifest_path"),
+        "handoff manifest",
+    )
+    handoff = load_json(handoff_path, "handoff manifest")
+    if handoff.get("schema") != HANDOFF_SCHEMA:
+        raise ValueError("reviewed nonce-producer handoff schema mismatch")
+    if handoff.get("claim_boundary") != CLAIM_BOUNDARY:
+        raise ValueError("reviewed nonce-producer handoff claim boundary mismatch")
+    if handoff.get("selected_profile") != SELECTED_PROFILE:
+        raise ValueError("reviewed nonce-producer handoff selected profile mismatch")
+    if handoff.get("producer_evidence") != EXTERNAL_PRODUCER_EVIDENCE:
+        raise ValueError("reviewed nonce-producer handoff evidence mismatch")
+    require_source_profile(
+        "handoff manifest",
+        handoff.get("handoff_source_profile"),
+        handoff.get("quarantine"),
+    )
+
+    capture_dir = handoff.get("capture_dir", "capture")
+    if not isinstance(capture_dir, str) or not capture_dir:
+        raise ValueError("reviewed nonce-producer capture directory is missing")
+    capture_path = Path(handoff_path).parent / capture_dir / "capture.json"
+    runner = load_nonce_capture_runner()
+    try:
+        raw_capture_json = capture_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValueError("reviewed nonce-producer capture JSON is missing") from exc
+    capture = runner.parse_capture_json(raw_capture_json)
+    capture_json = runner.canonical_json(capture)
+    capture_sha256 = runner.sha256_text(capture_json)
+
+    request_sha256 = attempt.get("request_sha256")
+    request_name = attempt.get("request_name")
+    if capture["request"].get("name") != request_name:
+        raise ValueError("reviewed nonce-producer capture request name mismatch")
+    if handoff.get("request_name") != request_name:
+        raise ValueError("reviewed nonce-producer handoff request name mismatch")
+    if capture["request"].get("request_sha256") != request_sha256:
+        raise ValueError("reviewed nonce-producer capture request digest mismatch")
+    if handoff.get("request_sha256") != request_sha256:
+        raise ValueError("reviewed nonce-producer handoff request digest mismatch")
+    if handoff.get("capture_sha256") not in (None, capture_sha256):
+        raise ValueError("reviewed nonce-producer handoff capture digest mismatch")
+
+    digest = capture.get("expected", {}).get(DISTRIBUTED_NONCE_DIGEST_FIELD)
+    if not is_nonzero_hex_digest(digest):
+        raise ValueError("reviewed nonce-producer artifact digest is invalid")
+    return digest.lower()
+
+
+def write_emitter_project(
+    work_dir,
+    repo_root,
+    backend_crate,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
+):
     """Write the temporary Rust emitter project for one comparator batch."""
     work_dir = Path(work_dir)
     repo_root = validate_crate_path(repo_root, "repo root")
     backend_crate = validate_crate_path(backend_crate, "backend crate")
+    if not backend_feature:
+        raise ValueError("backend feature is required")
     src_dir = work_dir / "src"
     src_dir.mkdir(parents=True, exist_ok=True)
     cargo_toml = "\n".join(
@@ -557,7 +755,7 @@ def write_emitter_project(work_dir, repo_root, backend_crate):
             (
                 "dytallix-pq-threshold = { "
                 f"path = {toml_path(backend_crate)}, "
-                'features = ["raw-real-mldsa"], '
+                f"features = [{json.dumps(backend_feature)}], "
                 "default-features = false }"
             ),
             (
@@ -594,9 +792,15 @@ def run_batch(
     command_runner=subprocess.run,
     release=True,
     emitter_args=None,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
 ):
     """Build and run the generated comparator, returning JSON stdout."""
-    write_emitter_project(work_dir, repo_root, backend_crate)
+    write_emitter_project(
+        work_dir,
+        repo_root,
+        backend_crate,
+        backend_feature=backend_feature,
+    )
     completed = command_runner(
         cargo_command(release=release, emitter_args=emitter_args),
         cwd=Path(work_dir),
@@ -628,6 +832,17 @@ def parse_args(argv):
         ),
     )
     parser.add_argument(
+        "--backend-feature",
+        default=os.environ.get(
+            "LATTICE_HAZMAT_THRESHOLD_BACKEND_FEATURE",
+            DEFAULT_BACKEND_FEATURE,
+        ),
+        help=(
+            "backend crate feature exposing the hazmat ML-DSA APIs; also read "
+            "from LATTICE_HAZMAT_THRESHOLD_BACKEND_FEATURE"
+        ),
+    )
+    parser.add_argument(
         "--repo-root",
         default=Path(__file__).resolve().parents[1],
         help="path to this lattice-aggregation checkout",
@@ -653,6 +868,13 @@ def parse_args(argv):
         ),
     )
     parser.add_argument(
+        "--reviewed-distributed-nonce-producer-attempt",
+        help=(
+            "staged actual-external nonce-producer attempt manifest whose "
+            "capture digest should replace the hazmat nonce PRF producer marker"
+        ),
+    )
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="run cargo without --release for adapter debugging",
@@ -672,6 +894,16 @@ def emitter_args_from_options(args):
         emitter_args.append("--aligned-mask-domain")
     if args.distributed_nonce_prf_domain:
         emitter_args.append("--distributed-nonce-prf-domain")
+    if args.reviewed_distributed_nonce_producer_attempt:
+        if not args.distributed_nonce_prf_domain:
+            raise ValueError(
+                "--reviewed-distributed-nonce-producer-attempt requires "
+                "--distributed-nonce-prf-domain"
+            )
+        digest = extract_reviewed_distributed_nonce_producer_artifact_digest(
+            args.reviewed_distributed_nonce_producer_attempt
+        )
+        emitter_args.extend(["--distributed-nonce-producer-artifact-digest", digest])
     return emitter_args
 
 
@@ -689,6 +921,7 @@ def main(argv=None):
             work_dir=args.work_dir,
             release=not args.debug,
             emitter_args=emitter_args,
+            backend_feature=args.backend_feature,
         )
     else:
         with tempfile.TemporaryDirectory(prefix="lattice-rejection-equivalence-") as temp_dir:
@@ -698,6 +931,7 @@ def main(argv=None):
                 work_dir=Path(temp_dir) / "emitter",
                 release=not args.debug,
                 emitter_args=emitter_args,
+                backend_feature=args.backend_feature,
             )
     sys.stdout.write(stdout)
 

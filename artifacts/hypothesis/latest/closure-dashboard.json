@@ -1,7 +1,7 @@
 {
   "branch": "codex/p1-real-external-evidence-attempt",
   "claim_boundary": "research scaffold only",
-  "commit": "a342d65012d51328cd3a23627712633a036d6294",
+  "commit": "47b67c2e278ec662f12559c1ad401ea35b768eb0",
   "criteria": [
     {
       "blocker_count": 3,
@@ -12,7 +12,7 @@
     {
       "blocker_count": 12,
       "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 32,
+      "observed_evidence_count": 30,
       "status": "partially_met"
     },
     {

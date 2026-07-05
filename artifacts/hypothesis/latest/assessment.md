@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `a342d65012d51328cd3a23627712633a036d6294`
+Commit: `47b67c2e278ec662f12559c1ad401ea35b768eb0`
 
 ## Testing Statement
 
@@ -129,8 +129,6 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: A repo-owned hazmat threshold backend capture adapter is present for the 10,000-validator P1 path; it requires an explicit backend crate path, generates a temporary Rust emitter for the hazmat `dytallix-pq-threshold` backend, bridges the threshold session to the standard external-message verifier boundary, records mutation rejection for message, public key, and signature changes, and emits request-bound capture JSON for the canonical runner. This is evidence_present_unclosed conformance/proof-review infrastructure only; it does not change aggregate_rejection_equivalence from partially_met or the overall verdict from partially_proven.
 - Evidence: The hazmat threshold backend capture adapter now emits a per-attempt bound-predicate transcript: attempts[] records attempt id, mask-seed digest, challenge digest, retry count context, z/r0/ct0/hint predicate results, and accepted_or_rejected for each backend signing attempt. This exposes the per-attempt ML-DSA rejection predicates needed for batch comparison against centralized ML-DSA behavior, but it does not by itself prove rejection-distribution preservation or move aggregate_rejection_equivalence beyond partially_met.
 - Evidence: A hazmat centralized-vs-threshold rejection-equivalence batch comparator is present. It derives centralized ML-DSA per-attempt predicates and threshold per-attempt predicates from the explicit backend, records threshold_attempts, centralized_attempts, predicate_mismatches, challenge_digest_matches, accepted_or_rejected_matches, and close_candidate, and keeps claims_rejection_distribution_preservation and claims_theorem_closure false. This is the first runnable comparison harness for the actual rejection-sampling question. It can also run an aligned centralized mask domain mode keyed to centralized-rho-double-prime-kappa; a distributed-nonce-prf-output-shares mode now consumes active-set-bound nonce PRF output shares instead of the centralized masking helper on the threshold contribution path; a zero predicate mismatches close_candidate result there is strong algebraic closure-candidate evidence, but the PRF-output oracle still derives from expanded secret-key material until a reviewed distributed PRF/MPC producer replaces it, so it still does not close the theorem or move aggregate_rejection_equivalence beyond partially_met without reviewed distributed nonce-DKG replacement and external review.
-- Evidence: A Batch 7 external-backend cryptographic closure-candidate artifact gate is present. It composes the strict actual external nonce-producer gate, request-bound real-threshold backend emission capture, standard-verifier acceptance evidence, mutation rejection evidence, and distributed-nonce-prf-output-shares rejection comparison into one computed close_candidate manifest. The current checked artifact remains evidence_present_unclosed with claims_theorem_closure, claims_rejection_distribution_preservation, and claims_selected_backend_proof_closure false; it does not close the theorem or move aggregate_rejection_equivalence beyond partially_met until the actual external backend captures and proof review are present.
-- Evidence: A Batch 8 external-backend evidence attempt runner is present. It groups the strict actual external nonce gate, real-threshold backend emission capture, standard-verifier acceptance evidence, mutation rejection evidence, rejection-distribution comparison, and source_exclusion_passed guard into the Batch 7 close_candidate artifact. The current checked attempt is blocked_external_evidence_missing and keeps claims_theorem_closure, claims_rejection_distribution_preservation, and claims_selected_backend_proof_closure false; it does not close the theorem or move aggregate_rejection_equivalence beyond partially_met until real external inputs and proof review replace the blocked slots.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: 10,000-validator standard-verifier equivalence remains blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature.
 - Blocker: The P1 distributed nonce-producer gate is implemented, a backend-output adapter can derive its package from submitted nonce-producer material, and a canonical capture importer can bind actual backend capture JSON to request, predecessor, and expected package digests. Externally generated reviewed Shamir nonce-DKG/TEE producer material must still replace the hazmat PRF-output oracle before Criterion 2 can advance toward cryptographic closure.
@@ -175,7 +173,4 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 
 ## Command Summary
 
-Passed: 11; failed: 0; all passed: `True`.
-- Cargo scaffold checks completed
-- Simulation harness emitted duration, abort, and bandwidth telemetry.
-- Rust test output reported passing test suites.
+Commands were skipped.

@@ -1,25 +1,29 @@
 {
-  "attempt_digest_sha256": "f993c413d9056516b8e4e421540a17d313d9805ee6bbb37296697ec51df0204c",
+  "attempt_digest_sha256": "9da3bd741a09d48f595f1b060633c5ad89d9b3b3aecc57b6f2819513691f7b9e",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "actual external nonce capture is not ready",
-    "real threshold backend emission capture is missing",
-    "standard-verifier acceptance evidence is missing",
-    "mutation rejection evidence is incomplete",
-    "rejection-distribution comparison is missing",
-    "rejection-distribution comparison is not a close candidate",
-    "forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture"
+    "rejection-distribution comparison is incomplete",
+    "forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture",
+    "forbidden external-evidence source marker in real-threshold backend capture: hazmat",
+    "forbidden external-evidence source marker in rejection-distribution batch: hazmat",
+    "reviewed external evidence package is missing"
   ],
-  "candidate_digest_sha256": "8ea49737a1dc9bc3b600660635b82b3c2db2923afb604a045bf3a0aaaaa51ab2",
+  "candidate_digest_sha256": "07fac86908ae7b8a12fcc2c36f0f5c41aadc54413f6ab668e9ade71917bec1ae",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "1847c75b3ae88c5c52f91309e52a5d4dd15a016fdf41c188fc525632b7aa25df",
+  "candidate_manifest_sha256": "c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f",
   "checks": {
-    "comparison_close_candidate": false,
-    "mutation_rejection_complete": false,
-    "real_threshold_emission_present": false,
+    "comparison_close_candidate": true,
+    "mutation_rejection_complete": true,
+    "real_threshold_emission_present": true,
     "rejection_distribution_comparison_present": false,
+    "review_package_binds_inputs": false,
+    "review_package_claim_boundary_passed": false,
+    "review_package_present": false,
+    "review_package_review_digests_present": false,
+    "review_package_source_exclusions_passed": false,
     "source_exclusion_passed": false,
-    "standard_verifier_acceptance_present": false,
+    "standard_verifier_acceptance_present": true,
     "strict_external_nonce_capture_ready": false
   },
   "claim_boundary": "conformance/proof-review evidence only",
@@ -32,7 +36,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-04T19:01:03Z",
+  "generated_at": "2026-07-05T15:34:56Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -42,25 +46,32 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "1847c75b3ae88c5c52f91309e52a5d4dd15a016fdf41c188fc525632b7aa25df"
+      "sha256": "c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
-      "present": false,
-      "sha256": null
+      "present": true,
+      "sha256": "76a902728e91e3a1eb6e6f86419f58227913944f27dde922615dec9d96195207"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
-      "present": false,
-      "sha256": null
+      "present": true,
+      "sha256": "39cf757a1ea81c88f97416d2bb9d61dc27f7c68d38583a88fc2ac4533ba50ee8"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "present": true,
+      "sha256": "8af6be573e80cb33769eaff1a5ebbaaa661eb4a8c8b0d1d72688d263906c266f"
+    },
+    "reviewed_external_evidence_package": {
+      "path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
       "present": false,
       "sha256": null
     }
   },
   "name": "p1-external-backend-evidence-attempt-v1",
+  "review_package_path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
+  "review_package_sha256": null,
   "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
