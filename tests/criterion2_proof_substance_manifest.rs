@@ -206,6 +206,30 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                     "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1"
                 );
                 assert_eq!(
+                    slot["backend_emission_capture_file_intake"],
+                    "scripts/stage_external_backend_emission_capture.py"
+                );
+                assert_eq!(
+                    slot["backend_emission_capture_file_origin_required"],
+                    "outside_repo_capture_file"
+                );
+                assert_eq!(
+                    slot["backend_emission_capture_file_intake_mode"],
+                    "preexisting_external_capture_file"
+                );
+                assert_eq!(
+                    slot["backend_emission_capture_review_schema"],
+                    "lattice-aggregation:p1-external-backend-emission-capture-review:v1"
+                );
+                assert_eq!(
+                    slot["backend_emission_capture_review_manifest_origin_required"],
+                    "outside_repo_review_manifest"
+                );
+                assert_eq!(
+                    slot["backend_emission_capture_review_status_required"],
+                    "reviewed_external_backend_emission_capture_ready"
+                );
+                assert_eq!(
                     slot["backend_capture_importer"],
                     "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture"
                 );
@@ -447,6 +471,15 @@ fn criterion2_manifest_links_existing_evidence_surfaces() {
         assert!(
             root.join(relative).exists(),
             "criterion-2 evidence ref is missing: {relative}"
+        );
+    }
+    for required in [
+        "scripts/stage_external_backend_emission_capture.py",
+        "script_tests/test_stage_external_backend_emission_capture.py",
+    ] {
+        assert!(
+            string_array_contains(&serde_json::Value::Array(evidence_refs.clone()), required),
+            "Criterion 2 evidence refs must link {required}"
         );
     }
 }

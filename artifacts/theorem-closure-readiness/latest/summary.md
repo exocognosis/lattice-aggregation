@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; not theorem closure`
-- Readiness digest SHA-256: `92fecbc6c7bce31d5963a63fca3f790f37a36d11eef60dc615c43de2c110dfd7`
+- Readiness digest SHA-256: `762a6a35355c859774dfd5d61ab430a83cc3e42781322ccb53f6f455e0d2befa`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -40,14 +40,12 @@ Checks:
 - `review_claims_fips_validation_false`: `false`
 
 Blocker Groups:
-- `external_backend_evidence`: `8` blocker(s)
+- `external_backend_evidence`: `6` blocker(s)
   - actual external nonce capture is not ready
-  - real threshold backend emission capture is missing
-  - standard-verifier acceptance evidence is missing
-  - mutation rejection evidence is incomplete
-  - rejection-distribution comparison is missing
-  - rejection-distribution comparison is not a close candidate
+  - rejection-distribution comparison is incomplete
   - forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture
+  - forbidden external-evidence source marker in real-threshold backend capture: hazmat
+  - forbidden external-evidence source marker in rejection-distribution batch: hazmat
   - reviewed external evidence package is missing
 - `proof_payload_review`: `1` blocker(s)
   - theorem review manifest is missing required ready flag: proof_payload_reviewed

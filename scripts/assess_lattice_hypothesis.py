@@ -1706,6 +1706,12 @@ def scan_documents(root):
     backend_emission_request_json = read_optional(
         "artifacts/backend-emission-request/latest/request.json"
     )
+    backend_emission_capture_file_intake = read_optional(
+        "scripts/stage_external_backend_emission_capture.py"
+    )
+    backend_emission_capture_file_intake_test = read_optional(
+        "script_tests/test_stage_external_backend_emission_capture.py"
+    )
     nonce_producer_capture_runner = read_optional(
         "scripts/run_nonce_producer_capture.py"
     )
@@ -3486,6 +3492,46 @@ def scan_documents(root):
         in real_threshold_backend_capture_schema_fixture
         and "request_sha256" in real_threshold_backend_capture_schema_fixture
     )
+    p1_real_threshold_backend_capture_file_intake_gate = (
+        p1_real_threshold_backend_request_capture_binding_gate
+        and all(
+            token in backend_emission_capture_file_intake
+            for token in [
+                "CAPTURE_FILE_ORIGIN_EXTERNAL",
+                "outside_repo_capture_file",
+                "REVIEW_FILE_ORIGIN_EXTERNAL",
+                "outside_repo_review_manifest",
+                "BACKEND_EXECUTION_MODE",
+                "preexisting_external_capture_file",
+                "EXTERNAL_CAPTURE_REVIEW_SCHEMA",
+                "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
+                "EXTERNAL_CAPTURE_REVIEW_STATUS",
+                "reviewed_external_backend_emission_capture_ready",
+                "validate_external_review_manifest",
+                "standard_verifier_acceptance_reviewed",
+                "no_single_key_standard_provider_output",
+                "repo-local capture file",
+                "validate_capture_matches_request",
+                "write_artifacts",
+                "does not prove Criterion 2",
+            ]
+        )
+        and all(
+            token in backend_emission_capture_file_intake_test
+            for token in [
+                "test_outside_repo_capture_file_writes_batch8_consumable_backend_capture",
+                "test_repo_local_capture_file_is_rejected_before_artifact_write",
+                "test_missing_or_failed_review_manifest_is_rejected_before_artifact_write",
+                "test_stale_capture_request_digest_is_rejected_before_artifact_write",
+                "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
+                "reviewed_external_backend_emission_capture_ready",
+                "preexisting_external_capture_file",
+                "outside_repo_capture_file",
+                "outside_repo_review_manifest",
+                "close_candidate",
+            ]
+        )
+    )
     p1_hazmat_threshold_backend_capture_adapter_gate = (
         p1_real_threshold_backend_request_capture_binding_gate
         and all(
@@ -3967,6 +4013,9 @@ def scan_documents(root):
         ),
         "p1_real_threshold_backend_request_capture_binding_gate": (
             p1_real_threshold_backend_request_capture_binding_gate
+        ),
+        "p1_real_threshold_backend_capture_file_intake_gate": (
+            p1_real_threshold_backend_capture_file_intake_gate
         ),
         "p1_hazmat_threshold_backend_capture_adapter_gate": (
             p1_hazmat_threshold_backend_capture_adapter_gate
@@ -4584,6 +4633,27 @@ def classify_criteria(criteria, scan):
                     "conformance/proof-review evidence only; it does not "
                     "change aggregate_rejection_equivalence from partially_met "
                     "or the overall verdict from partially_proven."
+                )
+            if scan.get("p1_real_threshold_backend_capture_file_intake_gate"):
+                partial_progress = True
+                observed.append(
+                    "A real-threshold backend-emission capture-file intake is "
+                    "present for P1: `scripts/stage_external_backend_emission_capture.py` "
+                    "stages only an `outside_repo_capture_file`, requires an "
+                    "`outside_repo_review_manifest` with schema "
+                    "`lattice-aggregation:p1-external-backend-emission-capture-review:v1`, "
+                    "requires review status "
+                    "`reviewed_external_backend_emission_capture_ready`, validates "
+                    "the exact repo request digest through the canonical backend "
+                    "capture runner, records `preexisting_external_capture_file` "
+                    "provenance, and rejects repo-local captures, missing or failed "
+                    "review manifests, stale request bindings, localnet/simulation, "
+                    "fixture, and single-key standard-provider sources before "
+                    "artifact write. This is an executable handoff/intake gate "
+                    "only; it does not change aggregate_rejection_equivalence from "
+                    "partially_met, does not change the overall verdict from "
+                    "partially_proven, and does not close Criterion 2, "
+                    "rejection-distribution preservation, or theorem closure."
                 )
             if scan.get("p1_hazmat_threshold_backend_capture_adapter_gate"):
                 partial_progress = True

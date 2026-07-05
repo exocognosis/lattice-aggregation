@@ -170,6 +170,18 @@ capture envelope, and the script rejects localnet and deterministic simulation
 command sources, non-importable capture shapes, and stale or missing request
 digest bindings before artifact write. It records `evidence_present_unclosed`
 conformance/proof-review evidence only.
+`scripts/stage_external_backend_emission_capture.py` is the matching file-based
+intake for a preexisting backend-emission capture produced outside the repo. It
+accepts only an `outside_repo_capture_file` plus an
+`outside_repo_review_manifest`, requires review schema
+`lattice-aggregation:p1-external-backend-emission-capture-review:v1` and status
+`reviewed_external_backend_emission_capture_ready`, validates the request
+digest through `scripts/run_backend_emission_capture.py`, records
+`preexisting_external_capture_file` provenance, and rejects repo-local files,
+failed review checks, stale request bindings, localnet/simulation, fixture, and
+single-key standard-provider sources before writing
+`artifacts/backend-emission-capture/latest`. This is an intake gate only; it
+does not provide the missing external capture or prove Criterion 2.
 `scripts/run_hazmat_threshold_backend_capture.py` is the repo-owned adapter for
 the current hazmat threshold backend run. It requires an explicit
 `--backend-crate` path, or `LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE`, to a

@@ -5,9 +5,9 @@ This artifact groups the actual external nonce gate, real-threshold backend emis
 - Status: `blocked_external_evidence_missing`
 - Close candidate: `false`
 - Claim boundary: `conformance/proof-review evidence only`
-- Candidate manifest SHA-256: `dc63ee3c1e0a2fa0a7c92c4da541545d4144db2add3b335e0eba8a7b2bc663b3`
+- Candidate manifest SHA-256: `c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f`
 - Review package SHA-256: `None`
-- Attempt digest SHA-256: `982e22be0f27d7f53297265fe52ff25221b6cde5b5f7490ab53141e78359007a`
+- Attempt digest SHA-256: `9da3bd741a09d48f595f1b060633c5ad89d9b3b3aecc57b6f2819513691f7b9e`
 
 Checks:
 - `strict_external_nonce_capture_ready`: `false`

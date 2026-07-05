@@ -2,13 +2,13 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
-Branch: `codex/theorem-closure-readiness-gates`
-Commit: `5867e5ac9f82a788c57b459b349ead70eeae4b86`
+Branch: `codex/p1-real-external-evidence-attempt`
+Commit: `47b67c2e278ec662f12559c1ad401ea35b768eb0`
 
 ## Criteria
 
 - `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (32 evidence entries, 12 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (30 evidence entries, 12 blockers)
 - `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
 - `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
 - `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)

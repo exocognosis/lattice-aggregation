@@ -1,5 +1,5 @@
 {
-  "attempt_digest_sha256": "982e22be0f27d7f53297265fe52ff25221b6cde5b5f7490ab53141e78359007a",
+  "attempt_digest_sha256": "9da3bd741a09d48f595f1b060633c5ad89d9b3b3aecc57b6f2819513691f7b9e",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "actual external nonce capture is not ready",
@@ -11,7 +11,7 @@
   ],
   "candidate_digest_sha256": "07fac86908ae7b8a12fcc2c36f0f5c41aadc54413f6ab668e9ade71917bec1ae",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "dc63ee3c1e0a2fa0a7c92c4da541545d4144db2add3b335e0eba8a7b2bc663b3",
+  "candidate_manifest_sha256": "c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
@@ -36,7 +36,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-05T01:57:43Z",
+  "generated_at": "2026-07-05T15:34:56Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -46,7 +46,7 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "dc63ee3c1e0a2fa0a7c92c4da541545d4144db2add3b335e0eba8a7b2bc663b3"
+      "sha256": "c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",

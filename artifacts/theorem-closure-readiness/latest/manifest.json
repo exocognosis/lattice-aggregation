@@ -5,12 +5,10 @@
     "criterion2_manifest": [],
     "external_backend_evidence": [
       "actual external nonce capture is not ready",
-      "real threshold backend emission capture is missing",
-      "standard-verifier acceptance evidence is missing",
-      "mutation rejection evidence is incomplete",
-      "rejection-distribution comparison is missing",
-      "rejection-distribution comparison is not a close candidate",
+      "rejection-distribution comparison is incomplete",
       "forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture",
+      "forbidden external-evidence source marker in real-threshold backend capture: hazmat",
+      "forbidden external-evidence source marker in rejection-distribution batch: hazmat",
       "reviewed external evidence package is missing"
     ],
     "hypothesis_assessment": [],
@@ -71,27 +69,27 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-05T00:56:20Z",
+  "generated_at": "2026-07-05T15:35:45Z",
   "inputs": {
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "fda9cfcf3116ce4e772b0e9f0fc9328ee518295a0988fab7c1ccbe9d5337f46c"
+      "sha256": "059b907eae7ded785c8505854fe5bb7a1a4f1fbc1367ac398f1fdcc4a549f10a"
     },
     "external_closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "1b39f94ea130b747328d75c019cb00eccdf9043c4e33d26f1888e07f48deb4fb"
+      "sha256": "c05ca75ff06cab37c749e4648c5c1e757b513c28725443166cedb40ec19da41f"
     },
     "external_evidence_attempt_manifest": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "d0b1bc2f7a181160531151039ba962908b9d0ab429511637c965f3e5cb8880ff"
+      "sha256": "ba2bd9d948b8c7976e1a2864396b5b7eff5e06a5856d596074ece469f6e83213"
     },
     "hypothesis_assessment": {
       "path": "artifacts/hypothesis/latest/assessment.json",
       "present": true,
-      "sha256": "82f5585cb71c7ba3d36a53e4a10f9339c6af88b4a1bd6cde8d9e3588fb7c4a23"
+      "sha256": "a3bb2c2b9282c3265665d9c2a91a2c1ed83980a33fdb0dd78599c3e7bb452f26"
     },
     "theorem_review_manifest": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
@@ -100,7 +98,7 @@
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "92fecbc6c7bce31d5963a63fca3f790f37a36d11eef60dc615c43de2c110dfd7",
+  "readiness_digest_sha256": "762a6a35355c859774dfd5d61ab430a83cc3e42781322ccb53f6f455e0d2befa",
   "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",
