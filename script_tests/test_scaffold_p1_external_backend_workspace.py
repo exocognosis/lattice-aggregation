@@ -70,6 +70,7 @@ class P1ExternalBackendWorkspaceScaffoldTests(unittest.TestCase):
                 repo_root=root,
                 workspace=workspace,
                 backend_crate=backend_crate,
+                backend_feature="hazmat-real-mldsa",
                 generated_at="2026-07-05T00:00:00Z",
             )
 
@@ -84,15 +85,22 @@ class P1ExternalBackendWorkspaceScaffoldTests(unittest.TestCase):
             result["backend_command"][0],
             str(module.resolve_path(wrapper)),
         )
+        self.assertEqual(result["backend_feature"], "hazmat-real-mldsa")
         self.assertIn("p1-external-backend-emitter", cargo_toml)
         self.assertIn(str(backend_crate), cargo_toml)
         self.assertIn(str(root), cargo_toml)
+        backend_line = next(
+            line for line in cargo_toml.splitlines() if line.startswith("dytallix-pq-threshold")
+        )
+        self.assertIn('features = ["hazmat-real-mldsa"]', backend_line)
+        self.assertNotIn('features = ["raw-real-mldsa"]', backend_line)
         self.assertIn(
             "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
             main_rs,
         )
         self.assertIn("scripts/run_backend_emission_capture.py", readme)
         self.assertIn("2026-07-05T00:00:00Z", readme)
+        self.assertIn("hazmat-real-mldsa", readme)
         self.assertIn("cargo run --release --manifest-path", wrapper_text)
 
 

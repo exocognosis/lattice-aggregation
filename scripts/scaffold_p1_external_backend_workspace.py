@@ -3,6 +3,7 @@
 
 import argparse
 import importlib.util
+import json
 import sys
 import time
 from pathlib import Path
@@ -12,6 +13,7 @@ PACKAGE_NAME = "p1-external-backend-emitter"
 CLAIM_BOUNDARY = "conformance/proof-review evidence only"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 REQUEST_PATH_HINT = "artifacts/backend-emission-request/latest/request.json"
+DEFAULT_BACKEND_FEATURE = "raw-real-mldsa"
 
 
 def load_hazmat_capture_module():
@@ -58,7 +60,7 @@ def require_outside_repo(path, repo_root, label):
     return path
 
 
-def cargo_toml(repo_root, backend_crate, hazmat_module):
+def cargo_toml(repo_root, backend_crate, backend_feature, hazmat_module):
     """Render the external emitter workspace Cargo manifest."""
     return "\n".join(
         [
@@ -72,7 +74,7 @@ def cargo_toml(repo_root, backend_crate, hazmat_module):
             (
                 "dytallix-pq-threshold = { "
                 f"path = {hazmat_module.toml_path(backend_crate)}, "
-                'features = ["raw-real-mldsa"], '
+                f"features = [{json.dumps(backend_feature)}], "
                 "default-features = false }"
             ),
             (
@@ -110,7 +112,7 @@ def wrapper_script(workspace):
     )
 
 
-def readme(repo_root, backend_crate, workspace, generated_at):
+def readme(repo_root, backend_crate, backend_feature, workspace, generated_at):
     """Render operator notes for the generated external workspace."""
     wrapper = workspace / "run_capture.sh"
     request_path = repo_root / REQUEST_PATH_HINT
@@ -128,6 +130,7 @@ def readme(repo_root, backend_crate, workspace, generated_at):
             f"- Capture schema: `{CAPTURE_SCHEMA}`",
             f"- Lattice repo: `{repo_root}`",
             f"- Backend crate: `{backend_crate}`",
+            f"- Backend feature: `{backend_feature}`",
             "",
             "Run the importer with the outside-repo wrapper as the backend command:",
             "",
@@ -149,6 +152,7 @@ def scaffold_workspace(
     repo_root,
     workspace,
     backend_crate,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
     generated_at=None,
     force=False,
 ):
@@ -157,6 +161,8 @@ def scaffold_workspace(
     workspace = require_outside_repo(workspace, repo_root, "workspace")
     backend_crate = require_outside_repo(backend_crate, repo_root, "backend crate")
     backend_crate = require_crate_path(backend_crate, "backend crate")
+    if not backend_feature:
+        raise ValueError("backend feature is required")
 
     if workspace.exists() and any(workspace.iterdir()) and not force:
         raise ValueError(f"workspace already exists and is not empty: {workspace}")
@@ -167,7 +173,7 @@ def scaffold_workspace(
     src_dir.mkdir(parents=True, exist_ok=True)
 
     (workspace / "Cargo.toml").write_text(
-        cargo_toml(repo_root, backend_crate, hazmat_module),
+        cargo_toml(repo_root, backend_crate, backend_feature, hazmat_module),
         encoding="utf-8",
     )
     (src_dir / "main.rs").write_text(
@@ -178,13 +184,14 @@ def scaffold_workspace(
     wrapper.write_text(wrapper_script(workspace), encoding="utf-8")
     wrapper.chmod(0o755)
     (workspace / "README.md").write_text(
-        readme(repo_root, backend_crate, workspace, generated_at),
+        readme(repo_root, backend_crate, backend_feature, workspace, generated_at),
         encoding="utf-8",
     )
 
     return {
         "workspace": str(workspace),
         "backend_crate": str(backend_crate),
+        "backend_feature": backend_feature,
         "repo_root": str(repo_root),
         "backend_command": [str(wrapper)],
         "request_path_hint": str(repo_root / REQUEST_PATH_HINT),
@@ -210,6 +217,11 @@ def parse_args(argv):
         help="outside-repo dytallix-pq-threshold checkout with raw-real-mldsa",
     )
     parser.add_argument(
+        "--backend-feature",
+        default=DEFAULT_BACKEND_FEATURE,
+        help="backend crate feature exposing the hazmat ML-DSA APIs",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="overwrite files in an existing non-empty workspace",
@@ -223,6 +235,7 @@ def main(argv=None):
         repo_root=args.repo_root,
         workspace=args.workspace,
         backend_crate=args.backend_crate,
+        backend_feature=args.backend_feature,
         force=args.force,
     )
     print(f"wrote external backend workspace to {result['workspace']}")

@@ -55,11 +55,13 @@ Write an executable `run_capture.sh` in the external workspace. The backend-emis
 - Existing: `scripts/build_p1_external_backend_cryptographic_closure_candidate.py`
 - Existing: `scripts/run_p1_external_backend_evidence_attempt.py`
 
-- [ ] **Step 1: Locate or clone the backend crate**
+- [x] **Step 1: Locate or clone the backend crate**
 
 Find an external `dytallix-pq-threshold` checkout with `raw-real-mldsa` support. Record its path and commit. This must not live inside the lattice repository.
 
-- [ ] **Step 2: Scaffold the external backend workspace**
+Current candidate: `/private/tmp/dytallix-threshold-rejection-transcript` at commit `53d864d63052887be3bb01a3f33017a569cab365`, branch `codex/hazmat-rejection-predicate-transcript`, using backend feature `hazmat-real-mldsa`. The checkout is outside the lattice repository and contains hazmat diagnostic backend work; it is not an independent production backend review.
+
+- [x] **Step 2: Scaffold the external backend workspace**
 
 Run:
 
@@ -67,20 +69,23 @@ Run:
 python3 scripts/scaffold_p1_external_backend_workspace.py \
   --repo-root . \
   --workspace /path/outside/repo/p1-external-backend-emitter \
-  --backend-crate /path/outside/repo/dytallix-pq-threshold
+  --backend-crate /path/outside/repo/dytallix-pq-threshold \
+  --backend-feature hazmat-real-mldsa
 ```
 
-- [ ] **Step 3: Build the backend-emission request**
+- [x] **Step 3: Build the backend-emission request**
 
 Run `scripts/build_backend_emission_request.py` to create the canonical request JSON for the 10,000/6,667 selected profile.
 
-- [ ] **Step 4: Capture backend emission through the importer**
+- [x] **Step 4: Capture backend emission through the importer**
 
 Run `scripts/run_backend_emission_capture.py` with the generated outside-repo `run_capture.sh` wrapper. The manifest must record `backend_command_origin = outside_repo_executable_or_script`.
 
-- [ ] **Step 5: Generate rejection-equivalence evidence**
+- [x] **Step 5: Generate rejection-equivalence evidence**
 
-Run `scripts/run_hazmat_rejection_equivalence_batch.py` against the same backend crate with `--validator-count 10000`, `--threshold 6667`, and `--distributed-nonce-prf-domain`. The resulting comparison must be reviewed before being treated as a closure candidate.
+Run `scripts/run_hazmat_rejection_equivalence_batch.py` against the same backend crate with `--backend-feature hazmat-real-mldsa`, `--validator-count 10000`, `--threshold 6667`, and `--distributed-nonce-prf-domain`. The resulting comparison must be reviewed before being treated as a closure candidate.
+
+Current result: `artifacts/p1-rejection-equivalence-batch/latest/batch.json` compares 16 attempts at 10,000/6,667 with zero predicate mismatches and `comparison_close_candidate = true`. It still records `reviewed_distributed_nonce_producer_present = false` and `distributed_nonce_producer_artifact_digest = null`, so the grouped closure candidate remains blocked until the actual external nonce-producer capture exists.
 
 ### Task 4: Fill the Remaining External Evidence Slots
 

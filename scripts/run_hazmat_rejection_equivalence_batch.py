@@ -10,6 +10,8 @@ import tempfile
 from pathlib import Path
 
 
+DEFAULT_BACKEND_FEATURE = "raw-real-mldsa"
+
 RUST_EMITTER_SOURCE = r'''use dytallix_pq_threshold::{
     mldsa65::{
         begin_mldsa65_threshold_attempt,
@@ -538,11 +540,18 @@ def validate_crate_path(path, label):
     return path
 
 
-def write_emitter_project(work_dir, repo_root, backend_crate):
+def write_emitter_project(
+    work_dir,
+    repo_root,
+    backend_crate,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
+):
     """Write the temporary Rust emitter project for one comparator batch."""
     work_dir = Path(work_dir)
     repo_root = validate_crate_path(repo_root, "repo root")
     backend_crate = validate_crate_path(backend_crate, "backend crate")
+    if not backend_feature:
+        raise ValueError("backend feature is required")
     src_dir = work_dir / "src"
     src_dir.mkdir(parents=True, exist_ok=True)
     cargo_toml = "\n".join(
@@ -557,7 +566,7 @@ def write_emitter_project(work_dir, repo_root, backend_crate):
             (
                 "dytallix-pq-threshold = { "
                 f"path = {toml_path(backend_crate)}, "
-                'features = ["raw-real-mldsa"], '
+                f"features = [{json.dumps(backend_feature)}], "
                 "default-features = false }"
             ),
             (
@@ -594,9 +603,15 @@ def run_batch(
     command_runner=subprocess.run,
     release=True,
     emitter_args=None,
+    backend_feature=DEFAULT_BACKEND_FEATURE,
 ):
     """Build and run the generated comparator, returning JSON stdout."""
-    write_emitter_project(work_dir, repo_root, backend_crate)
+    write_emitter_project(
+        work_dir,
+        repo_root,
+        backend_crate,
+        backend_feature=backend_feature,
+    )
     completed = command_runner(
         cargo_command(release=release, emitter_args=emitter_args),
         cwd=Path(work_dir),
@@ -625,6 +640,17 @@ def parse_args(argv):
         help=(
             "path to a dytallix-pq-threshold checkout with raw-real-mldsa; "
             "also read from LATTICE_HAZMAT_THRESHOLD_BACKEND_CRATE"
+        ),
+    )
+    parser.add_argument(
+        "--backend-feature",
+        default=os.environ.get(
+            "LATTICE_HAZMAT_THRESHOLD_BACKEND_FEATURE",
+            DEFAULT_BACKEND_FEATURE,
+        ),
+        help=(
+            "backend crate feature exposing the hazmat ML-DSA APIs; also read "
+            "from LATTICE_HAZMAT_THRESHOLD_BACKEND_FEATURE"
         ),
     )
     parser.add_argument(
@@ -689,6 +715,7 @@ def main(argv=None):
             work_dir=args.work_dir,
             release=not args.debug,
             emitter_args=emitter_args,
+            backend_feature=args.backend_feature,
         )
     else:
         with tempfile.TemporaryDirectory(prefix="lattice-rejection-equivalence-") as temp_dir:
@@ -698,6 +725,7 @@ def main(argv=None):
                 work_dir=Path(temp_dir) / "emitter",
                 release=not args.debug,
                 emitter_args=emitter_args,
+                backend_feature=args.backend_feature,
             )
     sys.stdout.write(stdout)
 
