@@ -1615,12 +1615,12 @@ CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-manifest cargo test --test proof_d
 
 Expected: FAIL because the new anchors are not present.
 
-- [ ] **Step 3: Update docs with exact non-claims**
+- [ ] **Step 3: Update docs with exact evidence requirements**
 
 Add a row to `docs/cryptography/claims-matrix.md`:
 
 ```markdown
-| Coordinator-assisted ML-DSA-65 profile | Non-default coordinator profile types, policy gates, transcript bindings, preprocessing attempts, and provider boundaries may exist behind `coordinator-assisted` or `hazmat-real-mldsa`. | `production-threshold-mldsa-coordinator-design.md`, FST-L5, Noise Lemma F | hazmat conformance only | Must not claim production threshold ML-DSA security; standard-verifier-compatible only after KAT and audit gates. |
+| Coordinator-assisted ML-DSA-65 profile | Non-default coordinator profile types, policy gates, transcript bindings, preprocessing attempts, and provider boundaries may exist behind `coordinator-assisted` or `hazmat-real-mldsa`. | `production-threshold-mldsa-coordinator-design.md`, FST-L5, Noise Lemma F | hazmat conformance track | Production threshold ML-DSA security requires KAT, proof, side-channel, deployment, and audit gates. |
 ```
 
 Add a production-coordinator section to `docs/cryptography/proof-implementation-crosswalk.md` and `docs/cryptography/protocol-code-crosswalk.md` that maps:

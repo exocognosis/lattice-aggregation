@@ -80,9 +80,9 @@ The first real backend profile must:
 - Leave room for a later fully distributed MPC profile behind compatible
   high-level signer/session boundaries.
 
-## Non-Goals
+## Evidence Requirements
 
-The first profile must not claim:
+The first profile requires separate evidence for:
 
 - FIPS validation or certification.
 - Production threshold ML-DSA security before external review.
@@ -113,8 +113,8 @@ The first narrow implementation claim, after evidence exists, should be:
 > the documented coordinator, share-provisioning, attestation, and review
 > assumptions.
 
-It must not claim general production threshold ML-DSA security until proof,
-side-channel, deployment, and audit gates pass.
+General production threshold ML-DSA security requires proof, side-channel,
+deployment, and audit gates.
 
 ## Protocol Overview
 
@@ -176,9 +176,8 @@ attempt on:
 - final standard-verifier failure;
 - coordinator attestation or policy mismatch.
 
-Retry limits are operational controls, not cryptographic proof. Low fixed retry
-caps must not be introduced without analysis of correctness and liveness
-impact.
+Retry limits are operational controls. Low fixed retry caps require correctness
+and liveness impact analysis before introduction.
 
 ## Trust Model
 

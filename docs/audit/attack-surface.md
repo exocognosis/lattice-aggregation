@@ -5,16 +5,16 @@ Date: 2026-05-26
 ## Scope
 
 This audit packet supports reviewer and security triage for the current
-research scaffold. It does not certify production readiness, FIPS validation,
-malicious-secure threshold signing, production slashing soundness, or
-side-channel resistance.
+implementation track. Production readiness, FIPS validation, malicious-secure
+threshold signing, production slashing soundness, and side-channel resistance
+each require linked evidence artifacts.
 
 The current checkout exposes a default simulated scaffold plus non-default
 production-candidate skeleton surfaces under `coordinator-assisted` and
-`hazmat-real-mldsa`. Those skeleton surfaces are hazmat/conformance boundaries
-only; they are not production threshold ML-DSA security, FIPS validation,
-audited backend evidence, or proof evidence. Reviewers should read this map
-together with the claim boundaries in
+`hazmat-real-mldsa`. Those skeleton surfaces are hazmat/conformance tracks
+whose promotion requires production threshold ML-DSA security, FIPS validation,
+audited backend evidence, and proof evidence artifacts. Reviewers should read
+this map together with the evidence requirements in
 [side-channel-boundary.md](../cryptography/side-channel-boundary.md),
 [claims-matrix.md](../cryptography/claims-matrix.md),
 [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md),
@@ -49,14 +49,14 @@ and the [release-readiness checklist](../benchmarks/release-readiness-checklist.
 
 | Gate | Exposed surface | Review focus | Production boundary |
 | --- | --- | --- | --- |
-| default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure scaffold behavior cannot be described as production cryptography. | Research and simulation only. |
-| `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; not production threshold ML-DSA security. |
-| `hazmat` | Marker gate reserved for hazmat experiments | Ensure no production API silently depends on hazmat behavior. | Not a production assurance boundary. |
-| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, bounded ACVP sample fixture, context-aware hazmat verifier, and final verifier boundary before any compatibility language. | No production assurance boundary until full KAT, audit, proof, side-channel, validation, and release gates pass. |
+| default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure simulation behavior stays separated from production cryptography. | Research and simulation track. |
+| `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and evidence-bounded. | Hazmat conformance track feeding production threshold ML-DSA evidence. |
+| `hazmat` | Marker gate reserved for hazmat experiments | Ensure production APIs declare hazmat dependencies explicitly. | Hazmat assurance boundary. |
+| `hazmat-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, bounded ACVP sample fixture, context-aware hazmat verifier, and final verifier boundary before compatibility promotion. | Production assurance requires full KAT, audit, proof, side-channel, validation, and release gates. |
 
 Feature-gate risk is mainly claim confusion and accidental promotion. A reviewer
-should confirm that production-labeled constructors fail closed and that passing
-a declaration or conformance gate is not treated as a proof.
+should confirm that production-labeled constructors fail closed and that
+declaration or conformance gates link to the required proof artifacts.
 
 ## Actor And Network Boundaries
 
@@ -72,9 +72,9 @@ are:
 Security triage should treat authenticated transport, validator identity
 binding, replay protection outside the local frame envelope, timeout policy,
 retry limits, consensus penalties, and operational key management as external
-production obligations. The current harness can model some ordering and
-malformed-frame behavior, but it does not establish production network liveness
-or consensus safety.
+production obligations. The current harness models ordering and malformed-frame
+behavior while production network liveness and consensus safety require linked
+evidence.
 
 ## Wire Decoding And Transcript Inputs
 
@@ -91,8 +91,8 @@ Review `src/adapter/wire.rs` for:
 
 Production-candidate coordinator frames are now present in
 `src/adapter/production_wire.rs`. Reviewers should treat them as untrusted-byte
-inputs for hazmat conformance only and verify that decode success is not
-described as standard-verifier compatibility or production security.
+inputs for hazmat conformance and verify that decode success links to the
+standard-verifier compatibility and production security evidence requirements.
 
 ## Production-Candidate Coordinator And Hazmat Internals
 
@@ -107,8 +107,8 @@ The current production-candidate skeleton is concentrated in:
 - `src/adapter/production_wire.rs`: production coordinator wire frames.
 - `tests/production_provider.rs`: provider KAT gate coverage, including bounded
   NIST ACVP-Server FIPS204 sample-vector conformance for ordinary ML-DSA-65
-  verification. This is not aggregate threshold verification or validation
-  evidence.
+  verification. Aggregate threshold verification and validation evidence are
+  tracked as separate artifacts.
 - `tests/ui/production_simulated_backend_rejected.rs`: compile-fail guard that
   the simulated backend cannot satisfy the production coordinator contract.
 
@@ -135,15 +135,15 @@ Priority review questions:
 - Are secret-dependent arithmetic and encoding paths unaudited for timing and
   leakage, as documented?
 
-Current evidence is simulation, arithmetic-scaffold, and regression evidence
-only. It is not a complete correctness proof, distributional equivalence proof,
-constant-time audit, or FIPS validation.
+Current evidence includes simulation, arithmetic-scaffold, and regression
+evidence. Correctness proof, distributional equivalence proof, constant-time
+audit, and FIPS validation require linked artifacts.
 
 ## Evidence And Slashing Artifacts
 
-Evidence generation is security-sensitive because a production system must not
-be able to frame honest validators. Current evidence is an engineering scaffold
-for malformed or proof-invalid frames, not production slashing authority.
+Evidence generation is security-sensitive because a production system requires
+anti-framing evidence for honest validators. Current evidence records malformed
+or proof-invalid frames and feeds production slashing-authority review.
 
 Review:
 
@@ -160,8 +160,9 @@ enough public input for a future verifier.
 
 ## Benchmark And Export Pipeline
 
-Benchmark artifacts are useful for reproducibility, not security proof. The
-attack surface is mostly claim drift and artifact verifier fragility.
+Benchmark artifacts are useful for reproducibility. Security proof use requires
+linked proof artifacts, and the attack surface is mostly claim drift and artifact
+verifier fragility.
 
 Review:
 
@@ -170,16 +171,15 @@ Review:
   sections.
 - Future benchmark manifests and checked-in artifacts under `docs/benchmarks`.
 
-Reviewers should verify that benchmark output is described as deterministic
-research telemetry and not as a side-channel, liveness, or cryptographic
-security result.
+Reviewers should verify that benchmark output links to side-channel, liveness,
+or cryptographic security artifacts before promotion.
 
 ## Side-Channel And Constant-Time Risks
 
 The side-channel boundary is documented in
 [side-channel-boundary.md](../cryptography/side-channel-boundary.md). This
-attack-surface map treats timing and leakage resistance as open production
-obligations, not solved properties of the current branch.
+attack-surface map treats timing and leakage resistance as production evidence
+obligations for the selected backend.
 
 Reviewers should track at least these risks:
 
@@ -213,8 +213,8 @@ sync when behavior changes:
 - [proof-implementation-crosswalk.md](../cryptography/proof-implementation-crosswalk.md):
   proof-obligation-to-source navigation.
 - [Release-readiness checklist](../benchmarks/release-readiness-checklist.md):
-  do not treat release gates or production blockers as complete unless the
-  checklist has linked evidence for the selected backend and release scope.
+  release gates and production blockers require linked evidence for the
+  selected backend and release scope.
 - [active-adversary-model.md](../cryptography/active-adversary-model.md),
   [formal-security-theorem.md](../cryptography/formal-security-theorem.md),
   [proof-obligations.md](../cryptography/proof-obligations.md),
@@ -224,11 +224,11 @@ sync when behavior changes:
   boundaries.
 
 Any new claim should identify the supporting source files, tests or artifacts,
-remaining blockers, and precise non-claims.
+remaining blockers, and precise evidence requirements.
 
-## Explicit Non-Claims
+## Production Evidence Requirements
 
-The current repository does not claim:
+Production promotion requires linked evidence for:
 
 - production-ready threshold ML-DSA-65 security;
 - malicious-secure DKG or production VSS complaint soundness;

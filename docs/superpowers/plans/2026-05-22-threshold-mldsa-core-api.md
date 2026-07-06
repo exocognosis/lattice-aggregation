@@ -1746,7 +1746,8 @@ Date: 2026-05-22
 
 ## Scope
 
-This document records the mathematical constraints the crate API is designed to preserve. It does not prove production security for the simulation backend.
+This document records the mathematical constraints the crate API is designed to
+preserve. Production security requires the selected-backend proof package.
 
 ## ML-DSA-65 Constraint
 

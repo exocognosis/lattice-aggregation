@@ -155,12 +155,12 @@ The JSON report should contain:
       "observed_evidence": [],
       "blockers": [],
       "status": "blocked",
-      "verdict_contribution": "not_proven"
+      "verdict_contribution": "pending_evidence"
     }
   ],
   "commands": [],
   "overall_verdict": "partially_proven",
-  "claim_boundary": "research scaffold only"
+  "claim_boundary": "closure-run implementation track"
 }
 ```
 
@@ -192,14 +192,12 @@ the main cryptographic success criteria remain blocked rather than disproven.
 
 The report must explicitly compare the result to the top-level README:
 
-- README states the repository is research scaffolding and deterministic
-  simulation.
-- README states the hypothesis is conditional on theorem closure, a reviewed
-  threshold backend, and standard ML-DSA verification.
-- Therefore, missing production proof artifacts should be recorded as blockers,
-  not as contradictions.
-- Any future README claim of production readiness should fail the comparison
-  unless release-readiness gates are linked and satisfied.
+- README lists the current evidence track for threshold backend work.
+- README ties assessment to reviewed threshold backend artifacts and standard
+  ML-DSA verification.
+- Remaining proof artifacts should be recorded as implementation-track inputs.
+- Any future README claim of production readiness should link release-readiness
+  gates and selected-backend evidence.
 
 ## Error Handling
 

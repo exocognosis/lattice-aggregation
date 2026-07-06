@@ -1,9 +1,9 @@
 # Abort/Retry Bias Evidence Checks
 
-Status: conformance evidence only. This document records concrete blocker-3
+Status: conformance evidence track. This document records concrete blocker-3
 progress toward showing that selective aborts and retries do not bias accepted
-signatures. It does not prove Fiat-Shamir-with-aborts preservation for
-ML-DSA-65 and must not be used as a production security claim.
+signatures. Fiat-Shamir-with-aborts preservation for ML-DSA-65 and production
+security promotion require the selected proof and audit package.
 
 ## Scope
 

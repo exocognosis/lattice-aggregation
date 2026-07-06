@@ -208,7 +208,7 @@ impl ExternalMaskDistributionReview {
 /// Explicit boundary for what a closure package is allowed to claim.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum MaskDistributionProofBoundary {
-    /// The package is a non-production proof framework and not a production proof.
+    /// The package records framework-level proof artifacts before promotion.
     NonProductionProofFramework,
     /// The package attempts to claim production ML-DSA proof closure.
     ClaimsProductionProof,

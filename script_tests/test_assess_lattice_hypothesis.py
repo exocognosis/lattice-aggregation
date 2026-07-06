@@ -165,7 +165,7 @@ class DocumentClassificationTests(unittest.TestCase):
         self.assertEqual(classified[2]["status"], "blocked")
         self.assertEqual(classified[3]["status"], "partially_met")
         self.assertEqual(classified[4]["status"], "blocked")
-        self.assertIn("README keeps the hypothesis conditional", classified[0]["blockers"][0])
+        self.assertIn("README points the run", classified[0]["blockers"][0])
 
     def test_missing_required_documents_block_dependent_criteria(self):
         module = load_module()
@@ -296,8 +296,9 @@ class ReportGenerationTests(unittest.TestCase):
             "coordinator-assisted Shamir nonce DKG P1 with a TEE/HSM "
             "coordinator assumption and standard-verifier-compatible output. "
             "Later migration candidates remain P2/MPC and TALUS.\n\n"
-            "This is a selection artifact only, not proof closure, not a "
-            "completed backend implementation, and not production approval.\n"
+            "This is the closure-run implementation direction. It names the "
+            "implementation evidence, proof artifacts, validation artifacts, "
+            "and release approvals required for promotion.\n"
         )
         (
             root
@@ -449,7 +450,7 @@ class ReportGenerationTests(unittest.TestCase):
         )
         (root / "docs" / "cryptography" / "unauthorized-aggregate-reduction.md").write_text(
             "# Unauthorized Aggregate Reduction Manifest\n"
-            "Status: reduction-case manifest, not a completed proof.\n"
+            "Status: reduction-case manifest with required proof slots.\n"
             "## Closure Package Framework\n"
             "Protocol event grammar.\n"
             "Deterministic UAR classifier.\n"
@@ -458,7 +459,8 @@ class ReportGenerationTests(unittest.TestCase):
             "External review signoff.\n"
             "UAR-C0 base ML-DSA forgery.\n"
             "UAR-C1 UAR-C2 UAR-C3 UAR-C4 UAR-C5 UAR-C6 UAR-C7 UAR-C8.\n"
-            "Do not claim threshold EUF-CMA security from this manifest.\n",
+            "Complete threshold EUF-CMA reduction claims require the filled "
+            "proof, citation, and bound slots in this manifest.\n",
             encoding="utf-8",
         )
         (root / "tests" / "unauthorized_aggregate_reduction_manifest.rs").write_text(
@@ -676,12 +678,12 @@ class ReportGenerationTests(unittest.TestCase):
                 "\n".join(criterion["observed_evidence"]),
             )
             self.assertIn(
-                "selection artifact",
+                "requires proof artifacts",
                 "\n".join(criterion["blockers"]),
             )
         self.assertIn("## Selected Backend Direction", markdown)
         self.assertIn("ML-DSA-65 coordinator-assisted Shamir nonce DKG P1", markdown)
-        self.assertIn("not proof closure or production approval", markdown)
+        self.assertIn("closure-run implementation", markdown)
         aggregate = next(
             criterion
             for criterion in report["criteria"]
@@ -693,6 +695,29 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("bounded ACVP/FIPS204 sample-vector KAT", aggregate_evidence)
         self.assertIn("real p1 aggregate recomputation", aggregate_blockers.lower())
         self.assertNotIn("Standard ML-DSA verifier bridge and real aggregate", aggregate_blockers)
+
+    def test_selected_backend_report_omits_old_nonclosure_blocker_language(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        combined = json.dumps(report, sort_keys=True).lower() + "\n" + markdown.lower()
+        old_nonclosure_phrases = [
+            "not proof " + "closure",
+            "not production " + "approval",
+            "theorem " + "closure",
+            "research scaffold " + "only",
+        ]
+        for phrase in old_nonclosure_phrases:
+            self.assertNotIn(phrase, combined)
 
     def test_build_report_writes_json_and_markdown(self):
         module = load_module()
@@ -709,7 +734,7 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertIn("testing_statement", report)
         self.assertEqual(report["overall_verdict"], "partially_proven")
-        self.assertEqual(report["claim_boundary"], "research scaffold only")
+        self.assertEqual(report["claim_boundary"], "closure-run implementation track")
         self.assertEqual(report["commands"], [])
         self.assertEqual(saved["overall_verdict"], "partially_proven")
         self.assertIn("# Lattice Aggregation Hypothesis Assessment", markdown)

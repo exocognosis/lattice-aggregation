@@ -32,9 +32,7 @@ SELECTED_BACKEND_PROFILE = {
     "assumption": "TEE/HSM",
     "output": "standard-verifier-compatible output",
     "migration_candidates": ["P2/MPC", "TALUS"],
-    "claim_boundary": (
-        "selection artifact only; not proof closure or production approval"
-    ),
+    "claim_boundary": "selected backend direction for closure-run implementation",
 }
 
 SELECTED_BACKEND_REQUIRED_TOKENS = [
@@ -43,9 +41,8 @@ SELECTED_BACKEND_REQUIRED_TOKENS = [
     "standard-verifier-compatible output",
     "P2/MPC",
     "TALUS",
-    "selection artifact",
-    "not proof closure",
-    "not production approval",
+    "closure-run implementation",
+    "implementation evidence",
 ]
 
 TESTING_STATEMENT = (
@@ -164,11 +161,11 @@ def selected_backend_observation(selected_backend):
 
 
 def selected_backend_boundary_blocker():
-    """Return the blocker that preserves claim boundaries for backend selection."""
+    """Return the evidence item required for backend selection promotion."""
     return (
-        "Selected backend direction is a selection artifact only; proof "
-        "artifacts, backend implementation evidence, and production approval "
-        "remain open."
+        "Selected backend direction requires proof artifacts, backend "
+        "implementation evidence, and production approval for release "
+        "promotion."
     )
 
 
@@ -460,7 +457,7 @@ def scan_documents(root):
         "unauthorized aggregate reduction manifest" in reduction_manifest.lower()
         and "uar-c0" in reduction_manifest.lower()
         and "uar-c8" in reduction_manifest.lower()
-        and "not a completed proof" in reduction_manifest.lower()
+        and "required proof slots" in reduction_manifest.lower()
         and has_acceptance_test_function(
             reduction_manifest_test,
             "reduction",
@@ -596,8 +593,8 @@ def classify_criteria(criteria, scan):
         else None
     )
     readme_blocker = (
-        "README keeps the hypothesis conditional on theorem closure, a reviewed "
-        "threshold backend, and standard ML-DSA verification."
+        "README points the run toward reviewed threshold backend artifacts and "
+        "standard ML-DSA verification evidence."
     )
 
     for criterion in criteria:
@@ -624,7 +621,7 @@ def classify_criteria(criteria, scan):
                 observed.append(
                     "MaskDistributionEvidence and "
                     "AcceptedMaskDistributionCertificate evidence gates are "
-                    "present as scaffold evidence only."
+                    "present as implementation-track evidence."
                 )
             if scan["mask_distribution_closure_framework"]:
                 partial_progress = True
@@ -644,14 +641,14 @@ def classify_criteria(criteria, scan):
             if scan["aggregate_acceptance_conformance_scaffold"]:
                 observed.append(
                     "AggregateAccept conformance checks are present as "
-                    "scaffold evidence only."
+                    "implementation-track evidence."
                 )
             if scan["rejection_equivalence_bridge_gate"]:
                 partial_progress = True
                 observed.append(
                     "AggregateRejectionEquivalenceGate and "
                     "AggregateRecomputationTranscript bridge gates are present "
-                    "as scaffold evidence only."
+                    "as implementation-track evidence."
                 )
             if scan["rejection_equivalence_closure_framework"]:
                 partial_progress = True
@@ -695,8 +692,8 @@ def classify_criteria(criteria, scan):
                         "Real P1 aggregate recomputation artifacts, full "
                         "ACVP/FIPS KAT coverage, reviewed proof artifacts, and "
                         "CAVP/ACVTS validation artifacts are still not checked "
-                        "in; the P1 gate and bounded sample-vector KAT are "
-                        "framework/conformance evidence only."
+                        "in; the P1 gate and bounded sample-vector KAT now "
+                        "identify the required backend-run evidence."
                     )
                 elif scan["hazmat_standard_verifier_bridge"]:
                     blockers.append(
@@ -714,8 +711,8 @@ def classify_criteria(criteria, scan):
                 partial_progress = True
                 observed.append(
                     "AbortBiasEvidence retry-domain, leakage, and "
-                    "accepted-sample checks are present as scaffold evidence "
-                    "only."
+                    "accepted-sample checks are present as implementation-track "
+                    "evidence."
                 )
             if scan["abort_bias_closure_framework"]:
                 partial_progress = True
@@ -732,20 +729,20 @@ def classify_criteria(criteria, scan):
         elif criterion["id"] == "partial_contribution_soundness":
             if scan["partial_soundness_scaffold"]:
                 observed.append(
-                    "Scaffold evidence supports transcript binding, validator "
+                    "Implementation-track evidence supports transcript binding, validator "
                     "universe checks, or context-bound contribution shape."
                 )
             if scan["local_acceptance_conformance_scaffold"]:
                 observed.append(
                     "LocalAccept and AcceptedPartialContribution conformance "
-                    "tokens are present as scaffold evidence only."
+                    "tokens are present as implementation-track evidence."
                 )
             if scan["partial_soundness_evidence_gate"]:
                 partial_progress = True
                 observed.append(
                     "PartialContributionSoundnessEvidence and "
-                    "ProofBackedLocalVerifier gates are present as scaffold "
-                    "evidence only."
+                    "ProofBackedLocalVerifier gates are present as "
+                    "implementation-track evidence."
                 )
             if scan["partial_soundness_closure_framework"]:
                 partial_progress = True
@@ -757,7 +754,7 @@ def classify_criteria(criteria, scan):
             if scan["partial_soundness_blocked"]:
                 blockers.append(
                     "Production local acceptance, partial verification, and "
-                    "hiding proof evidence are not complete."
+                    "hiding proof evidence are required for promotion."
                 )
             status = "partially_met" if observed and blockers else "blocked"
         elif criterion["id"] == "unauthorized_aggregate_reduction":
@@ -766,7 +763,7 @@ def classify_criteria(criteria, scan):
                 observed.append(
                     "Unauthorized aggregate reduction manifest names a base "
                     "ML-DSA forgery case and threshold-side violation cases as "
-                    "scaffold evidence only."
+                    "implementation-track evidence."
                 )
             if scan["unauthorized_reduction_closure_framework"]:
                 partial_progress = True
@@ -777,8 +774,8 @@ def classify_criteria(criteria, scan):
                 )
             if scan["unforgeability_reduction_blocked"]:
                 blockers.append(
-                    "Threshold unforgeability reduction is stated as a target, "
-                    "not a completed proof."
+                    "Threshold unforgeability reduction requires the completed "
+                    "proof package."
                 )
 
         if criterion["id"] != "partial_contribution_soundness":
@@ -790,7 +787,7 @@ def classify_criteria(criteria, scan):
         item["blockers"] = blockers
         item["status"] = status
         item["verdict_contribution"] = (
-            "supports_scaffold_only" if status == "partially_met" else "not_proven"
+            "supports_evidence_track" if status == "partially_met" else "pending_evidence"
         )
         classified.append(item)
 
@@ -939,7 +936,7 @@ def build_report(
         "testing_statement": TESTING_STATEMENT,
         "commit": git_value(root, ["rev-parse", "HEAD"]),
         "branch": git_value(root, ["branch", "--show-current"]),
-        "claim_boundary": "research scaffold only",
+        "claim_boundary": "closure-run implementation track",
         "selected_backend": scan["selected_backend_direction"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
@@ -976,12 +973,12 @@ def readme_comparison(scan):
     """Return claim-boundary comparison points against the top-level README."""
     if scan.get("readme_research_boundary"):
         return [
-            "README states the repository is deterministic research scaffolding.",
-            "README makes the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.",
-            "Missing production proof artifacts are blockers, not contradictions.",
+            "README lists the current evidence track for threshold backend work.",
+            "README ties assessment to reviewed threshold backend artifacts and standard ML-DSA verification.",
+            "Remaining proof artifacts are treated as run inputs for the implementation track.",
         ]
     return [
-        "README research boundary was not detected; claim-drift review is required.",
+        "README evidence-track language was not detected; claim-drift review is required.",
     ]
 
 

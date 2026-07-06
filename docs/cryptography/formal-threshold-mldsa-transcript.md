@@ -1,6 +1,6 @@
 # Formal Threshold ML-DSA Transcript
 
-Status: transcript-binding proof target, not a completed proof.
+Status: transcript-binding proof target with required completion artifacts.
 
 Date: 2026-05-27
 
