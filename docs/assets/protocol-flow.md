@@ -3,10 +3,10 @@
 This diagram shows the intended threshold ML-DSA-65 aggregation flow and marks
 where the open security boundaries live. It is a design and review aid, not a
 claim that any boundary is closed. The orange boundaries correspond to the
-"Epsilon Residual Ledger" and the five
-[Hypothesis Closure Requirements](../../README.md#hypothesis-closure-requirements);
-the green boundary is the backward-compatible verification path the construction
-must preserve. A rendered raster version of the same flow is in
+"Epsilon Residual Ledger" tracked in the
+[Cryptographic Claims Matrix](../cryptography/claims-matrix.md); the green
+boundary is the backward-compatible verification path the construction must
+preserve. A rendered raster version of the same flow is in
 [lattice-aggregation-protocol-flow.png](lattice-aggregation-protocol-flow.png).
 
 ## End-to-end flow

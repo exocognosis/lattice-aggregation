@@ -137,7 +137,7 @@ realization plan referencing
 - **Transparent, fail-closed methodology.** Every security-loss boundary is
   enumerated as an "Epsilon Residual Ledger" and tracked, per criterion, in the
   [Cryptographic Claims Matrix](../cryptography/claims-matrix.md) and the
-  [Hypothesis Closure Requirements](../../README.md#hypothesis-closure-requirements),
+  [thesis operating parameters](../cryptography/thesis-operating-parameters.md),
   with a reproducible assessment and production-policy gates that reject scaffold
   backends.
 - **Apples-to-apples evaluation as a deliverable.** The project commits to a
