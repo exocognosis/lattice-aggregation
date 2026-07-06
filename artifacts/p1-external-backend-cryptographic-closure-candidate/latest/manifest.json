@@ -4,7 +4,7 @@
     "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
     "real threshold backend emission capture is incomplete"
   ],
-  "candidate_digest_sha256": "3ba5933959795d88a29612a7b29b9d20ec5b9ef6bc18b3dc5718ee69fb2c7476",
+  "candidate_digest_sha256": "1a6f99aaeef73c564e243d51c9cc17a9337bff12da31160962335454cf7eefc7",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
@@ -23,7 +23,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-06T14:35:51Z",
+  "generated_at": "2026-07-06T15:04:33Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -33,12 +33,12 @@
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60"
+      "sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "abc9a3d12c7baa395e182b8b5d42c3c6d765f1e73682fc5d9a9da28c375d15ad"
+      "sha256": "83d2ccd805e14d1cb4525b0e9fd6a3a5ff5e2ef5ceee4dc01eda1d95c434e89c"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",

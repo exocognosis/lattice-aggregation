@@ -44,6 +44,7 @@ TOP_LEVEL_FIELDS = {
     "claim_boundary",
     "selected_profile",
     "backend_evidence",
+    "backend_requirement_evidence",
     "note",
     "cryptographic_core",
     "request",
@@ -74,6 +75,7 @@ EXPECTED_DIGEST_FIELDS = {
 }
 OPTIONAL_EXPECTED_DIGEST_FIELDS = {
     "threshold_reconstruction_digest_hex",
+    "backend_requirement_evidence_digest_hex",
 }
 CAPTURE_PAYLOAD_FIELDS = {
     "validator_count",

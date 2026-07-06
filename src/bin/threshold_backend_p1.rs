@@ -379,6 +379,11 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         {
             return Err(BackendError("mutation rejection corpus was incomplete".into()).into());
         }
+        let backend_requirement_evidence = backend_requirement_evidence(
+            mutated_message_rejected,
+            mutated_public_key_rejected,
+            mutated_signature_rejected,
+        );
 
         let reconstructed_seed_digest = sha3_bytes(&reconstruction.reconstructed_seed);
         let source_package = canonical_json(&json!({
@@ -408,7 +413,10 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
             "validator_count": VALIDATOR_COUNT,
             "threshold": THRESHOLD,
-            "threshold_core_accounting": reconstruction_backend_transcript_core_accounting(),
+            "threshold_core_accounting": reconstruction_backend_transcript_core_accounting(
+                &backend_requirement_evidence,
+            ),
+            "backend_requirement_evidence": backend_requirement_evidence.clone(),
             "threshold_reconstruction": {
                 "schema": "lattice-aggregation:threshold-backend-p1-seed-reconstruction:v1",
                 "scheme": "shamir_seed_reconstruction_over_mldsa_q",
@@ -443,10 +451,19 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 "partial_z_i_count": 0,
                 "hint_count": 0,
                 "bounds_checked_over_threshold_partials": false,
+                "backend_requirement_evidence": backend_requirement_evidence.clone(),
+                "backend_requirement_evidence_digest_hex": encode_hex(&domain_digest(
+                    b"lattice-aggregation:threshold-backend-p1-backend-requirement-evidence:v1",
+                    canonical_json(&backend_requirement_evidence).as_bytes(),
+                )),
                 "signature_len": signature_bytes.len()
             }]
         }))
         .into_bytes();
+        let backend_requirement_evidence_digest = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-backend-requirement-evidence:v1",
+            canonical_json(&backend_requirement_evidence).as_bytes(),
+        );
 
         let backend_source_package_digest = domain_digest(
             b"lattice-aggregation:p1-real-threshold-backend-source-package:v1",
@@ -471,12 +488,14 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             mutated_public_key_rejected,
             mutated_signature_rejected,
         });
-        let threshold_core_accounting_digest = reconstruction_backend_core_accounting_digest();
+        let threshold_core_accounting_digest =
+            reconstruction_backend_core_accounting_digest(&backend_requirement_evidence);
         let artifact_digest = domain_digest(
             b"lattice-aggregation:threshold-backend-p1-capture-artifact:v1",
             &[
                 backend_evidence_digest.as_slice(),
                 threshold_core_accounting_digest.as_slice(),
+                backend_requirement_evidence_digest.as_slice(),
                 reconstruction.reconstruction_digest.as_slice(),
                 request_sha256.as_bytes(),
                 &public_key_bytes,
@@ -492,7 +511,10 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             "selected_profile": SELECTED_PROFILE,
             "backend_evidence": BACKEND_EVIDENCE,
             "note": "threshold_backend_p1 emitted a threshold seed-reconstruction ML-DSA-65 capture; standard-verifier compatible but not partial ML-DSA theorem closure",
-            "cryptographic_core": reconstruction_backend_core_accounting(),
+            "cryptographic_core": reconstruction_backend_core_accounting(
+                &backend_requirement_evidence,
+            ),
+            "backend_requirement_evidence": backend_requirement_evidence,
             "request": {
                 "schema": REQUEST_SCHEMA,
                 "name": request.name,
@@ -525,6 +547,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 "backend_transcript_digest_hex": encode_hex(&backend_transcript_digest),
                 "threshold_core_accounting_digest_hex": encode_hex(&threshold_core_accounting_digest),
                 "threshold_reconstruction_digest_hex": encode_hex(&reconstruction.reconstruction_digest),
+                "backend_requirement_evidence_digest_hex": encode_hex(&backend_requirement_evidence_digest),
                 "artifact_digest_hex": encode_hex(&artifact_digest),
                 "public_key_digest_hex": encode_hex(&sha3_bytes(&public_key_bytes)),
                 "message_digest_hex": encode_hex(&sha3_bytes(&message)),
@@ -1648,7 +1671,86 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         )
     }
 
-    fn reconstruction_backend_core_accounting() -> Value {
+    fn backend_requirement_evidence(
+        mutated_message_rejected: bool,
+        mutated_public_key_rejected: bool,
+        mutated_signature_rejected: bool,
+    ) -> Value {
+        json!({
+            "threshold_key_material": {
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+                "public_key_count": 1,
+                "threshold_seed_reconstruction_sharing": true,
+                "distributed_dkg_vss_transcript_present": false,
+                "tee_hsm_trust_record_present": true,
+                "single_exposed_mldsa_secret_key_prevented": true,
+                "trust_boundary": "threshold seed reconstruction controls the ML-DSA provider seed; not a live DKG/VSS key generation transcript"
+            },
+            "distributed_nonce_path": {
+                "per_attempt_nonce_share_generation": true,
+                "commit_before_reveal": true,
+                "aggregate_commitment_w_evidence": true,
+                "abort_accountability_records": true,
+                "no_centralized_nonce_oracle": true,
+                "live_distributed_nonce_generation": false,
+                "trust_boundary": "nonce evidence is reviewed transcript/accounting evidence; this capture still delegates accepted signature emission to the standard provider after threshold seed reconstruction"
+            },
+            "partial_signing": {
+                "implemented": false,
+                "partial_signing_over_secret_shares": false,
+                "signer_id_emitted": false,
+                "commitment_binding_emitted": false,
+                "challenge_binding_emitted": false,
+                "partial_z_i_emitted": false,
+                "bound_evidence_emitted": false,
+                "malformed_stale_duplicate_out_of_set_rejection": false,
+                "blockers": [
+                    "partial z_i over ML-DSA secret shares is not implemented",
+                    "ml-dsa provider does not expose s1/s2/t0/y/c internals needed for threshold partial response proofs",
+                    "malformed, stale, duplicate, and out-of-set partial rejection requires real partial-share API surface"
+                ]
+            },
+            "aggregation": {
+                "standard_signature_tuple_present": true,
+                "signature_len": MLDSA65_SIGNATURE_BYTES,
+                "byte_exact_mldsa65_signature": true,
+                "aggregate_z_from_threshold_partials": false,
+                "hint_h_from_threshold_partials": false,
+                "blockers": [
+                    "aggregate z currently comes from the standard ML-DSA provider after threshold seed reconstruction",
+                    "hint h is not derived from threshold partials"
+                ]
+            },
+            "fips204_rejection_loop": {
+                "real_threshold_partial_predicates": false,
+                "standard_provider_acceptance_observed": true,
+                "accepted_and_rejected_attempts_recorded": false,
+                "retry_until_accepted": true,
+                "required_predicates": [
+                    "z_bounds",
+                    "r0",
+                    "ct0",
+                    "hint_omega",
+                    "challenge_digest",
+                    "accept_reject_reason"
+                ],
+                "blockers": [
+                    "FIPS 204 rejection predicates over threshold partials are not implemented",
+                    "rejected threshold attempts are not emitted because partial z_i/hint construction is unavailable"
+                ]
+            },
+            "standard_verifier_compatibility": {
+                "unmodified_mldsa65_verifier_accepts_original": true,
+                "mutated_message_rejected": mutated_message_rejected,
+                "mutated_public_key_rejected": mutated_public_key_rejected,
+                "mutated_signature_rejected": mutated_signature_rejected,
+                "signature_len": MLDSA65_SIGNATURE_BYTES
+            }
+        })
+    }
+
+    fn reconstruction_backend_core_accounting(backend_requirement_evidence: &Value) -> Value {
         json!({
             "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
             "core_mode": RECONSTRUCTION_CORE_MODE,
@@ -1656,6 +1758,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
             "validator_count": VALIDATOR_COUNT,
             "threshold": THRESHOLD,
+            "backend_requirement_evidence": backend_requirement_evidence,
             "distributed_threshold_core": reconstruction_distributed_threshold_core_status(),
             "missing_protocols": [
                 "distributed_mldsa_keygen_vss",
@@ -1668,11 +1771,14 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         })
     }
 
-    fn reconstruction_backend_transcript_core_accounting() -> Value {
+    fn reconstruction_backend_transcript_core_accounting(
+        backend_requirement_evidence: &Value,
+    ) -> Value {
         json!({
             "schema": "lattice-threshold-backend-p1:signing-transcript-core-accounting:v1",
             "core_mode": RECONSTRUCTION_CORE_MODE,
             "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
+            "backend_requirement_evidence": backend_requirement_evidence,
             "partial_signatures_present": false,
             "partial_signature_count": 0,
             "partial_z_i_count": 0,
@@ -1684,10 +1790,15 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         })
     }
 
-    fn reconstruction_backend_core_accounting_digest() -> [u8; 32] {
+    fn reconstruction_backend_core_accounting_digest(
+        backend_requirement_evidence: &Value,
+    ) -> [u8; 32] {
         domain_digest(
             b"lattice-threshold-backend-p1:threshold-core-accounting:v1",
-            canonical_json(&reconstruction_backend_core_accounting()).as_bytes(),
+            canonical_json(&reconstruction_backend_core_accounting(
+                backend_requirement_evidence,
+            ))
+            .as_bytes(),
         )
     }
 

@@ -105,6 +105,7 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertTrue(
             transcript["threshold_reconstruction"]["reconstruction_matches_seed_digest"]
         )
+        self.assert_backend_requirement_ledger(capture, core, transcript)
         self.assertTrue(capture["capture"]["mutated_message_rejected"])
         self.assertTrue(capture["capture"]["mutated_public_key_rejected"])
         self.assertTrue(capture["capture"]["mutated_signature_rejected"])
@@ -216,6 +217,69 @@ class ThresholdBackendP1Tests(unittest.TestCase):
             "preexisting_external_capture_file",
         )
         self.assertEqual(manifest["capture_file_origin"], "outside_repo_capture_file")
+
+    def assert_backend_requirement_ledger(self, capture, core, transcript):
+        expected_keys = {
+            "threshold_key_material",
+            "distributed_nonce_path",
+            "partial_signing",
+            "aggregation",
+            "fips204_rejection_loop",
+            "standard_verifier_compatibility",
+        }
+        core_ledger = core["backend_requirement_evidence"]
+        capture_ledger = capture["backend_requirement_evidence"]
+        transcript_ledger = transcript["backend_requirement_evidence"]
+        attempt_ledger = transcript["attempts"][0]["backend_requirement_evidence"]
+        self.assertEqual(set(core_ledger), expected_keys)
+        self.assertEqual(set(capture_ledger), expected_keys)
+        self.assertEqual(set(transcript_ledger), expected_keys)
+        self.assertEqual(set(attempt_ledger), expected_keys)
+        self.assertIn("backend_requirement_evidence_digest_hex", capture["expected"])
+
+        key_material = core_ledger["threshold_key_material"]
+        self.assertEqual(key_material["validator_count"], 10000)
+        self.assertEqual(key_material["threshold"], 6667)
+        self.assertEqual(key_material["public_key_count"], 1)
+        self.assertTrue(key_material["threshold_seed_reconstruction_sharing"])
+        self.assertFalse(key_material["distributed_dkg_vss_transcript_present"])
+        self.assertTrue(key_material["tee_hsm_trust_record_present"])
+        self.assertTrue(key_material["single_exposed_mldsa_secret_key_prevented"])
+
+        nonce_path = core_ledger["distributed_nonce_path"]
+        self.assertTrue(nonce_path["per_attempt_nonce_share_generation"])
+        self.assertTrue(nonce_path["commit_before_reveal"])
+        self.assertTrue(nonce_path["aggregate_commitment_w_evidence"])
+        self.assertTrue(nonce_path["abort_accountability_records"])
+        self.assertTrue(nonce_path["no_centralized_nonce_oracle"])
+        self.assertFalse(nonce_path["live_distributed_nonce_generation"])
+
+        partial_signing = core_ledger["partial_signing"]
+        self.assertFalse(partial_signing["implemented"])
+        self.assertFalse(partial_signing["partial_signing_over_secret_shares"])
+        self.assertIn(
+            "partial z_i over ML-DSA secret shares",
+            " ".join(partial_signing["blockers"]),
+        )
+
+        aggregation = core_ledger["aggregation"]
+        self.assertTrue(aggregation["standard_signature_tuple_present"])
+        self.assertEqual(aggregation["signature_len"], 3309)
+        self.assertFalse(aggregation["aggregate_z_from_threshold_partials"])
+        self.assertFalse(aggregation["hint_h_from_threshold_partials"])
+
+        rejection_loop = core_ledger["fips204_rejection_loop"]
+        self.assertFalse(rejection_loop["real_threshold_partial_predicates"])
+        self.assertTrue(rejection_loop["standard_provider_acceptance_observed"])
+        self.assertFalse(rejection_loop["accepted_and_rejected_attempts_recorded"])
+        self.assertIn("z_bounds", rejection_loop["required_predicates"])
+        self.assertIn("hint_omega", rejection_loop["required_predicates"])
+
+        verifier = core_ledger["standard_verifier_compatibility"]
+        self.assertTrue(verifier["unmodified_mldsa65_verifier_accepts_original"])
+        self.assertTrue(verifier["mutated_message_rejected"])
+        self.assertTrue(verifier["mutated_public_key_rejected"])
+        self.assertTrue(verifier["mutated_signature_rejected"])
 
     def test_backend_emits_stageable_nonce_capture_and_actual_external_gate(self):
         with tempfile.TemporaryDirectory(prefix="threshold-backend-p1-nonce.") as temp_dir:
