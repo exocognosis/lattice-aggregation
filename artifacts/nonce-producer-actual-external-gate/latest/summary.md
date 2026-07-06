@@ -1,0 +1,11 @@
+# P1 Actual External Nonce-Producer Capture Gate
+
+This artifact gates the promoted nonce-producer handoff before it can occupy the actual external backend slot. It is conformance/proof-review evidence only.
+
+- Status: `actual_external_capture_ready`
+- Actual external capture ready: `true`
+- Expected source profile: `admissible_external_backend_capture`
+- Attempt source profile: `admissible_external_backend_capture`
+- Handoff source profile: `admissible_external_backend_capture`
+
+This gate does not prove Criterion 2, rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.

@@ -1,0 +1,104 @@
+{
+  "backend_command": [
+    "python3",
+    "scripts/p1_nonce_producer_reference_cli.py",
+    "emit",
+    "--request",
+    "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+    "--root",
+    "."
+  ],
+  "backend_readiness": {
+    "package_name": "lattice-aggregation",
+    "path": "artifacts/nonce-producer-capture-attempt/latest/readiness/manifest.json",
+    "readiness_status": "backend_candidate_admissible_pending_capture",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+    "sha256": "ab554865cb765e9a628b18683102807d9fd452ff740e18449ea1f2668b8fe0e2",
+    "source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75"
+  },
+  "capture_artifacts": [
+    "capture",
+    "claim_boundary",
+    "expected",
+    "name",
+    "note",
+    "predecessors",
+    "producer_evidence",
+    "request",
+    "schema",
+    "selected_profile"
+  ],
+  "capture_dir": "capture",
+  "capture_manifest_sha256": "7c624ed97bd21a17900113f550a307e95fb4f53a6be318b95c92e64910df137a",
+  "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+  "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "closure_boundary": "Executable handoff replay only; a real external threshold backend capture and proof review remain required.",
+  "external_capture_provenance": {
+    "backend_command_sha256": "cfc6e24b497c03c8401a0bf4dba1d80b3e6d84f812db6ed69047ad84b41002a8",
+    "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+    "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
+    "claim_boundary": "conformance/proof-review evidence only",
+    "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
+    "expected_digest_fields": [
+      "abort_accountability_digest_hex",
+      "backend_implementation_digest_hex",
+      "coordinator_attestation_digest_hex",
+      "distributed_nonce_producer_artifact_digest_hex",
+      "external_review_digest_hex",
+      "nonce_share_commitment_digest_hex",
+      "pairwise_mask_seed_commitment_digest_hex",
+      "shamir_nonce_dkg_transcript_digest_hex",
+      "source_reference_digest_hex"
+    ],
+    "metadata_fields": [
+      "branch",
+      "cargo_lock_sha256",
+      "cargo_version",
+      "commit",
+      "dirty",
+      "os",
+      "python_version",
+      "rustc_version"
+    ],
+    "request_name": "p1-reviewed-nonce-producer-request-001",
+    "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "runner_status": "evidence_present_unclosed",
+    "schema": "lattice-aggregation:external-capture-provenance:v1"
+  },
+  "generated_at": "2026-07-04T04:10:56Z",
+  "handoff_source_profile": "repo_reference_cli_capture",
+  "handoff_status": "evidence_present_unclosed",
+  "predecessors": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "standard_verifier_compatibility_artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f"
+  },
+  "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+  "quarantine": {
+    "allowed_use": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
+    "quarantined": true,
+    "reason": "repo reference CLI exercises the external process and JSON contract but is not independently generated threshold backend evidence"
+  },
+  "request_artifacts": [
+    "claim_boundary",
+    "forbidden_capture_sources",
+    "generated_at",
+    "name",
+    "predecessors",
+    "request_status",
+    "required_capture",
+    "schema",
+    "selected_profile"
+  ],
+  "request_dir": "request",
+  "request_manifest_sha256": "2e8b4370e12a1a096bb5bd4964a969a6bf07caa0e5ca142825b4127797574fff",
+  "request_name": "p1-reviewed-nonce-producer-request-001",
+  "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+  "schema": "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

@@ -1,0 +1,73 @@
+{
+  "attempt_digest_sha256": "4f0478c121f7aac22682587e7fd25d7c5ea6f6d03d526f6374305b3348166b76",
+  "attempt_status": "blocked_external_evidence_missing",
+  "blockers": [
+    "reviewed external evidence package is missing"
+  ],
+  "candidate_digest_sha256": "86d8a3dca45f9718d383402489f81d418a9090f024d45a77fa2b131ab0de2b6d",
+  "candidate_manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+  "candidate_manifest_sha256": "02b3c984aef99885f5fa6f48dfa5a86d653d98d8483d861f9f6addc7e09720dc",
+  "checks": {
+    "comparison_close_candidate": true,
+    "mutation_rejection_complete": true,
+    "real_threshold_emission_present": true,
+    "rejection_distribution_comparison_present": true,
+    "review_package_binds_inputs": false,
+    "review_package_claim_boundary_passed": false,
+    "review_package_present": false,
+    "review_package_review_digests_present": false,
+    "review_package_source_exclusions_passed": false,
+    "source_exclusion_passed": true,
+    "standard_verifier_acceptance_present": true,
+    "strict_external_nonce_capture_ready": true
+  },
+  "claim_boundary": "conformance/proof-review evidence only",
+  "claims_cavp_acvts_validation": false,
+  "claims_fips_validation": false,
+  "claims_production_threshold_mldsa_security": false,
+  "claims_rejection_distribution_preservation": false,
+  "claims_selected_backend_proof_closure": false,
+  "claims_standard_verifier_compatibility": false,
+  "claims_theorem_closure": false,
+  "close_candidate": false,
+  "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
+  "generated_at": "2026-07-05T16:27:05Z",
+  "inputs": {
+    "actual_external_nonce_gate_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
+      "present": true,
+      "sha256": "752dda64bd11706dc2d3b9db5c8c26022f2397c2cd9906027e98aa6c0a37c617"
+    },
+    "closure_candidate_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+      "present": true,
+      "sha256": "02b3c984aef99885f5fa6f48dfa5a86d653d98d8483d861f9f6addc7e09720dc"
+    },
+    "real_threshold_backend_capture_json": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/capture.json",
+      "present": true,
+      "sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b"
+    },
+    "real_threshold_backend_capture_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/manifest.json",
+      "present": true,
+      "sha256": "062dac48ca18dcea4e1999f32e6feb35c1739bc0b3fe45a4220e65b5c466ed5a"
+    },
+    "rejection_equivalence_batch_json": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "present": true,
+      "sha256": "3bcc18d9fa728052181e31c2cb8b8c7c1bc89903ff19fff0f0859507c61e2980"
+    },
+    "reviewed_external_evidence_package": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
+      "present": false,
+      "sha256": null
+    }
+  },
+  "name": "p1-external-backend-evidence-attempt-v1",
+  "review_package_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
+  "review_package_sha256": null,
+  "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

@@ -18,7 +18,7 @@ continue to use the stricter claim boundaries in
 [side-channel-boundary.md](side-channel-boundary.md).
 
 The repository also contains a non-default production coordinator candidate
-behind `coordinator-assisted` and `hazmat-real-mldsa` gates. That surface is a
+behind `coordinator-assisted` and `raw-real-mldsa` gates. That surface is a
 hazmat/conformance profile boundary only: the optional provider bridge can run
 standard ML-DSA-65 verification smoke checks, but it is not a production
 threshold ML-DSA security claim and does not establish aggregate threshold
@@ -43,7 +43,7 @@ artifacts.
 | Adapter wire and actor flow | `src/adapter/wire.rs`, `src/adapter/actor.rs`, `src/adapter/traits.rs` | `tests/simulation.rs` | Local async scaffold for P2P and consensus integration experiments. |
 | Production coordinator candidate | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/production/acceptance.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_acceptance.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Gated hazmat/conformance boundary only; provider smoke plus a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture verify ordinary provider behavior, but coordinator-assisted acceptance predicates are conformance-only and do not establish aggregate threshold verification, CAVP/ACVTS validation, or production threshold security. |
 | Selected backend direction artifact | `docs/cryptography/proof-implementation-crosswalk.md`, `docs/cryptography/protocol-code-crosswalk.md`, `scripts/assess_lattice_hypothesis.py` | `script_tests/test_assess_lattice_hypothesis.py`, `tests/proof_documentation_manifest.rs` | ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 direction selection only; not proof closure, backend implementation evidence, or production approval. |
-| Hypothesis blocker evidence gates and closure frameworks | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Typed assessment evidence, a P1 aggregate recomputation artifact gate, sample-vector provider conformance, and closure-package frameworks only; each gate keeps the corresponding criterion partially met until the selected backend, proof, and audit artifacts exist. |
+| Hypothesis blocker evidence gates and closure frameworks | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Typed assessment evidence, a P1 aggregate recomputation artifact gate, selected-backend aggregate-output artifact gate, selected-backend threshold-output artifact gate, selected-backend proof-closure artifact package gate, sample-vector provider conformance, fixture-backed bridge conformance evidence, and stricter release gate coverage only; each gate keeps the corresponding criterion partially met until the selected backend, proof, and audit artifacts exist. |
 | Evidence and timeout diagnostics | `src/adapter/evidence.rs`, `src/adapter/actor.rs`, `src/low_level/poly.rs` | `tests/simulation.rs`, `tests/low_level.rs` | Diagnostic evidence packets only; not production slashing authority. |
 | Benchmark and export harness | `src/main.rs`, `src/utils/exporter.rs` | library tests in `src/utils/exporter.rs`, harness review docs | Reproducible research output only; not security evidence. |
 
@@ -155,13 +155,28 @@ evidence, and not external cryptographic review. All five hypothesis criteria
 remain partial until selected-backend proof, implementation, and audit artifacts
 exist.
 
+The formal thesis and operating-parameter boundary is pinned in
+`docs/cryptography/thesis-operating-parameters.md` and
+`docs/cryptography/thesis-operating-parameters.json` under thesis id
+`native-threshold-mldsa65-aggregation-p1`. Those files define the P1 operating
+assumptions, promotion criteria, failure criteria, and fallback trigger for
+assessment only; they are not selected-backend proof closure or production
+approval.
+
 For blocker 2, the P1 aggregate recomputation artifact gate in
 `src/production/rejection_equivalence.rs` binds the selected profile to
 ACVP/FIPS204-backed provider evidence, aggregate recomputation evidence,
+selected profile binding digest, standard-verifier bridge evidence digest,
 bound/proof artifact digests, negative-corpus evidence, and external review
-digests. It rejects smoke-only provider evidence and digest mismatch, but it is
-still framework evidence until real threshold recomputation and reviewed proofs
-are supplied.
+digests. The checked-in standard-verifier bridge fixture package at
+`tests/fixtures/p1_standard_verifier_bridge_fixture.json` provides fixture-backed bridge conformance evidence for drift rejection only. The checked-in bridge fixture is a stricter release gate for drift rejection only; it is not selected-backend aggregate recomputation and not a completed standard-verifier compatibility proof. The selected-backend aggregate-output artifact gate binds `LocalAccept`/`AggregateAccept`, signer-set, attempt, transcript, provider KAT, recomputation, and bridge digests as conformance/proof-review evidence only. `derive_p1_selected_backend_aggregate_artifact_package` and `derive_p1_real_recomputation_evidence_digest` add a real standard-provider aggregate-output package path that derives the package from a provider-verified ML-DSA-65 candidate signature, public recomputation transcript, and standard-verifier bridge digest evidence. The selected-backend threshold-output artifact gate adds successor source-package binding, and the selected-backend proof-closure artifact package gate binds that threshold-output certificate to full KAT/validation artifact slots, rejection-distribution review, standard-verifier compatibility evidence, and a theorem-linkage artifact digest. The real-threshold backend emission ingestion artifact adds an external backend-emission input path to the threshold verifier closure contract for 10,000 validators and threshold 6,667; it binds backend source package, implementation, and transcript digests and rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. These gates are not selected-backend proof closure, not a claim that this repo implements a real threshold backend, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof. They reject smoke-only provider evidence and digest mismatch, but remain framework evidence until real threshold recomputation, actual real threshold backend emissions, and reviewed proofs are supplied.
+
+The Criterion 2 proof-substance contract in
+`docs/cryptography/criterion-2-proof-substance.md` and
+`docs/cryptography/criterion-2-proof-substance.json` records the open payload
+that must connect the protocol output to standard verification, aggregate
+acceptance, rejection-distribution review, and theorem-linkage artifacts. It
+is an assessment boundary only and does not claim proof closure.
 
 ## Evidence and Timeout Diagnostics
 

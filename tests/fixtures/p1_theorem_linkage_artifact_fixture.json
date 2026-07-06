@@ -1,0 +1,55 @@
+{
+  "name": "p1-theorem-linkage-artifact-fixture-v1",
+  "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
+  "source_standard_verifier_compatibility_fixture": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+  "source_threshold_output_certificate_artifact_fixture": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
+  "source_real_recomputation_artifact_fixture": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
+  "source_rejection_distribution_review_artifact_fixture": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
+  "note": "Checked theorem-linkage proof-slot fixture for Criterion 2 review only; not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, not completed standard-verifier compatibility, and not a completed cryptographic proof.",
+  "slot_artifact": {
+    "slot_id": "theorem_linkage_artifact_digest",
+    "kind": "TheoremLinkage",
+    "evidence_source": "p1_criterion2_theorem_linkage_artifact_gate",
+    "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+    "current_status": "evidence_present_unclosed",
+    "reviewed": true
+  },
+  "expected": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f",
+    "transcript_binding_digest_hex": "f46232108fe8566806963154fa76c8b957dee0c7003a10f5ff082c58f94b7f8a",
+    "source_evidence_digest_hex": "3636363636363636363636363636363636363636363636363636363636363636",
+    "review_evidence_digest_hex": "3030303030303030303030303030303030303030303030303030303030303030",
+    "artifact_digest_hex": "3aff2f1e9e0bd4e98d89d0135af9b8b7e57437b27ff30e82a5817d81647736d3",
+    "theorem_linkage_artifact_digest_hex": "3aff2f1e9e0bd4e98d89d0135af9b8b7e57437b27ff30e82a5817d81647736d3"
+  },
+  "negative_cases": [
+    {
+      "name": "missing_theorem_linkage_artifact",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact"
+    },
+    {
+      "name": "unreviewed_theorem_linkage_slot",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_unreviewed_theorem_linkage_slot"
+    },
+    {
+      "name": "theorem_linkage_slot_digest_drift",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_slot_digest_drift"
+    },
+    {
+      "name": "theorem_linkage_slot_review_tamper",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_slot_review_tamper"
+    },
+    {
+      "name": "theorem_linkage_package_digest_stale",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_package_digest_stale"
+    },
+    {
+      "name": "theorem_linkage_slot_production_claim_boundary",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_slot_production_claim_boundary"
+    }
+  ]
+}

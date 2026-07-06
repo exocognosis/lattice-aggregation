@@ -1,0 +1,320 @@
+{
+  "admissibility": {
+    "admissible_for_p1_nonce_handoff": true,
+    "blocked_reason": null,
+    "detected_blockers": [],
+    "requirements_to_become_admissible": [
+      "external command emits canonical P1 distributed nonce-producer capture JSON",
+      "capture binds the exact request schema, request name, and request SHA-256",
+      "capture source is not hazmat, localnet, simulation, fixture, centralized, or single-key material",
+      "capture carries reviewed Shamir nonce-DKG/TEE transcript, coordinator attestation, nonce-share commitments, abort accountability, and external review evidence"
+    ]
+  },
+  "backend": {
+    "cargo_toml_sha256": "0f78c2fdcf1cd72104e894e58e26d47a0aef5cb9e5d083564d95ba50b8151769",
+    "categories": [
+      "cryptography"
+    ],
+    "crate_path": "lattice-aggregation-current",
+    "default_features": [],
+    "description": "Audit-oriented threshold ML-DSA-65 protocol boundary and reviewed nonce-producer handoff profile",
+    "features": [
+      "coordinator-assisted",
+      "default",
+      "production-mldsa65-coordinator",
+      "protocol-sim",
+      "raw-mldsa-internals",
+      "raw-real-mldsa"
+    ],
+    "package_name": "lattice-aggregation",
+    "repository": "https://github.com/exocognosis/lattice-aggregation",
+    "source_file_count": 44,
+    "source_inventory": [
+      {
+        "path": "Cargo.lock",
+        "sha256": "7f8a1640ad2200429278e4da75c6f5b8a687c55c8b10d8dfdfcc9776f0aea7b8",
+        "size_bytes": 14005
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "0f78c2fdcf1cd72104e894e58e26d47a0aef5cb9e5d083564d95ba50b8151769",
+        "size_bytes": 1103
+      },
+      {
+        "path": "src/adapter/actor.rs",
+        "sha256": "66466754ead7a29496390433524ce71c1138dafdc825f9cfc2f91d180978f134",
+        "size_bytes": 14600
+      },
+      {
+        "path": "src/adapter/evidence.rs",
+        "sha256": "cc220c48f844781babbd94e20509e9f6712f00594d3a425f3c63602ad1ba6cf9",
+        "size_bytes": 7411
+      },
+      {
+        "path": "src/adapter/localnet.rs",
+        "sha256": "70001dd7f7e9519fe7b6e323c9ea3e6302fe1f3c6c6f6af9b4a903b9a6bbf7c4",
+        "size_bytes": 24180
+      },
+      {
+        "path": "src/adapter/production_wire.rs",
+        "sha256": "99368aa7fd15e6b248e1f07c7aec285310d17297fb7158dc2137ad33213faa65",
+        "size_bytes": 13453
+      },
+      {
+        "path": "src/adapter/traits.rs",
+        "sha256": "e7b47fb88ef3edb029a70bb989581527743e51e5d9083f255989279a7d31528a",
+        "size_bytes": 1577
+      },
+      {
+        "path": "src/adapter/wire.rs",
+        "sha256": "5caeb3e05e26ae443e143dccf7df32c4f5caba3045c7b67b297223ce2cf860c3",
+        "size_bytes": 8149
+      },
+      {
+        "path": "src/adapter.rs",
+        "sha256": "d7091abfaa7ef5d8e171bcad4e67e1d01e94a5917071ed7ea453f7de59f5229a",
+        "size_bytes": 418
+      },
+      {
+        "path": "src/aggregation.rs",
+        "sha256": "1215d1a28beec131322233ae6792029e0feac9c9b5272143ba401ece4f893032",
+        "size_bytes": 1471
+      },
+      {
+        "path": "src/backend.rs",
+        "sha256": "6a4e19a9d6f8955d5d5dd55c7514f46ea365bbb43d67fb604cccb57ecd04e8da",
+        "size_bytes": 6393
+      },
+      {
+        "path": "src/collections.rs",
+        "sha256": "0ea7e0ffca0edb0a4c001d760a67f2029253fdd7f68131feb82b5aad3fafaeee",
+        "size_bytes": 5484
+      },
+      {
+        "path": "src/crypto/interpolation.rs",
+        "sha256": "e053eacee1d4d1324ed282cf0f0b30b6172450f036b51e9b6134483e87065074",
+        "size_bytes": 3905
+      },
+      {
+        "path": "src/crypto/vss.rs",
+        "sha256": "c1926febcb109993ae511f0121422753d8455087efb4fe3b8610966ad1dca4bd",
+        "size_bytes": 3320
+      },
+      {
+        "path": "src/crypto.rs",
+        "sha256": "7e7b180cbbe9d8df112e9f2979945643d8322d8f85be16a3d13c746cd053cdae",
+        "size_bytes": 358
+      },
+      {
+        "path": "src/dkg.rs",
+        "sha256": "2e8c621477a4f8507bc8d0dc320c5ac97a92b301a23543807756e299675e7d8b",
+        "size_bytes": 3133
+      },
+      {
+        "path": "src/errors.rs",
+        "sha256": "1cad70393bc13063f6873a38449295b6a7b415e09d55930a429fc8ecb90d35d9",
+        "size_bytes": 4989
+      },
+      {
+        "path": "src/lib.rs",
+        "sha256": "ee4540e3fa059d7b8dcb366eb9eeac43692a4f154064296cebeda7701e25e1f3",
+        "size_bytes": 1441
+      },
+      {
+        "path": "src/low_level/poly.rs",
+        "sha256": "6ba9af701a35e8d104970bba7de65ac4a33cc836c0a0664c5877d00d9a20579f",
+        "size_bytes": 2314
+      },
+      {
+        "path": "src/low_level.rs",
+        "sha256": "d2d208a076a637caab0b79e4ec0d1126e07e0511c66660cc43ecaae1f0548fc5",
+        "size_bytes": 205
+      },
+      {
+        "path": "src/main.rs",
+        "sha256": "7c9dcc773a5b5505074bfb366418c45fb3bb25a0a14115c5cd58cc09bb7221fd",
+        "size_bytes": 17828
+      },
+      {
+        "path": "src/production/abort_bias.rs",
+        "sha256": "2f7ca0e460bebd22205464679a795ac74a568bbe4749f33a1ad1b05cb05c689d",
+        "size_bytes": 26951
+      },
+      {
+        "path": "src/production/acceptance.rs",
+        "sha256": "cf2a4c5d6a739b7c2ae0299f6a79646d9fc9f6658fc0ccb7139d25c5efcf0981",
+        "size_bytes": 10331
+      },
+      {
+        "path": "src/production/coordinator.rs",
+        "sha256": "0abe70fe778e3ea10ca4e8470a9dd4067114d95105fdf5ac347a217a9ef68414",
+        "size_bytes": 6325
+      },
+      {
+        "path": "src/production/epsilon.rs",
+        "sha256": "d23223645a4768dd0dc25fd5e183346ed4382ca87eeb5d08b5a8d3a49e20f045",
+        "size_bytes": 3163
+      },
+      {
+        "path": "src/production/evidence.rs",
+        "sha256": "b0ffdce2329f529785f80da03abbd961fbecbf7ee34534f6d312a7de63a0f630",
+        "size_bytes": 82
+      },
+      {
+        "path": "src/production/hints.rs",
+        "sha256": "92d023b90fa8fc30f1db21e11450e865898c0011ca654f4fcae18c03d149ee84",
+        "size_bytes": 2765
+      },
+      {
+        "path": "src/production/mask_distribution.rs",
+        "sha256": "c019e8ee202d0f0f6bc259d1d7ddaef0328c89430a9fb985c6b6ed1e182f04d3",
+        "size_bytes": 21500
+      },
+      {
+        "path": "src/production/partial_soundness.rs",
+        "sha256": "83b8180fbebbf34c61dfb9825ee86ffaee17b44565d8a954a9fef0de422a332a",
+        "size_bytes": 26844
+      },
+      {
+        "path": "src/production/policy.rs",
+        "sha256": "da5ae128ee6b61fdd938ffa412cfabed880e33408a61f51fe06f60144d0c5d82",
+        "size_bytes": 1908
+      },
+      {
+        "path": "src/production/prefilter.rs",
+        "sha256": "19801fc2d1b48bb1e41b6aff5cd71c45461a015e5ab0785c9e21f8daaba98f31",
+        "size_bytes": 13211
+      },
+      {
+        "path": "src/production/preprocess.rs",
+        "sha256": "6999633fc28505e3380115137608d3b3115f4ae2eea5dedc572ad77f65c81378",
+        "size_bytes": 5430
+      },
+      {
+        "path": "src/production/provider.rs",
+        "sha256": "02be8f226460d98d20d92b34c10acf0833636f4fc89d79cbc960d34b1e3b1d7f",
+        "size_bytes": 3776
+      },
+      {
+        "path": "src/production/rejection_equivalence.rs",
+        "sha256": "6e7ca5d3bdf91e0a27a381b624713b10f26b20d822889dda88ab5fb441393607",
+        "size_bytes": 340582
+      },
+      {
+        "path": "src/production/selected_backend.rs",
+        "sha256": "16d748d5d7e9bb75aa9d6636de4c2bc502c5a99db9d85639b31063e04eee78d6",
+        "size_bytes": 8020
+      },
+      {
+        "path": "src/production/transcript.rs",
+        "sha256": "e70c934e7f6af34f84d988b6d0c640a4f861dbb6a3e45cff65dbdcd8a33e7fd8",
+        "size_bytes": 5031
+      },
+      {
+        "path": "src/production/types.rs",
+        "sha256": "f27898eac4104c8d3b99ac2749ed48e9cf5bc6e873995c6b1a9401932113f59f",
+        "size_bytes": 3107
+      },
+      {
+        "path": "src/production.rs",
+        "sha256": "7d30df12379934dc5a1cf0489b3650ae18364d8fa48eab6881fa3482a37b94aa",
+        "size_bytes": 1170
+      },
+      {
+        "path": "src/protocol.rs",
+        "sha256": "d4cac591654be496abfd59754ed0d19c58df3b81ae5b1e4173ee3f9c381aa57d",
+        "size_bytes": 8254
+      },
+      {
+        "path": "src/serialization.rs",
+        "sha256": "95ef1b2bdf600d646b3c2f18989b481201040750e8b364267d3e92cb707d66eb",
+        "size_bytes": 2904
+      },
+      {
+        "path": "src/transcript.rs",
+        "sha256": "f0c10c03c20e75c34fb367df00d03899b9535015ed5acc8d61cee8937cc5715b",
+        "size_bytes": 3646
+      },
+      {
+        "path": "src/types.rs",
+        "sha256": "7f1442355e29df51d2239dc481b87056e6a45af8568b2e9f5eb41dc5ebccae58",
+        "size_bytes": 3008
+      },
+      {
+        "path": "src/utils/exporter.rs",
+        "sha256": "4caf0a711d998fdd3718f87e52e98c6a92617ee015cce8a515822cfefda578c1",
+        "size_bytes": 5862
+      },
+      {
+        "path": "src/utils.rs",
+        "sha256": "cf4face323f375338cbe718d93aad8f5fe0f4fd19784be497c515566bab71e23",
+        "size_bytes": 77
+      }
+    ],
+    "source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75",
+    "version": "0.1.0"
+  },
+  "capabilities": {
+    "centralized_nonce_prf_oracle": false,
+    "deterministic_test_vector_plumbing": false,
+    "distributed_nonce_masking_contribution": true,
+    "distributed_nonce_prf_output_share_interface": true,
+    "distributed_nonce_prf_output_splitter": true,
+    "hazmat_feature": false,
+    "research_grade_simulation_description": false,
+    "reviewed_external_capture_contract": true,
+    "simulated_default_feature": false,
+    "simulation_category": false
+  },
+  "claim_boundary": "conformance/proof-review evidence only",
+  "closure_boundary": "Backend readiness and source capability detection only; an actual reviewed capture and proof review remain required.",
+  "diagnostics": {
+    "blocker_evidence": [],
+    "remediation_order": []
+  },
+  "generated_at": "2026-07-04T04:10:56Z",
+  "next_capture_command": [
+    "python3",
+    "scripts/run_nonce_producer_handoff_replay.py",
+    "--root",
+    ".",
+    "--out",
+    "artifacts/nonce-producer-handoff/latest",
+    "--backend-command",
+    "/opt/p1-nonce-producer",
+    "emit",
+    "--request",
+    "artifacts/nonce-producer-handoff/latest/request/request.json"
+  ],
+  "next_external_cli_contract": {
+    "backend_command_shape": [
+      "/opt/p1-nonce-producer",
+      "emit",
+      "--request",
+      "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json"
+    ],
+    "contract_document": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+    "runner": "scripts/run_nonce_producer_capture.py",
+    "stdout_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
+  },
+  "quarantine": {
+    "admissible_route": "explicit external backend command plus admissible readiness manifest and request-bound reviewed P1 capture",
+    "policy": "hazmat, simulation, centralized-oracle, deterministic test-vector, fixture, localnet, and single-key paths may remain only as test/conformance fixtures; they are not admissible capture sources",
+    "quarantine_evidence": [],
+    "quarantined": false,
+    "quarantined_sources": [],
+    "safe_replacement_requirements": []
+  },
+  "readiness_status": "backend_candidate_admissible_pending_capture",
+  "request": {
+    "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+    "name": "p1-reviewed-nonce-producer-request-001",
+    "request_path": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "required_producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
+    "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
+  },
+  "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

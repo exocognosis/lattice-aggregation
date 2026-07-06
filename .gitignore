@@ -1,6 +1,14 @@
 /target/
 /artifacts/hypothesis/
+!/artifacts/
+!/artifacts/hypothesis/
+!/artifacts/hypothesis/latest/
+!/artifacts/hypothesis/latest/assessment.json
+!/artifacts/hypothesis/latest/assessment.md
+!/artifacts/hypothesis/latest/closure-dashboard.json
+!/artifacts/hypothesis/latest/closure-dashboard.md
 /artifacts/benchmarks/
+/artifacts/localnet/
 **/*.rs.bk
 .DS_Store
 *.swp

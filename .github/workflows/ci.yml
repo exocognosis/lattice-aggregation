@@ -22,10 +22,20 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: 1.96.0
           components: clippy, rustfmt
 
       - name: Check formatting
         run: cargo fmt --all -- --check
+
+      - name: Python script tests
+        run: python3 -m unittest discover -s script_tests -p 'test_*.py'
+
+      - name: Nonce producer handoff replay
+        run: python3 scripts/run_nonce_producer_handoff_replay.py --root . --out /tmp/lattice-nonce-producer-handoff-replay
+
+      - name: Actual external nonce producer gate
+        run: python3 scripts/verify_actual_nonce_producer_capture.py --root . --attempt artifacts/nonce-producer-capture-attempt/latest/manifest.json --out /tmp/lattice-actual-external-nonce-producer-gate
 
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings

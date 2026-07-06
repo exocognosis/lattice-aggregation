@@ -1,0 +1,8 @@
+{
+  "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+  "request_status": "evidence_present_unclosed",
+  "schema_version": 1
+}

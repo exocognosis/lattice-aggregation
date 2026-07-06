@@ -1,0 +1,40 @@
+{
+  "name": "p1-real-threshold-backend-emission-capture-schema-fixture-v1",
+  "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+  "claim_boundary": "conformance/proof-review evidence only",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "backend_evidence": "real_threshold_mldsa_capture_schema_fixture",
+  "note": "Canonical capture schema fixture for externally generated real-threshold backend emissions; not actual real threshold backend emission evidence, not a real threshold backend implementation, not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, not completed standard-verifier compatibility, and not a completed cryptographic proof.",
+  "request": {
+    "schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+    "name": "p1-real-threshold-backend-emission-request-schema-fixture-v1",
+    "request_sha256": "1212121212121212121212121212121212121212121212121212121212121212"
+  },
+  "capture": {
+    "validator_count": 10000,
+    "threshold": 6667,
+    "aggregate_signature_len": 3309,
+    "public_key_hex": "",
+    "message": {
+      "encoding": "utf8",
+      "value": "schema fixture only; actual backend captures must carry the real message bytes"
+    },
+    "aggregate_signature_hex": "",
+    "backend_source_package": {
+      "encoding": "utf8",
+      "value": "schema fixture only; actual backend captures must carry canonical source package bytes"
+    },
+    "backend_implementation": {
+      "encoding": "utf8",
+      "value": "schema fixture only; actual backend captures must carry reviewed implementation/build bytes"
+    },
+    "backend_transcript": {
+      "encoding": "utf8",
+      "value": "schema fixture only; actual backend captures must carry canonical threshold transcript bytes"
+    },
+    "mutated_message_rejected": true,
+    "mutated_public_key_rejected": true,
+    "mutated_signature_rejected": true,
+    "reviewed": true
+  }
+}

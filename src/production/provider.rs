@@ -1,12 +1,36 @@
 //! Standard ML-DSA-65 provider boundary.
 
 use crate::{ThresholdError, ThresholdPublicKey, ThresholdSignature};
+use sha3::{Digest, Sha3_256};
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 use ml_dsa::{EncodedVerifyingKey, KeyInit, MlDsa65, Signature, VerifyingKey};
 
 /// Standard ML-DSA-65 verification provider.
 pub trait StandardMldsa65Provider {
+    /// Stable provider identity label for artifact binding.
+    fn provider_identity() -> &'static str {
+        core::any::type_name::<Self>()
+    }
+
+    /// Stable provider version label for artifact binding.
+    fn provider_version() -> &'static str {
+        "unspecified"
+    }
+
+    /// Domain-separated digest of the provider identity and version labels.
+    fn provider_identity_digest() -> [u8; 32] {
+        let identity = Self::provider_identity().as_bytes();
+        let version = Self::provider_version().as_bytes();
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:mldsa65-provider-identity:v1");
+        hasher.update((identity.len() as u64).to_be_bytes());
+        hasher.update(identity);
+        hasher.update((version.len() as u64).to_be_bytes());
+        hasher.update(version);
+        hasher.finalize().into()
+    }
+
     /// Verify a standard ML-DSA-65 signature over the original application message.
     ///
     /// The `message` argument is not a transcript-internal `mu` or prehash. A
@@ -36,11 +60,11 @@ impl StandardMldsa65Provider for UnavailableMldsa65Provider {
 }
 
 /// Hazmat provider wrapper for optional ML-DSA-65 KAT and smoke compatibility checks.
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct HazmatMldsa65Provider;
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl StandardMldsa65Provider for HazmatMldsa65Provider {
     fn verify(
         public_key: &ThresholdPublicKey,
@@ -51,7 +75,7 @@ impl StandardMldsa65Provider for HazmatMldsa65Provider {
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl HazmatMldsa65Provider {
     /// Verify a standard ML-DSA-65 signature over an application message and
     /// FIPS 204 context string.
@@ -69,7 +93,7 @@ impl HazmatMldsa65Provider {
     }
 }
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 fn decode_verifier_inputs(
     public_key: &ThresholdPublicKey,
     signature: &ThresholdSignature,

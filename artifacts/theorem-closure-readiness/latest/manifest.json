@@ -1,0 +1,167 @@
+{
+  "assessment_boundary": "This preflight only decides whether enough reviewed inputs exist to start theorem-closure assessment. It does not prove Criterion 2, does not prove rejection-distribution preservation, and does not claim selected-backend proof closure.",
+  "blocker_groups": {
+    "claim_boundary": [],
+    "criterion2_manifest": [],
+    "external_backend_evidence": [
+      "reviewed external evidence package is missing"
+    ],
+    "hypothesis_assessment": [],
+    "proof_payload_review": [
+      "theorem review manifest is missing required ready flag: proof_payload_reviewed"
+    ],
+    "rejection_distribution_review": [
+      "theorem review manifest is missing required ready flag: rejection_distribution_preservation_reviewed"
+    ],
+    "standard_verifier_review": [
+      "theorem review manifest is missing required ready flag: standard_verifier_compatibility_reviewed"
+    ],
+    "theorem_linkage_review": [
+      "theorem review manifest is missing required ready flag: theorem_linkage_reviewed"
+    ],
+    "validation": [
+      "theorem review manifest is missing required ready flag: full_kat_validation_reviewed"
+    ]
+  },
+  "checks": {
+    "criterion2_claim_boundary_preserved": true,
+    "criterion2_manifest_present": true,
+    "criterion2_manifest_schema_valid": true,
+    "criterion2_promotion_requirements_present": true,
+    "external_closure_candidate_manifest_present": true,
+    "external_closure_candidate_ready": true,
+    "external_evidence_attempt_manifest_present": true,
+    "external_evidence_attempt_ready": false,
+    "external_review_package_binds_inputs": false,
+    "external_review_package_ready": false,
+    "external_source_exclusions_passed": true,
+    "full_kat_validation_reviewed": false,
+    "hypothesis_assessment_present": true,
+    "hypothesis_boundary_is_research_scaffold_only": true,
+    "hypothesis_not_already_completely_proven": true,
+    "proof_payload_reviewed": false,
+    "rejection_distribution_preservation_reviewed": false,
+    "review_claims_cavp_acvts_validation_false": false,
+    "review_claims_criterion_met_false": false,
+    "review_claims_fips_validation_false": false,
+    "review_claims_production_threshold_mldsa_security_false": false,
+    "review_claims_rejection_distribution_preservation_false": false,
+    "review_claims_selected_backend_proof_closure_false": false,
+    "review_claims_standard_verifier_compatibility_complete_false": false,
+    "review_claims_theorem_closure_false": false,
+    "standard_verifier_compatibility_reviewed": false,
+    "theorem_linkage_reviewed": false,
+    "theorem_review_manifest_boundary_valid": false,
+    "theorem_review_manifest_present": false,
+    "theorem_review_status_ready": false
+  },
+  "claim_boundary": "readiness preflight only; not theorem closure",
+  "claims_cavp_acvts_validation": false,
+  "claims_criterion_met": false,
+  "claims_fips_validation": false,
+  "claims_production_threshold_mldsa_security": false,
+  "claims_rejection_distribution_preservation": false,
+  "claims_selected_backend_proof_closure": false,
+  "claims_standard_verifier_compatibility_complete": false,
+  "claims_theorem_closure": false,
+  "generated_at": "2026-07-05T16:27:05Z",
+  "inputs": {
+    "criterion2_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/docs/cryptography/criterion-2-proof-substance.json",
+      "present": true,
+      "sha256": "059b907eae7ded785c8505854fe5bb7a1a4f1fbc1367ac398f1fdcc4a549f10a"
+    },
+    "external_closure_candidate_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+      "present": true,
+      "sha256": "02b3c984aef99885f5fa6f48dfa5a86d653d98d8483d861f9f6addc7e09720dc"
+    },
+    "external_evidence_attempt_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+      "present": true,
+      "sha256": "f8820f600d5538251b0dffcc8c34e4f2af9ee5eea0106d3e416b4beb7231484a"
+    },
+    "hypothesis_assessment": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/hypothesis/latest/assessment.json",
+      "present": true,
+      "sha256": "a3bb2c2b9282c3265665d9c2a91a2c1ed83980a33fdb0dd78599c3e7bb452f26"
+    },
+    "theorem_review_manifest": {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/theorem-closure-review/latest/manifest.json",
+      "present": false,
+      "sha256": null
+    }
+  },
+  "name": "theorem-closure-assessment-readiness-v1",
+  "readiness_digest_sha256": "626a8837428aae61c41626e3a48b4119ae5a42447dac97e653cb51d874b41537",
+  "readiness_status": "blocked_before_theorem_closure_assessment",
+  "ready_checks": [
+    "criterion2_manifest_present",
+    "criterion2_manifest_schema_valid",
+    "criterion2_claim_boundary_preserved",
+    "criterion2_promotion_requirements_present",
+    "hypothesis_assessment_present",
+    "hypothesis_boundary_is_research_scaffold_only",
+    "external_closure_candidate_manifest_present",
+    "external_closure_candidate_ready",
+    "external_evidence_attempt_manifest_present",
+    "external_evidence_attempt_ready",
+    "external_source_exclusions_passed",
+    "external_review_package_binds_inputs",
+    "external_review_package_ready",
+    "theorem_review_manifest_present",
+    "theorem_review_manifest_boundary_valid",
+    "theorem_review_status_ready",
+    "proof_payload_reviewed",
+    "full_kat_validation_reviewed",
+    "rejection_distribution_preservation_reviewed",
+    "standard_verifier_compatibility_reviewed",
+    "theorem_linkage_reviewed",
+    "review_claims_theorem_closure_false",
+    "review_claims_criterion_met_false",
+    "review_claims_selected_backend_proof_closure_false",
+    "review_claims_rejection_distribution_preservation_false",
+    "review_claims_standard_verifier_compatibility_complete_false",
+    "review_claims_production_threshold_mldsa_security_false",
+    "review_claims_cavp_acvts_validation_false",
+    "review_claims_fips_validation_false"
+  ],
+  "schema": "lattice-aggregation:theorem-closure-assessment-readiness:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "theorem_closure_assessment_ready": false,
+  "unresolved_promotion_requirements": [
+    {
+      "group": "proof_payload_review",
+      "requirement": "reviewed proof payload tying threshold-output, recomputation, bounds, rejection behavior, and standard verification"
+    },
+    {
+      "group": "validation",
+      "requirement": "full KAT/validation artifact package"
+    },
+    {
+      "group": "rejection_distribution_review",
+      "requirement": "reviewed rejection-distribution preservation argument"
+    },
+    {
+      "group": "standard_verifier_review",
+      "requirement": "reviewed standard-verifier compatibility argument"
+    },
+    {
+      "group": "external_backend_evidence",
+      "requirement": "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures"
+    },
+    {
+      "group": "external_backend_evidence",
+      "requirement": "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true"
+    },
+    {
+      "group": "external_backend_evidence",
+      "requirement": "reviewed Batch 9 external evidence package with review_package_binds_inputs true, source exclusions passed, and review digests present"
+    },
+    {
+      "group": "theorem_linkage_review",
+      "requirement": "theorem-linkage review"
+    }
+  ]
+}

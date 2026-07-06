@@ -1,0 +1,124 @@
+{
+  "schema": "lattice-aggregation.criterion-1-proof-substance.v1",
+  "criterion_id": "aggregate_mask_distribution",
+  "status": "formalized_open_proof_payload",
+  "claim_boundary": {
+    "scope": "criterion-1 proof payload only",
+    "claims_criterion_met": false,
+    "claims_mask_distribution_proven": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false
+  },
+  "selected_profile": {
+    "name": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "feature_gate": "production-mldsa65-coordinator",
+    "output_target": "one standard-sized ML-DSA-65 signature if proven"
+  },
+  "proof_payload": {
+    "statement": "selected Profile P1 aggregate masks must be bounded against centralized ML-DSA-65 mask behavior before any mask-distribution criterion promotion",
+    "centralized_mask_target": "centralized ML-DSA-65 mask distribution",
+    "aggregate_mask_target": "selected Profile P1 aggregate mask distribution",
+    "distance_measure": "Renyi divergence bound for epsilon_mask",
+    "theorem_links": [
+      "Noise Lemma B",
+      "Noise Lemma H",
+      "Correctness Lemma 8",
+      "FST-L7"
+    ],
+    "required_artifact_slots": [
+      {
+        "id": "selected_mask_construction_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_mask_construction_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "centralized_distribution_artifact_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_centralized_distribution_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "aggregate_distribution_artifact_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_aggregate_distribution_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "renyi_bound_proof_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_renyi_bound_proof_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "min_entropy_review_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_min_entropy_review_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "parameter_selection_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_parameter_selection_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      },
+      {
+        "id": "external_review_digest",
+        "current_status": "required_unclosed",
+        "evidence_source": "p1_criterion1_external_review_artifact_gate",
+        "artifact_package": "p1_criterion1_proof_payload_package",
+        "claim_boundary": "conformance/proof-review evidence only"
+      }
+    ]
+  },
+  "promotion_requires": [
+    "selected aggregate-mask construction and parameter family",
+    "centralized ML-DSA-65 reference distribution artifact",
+    "selected Profile P1 aggregate-mask distribution artifact",
+    "reviewed Renyi-divergence proof for epsilon_mask",
+    "reviewed aggregate-mask min-entropy argument",
+    "external cryptographic review of the exact digests and assumptions"
+  ],
+  "failure_conditions": [
+    "aggregate masks are distinguishable from centralized ML-DSA-65 masks beyond the accepted epsilon_mask bound",
+    "aggregate-mask min-entropy is below the selected security threshold"
+  ],
+  "evidence_refs": [
+    "docs/cryptography/mask-distribution-evidence.md",
+    "docs/cryptography/phase-1-noise-bound-model.md",
+    "docs/cryptography/noise-rejection-proof-plan.md",
+    "docs/cryptography/proof-obligations.md",
+    "src/production/mask_distribution.rs",
+    "tests/production_mask_distribution.rs",
+    "artifacts/hypothesis/latest/assessment.json",
+    "artifacts/hypothesis/latest/assessment.md",
+    "artifacts/hypothesis/latest/closure-dashboard.json",
+    "artifacts/hypothesis/latest/closure-dashboard.md"
+  ],
+  "repo_evidence_pipeline": {
+    "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
+    "status": "evidence_present_unclosed",
+    "claim_boundary": "research scaffold only",
+    "artifacts": {
+      "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
+      "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",
+      "artifacts/hypothesis/latest/closure-dashboard.json": "artifacts/hypothesis/latest/closure-dashboard.json",
+      "artifacts/hypothesis/latest/closure-dashboard.md": "artifacts/hypothesis/latest/closure-dashboard.md"
+    }
+  },
+  "assessment": {
+    "criterion_status": "partially_met",
+    "overall_verdict": "partially_proven",
+    "does_not_change_overall_verdict": true,
+    "report_status": "criterion1_proof_payload_formalized"
+  }
+}
