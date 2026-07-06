@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `bfa8cecebcbff4676e068ac33e57d3a4a316a918`
+Commit: `d4628f3ec8279d52ae6e711e73c1dcbcb9364db1`
 
 ## Testing Statement
 
@@ -11,9 +11,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 
 ## README Comparison
 
-- README states the repository is deterministic research scaffolding.
-- README makes the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.
-- Missing production proof artifacts are blockers, not contradictions.
+- README research boundary was not detected; claim-drift review is required.
 
 ## Selected Backend Direction
 
@@ -93,7 +91,6 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as scaffold evidence only.
 - Evidence: MaskDistributionClosurePackage and MaskDistributionClosureReport framework checks are present for proof-artifact completeness.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
-- Blocker: README keeps the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.
 - Blocker: Renyi-divergence evidence for epsilon_mask is still a release-readiness blocker.
 
 ### Aggregate rejection checks match centralized ML-DSA rejection checks.

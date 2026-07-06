@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; not theorem closure`
-- Readiness digest SHA-256: `4af01fad54fc18a481e3c528a0b076a39181e0a66f0600f4cf583dce16e5d4fd`
+- Readiness digest SHA-256: `f824436bb9a627836450d83500a2c92330dbb031b065175258f004cfd0e4de66`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -40,13 +40,10 @@ Checks:
 - `review_claims_fips_validation_false`: `false`
 
 Blocker Groups:
-- `external_backend_evidence`: `8` blocker(s)
+- `external_backend_evidence`: `5` blocker(s)
   - backend capture is quarantined from strict threshold-core closure
   - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
   - real threshold backend emission capture is incomplete
-  - forbidden external-evidence source marker in rejection-distribution batch: centralized_mldsa65_provider
-  - forbidden external-evidence source marker in rejection-distribution batch: centralized ml-dsa
-  - forbidden external-evidence source marker in rejection-distribution batch: single_seed
   - backend core admissibility is quarantined
   - reviewed external evidence package is missing
 - `proof_payload_review`: `1` blocker(s)

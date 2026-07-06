@@ -1,19 +1,16 @@
 {
-  "attempt_digest_sha256": "f798a349d4fdfaf9f7c668522b581d36e4511682a63c78823a5f91154fd366d5",
+  "attempt_digest_sha256": "82dd092125df82a9567f10693f5e32e6e9a1813a3bfffe865d23f9b6b05cc9d5",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "backend capture is quarantined from strict threshold-core closure",
     "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
     "real threshold backend emission capture is incomplete",
-    "forbidden external-evidence source marker in rejection-distribution batch: centralized_mldsa65_provider",
-    "forbidden external-evidence source marker in rejection-distribution batch: centralized ml-dsa",
-    "forbidden external-evidence source marker in rejection-distribution batch: single_seed",
     "backend core admissibility is quarantined",
     "reviewed external evidence package is missing"
   ],
-  "candidate_digest_sha256": "77e22b7996008ec7b136baa55a36f2d6effe4b01f495721066637511615f5b2a",
+  "candidate_digest_sha256": "3ba5933959795d88a29612a7b29b9d20ec5b9ef6bc18b3dc5718ee69fb2c7476",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "db4a46081200f917ceba53e310a9daa64175df0a4716e298838c70caadaafe8f",
+  "candidate_manifest_sha256": "0e965331d7c2e738f7dc0106ce064af701a3796027938f01d1f5d082461451cf",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
@@ -38,17 +35,17 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-06T14:28:27Z",
+  "generated_at": "2026-07-06T14:35:51Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
-      "sha256": "f3b468b4c22475ef05a9479ee6f8b4a2de5273f5a0777c1ff8ecac06109b9d87"
+      "sha256": "752dda64bd11706dc2d3b9db5c8c26022f2397c2cd9906027e98aa6c0a37c617"
     },
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "db4a46081200f917ceba53e310a9daa64175df0a4716e298838c70caadaafe8f"
+      "sha256": "0e965331d7c2e738f7dc0106ce064af701a3796027938f01d1f5d082461451cf"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
@@ -58,12 +55,12 @@
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "ce3370ba2655ed9f30cbc3d44ad48d8bc50221be6dd2f5c27885ba970566a065"
+      "sha256": "abc9a3d12c7baa395e182b8b5d42c3c6d765f1e73682fc5d9a9da28c375d15ad"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
-      "sha256": "c9ddac0f460881dd342dfbafb72afe14c52802f4cb91616ddc891eb58d994344"
+      "sha256": "3bcc18d9fa728052181e31c2cb8b8c7c1bc89903ff19fff0f0859507c61e2980"
     },
     "reviewed_external_evidence_package": {
       "path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",

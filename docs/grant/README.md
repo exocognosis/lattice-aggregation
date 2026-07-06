@@ -22,8 +22,8 @@ a security or production claim.
 
 - Tailor the [Budget Justification](proposal.md#budget-justification) placeholders
   (FTE-months, amounts, rates) to the target funder before submission.
-- Funder fit: Ethereum Foundation ESP and PQ teams (see
-  [Alignment with Ethereum Post-Quantum Priorities](../../README.md#alignment-with-ethereum-post-quantum-priorities)),
+- Funder fit: Ethereum Foundation ESP and PQ teams (see the
+  [one-page executive summary](one-pager.md)),
   PQCA / Open Quantum Safe, Arbitrum, Rust Foundation, and academic programs.
 - Every milestone gate is the reproducible
   [assessment](../../scripts/assess_lattice_hypothesis.py) plus the
@@ -32,8 +32,7 @@ a security or production claim.
 
 ## Context in the repository
 
-- [Hypothesis Closure Requirements](../../README.md#hypothesis-closure-requirements)
-  and [Path to Full Hypothesis Closure](../../README.md#path-to-full-hypothesis-closure)
 - [Cryptographic Claims Matrix](../cryptography/claims-matrix.md)
+  and [thesis operating parameters](../cryptography/thesis-operating-parameters.md)
 - [Maintainer & contact](../../AUTHORS.md) and
   [funding channels](../../.github/FUNDING.yml)

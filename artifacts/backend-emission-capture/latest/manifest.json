@@ -2,7 +2,7 @@
   "aggregate_signature_len": 3309,
   "backend_command": [
     "external-backend-capture-file",
-    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-threshold-reconstruction/backend/capture.json"
+    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-pr99-conflict-resolution/backend/capture.json"
   ],
   "backend_core_admissibility": {
     "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
@@ -20,7 +20,7 @@
   "backend_evidence": "real_threshold_mldsa_external_capture",
   "backend_execution_mode": "preexisting_external_capture_file",
   "capture_file_origin": "outside_repo_capture_file",
-  "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-threshold-reconstruction/backend/capture.json",
+  "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-pr99-conflict-resolution/backend/capture.json",
   "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
   "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
   "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
@@ -28,7 +28,7 @@
   "command_duration_seconds": 0,
   "exit_code": 0,
   "external_capture_provenance": {
-    "backend_command_sha256": "dd2ff20ba5108e92d7401c59adacf38d1504ca3f9358236bd532e885a5ef37b1",
+    "backend_command_sha256": "c02ddd38c10f6caaebe25936ffdf9496d80fde9b2fe9a6aaf263c2ca9f9c789c",
     "capture_file_origin": "outside_repo_capture_file",
     "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
     "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
@@ -84,7 +84,7 @@
       "standard_verifier_acceptance_reviewed": true,
       "threshold_core_limitations_reviewed": true
     },
-    "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-threshold-reconstruction/backend/review.json",
+    "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-pr99-conflict-resolution/backend/review.json",
     "review": {
       "backend_command_digest_hex": "8c4f8e6250d645802df5479ad376bbadd29478c13dafba07c3bf3076c41eefe1",
       "capture_environment_digest_hex": "cb87ea8d3255b481c3dd31a612c7cd728d66f4cf0fde1b2d1bee40a1e2be27fa",
@@ -97,12 +97,12 @@
     "schema": "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
     "sha256": "e5d5a2b94174916126375c41849c28f8595ddb35768d1f02e9ea6574a13257c0"
   },
-  "generated_at": "2026-07-06T14:28:27Z",
+  "generated_at": "2026-07-06T14:35:51Z",
   "metadata": {
     "branch": "codex/p1-real-external-evidence-attempt",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "bfa8cecebcbff4676e068ac33e57d3a4a316a918",
+    "commit": "d4628f3ec8279d52ae6e711e73c1dcbcb9364db1",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",

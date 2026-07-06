@@ -5,9 +5,9 @@ This artifact groups the actual external nonce gate, real-threshold backend emis
 - Status: `blocked_external_evidence_missing`
 - Close candidate: `false`
 - Claim boundary: `conformance/proof-review evidence only`
-- Candidate manifest SHA-256: `db4a46081200f917ceba53e310a9daa64175df0a4716e298838c70caadaafe8f`
+- Candidate manifest SHA-256: `0e965331d7c2e738f7dc0106ce064af701a3796027938f01d1f5d082461451cf`
 - Review package SHA-256: `None`
-- Attempt digest SHA-256: `f798a349d4fdfaf9f7c668522b581d36e4511682a63c78823a5f91154fd366d5`
+- Attempt digest SHA-256: `82dd092125df82a9567f10693f5e32e6e9a1813a3bfffe865d23f9b6b05cc9d5`
 
 Checks:
 - `strict_external_nonce_capture_ready`: `true`
@@ -27,9 +27,6 @@ Blockers:
 - backend capture is quarantined from strict threshold-core closure
 - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
 - real threshold backend emission capture is incomplete
-- forbidden external-evidence source marker in rejection-distribution batch: centralized_mldsa65_provider
-- forbidden external-evidence source marker in rejection-distribution batch: centralized ml-dsa
-- forbidden external-evidence source marker in rejection-distribution batch: single_seed
 - backend core admissibility is quarantined
 - reviewed external evidence package is missing
 

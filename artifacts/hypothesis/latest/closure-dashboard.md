@@ -3,11 +3,11 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `bfa8cecebcbff4676e068ac33e57d3a4a316a918`
+Commit: `d4628f3ec8279d52ae6e711e73c1dcbcb9364db1`
 
 ## Criteria
 
-- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
+- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 2 blockers)
 - `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 10 blockers)
 - `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
 - `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
