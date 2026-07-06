@@ -404,9 +404,10 @@ def render_summary(manifest):
         [
             "",
             "This is pending theorem-closure review. It requires Criterion 2 proof review, "
-            "rejection-distribution preservation, selected-backend proof "
-            "closure, production threshold ML-DSA security, CAVP/ACVTS "
-            "validation, FIPS validation, or completed cryptographic proof.",
+            "rejection-distribution preservation proof, selected-backend proof closure "
+            "evidence, production threshold ML-DSA security evidence, CAVP/ACVTS "
+            "validation evidence, FIPS validation evidence, and completed "
+            "cryptographic proof evidence.",
             "",
         ]
     )

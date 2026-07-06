@@ -442,8 +442,9 @@ def build_report(
         "attempt_digest_sha256": sha256_text(canonical_json(digest_material)),
         **claim_flags,
         "closure_boundary": (
-            "Batch 8 external evidence attempt only; pending theorem-closure review, not "
-            "rejection-distribution preservation, and requires selected-backend proof closure evidence."
+            "Batch 8 external evidence attempt only; pending theorem-closure review, "
+            "requires rejection-distribution preservation proof, and requires "
+            "selected-backend proof closure evidence."
         ),
     }
     return {
@@ -481,9 +482,10 @@ def render_summary(manifest):
         [
             "",
             "This is pending theorem-closure review. It requires Criterion 2 proof review, "
-            "rejection-distribution preservation, selected-backend proof "
-            "closure, production threshold ML-DSA security, CAVP/ACVTS "
-            "validation, FIPS validation, or completed cryptographic proof.",
+            "rejection-distribution preservation proof, selected-backend proof closure "
+            "evidence, production threshold ML-DSA security evidence, CAVP/ACVTS "
+            "validation evidence, FIPS validation evidence, and completed "
+            "cryptographic proof evidence.",
             "",
         ]
     )
