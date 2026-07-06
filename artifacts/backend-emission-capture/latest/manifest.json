@@ -98,12 +98,12 @@
     "schema": "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
     "sha256": "6b8fd07799ea6429cf5ec5f9a3d0865ffe72fbd6d8c1ed3ea83f467a6d3822f8"
   },
-  "generated_at": "2026-07-06T14:53:51Z",
+  "generated_at": "2026-07-06T15:04:32Z",
   "metadata": {
     "branch": "codex/p1-real-external-evidence-attempt",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "a71b1b4dae8d8ff41d3a2d22df16847c63bb2e43",
+    "commit": "789747bc037966f5abfc244aa6b8789fdef61af2",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",
