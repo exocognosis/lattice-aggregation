@@ -2,7 +2,7 @@
   "aggregate_signature_len": 3309,
   "backend_command": [
     "external-backend-capture-file",
-    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-pr99-conflict-resolution/backend/capture.json"
+    "/tmp/lattice-backend-requirement-ledger/capture.json"
   ],
   "backend_core_admissibility": {
     "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
@@ -20,19 +20,19 @@
   "backend_evidence": "real_threshold_mldsa_external_capture",
   "backend_execution_mode": "preexisting_external_capture_file",
   "capture_file_origin": "outside_repo_capture_file",
-  "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-pr99-conflict-resolution/backend/capture.json",
-  "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+  "capture_file_path": "/tmp/lattice-backend-requirement-ledger/capture.json",
+  "capture_file_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
   "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-  "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+  "capture_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
   "claim_boundary": "conformance/proof-review evidence only",
   "command_duration_seconds": 0,
   "exit_code": 0,
   "external_capture_provenance": {
-    "backend_command_sha256": "c02ddd38c10f6caaebe25936ffdf9496d80fde9b2fe9a6aaf263c2ca9f9c789c",
+    "backend_command_sha256": "36e9a0f7b31367cfda8df1dccb523e3d6d96940276c17a455d98522d4f9e9bbe",
     "capture_file_origin": "outside_repo_capture_file",
-    "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+    "capture_file_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
     "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-    "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+    "capture_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
     "claim_boundary": "conformance/proof-review evidence only",
     "evidence_class": "real_threshold_mldsa_external_capture",
     "expected_digest_fields": [
@@ -40,6 +40,7 @@
       "artifact_digest_hex",
       "backend_evidence_digest_hex",
       "backend_implementation_digest_hex",
+      "backend_requirement_evidence_digest_hex",
       "backend_source_package_digest_hex",
       "backend_transcript_digest_hex",
       "message_digest_hex",
@@ -60,14 +61,14 @@
     "request_name": "p1-real-threshold-backend-emission-request-001",
     "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
     "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
-    "review_manifest_sha256": "e5d5a2b94174916126375c41849c28f8595ddb35768d1f02e9ea6574a13257c0",
+    "review_manifest_sha256": "6b8fd07799ea6429cf5ec5f9a3d0865ffe72fbd6d8c1ed3ea83f467a6d3822f8",
     "review_status": "reviewed_external_backend_emission_capture_ready",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
   "external_capture_review": {
-    "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
-    "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+    "capture_file_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
+    "capture_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
     "checks": {
       "backend_material_digests_reviewed": true,
       "capture_generated_outside_repo": true,
@@ -84,25 +85,25 @@
       "standard_verifier_acceptance_reviewed": true,
       "threshold_core_limitations_reviewed": true
     },
-    "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-pr99-conflict-resolution/backend/review.json",
+    "path": "/tmp/lattice-backend-requirement-ledger/review.json",
     "review": {
       "backend_command_digest_hex": "8c4f8e6250d645802df5479ad376bbadd29478c13dafba07c3bf3076c41eefe1",
       "capture_environment_digest_hex": "cb87ea8d3255b481c3dd31a612c7cd728d66f4cf0fde1b2d1bee40a1e2be27fa",
-      "external_review_digest_hex": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+      "external_review_digest_hex": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
       "operator_identity_digest_hex": "b67d17f1b506c2ad05e95721df132e63ca32ca453d97bfe20404fc7d2a8983d8",
       "reviewer_identity_digest_hex": "559b08c54d4488d73bec4d832658de1e77265ae452f4b6ae5b298c28f9ec4f49"
     },
     "review_file_origin": "outside_repo_review_manifest",
     "review_status": "reviewed_external_backend_emission_capture_ready",
     "schema": "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
-    "sha256": "e5d5a2b94174916126375c41849c28f8595ddb35768d1f02e9ea6574a13257c0"
+    "sha256": "6b8fd07799ea6429cf5ec5f9a3d0865ffe72fbd6d8c1ed3ea83f467a6d3822f8"
   },
-  "generated_at": "2026-07-06T14:35:51Z",
+  "generated_at": "2026-07-06T14:53:51Z",
   "metadata": {
     "branch": "codex/p1-real-external-evidence-attempt",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "d4628f3ec8279d52ae6e711e73c1dcbcb9364db1",
+    "commit": "a71b1b4dae8d8ff41d3a2d22df16847c63bb2e43",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",

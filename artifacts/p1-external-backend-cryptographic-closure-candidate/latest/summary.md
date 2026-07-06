@@ -5,7 +5,7 @@ This artifact composes the actual external nonce gate, real-threshold backend em
 - Status: `evidence_present_unclosed`
 - Close candidate: `false`
 - Claim boundary: `conformance/proof-review evidence only`
-- Candidate digest SHA-256: `3ba5933959795d88a29612a7b29b9d20ec5b9ef6bc18b3dc5718ee69fb2c7476`
+- Candidate digest SHA-256: `e7f265e61c54b2a05e39b75926f18d885ab6ce738ad7be19a0bd84857c261035`
 
 Checks:
 - `strict_external_nonce_capture_ready`: `true`

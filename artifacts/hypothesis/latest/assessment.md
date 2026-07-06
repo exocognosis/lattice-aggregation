@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `d4628f3ec8279d52ae6e711e73c1dcbcb9364db1`
+Commit: `a71b1b4dae8d8ff41d3a2d22df16847c63bb2e43`
 
 ## Testing Statement
 
