@@ -60,7 +60,7 @@ class SimulationBenchmarkRunnerTests(unittest.TestCase):
         self.assertEqual(report["manifest"]["trial_count"], 3)
         self.assertEqual(
             report["manifest"]["claim_boundary"],
-            "deterministic research telemetry; not security evidence",
+            "deterministic research telemetry; requires security evidence review",
         )
         self.assertEqual(
             report["manifest"]["artifacts"]["trials_csv_sha256"],
@@ -95,7 +95,7 @@ class SimulationBenchmarkRunnerTests(unittest.TestCase):
         self.assertEqual(trials, SAMPLE_CSV)
         self.assertIn("# Large-Scale Simulation Benchmark Summary", summary)
         self.assertIn("deterministic research telemetry", summary)
-        self.assertIn("not security evidence", summary)
+        self.assertIn("requires security evidence review", summary)
         self.assertIn("| Large Regional 64 | 64 | 43 | 2 |", summary)
 
 

@@ -1,0 +1,75 @@
+{
+  "admissible_for_p1_nonce_handoff": true,
+  "attempt_status": "capture_promoted",
+  "backend_command": [
+    "external-capture-file",
+    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/nonce/capture.json"
+  ],
+  "backend_command_executed": true,
+  "backend_command_template": [
+    "external-capture-file",
+    "{capture_file}"
+  ],
+  "backend_execution_mode": "preexisting_external_capture_file",
+  "backend_package_name": "lattice-aggregation",
+  "backend_source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75",
+  "capture_failure": null,
+  "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/nonce/capture.json",
+  "capture_file_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+  "claim_boundary": "conformance/proof-review evidence",
+  "closure_boundary": "External capture-file intake only; actual theorem closure still requires rejection-distribution proof and reviewed theorem linkage.",
+  "detected_blockers": [],
+  "external_capture_review": {
+    "capture_file_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+    "capture_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+    "checks": {
+      "capture_generated_outside_repo": true,
+      "external_backend_operated_outside_repo": true,
+      "material_digests_reviewed": true,
+      "no_centralized_expanded_secret_key_helper": true,
+      "no_fixture_harness": true,
+      "no_hazmat_prf_oracle": true,
+      "no_localnet_or_deterministic_simulation": true,
+      "no_single_key_standard_provider_output": true,
+      "predecessor_digests_reviewed": true,
+      "readiness_source_tree_reviewed": true,
+      "request_binding_reviewed": true
+    },
+    "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/nonce/review.json",
+    "readiness_manifest_sha256": "ec24c6bb5509073df61ad6209d297ded03af9c0de69e4d687fcf0f29394fa549",
+    "readiness_source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75",
+    "review": {
+      "backend_command_digest_hex": "b0f9e412b258d8a1749a0566d7b4d63fbe53f010483eae80bed7c68849d7d3b3",
+      "capture_environment_digest_hex": "0c4251880c3412467fc64b54f553bf61430a00d58d656bff6a870b9c15ab509e",
+      "external_review_digest_hex": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+      "operator_identity_digest_hex": "b23e77d4224526c7c66e057223459b5dab453e0ae69ecb5f3e3c99f06ed24c83",
+      "reviewer_identity_digest_hex": "2118bdfd7c6da7373f49870ae9bbf6d9a3dd7a29a75d7e65912da4ea36af2350"
+    },
+    "review_file_origin": "outside_repo_review_manifest",
+    "review_status": "reviewed_external_capture_ready",
+    "schema": "lattice-aggregation:p1-external-nonce-producer-capture-review:v1",
+    "sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214"
+  },
+  "external_review_manifest_path": "review/manifest.json",
+  "external_review_manifest_sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214",
+  "generated_at": "2026-07-05T16:27:04Z",
+  "handoff_manifest_path": "handoff/manifest.json",
+  "handoff_manifest_sha256": "0569f5304a857860a27053d69aa2c0905d7020e01126d96ab34b508ba391fbb2",
+  "handoff_quarantine": {
+    "allowed_use": "preexisting external backend capture file gated by admissible readiness",
+    "quarantined": false,
+    "reason": null
+  },
+  "handoff_source_profile": "admissible_external_backend_capture",
+  "readiness_manifest_path": "readiness/manifest.json",
+  "readiness_manifest_sha256": "ec24c6bb5509073df61ad6209d297ded03af9c0de69e4d687fcf0f29394fa549",
+  "readiness_schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+  "readiness_status": "backend_candidate_admissible_pending_capture",
+  "request_name": "p1-reviewed-nonce-producer-request-001",
+  "request_path": "request/request.json",
+  "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
+  "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

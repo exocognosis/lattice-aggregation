@@ -4,42 +4,49 @@ Date: 2026-06-19
 
 ## Scope
 
-This crosswalk maps the current threshold ML-DSA-65 protocol phases to the Rust
-modules and tests that exercise them. It is a navigation aid for implementation,
-proof, audit, and release-readiness review.
+This crosswalk maps the current threshold ML-DSA-65 scaffold protocol phases to
+the Rust modules and tests that exercise them. It is a navigation aid for implementation and code review, with production proof, audit, and release
+readiness handled by the linked evidence requirements.
 
-The implementation uses a deterministic simulation backend for stable
-protocol-sized fixtures in tests. Selected-backend artifacts for real ML-DSA
-signing and verification are tracked through [claims-matrix.md](claims-matrix.md),
+The implementation uses a deterministic simulation backend. The default
+simulation path produces stable protocol-sized fixtures for tests, but it does
+not produce or verify real ML-DSA signatures. Any future production claim must
+continue to use the stricter claim boundaries in
+[claims-matrix.md](claims-matrix.md),
 [proof-implementation-crosswalk.md](proof-implementation-crosswalk.md), and
 [side-channel-boundary.md](side-channel-boundary.md).
+Selected-backend artifacts for real ML-DSA signing and verification are tracked
+through those documents.
 
 The repository also contains a non-default production coordinator candidate
-behind `coordinator-assisted` and `hazmat-real-mldsa` gates. The optional
-provider bridge can run standard ML-DSA-65 verification smoke checks while the
-aggregate threshold verification artifacts are filled in.
+behind `coordinator-assisted` and `raw-real-mldsa` gates. That surface is a
+hazmat/conformance profile boundary: the optional provider bridge can run
+standard ML-DSA-65 verification smoke checks, but it is not a production
+threshold ML-DSA security claim and does not establish aggregate threshold
+verification.
 
 The selected real-backend direction is ML-DSA-65 coordinator-assisted Shamir
 nonce DKG P1 with a TEE/HSM coordinator assumption and
 standard-verifier-compatible output. Later migration candidates remain P2/MPC
-and TALUS. This is the closure-run implementation direction, and criterion
-promotion is tied to selected-backend implementation, proof, and audit
-artifacts.
+and TALUS. This is the closure-run implementation direction and a selection
+artifact; it requires proof-closure evidence, backend implementation evidence,
+and release approvals. Hypothesis-criterion promotion requires
+selected-backend implementation, proof, and audit artifacts.
 
 ## Protocol Phase Crosswalk
 
 | Protocol phase | Implementation surface | Test evidence | Current boundary |
 | --- | --- | --- | --- |
-| DKG scaffold | `src/dkg.rs`, `src/backend.rs`, `src/crypto/vss.rs`, `src/crypto/interpolation.rs` | `tests/simulated_flow.rs`, `tests/low_level.rs` | Deterministic fixture DKG path; malicious-secure DKG evidence is supplied by selected-backend artifacts. |
+| DKG scaffold | `src/dkg.rs`, `src/backend.rs`, `src/crypto/vss.rs`, `src/crypto/interpolation.rs` | `tests/simulated_flow.rs`, `tests/low_level.rs` | Deterministic research scaffold evidence; no malicious-secure DKG claim. |
 | Signing state machine | `src/protocol.rs`, `src/types.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/validation.rs` | Type-state and collection guards enforce call ordering and signer sets. |
 | Transcript binding | `src/transcript.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Deterministic challenge binding for scaffold tests; no distributional proof. |
 | Aggregation boundary | `src/aggregation.rs`, `src/backend.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs` | Boundary validation before backend aggregation; no standard-verifier claim. |
 | Adapter wire and actor flow | `src/adapter/wire.rs`, `src/adapter/actor.rs`, `src/adapter/traits.rs` | `tests/simulation.rs` | Local async scaffold for P2P and consensus integration experiments. |
-| Production coordinator candidate | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/production/acceptance.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_acceptance.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Gated hazmat/conformance track; provider smoke plus a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture verify ordinary provider behavior, and coordinator-assisted acceptance predicates feed aggregate threshold verification, CAVP/ACVTS validation, and production threshold security evidence requirements. |
-| Selected backend direction artifact | `docs/cryptography/proof-implementation-crosswalk.md`, `docs/cryptography/protocol-code-crosswalk.md`, `scripts/assess_lattice_hypothesis.py` | `script_tests/test_assess_lattice_hypothesis.py`, `tests/proof_documentation_manifest.rs` | ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 closure-run implementation direction with named backend, proof, validation, and release evidence requirements for the five hypothesis criteria. |
-| Hypothesis blocker evidence gates and closure frameworks | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Typed assessment evidence, a P1 aggregate recomputation artifact gate, sample-vector provider conformance, and closure-package frameworks only; each gate keeps the corresponding criterion partially met until the selected backend, proof, and audit artifacts exist. |
-| Evidence and timeout diagnostics | `src/adapter/evidence.rs`, `src/adapter/actor.rs`, `src/low_level/poly.rs` | `tests/simulation.rs`, `tests/low_level.rs` | Diagnostic evidence packets only; not production slashing authority. |
-| Benchmark and export harness | `src/main.rs`, `src/utils/exporter.rs` | library tests in `src/utils/exporter.rs`, harness review docs | Reproducible research output only; not security evidence. |
+| Production coordinator candidate | `src/production/provider.rs`, `src/production/epsilon.rs`, `src/production/prefilter.rs`, `src/production/hints.rs`, `src/production/transcript.rs`, `src/production/preprocess.rs`, `src/production/coordinator.rs`, `src/production/acceptance.rs`, `src/adapter/production_wire.rs` | `tests/production_provider.rs`, `tests/production_epsilon.rs`, `tests/production_prefilter.rs`, `tests/production_hints.rs`, `tests/production_transcript.rs`, `tests/production_preprocess.rs`, `tests/production_coordinator.rs`, `tests/production_acceptance.rs`, `tests/production_wire.rs`, `tests/ui/production_simulated_backend_rejected.rs` | Gated hazmat/conformance track; provider smoke plus a bounded NIST ACVP-Server FIPS204 ML-DSA-65 sigVer sample fixture verify ordinary provider behavior, while production threshold security evidence requirements, aggregate threshold verification, CAVP/ACVTS validation, and FIPS validation require selected-backend artifacts. |
+| Selected backend direction artifact | `docs/cryptography/proof-implementation-crosswalk.md`, `docs/cryptography/protocol-code-crosswalk.md`, `scripts/assess_lattice_hypothesis.py` | `script_tests/test_assess_lattice_hypothesis.py`, `tests/proof_documentation_manifest.rs` | ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 closure-run implementation direction with named backend, proof, validation, and release evidence requirements. |
+| Hypothesis blocker evidence gates and closure frameworks | `src/production/mask_distribution.rs`, `src/production/rejection_equivalence.rs`, `src/production/abort_bias.rs`, `src/production/partial_soundness.rs`, `docs/cryptography/unauthorized-aggregate-reduction.md` | `tests/production_mask_distribution.rs`, `tests/production_rejection_equivalence.rs`, `tests/production_abort_bias.rs`, `tests/production_partial_soundness.rs`, `tests/unauthorized_aggregate_reduction_manifest.rs` | Typed assessment evidence, a P1 aggregate recomputation artifact gate, selected-backend aggregate-output artifact gate, selected-backend threshold-output artifact gate, selected-backend proof-closure artifact package gate, sample-vector provider conformance, fixture-backed bridge conformance evidence, and stricter release gate coverage. Selected-backend proof closure requires checked proof artifacts. Production threshold ML-DSA security requires selected-backend evidence. CAVP/ACVTS validation requires validation artifacts. FIPS validation requires validation artifacts. standard-verifier compatibility requires checked proof artifacts. selected-backend aggregate recomputation requires checked proof artifacts. |
+| Evidence and timeout diagnostics | `src/adapter/evidence.rs`, `src/adapter/actor.rs`, `src/low_level/poly.rs` | `tests/simulation.rs`, `tests/low_level.rs` | Diagnostic evidence packets ; requires production slashing authority. |
+| Benchmark and export harness | `src/main.rs`, `src/utils/exporter.rs` | library tests in `src/utils/exporter.rs`, harness review docs | Reproducible research output only; requires security evidence review. |
 
 ## DKG Scaffold
 
@@ -109,9 +116,9 @@ conformance contract. `src/production/transcript.rs` binds the
 production-candidate transcript fields. `src/production/preprocess.rs` tracks
 preprocessing attempts and retry context. `src/production/coordinator.rs`
 enforces the coordinator profile and final verifier gate.
-`src/production/acceptance.rs` defines the coordinator-assisted acceptance
-predicates that carry typed `LocalAccept` and `AggregateAccept`
-conformance-track tokens.
+`src/production/acceptance.rs` defines coordinator-assisted acceptance
+predicates. Coordinator-assisted acceptance predicates are conformance-track
+tokens that carry typed `LocalAccept` and `AggregateAccept` evidence.
 `src/adapter/production_wire.rs` defines the production coordinator frame
 shapes.
 
@@ -127,10 +134,10 @@ ML-DSA-65 sigVer sample fixture through its context-aware verifier path. The
 standard-verifier trait receives the original application message, while
 `MessageBinding`/`mu` remains transcript-internal. The current public API exposes
 only the blocked hazmat policy; approved release policy is crate-internal until
-real release evidence exists. The release evidence packet must add threshold
-proof, real threshold aggregate recomputation, aggregate threshold verification,
-distribution proof, side-channel audit, CAVP/ACVTS validation, FIPS 140 module
-certification, and release approval artifacts.
+real release evidence exists. These are gate and conformance tests only; they
+are not threshold proof, real threshold aggregate recomputation, aggregate
+threshold verification, distribution proof, side-channel audit, CAVP/ACVTS
+validation, FIPS 140 module certification, or release approval.
 
 ## Selected Backend Direction
 
@@ -142,17 +149,35 @@ output. Later migration candidates remain P2/MPC and TALUS.
 This crosswalk is the protocol-side anchor consumed by
 `scripts/assess_lattice_hypothesis.py`; the proof-side anchor is
 `docs/cryptography/proof-implementation-crosswalk.md`. The selected direction
-narrows the next implementation path and names the backend implementation
-evidence, standard-verifier KAT and validation evidence, external cryptographic
-review evidence, and release approvals required for criterion promotion.
+narrows the next implementation path, but it is a selection artifact. It
+is requires proof-closure evidence or production approval, not completed backend
+implementation evidence, not complete standard-verifier KAT or validation
+evidence, and not external cryptographic review. All five hypothesis criteria
+remain partial until selected-backend proof, implementation, and audit artifacts
+exist.
+
+The formal thesis and operating-parameter boundary is pinned in
+`docs/cryptography/thesis-operating-parameters.md` and
+`docs/cryptography/thesis-operating-parameters.json` under thesis id
+`native-threshold-mldsa65-aggregation-p1`. Those files define the P1 operating
+assumptions, promotion criteria, failure criteria, and fallback trigger for
+assessment only; they are requires selected-backend proof closure evidence or production
+approval.
 
 For blocker 2, the P1 aggregate recomputation artifact gate in
 `src/production/rejection_equivalence.rs` binds the selected profile to
 ACVP/FIPS204-backed provider evidence, aggregate recomputation evidence,
+selected profile binding digest, standard-verifier bridge evidence digest,
 bound/proof artifact digests, negative-corpus evidence, and external review
-digests. It rejects smoke-only provider evidence and digest mismatch, but it is
-still framework evidence until real threshold recomputation and reviewed proofs
-are supplied.
+digests. The checked-in standard-verifier bridge fixture package at
+`tests/fixtures/p1_standard_verifier_bridge_fixture.json` provides fixture-backed bridge conformance evidence for drift rejection only. The checked-in bridge fixture is a stricter release gate for drift rejection only; it is not selected-backend aggregate recomputation and requires a completed standard-verifier compatibility proof. The selected-backend aggregate-output artifact gate binds `LocalAccept`/`AggregateAccept`, signer-set, attempt, transcript, provider KAT, recomputation, and bridge digests as conformance/proof-review evidence. `derive_p1_selected_backend_aggregate_artifact_package` and `derive_p1_real_recomputation_evidence_digest` add a real standard-provider aggregate-output package path that derives the package from a provider-verified ML-DSA-65 candidate signature, public recomputation transcript, and standard-verifier bridge digest evidence. The selected-backend threshold-output artifact gate adds successor source-package binding, and the selected-backend proof-closure artifact package gate binds that threshold-output certificate to full KAT/validation artifact slots, rejection-distribution review, standard-verifier compatibility evidence, and a theorem-linkage artifact digest. The real-threshold backend emission ingestion artifact adds an external backend-emission input path to the threshold verifier closure contract for 10,000 validators and threshold 6,667; it binds backend source package, implementation, and transcript digests and rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. These gates are requires selected-backend proof closure evidence, not a claim that this repo implements a real threshold backend, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof. They reject smoke-only provider evidence and digest mismatch, but remain framework evidence until real threshold recomputation, actual real threshold backend emissions, and reviewed proofs are supplied.
+
+The Criterion 2 proof-substance contract in
+`docs/cryptography/criterion-2-proof-substance.md` and
+`docs/cryptography/criterion-2-proof-substance.json` records the open payload
+that must connect the protocol output to standard verification, aggregate
+acceptance, rejection-distribution review, and theorem-linkage artifacts. It
+is an assessment boundary and does not claim proof closure.
 
 ## Evidence and Timeout Diagnostics
 
@@ -214,16 +239,16 @@ anchors:
 - `## Open Production Gaps`
 - `## Manifest Anchors`
 - `deterministic simulation backend`
-- `closure-run implementation`
-- `implementation evidence`
+- `not a production threshold ML-DSA proof`
+- `does not produce or verify real ML-DSA signatures`
 - `ML-DSA-65 coordinator-assisted Shamir nonce DKG P1`
 - `TEE/HSM coordinator assumption`
 - `standard-verifier-compatible output`
 - `P2/MPC`
 - `TALUS`
-- `closure-run implementation`
-- `implementation evidence`
-- `release approvals`
+- `selection artifact`
+- `requires proof-closure evidence`
+- `requires production approval`
 - `scripts/assess_lattice_hypothesis.py`
 - `script_tests/test_assess_lattice_hypothesis.py`
 - `coordinator-assisted acceptance predicates`

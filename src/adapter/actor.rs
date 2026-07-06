@@ -255,7 +255,9 @@ where
                     .commitments
                     .entry(validator)
                     .or_insert(Commitment(commitment));
-                self.try_generate_local_partial(session_id);
+                if let Some(partial) = self.try_generate_local_partial(session_id) {
+                    let _ = self.network.broadcast(partial).await;
+                }
                 self.try_finalize_session(session_id).await;
             }
             PqcThresholdWireMsg::PartialSignature {
@@ -337,17 +339,15 @@ where
         }
     }
 
-    fn try_generate_local_partial(&mut self, session_id: SessionId) {
-        let Some(active) = self.active_sessions.get_mut(&session_id) else {
-            return;
-        };
+    fn try_generate_local_partial(&mut self, session_id: SessionId) -> Option<PqcThresholdWireMsg> {
+        let active = self.active_sessions.get_mut(&session_id)?;
         if active.session.is_none()
             || active.partials.contains_key(&self.config.local_validator)
             || active.commitments.len() < self.config.threshold as usize
             || active.commitments.get(&self.config.local_validator)
                 != Some(&active.local_commitment)
         {
-            return;
+            return None;
         }
 
         let commitments = active
@@ -360,19 +360,23 @@ where
             self.config.threshold,
             commitments,
         ) else {
-            return;
+            return None;
         };
-        let Some(session) = active.session.take() else {
-            return;
-        };
+        let session = active.session.take()?;
         let Ok((_, partial)) = SigningSession::generate_partial_signature(
             session,
             commitment_set,
             &active.message_hash,
         ) else {
-            return;
+            return None;
+        };
+        let message = PqcThresholdWireMsg::PartialSignature {
+            session_id,
+            validator_index: self.config.local_validator.0,
+            partial_sig_share: partial.bytes.clone(),
         };
         active.partials.insert(self.config.local_validator, partial);
+        Some(message)
     }
 
     async fn try_finalize_session(&mut self, session_id: SessionId) {

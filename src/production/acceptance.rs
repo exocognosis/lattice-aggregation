@@ -180,6 +180,7 @@ pub struct AcceptedAggregateCandidate {
     aggregate_response_digest: [u8; 32],
     hint_digest: [u8; 32],
     challenge_digest: [u8; 32],
+    candidate_signature_digest: [u8; 32],
 }
 
 /// Alias for callers that model the accepted aggregate as a contribution.
@@ -204,6 +205,11 @@ impl AcceptedAggregateCandidate {
     /// Borrow the accepted challenge digest.
     pub const fn challenge_digest(&self) -> &[u8; 32] {
         &self.challenge_digest
+    }
+
+    /// Borrow the provider-verified candidate aggregate signature digest.
+    pub const fn candidate_signature_digest(&self) -> &[u8; 32] {
+        &self.candidate_signature_digest
     }
 }
 
@@ -275,6 +281,7 @@ impl AggregateAccept {
             aggregate_response_digest: evidence.aggregate_response_digest,
             hint_digest: evidence.hint_digest,
             challenge_digest,
+            candidate_signature_digest: *evidence.standard_verifier.candidate_signature_digest(),
         })
     }
 }

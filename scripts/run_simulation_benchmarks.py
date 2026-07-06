@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 
-CLAIM_BOUNDARY = "deterministic research telemetry; not security evidence"
+CLAIM_BOUNDARY = "deterministic research telemetry; requires security evidence review"
 
 
 def sha256_text(text):
@@ -175,8 +175,8 @@ def render_summary(report):
         "# Large-Scale Simulation Benchmark Summary",
         "",
         "This file is generated from deterministic simulation harness output. "
-        "It is deterministic research telemetry, not security evidence, not "
-        "real-world validator performance, and not production-readiness evidence.",
+        "It is deterministic research telemetry, requires security evidence review, not "
+        "real-world validator performance, and requires production-readiness evidence.",
         "",
         f"- Generated at: `{manifest['generated_at']}`",
         f"- Commit: `{manifest['metadata']['commit']}`",

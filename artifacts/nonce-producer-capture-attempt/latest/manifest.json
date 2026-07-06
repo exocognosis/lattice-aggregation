@@ -1,0 +1,49 @@
+{
+  "admissible_for_p1_nonce_handoff": true,
+  "attempt_status": "capture_promoted",
+  "backend_command": [
+    "python3",
+    "scripts/p1_nonce_producer_reference_cli.py",
+    "emit",
+    "--request",
+    "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
+    "--root",
+    "."
+  ],
+  "backend_command_executed": true,
+  "backend_command_template": [
+    "python3",
+    "scripts/p1_nonce_producer_reference_cli.py",
+    "emit",
+    "--request",
+    "{request}",
+    "--root",
+    "."
+  ],
+  "backend_package_name": "lattice-aggregation",
+  "backend_source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75",
+  "capture_failure": null,
+  "claim_boundary": "conformance/proof-review evidence",
+  "closure_boundary": "Capture-attempt orchestration only; an actual reviewed external threshold nonce producer and proof review remain required for Criterion 2 or theorem closure.",
+  "detected_blockers": [],
+  "generated_at": "2026-07-04T04:10:56Z",
+  "handoff_manifest_path": "handoff/manifest.json",
+  "handoff_manifest_sha256": "62bc108d3772baf4465dadc151bf1fa18d568aa223dba3af3f121b6d83b7c502",
+  "handoff_quarantine": {
+    "allowed_use": "reference CLI handoff replay only; requires actual backend evidence; requires Criterion 2 closure evidence",
+    "quarantined": true,
+    "reason": "repo reference CLI exercises the external process and JSON contract but is not independently generated threshold backend evidence"
+  },
+  "handoff_source_profile": "repo_reference_cli_capture",
+  "readiness_manifest_path": "readiness/manifest.json",
+  "readiness_manifest_sha256": "ab554865cb765e9a628b18683102807d9fd452ff740e18449ea1f2668b8fe0e2",
+  "readiness_schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
+  "readiness_status": "backend_candidate_admissible_pending_capture",
+  "request_name": "p1-reviewed-nonce-producer-request-001",
+  "request_path": "handoff/request/request.json",
+  "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
+  "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
+  "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

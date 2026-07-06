@@ -1,0 +1,48 @@
+{
+  "name": "p1-real-threshold-backend-emission-artifact-fixture-v1",
+  "schema": "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
+  "claim_boundary": "conformance/proof-review evidence",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
+  "source_standard_verifier_compatibility_fixture": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+  "source_threshold_output_certificate_artifact_fixture": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
+  "backend_evidence": "real_threshold_mldsa_fixture_harness",
+  "note": "Checked real-threshold backend emission ingestion fixture harness for Criterion 2 review only; not a real threshold backend implementation, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, requires a completed standard-verifier compatibility proof, and not a completed cryptographic proof.",
+  "capture": {
+    "validator_count": 10000,
+    "threshold": 6667,
+    "aggregate_signature_len": 3309,
+    "backend_source_package": {
+      "encoding": "utf8",
+      "value": "external-real-threshold-backend-source-package-placeholder-v1"
+    },
+    "backend_implementation": {
+      "encoding": "utf8",
+      "value": "external-real-threshold-backend-implementation-build-placeholder-v1"
+    },
+    "backend_transcript": {
+      "encoding": "utf8",
+      "value": "external-real-threshold-backend-transcript-placeholder-v1"
+    },
+    "mutated_message_rejected": true,
+    "mutated_public_key_rejected": true,
+    "mutated_signature_rejected": true,
+    "reviewed": true
+  },
+  "expected": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f",
+    "standard_verifier_compatibility_artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
+    "backend_evidence_digest_hex": "b1351055fd7a5054fe96b873e4829dd8f2f01ddfb85de37aa74a1affdfa27dad",
+    "backend_source_package_digest_hex": "018e2b719aeb857be8dc85dd3cef17a5657cfa0eb6298d0589a9dd97984fcbc6",
+    "backend_implementation_digest_hex": "f0093bdf46e4844e457408a5ca3c7adec30761c6fb4d7d20ecac9ca54653702a",
+    "backend_transcript_digest_hex": "eb90b1faf87a7b0b3da2ed9255fd1a8049fd718edca65a4b614cfa65ee62d74f",
+    "artifact_digest_hex": "4daec8a1f051d868fec2050247646b95c2ac80c451e06e9fb5830b495ce10fab",
+    "public_key_digest_hex": "a2fa4dcd300b7d5ee082a2ec68f6008e5291fffeb8894a9db28e34fa772983f5",
+    "message_digest_hex": "4e6eaca508443033bd8eea1bd741af0087b79a1412f70aa146966fa4c1e05d02",
+    "transcript_binding_digest_hex": "f46232108fe8566806963154fa76c8b957dee0c7003a10f5ff082c58f94b7f8a",
+    "signer_set_digest_hex": "d33f9166f07c4d1dc3815818dac64200d8d377637ea3d52721ed24dc0ca35a9f",
+    "attempt_binding_digest_hex": "0d11827f6cc9c74ab4c168a2a091d3c3c923674da711b2d5daa1d07a1d14029b",
+    "accepted_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30"
+  }
+}

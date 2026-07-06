@@ -43,6 +43,13 @@ parameters are valid when `1 <= t <= n` and every validator identifier is
 unique. A threshold key-generation protocol outputs public key `pk`, local key
 shares `sk_i`, and verification metadata `vk_i` for each validator.
 
+The current operating-parameter contract for the selected production-candidate
+direction is `native-threshold-mldsa65-aggregation-p1`, documented in
+`docs/cryptography/thesis-operating-parameters.md` and
+`docs/cryptography/thesis-operating-parameters.json`. That contract records
+the Profile P1 notation and guardrails for review; it does not close this
+theorem or claim production threshold ML-DSA security.
+
 A signing session is identified by:
 
 - session identifier `sid`
@@ -291,8 +298,9 @@ cryptographic theorem.
 
 ## FST-9. Explicit Limitations
 
-Limitation FST-X1. No production threshold ML-DSA protocol is selected in the
-available documentation.
+Limitation FST-X1. The selected P1 threshold ML-DSA route is a review
+direction only; the production security model, full protocol specification,
+and proof remain open.
 
 Limitation FST-X2. No formal DKG, dealer, or share-verification proof is
 present.

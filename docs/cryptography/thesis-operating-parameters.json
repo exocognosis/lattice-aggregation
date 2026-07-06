@@ -1,0 +1,147 @@
+{
+  "schema": "lattice-aggregation.thesis-operating-parameters.v1",
+  "thesis_id": "native-threshold-mldsa65-aggregation-p1",
+  "status": "research_scaffold_partially_proven",
+  "claim_boundary": {
+    "scope": "research scaffold evidence",
+    "claims_production_threshold_mldsa_security": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false
+  },
+  "selected_profile": {
+    "name": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "parameter_set": "ML-DSA-65",
+    "feature_gate": "production-mldsa65-coordinator",
+    "coordinator_assumption": "TEE/HSM",
+    "standard_verifier_compatibility": "target",
+    "signature_bytes": 3309,
+    "public_key_bytes": 1952,
+    "aggregate_output_shape": "one standard-sized ML-DSA-65 signature if proven"
+  },
+  "operating_parameters": {
+    "security_parameter": "lambda",
+    "validator_count": "n",
+    "threshold": "t",
+    "validator_set": "V",
+    "threshold_range": "1 <= t <= n",
+    "static_corruption_bound": "at most t - 1 validators",
+    "retry_domain": "session_id + attempt_id + retry_counter",
+    "rejection_sampling_domain": "centralized ML-DSA-65 acceptance distribution",
+    "batch4_dependency": "selected-backend proof-closure artifact package gate",
+    "boundary": "conformance/proof-review evidence"
+  },
+  "criterion_promotion": [
+    {
+      "id": "aggregate_mask_distribution",
+      "current_status": "partially_met",
+      "promotion_requires": [
+        "selected-backend mask-generation proof artifact",
+        "reviewed Renyi divergence bound for epsilon_mask",
+        "distribution comparison evidence linked from the closure package"
+      ],
+      "evidence_refs": [
+        "docs/cryptography/mask-distribution-evidence.md",
+        "src/production/mask_distribution.rs",
+        "tests/production_mask_distribution.rs"
+      ],
+      "failure_criteria": [
+        "aggregate mask distribution is distinguishable beyond the reviewed bound",
+        "selected profile cannot sample masks in the required ML-DSA-65 domain"
+      ]
+    },
+    {
+      "id": "aggregate_rejection_equivalence",
+      "current_status": "partially_met",
+      "promotion_requires": [
+        "real threshold aggregate recomputation artifacts",
+        "standard-verifier compatibility artifact digest and reviewer sign-off",
+        "accepted-output rejection-distribution review linked to provider evidence"
+      ],
+      "evidence_status": {
+        "standard_verifier_compatibility_artifact_digest": "evidence_present_unclosed",
+        "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
+        "claim_boundary": "conformance/proof-review evidence"
+      },
+      "evidence_refs": [
+        "docs/cryptography/criterion-2-proof-substance.md",
+        "docs/cryptography/criterion-2-proof-substance.json",
+        "docs/cryptography/rejection-equivalence-evidence.md",
+        "src/production/rejection_equivalence.rs",
+        "tests/production_rejection_equivalence.rs"
+      ],
+      "failure_criteria": [
+        "accepted threshold outputs fail standard ML-DSA-65 verification",
+        "aggregate rejection accepts outputs outside centralized ML-DSA-65 predicates"
+      ]
+    },
+    {
+      "id": "abort_retry_bias",
+      "current_status": "partially_met",
+      "promotion_requires": [
+        "retry transcript domain separation proof",
+        "selective-abort leakage model and bias bound",
+        "accepted-signature distribution analysis across retries"
+      ],
+      "evidence_refs": [
+        "docs/cryptography/abort-retry-bias-evidence.md",
+        "src/production/abort_bias.rs",
+        "tests/production_abort_bias.rs"
+      ],
+      "failure_criteria": [
+        "retry timing can bias accepted signatures beyond the reviewed bound",
+        "attempt identifiers or retry counters are not transcript-bound"
+      ]
+    },
+    {
+      "id": "partial_contribution_soundness",
+      "current_status": "partially_met",
+      "promotion_requires": [
+        "production LocalAccept proof-backed verifier evidence",
+        "VSS/DKG binding and hiding proof artifacts",
+        "context-binding and leakage review for accepted partials"
+      ],
+      "evidence_refs": [
+        "docs/cryptography/partial-soundness-evidence.md",
+        "src/production/partial_soundness.rs",
+        "tests/production_partial_soundness.rs"
+      ],
+      "failure_criteria": [
+        "stale or cross-context partial contributions can be accepted",
+        "accepted partial evidence leaks outside the stated model"
+      ]
+    },
+    {
+      "id": "unauthorized_aggregate_reduction",
+      "current_status": "partially_met",
+      "promotion_requires": [
+        "threshold unforgeability reduction proof",
+        "base ML-DSA theorem dependency and concrete assumption mapping",
+        "simulator and hybrid-bound artifacts with external review"
+      ],
+      "evidence_refs": [
+        "docs/cryptography/unauthorized-aggregate-reduction.md",
+        "docs/cryptography/formal-security-theorem.md",
+        "tests/unauthorized_aggregate_reduction_manifest.rs"
+      ],
+      "failure_criteria": [
+        "an unauthorized accepting aggregate does not reduce to a named assumption",
+        "the reduction loses the selected profile or validator-set binding"
+      ]
+    }
+  ],
+  "fallback": {
+    "architecture": "Falcon/LaBRADOR-style proof aggregation",
+    "status": "evaluate_only",
+    "claims_selected_backend": false,
+    "pivot_requires": [
+      "scheme selection",
+      "prover and verifier benchmarks",
+      "audit review",
+      "consensus-latency analysis",
+      "claim-boundary docs"
+    ]
+  }
+}

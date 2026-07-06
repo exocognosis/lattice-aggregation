@@ -6,7 +6,7 @@
 
 **Architecture:** The current deterministic simulation backend remains the default and keeps its current claims. New production-candidate code lives behind non-default gates and is split into provider, transcript, preprocessing, coordinator, policy, and evidence modules. The first milestone produces typed, testable surfaces and mandatory standard-verifier gates; threshold math and external audit evidence remain blocked by explicit policy until the reviewed backend is wired.
 
-**Tech Stack:** Rust 2021, existing `sha3`, `thiserror`, `serde`, `zeroize`, `tokio`, `trybuild`; optional `ml-dsa` provider dependency behind `hazmat-real-mldsa`; future fuzzing with `cargo-fuzz`; future side-channel harnesses with dudect/ctgrind equivalents.
+**Tech Stack:** Rust 2021, existing `sha3`, `thiserror`, `serde`, `zeroize`, `tokio`, `trybuild`; optional `ml-dsa` provider dependency behind `raw-real-mldsa`; future fuzzing with `cargo-fuzz`; future side-channel harnesses with dudect/ctgrind equivalents.
 
 ---
 
@@ -85,9 +85,9 @@ Modify `Cargo.toml`:
 default = ["simulated"]
 simulated = []
 hazmat = []
-hazmat-real-mldsa = ["hazmat", "dep:ml-dsa"]
+raw-real-mldsa = ["hazmat", "dep:ml-dsa"]
 coordinator-assisted = []
-production-mldsa65-coordinator = ["coordinator-assisted", "hazmat-real-mldsa"]
+production-mldsa65-coordinator = ["coordinator-assisted", "raw-real-mldsa"]
 
 [dependencies]
 async-trait = "0.1"
@@ -984,11 +984,11 @@ impl StandardMldsa65Provider for UnavailableMldsa65Provider {
 }
 
 /// Hazmat provider wrapper for the optional ML-DSA implementation.
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct HazmatMldsa65Provider;
 
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl StandardMldsa65Provider for HazmatMldsa65Provider {
     fn verify(
         _public_key: &ThresholdPublicKey,
@@ -1008,7 +1008,7 @@ Run:
 
 ```bash
 cargo test --features coordinator-assisted --test production_provider
-cargo check --features hazmat-real-mldsa
+cargo check --features raw-real-mldsa
 ```
 
 Expected: PASS. The hazmat provider remains fail-closed until KAT-backed implementation is added in Task 7.
@@ -1044,7 +1044,7 @@ Create `tests/fixtures/mldsa65_provider_smoke.json`:
 Append to `tests/production_provider.rs`:
 
 ```rust
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 fn hazmat_provider_is_explicitly_not_release_approved() {
     use lattice_aggregation::production::provider::HazmatMldsa65Provider;
@@ -1061,7 +1061,7 @@ fn hazmat_provider_is_explicitly_not_release_approved() {
 Run:
 
 ```bash
-cargo test --features hazmat-real-mldsa --test production_provider hazmat_provider_is_explicitly_not_release_approved
+cargo test --features raw-real-mldsa --test production_provider hazmat_provider_is_explicitly_not_release_approved
 ```
 
 Expected: PASS before real provider code is introduced. This test is a guard that the hazmat wrapper cannot be mistaken for release approval.
@@ -1071,7 +1071,7 @@ Expected: PASS before real provider code is introduced. This test is a guard tha
 In this task, do not hand-code ML-DSA arithmetic. Wrap the selected provider crate only after reading its API and security notes. The wrapper must:
 
 ```rust
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 impl StandardMldsa65Provider for HazmatMldsa65Provider {
     fn verify(
         public_key: &ThresholdPublicKey,
@@ -1090,7 +1090,7 @@ The helper `verify_with_selected_provider` must return `Ok(true)` only when the 
 Add test names in `tests/production_provider.rs` before implementing release promotion:
 
 ```rust
-#[cfg(feature = "hazmat-real-mldsa")]
+#[cfg(feature = "raw-real-mldsa")]
 #[test]
 #[ignore = "requires checked-in ACVP/FIPS ML-DSA-65 vectors"]
 fn hazmat_provider_verifies_mldsa65_kats() {
@@ -1615,12 +1615,12 @@ CARGO_TARGET_DIR=/tmp/lattice-aggregation-doc-manifest cargo test --test proof_d
 
 Expected: FAIL because the new anchors are not present.
 
-- [ ] **Step 3: Update docs with exact evidence requirements**
+- [ ] **Step 3: Update docs with exact non-claims**
 
 Add a row to `docs/cryptography/claims-matrix.md`:
 
 ```markdown
-| Coordinator-assisted ML-DSA-65 profile | Non-default coordinator profile types, policy gates, transcript bindings, preprocessing attempts, and provider boundaries may exist behind `coordinator-assisted` or `hazmat-real-mldsa`. | `production-threshold-mldsa-coordinator-design.md`, FST-L5, Noise Lemma F | hazmat conformance track | Production threshold ML-DSA security requires KAT, proof, side-channel, deployment, and audit gates. |
+| Coordinator-assisted ML-DSA-65 profile | Non-default coordinator profile types, policy gates, transcript bindings, preprocessing attempts, and provider boundaries may exist behind `coordinator-assisted` or `raw-real-mldsa`. | `production-threshold-mldsa-coordinator-design.md`, FST-L5, Noise Lemma F | hazmat conformance only | requires evidence before claiming production threshold ML-DSA security; standard-verifier-compatible only after KAT and audit gates. |
 ```
 
 Add a production-coordinator section to `docs/cryptography/proof-implementation-crosswalk.md` and `docs/cryptography/protocol-code-crosswalk.md` that maps:

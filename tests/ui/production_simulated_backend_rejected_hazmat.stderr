@@ -1,0 +1,33 @@
+error[E0277]: the trait bound `SimulatedBackend: StandardMldsa65Provider` is not satisfied
+  --> tests/ui/production_simulated_backend_rejected_hazmat.rs:10:23
+   |
+10 |     assert_provider::<SimulatedBackend>();
+   |                       ^^^^^^^^^^^^^^^^ the trait `StandardMldsa65Provider` is not implemented for `SimulatedBackend`
+   |
+help: the following other types implement trait `StandardMldsa65Provider`
+  --> src/production/provider.rs
+   |
+   | impl StandardMldsa65Provider for UnavailableMldsa65Provider {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `UnavailableMldsa65Provider`
+...
+   | impl StandardMldsa65Provider for HazmatMldsa65Provider {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `HazmatMldsa65Provider`
+note: required by a bound in `assert_provider`
+  --> tests/ui/production_simulated_backend_rejected_hazmat.rs:7:23
+   |
+ 7 | fn assert_provider<P: StandardMldsa65Provider>() {}
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `assert_provider`
+
+error[E0599]: the associated function or constant `finalize` exists for struct `CoordinatorAggregateGate<SimulatedBackend>`, but its trait bounds were not satisfied
+  --> tests/ui/production_simulated_backend_rejected_hazmat.rs:12:59
+   |
+12 |     let _ = CoordinatorAggregateGate::<SimulatedBackend>::finalize;
+   |                                                           ^^^^^^^^ associated function or constant cannot be called on `CoordinatorAggregateGate<SimulatedBackend>` due to unsatisfied trait bounds
+   |
+  ::: src/backend.rs
+   |
+   | pub struct SimulatedBackend;
+   | --------------------------- doesn't satisfy `SimulatedBackend: StandardMldsa65Provider`
+   |
+   = note: the following trait bounds were not satisfied:
+           `SimulatedBackend: StandardMldsa65Provider`

@@ -12,7 +12,7 @@ from the relevant claim document.
 
 The current repository remains a deterministic research scaffold. Benchmark
 and harness output is deterministic research telemetry, useful for regression
-review and reproducibility, but not security evidence.
+review and reproducibility, but requires security evidence review.
 
 ## Required Inputs
 
@@ -23,7 +23,7 @@ review.
 
 The review must explicitly state whether it covers the default simulated
 backend, the non-default `coordinator-assisted` profile, the
-`hazmat-real-mldsa` production-candidate skeleton, or another backend not
+`raw-real-mldsa` production-candidate skeleton, or another backend not
 present in this checkout.
 
 For construction-selection review, the current selected production-candidate
@@ -40,6 +40,19 @@ migration candidates that require separate review.
   coordinator-assisted Shamir nonce DKG with the TEE/HSM coordinator
   assumption, standard-verifier compatibility target, and P2/MPC plus TALUS
   migration candidates.
+- Keep the thesis and operating-parameter contract in
+  `docs/cryptography/thesis-operating-parameters.md` and
+  `docs/cryptography/thesis-operating-parameters.json` aligned with thesis id
+  `native-threshold-mldsa65-aggregation-p1`, scope `research scaffold evidence`,
+  all five criteria `partially_met`, and Falcon/LaBRADOR-style proof
+  aggregation as `evaluate only`.
+- Keep the Criterion 2 proof-substance contract in
+  `docs/cryptography/criterion-2-proof-substance.md` and
+  `docs/cryptography/criterion-2-proof-substance.json` aligned with
+  `aggregate_rejection_equivalence`, status
+  `criterion2_proof_payload_formalized`, and Criterion 2 still
+  `partially_met` until reviewed proof, compatibility, distribution,
+  validation, theorem-linkage, and external-review artifacts are supplied.
 - Complete the threshold unforgeability and real/ideal proof package under the
   stated adversary, network, abort, and corruption model.
 - Show aggregate output compatibility with a standard ML-DSA verifier.
@@ -61,7 +74,7 @@ migration candidates that require separate review.
 - Complete FIPS/ACVP-style ML-DSA-65 provider KATs for the selected provider
   and link the vectors, logs, tool versions, and reviewer sign-off.
 - Keep the checked-in NIST ACVP-Server FIPS204 `ML-DSA-sigVer` ML-DSA-65 sample
-  fixture passing under `hazmat-real-mldsa`, with source commit and SHA-256
+  fixture passing under `raw-real-mldsa`, with source commit and SHA-256
   digests recorded. Treat this as sample-vector conformance only; CAVP/ACVTS
   validation claims require lab/Prod-server vector sets, validation transcripts,
   certificate identifiers, prerequisite validation references, and reviewer
@@ -69,7 +82,15 @@ migration candidates that require separate review.
 - Complete coordinator-assisted threshold KATs for profile policy gates,
   transcript binding, preprocessing attempts, final verifier behavior, and
   production coordinator wire frames.
-- Add standard-verifier bridge tests for accepted aggregate signatures.
+- Treat the checked-in standard-verifier bridge fixture package at
+  `tests/fixtures/p1_standard_verifier_bridge_fixture.json` as a
+  mandatory criterion-2 release gate. Fixture-backed bridge evidence,
+  negative-corpus cases, selected profile binding digest, standard-verifier bridge evidence
+  digest, and test-pinned raw fixture-package digest must remain stable before criterion
+  promotion. This gate is necessary but not sufficient; it is
+  not selected-backend aggregate recomputation,
+  not production threshold ML-DSA recomputation, and
+  real threshold selected-backend accepted aggregate signatures remain a release blocker.
 - Provide production LocalAccept/AggregateAccept evidence for the selected
   backend before any criterion promotion, including rejection cases, logs,
   reviewer sign-off, and linked `tests/production_acceptance.rs` results.
@@ -83,6 +104,80 @@ migration candidates that require separate review.
   norm/hint/challenge/transcript proof artifact digests, negative corpus digest,
   and external review digest must all agree. The P1 gate is framework evidence
   until the real threshold artifacts and reviewed proofs are checked in.
+- Require the selected-backend aggregate-output artifact gate before criterion-2
+  promotion: `P1SelectedBackendAggregateArtifactPackage`,
+  `assess_p1_selected_backend_aggregate_artifact`, and the
+  `p1_selected_backend_aggregate_artifact_gate` assessment/report key must bind
+  `LocalAccept`/`AggregateAccept` evidence, signer-set digest, attempt-binding
+  digest, transcript-binding digest, provider KAT digest, recomputation digest,
+  and standard-verifier bridge evidence digest. This gate is
+  conformance/proof-review evidence, necessary but not sufficient,
+  criterion-2 remains partial, and the selected-backend aggregate-output
+  artifact gate is requires selected-backend proof closure evidence,
+  requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence,
+  requires FIPS validation evidence, and requires a completed standard-verifier compatibility proof.
+- Require the real standard-provider aggregate-output package path before
+  claiming that the selected-backend artifact package moved beyond fixture-only
+  bridge confidence: `derive_p1_selected_backend_aggregate_artifact_package`,
+  `derive_p1_real_recomputation_evidence_digest`, and the
+  `p1_selected_backend_real_output_package` assessment/report key must derive
+  the package from a provider-verified ML-DSA-65 candidate signature,
+  `LocalAccept`/`AggregateAccept` tokens, public recomputation transcript, and
+  standard-verifier bridge digest evidence. This is still
+  conformance/proof-review evidence; it is not a real threshold aggregate
+  signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
+  validation, rejection-distribution preservation, or completed
+  standard-verifier compatibility proof.
+- Require the real-threshold backend emission ingestion artifact before claiming
+  that the 10,000-validator standard-verifier target moved beyond
+  standard-provider evidence: `P1RealThresholdBackendEmissionArtifactPackage`,
+  `derive_p1_real_threshold_backend_emission_artifact_package`,
+  `assess_p1_real_threshold_backend_emission_artifact`,
+  `P1RealThresholdVerifierClosurePackage`,
+  `assess_p1_real_threshold_verifier_closure_contract`, and the
+  `p1_real_threshold_backend_output_gate` assessment/report key must bind real
+  threshold ML-DSA backend provenance, backend source package digest, backend
+  implementation digest, backend transcript digest, `validators = 10000`,
+  `threshold = 6667`, `aggregate_signature.len() = 3309`,
+  standard-verifier acceptance, and mutated message, public-key, and signature
+  rejection evidence. This threshold verifier closure contract rejects
+  deterministic simulation and ordinary single-key standard-provider output as
+  closure evidence. It is still conformance/proof-review evidence; it is not
+  production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation,
+  rejection-distribution preservation, selected-backend proof closure, a claim
+  that this repo implements a real threshold backend, or completed
+  standard-verifier compatibility proof.
+- Require the selected-backend threshold-output artifact gate before claiming
+  that Batch 3 moved beyond real standard-provider aggregate-output package
+  evidence: `P1SelectedBackendThresholdOutputArtifactPackage`,
+  `assess_p1_selected_backend_threshold_output_artifact`,
+  `derive_p1_selected_backend_threshold_output_artifact_package`,
+  `derive_p1_selected_backend_threshold_output_source_digest`,
+  `derive_p1_selected_backend_threshold_output_source_package_digest`,
+  `derive_p1_selected_backend_aggregate_certificate_digest`, and the
+  `p1_selected_backend_threshold_output_artifact_gate` assessment/report key
+  must bind selected-backend threshold-output source evidence to the aggregate
+  artifact certificate, signer-set digest, attempt-binding digest,
+  transcript-binding digest, public recomputation digest, accepted signature
+  digest, standard-verifier bridge evidence digest, and reviewed source-package digest. This is the first Batch 3 threshold-output artifact boundary, not production threshold signing,
+  requires selected-backend proof closure evidence, requires CAVP/ACVTS validation evidence, not FIPS
+  validation, requires rejection-distribution preservation proof, and not completed
+  standard-verifier compatibility.
+- Require the selected-backend proof-closure artifact package gate before
+  claiming that Batch 4 moved beyond the threshold-output artifact gate:
+  `P1SelectedBackendProofClosureArtifactPackage`,
+  `assess_p1_selected_backend_proof_closure_artifact`,
+  `derive_p1_selected_backend_proof_closure_artifact_package`,
+  `derive_p1_selected_backend_threshold_output_certificate_digest`, and the
+  `p1_selected_backend_proof_closure_artifact_gate` assessment/report key must
+  bind the accepted threshold-output certificate to selected profile, provider
+  KAT, recomputation, standard-verifier bridge evidence, accepted aggregate
+  output, reviewed proof artifacts, full KAT/validation artifact slots,
+  rejection-distribution review, standard-verifier compatibility evidence, and
+  theorem-linkage artifact digest evidence. This is the Batch 4 proof-closure artifact package boundary, requires selected-backend proof closure evidence, not production
+  threshold ML-DSA security, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence,
+  requires rejection-distribution preservation proof, and not completed standard-verifier
+  compatibility.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,
   `tests/production_rejection_equivalence.rs`,
@@ -135,6 +230,25 @@ migration candidates that require separate review.
   [real-world-benchmark-protocol.md](real-world-benchmark-protocol.md) until a
   production backend, external validator deployment, raw logs, checksums, and
   reviewer sign-off exist.
+- Keep local validator-network telemetry indexed from
+  [localnet-validator-runner.md](localnet-validator-runner.md) and separate it
+  from real-world benchmark evidence until production transport, consensus
+  safety, authenticated validator deployment, and reviewed backend evidence
+  exist.
+- Keep local fault-profile telemetry such as `withheld-partial` explicitly
+  framed as local fault-injection telemetry, not production liveness,
+  consensus-safety, slashing-soundness, or Byzantine-fault-tolerance evidence.
+- Keep quorum-participation telemetry such as `triggered_validator_count`
+  framed as local participation evidence only; a passive validator is not
+  finalized and is not slashing evidence.
+- Keep authenticated-transport telemetry such as `authentication_policy`,
+  `authenticated_envelope_count`, and `rejected_envelope_count` framed as
+  local identity-envelope evidence only; it is not production authenticated
+  transport, peer-discovery, replay-resistance, or network-liveness evidence.
+- Keep authenticated-envelope-tamper telemetry framed as local tamper-rejection
+  telemetry only; a tampered authenticated envelope rejected by the local
+  runner is not slashing evidence, not production authenticated transport, and
+  not replay-resistance evidence.
 - Keep benchmark output framed as deterministic research telemetry and not
   security evidence.
 - Store artifact checksums and regeneration commands.

@@ -1,0 +1,47 @@
+{
+  "name": "p1-real-recomputation-artifact-fixture-v1",
+  "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
+  "claim_boundary": "conformance/proof-review evidence",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
+  "source_standard_verifier_compatibility_fixture": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
+  "note": "Checked real recomputation proof-slot fixture for Criterion 2 review only; requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.",
+  "slot_artifact": {
+    "slot_id": "real_recomputation_evidence_digest",
+    "kind": "RealRecomputationEvidence",
+    "evidence_source": "p1_criterion2_real_recomputation_evidence_artifact_gate",
+    "artifact_package": "p1_criterion2_proof_slot_artifact_package",
+    "current_status": "evidence_present_unclosed",
+    "reviewed": true
+  },
+  "expected": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f",
+    "transcript_binding_digest_hex": "f46232108fe8566806963154fa76c8b957dee0c7003a10f5ff082c58f94b7f8a",
+    "source_evidence_digest_hex": "2929292929292929292929292929292929292929292929292929292929292929",
+    "review_evidence_digest_hex": "3030303030303030303030303030303030303030303030303030303030303030",
+    "artifact_digest_hex": "520138fdf06d57790a523472ed58f9e9eaa0eba06bfe64bace6cf6c1eb63425c",
+    "standard_verifier_bridge_evidence_digest_hex": "dfa42dff5d8c509f9f25298b3e28964db0cdb2987330d73fd2250fcf1eb77127",
+    "aggregate_response_digest_hex": "e41c03e1463d24a41c6baa5985e40c73400118a2ead1bb5944671c9d190385b0",
+    "hint_digest_hex": "ce557d7e4188cfd152415e4df57f35d109bbe3c38d23bc0798f9183e790bbc7c",
+    "accepted_signature_digest_hex": "c8a2b72dd1c9ab037903499f965d15b7d063228c7fd11b470beaef984fd30b30"
+  },
+  "negative_cases": [
+    {
+      "name": "stale_transcript_binding_digest",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_stale_proof_transcript_binding"
+    },
+    {
+      "name": "stale_recomputation_source_digest",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_source_tamper"
+    },
+    {
+      "name": "stale_recomputation_review_digest",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_review_tamper"
+    },
+    {
+      "name": "unreviewed_slot_artifact",
+      "expected_gate": "p1_selected_backend_proof_closure_artifact_rejects_unreviewed_typed_slot"
+    }
+  ]
+}

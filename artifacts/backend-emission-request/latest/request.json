@@ -1,0 +1,39 @@
+{
+  "aggregate_signature_len": 3309,
+  "claim_boundary": "conformance/proof-review evidence",
+  "forbidden_capture_sources": [
+    "localnet",
+    "deterministic simulation",
+    "fixture harness",
+    "ordinary single-key standard-provider output"
+  ],
+  "generated_at": "2026-07-04T18:56:05Z",
+  "message": {
+    "encoding": "hex",
+    "value": "6f726967696e616c206170706c69636174696f6e206d657373616765"
+  },
+  "name": "p1-real-threshold-backend-emission-request-001",
+  "predecessors": {
+    "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
+    "standard_verifier_compatibility_artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
+    "threshold_output_certificate_digest_hex": "3ac1ea34f52e362c66a0f1367d33200c27086587778cf242829ea62ee30df71f"
+  },
+  "request_status": "evidence_present_unclosed",
+  "required_capture": {
+    "aggregate_signature_len": 3309,
+    "backend_evidence": "real_threshold_mldsa_external_capture",
+    "claim_boundary": "conformance/proof-review evidence",
+    "mutated_message_rejected": true,
+    "mutated_public_key_rejected": true,
+    "mutated_signature_rejected": true,
+    "reviewed": true,
+    "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
+    "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "threshold": 6667,
+    "validator_count": 10000
+  },
+  "schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "threshold": 6667,
+  "validator_count": 10000
+}

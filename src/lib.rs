@@ -1,10 +1,11 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
-//! Research-grade threshold ML-DSA-65 API boundary.
+//! Audit-oriented threshold ML-DSA-65 API boundary.
 //!
 //! This crate exposes protocol state, transcript, validation, and backend traits
-//! for threshold ML-DSA-65 experiments. The default backend is a deterministic
-//! simulation backend and does not produce real ML-DSA signatures.
+//! for threshold ML-DSA-65 experiments. Simulation and raw provider surfaces are
+//! explicit non-production paths; the P1 nonce-producer handoff profile expects
+//! reviewed external capture material before promotion.
 
 pub mod adapter;
 pub mod aggregation;
@@ -14,7 +15,7 @@ pub mod crypto;
 pub mod dkg;
 pub mod errors;
 pub mod low_level;
-#[cfg(any(feature = "coordinator-assisted", feature = "hazmat-real-mldsa"))]
+#[cfg(any(feature = "coordinator-assisted", feature = "raw-real-mldsa"))]
 pub mod production;
 pub mod protocol;
 pub mod serialization;
