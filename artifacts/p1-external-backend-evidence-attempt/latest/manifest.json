@@ -1,5 +1,5 @@
 {
-  "attempt_digest_sha256": "82dd092125df82a9567f10693f5e32e6e9a1813a3bfffe865d23f9b6b05cc9d5",
+  "attempt_digest_sha256": "bb0f1ae507ca09acc28d80bcf4c0ad23cc4a87d0e4e437e2960403f8a787a6e5",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "backend capture is quarantined from strict threshold-core closure",
@@ -8,9 +8,9 @@
     "backend core admissibility is quarantined",
     "reviewed external evidence package is missing"
   ],
-  "candidate_digest_sha256": "3ba5933959795d88a29612a7b29b9d20ec5b9ef6bc18b3dc5718ee69fb2c7476",
+  "candidate_digest_sha256": "1a6f99aaeef73c564e243d51c9cc17a9337bff12da31160962335454cf7eefc7",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "0e965331d7c2e738f7dc0106ce064af701a3796027938f01d1f5d082461451cf",
+  "candidate_manifest_sha256": "f9c37db0a0307d32c018ce357f878a07d560e11bc2160fbc5a75ca8a129c7e59",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
@@ -35,7 +35,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-06T14:35:51Z",
+  "generated_at": "2026-07-06T15:04:33Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -45,17 +45,17 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "0e965331d7c2e738f7dc0106ce064af701a3796027938f01d1f5d082461451cf"
+      "sha256": "f9c37db0a0307d32c018ce357f878a07d560e11bc2160fbc5a75ca8a129c7e59"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60"
+      "sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "abc9a3d12c7baa395e182b8b5d42c3c6d765f1e73682fc5d9a9da28c375d15ad"
+      "sha256": "83d2ccd805e14d1cb4525b0e9fd6a3a5ff5e2ef5ceee4dc01eda1d95c434e89c"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",

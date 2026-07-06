@@ -29,6 +29,12 @@ SMOKE_CORE_MODES = {
 SMOKE_SIGNATURE_ORIGINS = {
     "single_seed_standard_mldsa65_provider",
 }
+RECONSTRUCTION_CORE_MODES = {
+    "threshold_seed_reconstruction_mldsa65_provider",
+}
+RECONSTRUCTION_SIGNATURE_ORIGINS = {
+    "threshold_seed_reconstruction_standard_mldsa65_provider",
+}
 
 
 def canonical_json(data):
@@ -123,6 +129,14 @@ def backend_core_admissible(backend_manifest, backend_capture, blockers):
     if core_mode in SMOKE_CORE_MODES or signature_origin in SMOKE_SIGNATURE_ORIGINS:
         blockers.append(
             "centralized/single-seed smoke capture cannot satisfy real threshold emission"
+        )
+        admissible = False
+    if (
+        core_mode in RECONSTRUCTION_CORE_MODES
+        or signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS
+    ):
+        blockers.append(
+            "threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation"
         )
         admissible = False
     if not isinstance(distributed_core, dict):

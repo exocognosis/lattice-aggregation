@@ -1,8 +1,8 @@
 {
   "capture": {
     "backend_evidence": "real_threshold_mldsa_external_capture",
-    "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
-    "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+    "capture_file_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
+    "capture_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
     "request_name": "p1-real-threshold-backend-emission-request-001",
     "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
     "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
@@ -30,7 +30,7 @@
   "review": {
     "backend_command_digest_hex": "8c4f8e6250d645802df5479ad376bbadd29478c13dafba07c3bf3076c41eefe1",
     "capture_environment_digest_hex": "cb87ea8d3255b481c3dd31a612c7cd728d66f4cf0fde1b2d1bee40a1e2be27fa",
-    "external_review_digest_hex": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+    "external_review_digest_hex": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
     "operator_identity_digest_hex": "b67d17f1b506c2ad05e95721df132e63ca32ca453d97bfe20404fc7d2a8983d8",
     "reviewer_identity_digest_hex": "559b08c54d4488d73bec4d832658de1e77265ae452f4b6ae5b298c28f9ec4f49"
   },

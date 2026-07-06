@@ -135,6 +135,28 @@ def backend_capture():
     }
 
 
+def mark_as_threshold_seed_reconstruction(manifest, capture):
+    manifest["backend_core_admissibility"].update(
+        {
+            "strict_threshold_core_admissible": True,
+            "quarantined": False,
+            "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
+            "signature_origin": (
+                "threshold_seed_reconstruction_standard_mldsa65_provider"
+            ),
+            "reasons": [],
+        }
+    )
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
+            "signature_origin": (
+                "threshold_seed_reconstruction_standard_mldsa65_provider"
+            ),
+        }
+    )
+
+
 def rejection_batch(close_candidate=True):
     return {
         "name": "synthetic-p1-rejection-equivalence-batch",
@@ -261,6 +283,40 @@ class P1ExternalBackendClosureCandidateBuilderTests(unittest.TestCase):
         self.assertIn(
             "rejection-distribution comparison requires close-candidate evidence",
             report["manifest"]["blockers"],
+        )
+
+    def test_threshold_seed_reconstruction_cannot_satisfy_strict_backend_core(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce-gate" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_path = root / "rejection" / "batch.json"
+            manifest_payload = backend_manifest()
+            capture_payload = backend_capture()
+            mark_as_threshold_seed_reconstruction(manifest_payload, capture_payload)
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, manifest_payload)
+            write_json(backend_capture_path, capture_payload)
+            write_json(rejection_path, rejection_batch(close_candidate=True))
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_path,
+            )
+
+        manifest = report["manifest"]
+        blockers = " ".join(manifest["blockers"])
+        self.assertFalse(manifest["close_candidate"])
+        self.assertFalse(manifest["checks"]["real_threshold_emission_present"])
+        self.assertIn(
+            "threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation",
+            blockers,
         )
 
 

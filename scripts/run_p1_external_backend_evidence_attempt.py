@@ -35,6 +35,9 @@ FORBIDDEN_SOURCE_MARKERS = (
     "standard_provider_single_key",
     "single-seed",
     "single_seed",
+    "threshold_seed_reconstruction",
+    "threshold seed reconstruction",
+    "seed-reconstruction",
     "centralized_mldsa65_provider",
     "centralized ml-dsa",
     "repo_reference_cli_capture",
@@ -225,6 +228,12 @@ def structured_source_blockers(backend_manifest, backend_capture):
             blockers.append("centralized ML-DSA smoke core cannot feed external evidence")
         if core.get("signature_origin") == "single_seed_standard_mldsa65_provider":
             blockers.append("single-seed standard-provider signature cannot feed external evidence")
+        if core.get("core_mode") == "threshold_seed_reconstruction_mldsa65_provider":
+            blockers.append("threshold seed-reconstruction capture cannot feed external evidence")
+        if core.get("signature_origin") == "threshold_seed_reconstruction_standard_mldsa65_provider":
+            blockers.append(
+                "threshold seed-reconstruction standard-provider signature cannot feed external evidence"
+            )
     return blockers
 
 

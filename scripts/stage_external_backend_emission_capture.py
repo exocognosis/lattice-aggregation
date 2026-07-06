@@ -60,6 +60,12 @@ SMOKE_CORE_MODES = {
 SMOKE_SIGNATURE_ORIGINS = {
     "single_seed_standard_mldsa65_provider",
 }
+RECONSTRUCTION_CORE_MODES = {
+    "threshold_seed_reconstruction_mldsa65_provider",
+}
+RECONSTRUCTION_SIGNATURE_ORIGINS = {
+    "threshold_seed_reconstruction_standard_mldsa65_provider",
+}
 
 
 def canonical_json(data):
@@ -253,6 +259,10 @@ def backend_core_admissibility(capture, review_report):
         reasons.append("centralized ML-DSA smoke core mode")
     if signature_origin in SMOKE_SIGNATURE_ORIGINS:
         reasons.append("single-seed standard-provider signature origin")
+    if core_mode in RECONSTRUCTION_CORE_MODES:
+        reasons.append("threshold seed-reconstruction core mode")
+    if signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS:
+        reasons.append("threshold seed-reconstruction standard-provider signature origin")
     if isinstance(checks, dict):
         if checks.get("real_distributed_threshold_core_verified") is not True:
             reasons.append("real distributed threshold core not externally verified")

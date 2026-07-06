@@ -108,6 +108,19 @@ def external_capture():
     }
 
 
+def threshold_seed_reconstruction_capture():
+    capture = external_capture()
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
+            "signature_origin": (
+                "threshold_seed_reconstruction_standard_mldsa65_provider"
+            ),
+        }
+    )
+    return capture
+
+
 def external_request():
     return {
         "schema": REQUEST_SCHEMA,
@@ -193,6 +206,16 @@ def forged_external_capture_runner(command, root, env):
         "exit_code": 0,
         "duration_seconds": 0.2,
         "stdout": json.dumps(external_capture()),
+        "stderr": "",
+    }
+
+
+def reconstruction_capture_runner(command, root, env):
+    return {
+        "command": command,
+        "exit_code": 0,
+        "duration_seconds": 0.2,
+        "stdout": json.dumps(threshold_seed_reconstruction_capture()),
         "stderr": "",
     }
 
@@ -334,6 +357,34 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
         self.assertNotIn("validator_localnet", " ".join(manifest["backend_command"]))
         self.assertNotIn("run_simulation_benchmarks", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
+
+    def test_threshold_seed_reconstruction_capture_is_quarantined(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            report = module.build_report(
+                root,
+                request_path=request_path,
+                backend_command=["/opt/threshold-backend", "emit-capture"],
+                command_runner=reconstruction_capture_runner,
+                metadata_provider=fake_metadata,
+                generated_at="2026-07-01T00:00:00Z",
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertFalse(admissibility["strict_threshold_core_admissible"])
+        self.assertTrue(admissibility["quarantined"])
+        self.assertIn(
+            "threshold seed-reconstruction core mode",
+            admissibility["reasons"],
+        )
+        self.assertIn(
+            "threshold seed-reconstruction standard-provider signature origin",
+            admissibility["reasons"],
+        )
 
     def test_build_report_rejects_capture_that_omits_or_stales_request_binding(self):
         module = load_module()

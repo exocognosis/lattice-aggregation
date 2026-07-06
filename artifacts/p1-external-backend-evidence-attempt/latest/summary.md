@@ -5,9 +5,9 @@ This artifact groups the actual external nonce gate, real-threshold backend emis
 - Status: `blocked_external_evidence_missing`
 - Close candidate: `false`
 - Claim boundary: `conformance/proof-review evidence`
-- Candidate manifest SHA-256: `0e965331d7c2e738f7dc0106ce064af701a3796027938f01d1f5d082461451cf`
+- Candidate manifest SHA-256: `f9c37db0a0307d32c018ce357f878a07d560e11bc2160fbc5a75ca8a129c7e59`
 - Review package SHA-256: `None`
-- Attempt digest SHA-256: `82dd092125df82a9567f10693f5e32e6e9a1813a3bfffe865d23f9b6b05cc9d5`
+- Attempt digest SHA-256: `bb0f1ae507ca09acc28d80bcf4c0ad23cc4a87d0e4e437e2960403f8a787a6e5`
 
 Checks:
 - `strict_external_nonce_capture_ready`: `true`
@@ -30,4 +30,4 @@ Blockers:
 - backend core admissibility is quarantined
 - reviewed external evidence package is missing
 
-This is pending theorem-closure review. It requires Criterion 2 proof review, rejection-distribution preservation, selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or completed cryptographic proof.
+This package is pending theorem-closure review. It requires Criterion 2 proof review, rejection-distribution preservation proof, selected-backend proof closure evidence, production threshold ML-DSA security evidence, CAVP/ACVTS validation evidence, FIPS validation evidence, and completed cryptographic proof evidence.

@@ -36,6 +36,12 @@ SMOKE_CORE_MODES = {
 SMOKE_SIGNATURE_ORIGINS = {
     "single_seed_standard_mldsa65_provider",
 }
+RECONSTRUCTION_CORE_MODES = {
+    "threshold_seed_reconstruction_mldsa65_provider",
+}
+RECONSTRUCTION_SIGNATURE_ORIGINS = {
+    "threshold_seed_reconstruction_standard_mldsa65_provider",
+}
 COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
 COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
 TOP_LEVEL_FIELDS = {
@@ -44,6 +50,7 @@ TOP_LEVEL_FIELDS = {
     "claim_boundary",
     "selected_profile",
     "backend_evidence",
+    "backend_requirement_evidence",
     "note",
     "cryptographic_core",
     "request",
@@ -74,6 +81,7 @@ EXPECTED_DIGEST_FIELDS = {
 }
 OPTIONAL_EXPECTED_DIGEST_FIELDS = {
     "threshold_reconstruction_digest_hex",
+    "backend_requirement_evidence_digest_hex",
 }
 CAPTURE_PAYLOAD_FIELDS = {
     "validator_count",
@@ -294,6 +302,10 @@ def backend_core_admissibility(capture):
         reasons.append("centralized ML-DSA smoke core mode")
     if signature_origin in SMOKE_SIGNATURE_ORIGINS:
         reasons.append("single-seed standard-provider signature origin")
+    if core_mode in RECONSTRUCTION_CORE_MODES:
+        reasons.append("threshold seed-reconstruction core mode")
+    if signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS:
+        reasons.append("threshold seed-reconstruction standard-provider signature origin")
     if isinstance(distributed_core, dict):
         required_flags = (
             "distributed_keygen_vss",
