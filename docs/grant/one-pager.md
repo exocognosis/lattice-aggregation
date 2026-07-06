@@ -74,7 +74,7 @@ backend is selected, and there is no side-channel audit, FIPS/CAVP validation,
 or external cryptographic review yet. The artifact is engineering and
 proof-route evidence, not a proven construction. See the
 [Cryptographic Claims Matrix](../cryptography/claims-matrix.md) and the
-[Hypothesis Closure Requirements](../../README.md#hypothesis-closure-requirements).
+[thesis operating parameters](../cryptography/thesis-operating-parameters.md).
 
 ## Ethereum / Post-Quantum Alignment
 
@@ -87,7 +87,7 @@ system, it would produce one native ML-DSA-65 signature with an `O(1)`, standard
 verification footprint if the theorem and backend obligations close. A robust PQ
 roadmap benefits from evaluating both, and
 this effort delivers a rigorously bounded read on the native-signature option.
-See [Alignment with Ethereum Post-Quantum Priorities](../../README.md#alignment-with-ethereum-post-quantum-priorities).
+See this section for the Ethereum post-quantum alignment.
 
 ## Proposed Grant Scope
 
@@ -103,8 +103,8 @@ cryptographer.)
 | M4 | **Comparative evaluation & reference spec** | Apples-to-apples comparison vs. hash-based + SNARK aggregation (verification cost, liveness, trust, audit surface); reference Rust protocol spec + conformance suite | 2–3 mo |
 | M5 | **External review & audit prep** | Independent cryptographic review of M1–M3; side-channel/randomness review scope; malicious-secure DKG realization plan | 3–4 mo |
 
-M1–M3 are the criterion-closing milestones (mapping to the five
-[Hypothesis Closure Requirements](../../README.md#hypothesis-closure-requirements));
+M1–M3 are the criterion-closing milestones (mapped in the
+[Cryptographic Claims Matrix](../cryptography/claims-matrix.md));
 M4 and M5 are complementary deliverables that run alongside and after M1–M3, not
 additional closure criteria.
 
