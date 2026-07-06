@@ -9,7 +9,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "run_localnet_runner.py"
 
-SAMPLE_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+SAMPLE_STDOUT = """claim_boundary=local validator-network engineering telemetry; requires security evidence review; requires real-world validator performance evidence; requires production-readiness evidence; requires production network liveness evidence, authenticated transport, or consensus safety; requires side-channel resistance evidence; requires CAVP/ACVTS validation evidence; requires FIPS validation evidence; requires production threshold ML-DSA security evidence
 fault_profile=honest
 validators=4
 triggered_validator_count=4
@@ -27,7 +27,7 @@ rejected_envelope_count=0
 network_bytes=2160
 """
 
-FAULT_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+FAULT_STDOUT = """claim_boundary=local validator-network engineering telemetry; requires security evidence review; requires real-world validator performance evidence; requires production-readiness evidence; requires production network liveness evidence, authenticated transport, or consensus safety; requires side-channel resistance evidence; requires CAVP/ACVTS validation evidence; requires FIPS validation evidence; requires production threshold ML-DSA security evidence
 fault_profile=withheld-partial
 validators=4
 triggered_validator_count=4
@@ -45,7 +45,7 @@ rejected_envelope_count=0
 network_bytes=1920
 """
 
-QUORUM_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+QUORUM_STDOUT = """claim_boundary=local validator-network engineering telemetry; requires security evidence review; requires real-world validator performance evidence; requires production-readiness evidence; requires production network liveness evidence, authenticated transport, or consensus safety; requires side-channel resistance evidence; requires CAVP/ACVTS validation evidence; requires FIPS validation evidence; requires production threshold ML-DSA security evidence
 fault_profile=honest
 validators=4
 triggered_validator_count=3
@@ -63,7 +63,7 @@ rejected_envelope_count=0
 network_bytes=1512
 """
 
-AUTHENTICATED_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+AUTHENTICATED_STDOUT = """claim_boundary=local validator-network engineering telemetry; requires security evidence review; requires real-world validator performance evidence; requires production-readiness evidence; requires production network liveness evidence, authenticated transport, or consensus safety; requires side-channel resistance evidence; requires CAVP/ACVTS validation evidence; requires FIPS validation evidence; requires production threshold ML-DSA security evidence
 fault_profile=honest
 validators=4
 triggered_validator_count=4
@@ -81,7 +81,7 @@ rejected_envelope_count=0
 network_bytes=3096
 """
 
-AUTHENTICATED_TAMPER_STDOUT = """claim_boundary=local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+AUTHENTICATED_TAMPER_STDOUT = """claim_boundary=local validator-network engineering telemetry; requires security evidence review; requires real-world validator performance evidence; requires production-readiness evidence; requires production network liveness evidence, authenticated transport, or consensus safety; requires side-channel resistance evidence; requires CAVP/ACVTS validation evidence; requires FIPS validation evidence; requires production threshold ML-DSA security evidence
 fault_profile=authenticated-envelope-tamper
 validators=4
 triggered_validator_count=4
@@ -209,7 +209,7 @@ class LocalnetRunnerTests(unittest.TestCase):
         self.assertEqual(report["metrics"]["fault_profile"], "honest")
         self.assertEqual(report["metrics"]["dropped_message_count"], 0)
         self.assertEqual(report["metrics"]["network_bytes"], 2160)
-        self.assertIn("not production threshold ML-DSA security", report["summary_md"])
+        self.assertIn("requires production threshold ML-DSA security evidence", report["summary_md"])
 
     def test_write_artifacts_emits_packet_files_and_checksums(self):
         module = load_module()
@@ -272,7 +272,7 @@ class LocalnetRunnerTests(unittest.TestCase):
         self.assertEqual(report["metrics"]["dropped_message_count"], 3)
         self.assertEqual(report["metrics"]["evidence_count"], 3)
         self.assertIn("fault-injection telemetry", report["summary_md"])
-        self.assertIn("not production network liveness", report["summary_md"])
+        self.assertIn("requires production network liveness evidence", report["summary_md"])
         self.assertIn("--profile withheld-partial", report["summary_md"])
 
     def test_quorum_participation_packet_preserves_passive_validator_boundary(self):

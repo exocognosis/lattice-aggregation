@@ -26,7 +26,7 @@ def external_request():
         "schema": REQUEST_SCHEMA,
         "name": "external-nonce-producer-readiness-request",
         "generated_at": "2026-07-03T00:00:00Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "request_status": "evidence_present_unclosed",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "predecessors": {
@@ -37,7 +37,7 @@ def external_request():
         "required_capture": {
             "schema": CAPTURE_SCHEMA,
             "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
-            "claim_boundary": "conformance/proof-review evidence only",
+            "claim_boundary": "conformance/proof-review evidence",
             "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
             "material": [
                 "source_reference",
@@ -256,7 +256,7 @@ class NonceProducerBackendReadinessTests(unittest.TestCase):
             " ".join(manifest["quarantine"]["safe_replacement_requirements"]),
         )
         self.assertIn("backend_detected_not_admissible", summary)
-        self.assertIn("does not prove Criterion 2", summary)
+        self.assertIn("requires Criterion 2 proof review", summary)
 
     def test_readiness_report_marks_clean_reviewed_candidate_as_capture_admissible(self):
         module = load_module()

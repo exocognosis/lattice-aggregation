@@ -15,7 +15,7 @@ REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
 READINESS_SCHEMA = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
 EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 HANDOFF_STATUS = "evidence_present_unclosed"
 ADMISSIBLE_READINESS_STATUS = "backend_candidate_admissible_pending_capture"
@@ -241,7 +241,7 @@ def render_summary(manifest):
         "",
         "This artifact builds the current repo request and replays the "
         "capture/import handoff through the external-command runner. It is "
-        f"{HANDOFF_STATUS} conformance/proof-review evidence only.",
+        f"{HANDOFF_STATUS} conformance/proof-review evidence.",
         "",
         f"- Request schema: `{manifest['request_schema']}`",
         f"- Capture schema: `{manifest['capture_schema']}`",
@@ -269,7 +269,7 @@ def render_summary(manifest):
     lines.extend(
         [
             "",
-            "This replay does not prove Criterion 2, rejection-distribution "
+            "This replay requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",

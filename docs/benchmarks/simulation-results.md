@@ -1,7 +1,7 @@
 # Simulation Benchmark Results
 
 This document indexes the checked-in deterministic simulation benchmark
-artifacts for the current research scaffold. These results are deterministic research telemetry, not security evidence, not real-world validator performance, and not production-readiness evidence.
+artifacts for the current research scaffold. These results are deterministic research telemetry, requires security evidence review, requires real-world validator performance evidence, and requires production-readiness evidence.
 
 The latest checked-in run uses the large deterministic profile:
 

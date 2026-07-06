@@ -5,7 +5,7 @@
     "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
     "request_name": "p1-reviewed-nonce-producer-request-001",
     "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
   },
   "checks": {
@@ -21,7 +21,7 @@
     "readiness_source_tree_reviewed": true,
     "request_binding_reviewed": true
   },
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "closure_boundary": "external nonce-producer capture review dossier only",
   "generated_at": "1970-01-01T00:00:00Z",
   "readiness": {

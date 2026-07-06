@@ -1,8 +1,6 @@
 # Real-World Benchmark Protocol
 
-This protocol defines the minimum evidence needed before this repository can
-claim real-world benchmark results. Until every required input is present,
-reviewed, and linked, the repository must not claim real-world benchmark results, production validator performance, production liveness, side-channel resistance, FIPS validation, or production consensus signing readiness.
+This protocol defines the minimum evidence needed for real-world benchmark results. The benchmark packet must link production validator performance, production liveness, side-channel resistance, FIPS validation, and production consensus signing readiness to reviewed inputs before publication.
 
 ## Required Inputs
 

@@ -14,7 +14,7 @@ has achieved cryptographic aggregation.
 Exact claim boundary:
 
 ```text
-10,000-validator deterministic fan-in telemetry only; not cryptographic proof; not standard-verifier equivalence; not byte-identical to one validator signature; not production threshold ML-DSA security; blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature
+10,000-validator deterministic fan-in telemetry only; requires cryptographic proof; not standard-verifier equivalence; not byte-identical to one validator signature; requires production threshold ML-DSA security evidence; blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature
 ```
 
 ## Current Executable Gate
@@ -133,7 +133,7 @@ those externally generated artifacts. It decodes
 ingestion, requires a nonzero request digest binding, checks predecessor
 certificate digests and expected package digests, and feeds the same
 provider-verified adapter. This is an executable input gate, not a real
-threshold backend and not theorem closure.
+threshold backend and pending theorem-closure review.
 
 Before an external backend emits that capture JSON, the repo can generate the
 request it must answer with `scripts/build_backend_emission_request.py`. The
@@ -145,7 +145,7 @@ class, mutation-rejection requirements, and forbidden localnet/simulation/
 fixture sources. This request is a challenge contract for external backend
 capture. The capture runner loads the request JSON and rejects backend output
 whose embedded request schema/name/SHA-256 binding is missing, stale, or
-mismatched; it is not proof closure.
+mismatched; it is requires proof-closure evidence.
 
 For the current hazmat threshold backend experiment, the repo-owned adapter is
 `scripts/run_hazmat_threshold_backend_capture.py`. The adapter requires an
@@ -156,7 +156,7 @@ with `raw-real-mldsa`; it then generates a temporary Rust emitter, runs the
 external-message verifier boundary, checks backend and repo-provider acceptance,
 checks mutated message/public-key/signature rejection, and prints canonical
 request-bound capture JSON. It is an opt-in adapter for reviewed backend
-capture, not a default CI dependency and not theorem closure.
+capture, not a default CI dependency and pending theorem-closure review.
 
 The checked capture schema fixture at
 `tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json`
@@ -168,7 +168,7 @@ The checked fixture harness at
 pins this ingestion shape for review and drift detection, but the harness is
 classified as `FixtureHarness` and remains blocked from artifact readiness. It
 is a harness for future externally captured backend emissions, not actual real
-threshold backend emission evidence and not proof closure.
+threshold backend emission evidence and requires proof-closure evidence.
 
 The checked negative-control fixture at
 `tests/fixtures/p1_standard_provider_single_key_emission_artifact_fixture.json`

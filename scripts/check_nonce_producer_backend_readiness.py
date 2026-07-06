@@ -14,7 +14,7 @@ from pathlib import Path
 READINESS_SCHEMA = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
 REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 ENV_BACKEND_CRATE = "LATTICE_NONCE_PRODUCER_BACKEND_CRATE"
 
@@ -398,7 +398,7 @@ def render_summary(manifest):
             f"- Admissible for P1 handoff: `{str(admissible).lower()}`",
             f"- Quarantined sources: `{str(manifest['quarantine']['quarantined']).lower()}`",
             "",
-            "This artifact does not prove Criterion 2, rejection-distribution "
+            "This artifact requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",

@@ -34,7 +34,7 @@
       "value": "reviewed external P1 nonce producer source package v1"
     }
   },
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "expected": {
     "abort_accountability_digest_hex": "08ced1e31ed8d742aa56f74850d4eb8f9082fee8fe8b1bb07b6dcbd4d02579e4",
     "backend_implementation_digest_hex": "8e0834411d0ddaa280cc0f25aa4a267b2be3380abfb3201da81ab88649971bd2",
@@ -47,7 +47,7 @@
     "source_reference_digest_hex": "63c79bb3bf126f74c98fef69da79cadfc5287915800a0de34ab8372a227be75d"
   },
   "name": "p1-reviewed-nonce-producer-capture-001",
-  "note": "Reviewed P1 nonce-producer capture replay for the executable handoff gate; proof-review evidence only and not theorem closure.",
+  "note": "Reviewed P1 nonce-producer capture replay for the executable handoff gate; proof-review evidence only and pending theorem-closure review.",
   "predecessors": {
     "selected_profile_binding_digest_hex": "6e88fe5cfc10cde3823e8918862e791096660d8c0ca89cf8d87d4fff26becf0f",
     "standard_verifier_compatibility_artifact_digest_hex": "24644e7a463764b7890aa8b72925fff65d496154b87c27893069b0e8bc1672b3",
@@ -56,7 +56,7 @@
   "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
   "request": {
     "name": "p1-reviewed-nonce-producer-request-001",
-    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },
   "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",

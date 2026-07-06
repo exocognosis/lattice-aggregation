@@ -39,7 +39,7 @@ mod backend {
     const NONCE_REVIEW_SCHEMA: &str =
         "lattice-aggregation:p1-external-nonce-producer-capture-review:v1";
     const READINESS_SCHEMA: &str = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1";
-    const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
+    const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence";
     const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
     const BACKEND_EVIDENCE: &str = "real_threshold_mldsa_external_capture";
     const NONCE_PRODUCER_EVIDENCE: &str = "p1_shamir_nonce_dkg_tee_external_capture";

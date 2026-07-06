@@ -95,10 +95,7 @@ fn criterion3_manifest_pins_required_artifact_slots_as_open() {
 
     for slot in slots {
         assert_eq!(slot["current_status"], "required_unclosed");
-        assert_eq!(
-            slot["claim_boundary"],
-            "conformance/proof-review evidence only"
-        );
+        assert_eq!(slot["claim_boundary"], "conformance/proof-review evidence");
     }
 }
 
@@ -157,7 +154,7 @@ fn criterion3_manifest_links_repo_evidence_pipeline_artifacts() {
         "lattice-aggregation.repo-evidence-pipeline.v1"
     );
     assert_eq!(pipeline["status"], "evidence_present_unclosed");
-    assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    assert_eq!(pipeline["claim_boundary"], "research scaffold evidence");
     for artifact in [
         "artifacts/hypothesis/latest/assessment.json",
         "artifacts/hypothesis/latest/assessment.md",

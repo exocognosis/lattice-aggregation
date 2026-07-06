@@ -9,14 +9,14 @@
   "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
   "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
   "capture_source_profile": "quarantined_local_schema_replay",
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "command_duration_seconds": 0.029,
   "exit_code": 0,
   "external_capture_provenance": {
     "backend_command_sha256": "fee955c5bd3fd0ad16c8eaf00f6d43424f697107d10d365e25b6925ef3c9a84e",
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
     "capture_sha256": "66aa746ad641dde437c299bf624340b61b2901eb3cb40b494bbf9584268f1a64",
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
     "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
     "expected_digest_fields": [
       "abort_accountability_digest_hex",
@@ -41,7 +41,7 @@
     ],
     "request_name": "p1-reviewed-nonce-producer-request-001",
     "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
@@ -58,14 +58,14 @@
   },
   "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
   "quarantine": {
-    "allowed_use": "schema/importer replay only; not actual backend evidence; not Criterion 2 closure evidence",
+    "allowed_use": "schema/importer replay; requires actual backend evidence; requires Criterion 2 closure evidence",
     "quarantined": true,
     "reason": "local checked replay emitter exercises the request/capture/import schema but is not an independently generated backend capture"
   },
   "request_name": "p1-reviewed-nonce-producer-request-001",
   "request_path": "artifacts/nonce-producer-handoff/latest/request/request.json",
   "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
-  "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+  "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
   "runner_status": "evidence_present_unclosed",
   "schema_version": 1
 }

@@ -1,8 +1,12 @@
 # Cryptography Notes
 
-This directory collects research notes for the threshold ML-DSA-65 scaffold.
+This directory collects implementation, proof, and evidence notes for the
+threshold ML-DSA-65 closure-run track.
 
-The current implementation uses deterministic simulation labels under the `lattice-aggregation/threshold-mldsa65` domain. Those labels are for stable test vectors and transcript separation only; they are not evidence of a production threshold ML-DSA construction.
+The current implementation uses deterministic simulation labels under the
+`lattice-aggregation/threshold-mldsa65` domain. Those labels provide stable test
+vectors and transcript separation while the selected backend artifacts are
+filled in.
 
 Available notes:
 
@@ -35,4 +39,5 @@ Available notes:
 - [Proof-Grade VSS/DKG Security Plan](vss-dkg-security-plan.md)
 - [Abort/Retry Bias Evidence Checks](abort-retry-bias-evidence.md)
 
-When adding cryptographic documentation, keep claims explicit about whether they describe implemented behavior, planned behavior, or open research work.
+When adding cryptographic documentation, identify the exact implemented
+behavior, required proof artifact, or backend evidence artifact it supports.

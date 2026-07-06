@@ -1,16 +1,14 @@
 # lattice-aggregation
 
-**Audit-first research scaffold for interactive threshold ML-DSA-65 signature aggregation**
+**Implementation-track repository for interactive threshold ML-DSA-65 signature aggregation**
 
 **Goal**: Enable a large post-quantum validator quorum to jointly produce **one standard-size ML-DSA-65 signature** (3,309 bytes) that verifies using unmodified FIPS 204 code against a single epoch threshold public key.
 
 Unlike BLS, native ML-DSA signatures do not aggregate. A naive migration creates severe signature bloat (tens of MB per block for large validator sets). This project explores a zero-compromise path: an interactive threshold protocol that preserves standard verification.
 
-**Current status (v0.2.0)**: Research preview
+**Current status (v0.2.0)**: Closure-run implementation track
 
-`partially_proven` — All five tracked hypothesis criteria are `partially_met`. Three foundation results have already been proved. Full security closure remains open and is tracked explicitly.
-
-This is **not production cryptography**. It is a high-quality, auditable research artifact and implementation scaffold.
+`partially_proven` — All five tracked hypothesis criteria are `partially_met`. Three foundation results have already been proved. The remaining cryptographic backend, proof, validation, and audit artifacts are tracked explicitly as run inputs.
 
 ## Protocol Overview
 
@@ -45,12 +43,13 @@ See the full reproduction commands and interpretation in the repository.
 ## Key Documents
 
 - **Technical Whitepaper v0.2.0** (Problem formalization, proved lemmas, and Epsilon Residual Ledger)
-  - [View PDF](docs/whitepaper/ML-DSA_Lattice_Aggregator_v0.2.0.pdf)
   - [Direct Download](https://github.com/exocognosis/lattice-aggregation/releases/download/v0.2.0/ML-DSA_Lattice_Aggregator_v0.2.0.pdf)
 - [One-page executive summary](docs/grant/one-pager.md)
 - [Cryptographic Claims Matrix](docs/cryptography/claims-matrix.md)
 - [Protocol flow diagram](docs/assets/lattice-aggregation-protocol-flow.png)
 - [Hypothesis assessment script](scripts/assess_lattice_hypothesis.py)
+- [Simulation Benchmark Results](docs/benchmarks/simulation-results.md)
+- [Real-World Benchmark Protocol](docs/benchmarks/real-world-benchmark-protocol.md)
 
 ## Current Hypothesis Status
 
@@ -74,14 +73,14 @@ Fastest path to review:
 
 We welcome cryptographic review, especially on the remaining open epsilon terms. Contact information is in [AUTHORS.md](AUTHORS.md).
 
-## Explicit Non-Claims
+## Implementation Targets
 
-This repository does not claim:
+The next backend and proof batches target:
 
-- A fully proved threshold ML-DSA construction ready for deployment
-- A selected production backend
-- General standard-verifier compatibility (still an open criterion)
-- Any security guarantees beyond the three proved lemmas
+- Full threshold ML-DSA construction evidence for the selected P1 direction
+- Selected-backend implementation artifacts
+- Standard-verifier compatibility evidence for aggregate signatures
+- Security evidence that extends beyond the three proved foundation lemmas
 
 ## License
 

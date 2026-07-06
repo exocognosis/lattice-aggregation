@@ -266,7 +266,7 @@
     "simulated_default_feature": false,
     "simulation_category": false
   },
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "closure_boundary": "Backend readiness and source capability detection only; an actual reviewed capture and proof review remain required.",
   "diagnostics": {
     "blocker_evidence": [],
@@ -310,7 +310,7 @@
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
     "name": "p1-reviewed-nonce-producer-request-001",
     "request_path": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
-    "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
+    "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
     "required_producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },

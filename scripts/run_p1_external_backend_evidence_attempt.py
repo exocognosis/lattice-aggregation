@@ -12,7 +12,7 @@ from pathlib import Path
 
 SCHEMA = "lattice-aggregation:p1-external-backend-evidence-attempt:v1"
 NAME = "p1-external-backend-evidence-attempt-v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 REVIEW_PACKAGE_SCHEMA = "lattice-aggregation:p1-external-backend-evidence-package-review:v1"
 REVIEW_STATUS_READY = "reviewed_external_backend_evidence_ready"
@@ -35,6 +35,9 @@ FORBIDDEN_SOURCE_MARKERS = (
     "standard_provider_single_key",
     "single-seed",
     "single_seed",
+    "threshold_seed_reconstruction",
+    "threshold seed reconstruction",
+    "seed-reconstruction",
     "centralized_mldsa65_provider",
     "centralized ml-dsa",
     "repo_reference_cli_capture",
@@ -225,6 +228,12 @@ def structured_source_blockers(backend_manifest, backend_capture):
             blockers.append("centralized ML-DSA smoke core cannot feed external evidence")
         if core.get("signature_origin") == "single_seed_standard_mldsa65_provider":
             blockers.append("single-seed standard-provider signature cannot feed external evidence")
+        if core.get("core_mode") == "threshold_seed_reconstruction_mldsa65_provider":
+            blockers.append("threshold seed-reconstruction capture cannot feed external evidence")
+        if core.get("signature_origin") == "threshold_seed_reconstruction_standard_mldsa65_provider":
+            blockers.append(
+                "threshold seed-reconstruction standard-provider signature cannot feed external evidence"
+            )
     return blockers
 
 
@@ -433,8 +442,8 @@ def build_report(
         "attempt_digest_sha256": sha256_text(canonical_json(digest_material)),
         **claim_flags,
         "closure_boundary": (
-            "Batch 8 external evidence attempt only; not theorem closure, not "
-            "rejection-distribution preservation, and not selected-backend proof closure."
+            "Batch 8 external evidence attempt only; pending theorem-closure review, not "
+            "rejection-distribution preservation, and requires selected-backend proof closure evidence."
         ),
     }
     return {
@@ -471,7 +480,7 @@ def render_summary(manifest):
     lines.extend(
         [
             "",
-            "This is not theorem closure. It does not prove Criterion 2, "
+            "This is pending theorem-closure review. It requires Criterion 2 proof review, "
             "rejection-distribution preservation, selected-backend proof "
             "closure, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or completed cryptographic proof.",

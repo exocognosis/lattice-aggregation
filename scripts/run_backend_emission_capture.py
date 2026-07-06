@@ -14,7 +14,7 @@ from pathlib import Path
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
 EXTERNAL_BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 RUNNER_STATUS = "evidence_present_unclosed"
 EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
@@ -35,6 +35,12 @@ SMOKE_CORE_MODES = {
 }
 SMOKE_SIGNATURE_ORIGINS = {
     "single_seed_standard_mldsa65_provider",
+}
+RECONSTRUCTION_CORE_MODES = {
+    "threshold_seed_reconstruction_mldsa65_provider",
+}
+RECONSTRUCTION_SIGNATURE_ORIGINS = {
+    "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
 COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
 COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
@@ -296,6 +302,10 @@ def backend_core_admissibility(capture):
         reasons.append("centralized ML-DSA smoke core mode")
     if signature_origin in SMOKE_SIGNATURE_ORIGINS:
         reasons.append("single-seed standard-provider signature origin")
+    if core_mode in RECONSTRUCTION_CORE_MODES:
+        reasons.append("threshold seed-reconstruction core mode")
+    if signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS:
+        reasons.append("threshold seed-reconstruction standard-provider signature origin")
     if isinstance(distributed_core, dict):
         required_flags = (
             "distributed_keygen_vss",
@@ -581,7 +591,7 @@ def render_summary(generated_at, metadata, manifest):
             "",
             "This artifact records externally generated backend capture material "
             "for the canonical P1 importer. It is "
-            f"{RUNNER_STATUS} conformance/proof-review evidence only.",
+            f"{RUNNER_STATUS} conformance/proof-review evidence.",
             "",
             f"- Generated at: `{generated_at}`",
             f"- Commit: `{metadata['commit']}`",
@@ -598,7 +608,7 @@ def render_summary(generated_at, metadata, manifest):
             f"- Runner status: `{RUNNER_STATUS}`",
             f"- Claim boundary: `{manifest['claim_boundary']}`",
             "",
-            "This runner does not prove Criterion 2, rejection-distribution "
+            "This runner requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",

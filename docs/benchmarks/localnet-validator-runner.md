@@ -12,7 +12,7 @@ orchestration.
 Exact claim boundary:
 
 ```text
-local validator-network engineering telemetry; not security evidence; not real-world validator performance; not production-readiness evidence; not production network liveness, authenticated transport, or consensus safety; not side-channel resistance; not CAVP/ACVTS validation; not FIPS validation; not production threshold ML-DSA security
+local validator-network engineering telemetry; requires security evidence review; requires real-world validator performance evidence; requires production-readiness evidence; requires production network liveness evidence, authenticated transport, or consensus safety; requires side-channel resistance evidence; requires CAVP/ACVTS validation evidence; requires FIPS validation evidence; requires production threshold ML-DSA security evidence
 ```
 
 ## Runner

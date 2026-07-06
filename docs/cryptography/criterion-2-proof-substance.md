@@ -12,7 +12,7 @@ into a reviewer-facing proof-substance checklist. It does not change the
 criterion status.
 
 The current criterion status remains `partially_met`, and the overall
-assessment remains `partially_proven`. This contract is not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
+assessment remains `partially_proven`. This contract requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, requires real threshold backend implementation evidence, and requires a completed standard-verifier compatibility proof.
 
 The machine-readable companion is
 [`criterion-2-proof-substance.json`](criterion-2-proof-substance.json). Its
@@ -130,8 +130,8 @@ The Criterion 2 proof payload requires these slots before any promotion:
   readiness, the repo reference CLI emitted canonical request-bound capture
   JSON, and the handoff/import path wrote a promoted manifest. The promoted
   source profile is `repo_reference_cli_capture`, with quarantine text stating
-  that this is reference CLI handoff replay only, not actual backend evidence
-  and not Criterion 2 closure evidence. The runner preserves failed backend
+  that this is reference CLI handoff replay only, requires actual backend evidence
+  and requires Criterion 2 closure evidence. The runner preserves failed backend
   attempts as `capture_execution_failed` or `capture_validation_failed` instead
   of dropping command-output diagnostics. It remains `evidence_present_unclosed`
   until externally generated reviewed P1 nonce-producer material replaces the
@@ -142,7 +142,7 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
   `actual_external_capture_missing`: it requires
   `admissible_external_backend_capture` with quarantine false and rejects the
-  current `repo_reference_cli_capture` as not actual backend evidence.
+  current `repo_reference_cli_capture` as requires actual backend evidence.
   Batch 4 hardens the capture-runner source boundary: accepted external
   captures now record `backend_command_origin =
   outside_repo_executable_or_script`, while unmarked repo-local backend
@@ -169,7 +169,7 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `evidence_present_unclosed` from
   `p1_standard_verifier_compatibility_artifact_gate`
   (`p1_standard_verifier_compatibility_artifact_package`); this is
-  conformance/proof-review evidence only.
+  conformance/proof-review evidence.
   Checked standard-verifier compatibility fixture:
   `tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json`.
 - `real_threshold_backend_emission_artifact_digest`:
@@ -203,7 +203,7 @@ The Criterion 2 proof payload requires these slots before any promotion:
   `artifacts/backend-emission-request/latest/request.json`, with request
   SHA-256 `804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1`
   recorded in `artifacts/backend-emission-request/latest/manifest.json`. It
-  remains `evidence_present_unclosed` and is not proof closure.
+  remains `evidence_present_unclosed` and is requires proof-closure evidence.
   Backend emission now also has a file-based intake path:
   `scripts/stage_external_backend_emission_capture.py`. That path stages a
   preexisting `outside_repo_capture_file` into
@@ -218,7 +218,7 @@ The Criterion 2 proof payload requires these slots before any promotion:
   artifact write. The executable checks are pinned by
   `script_tests/test_stage_external_backend_emission_capture.py`. This is an
   executable intake path only; it does not supply the missing real external
-  backend capture, does not prove Criterion 2, and does not prove
+  backend capture, requires Criterion 2 proof review, and does not prove
   rejection-distribution preservation or theorem closure.
   The repo-owned hazmat threshold backend capture adapter
   `scripts/run_hazmat_threshold_backend_capture.py` is the explicit-backend
@@ -356,7 +356,7 @@ reviewed backend-generated producer artifact is still required.
 `evidence_present_unclosed only` does not mean
 Criterion 2 is met, selected-backend proof closure is complete,
 rejection-distribution preservation is proven, or the theorem is closed. The
-slot claim boundary is `conformance/proof-review evidence only`.
+slot claim boundary is `conformance/proof-review evidence`.
 
 All Criterion 2 proof slots now have typed wrappers, while
 `distributed_nonce_producer_artifact_digest` remains unclosed until actual
@@ -392,7 +392,7 @@ promotion decision as
 checked status is `capture_promoted`, with `backend_command_executed = true`
 and handoff source profile `repo_reference_cli_capture`. The promoted capture
 is quarantined as reference CLI replay only: it exercises the external
-process/JSON/import contract but is not actual backend evidence. The accepted
+process/JSON/import contract but is requires actual backend evidence. The accepted
 actual-external gate artifact at
 `artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
 `actual_external_capture_missing`, so the distributed nonce-producer slot still
@@ -468,7 +468,7 @@ negative-control fixture proves that actual single-key ML-DSA provider output
 verifies and rejects message, key, and signature mutations, while still being
 rejected as non-threshold provenance. These are still not a real threshold
 backend implementation, not actual real threshold backend emission evidence,
-and not proof closure.
+and requires proof-closure evidence.
 The rejection-distribution review slot is now backed by the checked
 `tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json`
 fixture so reviewers can inspect the bound rejection-distribution review source
@@ -513,7 +513,7 @@ close candidate can be treated as external evidence. The current checked attempt
 is `blocked_external_evidence_missing` with `close_candidate = false`, because
 the actual external nonce capture still resolves to `repo_reference_cli_capture`
 and the real backend/rejection artifacts are absent. This is the first grouped
-attempt harness for the closure run, not theorem closure.
+attempt harness for the closure run, pending theorem-closure review.
 Batch 9 hardens the same grouped attempt with a reviewed external evidence
 package gate. The runner now accepts `--review-package` pointing at schema
 `lattice-aggregation:p1-external-backend-evidence-package-review:v1`; the
@@ -527,7 +527,7 @@ attempt records `review_package_present = false` and
 `partially_met`.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
-to this payload, not proof closure by themselves.
+to this payload, requires proof-closure evidence by themselves.
 
 ## Theorem Links
 
@@ -565,7 +565,7 @@ linked:
 `artifacts/theorem-closure-readiness/latest/manifest.json` before theorem
 closure assessment can begin. A future
 `ready_for_theorem_closure_assessment` result is only an assessment-entry
-preflight; it is not Criterion 2 closure and not theorem closure.
+preflight; it is not Criterion 2 closure and pending theorem-closure review.
 
 The existing selected-backend proof-closure artifact package gate is necessary
 but not sufficient for criterion-2 promotion. `ClosureReady` and
@@ -588,6 +588,6 @@ native path has already failed.
 
 The assessor may report `criterion2_proof_payload_formalized` when this
 contract and its manifest are present and internally consistent. That report
-field does not change `aggregate_rejection_equivalence` from `partially_met`,
-does not change the overall verdict from `partially_proven`, and does not close
-the theorem.
+field keeps `aggregate_rejection_equivalence` at `partially_met`, keeps the
+overall verdict at `partially_proven`, and records the remaining theorem
+review requirements.

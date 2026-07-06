@@ -45,7 +45,7 @@ def backend_request():
         "schema": REQUEST_SCHEMA,
         "name": "p1-real-threshold-backend-emission-request-001",
         "generated_at": "2026-07-05T00:00:00Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "request_status": "evidence_present_unclosed",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "validator_count": 10000,
@@ -63,7 +63,7 @@ def backend_request():
         "required_capture": {
             "schema": CAPTURE_SCHEMA,
             "backend_evidence": "real_threshold_mldsa_external_capture",
-            "claim_boundary": "conformance/proof-review evidence only",
+            "claim_boundary": "conformance/proof-review evidence",
             "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
             "validator_count": 10000,
             "threshold": 6667,
@@ -90,7 +90,7 @@ def backend_capture(request):
     return {
         "name": "outside-repo-real-threshold-backend-capture",
         "schema": CAPTURE_SCHEMA,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
         "note": "Reviewed external backend capture produced outside the repository.",
@@ -147,13 +147,26 @@ def backend_capture(request):
     }
 
 
+def threshold_seed_reconstruction_capture(request):
+    capture = backend_capture(request)
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
+            "signature_origin": (
+                "threshold_seed_reconstruction_standard_mldsa65_provider"
+            ),
+        }
+    )
+    return capture
+
+
 def external_review_manifest(request, capture, capture_path):
     capture_json = canonical_json(capture)
     return {
         "schema": REVIEW_SCHEMA,
         "schema_version": 1,
         "generated_at": "2026-07-05T00:00:01Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "review_status": "reviewed_external_backend_emission_capture_ready",
         "capture": {
@@ -198,7 +211,7 @@ def external_review_manifest(request, capture, capture_path):
 def actual_nonce_gate():
     return {
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "gate_status": "actual_external_capture_ready",
         "actual_external_capture_ready": True,
         "expected_source_profile": "admissible_external_backend_capture",
@@ -212,7 +225,7 @@ def rejection_batch():
     return {
         "name": "outside-repo-rejection-equivalence-batch",
         "schema": "lattice-aggregation:p1-rejection-equivalence-batch:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "mldsa65-centralized-vs-threshold-rejection-batch",
         "parameters": {
@@ -339,7 +352,45 @@ class StageExternalBackendEmissionCaptureTests(unittest.TestCase):
             "centralized/single-seed smoke capture cannot satisfy real threshold emission",
             blockers,
         )
-        self.assertIn("does not prove Criterion 2", report["summary_md"])
+        self.assertIn("requires Criterion 2 proof review", report["summary_md"])
+
+    def test_threshold_seed_reconstruction_capture_is_quarantined_at_intake(self):
+        module = load_module(SCRIPT, "stage_external_backend_emission_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = backend_request()
+            capture = threshold_seed_reconstruction_capture(request)
+            request_path = repo_root / "request.json"
+            capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
+            write_json(request_path, request)
+            write_json(capture_path, capture)
+            write_json(review_path, external_review_manifest(request, capture, capture_path))
+
+            report = module.build_intake(
+                repo_root,
+                request_path,
+                capture_path,
+                review_path,
+                generated_at="2026-07-05T00:00:02Z",
+                metadata_provider=fake_metadata,
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertFalse(admissibility["strict_threshold_core_admissible"])
+        self.assertTrue(admissibility["quarantined"])
+        self.assertIn(
+            "threshold seed-reconstruction core mode",
+            admissibility["reasons"],
+        )
+        self.assertIn(
+            "threshold seed-reconstruction standard-provider signature origin",
+            admissibility["reasons"],
+        )
 
     def test_repo_local_capture_file_is_rejected_before_artifact_write(self):
         module = load_module(SCRIPT, "stage_external_backend_emission_capture")

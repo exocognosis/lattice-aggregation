@@ -10,7 +10,7 @@
   "attempt_source_profile": "admissible_external_backend_capture",
   "attempt_status": "capture_promoted",
   "blockers": [],
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "closure_boundary": "Actual external nonce-producer capture gate only; even a ready capture remains proof-review evidence until rejection-distribution and theorem obligations are discharged.",
   "expected_source_profile": "admissible_external_backend_capture",
   "gate_status": "actual_external_capture_ready",

@@ -173,7 +173,7 @@ class AdmissibleNonceProducerCaptureAttemptTests(unittest.TestCase):
         self.assertIn("hazmat feature", blockers)
         self.assertIn("centralized nonce PRF oracle", blockers)
         self.assertIn("backend_readiness_blocked", summary)
-        self.assertIn("does not prove Criterion 2", summary)
+        self.assertIn("requires Criterion 2 proof review", summary)
         self.assertEqual(report["manifest"], manifest)
 
     def test_attempt_promotes_capture_only_after_admissible_readiness(self):
@@ -254,7 +254,7 @@ class AdmissibleNonceProducerCaptureAttemptTests(unittest.TestCase):
         )
         self.assertTrue(manifest["handoff_quarantine"]["quarantined"])
         self.assertIn(
-            "not actual backend evidence",
+            "requires actual backend evidence",
             manifest["handoff_quarantine"]["allowed_use"],
         )
         self.assertEqual(
@@ -262,8 +262,8 @@ class AdmissibleNonceProducerCaptureAttemptTests(unittest.TestCase):
             manifest["handoff_source_profile"],
         )
         self.assertIn("repo_reference_cli_capture", summary)
-        self.assertIn("not actual backend evidence", handoff_summary)
-        self.assertIn("does not prove Criterion 2", summary)
+        self.assertIn("requires actual backend evidence", handoff_summary)
+        self.assertIn("requires Criterion 2 proof review", summary)
         self.assertEqual(report["manifest"], manifest)
 
     def test_attempt_requires_request_placeholder_in_backend_command(self):

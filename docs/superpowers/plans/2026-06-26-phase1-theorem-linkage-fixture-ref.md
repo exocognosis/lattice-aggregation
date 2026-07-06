@@ -34,7 +34,7 @@ slot_id: theorem_linkage_artifact_digest
 fixture_path: tests/fixtures/p1_theorem_linkage_artifact_fixture.json
 schema: lattice-aggregation:p1-theorem-linkage-artifact:v1
 current_status: evidence_present_unclosed
-claim_boundary: conformance/proof-review evidence only
+claim_boundary: conformance/proof-review evidence
 ```
 
 - [x] **Step 4: Run red checks**
@@ -83,7 +83,7 @@ Add the theorem-linkage fixture to `artifact_fixture_refs`, `evidence_refs`, Mar
 
 - [x] **Step 4: Preserve claim boundary**
 
-All new prose must keep `partially_met`, `partially_proven`, `evidence_present_unclosed`, and `conformance/proof-review evidence only`. Do not claim Criterion 2 closure, selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility.
+All new prose must keep `partially_met`, `partially_proven`, `evidence_present_unclosed`, and `conformance/proof-review evidence`. Do not claim Criterion 2 closure, selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility.
 
 ### Task 3: Verification and Publication
 

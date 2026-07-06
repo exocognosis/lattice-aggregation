@@ -12,7 +12,7 @@ side-channel resistance.
 The current checkout exposes a default simulated scaffold plus non-default
 production-candidate skeleton surfaces under `coordinator-assisted` and
 `raw-real-mldsa`. Those skeleton surfaces are hazmat/conformance boundaries
-only; they are not production threshold ML-DSA security, FIPS validation,
+only; they are requires production threshold ML-DSA security evidence, FIPS validation,
 audited backend evidence, or proof evidence. Reviewers should read this map
 together with the claim boundaries in
 [side-channel-boundary.md](../cryptography/side-channel-boundary.md),
@@ -50,7 +50,7 @@ and the [release-readiness checklist](../benchmarks/release-readiness-checklist.
 | Gate | Exposed surface | Review focus | Production boundary |
 | --- | --- | --- | --- |
 | default `simulated` | Type-state API, simulated backend, adapter scaffold, policy tests | Make sure scaffold behavior cannot be described as production cryptography. | Research and simulation only. |
-| `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; not production threshold ML-DSA security. |
+| `coordinator-assisted` | Non-default coordinator profile types, transcript binding, preprocessing attempts, final verifier gate, and production coordinator frames | Confirm the coordinator skeleton remains gated and claim-bounded. | Hazmat conformance only; requires production threshold ML-DSA security evidence. |
 | `hazmat` | Marker gate reserved for hazmat experiments | Ensure no production API silently depends on hazmat behavior. | Not a production assurance boundary. |
 | `raw-real-mldsa` | Production-candidate provider boundary and KAT-gated skeleton | Review the provider KAT gate, bounded ACVP sample fixture, context-aware hazmat verifier, and final verifier boundary before any compatibility language. | No production assurance boundary until full KAT, audit, proof, side-channel, validation, and release gates pass. |
 
@@ -91,7 +91,7 @@ Review `src/adapter/wire.rs` for:
 
 Production-candidate coordinator frames are now present in
 `src/adapter/production_wire.rs`. Reviewers should treat them as untrusted-byte
-inputs for hazmat conformance only and verify that decode success is not
+inputs for hazmat conformance track and verify that decode success is not
 described as standard-verifier compatibility or production security.
 
 ## Production-Candidate Coordinator And Hazmat Internals

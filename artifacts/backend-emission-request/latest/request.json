@@ -1,6 +1,6 @@
 {
   "aggregate_signature_len": 3309,
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "forbidden_capture_sources": [
     "localnet",
     "deterministic simulation",
@@ -22,7 +22,7 @@
   "required_capture": {
     "aggregate_signature_len": 3309,
     "backend_evidence": "real_threshold_mldsa_external_capture",
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
     "mutated_message_rejected": true,
     "mutated_public_key_rejected": true,
     "mutated_signature_rejected": true,

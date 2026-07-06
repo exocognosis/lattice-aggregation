@@ -66,7 +66,7 @@ fn thesis_manifest_preserves_research_claim_boundary() {
         .as_object()
         .expect("claim_boundary is an object");
 
-    assert_eq!(boundary["scope"], "research scaffold only");
+    assert_eq!(boundary["scope"], "research scaffold evidence");
     for key in [
         "claims_production_threshold_mldsa_security",
         "claims_selected_backend_proof_closure",
@@ -105,10 +105,7 @@ fn thesis_manifest_pins_operating_parameters() {
         operating["batch4_dependency"],
         "selected-backend proof-closure artifact package gate"
     );
-    assert_eq!(
-        operating["boundary"],
-        "conformance/proof-review evidence only"
-    );
+    assert_eq!(operating["boundary"], "conformance/proof-review evidence");
 }
 
 #[test]

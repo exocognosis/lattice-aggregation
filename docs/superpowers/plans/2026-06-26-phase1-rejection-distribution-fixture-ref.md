@@ -27,7 +27,7 @@ Extend `test_criterion2_status_surfaces_real_recomputation_fixture_reference` so
     "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
     "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
     "current_status": "evidence_present_unclosed",
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
 }
 ```
 
@@ -57,7 +57,7 @@ CARGO_TARGET_DIR=/private/tmp/lattice-phase1-rejection-red-target cargo test --f
 
 - [x] **Step 1: Create fixture JSON**
 
-Use schema `lattice-aggregation:p1-rejection-distribution-review-artifact:v1`, claim boundary `conformance/proof-review evidence only`, source digest `3434...3434`, review digest `3030...3030`, and typed artifact digest `e021eb6e4354093d663acc1df06a360c5b2b923e9866528bfd7de26172ac793b`.
+Use schema `lattice-aggregation:p1-rejection-distribution-review-artifact:v1`, claim boundary `conformance/proof-review evidence`, source digest `3434...3434`, review digest `3030...3030`, and typed artifact digest `e021eb6e4354093d663acc1df06a360c5b2b923e9866528bfd7de26172ac793b`.
 
 - [x] **Step 2: Implement Rust fixture structs and helpers**
 
@@ -99,7 +99,7 @@ Add the same fixture metadata and markdown anchor phrases to `write_criterion2_p
 Use this pattern:
 
 ```text
-checked rejection-distribution review proof-slot fixture for Criterion 2 at tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json; this is conformance/proof-review evidence only, not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
+checked rejection-distribution review proof-slot fixture for Criterion 2 at tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json; this is conformance/proof-review evidence, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.
 ```
 
 - [x] **Step 2: Preserve existing boundaries**

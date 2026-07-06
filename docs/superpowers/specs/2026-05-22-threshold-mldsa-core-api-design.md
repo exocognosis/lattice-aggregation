@@ -275,7 +275,8 @@ The first implementation should provide a simulated VSS/DKG engine with the same
 - Produce one `ThresholdPublicKey`.
 - Serialize private shares with explicit versioning and backend identifiers.
 
-The DKG module must not claim full active-adversary security until a concrete VSS/DKG construction and proof are selected.
+Full active-adversary security requires a concrete VSS/DKG construction and
+selected proof package.
 
 ## Serialization
 

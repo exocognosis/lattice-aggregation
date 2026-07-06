@@ -27,7 +27,7 @@ Extend `test_criterion2_status_surfaces_real_recomputation_fixture_reference` so
     "fixture_path": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
     "schema": "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
     "current_status": "evidence_present_unclosed",
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
 }
 ```
 
@@ -57,7 +57,7 @@ CARGO_TARGET_DIR=/private/tmp/lattice-phase1-threshold-red-target cargo test --f
 
 - [x] **Step 1: Create fixture JSON**
 
-Use schema `lattice-aggregation:p1-threshold-output-certificate-artifact:v1`, claim boundary `conformance/proof-review evidence only`, source package `coordinator-assisted threshold-output transcript package v1`, and expected digest fields derived from the existing selected-backend threshold-output certificate path.
+Use schema `lattice-aggregation:p1-threshold-output-certificate-artifact:v1`, claim boundary `conformance/proof-review evidence`, source package `coordinator-assisted threshold-output transcript package v1`, and expected digest fields derived from the existing selected-backend threshold-output certificate path.
 
 - [x] **Step 2: Implement Rust fixture structs and helpers**
 
@@ -99,7 +99,7 @@ Add the same fixture metadata to `write_criterion2_proof_substance_formalization
 Use this pattern:
 
 ```text
-checked threshold-output certificate proof-slot fixture for Criterion 2 at tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json; this is conformance/proof-review evidence only, not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
+checked threshold-output certificate proof-slot fixture for Criterion 2 at tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json; this is conformance/proof-review evidence, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.
 ```
 
 - [x] **Step 2: Preserve existing boundaries**

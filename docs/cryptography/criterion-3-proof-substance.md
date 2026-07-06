@@ -13,7 +13,8 @@ observable abort leakage, and accepted-signature distribution preservation. It
 does not change the criterion status.
 
 The current criterion status remains `partially_met`, and the overall
-assessment remains `partially_proven`. This contract is not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not accepted-signature distribution preservation, not a completed Fiat-Shamir-with-aborts preservation proof, and not a completed abort/retry-bias proof.
+assessment remains `partially_proven`. This contract requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires accepted-signature distribution preservation proof, requires a completed Fiat-Shamir-with-aborts preservation proof, and
+requires a completed abort/retry-bias proof.
 
 The machine-readable companion is
 [`criterion-3-proof-substance.json`](criterion-3-proof-substance.json). Its
@@ -74,7 +75,7 @@ Every slot remains `required_unclosed`. The existing `AbortBiasEvidence`,
 conformance and proof-review scaffolding, but they do not provide the real
 Fiat-Shamir-with-aborts preservation proof or external review needed for
 criterion promotion. The slot claim boundary is
-`conformance/proof-review evidence only`.
+`conformance/proof-review evidence`.
 
 ## Theorem Links
 
@@ -126,5 +127,5 @@ native path has already failed.
 
 The assessor may report `criterion3_proof_payload_formalized` when this
 contract and its manifest are present and internally consistent. That report
-field does not change `abort_retry_bias` from `partially_met`, does not change
-the overall verdict from `partially_proven`, and does not close the theorem.
+field keeps `abort_retry_bias` at `partially_met`, keeps the overall verdict at
+`partially_proven`, and records the remaining theorem review requirements.

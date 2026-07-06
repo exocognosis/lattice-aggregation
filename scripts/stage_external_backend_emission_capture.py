@@ -13,7 +13,7 @@ from pathlib import Path
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
 EXTERNAL_BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 RUNNER_STATUS = "evidence_present_unclosed"
 CAPTURE_FILE_ORIGIN_EXTERNAL = "outside_repo_capture_file"
@@ -59,6 +59,12 @@ SMOKE_CORE_MODES = {
 }
 SMOKE_SIGNATURE_ORIGINS = {
     "single_seed_standard_mldsa65_provider",
+}
+RECONSTRUCTION_CORE_MODES = {
+    "threshold_seed_reconstruction_mldsa65_provider",
+}
+RECONSTRUCTION_SIGNATURE_ORIGINS = {
+    "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
 
 
@@ -215,7 +221,7 @@ def validate_external_review_manifest(
         if checks.get(field) is not True:
             raise ValueError(f"external review check failed: {field}")
     if checks.get("real_distributed_threshold_core_verified") is not False:
-        raise ValueError("external review must not claim verified distributed threshold core")
+        raise ValueError("external review requires evidence before claiming verified distributed threshold core")
 
     returned_checks = {field: checks[field] for field in REQUIRED_REVIEW_CHECKS}
     for field in OPTIONAL_REVIEW_CHECKS:
@@ -253,6 +259,10 @@ def backend_core_admissibility(capture, review_report):
         reasons.append("centralized ML-DSA smoke core mode")
     if signature_origin in SMOKE_SIGNATURE_ORIGINS:
         reasons.append("single-seed standard-provider signature origin")
+    if core_mode in RECONSTRUCTION_CORE_MODES:
+        reasons.append("threshold seed-reconstruction core mode")
+    if signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS:
+        reasons.append("threshold seed-reconstruction standard-provider signature origin")
     if isinstance(checks, dict):
         if checks.get("real_distributed_threshold_core_verified") is not True:
             reasons.append("real distributed threshold core not externally verified")
@@ -348,7 +358,7 @@ def render_summary(manifest):
             "",
             "This artifact stages a preexisting external backend-emission "
             "capture file for the Batch 8 real-threshold evidence slot. It is "
-            f"{RUNNER_STATUS} conformance/proof-review evidence only.",
+            f"{RUNNER_STATUS} conformance/proof-review evidence.",
             "",
             f"- Status: `{manifest['runner_status']}`",
             f"- Backend execution mode: `{manifest['backend_execution_mode']}`",
@@ -357,7 +367,7 @@ def render_summary(manifest):
             f"- External review SHA-256: `{manifest['external_capture_review']['sha256']}`",
             f"- Request SHA-256: `{manifest['request_sha256']}`",
             "",
-            "This intake does not prove Criterion 2, rejection-distribution "
+            "This intake requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",
@@ -376,7 +386,7 @@ def render_review_summary(report):
             f"- Review SHA-256: `{report['sha256']}`",
             f"- Capture SHA-256: `{report['capture_sha256']}`",
             "",
-            "This review dossier remains conformance/proof-review evidence only.",
+            "This review dossier remains conformance/proof-review evidence.",
             "",
         ]
     )

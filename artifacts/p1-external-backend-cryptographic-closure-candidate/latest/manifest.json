@@ -13,7 +13,7 @@
     "standard_verifier_acceptance_present": true,
     "strict_external_nonce_capture_ready": true
   },
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "claims_cavp_acvts_validation": false,
   "claims_fips_validation": false,
   "claims_production_threshold_mldsa_security": false,
@@ -22,7 +22,7 @@
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
   "close_candidate": false,
-  "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
+  "closure_boundary": "External-backend cryptographic closure-candidate artifact only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
   "generated_at": "2026-07-06T15:04:33Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {

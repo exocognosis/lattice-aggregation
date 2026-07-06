@@ -1,6 +1,6 @@
 # Random-Oracle Game for Threshold ML-DSA-65
 
-Status: proof target, not a completed proof.
+Status: proof target with required completion artifacts.
 
 Date: 2026-05-27
 
@@ -282,9 +282,9 @@ table per domain and satisfy these obligations:
 Any proof that relies on programmability must state the bad events, probability
 loss, and extraction points explicitly.
 
-## ROG-6. Non-Claims
+## ROG-6. Required Proof Artifacts
 
-This document does not prove:
+The complete proof package must supply:
 
 - ML-DSA-65 unforgeability.
 - Threshold signing correctness.

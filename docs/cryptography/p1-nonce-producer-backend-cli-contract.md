@@ -7,7 +7,7 @@ distributed nonce-producer backend for the selected profile
 `ML-DSA-65 coordinator-assisted Shamir nonce DKG P1`.
 
 The contract is `evidence_present_unclosed` conformance/proof-review evidence
-only. A conforming capture does not prove Criterion 2, rejection-distribution
+only. A conforming capture requires Criterion 2 proof review, rejection-distribution
 preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
 validation, or theorem closure.
 
@@ -103,8 +103,8 @@ It is boundary evidence only. The checked Batch 2 artifact uses
 `scripts/p1_nonce_producer_reference_cli.py` and records `capture_promoted`
 with handoff source profile `repo_reference_cli_capture`. That reference CLI
 proves the request-bound external process, capture JSON, provenance, and Rust
-import path are wired. It is quarantined as not actual backend evidence and
-does not prove Criterion 2, production threshold ML-DSA security,
+import path are wired. It is quarantined as requires actual backend evidence and
+requires Criterion 2 proof review, production threshold ML-DSA security,
 rejection-distribution preservation, or theorem closure.
 
 ## Reference CLI Replay
@@ -237,7 +237,7 @@ simulation, and single-key standard-provider output.
 The intake validates the exact request digest and capture schema through the
 same capture runner checks, then writes an attempt-compatible handoff with
 `preexisting_external_capture_file` provenance and
-`outside_repo_review_manifest` evidence. This still does not prove Criterion 2;
+`outside_repo_review_manifest` evidence. This still requires Criterion 2 proof review;
 it only gives a strict path for a real external capture file plus review dossier
 to occupy the actual backend slot.
 
@@ -305,7 +305,7 @@ The capture must include:
 - `predecessors.threshold_output_certificate_digest_hex`
 - `predecessors.standard_verifier_compatibility_artifact_digest_hex`
 - `producer_evidence = p1_shamir_nonce_dkg_tee_external_capture`
-- `claim_boundary = conformance/proof-review evidence only`
+- `claim_boundary = conformance/proof-review evidence`
 - `capture.reviewed = true`
 - byte objects for `source_reference`, `backend_implementation`,
   `coordinator_attestation`, `shamir_nonce_dkg_transcript`,

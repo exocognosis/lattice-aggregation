@@ -12,7 +12,7 @@ from pathlib import Path
 
 ATTEMPT_SCHEMA = "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
 READINESS_SCHEMA = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 ATTEMPT_STATUS_BLOCKED = "backend_readiness_blocked"
 ATTEMPT_STATUS_PROMOTED = "capture_promoted"
@@ -184,7 +184,7 @@ def render_summary(manifest):
     lines.extend(
         [
             "",
-            "This attempt does not prove Criterion 2, rejection-distribution "
+            "This attempt requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",

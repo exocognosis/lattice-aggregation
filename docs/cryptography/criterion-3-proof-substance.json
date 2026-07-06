@@ -34,49 +34,49 @@
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_retry_domain_separation_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "formal_abort_leakage_model_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_abort_leakage_model_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "accepted_signature_distribution_proof_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_accepted_signature_distribution_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "adversarial_abort_policy_corpus_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_adversarial_abort_policy_corpus_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "sample_size_bucket_rationale_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_sample_size_bucket_rationale_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "timeout_retry_policy_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_timeout_retry_policy_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "external_review_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion3_external_review_artifact_gate",
         "artifact_package": "p1_criterion3_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       }
     ]
   },
@@ -109,7 +109,7 @@
   "repo_evidence_pipeline": {
     "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
     "status": "evidence_present_unclosed",
-    "claim_boundary": "research scaffold only",
+    "claim_boundary": "research scaffold evidence",
     "artifacts": {
       "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
       "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",

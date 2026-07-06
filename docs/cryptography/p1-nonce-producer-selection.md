@@ -1,6 +1,6 @@
 # P1 Nonce Producer Selection
 
-Status: `p1_nonce_producer_route_selected`, not theorem closure.
+Status: `p1_nonce_producer_route_selected`, pending theorem-closure review.
 
 Date: 2026-07-02
 
@@ -19,8 +19,8 @@ this repository's current Profile P1 direction because it targets standard-size
 ML-DSA-65 signatures accepted by unmodified FIPS 204 verifiers while using a
 coordinator-assisted TEE/HSM trust assumption.
 
-This is a route-selection artifact only. It is not theorem closure, not selected-backend proof closure, not production threshold ML-DSA security, not rejection-distribution preservation, not completed standard-verifier
-compatibility, not CAVP/ACVTS validation, and not FIPS validation.
+This is a route-selection artifact. It is pending theorem-closure review, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires rejection-distribution preservation proof, not completed standard-verifier
+compatibility, requires CAVP/ACVTS validation evidence, and requires FIPS validation evidence.
 
 The machine-readable companion is
 [`p1-nonce-producer-selection.json`](p1-nonce-producer-selection.json).
@@ -62,7 +62,7 @@ evidence:
 - `external_review_digest`
 
 The artifact must also preserve the existing claim boundary:
-`conformance/proof-review evidence only`.
+`conformance/proof-review evidence`.
 
 ## Source-Backed Ranking
 

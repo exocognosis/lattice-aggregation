@@ -55,7 +55,7 @@ def criterion2_manifest():
 def hypothesis_assessment():
     return {
         "overall_verdict": "partially_proven",
-        "claim_boundary": "research scaffold only",
+        "claim_boundary": "research scaffold evidence",
     }
 
 
@@ -63,7 +63,7 @@ def closure_candidate(ready):
     return {
         "schema": "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
         "close_candidate": ready,
-        "blockers": [] if ready else ["actual external nonce capture is not ready"],
+        "blockers": [] if ready else ["actual external nonce capture readiness required"],
     }
 
 
@@ -94,7 +94,7 @@ def theorem_review(ready=True, claim_boundary=None):
         "claim_boundary": (
             claim_boundary
             if claim_boundary is not None
-            else "readiness preflight only; not theorem closure"
+            else "readiness preflight only; pending theorem-closure review"
         ),
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "review_status": "theorem_closure_review_ready" if ready else "blocked",

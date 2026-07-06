@@ -1,13 +1,13 @@
 {
   "name": "p1-standard-verifier-compatibility-artifact-fixture-v1",
   "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "verifier_provider_identity": "mock-provider-test-fixture",
   "verifier_provider_version": "test-fixture-v1",
   "verifier_result": "accept",
   "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
-  "note": "Standard-verifier compatibility artifact evidence for Criterion 2 proof review only; not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.",
+  "note": "Standard-verifier compatibility artifact evidence for Criterion 2 proof review only; requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.",
   "payload": {
     "public_key_fill_byte": 6,
     "application_message_hex": "6f726967696e616c206170706c69636174696f6e206d657373616765",

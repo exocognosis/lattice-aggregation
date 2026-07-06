@@ -4,7 +4,7 @@
 
 **Goal:** Build the backend-facing infrastructure needed to acquire, run, ingest, and review a real P1 threshold ML-DSA backend capture bundle for the selected profile.
 
-**Boundary:** This plan does not claim theorem closure. Code can make the ingestion path strict and reproducible, but theorem closure still requires actual external captures, reviewed backend source/operator evidence, rejection-distribution analysis, and proof review. All generated artifacts remain `conformance/proof-review evidence only` until those inputs exist.
+**Boundary:** This plan requires theorem-closure review. Code can make the ingestion path strict and reproducible, but theorem closure still requires actual external captures, reviewed backend source/operator evidence, rejection-distribution analysis, and proof review. All generated artifacts remain `conformance/proof-review evidence` until those inputs exist.
 
 **Selected profile:** `ML-DSA-65 coordinator-assisted Shamir nonce DKG P1`, 10,000 validators, threshold 6,667, standard ML-DSA-65 signature length 3,309 bytes.
 
@@ -105,7 +105,7 @@ Create an outside-repo review manifest binding the nonce gate, backend emission 
 
 - [ ] **Step 3: Run the grouped evidence attempt**
 
-Run `scripts/run_p1_external_backend_evidence_attempt.py` after the nonce, backend emission, rejection, and review package inputs exist. A ready result means the repo has a close-candidate evidence bundle, not theorem closure.
+Run `scripts/run_p1_external_backend_evidence_attempt.py` after the nonce, backend emission, rejection, and review package inputs exist. A ready result means the repo has a close-candidate evidence bundle, pending theorem-closure review.
 
 ### Task 5: Theorem-Closure Assessment
 

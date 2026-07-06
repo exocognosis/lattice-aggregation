@@ -1,5 +1,5 @@
 {
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "forbidden_capture_sources": [
     "hazmat PRF-output oracle",
     "centralized expanded-secret-key helper",
@@ -17,7 +17,7 @@
   },
   "request_status": "evidence_present_unclosed",
   "required_capture": {
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
     "material": [
       "source_reference",
       "backend_implementation",

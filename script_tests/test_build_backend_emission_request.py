@@ -42,7 +42,7 @@ class BackendEmissionRequestBuilderTests(unittest.TestCase):
             "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
         )
         self.assertEqual(
-            request_json["claim_boundary"], "conformance/proof-review evidence only"
+            request_json["claim_boundary"], "conformance/proof-review evidence"
         )
         self.assertEqual(
             request_json["selected_profile"],
@@ -69,7 +69,7 @@ class BackendEmissionRequestBuilderTests(unittest.TestCase):
         self.assertTrue(request_json["required_capture"]["mutated_public_key_rejected"])
         self.assertTrue(request_json["required_capture"]["mutated_signature_rejected"])
         self.assertIn("evidence_present_unclosed", summary_md)
-        self.assertIn("does not prove Criterion 2", summary_md)
+        self.assertIn("requires Criterion 2 proof review", summary_md)
         self.assertIn("request.json", checksums)
 
     def test_build_request_manifest_rejects_simulation_names_bad_digests_and_bad_message_hex(

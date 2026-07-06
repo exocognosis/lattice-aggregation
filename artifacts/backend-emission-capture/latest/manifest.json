@@ -24,7 +24,7 @@
   "capture_file_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
   "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
   "capture_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "command_duration_seconds": 0,
   "exit_code": 0,
   "external_capture_provenance": {
@@ -33,7 +33,7 @@
     "capture_file_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
     "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
     "capture_sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10",
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
     "evidence_class": "real_threshold_mldsa_external_capture",
     "expected_digest_fields": [
       "accepted_signature_digest_hex",

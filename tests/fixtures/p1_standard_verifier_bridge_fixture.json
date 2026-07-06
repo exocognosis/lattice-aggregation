@@ -5,7 +5,7 @@
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "standard_verifier_source": "mock-provider-test-fixture",
   "provider_kat_fixture": "tests/fixtures/acvp_mldsa65_sigver_fips204_sample.json",
-  "note": "Fixture-backed bridge evidence for conformance plumbing only; not production threshold ML-DSA recomputation, not CAVP/ACVTS validation, and not a completed standard-verifier compatibility proof.",
+  "note": "Fixture-backed bridge evidence for conformance plumbing only; not production threshold ML-DSA recomputation, requires CAVP/ACVTS validation evidence, and requires a completed standard-verifier compatibility proof.",
   "transcript": {
     "session_id_fill_byte": 1,
     "epoch": 2,

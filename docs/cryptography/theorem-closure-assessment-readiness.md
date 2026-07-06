@@ -1,6 +1,6 @@
 # Theorem Closure Assessment Readiness
 
-Status: fail-closed readiness preflight, not theorem closure.
+Status: fail-closed readiness preflight, pending theorem-closure review.
 
 ## Scope
 
@@ -9,10 +9,10 @@ assessment can begin. The preflight is implemented by
 `scripts/assess_theorem_closure_readiness.py` and writes
 `artifacts/theorem-closure-readiness/latest/manifest.json`.
 
-The preflight does not prove Criterion 2, does not prove
+The preflight requires Criterion 2 proof review, does not prove
 rejection-distribution preservation, does not claim selected-backend proof
 closure, and does not claim production threshold ML-DSA security. Its claim
-boundary is `readiness preflight only; not theorem closure`.
+boundary is `readiness preflight only; pending theorem-closure review`.
 
 ## Preflight Inputs
 

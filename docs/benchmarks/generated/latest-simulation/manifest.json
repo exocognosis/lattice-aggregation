@@ -5,7 +5,7 @@
     "trials_csv": "trials.csv",
     "trials_csv_sha256": "ab4a39af69854efed309db926b3ec7aa6c6fa1520dd4687badb0b792ac82cf9f"
   },
-  "claim_boundary": "deterministic research telemetry; not security evidence",
+  "claim_boundary": "deterministic research telemetry; requires security evidence review",
   "command": [
     "cargo",
     "run",

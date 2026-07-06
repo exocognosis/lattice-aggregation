@@ -16,7 +16,7 @@ ATTEMPT_SCHEMA = "lattice-aggregation:p1-admissible-nonce-producer-capture-attem
 HANDOFF_SCHEMA = "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1"
 EXPECTED_SOURCE_PROFILE = "admissible_external_backend_capture"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
 DISTRIBUTED_NONCE_DIGEST_FIELD = "distributed_nonce_producer_artifact_digest_hex"
@@ -53,7 +53,7 @@ use sha3::{
 use std::{env, process};
 
 const SCHEMA: &str = "lattice-aggregation:p1-rejection-equivalence-batch:v1";
-const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
+const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence";
 const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 const BACKEND_EVIDENCE: &str = "mldsa65-centralized-vs-threshold-rejection-batch";
 const HAZMAT_NONCE_PRF_PRODUCER: &str = "hazmat-prf-output-oracle";
@@ -178,7 +178,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "claim_boundary": CLAIM_BOUNDARY,
         "selected_profile": SELECTED_PROFILE,
         "backend_evidence": BACKEND_EVIDENCE,
-        "note": "Hazmat centralized-vs-threshold ML-DSA-65 rejection-predicate comparator; conformance/proof-review evidence only, not theorem closure.",
+        "note": "Hazmat centralized-vs-threshold ML-DSA-65 rejection-predicate comparator; conformance/proof-review evidence, pending theorem-closure review.",
         "parameters": {
             "validator_count": config.validator_count,
             "threshold": config.threshold,

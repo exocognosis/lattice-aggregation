@@ -11,7 +11,7 @@ from pathlib import Path
 REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
 EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 BRIDGE_PATH = "tests/fixtures/p1_standard_verifier_bridge_fixture.json"
 COMPATIBILITY_PATH = (
@@ -277,7 +277,7 @@ def build_capture(request_path, root=".", generated_at=None):
         "producer_evidence": EXTERNAL_PRODUCER_EVIDENCE,
         "note": (
             "Reviewed P1 nonce-producer capture replay for the executable "
-            "handoff gate; proof-review evidence only and not theorem closure."
+            "handoff gate; proof-review evidence only and pending theorem-closure review."
         ),
         "threshold_nonce_accounting": nonce_accounting,
         "request": {

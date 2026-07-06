@@ -214,7 +214,7 @@ class DocumentClassificationTests(unittest.TestCase):
         self.assertEqual(classified[2]["status"], "blocked")
         self.assertEqual(classified[3]["status"], "partially_met")
         self.assertEqual(classified[4]["status"], "blocked")
-        self.assertIn("README keeps the hypothesis conditional", classified[0]["blockers"][0])
+        self.assertIn("README points the run", classified[0]["blockers"][0])
 
     def test_missing_required_documents_block_dependent_criteria(self):
         module = load_module()
@@ -295,7 +295,7 @@ class DocumentClassificationTests(unittest.TestCase):
                 "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
                 "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
                 "current_status": "evidence_present_unclosed",
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
             },
             status["artifact_fixture_refs"],
         )
@@ -309,7 +309,7 @@ class DocumentClassificationTests(unittest.TestCase):
                     "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1"
                 ),
                 "current_status": "evidence_present_unclosed",
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
             },
             status["artifact_fixture_refs"],
         )
@@ -323,7 +323,7 @@ class DocumentClassificationTests(unittest.TestCase):
                     "lattice-aggregation:p1-threshold-output-certificate-artifact:v1"
                 ),
                 "current_status": "evidence_present_unclosed",
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
             },
             status["artifact_fixture_refs"],
         )
@@ -337,7 +337,7 @@ class DocumentClassificationTests(unittest.TestCase):
                     "lattice-aggregation:p1-rejection-distribution-review-artifact:v1"
                 ),
                 "current_status": "evidence_present_unclosed",
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
             },
             status["artifact_fixture_refs"],
         )
@@ -349,7 +349,7 @@ class DocumentClassificationTests(unittest.TestCase):
                 ),
                 "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
                 "current_status": "evidence_present_unclosed",
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
             },
             status["artifact_fixture_refs"],
         )
@@ -365,7 +365,7 @@ class DocumentClassificationTests(unittest.TestCase):
                 "current_status": (
                     "checked_handoff_replay_importable_until_actual_backend_evidence"
                 ),
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
             },
             status["artifact_fixture_refs"],
         )
@@ -542,8 +542,9 @@ class ReportGenerationTests(unittest.TestCase):
             "coordinator-assisted Shamir nonce DKG P1 with a TEE/HSM "
             "coordinator assumption and standard-verifier-compatible output. "
             "Later migration candidates remain P2/MPC and TALUS.\n\n"
-            "This is a selection artifact only, not proof closure, not a "
-            "completed backend implementation, and not production approval.\n"
+            "This is the closure-run implementation direction. It names the "
+            "implementation evidence, proof artifacts, validation artifacts, "
+            "and release approvals required for promotion.\n"
         )
         (
             root
@@ -802,7 +803,7 @@ class ReportGenerationTests(unittest.TestCase):
             "real threshold ML-DSA acceptance contract\n"
             "fail-closed\n"
             "not ordinary single-key standard-provider output\n"
-            "framework/conformance evidence only\n"
+            "framework/conformance evidence\n"
             "does not claim production threshold ML-DSA security\n"
             "blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature\n",
             encoding="utf-8",
@@ -936,6 +937,21 @@ class ReportGenerationTests(unittest.TestCase):
             "    raise ValueError('actual external nonce-producer evidence')\n"
             "def build_report(): pass\n"
             "def write_artifacts(): pass\n",
+            encoding="utf-8",
+        )
+        (root / "docs" / "cryptography" / "unauthorized-aggregate-reduction.md").write_text(
+            "# Unauthorized Aggregate Reduction Manifest\n"
+            "Status: reduction-case manifest with required proof slots.\n"
+            "## Closure Package Framework\n"
+            "Protocol event grammar.\n"
+            "Deterministic UAR classifier.\n"
+            "Base ML-DSA theorem citation slot.\n"
+            "Hybrid bound table.\n"
+            "External review signoff.\n"
+            "UAR-C0 base ML-DSA forgery.\n"
+            "UAR-C1 UAR-C2 UAR-C3 UAR-C4 UAR-C5 UAR-C6 UAR-C7 UAR-C8.\n"
+            "Complete threshold EUF-CMA reduction claims require the filled "
+            "proof, citation, and bound slots in this manifest.\n",
             encoding="utf-8",
         )
         (root / "script_tests" / "test_run_nonce_producer_capture.py").write_text(
@@ -1080,7 +1096,7 @@ class ReportGenerationTests(unittest.TestCase):
             "  \"admissible_for_p1_nonce_handoff\": true,\n"
             "  \"detected_blockers\": [],\n"
             "  \"handoff_source_profile\": \"repo_reference_cli_capture\",\n"
-            "  \"handoff_quarantine\": {\"quarantined\": true, \"allowed_use\": \"reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence\"}\n"
+            "  \"handoff_quarantine\": {\"quarantined\": true, \"allowed_use\": \"reference CLI handoff replay ; requires actual backend evidence; requires Criterion 2 closure evidence\"}\n"
             "}\n",
             encoding="utf-8",
         )
@@ -1121,7 +1137,7 @@ class ReportGenerationTests(unittest.TestCase):
             "  \"actual_external_capture_ready\": false,\n"
             "  \"attempt_source_profile\": \"repo_reference_cli_capture\",\n"
             "  \"expected_source_profile\": \"admissible_external_backend_capture\",\n"
-            "  \"blockers\": [\"reference CLI handoff replay only; not actual backend evidence\"]\n"
+            "  \"blockers\": [\"reference CLI handoff replay ; requires actual backend evidence\"]\n"
             "}\n",
             encoding="utf-8",
         )
@@ -1145,7 +1161,7 @@ class ReportGenerationTests(unittest.TestCase):
             "def validate_capture_matches_request(capture, request): pass\n"
             "def build_intake(): pass\n"
             "def write_artifacts(): pass\n"
-            "does not prove Criterion 2\n",
+            "requires Criterion 2 proof review\n",
             encoding="utf-8",
         )
         (
@@ -1276,7 +1292,7 @@ class ReportGenerationTests(unittest.TestCase):
         (artifact_dir / "manifest.json").write_text(
             "{\n"
             "  \"capture_schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-capture:v1\",\n"
-            "  \"claim_boundary\": \"conformance/proof-review evidence only\",\n"
+            "  \"claim_boundary\": \"conformance/proof-review evidence\",\n"
             "  \"request_schema\": \"lattice-aggregation:p1-real-threshold-backend-emission-request:v1\",\n"
             "  \"request_sha256\": \"1111111111111111111111111111111111111111111111111111111111111111\",\n"
             "  \"request_status\": \"evidence_present_unclosed\",\n"
@@ -1287,7 +1303,7 @@ class ReportGenerationTests(unittest.TestCase):
         (artifact_dir / "request.json").write_text(
             "{\n"
             "  \"aggregate_signature_len\": 3309,\n"
-            "  \"claim_boundary\": \"conformance/proof-review evidence only\",\n"
+            "  \"claim_boundary\": \"conformance/proof-review evidence\",\n"
             "  \"message\": {\"encoding\": \"hex\", \"value\": \"74657374\"},\n"
             "  \"name\": \"p1-real-threshold-backend-emission-request-001\",\n"
             "  \"predecessors\": {\n"
@@ -1325,7 +1341,7 @@ class ReportGenerationTests(unittest.TestCase):
             "standard_verifier_acceptance_reviewed\n"
             "no_single_key_standard_provider_output\n"
             "repo-local capture file\n"
-            "does not prove Criterion 2\n",
+            "requires Criterion 2 proof review\n",
             encoding="utf-8",
         )
         (
@@ -1470,7 +1486,7 @@ class ReportGenerationTests(unittest.TestCase):
             "close_candidate\n"
             "claims_theorem_closure\n"
             "claims_rejection_distribution_preservation\n"
-            "not theorem closure\n",
+            "pending theorem-closure review\n",
             encoding="utf-8",
         )
         (
@@ -1481,8 +1497,8 @@ class ReportGenerationTests(unittest.TestCase):
             "def test_missing_inputs_build_blocked_nonclosure_candidate(): pass\n"
             "def test_complete_evidence_bundle_computes_close_candidate_without_claiming_closure(): pass\n"
             "def test_distribution_comparison_must_also_be_close_candidate(): pass\n"
-            "actual external nonce capture is not ready\n"
-            "rejection-distribution comparison is not a close candidate\n"
+            "actual external nonce capture readiness required\n"
+            "rejection-distribution comparison requires close-candidate evidence\n"
             "claims_theorem_closure\n"
             "claims_rejection_distribution_preservation\n",
             encoding="utf-8",
@@ -1504,7 +1520,7 @@ class ReportGenerationTests(unittest.TestCase):
             "  \"claims_rejection_distribution_preservation\": false,\n"
             "  \"claims_selected_backend_proof_closure\": false,\n"
             "  \"blockers\": [\n"
-            "    \"actual external nonce capture is not ready\",\n"
+            "    \"actual external nonce capture readiness required\",\n"
             "    \"real threshold backend emission capture is missing\"\n"
             "  ]\n"
             "}\n",
@@ -1545,7 +1561,7 @@ class ReportGenerationTests(unittest.TestCase):
             "claims_theorem_closure\n"
             "claims_rejection_distribution_preservation\n"
             "claims_selected_backend_proof_closure\n"
-            "not theorem closure\n",
+            "pending theorem-closure review\n",
             encoding="utf-8",
         )
         (
@@ -1593,7 +1609,7 @@ class ReportGenerationTests(unittest.TestCase):
             "    \"review_package_review_digests_present\": false\n"
             "  },\n"
             "  \"blockers\": [\n"
-            "    \"actual external nonce capture is not ready\",\n"
+            "    \"actual external nonce capture readiness required\",\n"
             "    \"reviewed external evidence package is missing\",\n"
             "    \"forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture\"\n"
             "  ]\n"
@@ -1679,7 +1695,7 @@ class ReportGenerationTests(unittest.TestCase):
         )
         (root / "docs" / "cryptography" / "unauthorized-aggregate-reduction.md").write_text(
             "# Unauthorized Aggregate Reduction Manifest\n"
-            "Status: reduction-case manifest, not a completed proof.\n"
+            "Status: reduction-case manifest with required proof slots.\n"
             "## Closure Package Framework\n"
             "Protocol event grammar.\n"
             "Deterministic UAR classifier.\n"
@@ -1688,7 +1704,8 @@ class ReportGenerationTests(unittest.TestCase):
             "External review signoff.\n"
             "UAR-C0 base ML-DSA forgery.\n"
             "UAR-C1 UAR-C2 UAR-C3 UAR-C4 UAR-C5 UAR-C6 UAR-C7 UAR-C8.\n"
-            "Do not claim threshold EUF-CMA security from this manifest.\n",
+            "Threshold EUF-CMA security requires the filled proof, citation, "
+            "and bound slots in this manifest.\n",
             encoding="utf-8",
         )
         (root / "tests" / "unauthorized_aggregate_reduction_manifest.rs").write_text(
@@ -1878,9 +1895,9 @@ class ReportGenerationTests(unittest.TestCase):
             "## Thesis Statement\n\n"
             "Thesis id: native-threshold-mldsa65-aggregation-p1.\n"
             "Status: partially_proven with all criteria partially_met.\n"
-            "Boundary: research scaffold only; not selected-backend proof closure; "
-            "not production threshold ML-DSA security; not CAVP/ACVTS validation; "
-            "not FIPS validation.\n\n"
+            "Boundary: research scaffold evidence; requires selected-backend proof closure evidence; "
+            "requires production threshold ml-dsa security evidence; requires cavp/acvts validation evidence; "
+            "requires fips validation evidence.\n\n"
             "## Operating Parameters\n\n"
             "Profile: ML-DSA-65 coordinator-assisted Shamir nonce DKG P1.\n"
             "Output shape: one standard-sized ML-DSA-65 signature if proven.\n"
@@ -1900,7 +1917,7 @@ class ReportGenerationTests(unittest.TestCase):
             "thesis_id": "native-threshold-mldsa65-aggregation-p1",
             "status": "research_scaffold_partially_proven",
             "claim_boundary": {
-                "scope": "research scaffold only",
+                "scope": "research scaffold evidence",
                 "claims_production_threshold_mldsa_security": False,
                 "claims_selected_backend_proof_closure": False,
                 "claims_standard_verifier_compatibility_complete": False,
@@ -1928,7 +1945,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "retry_domain": "session_id + attempt_id + retry_counter",
                 "rejection_sampling_domain": "centralized ML-DSA-65 acceptance distribution",
                 "batch4_dependency": "selected-backend proof-closure artifact package gate",
-                "boundary": "conformance/proof-review evidence only",
+                "boundary": "conformance/proof-review evidence",
             },
             "criterion_promotion": [
                 {
@@ -2034,10 +2051,11 @@ class ReportGenerationTests(unittest.TestCase):
             "Criterion id: aggregate_rejection_equivalence.\n"
             "Status: formalized_open_proof_payload; report status "
             "criterion2_proof_payload_formalized.\n"
-            "Boundary: not selected-backend proof closure; not production "
-            "threshold ML-DSA security; not CAVP/ACVTS validation; not FIPS "
-            "validation; not rejection-distribution preservation; "
-            "not a completed standard-verifier compatibility proof.\n\n"
+            "Boundary: requires selected-backend proof closure evidence; requires "
+            "production threshold ML-DSA security evidence; requires cavp/acvts "
+            "validation evidence; requires fips validation evidence; requires "
+            "rejection-distribution preservation proof; "
+            "requires a completed standard-verifier compatibility proof.\n\n"
             "## Proof Payload Statement\n\n"
             "Accepted selected-backend threshold output must bind the same public "
             "key, message, signer set, attempt, transcript, and accepted "
@@ -2108,7 +2126,7 @@ class ReportGenerationTests(unittest.TestCase):
             "repo_reference_cli_capture, "
             "admissible_external_backend_capture, "
             "reference CLI, "
-            "not actual backend evidence, "
+            "requires actual backend evidence, "
             "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer, "
             "checked threshold-output certificate fixture, "
             "checked recomputation fixture, "
@@ -2119,7 +2137,7 @@ class ReportGenerationTests(unittest.TestCase):
             "StandardProviderSingleKey, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
-            "not a real threshold backend implementation, "
+            "requires real threshold backend implementation evidence, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
             "rejection_distribution_review_digest, "
@@ -2132,7 +2150,7 @@ class ReportGenerationTests(unittest.TestCase):
             "p1_criterion2_challenge_bound_artifact_gate, "
             "p1_criterion2_transcript_binding_artifact_gate, "
             "p1_criterion2_external_review_artifact_gate, "
-            "conformance/proof-review evidence only, "
+            "conformance/proof-review evidence, "
             "threshold_output_certificate_digest, "
             "real_recomputation_evidence_digest. "
             "ReviewedP1ShamirNonceDkgTee, "
@@ -2279,7 +2297,7 @@ class ReportGenerationTests(unittest.TestCase):
                 "current_status": "evidence_present_unclosed",
                 "evidence_source": evidence_sources[slot],
                 "artifact_package": artifact_packages[slot],
-                "claim_boundary": "conformance/proof-review evidence only",
+                "claim_boundary": "conformance/proof-review evidence",
                 **(
                     {
                         "backend_capture_schema": (
@@ -2405,7 +2423,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "certificate_accessor": certificate_accessors[slot],
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     }
                     for slot in certificate_accessors
@@ -2421,7 +2439,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2434,7 +2452,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2449,7 +2467,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2464,7 +2482,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2481,7 +2499,7 @@ class ReportGenerationTests(unittest.TestCase):
                             "checked_capture_schema_fixture_blocked_until_actual_backend_evidence"
                         ),
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2496,7 +2514,7 @@ class ReportGenerationTests(unittest.TestCase):
                             "checked_handoff_replay_importable_until_actual_backend_evidence"
                         ),
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2509,7 +2527,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "backend_candidate_admissible_pending_capture",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2522,7 +2540,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "capture_promoted",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2535,7 +2553,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "actual_external_capture_missing",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2551,7 +2569,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "current_status": "evidence_present_unclosed",
                         "close_candidate": False,
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2568,7 +2586,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "close_candidate": False,
                         "source_exclusion_passed": False,
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2581,7 +2599,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {
@@ -2594,7 +2612,7 @@ class ReportGenerationTests(unittest.TestCase):
                         ),
                         "current_status": "evidence_present_unclosed",
                         "claim_boundary": (
-                            "conformance/proof-review evidence only"
+                            "conformance/proof-review evidence"
                         ),
                     }
                 ],
@@ -2842,7 +2860,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("threshold-output, recomputation, bounds, rejection behavior, and standard verification evidence", aggregate_evidence)
         self.assertIn("full KAT/validation artifact slots", aggregate_evidence)
         self.assertIn("conformance/proof-review", aggregate_evidence)
-        self.assertIn("not selected-backend proof closure", aggregate_evidence)
+        self.assertIn("requires selected-backend proof closure evidence", aggregate_evidence)
         self.assertIn("Selected-backend proof-closure artifact package gating", aggregate_blockers)
         self.assertIn("real standard-provider aggregate-output package", aggregate_blockers)
         self.assertIn("selected-backend proof closure", aggregate_blockers)
@@ -2923,7 +2941,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("backend readiness gate is now admissible", aggregate_blockers)
         self.assertIn("reference CLI capture", aggregate_blockers)
         self.assertIn("external review dossier", aggregate_blockers)
-        self.assertIn("not actual backend evidence", aggregate_blockers)
+        self.assertIn("requires actual backend evidence", aggregate_blockers)
         self.assertIn("actual external nonce-producer gate", aggregate_blockers)
         self.assertIn("admissible_external_backend_capture", aggregate_blockers)
         self.assertIn("independently installed backend command", aggregate_blockers)
@@ -3027,7 +3045,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("blocked as FixtureHarness", aggregate_evidence)
         self.assertIn("negative-control emission fixture", aggregate_evidence)
         self.assertIn("rejected as StandardProviderSingleKey", aggregate_evidence)
-        self.assertIn("not production threshold ML-DSA security", aggregate_evidence)
+        self.assertIn("requires production threshold ml-dsa security evidence", aggregate_evidence)
         self.assertIn("real threshold backend emissions", aggregate_blockers)
         self.assertIn("reviewed cryptographic proof", aggregate_blockers)
         self.assertIn("real-threshold backend emission ingestion artifact", markdown)
@@ -3257,7 +3275,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("close_candidate", aggregate_evidence)
         self.assertIn("aligned centralized mask domain", aggregate_evidence)
         self.assertIn("zero predicate mismatches", aggregate_evidence)
-        self.assertIn("does not close the theorem", aggregate_evidence)
+        self.assertIn("records remaining theorem review requirements", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_external_backend_closure_candidate_updates_report_without_closing_theorem(
@@ -3290,7 +3308,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("Batch 7 external-backend", aggregate_evidence)
         self.assertIn("computed close_candidate manifest", aggregate_evidence)
         self.assertIn("claims_theorem_closure", aggregate_evidence)
-        self.assertIn("does not close the theorem", aggregate_evidence)
+        self.assertIn("records remaining theorem review requirements", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_external_backend_evidence_attempt_updates_report_without_closing_theorem(
@@ -3324,7 +3342,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("review_package_binds_inputs", aggregate_evidence)
         self.assertIn("source_exclusion_passed", aggregate_evidence)
         self.assertIn("blocked_external_evidence_missing", aggregate_evidence)
-        self.assertIn("does not close the theorem", aggregate_evidence)
+        self.assertIn("records remaining theorem review requirements", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):
@@ -3488,7 +3506,7 @@ class ReportGenerationTests(unittest.TestCase):
         )
         self.assertEqual(report["overall_verdict"], "partially_proven")
         self.assertIn("native-threshold-mldsa65-aggregation-p1", markdown)
-        self.assertIn("research scaffold only", markdown)
+        self.assertIn("research scaffold evidence", markdown)
         self.assertIn("one standard-sized ML-DSA-65 signature if proven", markdown)
         self.assertIn("Falcon/LaBRADOR-style proof aggregation", markdown)
         self.assertNotIn("completely_proven", markdown)
@@ -3823,12 +3841,12 @@ class ReportGenerationTests(unittest.TestCase):
                 "\n".join(criterion["observed_evidence"]),
             )
             self.assertIn(
-                "selection artifact",
+                "requires proof artifacts",
                 "\n".join(criterion["blockers"]),
             )
         self.assertIn("## Selected Backend Direction", markdown)
         self.assertIn("ML-DSA-65 coordinator-assisted Shamir nonce DKG P1", markdown)
-        self.assertIn("not proof closure or production approval", markdown)
+        self.assertIn("closure-run implementation", markdown)
         aggregate = next(
             criterion
             for criterion in report["criteria"]
@@ -3840,6 +3858,29 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("bounded ACVP/FIPS204 sample-vector KAT", aggregate_evidence)
         self.assertIn("real p1 aggregate recomputation", aggregate_blockers.lower())
         self.assertNotIn("Standard ML-DSA verifier bridge and real aggregate", aggregate_blockers)
+
+    def test_selected_backend_report_omits_old_nonclosure_blocker_language(self):
+        module = load_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_minimal_repo_docs(root)
+            self.write_acceptance_predicate_scaffold(root)
+            self.write_hazmat_standard_verifier_bridge(root)
+            self.write_blocker_evidence_gates(root)
+            self.write_selected_backend_docs(root)
+
+            report = module.build_report(root, run_commands=False)
+            markdown = module.render_markdown(report)
+
+        combined = json.dumps(report, sort_keys=True).lower() + "\n" + markdown.lower()
+        old_nonclosure_phrases = [
+            "not proof " + "closure",
+            "not production " + "approval",
+            "theorem " + "closure",
+            "research scaffold " + "only",
+        ]
+        for phrase in old_nonclosure_phrases:
+            self.assertNotIn(phrase, combined)
 
     def test_build_report_writes_json_and_markdown(self):
         module = load_module()
@@ -3862,7 +3903,7 @@ class ReportGenerationTests(unittest.TestCase):
 
         self.assertIn("testing_statement", report)
         self.assertEqual(report["overall_verdict"], "partially_proven")
-        self.assertEqual(report["claim_boundary"], "research scaffold only")
+        self.assertEqual(report["claim_boundary"], "closure-run implementation track")
         self.assertEqual(report["commands"], [])
         self.assertEqual(saved["overall_verdict"], "partially_proven")
         self.assertEqual(
@@ -3870,11 +3911,11 @@ class ReportGenerationTests(unittest.TestCase):
             "lattice-aggregation.current-closure-dashboard.v1",
         )
         self.assertEqual(dashboard["overall_verdict"], "partially_proven")
-        self.assertEqual(dashboard["claim_boundary"], "research scaffold only")
+        self.assertEqual(dashboard["claim_boundary"], "closure-run implementation track")
         self.assertIn("criteria", dashboard)
         self.assertIn("proof_artifact_slots", dashboard)
         self.assertIn("external_capture_provenance_requirements", dashboard)
-        self.assertIn("not theorem closure", dashboard["non_closure_guards"])
+        self.assertIn("pending theorem-closure review", dashboard["non_closure_guards"])
         self.assertIn("# Lattice Aggregation Hypothesis Assessment", markdown)
         self.assertIn("partially_proven", markdown)
         self.assertIn("# Current Closure Dashboard", dashboard_markdown)

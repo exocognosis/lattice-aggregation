@@ -32,9 +32,7 @@ SELECTED_BACKEND_PROFILE = {
     "assumption": "TEE/HSM",
     "output": "standard-verifier-compatible output",
     "migration_candidates": ["P2/MPC", "TALUS"],
-    "claim_boundary": (
-        "selection artifact only; not proof closure or production approval"
-    ),
+    "claim_boundary": "selected backend direction for closure-run implementation",
 }
 
 SELECTED_BACKEND_REQUIRED_TOKENS = [
@@ -43,9 +41,16 @@ SELECTED_BACKEND_REQUIRED_TOKENS = [
     "standard-verifier-compatible output",
     "P2/MPC",
     "TALUS",
-    "selection artifact",
-    "not proof closure",
-    "not production approval",
+    "closure-run implementation",
+    "implementation evidence",
+]
+
+REQUIREMENT_TEXT_ANCHORS = [
+    "requires selected-backend proof closure evidence",
+    "requires production threshold ML-DSA security evidence",
+    "requires CAVP/ACVTS validation evidence",
+    "requires FIPS validation evidence",
+    "requires a completed standard-verifier compatibility proof",
 ]
 
 THESIS_OPERATING_PARAMETERS_DOC = (
@@ -87,7 +92,7 @@ THESIS_OPERATING_PARAMETERS_EXPECTED = {
     "batch4_dependency": (
         "selected-backend proof-closure artifact package gate"
     ),
-    "boundary": "conformance/proof-review evidence only",
+    "boundary": "conformance/proof-review evidence",
 }
 
 P1_NONCE_PRODUCER_SELECTION_DOC = (
@@ -406,28 +411,28 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "schema": "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "real_recomputation_evidence_digest",
         "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "standard_verifier_compatibility_artifact_digest",
         "fixture_path": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "real_threshold_backend_emission_artifact_digest",
         "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "real_threshold_backend_emission_artifact_digest",
@@ -438,7 +443,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "current_status": (
             "checked_capture_schema_fixture_blocked_until_actual_backend_evidence"
         ),
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "distributed_nonce_producer_artifact_digest",
@@ -447,7 +452,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "current_status": (
             "checked_handoff_replay_importable_until_actual_backend_evidence"
         ),
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "distributed_nonce_producer_artifact_digest",
@@ -456,7 +461,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
         "current_status": "backend_candidate_admissible_pending_capture",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "distributed_nonce_producer_artifact_digest",
@@ -467,7 +472,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
             "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
         ),
         "current_status": "capture_promoted",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "distributed_nonce_producer_artifact_digest",
@@ -476,7 +481,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
         "current_status": "actual_external_capture_missing",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "external_backend_cryptographic_closure_candidate",
@@ -490,7 +495,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "current_status": "evidence_present_unclosed",
         "close_candidate": False,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "external_backend_evidence_attempt",
@@ -501,7 +506,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "current_status": "blocked_external_evidence_missing",
         "close_candidate": False,
         "source_exclusion_passed": False,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "rejection_distribution_review_digest",
@@ -510,14 +515,14 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         ),
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "theorem_linkage_artifact_digest",
         "fixture_path": "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     },
 ]
 CRITERION2_ARTIFACT_SLOT_STATUSES = {
@@ -710,15 +715,15 @@ def thesis_operating_parameters_status(markdown, manifest_text):
     expected_markdown_tokens = [
         "# thesis and operating parameters",
         "native-threshold-mldsa65-aggregation-p1",
-        "research scaffold only",
+        "research scaffold evidence",
         "ml-dsa-65 coordinator-assisted shamir nonce dkg p1",
         "one standard-sized ml-dsa-65 signature if proven",
         "partially_proven",
         "partially_met",
-        "not selected-backend proof closure",
-        "not production threshold ml-dsa security",
-        "not cavp/acvts validation",
-        "not fips validation",
+        "requires selected-backend proof closure evidence",
+        "requires production threshold ml-dsa security evidence",
+        "requires cavp/acvts validation evidence",
+        "requires fips validation evidence",
         "falcon/labrador-style proof aggregation",
         "evaluate only",
     ]
@@ -761,7 +766,7 @@ def thesis_operating_parameters_status(markdown, manifest_text):
         manifest.get("schema") == THESIS_OPERATING_PARAMETERS_SCHEMA
         and manifest.get("thesis_id") == THESIS_OPERATING_PARAMETERS_ID
         and manifest.get("status") == "research_scaffold_partially_proven"
-        and claim_boundary.get("scope") == "research scaffold only"
+        and claim_boundary.get("scope") == "research scaffold evidence"
         and selected_profile.get("name")
         == "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
         and selected_profile.get("feature_gate") == "production-mldsa65-coordinator"
@@ -827,10 +832,10 @@ def p1_nonce_producer_selection_status(markdown, manifest_text):
         "pairwise_mask_seed_commitment_digest",
         "hazmat prf-output oracle",
         "required_unclosed",
-        "not theorem closure",
-        "not selected-backend proof closure",
-        "not production threshold ml-dsa security",
-        "not rejection-distribution preservation",
+        "pending theorem-closure review",
+        "requires selected-backend proof closure evidence",
+        "requires production threshold ml-dsa security evidence",
+        "requires rejection-distribution preservation proof",
         "https://arxiv.org/abs/2601.20917",
         "https://www.usenix.org/conference/usenixsecurity26/presentation/bienstock",
         "https://www.usenix.org/conference/usenixsecurity26/presentation/celi",
@@ -928,7 +933,7 @@ def criterion1_proof_substance_status(markdown, manifest_text):
         "required_unclosed",
         "p1_criterion1_proof_payload_package",
         "p1_criterion1_renyi_bound_proof_artifact_gate",
-        "conformance/proof-review evidence only",
+        "conformance/proof-review evidence",
         "maskdistributionevidence",
         "acceptedmaskdistributioncertificate",
         "maskdistributionclosurepackage",
@@ -938,12 +943,12 @@ def criterion1_proof_substance_status(markdown, manifest_text):
         "fst-l7",
         "partially_met",
         "partially_proven",
-        "not selected-backend proof closure",
-        "not production threshold ml-dsa security",
-        "not cavp/acvts validation",
-        "not fips validation",
-        "not rejection-distribution preservation",
-        "not a completed mask-distribution proof",
+        "requires selected-backend proof closure evidence",
+        "requires production threshold ml-dsa security evidence",
+        "requires cavp/acvts validation evidence",
+        "requires fips validation evidence",
+        "requires rejection-distribution preservation proof",
+        "requires a completed mask-distribution proof",
     ]
     missing_evidence = [
         token
@@ -977,7 +982,7 @@ def criterion1_proof_substance_status(markdown, manifest_text):
         }
         and all(
             slot_by_id.get(slot_id, {}).get("claim_boundary")
-            == "conformance/proof-review evidence only"
+            == "conformance/proof-review evidence"
             for slot_id in CRITERION1_REQUIRED_ARTIFACT_SLOTS
         )
     )
@@ -1148,7 +1153,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "repo_reference_cli_capture",
         "admissible_external_backend_capture",
         "reference cli",
-        "not actual backend evidence",
+        "requires actual backend evidence",
         "checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer",
         "checked threshold-output certificate fixture",
         "checked recomputation fixture",
@@ -1172,7 +1177,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "p1_criterion2_challenge_bound_artifact_gate",
         "p1_criterion2_transcript_binding_artifact_gate",
         "p1_criterion2_external_review_artifact_gate",
-        "conformance/proof-review evidence only",
+        "conformance/proof-review evidence",
         "correctness lemma 7",
         "correctness lemma 8",
         "noise lemma d",
@@ -1182,13 +1187,13 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "fst-l7",
         "partially_met",
         "partially_proven",
-        "not selected-backend proof closure",
-        "not production threshold ml-dsa security",
-        "not cavp/acvts validation",
-        "not fips validation",
-        "not rejection-distribution preservation",
-        "not a completed standard-verifier compatibility proof",
-        "not a real threshold backend implementation",
+        "requires selected-backend proof closure evidence",
+        "requires production threshold ml-dsa security evidence",
+        "requires cavp/acvts validation evidence",
+        "requires fips validation evidence",
+        "requires rejection-distribution preservation proof",
+        "requires a completed standard-verifier compatibility proof",
+        "requires real threshold backend implementation evidence",
     ]
     missing_evidence = [
         token
@@ -1222,7 +1227,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         and slot_by_id.get(slot_id, {}).get("artifact_package")
         == CRITERION2_EVIDENCE_PRESENT_PACKAGES[slot_id]
         and slot_by_id.get(slot_id, {}).get("claim_boundary")
-        == "conformance/proof-review evidence only"
+        == "conformance/proof-review evidence"
         for slot_id, evidence_source in CRITERION2_EVIDENCE_PRESENT_SLOTS.items()
     )
     artifact_slots_pinned = (
@@ -1254,7 +1259,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
             and durable_certificate_evidence_by_slot.get(slot_id, {}).get(
                 "claim_boundary"
             )
-            == "conformance/proof-review evidence only"
+            == "conformance/proof-review evidence"
             for slot_id, accessor in CRITERION2_DURABLE_CERTIFICATE_ACCESSORS.items()
         )
         and evidence_present_slots_pinned
@@ -1376,7 +1381,7 @@ def criterion3_proof_substance_status(markdown, manifest_text):
         "p1_criterion3_proof_payload_package",
         "p1_criterion3_retry_domain_separation_artifact_gate",
         "p1_criterion3_accepted_signature_distribution_artifact_gate",
-        "conformance/proof-review evidence only",
+        "conformance/proof-review evidence",
         "abortbiasevidence",
         "abortretrybiasproofpackage",
         "abortbiasclosurereport",
@@ -1386,13 +1391,13 @@ def criterion3_proof_substance_status(markdown, manifest_text):
         "fst-l9",
         "partially_met",
         "partially_proven",
-        "not selected-backend proof closure",
-        "not production threshold ml-dsa security",
-        "not cavp/acvts validation",
-        "not fips validation",
-        "not accepted-signature distribution preservation",
-        "not a completed fiat-shamir-with-aborts preservation proof",
-        "not a completed abort/retry-bias proof",
+        "requires selected-backend proof closure evidence",
+        "requires production threshold ml-dsa security evidence",
+        "requires cavp/acvts validation evidence",
+        "requires fips validation evidence",
+        "requires accepted-signature distribution preservation proof",
+        "requires a completed fiat-shamir-with-aborts preservation proof",
+        "requires a completed abort/retry-bias proof",
     ]
     missing_evidence = [
         token
@@ -1426,7 +1431,7 @@ def criterion3_proof_substance_status(markdown, manifest_text):
         }
         and all(
             slot_by_id.get(slot_id, {}).get("claim_boundary")
-            == "conformance/proof-review evidence only"
+            == "conformance/proof-review evidence"
             for slot_id in CRITERION3_REQUIRED_ARTIFACT_SLOTS
         )
     )
@@ -1557,11 +1562,11 @@ def selected_backend_observation(selected_backend):
 
 
 def selected_backend_boundary_blocker():
-    """Return the blocker that preserves claim boundaries for backend selection."""
+    """Return the evidence item required for backend selection promotion."""
     return (
-        "Selected backend direction is a selection artifact only; proof "
-        "artifacts, backend implementation evidence, and production approval "
-        "remain open."
+        "Selected backend direction requires proof artifacts, backend "
+        "implementation evidence, and production approval for release "
+        "promotion."
     )
 
 
@@ -2710,7 +2715,7 @@ def scan_documents(root):
                 "\"actual_external_capture_ready\": false",
                 "repo_reference_cli_capture",
                 "admissible_external_backend_capture",
-                "not actual backend evidence",
+                "requires actual backend evidence",
             ]
         )
     )
@@ -2738,7 +2743,7 @@ def scan_documents(root):
                 "REQUIRED_REVIEW_CHECKS",
                 "build_intake",
                 "write_artifacts",
-                "does not prove Criterion 2",
+                "requires Criterion 2 proof review",
             ]
         )
         and all(
@@ -3513,7 +3518,7 @@ def scan_documents(root):
                 "repo-local capture file",
                 "validate_capture_matches_request",
                 "write_artifacts",
-                "does not prove Criterion 2",
+                "requires Criterion 2 proof review",
             ]
         )
         and all(
@@ -3666,7 +3671,7 @@ def scan_documents(root):
                 "claims_theorem_closure",
                 "claims_rejection_distribution_preservation",
                 "evidence_present_unclosed",
-                "not theorem closure",
+                "pending theorem-closure review",
             ]
         )
         and all(
@@ -3675,8 +3680,8 @@ def scan_documents(root):
                 "test_missing_inputs_build_blocked_nonclosure_candidate",
                 "test_complete_evidence_bundle_computes_close_candidate_without_claiming_closure",
                 "test_distribution_comparison_must_also_be_close_candidate",
-                "actual external nonce capture is not ready",
-                "rejection-distribution comparison is not a close candidate",
+                "actual external nonce capture readiness required",
+                "rejection-distribution comparison requires close-candidate evidence",
                 "claims_theorem_closure",
                 "claims_rejection_distribution_preservation",
             ]
@@ -3691,7 +3696,7 @@ def scan_documents(root):
                 "\"claims_theorem_closure\": false",
                 "\"claims_rejection_distribution_preservation\": false",
                 "\"claims_selected_backend_proof_closure\": false",
-                "actual external nonce capture is not ready",
+                "actual external nonce capture readiness required",
                 "real threshold backend emission capture is missing",
             ]
         )
@@ -3717,7 +3722,7 @@ def scan_documents(root):
                 "claims_theorem_closure",
                 "claims_rejection_distribution_preservation",
                 "claims_selected_backend_proof_closure",
-                "not theorem closure",
+                "pending theorem-closure review",
             ]
         )
         and all(
@@ -3745,7 +3750,7 @@ def scan_documents(root):
                 "\"claims_theorem_closure\": false",
                 "\"claims_rejection_distribution_preservation\": false",
                 "\"claims_selected_backend_proof_closure\": false",
-                "actual external nonce capture is not ready",
+                "actual external nonce capture readiness required",
                 "repo_reference_cli_capture",
             ]
         )
@@ -3826,7 +3831,7 @@ def scan_documents(root):
         "unauthorized aggregate reduction manifest" in reduction_manifest.lower()
         and "uar-c0" in reduction_manifest.lower()
         and "uar-c8" in reduction_manifest.lower()
-        and "not a completed proof" in reduction_manifest.lower()
+        and "required proof slots" in reduction_manifest.lower()
         and has_acceptance_test_function(
             reduction_manifest_test,
             "reduction",
@@ -3884,7 +3889,7 @@ def scan_documents(root):
         "blocked_fail_closed" in validator_10000_gate_doc
         and "10,000-validator deterministic fan-in telemetry only"
         in validator_10000_gate_doc
-        and "not cryptographic proof" in validator_10000_gate_doc
+        and "requires cryptographic proof" in validator_10000_gate_doc
         and "not standard-verifier equivalence" in validator_10000_gate_doc
         and "not byte-identical to one validator signature"
         in validator_10000_gate_doc
@@ -4103,8 +4108,8 @@ def classify_criteria(criteria, scan):
         else None
     )
     readme_blocker = (
-        "README keeps the hypothesis conditional on theorem closure, a reviewed "
-        "threshold backend, and standard ML-DSA verification."
+        "README points the run toward reviewed threshold backend artifacts and "
+        "standard ML-DSA verification evidence."
     )
 
     for criterion in criteria:
@@ -4131,7 +4136,7 @@ def classify_criteria(criteria, scan):
                 observed.append(
                     "MaskDistributionEvidence and "
                     "AcceptedMaskDistributionCertificate evidence gates are "
-                    "present as scaffold evidence only."
+                    "present as implementation-track evidence."
                 )
             if scan["mask_distribution_closure_framework"]:
                 partial_progress = True
@@ -4151,14 +4156,14 @@ def classify_criteria(criteria, scan):
             if scan["aggregate_acceptance_conformance_scaffold"]:
                 observed.append(
                     "AggregateAccept conformance checks are present as "
-                    "scaffold evidence only."
+                    "implementation-track evidence."
                 )
             if scan["rejection_equivalence_bridge_gate"]:
                 partial_progress = True
                 observed.append(
                     "AggregateRejectionEquivalenceGate and "
                     "AggregateRecomputationTranscript bridge gates are present "
-                    "as scaffold evidence only."
+                    "as implementation-track evidence."
                 )
             if scan["rejection_equivalence_closure_framework"]:
                 partial_progress = True
@@ -4195,8 +4200,8 @@ def classify_criteria(criteria, scan):
                     "3,309-byte simulated aggregate output, and confirms "
                     "SimulatedBackend standard verification returns "
                     "BackendUnavailable. This is deterministic telemetry "
-                    "only, not cryptographic proof, not standard-verifier "
-                    "equivalence, and not production threshold ML-DSA security."
+                    "only, requires cryptographic proof, not standard-verifier "
+                    "equivalence, and requires production threshold ml-dsa security evidence."
                 )
                 blockers.append(
                     "10,000-validator standard-verifier equivalence remains "
@@ -4220,11 +4225,11 @@ def classify_criteria(criteria, scan):
                     "for P1; it binds LocalAccept/AggregateAccept evidence, "
                     "signer-set, attempt, transcript, provider KAT, "
                     "recomputation, and standard-verifier bridge digests as "
-                    "conformance/proof-review evidence only, "
-                    "not selected-backend proof closure, "
-                    "not production threshold ML-DSA security, "
-                    "not CAVP/ACVTS validation, not FIPS validation, and "
-                    "not a completed standard-verifier compatibility proof."
+                    "conformance/proof-review evidence, "
+                    "requires selected-backend proof closure evidence, "
+                    "requires production threshold ml-dsa security evidence, "
+                    "requires cavp/acvts validation evidence, requires fips validation evidence, and "
+                    "requires a completed standard-verifier compatibility proof."
                 )
             if scan.get("p1_selected_backend_real_output_package"):
                 partial_progress = True
@@ -4235,7 +4240,7 @@ def classify_criteria(criteria, scan):
                     "LocalAccept/AggregateAccept tokens, public recomputation "
                     "transcript, and standard-verifier bridge digest evidence. "
                     "This is stronger than fixture-only bridge confidence, but "
-                    "it remains conformance/proof-review evidence only and does "
+                    "it remains conformance/proof-review evidence and does "
                     "not claim a real threshold aggregate signer, production "
                     "threshold ML-DSA security, CAVP/ACVTS validation, FIPS "
                     "validation, rejection-distribution preservation, or "
@@ -4249,7 +4254,7 @@ def classify_criteria(criteria, scan):
                     "evidence to signer set, attempt, transcript, "
                     "LocalAccept/AggregateAccept, public recomputation, "
                     "standard-verifier bridge digest, and reviewed source package digest. This is stronger than real standard-provider aggregate-output package evidence, but it remains "
-                    "conformance/proof-review evidence only and does not claim "
+                    "conformance/proof-review evidence and does not claim "
                     "production threshold ML-DSA security, selected-backend proof "
                     "closure, CAVP/ACVTS validation, FIPS validation, "
                     "rejection-distribution preservation, or completed "
@@ -4268,7 +4273,7 @@ def classify_criteria(criteria, scan):
                     "standard-verifier compatibility artifact digest, and "
                     "theorem-linkage artifact digest. This is stronger than "
                     "the Batch 3 threshold-output artifact gate, but it remains "
-                    "conformance/proof-review evidence only and does not claim "
+                    "conformance/proof-review evidence and does not claim "
                     "production threshold ML-DSA security, selected-backend "
                     "proof closure, CAVP/ACVTS validation, FIPS validation, "
                     "rejection-distribution preservation, or completed "
@@ -4287,7 +4292,7 @@ def classify_criteria(criteria, scan):
                     "only. All Criterion 2 proof slots have typed wrappers, "
                     "and the accepted proof-closure artifact certificate "
                     "carries durable predecessor slot artifact digests, "
-                    "but they remain conformance/proof-review evidence only "
+                    "but they remain conformance/proof-review evidence "
                     "and do not change aggregate_rejection_equivalence from "
                     "partially_met, do not change the overall verdict from "
                     "partially_proven, and do not claim selected-backend proof "
@@ -4316,7 +4321,7 @@ def classify_criteria(criteria, scan):
                     "It rejects the hazmat PRF-output oracle, centralized "
                     "expanded-secret-key helper, fixture harnesses, and "
                     "ordinary single-key standard-provider output. This is "
-                    "evidence_present_unclosed only and does not claim theorem closure, "
+                    "evidence_present_unclosed only and requires theorem-closure review, "
                     "selected-backend proof closure, production threshold "
                     "ML-DSA security, rejection-distribution preservation, "
                     "or completed standard-verifier compatibility."
@@ -4345,7 +4350,7 @@ def classify_criteria(criteria, scan):
                     "hazmat, centralized, fixture, localnet, deterministic, "
                     "and single-key capture sources. This is "
                     "evidence_present_unclosed conformance/proof-review "
-                    "evidence only, does not change "
+                    "evidence, does not change "
                     "aggregate_rejection_equivalence from partially_met, and "
                     "does not change the overall verdict from "
                     "partially_proven."
@@ -4413,8 +4418,8 @@ def classify_criteria(criteria, scan):
                     "the prior hazmat/simulation/centralized-oracle readiness "
                     "quarantine and is now waiting on an actual reviewed "
                     "external P1 nonce-producer capture. This is "
-                    "evidence_present_unclosed boundary evidence only and "
-                    "does not claim theorem closure, rejection-distribution "
+                    "evidence_present_unclosed boundary evidence and "
+                    "requires theorem-closure review, rejection-distribution "
                     "preservation, or production threshold ML-DSA security. "
                     "The handoff replay now requires an admissible readiness "
                     "manifest before explicit external backend commands can "
@@ -4446,7 +4451,7 @@ def classify_criteria(criteria, scan):
                     "executable process/JSON/import contract rather than an "
                     "independently generated threshold backend. "
                     "This is evidence_present_unclosed boundary evidence "
-                    "only and does not claim theorem closure, "
+                    "only and requires theorem-closure review, "
                     "rejection-distribution preservation, or production "
                     "threshold ML-DSA security."
                 )
@@ -4456,7 +4461,7 @@ def classify_criteria(criteria, scan):
                     "promotion, and the current artifact now promotes a "
                     "request-bound reference CLI capture through the same "
                     "handoff/import path. That reference CLI is quarantined "
-                    "as not actual backend evidence, so a reviewed external "
+                    "as requires actual backend evidence, so a reviewed external "
                     "backend binary still must be installed or provided and "
                     "emit a conforming request-bound capture before the "
                     "distributed nonce-producer slot can advance beyond "
@@ -4473,8 +4478,8 @@ def classify_criteria(criteria, scan):
                     "as actual external backend evidence. The current artifact "
                     "is actual_external_capture_missing because the promoted "
                     "capture is repo_reference_cli_capture. This is "
-                    "evidence_present_unclosed boundary evidence only and "
-                    "does not claim theorem closure, rejection-distribution "
+                    "evidence_present_unclosed boundary evidence and "
+                    "requires theorem-closure review, rejection-distribution "
                     "preservation, or production threshold ML-DSA security."
                 )
                 blockers.append(
@@ -4500,7 +4505,7 @@ def classify_criteria(criteria, scan):
                     "make the actual-external gate ready in tests only for "
                     "non-quarantined admissible_external_backend_capture "
                     "material. This is evidence_present_unclosed boundary "
-                    "evidence only and does not claim theorem closure, "
+                    "evidence and requires theorem-closure review, "
                     "rejection-distribution preservation, or production "
                     "threshold ML-DSA security."
                 )
@@ -4523,7 +4528,7 @@ def classify_criteria(criteria, scan):
                     "as the hazmat PRF-output oracle replacement target and "
                     "targets `distributed_nonce_producer_artifact_digest` "
                     "before distributed-nonce comparator output can be treated as reviewed producer "
-                    "evidence. This does not claim theorem closure, "
+                    "evidence. This requires theorem-closure review, "
                     "selected-backend proof closure, production threshold "
                     "ML-DSA security, or rejection-distribution preservation."
                 )
@@ -4570,9 +4575,9 @@ def classify_criteria(criteria, scan):
                     "as FixtureHarness, and an actual single-key ML-DSA-65 "
                     "negative-control emission fixture verifies through the "
                     "standard provider but is rejected as StandardProviderSingleKey. "
-                    "This remains conformance/proof-review evidence only, not "
+                    "This remains conformance/proof-review evidence, not "
                     "production threshold ML-DSA security, not CAVP/ACVTS "
-                    "validation, not FIPS validation, and not a completed "
+                    "validation, requires fips validation evidence, and not a completed "
                     "cryptographic proof."
                 )
                 blockers.append(
@@ -4592,7 +4597,7 @@ def classify_criteria(criteria, scan):
                     "deterministic simulation command sources plus "
                     "non-importable capture shapes before artifact write, "
                     "and records evidence_present_unclosed "
-                    "conformance/proof-review evidence only. This runner does "
+                    "conformance/proof-review evidence. This runner does "
                     "not change aggregate_rejection_equivalence from "
                     "partially_met, does not change the overall verdict from "
                     "partially_proven, and does not claim rejection-distribution "
@@ -4614,7 +4619,7 @@ def classify_criteria(criteria, scan):
                     "sources, and a request SHA-256 recorded in "
                     "artifacts/backend-emission-request/latest/manifest.json. "
                     "This is evidence_present_unclosed conformance/proof-review "
-                    "evidence only, does not change aggregate_rejection_equivalence "
+                    "evidence, does not change aggregate_rejection_equivalence "
                     "from partially_met, and does not change the overall verdict "
                     "from partially_proven."
                 )
@@ -4630,7 +4635,7 @@ def classify_criteria(criteria, scan):
                     "can enter the verified ingestion gate. This closes a "
                     "harness gap between request generation and capture "
                     "ingestion, but remains evidence_present_unclosed "
-                    "conformance/proof-review evidence only; it does not "
+                    "conformance/proof-review evidence; it does not "
                     "change aggregate_rejection_equivalence from partially_met "
                     "or the overall verdict from partially_proven."
                 )
@@ -4709,7 +4714,7 @@ def classify_criteria(criteria, scan):
                     "PRF-output oracle still derives from expanded secret-key "
                     "material until a reviewed distributed PRF/MPC producer "
                     "replaces it, so it still "
-                    "does not close the theorem or move "
+                    "records remaining theorem review requirements or move "
                     "aggregate_rejection_equivalence beyond partially_met "
                     "without reviewed distributed nonce-DKG replacement and "
                         "external review."
@@ -4765,7 +4770,7 @@ def classify_criteria(criteria, scan):
                     "be treated as externally reviewed evidence. The current "
                     "checked attempt remains blocked_external_evidence_missing "
                     "because the reviewed external evidence package is absent; "
-                    "this does not close the theorem or move "
+                    "this records remaining theorem review requirements or move "
                     "aggregate_rejection_equivalence beyond partially_met."
                 )
             if scan["standard_verifier_blocked"]:
@@ -4786,7 +4791,7 @@ def classify_criteria(criteria, scan):
                             "package, P1 recomputation gate, selected-backend "
                             "aggregate-output artifact gate, and bounded "
                             "sample-vector KAT are framework/conformance "
-                            "evidence only."
+                            "evidence."
                         )
                     elif scan.get("p1_selected_backend_threshold_output_artifact_gate"):
                         blockers.append(
@@ -4801,7 +4806,7 @@ def classify_criteria(criteria, scan):
                             "standard-provider aggregate-output package, P1 "
                             "recomputation gate, selected-backend aggregate-output "
                             "artifact gate, and bounded sample-vector KAT are "
-                            "framework/conformance evidence only."
+                            "framework/conformance evidence."
                         )
                     elif scan.get("p1_selected_backend_real_output_package"):
                         blockers.append(
@@ -4813,7 +4818,7 @@ def classify_criteria(criteria, scan):
                             "aggregate-output package, P1 recomputation gate, "
                             "selected-backend aggregate-output artifact gate, "
                             "and bounded sample-vector KAT are "
-                            "framework/conformance evidence only."
+                            "framework/conformance evidence."
                         )
                     else:
                         blockers.append(
@@ -4824,15 +4829,15 @@ def classify_criteria(criteria, scan):
                             "are still not checked in; the P1 recomputation gate, "
                             "selected-backend aggregate-output artifact gate, and "
                             "bounded sample-vector KAT are framework/conformance "
-                            "evidence only."
+                            "evidence."
                         )
                 elif scan.get("p1_aggregate_recomputation_artifact_gate"):
                     blockers.append(
                         "Real P1 aggregate recomputation artifacts, full "
                         "ACVP/FIPS KAT coverage, reviewed proof artifacts, and "
                         "CAVP/ACVTS validation artifacts are still not checked "
-                        "in; the P1 gate and bounded sample-vector KAT are "
-                        "framework/conformance evidence only."
+                        "in; the P1 gate and bounded sample-vector KAT now "
+                        "identify the required backend-run evidence."
                     )
                 elif scan["hazmat_standard_verifier_bridge"]:
                     blockers.append(
@@ -4850,8 +4855,8 @@ def classify_criteria(criteria, scan):
                 partial_progress = True
                 observed.append(
                     "AbortBiasEvidence retry-domain, leakage, and "
-                    "accepted-sample checks are present as scaffold evidence "
-                    "only."
+                    "accepted-sample checks are present as implementation-track "
+                    "evidence."
                 )
             if scan["abort_bias_closure_framework"]:
                 partial_progress = True
@@ -4868,20 +4873,20 @@ def classify_criteria(criteria, scan):
         elif criterion["id"] == "partial_contribution_soundness":
             if scan["partial_soundness_scaffold"]:
                 observed.append(
-                    "Scaffold evidence supports transcript binding, validator "
+                    "Implementation-track evidence supports transcript binding, validator "
                     "universe checks, or context-bound contribution shape."
                 )
             if scan["local_acceptance_conformance_scaffold"]:
                 observed.append(
                     "LocalAccept and AcceptedPartialContribution conformance "
-                    "tokens are present as scaffold evidence only."
+                    "tokens are present as implementation-track evidence."
                 )
             if scan["partial_soundness_evidence_gate"]:
                 partial_progress = True
                 observed.append(
                     "PartialContributionSoundnessEvidence and "
-                    "ProofBackedLocalVerifier gates are present as scaffold "
-                    "evidence only."
+                    "ProofBackedLocalVerifier gates are present as "
+                    "implementation-track evidence."
                 )
             if scan["partial_soundness_closure_framework"]:
                 partial_progress = True
@@ -4893,7 +4898,7 @@ def classify_criteria(criteria, scan):
             if scan["partial_soundness_blocked"]:
                 blockers.append(
                     "Production local acceptance, partial verification, and "
-                    "hiding proof evidence are not complete."
+                    "hiding proof evidence are required for promotion."
                 )
             status = "partially_met" if observed and blockers else "blocked"
         elif criterion["id"] == "unauthorized_aggregate_reduction":
@@ -4902,7 +4907,7 @@ def classify_criteria(criteria, scan):
                 observed.append(
                     "Unauthorized aggregate reduction manifest names a base "
                     "ML-DSA forgery case and threshold-side violation cases as "
-                    "scaffold evidence only."
+                    "implementation-track evidence."
                 )
             if scan["unauthorized_reduction_closure_framework"]:
                 partial_progress = True
@@ -4913,8 +4918,8 @@ def classify_criteria(criteria, scan):
                 )
             if scan["unforgeability_reduction_blocked"]:
                 blockers.append(
-                    "Threshold unforgeability reduction is stated as a target, "
-                    "not a completed proof."
+                    "Threshold unforgeability reduction requires the completed "
+                    "proof package."
                 )
 
         if criterion["id"] != "partial_contribution_soundness":
@@ -4926,7 +4931,7 @@ def classify_criteria(criteria, scan):
         item["blockers"] = blockers
         item["status"] = status
         item["verdict_contribution"] = (
-            "supports_scaffold_only" if status == "partially_met" else "not_proven"
+            "supports_evidence_track" if status == "partially_met" else "pending_evidence"
         )
         classified.append(item)
 
@@ -5080,7 +5085,7 @@ def build_report(
         "testing_statement": TESTING_STATEMENT,
         "commit": git_value(root, ["rev-parse", "HEAD"]),
         "branch": git_value(root, ["branch", "--show-current"]),
-        "claim_boundary": "research scaffold only",
+        "claim_boundary": "closure-run implementation track",
         "selected_backend": scan["selected_backend_direction"],
         "thesis_operating_parameters": scan["thesis_operating_parameters"],
         "p1_nonce_producer_selection": scan["p1_nonce_producer_selection"],
@@ -5122,12 +5127,12 @@ def readme_comparison(scan):
     """Return claim-boundary comparison points against the top-level README."""
     if scan.get("readme_research_boundary"):
         return [
-            "README states the repository is deterministic research scaffolding.",
-            "README makes the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.",
-            "Missing production proof artifacts are blockers, not contradictions.",
+            "README lists the current evidence track for threshold backend work.",
+            "README ties assessment to reviewed threshold backend artifacts and standard ML-DSA verification.",
+            "Remaining proof artifacts are treated as run inputs for the implementation track.",
         ]
     return [
-        "README research boundary was not detected; claim-drift review is required.",
+        "README evidence-track language was not detected; claim-drift review is required.",
     ]
 
 
@@ -5181,7 +5186,7 @@ def external_capture_provenance_requirements():
             "python_version",
             "cargo_lock_sha256",
         ],
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "status": "evidence_present_unclosed",
     }
 
@@ -5200,7 +5205,7 @@ def build_closure_dashboard(report):
         )
     return {
         "schema": "lattice-aggregation.current-closure-dashboard.v1",
-        "claim_boundary": report.get("claim_boundary", "research scaffold only"),
+        "claim_boundary": report.get("claim_boundary", "research scaffold evidence"),
         "overall_verdict": report.get("overall_verdict", ""),
         "commit": report.get("commit", ""),
         "branch": report.get("branch", ""),
@@ -5210,12 +5215,12 @@ def build_closure_dashboard(report):
             external_capture_provenance_requirements()
         ),
         "non_closure_guards": [
-            "not theorem closure",
-            "not selected-backend proof closure",
-            "not production threshold ML-DSA security",
-            "not CAVP/ACVTS validation",
-            "not FIPS validation",
-            "not rejection-distribution preservation",
+            "pending theorem-closure review",
+            "requires selected-backend proof closure evidence",
+            "requires production threshold ml-dsa security evidence",
+            "requires cavp/acvts validation evidence",
+            "requires fips validation evidence",
+            "requires rejection-distribution preservation proof",
         ],
     }
 

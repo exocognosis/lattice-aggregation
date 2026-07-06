@@ -1,6 +1,6 @@
 {
   "branch": "codex/p1-real-external-evidence-attempt",
-  "claim_boundary": "research scaffold only",
+  "claim_boundary": "research scaffold evidence",
   "command_summary": {
     "all_passed": true,
     "failed": 0,
@@ -166,13 +166,13 @@
   "criteria": [
     {
       "blockers": [
-        "Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
         "Renyi-divergence evidence for epsilon_mask is still a release-readiness blocker."
       ],
       "id": "aggregate_mask_distribution",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as scaffold evidence only.",
+        "MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as scaffold evidence.",
         "MaskDistributionClosurePackage and MaskDistributionClosureReport framework checks are present for proof-artifact completeness."
       ],
       "proof_anchors": [
@@ -190,47 +190,47 @@
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
         "10,000-validator standard-verifier equivalence remains blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature.",
         "The P1 distributed nonce-producer gate is implemented, a backend-output adapter can derive its package from submitted nonce-producer material, and a canonical capture importer can bind actual backend capture JSON to request, predecessor, and expected package digests. Externally generated reviewed Shamir nonce-DKG/TEE producer material must still replace the hazmat PRF-output oracle before Criterion 2 can advance toward cryptographic closure.",
         "The distributed nonce-producer request and capture runner are present, but a reviewed external Shamir nonce-DKG/TEE producer must still emit a conforming capture whose expected package digests can be imported through the Rust gate before the hazmat PRF-output oracle is replaced.",
         "The external command-origin guard prevents repo-local wrappers from satisfying the actual external backend slot, but Criterion 2 still needs an independently installed backend command outside the repo to emit a reviewed, request-bound capture with non-quarantined provenance.",
         "The nonce-producer backend readiness gate is now admissible, but Criterion 2 still requires an actual reviewed external Shamir nonce-DKG/TEE producer capture with source, implementation, transcript, attestation, nonce-share commitments, abort-accountability, and external review evidence.",
-        "The P1 admissible capture-attempt runner closes the operational gap between readiness preflight and capture promotion, and the current artifact now promotes a request-bound reference CLI capture through the same handoff/import path. That reference CLI is quarantined as not actual backend evidence, so a reviewed external backend binary still must be installed or provided and emit a conforming request-bound capture before the distributed nonce-producer slot can advance beyond evidence_present_unclosed.",
+        "The P1 admissible capture-attempt runner closes the operational gap between readiness preflight and capture promotion, and the current artifact now promotes a request-bound reference CLI capture through the same handoff/import path. That reference CLI is quarantined as requires actual backend evidence, so a reviewed external backend binary still must be installed or provided and emit a conforming request-bound capture before the distributed nonce-producer slot can advance beyond evidence_present_unclosed.",
         "A selected P1 Shamir nonce-DKG producer route is documented, but the reviewed distributed nonce-producer artifact digest and backend-generated producer transcript are still required before the hazmat PRF-output oracle is replaced.",
         "P1 real-threshold backend emission ingestion artifact is present, but actual real threshold backend emissions, rejection-distribution preservation, full validation artifacts, and reviewed cryptographic proof remain open.",
-        "Selected-backend proof-closure artifact package gating is present, but production threshold ML-DSA security, selected-backend proof closure, full ACVP/FIPS KAT coverage, external proof review, CAVP/ACVTS validation artifacts, FIPS validation, rejection-distribution preservation, and completed standard-verifier compatibility remain open; the proof-closure artifact package gate, threshold-output artifact gate, real standard-provider aggregate-output package, P1 recomputation gate, selected-backend aggregate-output artifact gate, and bounded sample-vector KAT are framework/conformance evidence only."
+        "Selected-backend proof-closure artifact package gating is present, but production threshold ML-DSA security, selected-backend proof closure, full ACVP/FIPS KAT coverage, external proof review, CAVP/ACVTS validation artifacts, FIPS validation, rejection-distribution preservation, and completed standard-verifier compatibility remain open; the proof-closure artifact package gate, threshold-output artifact gate, real standard-provider aggregate-output package, P1 recomputation gate, selected-backend aggregate-output artifact gate, and bounded sample-vector KAT are framework/conformance evidence."
       ],
       "id": "aggregate_rejection_equivalence",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "AggregateAccept conformance checks are present as scaffold evidence only.",
-        "AggregateRejectionEquivalenceGate and AggregateRecomputationTranscript bridge gates are present as scaffold evidence only.",
+        "AggregateAccept conformance checks are present as scaffold evidence.",
+        "AggregateRejectionEquivalenceGate and AggregateRecomputationTranscript bridge gates are present as scaffold evidence.",
         "AggregateRejectionClosurePackage and AggregateRejectionClosureCertificate framework checks are present for recomputation, KAT, bound, and review artifacts.",
         "HazmatMldsa65Provider standard-verifier bridge is present for fixed-seed ML-DSA-65 signatures, mutated message/signature rejection, and a bounded ACVP/FIPS204 sample-vector KAT under raw-real-mldsa; full KAT coverage and validation remain separately gated.",
-        "10,000-validator standard-verifier fail-closed gate is present; it constructs a deterministic 10,000-validator topology with threshold 6,667, confirms a standard-size 3,309-byte simulated aggregate output, and confirms SimulatedBackend standard verification returns BackendUnavailable. This is deterministic telemetry only, not cryptographic proof, not standard-verifier equivalence, and not production threshold ML-DSA security.",
+        "10,000-validator standard-verifier fail-closed gate is present; it constructs a deterministic 10,000-validator topology with threshold 6,667, confirms a standard-size 3,309-byte simulated aggregate output, and confirms SimulatedBackend standard verification returns BackendUnavailable. This is deterministic telemetry only, requires cryptographic proof, not standard-verifier equivalence, and requires production threshold ML-DSA security evidence.",
         "P1 aggregate recomputation artifact gate is present for the selected ML-DSA-65 coordinator-assisted profile; it binds ACVP/FIPS204-backed provider KAT evidence, recomputation digests, bound/proof artifacts, negative corpus evidence, raw fixture-package digest, and external review digests without claiming FIPS validation or production approval.",
-        "Selected-backend aggregate-output artifact gate is present for P1; it binds LocalAccept/AggregateAccept evidence, signer-set, attempt, transcript, provider KAT, recomputation, and standard-verifier bridge digests as conformance/proof-review evidence only, not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, and not a completed standard-verifier compatibility proof.",
-        "Real standard-provider selected-backend aggregate-output package evidence is present for P1; it is derived from a provider-verified ML-DSA-65 candidate signature, LocalAccept/AggregateAccept tokens, public recomputation transcript, and standard-verifier bridge digest evidence. This is stronger than fixture-only bridge confidence, but it remains conformance/proof-review evidence only and does not claim a real threshold aggregate signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
-        "Selected-backend threshold-output artifact gate is present for P1; it binds selected-backend threshold-output attempt evidence to signer set, attempt, transcript, LocalAccept/AggregateAccept, public recomputation, standard-verifier bridge digest, and reviewed source package digest. This is stronger than real standard-provider aggregate-output package evidence, but it remains conformance/proof-review evidence only and does not claim production threshold ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
-        "Selected-backend proof-closure artifact package gate is present for P1; it binds threshold-output, recomputation, bounds, rejection behavior, and standard verification evidence to the accepted threshold-output certificate, provider KAT digest, reviewed source package digest, full KAT/validation artifact slots, rejection-distribution review digest, standard-verifier compatibility artifact digest, and theorem-linkage artifact digest. This is stronger than the Batch 3 threshold-output artifact gate, but it remains conformance/proof-review evidence only and does not claim production threshold ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
-        "Typed Criterion 2 proof-slot artifact packages are present for P1; they domain-separate threshold-output certificate, real recomputation, full KAT/validation, distributed nonce-producer, rejection-distribution review, norm-bound, hint-bound, challenge-bound, transcript-binding, theorem-linkage, and external-review evidence as evidence_present_unclosed only. All Criterion 2 proof slots have typed wrappers, and the accepted proof-closure artifact certificate carries durable predecessor slot artifact digests, but they remain conformance/proof-review evidence only and do not change aggregate_rejection_equivalence from partially_met, do not change the overall verdict from partially_proven, and do not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or theorem closure.",
-        "P1 distributed nonce-producer artifact gate is present and fail-closed: it accepts only reviewed ReviewedP1ShamirNonceDkgTee producer evidence with source reference, backend implementation, coordinator attestation, Shamir nonce-DKG transcript, active-set, pairwise mask seed, nonce-share commitment, attempt-binding, abort-accountability, standard-verifier bridge, and external-review digests. It also has a backend-output adapter that hashes submitted nonce-producer material into the gate package, plus a canonical capture importer for lattice-aggregation:p1-distributed-nonce-producer-capture:v1 envelopes with request digest binding, predecessor certificate digest binding, and expected package digest checks. It rejects the hazmat PRF-output oracle, centralized expanded-secret-key helper, fixture harnesses, and ordinary single-key standard-provider output. This is evidence_present_unclosed only and does not claim theorem closure, selected-backend proof closure, production threshold ML-DSA security, rejection-distribution preservation, or completed standard-verifier compatibility.",
-        "A repo-generated distributed nonce-producer request manifest is present for P1; it writes the challenge contract that an external Shamir nonce-DKG/TEE producer must answer, including predecessor certificate digests, required capture schema, required p1_shamir_nonce_dkg_tee_external_capture evidence class, the nonce-producer material inventory, and forbidden hazmat, centralized, fixture, localnet, deterministic, and single-key capture sources. This is evidence_present_unclosed conformance/proof-review evidence only, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.",
-        "The distributed nonce-producer capture runner is present for P1; it loads request JSON, requires capture schema lattice-aggregation:p1-distributed-nonce-producer-capture:v1, requires the capture to echo the exact request schema/name/SHA-256 binding, rejects stale request digests, rejects non-importable capture shapes before artifact write, and rejects localnet, deterministic, fixture, hazmat, centralized-helper, and single-key provider command sources. It now quarantines the local checked replay emitter as quarantined_local_schema_replay so the schema/importer replay cannot masquerade as an admissible_external_backend_capture. This creates the executable handoff for actual reviewed nonce-producer evidence, but remains evidence_present_unclosed and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.",
-        "A P1 external command-origin guard is present in the nonce-producer capture runner; it records backend_command_origin as outside_repo_executable_or_script for accepted external commands and rejects an unmarked repo-local backend command before it can be classified as admissible_external_backend_capture. This hardens the actual-backend handoff boundary but remains evidence_present_unclosed and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.",
-        "A P1 nonce-producer backend readiness gate is present and artifact-backed; it binds the current request SHA-256, inspects a candidate backend source tree, detects distributed nonce-PRF output-share, splitter, and masking-contribution hooks, records source-tree checksums, and confirms the checked backend profile is backend_candidate_admissible_pending_capture with no detected blockers. This means the repo has moved past the prior hazmat/simulation/centralized-oracle readiness quarantine and is now waiting on an actual reviewed external P1 nonce-producer capture. This is evidence_present_unclosed boundary evidence only and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security. The handoff replay now requires an admissible readiness manifest before explicit external backend commands can be promoted, supports request reuse so the readiness manifest binds the exact request SHA-256, and records accepted readiness metadata in the handoff manifest.",
-        "A P1 admissible nonce-producer capture-attempt runner is present and artifact-backed; it generates the exact request under the handoff directory, runs backend readiness against that request, requires an explicit {request}-bound backend command template, and records a capture_promoted attempt after the current candidate passes readiness and the repo reference CLI command successfully emits importable capture JSON. The promoted handoff is marked repo_reference_cli_capture and quarantined as reference CLI evidence, so it proves the executable process/JSON/import contract rather than an independently generated threshold backend. This is evidence_present_unclosed boundary evidence only and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.",
-        "P1 nonce-producer route selection is present and source-backed: the selected route is FIPS 204-compatible threshold ML-DSA via Shamir Nonce DKG for the P1 TEE/HSM coordinator profile. It identifies `derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key` as the hazmat PRF-output oracle replacement target and targets `distributed_nonce_producer_artifact_digest` before distributed-nonce comparator output can be treated as reviewed producer evidence. This does not claim theorem closure, selected-backend proof closure, production threshold ML-DSA security, or rejection-distribution preservation.",
+        "Selected-backend aggregate-output artifact gate is present for P1; it binds LocalAccept/AggregateAccept evidence, signer-set, attempt, transcript, provider KAT, recomputation, and standard-verifier bridge digests as conformance/proof-review evidence, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, and requires a completed standard-verifier compatibility proof.",
+        "Real standard-provider selected-backend aggregate-output package evidence is present for P1; it is derived from a provider-verified ML-DSA-65 candidate signature, LocalAccept/AggregateAccept tokens, public recomputation transcript, and standard-verifier bridge digest evidence. This is stronger than fixture-only bridge confidence, but it remains conformance/proof-review evidence and does not claim a real threshold aggregate signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
+        "Selected-backend threshold-output artifact gate is present for P1; it binds selected-backend threshold-output attempt evidence to signer set, attempt, transcript, LocalAccept/AggregateAccept, public recomputation, standard-verifier bridge digest, and reviewed source package digest. This is stronger than real standard-provider aggregate-output package evidence, but it remains conformance/proof-review evidence and does not claim production threshold ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
+        "Selected-backend proof-closure artifact package gate is present for P1; it binds threshold-output, recomputation, bounds, rejection behavior, and standard verification evidence to the accepted threshold-output certificate, provider KAT digest, reviewed source package digest, full KAT/validation artifact slots, rejection-distribution review digest, standard-verifier compatibility artifact digest, and theorem-linkage artifact digest. This is stronger than the Batch 3 threshold-output artifact gate, but it remains conformance/proof-review evidence and does not claim production threshold ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
+        "Typed Criterion 2 proof-slot artifact packages are present for P1; they domain-separate threshold-output certificate, real recomputation, full KAT/validation, distributed nonce-producer, rejection-distribution review, norm-bound, hint-bound, challenge-bound, transcript-binding, theorem-linkage, and external-review evidence as evidence_present_unclosed only. All Criterion 2 proof slots have typed wrappers, and the accepted proof-closure artifact certificate carries durable predecessor slot artifact digests, but they remain conformance/proof-review evidence and do not change aggregate_rejection_equivalence from partially_met, do not change the overall verdict from partially_proven, and do not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or theorem closure.",
+        "P1 distributed nonce-producer artifact gate is present and fail-closed: it accepts only reviewed ReviewedP1ShamirNonceDkgTee producer evidence with source reference, backend implementation, coordinator attestation, Shamir nonce-DKG transcript, active-set, pairwise mask seed, nonce-share commitment, attempt-binding, abort-accountability, standard-verifier bridge, and external-review digests. It also has a backend-output adapter that hashes submitted nonce-producer material into the gate package, plus a canonical capture importer for lattice-aggregation:p1-distributed-nonce-producer-capture:v1 envelopes with request digest binding, predecessor certificate digest binding, and expected package digest checks. It rejects the hazmat PRF-output oracle, centralized expanded-secret-key helper, fixture harnesses, and ordinary single-key standard-provider output. This is evidence_present_unclosed only and requires theorem-closure review, selected-backend proof closure, production threshold ML-DSA security, rejection-distribution preservation, or completed standard-verifier compatibility.",
+        "A repo-generated distributed nonce-producer request manifest is present for P1; it writes the challenge contract that an external Shamir nonce-DKG/TEE producer must answer, including predecessor certificate digests, required capture schema, required p1_shamir_nonce_dkg_tee_external_capture evidence class, the nonce-producer material inventory, and forbidden hazmat, centralized, fixture, localnet, deterministic, and single-key capture sources. This is evidence_present_unclosed conformance/proof-review evidence, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.",
+        "The distributed nonce-producer capture runner is present for P1; it loads request JSON, requires capture schema lattice-aggregation:p1-distributed-nonce-producer-capture:v1, requires the capture to echo the exact request schema/name/SHA-256 binding, rejects stale request digests, rejects non-importable capture shapes before artifact write, and rejects localnet, deterministic, fixture, hazmat, centralized-helper, and single-key provider command sources. It now quarantines the local checked replay emitter as quarantined_local_schema_replay so the schema/importer replay cannot masquerade as an admissible_external_backend_capture. This creates the executable handoff for actual reviewed nonce-producer evidence, but remains evidence_present_unclosed and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security.",
+        "A P1 external command-origin guard is present in the nonce-producer capture runner; it records backend_command_origin as outside_repo_executable_or_script for accepted external commands and rejects an unmarked repo-local backend command before it can be classified as admissible_external_backend_capture. This hardens the actual-backend handoff boundary but remains evidence_present_unclosed and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security.",
+        "A P1 nonce-producer backend readiness gate is present and artifact-backed; it binds the current request SHA-256, inspects a candidate backend source tree, detects distributed nonce-PRF output-share, splitter, and masking-contribution hooks, records source-tree checksums, and confirms the checked backend profile is backend_candidate_admissible_pending_capture with no detected blockers. This means the repo has moved past the prior hazmat/simulation/centralized-oracle readiness quarantine and is now waiting on an actual reviewed external P1 nonce-producer capture. This is evidence_present_unclosed boundary evidence only and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security. The handoff replay now requires an admissible readiness manifest before explicit external backend commands can be promoted, supports request reuse so the readiness manifest binds the exact request SHA-256, and records accepted readiness metadata in the handoff manifest.",
+        "A P1 admissible nonce-producer capture-attempt runner is present and artifact-backed; it generates the exact request under the handoff directory, runs backend readiness against that request, requires an explicit {request}-bound backend command template, and records a capture_promoted attempt after the current candidate passes readiness and the repo reference CLI command successfully emits importable capture JSON. The promoted handoff is marked repo_reference_cli_capture and quarantined as reference CLI evidence, so it proves the executable process/JSON/import contract rather than an independently generated threshold backend. This is evidence_present_unclosed boundary evidence only and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security.",
+        "P1 nonce-producer route selection is present and source-backed: the selected route is FIPS 204-compatible threshold ML-DSA via Shamir Nonce DKG for the P1 TEE/HSM coordinator profile. It identifies `derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key` as the hazmat PRF-output oracle replacement target and targets `distributed_nonce_producer_artifact_digest` before distributed-nonce comparator output can be treated as reviewed producer evidence. This requires theorem-closure review, selected-backend proof closure, production threshold ML-DSA security, or rejection-distribution preservation.",
         "P1 standard-verifier compatibility artifact evidence is present; it binds `pk`, `m`, and `sigma` through provider identity/version, accept result, threshold-output certificate digest, recomputation evidence digest, bridge digest, and transcript binding. This fills the standard_verifier_compatibility_artifact_digest slot as evidence_present_unclosed only; it does not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
-        "P1 real-threshold backend emission ingestion artifact is present with a canonical backend-emission capture schema/importer as the input path to the threshold verifier closure contract; it requires 10,000 validators with threshold 6,667, a 3,309-byte aggregate signature, real threshold ML-DSA backend provenance, predecessor certificate digests, backend source, implementation, and transcript digests, provider-verified backend-output ingestion, standard-verifier acceptance, expected package digest binding, and mutated message, public key, and signature rejection evidence. It rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. The checked capture schema fixture is blocked until actual real-threshold backend evidence is present, the checked ingestion fixture harness is blocked as FixtureHarness, and an actual single-key ML-DSA-65 negative-control emission fixture verifies through the standard provider but is rejected as StandardProviderSingleKey. This remains conformance/proof-review evidence only, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, and not a completed cryptographic proof.",
-        "Actual real-threshold backend capture runner is present for P1; it emits externally generated RealThresholdMldsa capture material from an artifact-ready package into the canonical provider-verified importer, rejects localnet and deterministic simulation command sources plus non-importable capture shapes before artifact write, and records evidence_present_unclosed conformance/proof-review evidence only. This runner does not change aggregate_rejection_equivalence from partially_met, does not change the overall verdict from partially_proven, and does not claim rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.",
-        "A repo-generated real-threshold backend emission request artifact is present for P1 at artifacts/backend-emission-request/latest/request.json; it writes the P1 challenge contract that an external backend must answer, including 10,000 validators, threshold 6,667, message bytes, predecessor certificate digests, required capture schema, external RealThresholdMldsa evidence class, mutation rejection requirements, forbidden localnet/simulation capture sources, and a request SHA-256 recorded in artifacts/backend-emission-request/latest/manifest.json. This is evidence_present_unclosed conformance/proof-review evidence only, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.",
-        "The real-threshold backend capture path now binds each capture to the exact repo-generated request digest: the runner loads request JSON, requires the capture to carry the request schema/name/SHA-256 binding, rejects stale or missing request bindings, and the Rust importer requires a nonzero request digest binding before backend material can enter the verified ingestion gate. This closes a harness gap between request generation and capture ingestion, but remains evidence_present_unclosed conformance/proof-review evidence only; it does not change aggregate_rejection_equivalence from partially_met or the overall verdict from partially_proven.",
+        "P1 real-threshold backend emission ingestion artifact is present with a canonical backend-emission capture schema/importer as the input path to the threshold verifier closure contract; it requires 10,000 validators with threshold 6,667, a 3,309-byte aggregate signature, real threshold ML-DSA backend provenance, predecessor certificate digests, backend source, implementation, and transcript digests, provider-verified backend-output ingestion, standard-verifier acceptance, expected package digest binding, and mutated message, public key, and signature rejection evidence. It rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. The checked capture schema fixture is blocked until actual real-threshold backend evidence is present, the checked ingestion fixture harness is blocked as FixtureHarness, and an actual single-key ML-DSA-65 negative-control emission fixture verifies through the standard provider but is rejected as StandardProviderSingleKey. This remains conformance/proof-review evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, and not a completed cryptographic proof.",
+        "Actual real-threshold backend capture runner is present for P1; it emits externally generated RealThresholdMldsa capture material from an artifact-ready package into the canonical provider-verified importer, rejects localnet and deterministic simulation command sources plus non-importable capture shapes before artifact write, and records evidence_present_unclosed conformance/proof-review evidence. This runner does not change aggregate_rejection_equivalence from partially_met, does not change the overall verdict from partially_proven, and does not claim rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.",
+        "A repo-generated real-threshold backend emission request artifact is present for P1 at artifacts/backend-emission-request/latest/request.json; it writes the P1 challenge contract that an external backend must answer, including 10,000 validators, threshold 6,667, message bytes, predecessor certificate digests, required capture schema, external RealThresholdMldsa evidence class, mutation rejection requirements, forbidden localnet/simulation capture sources, and a request SHA-256 recorded in artifacts/backend-emission-request/latest/manifest.json. This is evidence_present_unclosed conformance/proof-review evidence, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.",
+        "The real-threshold backend capture path now binds each capture to the exact repo-generated request digest: the runner loads request JSON, requires the capture to carry the request schema/name/SHA-256 binding, rejects stale or missing request bindings, and the Rust importer requires a nonzero request digest binding before backend material can enter the verified ingestion gate. This closes a harness gap between request generation and capture ingestion, but remains evidence_present_unclosed conformance/proof-review evidence; it does not change aggregate_rejection_equivalence from partially_met or the overall verdict from partially_proven.",
         "A real-threshold backend-emission capture-file intake is present for P1: `scripts/stage_external_backend_emission_capture.py` stages only an `outside_repo_capture_file`, requires an `outside_repo_review_manifest` with schema `lattice-aggregation:p1-external-backend-emission-capture-review:v1`, requires review status `reviewed_external_backend_emission_capture_ready`, validates the exact repo request digest through the canonical backend capture runner, records `preexisting_external_capture_file` provenance, and rejects repo-local captures, missing or failed review manifests, stale request bindings, localnet/simulation, fixture, and single-key standard-provider sources before artifact write. This is an executable handoff/intake gate only; it does not change aggregate_rejection_equivalence from partially_met, does not change the overall verdict from partially_proven, and does not close Criterion 2, rejection-distribution preservation, or theorem closure.",
         "A repo-owned hazmat threshold backend capture adapter is present for the 10,000-validator P1 path; it requires an explicit backend crate path, generates a temporary Rust emitter for the hazmat `dytallix-pq-threshold` backend, bridges the threshold session to the standard external-message verifier boundary, records mutation rejection for message, public key, and signature changes, and emits request-bound capture JSON for the canonical runner. This is evidence_present_unclosed conformance/proof-review infrastructure only; it does not change aggregate_rejection_equivalence from partially_met or the overall verdict from partially_proven.",
         "The hazmat threshold backend capture adapter now emits a per-attempt bound-predicate transcript: attempts[] records attempt id, mask-seed digest, challenge digest, retry count context, z/r0/ct0/hint predicate results, and accepted_or_rejected for each backend signing attempt. This exposes the per-attempt ML-DSA rejection predicates needed for batch comparison against centralized ML-DSA behavior, but it does not by itself prove rejection-distribution preservation or move aggregate_rejection_equivalence beyond partially_met.",
-        "A hazmat centralized-vs-threshold rejection-equivalence batch comparator is present. It derives centralized ML-DSA per-attempt predicates and threshold per-attempt predicates from the explicit backend, records threshold_attempts, centralized_attempts, predicate_mismatches, challenge_digest_matches, accepted_or_rejected_matches, and close_candidate, and keeps claims_rejection_distribution_preservation and claims_theorem_closure false. This is the first runnable comparison harness for the actual rejection-sampling question. It can also run an aligned centralized mask domain mode keyed to centralized-rho-double-prime-kappa; a distributed-nonce-prf-output-shares mode now consumes active-set-bound nonce PRF output shares instead of the centralized masking helper on the threshold contribution path; a zero predicate mismatches close_candidate result there is strong algebraic closure-candidate evidence, but the PRF-output oracle still derives from expanded secret-key material until a reviewed distributed PRF/MPC producer replaces it, so it still does not close the theorem or move aggregate_rejection_equivalence beyond partially_met without reviewed distributed nonce-DKG replacement and external review."
+        "A hazmat centralized-vs-threshold rejection-equivalence batch comparator is present. It derives centralized ML-DSA per-attempt predicates and threshold per-attempt predicates from the explicit backend, records threshold_attempts, centralized_attempts, predicate_mismatches, challenge_digest_matches, accepted_or_rejected_matches, and close_candidate, and keeps claims_rejection_distribution_preservation and claims_theorem_closure false. This is the first runnable comparison harness for the actual rejection-sampling question. It can also run an aligned centralized mask domain mode keyed to centralized-rho-double-prime-kappa; a distributed-nonce-prf-output-shares mode now consumes active-set-bound nonce PRF output shares instead of the centralized masking helper on the threshold contribution path; a zero predicate mismatches close_candidate result there is strong algebraic closure-candidate evidence, but the PRF-output oracle still derives from expanded secret-key material until a reviewed distributed PRF/MPC producer replaces it, so it still records remaining theorem review requirements or move aggregate_rejection_equivalence beyond partially_met without reviewed distributed nonce-DKG replacement and external review."
       ],
       "proof_anchors": [
         "Noise Lemma D",
@@ -249,13 +249,13 @@
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
         "Abort leakage and retry-bias distribution analysis remain open proof obligations."
       ],
       "id": "abort_retry_bias",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "AbortBiasEvidence retry-domain, leakage, and accepted-sample checks are present as scaffold evidence only.",
+        "AbortBiasEvidence retry-domain, leakage, and accepted-sample checks are present as scaffold evidence.",
         "AbortRetryBiasProofPackage and AbortBiasClosureReport framework checks are present for leakage, distribution, threshold, and review artifacts."
       ],
       "proof_anchors": [
@@ -274,15 +274,15 @@
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
         "Production local acceptance, partial verification, and hiding proof evidence are not complete."
       ],
       "id": "partial_contribution_soundness",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
         "Scaffold evidence supports transcript binding, validator universe checks, or context-bound contribution shape.",
-        "LocalAccept and AcceptedPartialContribution conformance tokens are present as scaffold evidence only.",
-        "PartialContributionSoundnessEvidence and ProofBackedLocalVerifier gates are present as scaffold evidence only.",
+        "LocalAccept and AcceptedPartialContribution conformance tokens are present as scaffold evidence.",
+        "PartialContributionSoundnessEvidence and ProofBackedLocalVerifier gates are present as scaffold evidence.",
         "PartialSoundnessClosurePackage framework checks are present for proof-backed verifier, VSS/DKG, leakage, context, and review artifacts."
       ],
       "proof_anchors": [
@@ -301,13 +301,13 @@
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.",
-        "Threshold unforgeability reduction is stated as a target, not a completed proof."
+        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Threshold unforgeability reduction is stated as a target, requires a completed proof."
       ],
       "id": "unauthorized_aggregate_reduction",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "Unauthorized aggregate reduction manifest names a base ML-DSA forgery case and threshold-side violation cases as scaffold evidence only.",
+        "Unauthorized aggregate reduction manifest names a base ML-DSA forgery case and threshold-side violation cases as scaffold evidence.",
         "Unauthorized aggregate reduction closure package framework records protocol grammar, deterministic classifier, base theorem, hybrid-bound, simulator, and review slots."
       ],
       "proof_anchors": [
@@ -372,70 +372,70 @@
   "criterion2_proof_substance": {
     "artifact_fixture_refs": [
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "fixture_path": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
         "slot_id": "threshold_output_certificate_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
         "slot_id": "real_recomputation_evidence_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "fixture_path": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
         "slot_id": "standard_verifier_compatibility_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
         "slot_id": "real_threshold_backend_emission_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "checked_capture_schema_fixture_blocked_until_actual_backend_evidence",
         "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
         "slot_id": "real_threshold_backend_emission_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "checked_handoff_replay_importable_until_actual_backend_evidence",
         "fixture_path": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
         "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
         "slot_id": "distributed_nonce_producer_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "backend_candidate_admissible_pending_capture",
         "fixture_path": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
         "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
         "slot_id": "distributed_nonce_producer_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "capture_promoted",
         "fixture_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
         "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
         "slot_id": "distributed_nonce_producer_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "actual_external_capture_missing",
         "fixture_path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
         "slot_id": "distributed_nonce_producer_artifact_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "close_candidate": false,
         "current_status": "evidence_present_unclosed",
         "fixture_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
@@ -443,7 +443,7 @@
         "slot_id": "external_backend_cryptographic_closure_candidate"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "close_candidate": false,
         "current_status": "blocked_external_evidence_missing",
         "fixture_path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
@@ -452,14 +452,14 @@
         "source_exclusion_passed": false
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
         "slot_id": "rejection_distribution_review_digest"
       },
       {
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "fixture_path": "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
@@ -529,28 +529,28 @@
       {
         "certificate_accessor": "threshold_output_certificate_artifact_digest",
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "slot_id": "threshold_output_certificate_digest"
       },
       {
         "certificate_accessor": "real_recomputation_evidence_artifact_digest",
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "slot_id": "real_recomputation_evidence_digest"
       },
       {
         "certificate_accessor": "distributed_nonce_producer_artifact_digest",
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "slot_id": "distributed_nonce_producer_artifact_digest"
       },
       {
         "certificate_accessor": "candidate_artifact_digest",
         "certificate_surface": "P1ExternalBackendCryptographicClosureCandidateCertificate",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "current_status": "evidence_present_unclosed",
         "slot_id": "external_backend_cryptographic_closure_candidate"
       }
@@ -675,7 +675,7 @@
   ],
   "selected_backend": {
     "assumption": "TEE/HSM",
-    "claim_boundary": "selection artifact only; not proof closure or production approval",
+    "claim_boundary": "selection artifact; requires proof-closure evidence or production approval",
     "direction": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
     "evidence_documents": [
       "docs/cryptography/proof-implementation-crosswalk.md",
@@ -700,7 +700,7 @@
     "missing_evidence": [],
     "operating_parameters": {
       "batch4_dependency": "selected-backend proof-closure artifact package gate",
-      "boundary": "conformance/proof-review evidence only",
+      "boundary": "conformance/proof-review evidence",
       "rejection_sampling_domain": "centralized ML-DSA-65 acceptance distribution",
       "retry_domain": "session_id + attempt_id + retry_counter",
       "security_parameter": "lambda",
@@ -711,7 +711,7 @@
       "validator_set": "V"
     },
     "output_target": "one standard-sized ML-DSA-65 signature if proven",
-    "scope": "research scaffold only",
+    "scope": "research scaffold evidence",
     "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
     "status": "formalized_research_boundary",
     "thesis_id": "native-threshold-mldsa65-aggregation-p1"

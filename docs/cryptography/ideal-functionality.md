@@ -11,10 +11,9 @@ This document defines the ideal threshold ML-DSA-65 signing functionality
 with `formal-security-theorem.md`.
 
 `F_TMLDSA` specifies the target behavior for key registration, threshold signing,
-abort handling, signature release, and evidence notification. It does not define
-the concrete distributed protocol, does not prove that the current repository
-realizes the functionality, and does not apply to the deterministic simulation
-backend as production cryptography.
+abort handling, signature release, and evidence notification. Realization
+requires the concrete distributed protocol, selected-backend proof package, and
+backend-run evidence artifacts.
 
 ## IF-1. Parties, Roles, and Parameters
 

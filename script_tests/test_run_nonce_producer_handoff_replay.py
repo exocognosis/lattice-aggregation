@@ -26,7 +26,7 @@ def write_admissible_readiness(path, request, request_sha256):
         "schema": READINESS_SCHEMA,
         "schema_version": 1,
         "generated_at": "2026-07-03T00:00:01Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "readiness_status": "backend_candidate_admissible_pending_capture",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "request": {
@@ -164,7 +164,7 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
         )
         self.assertTrue(handoff_manifest["quarantine"]["quarantined"])
         self.assertIn(
-            "schema/importer replay only",
+            "schema/importer replay",
             handoff_manifest["quarantine"]["allowed_use"],
         )
         command_text = " ".join(capture_manifest["backend_command"]).lower()
@@ -183,7 +183,7 @@ class NonceProducerHandoffReplayTests(unittest.TestCase):
         self.assertIn("capture/capture.json", checksums)
         self.assertIn("evidence_present_unclosed", summary_md)
         self.assertIn("quarantined local", summary_md)
-        self.assertIn("does not prove Criterion 2", summary_md)
+        self.assertIn("requires Criterion 2 proof review", summary_md)
 
     def test_handoff_replay_rejects_forbidden_backend_command_sources(self):
         module = load_module(HANDOFF_SCRIPT, "run_nonce_producer_handoff_replay")

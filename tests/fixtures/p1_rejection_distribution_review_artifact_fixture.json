@@ -1,13 +1,13 @@
 {
   "name": "p1-rejection-distribution-review-artifact-fixture-v1",
   "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_bridge_fixture": "tests/fixtures/p1_standard_verifier_bridge_fixture.json",
   "source_standard_verifier_compatibility_fixture": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
   "source_threshold_output_certificate_artifact_fixture": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
   "source_real_recomputation_artifact_fixture": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
-  "note": "Checked rejection-distribution review proof-slot fixture for Criterion 2 review only; not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.",
+  "note": "Checked rejection-distribution review proof-slot fixture for Criterion 2 review only; requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.",
   "slot_artifact": {
     "slot_id": "rejection_distribution_review_digest",
     "kind": "RejectionDistributionReview",

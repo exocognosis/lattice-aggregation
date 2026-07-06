@@ -1601,7 +1601,7 @@ pub const P1_DISTRIBUTED_NONCE_PRODUCER_REQUEST_SCHEMA: &str =
 pub const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_EXTERNAL_EVIDENCE: &str =
     "p1_shamir_nonce_dkg_tee_external_capture";
 const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_CLAIM_BOUNDARY: &str =
-    "conformance/proof-review evidence only";
+    "conformance/proof-review evidence";
 const P1_DISTRIBUTED_NONCE_PRODUCER_CAPTURE_SELECTED_PROFILE: &str =
     "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 
@@ -2152,7 +2152,7 @@ impl P1DistributedNonceProducerArtifactCertificate {
         self.claim_boundary
     }
 
-    /// Artifact readiness does not claim theorem closure.
+    /// Artifact readiness requires theorem-closure review.
     pub const fn claims_theorem_closure(self) -> bool {
         false
     }
@@ -2318,7 +2318,7 @@ pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_EVIDENCE: &s
 pub const P1_REAL_THRESHOLD_BACKEND_EMISSION_ACTUAL_CAPTURE_RUNNER_GATE: &str =
     "p1_real_threshold_backend_actual_capture_runner_gate";
 const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_CLAIM_BOUNDARY: &str =
-    "conformance/proof-review evidence only";
+    "conformance/proof-review evidence";
 const P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SELECTED_PROFILE: &str =
     "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 
@@ -2928,7 +2928,7 @@ impl P1RealThresholdBackendEmissionArtifactCertificate {
         false
     }
 
-    /// This certificate gates backend emission evidence; it does not close the theorem.
+    /// This certificate gates backend emission evidence; it records remaining theorem review requirements.
     pub const fn claims_completed_cryptographic_proof(self) -> bool {
         false
     }
@@ -3060,7 +3060,7 @@ impl P1RealThresholdVerifierClosureCertificate {
         false
     }
 
-    /// This certificate gates a reviewed tuple; it does not close the theorem.
+    /// This certificate gates a reviewed tuple; it records remaining theorem review requirements.
     pub const fn claims_completed_cryptographic_proof(self) -> bool {
         false
     }
@@ -3443,7 +3443,7 @@ impl P1ExternalBackendCryptographicClosureCandidateCertificate {
         false
     }
 
-    /// Candidate readiness does not claim theorem closure.
+    /// Candidate readiness requires theorem-closure review.
     pub const fn claims_theorem_closure(self) -> bool {
         false
     }
@@ -4368,7 +4368,7 @@ pub fn derive_p1_real_recomputation_evidence_digest(
 /// This digest commits to the selected provider accepting `MLDSA65.Verify(pk,
 /// m, sigma)` for the public key, application message, and accepted aggregate
 /// signature bound by the threshold-output certificate. It remains
-/// conformance/proof-review evidence only.
+/// conformance/proof-review evidence.
 pub fn derive_p1_standard_verifier_compatibility_artifact_digest(
     certificate: &P1StandardVerifierCompatibilityArtifactCertificate,
 ) -> [u8; 32] {
@@ -4446,7 +4446,7 @@ fn derive_p1_standard_verifier_compatibility_artifact_digest_from_fields(
 /// This constructor binds a reviewed threshold-output source digest to the
 /// predecessor selected-backend aggregate artifact certificate and the public
 /// acceptance/recomputation transcript. The returned package is still
-/// conformance/proof-review evidence only.
+/// conformance/proof-review evidence.
 pub fn derive_p1_selected_backend_threshold_output_artifact_package(
     transcript: &ProductionSigningTranscript,
     accepted_aggregate: &AcceptedAggregateCandidate,
@@ -4645,7 +4645,7 @@ fn derive_p1_distributed_nonce_producer_artifact_digest_from_fields(
 /// The package is the import boundary for a future reviewed P1 Shamir
 /// nonce-DKG producer. It binds the producer evidence to the predecessor
 /// threshold-output and standard-verifier compatibility certificates and
-/// remains conformance/proof-review evidence only.
+/// remains conformance/proof-review evidence.
 #[allow(clippy::too_many_arguments)]
 pub fn derive_p1_distributed_nonce_producer_artifact_package(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
@@ -4832,7 +4832,7 @@ pub fn derive_p1_distributed_nonce_producer_artifact_package_from_capture(
 ///
 /// This digest commits to external backend provenance and the verifier-accepted
 /// tuple already bound by the predecessor certificates. It remains
-/// conformance/proof-review evidence only.
+/// conformance/proof-review evidence.
 pub fn derive_p1_real_threshold_backend_emission_artifact_digest(
     certificate: &P1RealThresholdBackendEmissionArtifactCertificate,
 ) -> [u8; 32] {
@@ -4989,7 +4989,7 @@ fn derive_p1_real_threshold_backend_emission_artifact_digest_from_fields(
 /// This digest commits to actual distributed nonce-producer evidence, real
 /// threshold backend emission evidence, standard-verifier acceptance evidence,
 /// and rejection-distribution comparison evidence. It remains a proof-review
-/// candidate binding and does not claim theorem closure.
+/// candidate binding and requires theorem-closure review.
 pub fn derive_p1_external_backend_cryptographic_closure_candidate_digest(
     certificate: &P1ExternalBackendCryptographicClosureCandidateCertificate,
 ) -> [u8; 32] {
@@ -5351,7 +5351,7 @@ pub fn derive_p1_real_threshold_backend_emission_artifact_package(
 /// The returned package binds the accepted threshold-output artifact
 /// certificate to reviewed proof, validation, distribution-review, standard
 /// verifier, and theorem-linkage artifact digests. It remains
-/// conformance/proof-review evidence only.
+/// conformance/proof-review evidence.
 #[allow(clippy::too_many_arguments)]
 pub fn derive_p1_selected_backend_proof_closure_artifact_package(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
@@ -5411,7 +5411,7 @@ pub fn derive_p1_selected_backend_proof_closure_artifact_package(
 /// The returned package composes accepted child certificates for the actual
 /// distributed nonce-producer path, real threshold backend emission path,
 /// standard verifier compatibility path, and rejection-distribution comparison
-/// slot. It remains conformance/proof-review evidence only.
+/// slot. It remains conformance/proof-review evidence.
 pub fn derive_p1_external_backend_cryptographic_closure_candidate_package(
     threshold_certificate: &P1SelectedBackendThresholdOutputArtifactCertificate,
     distributed_nonce_producer_artifact: &P1DistributedNonceProducerArtifactCertificate,

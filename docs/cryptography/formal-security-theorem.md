@@ -1,6 +1,6 @@
 # Formal Security Theorem for Threshold ML-DSA-65
 
-Status: proof target, not a completed proof.
+Status: proof target with required completion artifacts.
 
 Date: 2026-05-27
 

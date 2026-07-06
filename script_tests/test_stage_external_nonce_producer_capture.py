@@ -40,7 +40,7 @@ def external_request():
         "schema": REQUEST_SCHEMA,
         "name": "p1-reviewed-nonce-producer-request-001",
         "generated_at": "2026-07-04T00:00:00Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "request_status": "evidence_present_unclosed",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "predecessors": {
@@ -51,7 +51,7 @@ def external_request():
         "required_capture": {
             "schema": CAPTURE_SCHEMA,
             "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
-            "claim_boundary": "conformance/proof-review evidence only",
+            "claim_boundary": "conformance/proof-review evidence",
             "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
             "material": [
                 "source_reference",
@@ -84,7 +84,7 @@ def external_capture(request):
     return {
         "name": "outside-repo-p1-nonce-producer-capture",
         "schema": CAPTURE_SCHEMA,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
         "note": "Reviewed external nonce-producer capture produced outside the repo.",
@@ -131,7 +131,7 @@ def admissible_readiness(request):
         "schema": READINESS_SCHEMA,
         "schema_version": 1,
         "generated_at": "2026-07-04T00:00:01Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "readiness_status": "backend_candidate_admissible_pending_capture",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "request": {
@@ -187,7 +187,7 @@ def external_review_manifest(request, capture, readiness, capture_path, readines
         "schema": REVIEW_SCHEMA,
         "schema_version": 1,
         "generated_at": "2026-07-04T00:00:02Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "review_status": "reviewed_external_capture_ready",
         "capture": {
@@ -334,7 +334,7 @@ class StageExternalNonceProducerCaptureTests(unittest.TestCase):
         )
         self.assertTrue(gate_report["manifest"]["actual_external_capture_ready"])
         self.assertEqual(gate_report["manifest"]["gate_status"], "actual_external_capture_ready")
-        self.assertIn("does not prove Criterion 2", report["summary_md"])
+        self.assertIn("requires Criterion 2 proof review", report["summary_md"])
 
     def test_repo_local_capture_file_is_rejected_before_promotion(self):
         module = load_module(SCRIPT, "stage_external_nonce_producer_capture")

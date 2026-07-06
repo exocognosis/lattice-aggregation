@@ -147,9 +147,9 @@ Tests must be written before implementation and must prove:
 - Documentation anchors keep the conformance-only and Renyi-divergence claim
   boundaries intact.
 
-## Non-Claims
+## Evidence Requirements
 
-This work must not claim:
+This work requires separate evidence for:
 
 - standard-verifier-compatible threshold signatures;
 - real ML-DSA-65 hint correctness;

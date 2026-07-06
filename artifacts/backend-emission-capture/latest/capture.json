@@ -99,7 +99,7 @@
     "threshold": 6667,
     "validator_count": 10000
   },
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "cryptographic_core": {
     "backend_requirement_evidence": {
       "aggregation": {

@@ -289,10 +289,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
             }
-            assert_eq!(
-                slot["claim_boundary"],
-                "conformance/proof-review evidence only"
-            );
+            assert_eq!(slot["claim_boundary"], "conformance/proof-review evidence");
             evidence_present_slots.push(slot_id);
         } else {
             assert_eq!(
@@ -344,10 +341,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         assert_eq!(entry["certificate_surface"], evidence_surface);
         assert_eq!(entry["certificate_accessor"], accessor);
         assert_eq!(entry["current_status"], "evidence_present_unclosed");
-        assert_eq!(
-            entry["claim_boundary"],
-            "conformance/proof-review evidence only"
-        );
+        assert_eq!(entry["claim_boundary"], "conformance/proof-review evidence");
     }
     assert_eq!(
         evidence_present_slots,
@@ -495,7 +489,7 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
         "lattice-aggregation.repo-evidence-pipeline.v1"
     );
     assert_eq!(pipeline["status"], "evidence_present_unclosed");
-    assert_eq!(pipeline["claim_boundary"], "research scaffold only");
+    assert_eq!(pipeline["claim_boundary"], "research scaffold evidence");
     assert_eq!(
         manifest["assessment"]["theorem_closure_readiness_status"],
         "blocked_before_theorem_closure_assessment"
@@ -651,7 +645,7 @@ fn criterion2_manifest_links_checked_fixture_refs() {
         assert_eq!(fixture_ref["schema"], schema);
         assert_eq!(
             fixture_ref["claim_boundary"],
-            "conformance/proof-review evidence only"
+            "conformance/proof-review evidence"
         );
         if slot_id != "external_backend_evidence_attempt" {
             assert_eq!(fixture_ref["current_status"], "evidence_present_unclosed");
@@ -701,7 +695,7 @@ fn criterion2_manifest_links_checked_fixture_refs() {
     );
     assert_eq!(
         capture_fixture_ref["claim_boundary"],
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert!(
         root.join(
@@ -734,7 +728,7 @@ fn criterion2_manifest_links_checked_fixture_refs() {
     );
     assert_eq!(
         nonce_handoff_ref["claim_boundary"],
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert!(
         root.join(

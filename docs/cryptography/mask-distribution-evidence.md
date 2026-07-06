@@ -70,9 +70,8 @@ and invalid because they claim production proof closure.
 ## Claim Boundary
 
 This gate is evidence plumbing for the aggregate-mask distribution obligation.
-It does not prove that the threshold implementation is production-ready, does
-not prove full ML-DSA accepted-signature distribution equivalence, and does not
-replace external cryptographic review.
+Production readiness, full ML-DSA accepted-signature distribution equivalence,
+and external cryptographic review require a linked evidence package.
 
 To fully close blocker 1, the repository still needs a reviewed proof or
 measurement-backed evidence package whose digests are fed into this gate, plus

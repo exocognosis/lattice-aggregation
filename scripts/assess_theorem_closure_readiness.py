@@ -11,7 +11,7 @@ from pathlib import Path
 
 SCHEMA = "lattice-aggregation:theorem-closure-assessment-readiness:v1"
 NAME = "theorem-closure-assessment-readiness-v1"
-CLAIM_BOUNDARY = "readiness preflight only; not theorem closure"
+CLAIM_BOUNDARY = "readiness preflight only; pending theorem-closure review"
 STATUS_READY = "ready_for_theorem_closure_assessment"
 STATUS_BLOCKED = "blocked_before_theorem_closure_assessment"
 CRITERION2_SCHEMA = "lattice-aggregation.criterion-2-proof-substance.v1"
@@ -344,7 +344,7 @@ def hypothesis_checks(assessment, blocker_groups):
         )
         return checks
     checks["hypothesis_boundary_is_research_scaffold_only"] = (
-        assessment.get("claim_boundary") == "research scaffold only"
+        assessment.get("claim_boundary") == "research scaffold evidence"
     )
     checks["hypothesis_not_already_completely_proven"] = (
         assessment.get("overall_verdict") != "completely_proven"
@@ -353,7 +353,7 @@ def hypothesis_checks(assessment, blocker_groups):
         add_blocker(
             blocker_groups,
             "claim_boundary",
-            "hypothesis assessment claim boundary is not research scaffold only",
+            "hypothesis assessment claim boundary is not research scaffold evidence",
         )
     return checks
 
@@ -449,8 +449,8 @@ def build_report(
         **false_claim_flags(),
         "assessment_boundary": (
             "This preflight only decides whether enough reviewed inputs exist to "
-            "start theorem-closure assessment. It does not prove Criterion 2, "
-            "does not prove rejection-distribution preservation, and does not "
+            "start theorem-closure assessment. It requires Criterion 2 proof review, "
+            "requires rejection-distribution preservation proof review, and does not "
             "claim selected-backend proof closure."
         ),
     }
@@ -463,7 +463,7 @@ def render_summary(manifest):
         "# Theorem Closure Assessment Readiness",
         "",
         "This artifact is a fail-closed preflight for starting theorem-closure "
-        "assessment. It is not theorem closure.",
+        "assessment. It is pending theorem-closure review.",
         "",
         f"- Status: `{manifest['readiness_status']}`",
         "- Theorem-closure assessment ready: "

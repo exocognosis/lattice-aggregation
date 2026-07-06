@@ -1,6 +1,6 @@
 # Thesis and Operating Parameters
 
-Status: formalized research boundary, not theorem closure.
+Status: formalized research boundary, pending theorem-closure review.
 
 Date: 2026-06-25
 
@@ -8,14 +8,14 @@ Date: 2026-06-25
 
 This document formalizes the current thesis, operating parameters, promotion
 criteria, failure criteria, and fallback trigger for the native threshold
-ML-DSA-65 path. It is a `research scaffold only` contract for reviewer
+ML-DSA-65 path. It is a `research scaffold evidence` contract for reviewer
 orientation and assessment tooling.
 
 The thesis identifier is `native-threshold-mldsa65-aggregation-p1`. Current
 repository status remains `partially_proven`, with all five hypothesis criteria
-still `partially_met`. This document is not selected-backend proof closure, not
-production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS
-validation, not rejection-distribution preservation, and not a completed
+still `partially_met`. This document is requires selected-backend proof closure evidence, not
+production threshold ML-DSA security, requires CAVP/ACVTS validation evidence, not FIPS
+validation, requires rejection-distribution preservation proof, and not a completed
 standard-verifier compatibility proof.
 
 The machine-readable companion is
@@ -52,7 +52,7 @@ abort/retry bounds, and threshold unforgeability.
 - Output target: one standard-sized ML-DSA-65 signature if proven.
 
 The Batch 4 dependency boundary is the selected-backend proof-closure artifact
-package gate. That gate is conformance/proof-review evidence only. It is not
+package gate. That gate is conformance/proof-review evidence. It is not
 selected-backend proof closure and does not promote any criterion by itself.
 
 ## Promotion Criteria
@@ -120,7 +120,7 @@ standard-verifier-compatibility artifact digest, theorem-linkage artifact
 digest, and reviewed source-package digest into proof-review evidence.
 
 This evidence is useful for review but remains necessary and not sufficient. It
-does not close the theorem, does not claim production threshold ML-DSA security,
+records remaining theorem review requirements, does not claim production threshold ML-DSA security,
 and does not claim that the standard-verifier compatibility target is complete.
 
 ## Manifest Anchors
@@ -128,14 +128,14 @@ and does not claim that the standard-verifier compatibility target is complete.
 The companion manifest pins:
 
 - `native-threshold-mldsa65-aggregation-p1`
-- `research scaffold only`
+- `research scaffold evidence`
 - `ML-DSA-65 coordinator-assisted Shamir nonce DKG P1`
 - `one standard-sized ML-DSA-65 signature if proven`
 - `partially_proven`
 - `partially_met`
-- not selected-backend proof closure
-- not production threshold ML-DSA security
-- not CAVP/ACVTS validation
-- not FIPS validation
+- requires selected-backend proof closure evidence
+- requires production threshold ML-DSA security evidence
+- requires CAVP/ACVTS validation evidence
+- requires FIPS validation evidence
 - `Falcon/LaBRADOR-style proof aggregation`
 - `evaluate only`

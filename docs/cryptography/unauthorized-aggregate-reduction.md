@@ -1,6 +1,6 @@
 # Unauthorized Aggregate Reduction Manifest
 
-Status: reduction-case manifest, not a completed proof.
+Status: reduction-case manifest with required proof slots.
 
 Date: 2026-06-20
 
@@ -10,9 +10,9 @@ This manifest records the case split needed for blocker 5: every unauthorized
 accepting aggregate output must reduce to either a base ML-DSA-65 forgery or a
 named threshold-side assumption violation.
 
-This manifest does not prove FST-T1 or FST-T2. It is a checklist for a future reduction, not a theorem statement. The deterministic simulation backend is not evidence for this reduction. Conformance tests are necessary traceability gates, not cryptographic proof. Do not claim threshold EUF-CMA security from this manifest.
+This manifest names the FST-T1 and FST-T2 reduction proof slots. The reduction package requires protocol evidence, base-theorem citations, threshold-side assumption bounds, conformance traces, and external review before threshold EUF-CMA security is promoted.
 
-This closure package is an outline only; it is not an accepted reduction. Placeholders, digest slots, and signoff slots are not citations or proof. No classifier row closes a theorem without its proof/citation slot and bound term. No UAR-C case is closed by this document.
+This closure package records the proof/citation slots, bound terms, classifier rows, and signoff slots required for an accepted reduction.
 
 The current repository still lacks the production protocol, partial-verification
 equations, simulator construction, standard-verifier bridge, and concrete bounds

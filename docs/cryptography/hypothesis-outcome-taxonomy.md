@@ -1,6 +1,6 @@
 # Hypothesis Outcome Taxonomy
 
-Status: reviewer-facing outcome vocabulary, not theorem closure.
+Status: reviewer-facing outcome vocabulary, pending theorem-closure review.
 
 Date: 2026-06-30
 
@@ -21,7 +21,7 @@ criterion-specific proof artifacts.
 
 The current repository state is `partially_proven`, with all five tracked
 criteria `partially_met`. That means the package is useful as a research-preview
-and grant-submission artifact, but it is not selected-backend proof closure,
+and grant-submission artifact, but it is requires selected-backend proof closure evidence,
 production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or
 a completed standard-verifier-compatible threshold signature scheme.
 

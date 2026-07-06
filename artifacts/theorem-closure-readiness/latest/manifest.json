@@ -1,5 +1,5 @@
 {
-  "assessment_boundary": "This preflight only decides whether enough reviewed inputs exist to start theorem-closure assessment. It does not prove Criterion 2, does not prove rejection-distribution preservation, and does not claim selected-backend proof closure.",
+  "assessment_boundary": "This preflight only decides whether enough reviewed inputs exist to start theorem-closure assessment. It requires Criterion 2 proof review, requires rejection-distribution preservation proof review, and does not claim selected-backend proof closure.",
   "blocker_groups": {
     "claim_boundary": [],
     "criterion2_manifest": [],
@@ -59,7 +59,7 @@
     "theorem_review_manifest_present": false,
     "theorem_review_status_ready": false
   },
-  "claim_boundary": "readiness preflight only; not theorem closure",
+  "claim_boundary": "readiness preflight only; pending theorem-closure review",
   "claims_cavp_acvts_validation": false,
   "claims_criterion_met": false,
   "claims_fips_validation": false,

@@ -27,7 +27,7 @@ def write_json(path, value):
 def actual_nonce_gate(ready=True):
     return {
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "gate_status": (
             "actual_external_capture_ready"
             if ready
@@ -52,7 +52,7 @@ def actual_nonce_gate(ready=True):
 def backend_manifest():
     return {
         "schema_version": 1,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "runner_status": "evidence_present_unclosed",
         "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
         "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
@@ -83,7 +83,7 @@ def backend_capture():
     return {
         "name": "batch8-real-threshold-capture",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
         "cryptographic_core": {
@@ -139,11 +139,33 @@ def backend_capture():
     }
 
 
+def mark_as_threshold_seed_reconstruction(manifest, capture):
+    manifest["backend_core_admissibility"].update(
+        {
+            "strict_threshold_core_admissible": True,
+            "quarantined": False,
+            "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
+            "signature_origin": (
+                "threshold_seed_reconstruction_standard_mldsa65_provider"
+            ),
+            "reasons": [],
+        }
+    )
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
+            "signature_origin": (
+                "threshold_seed_reconstruction_standard_mldsa65_provider"
+            ),
+        }
+    )
+
+
 def rejection_batch(close_candidate=True):
     return {
         "name": "batch8-rejection-equivalence-batch",
         "schema": "lattice-aggregation:p1-rejection-equivalence-batch:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "mldsa65-centralized-vs-threshold-rejection-batch",
         "parameters": {
@@ -183,7 +205,7 @@ def reviewed_external_evidence_package(
     return {
         "schema": "lattice-aggregation:p1-external-backend-evidence-package-review:v1",
         "name": "batch9-reviewed-external-evidence-package",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "review_status": "reviewed_external_backend_evidence_ready",
         "source_origin": "outside_repo_review_manifest",
@@ -268,7 +290,7 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
         self.assertFalse(manifest["checks"]["real_threshold_emission_present"])
         self.assertFalse(manifest["checks"]["rejection_distribution_comparison_present"])
         self.assertIn("actual external nonce capture", " ".join(manifest["blockers"]))
-        self.assertIn("not theorem closure", report["summary_md"])
+        self.assertIn("pending theorem-closure review", report["summary_md"])
 
     def test_complete_external_bundle_without_review_package_remains_blocked(self):
         module = load_module()
@@ -416,6 +438,64 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
         self.assertTrue(manifest["checks"]["review_package_present"])
         self.assertFalse(manifest["checks"]["review_package_binds_inputs"])
         self.assertIn("review package input digest mismatch", " ".join(manifest["blockers"]))
+
+    def test_threshold_seed_reconstruction_source_blocks_external_evidence_attempt(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_batch_path = root / "rejection" / "batch.json"
+            review_package_path = root / "review" / "manifest.json"
+            manifest_payload = backend_manifest()
+            capture_payload = backend_capture()
+            mark_as_threshold_seed_reconstruction(manifest_payload, capture_payload)
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, manifest_payload)
+            write_json(backend_capture_path, capture_payload)
+            write_json(rejection_batch_path, rejection_batch(True))
+            candidate_digest = build_candidate_digest(
+                module,
+                root,
+                nonce_path,
+                backend_manifest_path,
+                backend_capture_path,
+                rejection_batch_path,
+            )
+            write_json(
+                review_package_path,
+                reviewed_external_evidence_package(
+                    module,
+                    nonce_path,
+                    backend_manifest_path,
+                    backend_capture_path,
+                    rejection_batch_path,
+                    candidate_digest,
+                ),
+            )
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_batch_path,
+                review_package_path=review_package_path,
+                generated_at="2026-07-04T00:00:00Z",
+            )
+
+        manifest = report["manifest"]
+        blockers = " ".join(manifest["blockers"])
+        self.assertEqual(manifest["attempt_status"], "blocked_external_evidence_missing")
+        self.assertFalse(manifest["close_candidate"])
+        self.assertFalse(manifest["checks"]["real_threshold_emission_present"])
+        self.assertFalse(manifest["checks"]["source_exclusion_passed"])
+        self.assertIn(
+            "threshold seed-reconstruction capture cannot feed external evidence",
+            blockers,
+        )
 
     def test_rejects_hazmat_or_simulation_source_markers_before_candidate_ready(self):
         module = load_module()

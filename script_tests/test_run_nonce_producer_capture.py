@@ -36,7 +36,7 @@ def external_request():
         "schema": REQUEST_SCHEMA,
         "name": "external-nonce-producer-smoke-request",
         "generated_at": "2026-07-02T00:00:00Z",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "request_status": "evidence_present_unclosed",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "predecessors": {
@@ -47,7 +47,7 @@ def external_request():
         "required_capture": {
             "schema": CAPTURE_SCHEMA,
             "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
-            "claim_boundary": "conformance/proof-review evidence only",
+            "claim_boundary": "conformance/proof-review evidence",
             "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
             "material": [
                 "source_reference",
@@ -82,7 +82,7 @@ def external_capture():
     return {
         "name": "external-nonce-producer-smoke-capture",
         "schema": CAPTURE_SCHEMA,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
         "note": "External nonce producer capture produced outside deterministic simulation.",
@@ -218,7 +218,7 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertEqual(capture["capture"]["reviewed"], True)
         self.assertIn("shamir_nonce_dkg_transcript", capture["capture"])
         self.assertIn("expected", capture)
-        self.assertEqual(manifest["claim_boundary"], "conformance/proof-review evidence only")
+        self.assertEqual(manifest["claim_boundary"], "conformance/proof-review evidence")
         self.assertEqual(manifest["request_sha256"], request_sha256(external_request()))
         self.assertEqual(manifest["producer_evidence"], "p1_shamir_nonce_dkg_tee_external_capture")
         self.assertEqual(manifest["backend_command"], ["/opt/nonce-producer", "emit-capture"])
@@ -231,13 +231,13 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         self.assertEqual(provenance["capture_sha256"], manifest["capture_sha256"])
         self.assertEqual(provenance["evidence_class"], manifest["producer_evidence"])
         self.assertEqual(provenance["runner_status"], "evidence_present_unclosed")
-        self.assertEqual(provenance["claim_boundary"], "conformance/proof-review evidence only")
+        self.assertEqual(provenance["claim_boundary"], "conformance/proof-review evidence")
         self.assertIn("backend_implementation_digest_hex", provenance["expected_digest_fields"])
         self.assertIn("cargo_lock_sha256", provenance["metadata_fields"])
         self.assertIn("backend_command_sha256", provenance)
         self.assertNotIn("localnet", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
-        self.assertIn("does not prove Criterion 2", summary_md)
+        self.assertIn("requires Criterion 2 proof review", summary_md)
 
     def test_build_report_rejects_local_replay_emitter_as_external_capture(self):
         module = load_module()
@@ -287,7 +287,7 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
             "quarantined_local_schema_replay",
         )
         self.assertTrue(manifest["quarantine"]["quarantined"])
-        self.assertIn("schema/importer replay only", manifest["quarantine"]["allowed_use"])
+        self.assertIn("schema/importer replay", manifest["quarantine"]["allowed_use"])
 
     def test_build_report_marks_repo_reference_cli_as_non_closing_reference(self):
         module = load_module()
@@ -316,7 +316,7 @@ class NonceProducerCaptureRunnerTests(unittest.TestCase):
         )
         self.assertTrue(manifest["quarantine"]["quarantined"])
         self.assertIn("reference CLI", manifest["quarantine"]["reason"])
-        self.assertIn("not actual backend evidence", manifest["quarantine"]["allowed_use"])
+        self.assertIn("requires actual backend evidence", manifest["quarantine"]["allowed_use"])
 
     def test_build_report_rejects_repo_local_wrapper_as_actual_external_backend(self):
         module = load_module()

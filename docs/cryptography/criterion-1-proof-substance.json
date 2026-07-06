@@ -34,49 +34,49 @@
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_mask_construction_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "centralized_distribution_artifact_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_centralized_distribution_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "aggregate_distribution_artifact_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_aggregate_distribution_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "renyi_bound_proof_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_renyi_bound_proof_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "min_entropy_review_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_min_entropy_review_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "parameter_selection_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_parameter_selection_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "external_review_digest",
         "current_status": "required_unclosed",
         "evidence_source": "p1_criterion1_external_review_artifact_gate",
         "artifact_package": "p1_criterion1_proof_payload_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       }
     ]
   },
@@ -107,7 +107,7 @@
   "repo_evidence_pipeline": {
     "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
     "status": "evidence_present_unclosed",
-    "claim_boundary": "research scaffold only",
+    "claim_boundary": "research scaffold evidence",
     "artifacts": {
       "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
       "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",

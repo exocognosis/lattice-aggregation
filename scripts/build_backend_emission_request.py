@@ -12,7 +12,7 @@ from pathlib import Path
 REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 EXTERNAL_BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 REQUEST_STATUS = "evidence_present_unclosed"
 VALIDATOR_COUNT = 10_000
@@ -166,7 +166,7 @@ def render_summary(request, manifest):
             "",
             "This request is the repo-generated challenge contract for an "
             "external P1 real-threshold backend capture. It is "
-            f"{REQUEST_STATUS} conformance/proof-review evidence only.",
+            f"{REQUEST_STATUS} conformance/proof-review evidence.",
             "",
             f"- Request: `{request['name']}`",
             f"- Request schema: `{manifest['request_schema']}`",
@@ -176,7 +176,7 @@ def render_summary(request, manifest):
             f"- Signature length: `{request['aggregate_signature_len']}`",
             f"- Request SHA-256: `{manifest['request_sha256']}`",
             "",
-            "This request does not prove Criterion 2, rejection-distribution "
+            "This request requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",

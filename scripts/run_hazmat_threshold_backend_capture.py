@@ -40,7 +40,7 @@ use std::{env, fs, process};
 
 const REQUEST_SCHEMA: &str = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1";
 const CAPTURE_SCHEMA: &str = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1";
-const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence only";
+const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence";
 const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
 const BACKEND_EVIDENCE: &str = "real_threshold_mldsa_external_capture";
 const REJECTION_TRANSCRIPT_CAPABILITY: &str = "per-attempt-bound-predicates";
@@ -188,7 +188,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         "claim_boundary": CLAIM_BOUNDARY,
         "selected_profile": SELECTED_PROFILE,
         "backend_evidence": BACKEND_EVIDENCE,
-        "note": "Actual hazmat threshold ML-DSA-65 session output bound to the repo request and accepted by the standard external-message verifier; conformance/proof-review evidence only, not production threshold ML-DSA security, FIPS validation, rejection-distribution proof, or theorem closure.",
+        "note": "Actual hazmat threshold ML-DSA-65 session output bound to the repo request and accepted by the standard external-message verifier; conformance/proof-review evidence, requires production threshold ML-DSA security evidence, FIPS validation, rejection-distribution proof, or theorem closure.",
         "request": {
             "schema": REQUEST_SCHEMA,
             "name": request.name,

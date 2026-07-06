@@ -1620,7 +1620,7 @@ Expected: FAIL because the new anchors are not present.
 Add a row to `docs/cryptography/claims-matrix.md`:
 
 ```markdown
-| Coordinator-assisted ML-DSA-65 profile | Non-default coordinator profile types, policy gates, transcript bindings, preprocessing attempts, and provider boundaries may exist behind `coordinator-assisted` or `raw-real-mldsa`. | `production-threshold-mldsa-coordinator-design.md`, FST-L5, Noise Lemma F | hazmat conformance only | Must not claim production threshold ML-DSA security; standard-verifier-compatible only after KAT and audit gates. |
+| Coordinator-assisted ML-DSA-65 profile | Non-default coordinator profile types, policy gates, transcript bindings, preprocessing attempts, and provider boundaries may exist behind `coordinator-assisted` or `raw-real-mldsa`. | `production-threshold-mldsa-coordinator-design.md`, FST-L5, Noise Lemma F | hazmat conformance only | requires evidence before claiming production threshold ML-DSA security; standard-verifier-compatible only after KAT and audit gates. |
 ```
 
 Add a production-coordinator section to `docs/cryptography/proof-implementation-crosswalk.md` and `docs/cryptography/protocol-code-crosswalk.md` that maps:

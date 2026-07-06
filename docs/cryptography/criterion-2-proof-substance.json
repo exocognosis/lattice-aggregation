@@ -40,7 +40,7 @@
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
         "certificate_surface": "p1_selected_backend_proof_closure_artifact_certificate",
         "certificate_accessor": "threshold_output_certificate_artifact_digest",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "real_recomputation_evidence_digest",
@@ -49,7 +49,7 @@
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
         "certificate_surface": "p1_selected_backend_proof_closure_artifact_certificate",
         "certificate_accessor": "real_recomputation_evidence_artifact_digest",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "distributed_nonce_producer_artifact_digest",
@@ -104,14 +104,14 @@
         "backend_capture_attempt_request": "artifacts/nonce-producer-capture-attempt/latest/handoff/request/request.json",
         "backend_capture_attempt_command_executed": true,
         "backend_capture_attempt_source_profile": "repo_reference_cli_capture",
-        "backend_capture_attempt_quarantine": "reference CLI handoff replay only; not actual backend evidence; not Criterion 2 closure evidence",
+        "backend_capture_attempt_quarantine": "reference CLI handoff replay only; requires actual backend evidence; requires Criterion 2 closure evidence",
         "backend_capture_attempt_promotion_rule": "only an admissible readiness manifest may promote the reused request into handoff replay; after readiness passes, command execution or validation failures are preserved as durable non-closing attempt artifacts",
         "actual_external_capture_gate": "scripts/verify_actual_nonce_producer_capture.py",
         "actual_external_capture_gate_status": "actual_external_capture_missing",
         "actual_external_capture_gate_artifact": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
         "actual_external_capture_gate_expected_source_profile": "admissible_external_backend_capture",
         "actual_external_capture_gate_current_source_profile": "repo_reference_cli_capture",
-        "actual_external_capture_gate_blocker": "current promoted reference CLI capture is quarantined and is not actual backend evidence",
+        "actual_external_capture_gate_blocker": "current promoted reference CLI capture is quarantined and is requires actual backend evidence",
         "external_capture_file_intake": "scripts/stage_external_nonce_producer_capture.py",
         "external_capture_file_origin_required": "outside_repo_capture_file",
         "external_capture_file_intake_mode": "preexisting_external_capture_file",
@@ -168,14 +168,14 @@
         "backend_artifact_status": "backend_output_adapter_present_but_externally_generated_reviewed_shamir_nonce_dkg_producer_material_still_required",
         "selected_route_manifest": "docs/cryptography/p1-nonce-producer-selection.json",
         "producer_route": "FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "standard_verifier_compatibility_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
         "artifact_package": "p1_standard_verifier_compatibility_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "real_threshold_backend_emission_artifact_digest",
@@ -189,7 +189,7 @@
         "backend_emission_request_manifest": "artifacts/backend-emission-request/latest/manifest.json",
         "backend_emission_request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
         "backend_emission_request_status": "evidence_present_unclosed",
-        "backend_emission_request_claim_boundary": "conformance/proof-review evidence only",
+        "backend_emission_request_claim_boundary": "conformance/proof-review evidence",
         "backend_request_capture_binding": "capture embeds request schema, request name, and request_sha256; runner rejects missing, stale, or mismatched request bindings",
         "hazmat_threshold_backend_capture_adapter": "scripts/run_hazmat_threshold_backend_capture.py",
         "hazmat_threshold_backend_capture_adapter_status": "evidence_present_unclosed",
@@ -198,7 +198,7 @@
         "backend_capture_runner": "derive_p1_verified_real_threshold_backend_emission_capture and scripts/run_backend_emission_capture.py",
         "backend_capture_runner_status": "evidence_present_unclosed",
         "backend_capture_runner_output_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-        "backend_capture_runner_claim_boundary": "conformance/proof-review evidence only",
+        "backend_capture_runner_claim_boundary": "conformance/proof-review evidence",
         "backend_capture_runner_precondition": "artifact-ready RealThresholdMldsa package plus non-localnet non-simulation importable capture shape",
         "backend_emission_capture_file_intake": "scripts/stage_external_backend_emission_capture.py",
         "backend_emission_capture_file_intake_status": "available_but_waiting_for_reviewed_external_capture_file",
@@ -223,7 +223,7 @@
         ],
         "backend_capture_importer": "derive_p1_verified_real_threshold_backend_emission_artifact_package_from_capture",
         "backend_capture_fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "fixture_status": "checked_ingestion_fixture_harness_blocked_until_actual_backend_evidence"
       },
       {
@@ -244,7 +244,7 @@
         ],
         "certificate_surface": "p1_external_backend_cryptographic_closure_candidate_certificate",
         "certificate_accessor": "candidate_artifact_digest",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "claims_theorem_closure": false,
         "claims_rejection_distribution_preservation": false,
         "claims_selected_backend_proof_closure": false
@@ -276,7 +276,7 @@
           "source exclusion for hazmat/simulation/localnet/fixture/single-key/repo-reference capture sources",
           "reviewed external evidence package with outside_repo_review_manifest origin and exact input digest binding"
         ],
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "claims_theorem_closure": false,
         "claims_rejection_distribution_preservation": false,
         "claims_selected_backend_proof_closure": false
@@ -286,56 +286,56 @@
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_rejection_distribution_review_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "theorem_linkage_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_theorem_linkage_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "full_kat_validation_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_full_kat_validation_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "norm_bound_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_norm_bound_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "hint_bound_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_hint_bound_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "challenge_bound_artifact_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_challenge_bound_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "transcript_binding_evidence_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_transcript_binding_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "id": "external_review_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_external_review_artifact_gate",
         "artifact_package": "p1_criterion2_proof_slot_artifact_package",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       }
     ],
     "artifact_fixture_refs": [
@@ -344,63 +344,63 @@
         "fixture_path": "tests/fixtures/p1_threshold_output_certificate_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-threshold-output-certificate-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "real_recomputation_evidence_digest",
         "fixture_path": "tests/fixtures/p1_real_recomputation_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-recomputation-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "standard_verifier_compatibility_artifact_digest",
         "fixture_path": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "real_threshold_backend_emission_artifact_digest",
         "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "real_threshold_backend_emission_artifact_digest",
         "fixture_path": "tests/fixtures/p1_real_threshold_backend_emission_capture_schema_fixture.json",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
         "current_status": "checked_capture_schema_fixture_blocked_until_actual_backend_evidence",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "fixture_path": "artifacts/nonce-producer-handoff/latest/capture/capture.json",
         "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
         "current_status": "checked_handoff_replay_importable_until_actual_backend_evidence",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "fixture_path": "artifacts/nonce-producer-backend-readiness/latest/manifest.json",
         "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
         "current_status": "backend_candidate_admissible_pending_capture",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "fixture_path": "artifacts/nonce-producer-capture-attempt/latest/manifest.json",
         "schema": "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1",
         "current_status": "capture_promoted",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "fixture_path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
         "current_status": "actual_external_capture_missing",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "external_backend_cryptographic_closure_candidate",
@@ -408,7 +408,7 @@
         "schema": "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
         "current_status": "evidence_present_unclosed",
         "close_candidate": false,
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "external_backend_evidence_attempt",
@@ -417,21 +417,21 @@
         "current_status": "blocked_external_evidence_missing",
         "close_candidate": false,
         "source_exclusion_passed": false,
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "rejection_distribution_review_digest",
         "fixture_path": "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "theorem_linkage_artifact_digest",
         "fixture_path": "tests/fixtures/p1_theorem_linkage_artifact_fixture.json",
         "schema": "lattice-aggregation:p1-theorem-linkage-artifact:v1",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       }
     ],
     "durable_certificate_evidence": [
@@ -440,28 +440,28 @@
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
         "certificate_accessor": "threshold_output_certificate_artifact_digest",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "real_recomputation_evidence_digest",
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
         "certificate_accessor": "real_recomputation_evidence_artifact_digest",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "certificate_surface": "P1SelectedBackendProofClosureArtifactCertificate",
         "certificate_accessor": "distributed_nonce_producer_artifact_digest",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "external_backend_cryptographic_closure_candidate",
         "certificate_surface": "P1ExternalBackendCryptographicClosureCandidateCertificate",
         "certificate_accessor": "candidate_artifact_digest",
         "current_status": "evidence_present_unclosed",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       }
     ]
   },
@@ -539,7 +539,7 @@
   "repo_evidence_pipeline": {
     "schema": "lattice-aggregation.repo-evidence-pipeline.v1",
     "status": "evidence_present_unclosed",
-    "claim_boundary": "research scaffold only",
+    "claim_boundary": "research scaffold evidence",
     "artifacts": {
       "artifacts/hypothesis/latest/assessment.json": "artifacts/hypothesis/latest/assessment.json",
       "artifacts/hypothesis/latest/assessment.md": "artifacts/hypothesis/latest/assessment.md",
@@ -590,11 +590,11 @@
     "report_status": "criterion2_proof_payload_formalized",
     "batch7_external_backend_closure_candidate_status": "evidence_present_unclosed",
     "batch7_external_backend_close_candidate": false,
-    "batch7_claim_boundary": "conformance/proof-review evidence only",
+    "batch7_claim_boundary": "conformance/proof-review evidence",
     "batch8_external_backend_evidence_attempt_status": "blocked_external_evidence_missing",
     "batch8_external_backend_close_candidate": false,
     "batch8_source_exclusion_passed": false,
-    "batch8_claim_boundary": "conformance/proof-review evidence only",
+    "batch8_claim_boundary": "conformance/proof-review evidence",
     "batch9_review_package_present": false,
     "batch9_review_package_binds_inputs": false,
     "batch9_review_package_status": "review_package_missing",

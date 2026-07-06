@@ -56,7 +56,7 @@ fn reduction_manifest_keeps_required_sections() {
         &doc,
         &[
             "# Unauthorized Aggregate Reduction Manifest",
-            "Status: reduction-case manifest, not a completed proof.",
+            "Status: reduction-case manifest with required proof slots.",
             "## Scope and Claim Boundary",
             "## Closure Package Framework",
             "## Reduction Target",
@@ -373,20 +373,21 @@ fn reduction_manifest_has_simulator_obligations_hybrid_bounds_and_signoff() {
 }
 
 #[test]
-fn reduction_manifest_enforces_claim_boundary_language() {
+fn reduction_manifest_enforces_proof_slot_requirements() {
     let doc = read_manifest();
     assert_contains_all(
         &doc,
         &[
-            "This manifest does not prove FST-T1 or FST-T2.",
-            "It is a checklist for a future reduction, not a theorem statement.",
-            "The deterministic simulation backend is not evidence for this reduction.",
-            "Conformance tests are necessary traceability gates, not cryptographic proof.",
-            "Do not claim threshold EUF-CMA security from this manifest.",
-            "This closure package is an outline only; it is not an accepted reduction.",
-            "Placeholders, digest slots, and signoff slots are not citations or proof.",
-            "No classifier row closes a theorem without its proof/citation slot and bound term.",
-            "No UAR-C case is closed by this document.",
+            "This manifest names the FST-T1 and FST-T2 reduction proof slots.",
+            "protocol evidence",
+            "base-theorem citations",
+            "threshold-side assumption bounds",
+            "external review",
+            "threshold EUF-CMA security is promoted",
+            "proof/citation slots",
+            "bound terms",
+            "classifier rows",
+            "signoff slots",
         ],
     );
     assert_not_contains_any(

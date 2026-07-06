@@ -34,14 +34,14 @@ def promoted_attempt(source_profile, quarantined):
         "handoff_quarantine": {
             "quarantined": quarantined,
             "allowed_use": (
-                "reference CLI handoff replay only; not actual backend evidence"
+                "reference CLI handoff replay only; requires actual backend evidence"
                 if quarantined
                 else "explicit external backend capture gated by admissible readiness"
             ),
         },
         "request_sha256": "11" * 32,
         "readiness_status": "backend_candidate_admissible_pending_capture",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     }
 
 
@@ -53,14 +53,14 @@ def handoff_manifest(source_profile, quarantined):
         "quarantine": {
             "quarantined": quarantined,
             "allowed_use": (
-                "reference CLI handoff replay only; not actual backend evidence"
+                "reference CLI handoff replay only; requires actual backend evidence"
                 if quarantined
                 else "explicit external backend capture gated by admissible readiness"
             ),
         },
         "request_sha256": "11" * 32,
         "capture_sha256": "22" * 32,
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
     }
 
 
@@ -89,7 +89,7 @@ class ActualNonceProducerCaptureGateTests(unittest.TestCase):
         self.assertIn("repo_reference_cli_capture", blockers)
         self.assertIn("not admissible_external_backend_capture", blockers)
         self.assertIn("reference CLI", blockers)
-        self.assertIn("does not prove Criterion 2", report["summary_md"])
+        self.assertIn("requires Criterion 2 proof review", report["summary_md"])
 
     def test_non_quarantined_external_capture_satisfies_actual_external_slot(self):
         module = load_module()

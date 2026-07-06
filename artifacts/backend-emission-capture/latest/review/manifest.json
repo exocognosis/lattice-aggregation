@@ -24,7 +24,7 @@
     "standard_verifier_acceptance_reviewed": true,
     "threshold_core_limitations_reviewed": true
   },
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "closure_boundary": "external backend-emission threshold seed-reconstruction review dossier only; standard-verifier compatible but quarantined from strict threshold-core closure",
   "generated_at": "1970-01-01T00:00:00Z",
   "review": {

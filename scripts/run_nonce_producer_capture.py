@@ -14,7 +14,7 @@ from pathlib import Path
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
 REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 RUNNER_STATUS = "evidence_present_unclosed"
 EXTERNAL_CAPTURE_PROVENANCE_SCHEMA = (
@@ -276,25 +276,25 @@ def quarantine_record(capture_source_profile):
             "quarantined": True,
             "reason": (
                 "repo reference CLI exercises the external process and JSON "
-                "contract but is not independently generated threshold "
+                "contract and requires independently generated threshold "
                 "backend evidence"
             ),
             "allowed_use": (
-                "reference CLI handoff replay only; not actual backend "
-                "evidence; not Criterion 2 closure evidence"
+                "reference CLI handoff replay; requires actual backend "
+                "evidence and requires Criterion 2 closure evidence"
             ),
         }
     return {
         "quarantined": quarantined,
         "reason": (
             "local checked replay emitter exercises the request/capture/import "
-            "schema but is not an independently generated backend capture"
+            "schema and requires an independently generated backend capture"
             if quarantined
             else None
         ),
         "allowed_use": (
-            "schema/importer replay only; not actual backend evidence; not "
-            "Criterion 2 closure evidence"
+            "schema/importer replay; requires actual backend evidence and "
+            "requires Criterion 2 closure evidence"
             if quarantined
             else "explicit external backend capture gated by admissible readiness"
         ),
@@ -542,7 +542,7 @@ def render_summary(generated_at, metadata, manifest):
             "",
             "This artifact records externally generated nonce-producer capture "
             "material for the canonical P1 importer. It is "
-            f"{RUNNER_STATUS} conformance/proof-review evidence only.",
+            f"{RUNNER_STATUS} conformance/proof-review evidence.",
             "",
             f"- Generated at: `{generated_at}`",
             f"- Commit: `{metadata['commit']}`",
@@ -567,7 +567,7 @@ def render_summary(generated_at, metadata, manifest):
     lines.extend(
         [
             "",
-            "This runner does not prove Criterion 2, rejection-distribution "
+            "This runner requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",

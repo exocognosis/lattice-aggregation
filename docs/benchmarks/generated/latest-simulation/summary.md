@@ -1,13 +1,13 @@
 # Large-Scale Simulation Benchmark Summary
 
-This file is generated from deterministic simulation harness output. It is deterministic research telemetry, not security evidence, not real-world validator performance, and not production-readiness evidence.
+This file is generated from deterministic simulation harness output. It is deterministic research telemetry, requires security evidence review, requires real-world validator performance evidence, and requires production-readiness evidence.
 
 - Generated at: `2026-06-30T16:57:43Z`
 - Commit: `ed725a124b343c37d8336858dec4954a3b6a30e2`
 - Branch: `codex/simulated-validator-baseline`
 - Profile: `large`
 - Trial rows: `28`
-- Claim boundary: `deterministic research telemetry; not security evidence`
+- Claim boundary: `deterministic research telemetry; requires security evidence review`
 - CSV SHA-256: `ab4a39af69854efed309db926b3ec7aa6c6fa1520dd4687badb0b792ac82cf9f`
 
 ## Scenario Summary

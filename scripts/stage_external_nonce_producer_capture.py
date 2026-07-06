@@ -15,7 +15,7 @@ HANDOFF_SCHEMA = "lattice-aggregation:p1-nonce-producer-executable-handoff-repla
 READINESS_SCHEMA = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1"
 REQUEST_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-distributed-nonce-producer-capture:v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 EXTERNAL_PRODUCER_EVIDENCE = "p1_shamir_nonce_dkg_tee_external_capture"
 ATTEMPT_STATUS_PROMOTED = "capture_promoted"
@@ -466,7 +466,7 @@ def render_summary(attempt_manifest):
             "",
             "This artifact stages a preexisting external nonce-producer capture "
             "file for the actual-external handoff gate. It is "
-            "conformance/proof-review evidence only.",
+            "conformance/proof-review evidence.",
             "",
             f"- Status: `{attempt_manifest['attempt_status']}`",
             f"- Backend execution mode: `{attempt_manifest['backend_execution_mode']}`",
@@ -474,7 +474,7 @@ def render_summary(attempt_manifest):
             f"- Capture file SHA-256: `{attempt_manifest['capture_file_sha256']}`",
             f"- External review SHA-256: `{attempt_manifest['external_review_manifest_sha256']}`",
             "",
-            "This intake does not prove Criterion 2, rejection-distribution "
+            "This intake requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",
@@ -580,7 +580,7 @@ def render_capture_summary(manifest):
             f"- Capture SHA-256: `{manifest['capture_sha256']}`",
             f"- External review SHA-256: `{manifest['external_capture_review']['sha256']}`",
             "",
-            "This capture file remains conformance/proof-review evidence only.",
+            "This capture file remains conformance/proof-review evidence.",
             "",
         ]
     )
@@ -597,7 +597,7 @@ def render_review_summary(report):
             f"- Review SHA-256: `{report['sha256']}`",
             f"- Capture SHA-256: `{report['capture_sha256']}`",
             "",
-            "This review dossier remains conformance/proof-review evidence only.",
+            "This review dossier remains conformance/proof-review evidence.",
             "",
         ]
     )
@@ -614,7 +614,7 @@ def render_handoff_summary(manifest):
             f"- Request SHA-256: `{manifest['request_sha256']}`",
             f"- Capture SHA-256: `{manifest['capture_sha256']}`",
             "",
-            "This handoff does not prove Criterion 2 or theorem closure.",
+            "This handoff requires Criterion 2 proof review or theorem closure.",
             "",
         ]
     )

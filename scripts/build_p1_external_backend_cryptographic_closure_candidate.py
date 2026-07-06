@@ -11,7 +11,7 @@ from pathlib import Path
 
 SCHEMA = "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1"
 NAME = "p1-external-backend-cryptographic-closure-candidate-v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 STATUS = "evidence_present_unclosed"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 NONCE_GATE_SCHEMA = "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1"
@@ -28,6 +28,12 @@ SMOKE_CORE_MODES = {
 }
 SMOKE_SIGNATURE_ORIGINS = {
     "single_seed_standard_mldsa65_provider",
+}
+RECONSTRUCTION_CORE_MODES = {
+    "threshold_seed_reconstruction_mldsa65_provider",
+}
+RECONSTRUCTION_SIGNATURE_ORIGINS = {
+    "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
 
 
@@ -91,7 +97,7 @@ def nonce_gate_ready(nonce_gate, blockers):
         and nonce_gate.get("handoff_source_profile") == EXPECTED_NONCE_SOURCE_PROFILE
     )
     if not ready:
-        blockers.append("actual external nonce capture is not ready")
+        blockers.append("actual external nonce capture readiness required")
     return ready
 
 
@@ -123,6 +129,14 @@ def backend_core_admissible(backend_manifest, backend_capture, blockers):
     if core_mode in SMOKE_CORE_MODES or signature_origin in SMOKE_SIGNATURE_ORIGINS:
         blockers.append(
             "centralized/single-seed smoke capture cannot satisfy real threshold emission"
+        )
+        admissible = False
+    if (
+        core_mode in RECONSTRUCTION_CORE_MODES
+        or signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS
+    ):
+        blockers.append(
+            "threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation"
         )
         admissible = False
     if not isinstance(distributed_core, dict):
@@ -252,7 +266,7 @@ def rejection_distribution_close_candidate(rejection_batch, blockers):
     result = rejection_batch.get("result") if isinstance(rejection_batch, dict) else {}
     close = isinstance(result, dict) and result.get("close_candidate") is True
     if not close:
-        blockers.append("rejection-distribution comparison is not a close candidate")
+        blockers.append("rejection-distribution comparison requires close-candidate evidence")
     return close
 
 
@@ -354,8 +368,8 @@ def build_report(
         **claim_flags,
         "closure_boundary": (
             "External-backend cryptographic closure-candidate artifact only; "
-            "not theorem closure, not rejection-distribution preservation, and "
-            "not selected-backend proof closure."
+            "pending theorem-closure review, requires rejection-distribution preservation proof, and "
+            "requires selected-backend proof closure evidence."
         ),
     }
     return {
@@ -389,7 +403,7 @@ def render_summary(manifest):
     lines.extend(
         [
             "",
-            "This is not theorem closure. It does not prove Criterion 2, "
+            "This is pending theorem-closure review. It requires Criterion 2 proof review, "
             "rejection-distribution preservation, selected-backend proof "
             "closure, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or completed cryptographic proof.",

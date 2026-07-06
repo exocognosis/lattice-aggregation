@@ -1,10 +1,10 @@
 # Theorem Closure Assessment Readiness
 
-This artifact is a fail-closed preflight for starting theorem-closure assessment. It is not theorem closure.
+This artifact is a fail-closed preflight for starting theorem-closure assessment and is pending theorem-closure review.
 
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
-- Claim boundary: `readiness preflight only; not theorem closure`
+- Claim boundary: `readiness preflight only; pending theorem-closure review`
 - Readiness digest SHA-256: `7144f17058bd7bacbf4b7b27a0533dc000af62206a7904eb969bd6fdd5921b77`
 
 Checks:

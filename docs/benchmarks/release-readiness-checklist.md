@@ -12,7 +12,7 @@ from the relevant claim document.
 
 The current repository remains a deterministic research scaffold. Benchmark
 and harness output is deterministic research telemetry, useful for regression
-review and reproducibility, but not security evidence.
+review and reproducibility, but requires security evidence review.
 
 ## Required Inputs
 
@@ -43,7 +43,7 @@ migration candidates that require separate review.
 - Keep the thesis and operating-parameter contract in
   `docs/cryptography/thesis-operating-parameters.md` and
   `docs/cryptography/thesis-operating-parameters.json` aligned with thesis id
-  `native-threshold-mldsa65-aggregation-p1`, scope `research scaffold only`,
+  `native-threshold-mldsa65-aggregation-p1`, scope `research scaffold evidence`,
   all five criteria `partially_met`, and Falcon/LaBRADOR-style proof
   aggregation as `evaluate only`.
 - Keep the Criterion 2 proof-substance contract in
@@ -111,11 +111,11 @@ migration candidates that require separate review.
   `LocalAccept`/`AggregateAccept` evidence, signer-set digest, attempt-binding
   digest, transcript-binding digest, provider KAT digest, recomputation digest,
   and standard-verifier bridge evidence digest. This gate is
-  conformance/proof-review evidence only, necessary but not sufficient,
+  conformance/proof-review evidence, necessary but not sufficient,
   criterion-2 remains partial, and the selected-backend aggregate-output
-  artifact gate is not selected-backend proof closure,
-  not production threshold ML-DSA security, not CAVP/ACVTS validation,
-  not FIPS validation, and not a completed standard-verifier compatibility proof.
+  artifact gate is requires selected-backend proof closure evidence,
+  requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence,
+  requires FIPS validation evidence, and requires a completed standard-verifier compatibility proof.
 - Require the real standard-provider aggregate-output package path before
   claiming that the selected-backend artifact package moved beyond fixture-only
   bridge confidence: `derive_p1_selected_backend_aggregate_artifact_package`,
@@ -124,7 +124,7 @@ migration candidates that require separate review.
   the package from a provider-verified ML-DSA-65 candidate signature,
   `LocalAccept`/`AggregateAccept` tokens, public recomputation transcript, and
   standard-verifier bridge digest evidence. This is still
-  conformance/proof-review evidence only; it is not a real threshold aggregate
+  conformance/proof-review evidence; it is not a real threshold aggregate
   signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS
   validation, rejection-distribution preservation, or completed
   standard-verifier compatibility proof.
@@ -142,7 +142,7 @@ migration candidates that require separate review.
   standard-verifier acceptance, and mutated message, public-key, and signature
   rejection evidence. This threshold verifier closure contract rejects
   deterministic simulation and ordinary single-key standard-provider output as
-  closure evidence. It is still conformance/proof-review evidence only; it is not
+  closure evidence. It is still conformance/proof-review evidence; it is not
   production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation,
   rejection-distribution preservation, selected-backend proof closure, a claim
   that this repo implements a real threshold backend, or completed
@@ -160,8 +160,8 @@ migration candidates that require separate review.
   artifact certificate, signer-set digest, attempt-binding digest,
   transcript-binding digest, public recomputation digest, accepted signature
   digest, standard-verifier bridge evidence digest, and reviewed source-package digest. This is the first Batch 3 threshold-output artifact boundary, not production threshold signing,
-  not selected-backend proof closure, not CAVP/ACVTS validation, not FIPS
-  validation, not rejection-distribution preservation, and not completed
+  requires selected-backend proof closure evidence, requires CAVP/ACVTS validation evidence, not FIPS
+  validation, requires rejection-distribution preservation proof, and not completed
   standard-verifier compatibility.
 - Require the selected-backend proof-closure artifact package gate before
   claiming that Batch 4 moved beyond the threshold-output artifact gate:
@@ -174,9 +174,9 @@ migration candidates that require separate review.
   KAT, recomputation, standard-verifier bridge evidence, accepted aggregate
   output, reviewed proof artifacts, full KAT/validation artifact slots,
   rejection-distribution review, standard-verifier compatibility evidence, and
-  theorem-linkage artifact digest evidence. This is the Batch 4 proof-closure artifact package boundary, not selected-backend proof closure, not production
-  threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation,
-  not rejection-distribution preservation, and not completed standard-verifier
+  theorem-linkage artifact digest evidence. This is the Batch 4 proof-closure artifact package boundary, requires selected-backend proof closure evidence, not production
+  threshold ML-DSA security, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence,
+  requires rejection-distribution preservation proof, and not completed standard-verifier
   compatibility.
 - Link the five hypothesis blocker evidence gates and closure frameworks before
   any criterion promotion: `tests/production_mask_distribution.rs`,

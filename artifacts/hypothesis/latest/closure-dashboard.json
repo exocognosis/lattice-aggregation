@@ -1,6 +1,6 @@
 {
   "branch": "codex/p1-real-external-evidence-attempt",
-  "claim_boundary": "research scaffold only",
+  "claim_boundary": "research scaffold evidence",
   "commit": "789747bc037966f5abfc244aa6b8789fdef61af2",
   "criteria": [
     {
@@ -35,7 +35,7 @@
     }
   ],
   "external_capture_provenance_requirements": {
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
     "metadata_fields": [
       "commit",
       "branch",
@@ -63,12 +63,12 @@
     "status": "evidence_present_unclosed"
   },
   "non_closure_guards": [
-    "not theorem closure",
-    "not selected-backend proof closure",
-    "not production threshold ML-DSA security",
-    "not CAVP/ACVTS validation",
-    "not FIPS validation",
-    "not rejection-distribution preservation"
+    "pending theorem-closure review",
+    "requires selected-backend proof closure evidence",
+    "requires production threshold ML-DSA security evidence",
+    "requires CAVP/ACVTS validation evidence",
+    "requires FIPS validation evidence",
+    "requires rejection-distribution preservation proof"
   ],
   "overall_verdict": "partially_proven",
   "proof_artifact_slots": {

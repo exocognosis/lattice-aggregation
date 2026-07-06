@@ -92,7 +92,7 @@ package that binds the selected profile binding digest, ACVP sample-vector
 provider/KAT evidence digest, provider-checked candidate signature digest,
 recomputed aggregate signature digest, aggregate-response digest, hint digest,
 transcript-binding digest, and negative mismatch cases used by
-`tests/production_rejection_equivalence.rs`. The fixture-backed bridge evidence package is a stricter blocker-2 release gate and is necessary but not sufficient for criterion-2 promotion. This is conformance evidence only: it is not selected-backend aggregate output evidence, not production threshold ML-DSA recomputation, not CAVP/ACVTS validation, not FIPS validation, and not a completed standard-verifier compatibility proof.
+`tests/production_rejection_equivalence.rs`. The fixture-backed bridge evidence package is a stricter blocker-2 release gate and is necessary but not sufficient for criterion-2 promotion. This is conformance evidence only: it is not selected-backend aggregate output evidence, not production threshold ML-DSA recomputation, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, and requires a completed standard-verifier compatibility proof.
 The P1 recomputation artifact path carries the raw fixture-package digest as
 reviewed evidence, and the checked-in fixture test pins the expected digest so
 fixture-package drift fails loudly during conformance review. This is
@@ -104,9 +104,9 @@ proof for arbitrary externally supplied package digests.
 evidence to the production transcript, signer set, attempt ID, provider KAT
 digest, real recomputation digest, and standard-verifier bridge evidence digest
 before the artifact can be reported ready for proof review. The selected-backend
-aggregate-output artifact gate is conformance/proof-review evidence only. It may
+aggregate-output artifact gate is conformance/proof-review evidence. It may
 reject drift and bind checked-in artifact digests, but it is
-not production threshold ML-DSA security, not selected-backend proof closure,
+requires production threshold ML-DSA security evidence, requires selected-backend proof closure evidence,
 not CAVP/ACVTS or FIPS validation, and not a completed standard-verifier
 compatibility proof.
 
@@ -120,7 +120,7 @@ standard-verifier bridge digest. The positive coverage in
 signature through `HazmatMldsa65Provider`, and the stale recomputation test
 rejects changed recomputation output before an artifact package can be minted.
 This is stronger than fixture-only bridge confidence, but it remains
-conformance/proof-review evidence only and does not claim a real threshold
+conformance/proof-review evidence and does not claim a real threshold
 aggregate signer.
 
 `P1RealThresholdBackendEmissionArtifactPackage`,
@@ -169,7 +169,7 @@ artifact-ready real-threshold backend package before it can emit an external
 capture envelope, and the script rejects localnet and deterministic simulation
 command sources, non-importable capture shapes, and stale or missing request
 digest bindings before artifact write. It records `evidence_present_unclosed`
-conformance/proof-review evidence only.
+conformance/proof-review evidence.
 `scripts/stage_external_backend_emission_capture.py` is the matching file-based
 intake for a preexisting backend-emission capture produced outside the repo. It
 accepts only an `outside_repo_capture_file` plus an
@@ -191,8 +191,8 @@ external-pure verifier and the repo `HazmatMldsa65Provider`; checks mutated
 message, public-key, and signature rejection; and prints the canonical
 request-bound capture JSON consumed by `scripts/run_backend_emission_capture.py`.
 This adapter is a reproducibility path for actual backend capture evidence, not
-production threshold ML-DSA security, not rejection-distribution preservation,
-and not theorem closure.
+production threshold ML-DSA security, requires rejection-distribution preservation proof,
+and pending theorem-closure review.
 The capture transcript now carries per-attempt rejection-predicate evidence
 when the backend exposes the hazmat predicate transcript API: it records the
 accepted attempt id, attempt count, retry count, `per-attempt-bound-predicates`
@@ -201,7 +201,7 @@ challenge digest, `z_bound_result`, `r0_bound_result`, `ct0_bound_result`,
 `hint_bound_result`, and `accepted_or_rejected`. This means the current run can
 prove accepted-output standard-verifier conformance, mutation rejection for the
 emitted tuple, and backend predicate observability for the signing attempts.
-It still does not prove rejection-distribution preservation until those
+It still requires rejection-distribution preservation proof review until those
 attempt-level predicates are compared against centralized ML-DSA rejection
 behavior across reviewed batches.
 
@@ -243,7 +243,7 @@ This mode produced zero-mismatch close-candidate evidence:
 This is the strongest Criterion 2 evidence so far: when the threshold mask
 domain is aligned to centralized ML-DSA, aggregate rejection predicates match
 centralized rejection predicates across accepted and rejected attempts, including
-the 10,000-validator fan-in path. It is not theorem closure yet because the
+the 10,000-validator fan-in path. It is pending theorem-closure review yet because the
 aligned helper uses expanded secret-key material to place the aggregate mask in
 the centralized domain; a reviewed distributed nonce-DKG/PRF replacement must
 provide the same domain without central secret-key access.
@@ -295,7 +295,7 @@ attempt. A ready attempt must also carry schema
 recorded as true over the actual nonce gate, backend capture, rejection batch,
 and Batch 7 candidate digest, plus source-exclusion and review-digest checks.
 The checked attempt remains blocked because the reviewed external evidence
-package is missing; this is a proof-review gate, not theorem closure.
+package is missing; this is a proof-review gate, pending theorem-closure review.
 The selected replacement route is now tracked in
 [`p1-nonce-producer-selection.md`](p1-nonce-producer-selection.md) as
 `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`; Criterion 2 now
@@ -326,7 +326,7 @@ and signature rejection evidence. It is deliberately classified as
 `StandardProviderSingleKey` and rejected because ordinary single-key standard
 provider output is not threshold backend provenance.
 
-Both fixtures remain conformance/proof-review evidence only. They are not a
+Both fixtures remain conformance/proof-review evidence. They are not a
 real threshold backend implementation, not actual real threshold backend
 emission evidence, and not a completed cryptographic proof.
 
@@ -335,7 +335,7 @@ A reviewed `P1RealThresholdBackendEmissionArtifactCertificate` can feed
 which is then assessed by `assess_p1_real_threshold_verifier_closure_contract`. The
 gate rejects `SimulatedDeterministic` evidence as `blocked_fail_closed` and
 rejects `StandardProviderSingleKey` evidence because ordinary single-key standard-provider output is not threshold backend provenance. This is
-framework/conformance evidence only and does not claim a real threshold backend
+framework/conformance evidence and does not claim a real threshold backend
 is implemented in this repository, production threshold ML-DSA security,
 selected-backend proof closure, CAVP/ACVTS validation, FIPS validation,
 rejection-distribution preservation, completed standard-verifier compatibility,
@@ -351,9 +351,9 @@ transcript, `LocalAccept`/`AggregateAccept` evidence, public recomputation
 transcript, real recomputation digest, and standard-verifier bridge evidence
 digest. This is stronger than real standard-provider aggregate-output package evidence because it requires a
 successor source artifact to agree with the already accepted aggregate-output
-certificate. It remains conformance/proof-review evidence only: it is not
-selected-backend proof closure, not production threshold ML-DSA security, not
-CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
+certificate. It remains conformance/proof-review evidence: it is not
+selected-backend proof closure, requires production threshold ML-DSA security evidence, not
+CAVP/ACVTS validation, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.
 
 `P1SelectedBackendProofClosureArtifactPackage`,
 `derive_p1_selected_backend_proof_closure_artifact_package`,
@@ -364,10 +364,10 @@ accepted threshold-output certificate to selected profile, provider KAT,
 threshold-output source package, recomputation, standard-verifier bridge,
 accepted aggregate output, reviewed proof-artifact, full KAT/validation artifact slots, rejection-distribution review, standard-verifier compatibility, and
 theorem-linkage artifact digest evidence. This is stronger than the selected-backend threshold-output artifact gate because the proof-review package must agree with the accepted threshold-output certificate before it can be
-reported. It remains conformance/proof-review evidence only: it is not
-selected-backend proof closure, not production threshold ML-DSA security, not
-CAVP/ACVTS validation, not FIPS validation, not rejection-distribution
-preservation, and not a completed standard-verifier compatibility proof.
+reported. It remains conformance/proof-review evidence: it is not
+selected-backend proof closure, requires production threshold ML-DSA security evidence, not
+CAVP/ACVTS validation, requires FIPS validation evidence, not rejection-distribution
+preservation, and requires a completed standard-verifier compatibility proof.
 
 Typed Criterion 2 proof-slot artifact packages are the review boundary for the
 new slot layer.
@@ -385,9 +385,9 @@ for slots with predecessor proof-artifact sources, stale external-review
 digests, production claim boundaries, and digest drift. This layer upgrades
 loose digest carriage into typed
 `p1_criterion2_proof_slot_artifact_package` evidence, but it remains
-conformance/proof-review evidence only: it is not selected-backend proof
-closure, not production threshold ML-DSA security, not CAVP/ACVTS validation,
-not FIPS validation, not rejection-distribution preservation, and not a
+conformance/proof-review evidence: it is not selected-backend proof
+closure, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence,
+requires FIPS validation evidence, requires rejection-distribution preservation proof, and not a
 completed standard-verifier compatibility proof.
 All Criterion 2 proof slots now have typed `evidence_present_unclosed`
 wrappers; the predecessor threshold-output certificate and recomputation slots

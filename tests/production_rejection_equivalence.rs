@@ -110,24 +110,24 @@ use lattice_aggregation::production::rejection_equivalence::{
 };
 
 const EXPECTED_P1_STANDARD_VERIFIER_BRIDGE_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "28a59ad2845dc0e6694c997ed106c23f09966efb6028431dd55ac8ccdb9639fa";
+    "8b44723bdc3cdf738dcc137779c26de52d9806fb8155fde46acdbafff17fb5b1";
 const EXPECTED_P1_REAL_RECOMPUTATION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "b1f0f1ad5682c3d92781631bdd6d1bd412acc45e0408c0c8b16088e36307d1be";
+    "267997738cbc270ffb67220efa35b43661a9e9cf2fb3ea960aedce525502b97b";
 const EXPECTED_P1_THRESHOLD_OUTPUT_CERTIFICATE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "b60af953ac22542646287f1ded308bd2e479e24da761bdc0371c77cb7bba2e92";
+    "616601eb3e38081962322f0e3359ef1affeba8c42bf7a990a5fd37fd28eeede8";
 const EXPECTED_P1_REJECTION_DISTRIBUTION_REVIEW_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "de7c71635f2c271f09856a1a4a0cffe292aa3d09a4e2bac09d9c04c90c7ce243";
+    "c53cbaac0fbc3efcf867d91d4ec49b14479b74296b7374faa8bb4bcf3bb211b7";
 const EXPECTED_P1_THEOREM_LINKAGE_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "34e4d1907e8105ccbe883df67573e8ba55814b3d948c7a49fb21f665ead1c300";
+    "dbb335291c1d04d682e9b9b7bf543a657bdc2fac492bc13c8c3b89298dc0879f";
 const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "fcd09b72c5443409c02e407d45b150cde307aba9346b82d0e2e818109574eb83";
+    "3df33a8240bacd01ed676eb7e6a153865b5a90abdf3b0a7f3b1791a7e7e97201";
 const EXPECTED_P1_REAL_THRESHOLD_BACKEND_EMISSION_CAPTURE_SCHEMA_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "0cb401b91c79a1e0803fb2bf53fc5af89355e85642f42ca94283990874e70976";
+    "0abc127d3d42a5a3302fb471837d31be2d062f529271b4096757e5466d8bf00c";
 const EXPECTED_P1_NONCE_PRODUCER_HANDOFF_REPLAY_ARTIFACT_DIGEST_HEX: &str =
     "69276321cc84439a43fa73dd0f3db5311779b13fed9a93f7125de0e76dfb4ffb";
 #[cfg(feature = "raw-real-mldsa")]
 const EXPECTED_P1_STANDARD_PROVIDER_SINGLE_KEY_EMISSION_ARTIFACT_FIXTURE_PACKAGE_DIGEST_HEX: &str =
-    "0177b6a03ac1be89f49e3ef0438385a5280c940c54e95382df1fb1b10fdadf36";
+    "3294ea8f12830a8b737ef5a01277ad7d3b95cf3af6f7154d4c926bc50f000060";
 
 #[test]
 fn distributed_nonce_prf_output_import_splits_and_binds_masking_contributions() {
@@ -1575,10 +1575,12 @@ fn standard_verifier_bridge_fixture_parses_and_matches_bound_transcript() {
     assert!(fixture
         .note
         .contains("not production threshold ML-DSA recomputation"));
-    assert!(fixture.note.contains("not CAVP/ACVTS validation"));
     assert!(fixture
         .note
-        .contains("not a completed standard-verifier compatibility proof"));
+        .contains("requires CAVP/ACVTS validation evidence"));
+    assert!(fixture
+        .note
+        .contains("requires a completed standard-verifier compatibility proof"));
     assert_eq!(
         fixture.expected.selected_profile_binding_digest(),
         SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1()
@@ -1626,7 +1628,7 @@ fn standard_verifier_compatibility_fixture_parses_and_matches_bound_payload() {
     );
     assert_eq!(
         compatibility_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         compatibility_fixture.selected_profile,
@@ -1647,11 +1649,13 @@ fn standard_verifier_compatibility_fixture_parses_and_matches_bound_payload() {
     );
     assert!(compatibility_fixture
         .note
-        .contains("not selected-backend proof closure"));
+        .contains("requires selected-backend proof closure evidence"));
     assert!(compatibility_fixture
         .note
-        .contains("not CAVP/ACVTS validation"));
-    assert!(compatibility_fixture.note.contains("not FIPS validation"));
+        .contains("requires CAVP/ACVTS validation evidence"));
+    assert!(compatibility_fixture
+        .note
+        .contains("requires FIPS validation evidence"));
     assert_eq!(compatibility_fixture.payload.public_key_fill_byte, 6);
     assert_eq!(
         compatibility_fixture.payload.application_message_hex,
@@ -1745,7 +1749,7 @@ fn real_threshold_backend_emission_artifact_fixture_parses_and_remains_blocked_u
     );
     assert_eq!(
         emission_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         emission_fixture.selected_profile,
@@ -1772,7 +1776,7 @@ fn real_threshold_backend_emission_artifact_fixture_parses_and_remains_blocked_u
         .contains("not a real threshold backend implementation"));
     assert!(emission_fixture
         .note
-        .contains("not production threshold ML-DSA security"));
+        .contains("requires production threshold ML-DSA security evidence"));
     assert!(emission_fixture
         .note
         .contains("not a completed cryptographic proof"));
@@ -2127,7 +2131,7 @@ fn synthetic_actual_real_threshold_backend_capture_json(
     json!({
         "name": "synthetic-actual-real-threshold-capture-for-importer-test",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
         "note": "Synthetic unit-test capture for importer behavior only; not checked proof evidence.",
@@ -2596,7 +2600,7 @@ fn standard_provider_single_key_emission_fixture_verifies_real_mldsa_but_cannot_
     );
     assert_eq!(
         emission_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         emission_fixture.selected_profile,
@@ -2872,7 +2876,7 @@ fn real_recomputation_artifact_fixture_parses_and_matches_typed_slot() {
     );
     assert_eq!(
         recomputation_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         recomputation_fixture.selected_profile,
@@ -2888,10 +2892,10 @@ fn real_recomputation_artifact_fixture_parses_and_matches_typed_slot() {
     );
     assert!(recomputation_fixture
         .note
-        .contains("not selected-backend proof closure"));
+        .contains("requires selected-backend proof closure evidence"));
     assert!(recomputation_fixture
         .note
-        .contains("not rejection-distribution preservation"));
+        .contains("requires rejection-distribution preservation proof"));
     assert_eq!(
         recomputation_fixture.slot_artifact.slot_id,
         "real_recomputation_evidence_digest"
@@ -3023,7 +3027,7 @@ fn threshold_output_certificate_artifact_fixture_parses_and_matches_typed_slot()
     );
     assert_eq!(
         threshold_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         threshold_fixture.selected_profile,
@@ -3043,10 +3047,10 @@ fn threshold_output_certificate_artifact_fixture_parses_and_matches_typed_slot()
     );
     assert!(threshold_fixture
         .note
-        .contains("not selected-backend proof closure"));
+        .contains("requires selected-backend proof closure evidence"));
     assert!(threshold_fixture
         .note
-        .contains("not rejection-distribution preservation"));
+        .contains("requires rejection-distribution preservation proof"));
     assert_eq!(
         threshold_fixture.slot_artifact.slot_id,
         "threshold_output_certificate_digest"
@@ -3274,7 +3278,7 @@ fn rejection_distribution_review_artifact_fixture_parses_and_matches_typed_slot(
     );
     assert_eq!(
         rejection_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         rejection_fixture.selected_profile,
@@ -3298,10 +3302,10 @@ fn rejection_distribution_review_artifact_fixture_parses_and_matches_typed_slot(
     );
     assert!(rejection_fixture
         .note
-        .contains("not selected-backend proof closure"));
+        .contains("requires selected-backend proof closure evidence"));
     assert!(rejection_fixture
         .note
-        .contains("not rejection-distribution preservation"));
+        .contains("requires rejection-distribution preservation proof"));
     assert_eq!(
         rejection_fixture.slot_artifact.slot_id,
         "rejection_distribution_review_digest"
@@ -3445,7 +3449,7 @@ fn theorem_linkage_artifact_fixture_parses_and_matches_typed_slot() {
     );
     assert_eq!(
         theorem_fixture.claim_boundary,
-        "conformance/proof-review evidence only"
+        "conformance/proof-review evidence"
     );
     assert_eq!(
         theorem_fixture.selected_profile,
@@ -3473,7 +3477,7 @@ fn theorem_linkage_artifact_fixture_parses_and_matches_typed_slot() {
     );
     assert!(theorem_fixture
         .note
-        .contains("not selected-backend proof closure"));
+        .contains("requires selected-backend proof closure evidence"));
     assert!(theorem_fixture
         .note
         .contains("not a completed cryptographic proof"));
@@ -5987,7 +5991,7 @@ fn synthetic_actual_distributed_nonce_producer_capture_json(
     json!({
         "name": "synthetic-actual-distributed-nonce-producer-capture-for-importer-test",
         "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-        "claim_boundary": "conformance/proof-review evidence only",
+        "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
         "note": "Synthetic unit-test capture for nonce-producer importer behavior only; not checked proof evidence.",

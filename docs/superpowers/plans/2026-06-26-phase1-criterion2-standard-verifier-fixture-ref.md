@@ -26,7 +26,7 @@ Extend `test_criterion2_status_surfaces_real_recomputation_fixture_reference` so
     "fixture_path": "tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json",
     "schema": "lattice-aggregation:p1-standard-verifier-compatibility-artifact:v1",
     "current_status": "evidence_present_unclosed",
-    "claim_boundary": "conformance/proof-review evidence only",
+    "claim_boundary": "conformance/proof-review evidence",
 }
 ```
 
@@ -89,7 +89,7 @@ Run both focused red tests again. Expected: pass.
 Use this pattern:
 
 ```text
-checked standard-verifier compatibility proof-slot fixture for Criterion 2 at tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json; this is conformance/proof-review evidence only, not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed standard-verifier compatibility proof.
+checked standard-verifier compatibility proof-slot fixture for Criterion 2 at tests/fixtures/p1_standard_verifier_compatibility_artifact_fixture.json; this is conformance/proof-review evidence, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed standard-verifier compatibility proof.
 ```
 
 - [ ] **Step 2: Preserve existing anchors**

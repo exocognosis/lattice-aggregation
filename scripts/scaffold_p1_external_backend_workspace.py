@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 PACKAGE_NAME = "p1-external-backend-emitter"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 REQUEST_PATH_HINT = "artifacts/backend-emission-request/latest/request.json"
 DEFAULT_BACKEND_FEATURE = "raw-real-mldsa"
@@ -140,7 +140,7 @@ def readme(repo_root, backend_crate, backend_feature, workspace, generated_at):
             f"  --backend-command {wrapper} {request_path}",
             "```",
             "",
-            "The emitted capture remains conformance/proof-review evidence only. "
+            "The emitted capture remains conformance/proof-review evidence. "
             "It is not a theorem-closure proof, FIPS validation, CAVP/ACVTS "
             "validation, or an independent cryptographic review package.",
             "",

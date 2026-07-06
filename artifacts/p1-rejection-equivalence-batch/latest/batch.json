@@ -16,7 +16,7 @@
     }
   ],
   "backend_evidence": "mldsa65-centralized-vs-threshold-rejection-batch",
-  "claim_boundary": "conformance/proof-review evidence only",
+  "claim_boundary": "conformance/proof-review evidence",
   "claim_flags": {
     "claims_rejection_distribution_preservation": false,
     "claims_theorem_closure": false

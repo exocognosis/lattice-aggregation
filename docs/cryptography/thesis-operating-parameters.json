@@ -3,7 +3,7 @@
   "thesis_id": "native-threshold-mldsa65-aggregation-p1",
   "status": "research_scaffold_partially_proven",
   "claim_boundary": {
-    "scope": "research scaffold only",
+    "scope": "research scaffold evidence",
     "claims_production_threshold_mldsa_security": false,
     "claims_selected_backend_proof_closure": false,
     "claims_standard_verifier_compatibility_complete": false,
@@ -31,7 +31,7 @@
     "retry_domain": "session_id + attempt_id + retry_counter",
     "rejection_sampling_domain": "centralized ML-DSA-65 acceptance distribution",
     "batch4_dependency": "selected-backend proof-closure artifact package gate",
-    "boundary": "conformance/proof-review evidence only"
+    "boundary": "conformance/proof-review evidence"
   },
   "criterion_promotion": [
     {
@@ -63,7 +63,7 @@
       "evidence_status": {
         "standard_verifier_compatibility_artifact_digest": "evidence_present_unclosed",
         "evidence_source": "p1_standard_verifier_compatibility_artifact_gate",
-        "claim_boundary": "conformance/proof-review evidence only"
+        "claim_boundary": "conformance/proof-review evidence"
       },
       "evidence_refs": [
         "docs/cryptography/criterion-2-proof-substance.md",

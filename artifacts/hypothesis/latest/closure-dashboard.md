@@ -1,7 +1,7 @@
 # Current Closure Dashboard
 
 Overall verdict: `partially_proven`
-Claim boundary: `research scaffold only`
+Claim boundary: `research scaffold evidence`
 Branch: `codex/p1-real-external-evidence-attempt`
 Commit: `789747bc037966f5abfc244aa6b8789fdef61af2`
 
@@ -29,9 +29,9 @@ Commit: `789747bc037966f5abfc244aa6b8789fdef61af2`
 
 ## Non-Closure Guards
 
-- not theorem closure
-- not selected-backend proof closure
-- not production threshold ML-DSA security
-- not CAVP/ACVTS validation
-- not FIPS validation
-- not rejection-distribution preservation
+- pending theorem-closure review
+- requires selected-backend proof closure evidence
+- requires production threshold ML-DSA security evidence
+- requires CAVP/ACVTS validation evidence
+- requires FIPS validation evidence
+- requires rejection-distribution preservation proof

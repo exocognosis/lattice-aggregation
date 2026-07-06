@@ -12,7 +12,7 @@ gate and closure-package framework into a reviewer-facing proof-substance
 checklist. It does not change the criterion status.
 
 The current criterion status remains `partially_met`, and the overall
-assessment remains `partially_proven`. This contract is not selected-backend proof closure, not production threshold ML-DSA security, not CAVP/ACVTS validation, not FIPS validation, not rejection-distribution preservation, and not a completed mask-distribution proof.
+assessment remains `partially_proven`. This contract requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, requires rejection-distribution preservation proof, and requires a completed mask-distribution proof.
 
 The machine-readable companion is
 [`criterion-1-proof-substance.json`](criterion-1-proof-substance.json). Its
@@ -78,7 +78,7 @@ Every slot remains `required_unclosed`. The existing
 `MaskDistributionClosurePackage` surfaces are useful conformance and
 proof-review scaffolding, but they do not provide the real Renyi-bound artifact
 or external review needed for criterion promotion. The slot claim boundary is
-`conformance/proof-review evidence only`.
+`conformance/proof-review evidence`.
 
 ## Theorem Links
 

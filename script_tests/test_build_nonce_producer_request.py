@@ -42,7 +42,7 @@ class NonceProducerRequestBuilderTests(unittest.TestCase):
             "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
         )
         self.assertEqual(
-            request_json["claim_boundary"], "conformance/proof-review evidence only"
+            request_json["claim_boundary"], "conformance/proof-review evidence"
         )
         self.assertEqual(
             request_json["selected_profile"],
@@ -63,7 +63,7 @@ class NonceProducerRequestBuilderTests(unittest.TestCase):
         self.assertIn("shamir_nonce_dkg_transcript", request_json["required_capture"]["material"])
         self.assertIn("hazmat PRF-output oracle", request_json["forbidden_capture_sources"])
         self.assertIn("evidence_present_unclosed", summary_md)
-        self.assertIn("does not prove Criterion 2", summary_md)
+        self.assertIn("requires Criterion 2 proof review", summary_md)
         self.assertEqual(
             manifest["request_schema"],
             "lattice-aggregation:p1-distributed-nonce-producer-request:v1",

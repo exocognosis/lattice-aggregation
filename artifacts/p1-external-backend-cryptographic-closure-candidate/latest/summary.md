@@ -4,7 +4,7 @@ This artifact composes the actual external nonce gate, real-threshold backend em
 
 - Status: `evidence_present_unclosed`
 - Close candidate: `false`
-- Claim boundary: `conformance/proof-review evidence only`
+- Claim boundary: `conformance/proof-review evidence`
 - Candidate digest SHA-256: `1a6f99aaeef73c564e243d51c9cc17a9337bff12da31160962335454cf7eefc7`
 
 Checks:
@@ -20,4 +20,4 @@ Blockers:
 - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
 - real threshold backend emission capture is incomplete
 
-This is not theorem closure. It does not prove Criterion 2, rejection-distribution preservation, selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or completed cryptographic proof.
+This package is pending theorem-closure review. It requires Criterion 2 proof review, rejection-distribution preservation proof, selected-backend proof closure evidence, production threshold ML-DSA security evidence, CAVP/ACVTS validation evidence, FIPS validation evidence, and completed cryptographic proof evidence.

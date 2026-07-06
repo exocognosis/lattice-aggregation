@@ -12,7 +12,7 @@ from pathlib import Path
 GATE_SCHEMA = "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1"
 ATTEMPT_SCHEMA = "lattice-aggregation:p1-admissible-nonce-producer-capture-attempt:v1"
 HANDOFF_SCHEMA = "lattice-aggregation:p1-nonce-producer-executable-handoff-replay:v1"
-CLAIM_BOUNDARY = "conformance/proof-review evidence only"
+CLAIM_BOUNDARY = "conformance/proof-review evidence"
 EXPECTED_SOURCE_PROFILE = "admissible_external_backend_capture"
 REFERENCE_SOURCE_PROFILE = "repo_reference_cli_capture"
 STATUS_READY = "actual_external_capture_ready"
@@ -168,7 +168,7 @@ def render_summary(manifest):
     lines.extend(
         [
             "",
-            "This gate does not prove Criterion 2, rejection-distribution "
+            "This gate requires Criterion 2 proof review, rejection-distribution "
             "preservation, production threshold ML-DSA security, CAVP/ACVTS "
             "validation, FIPS validation, or theorem closure.",
             "",
