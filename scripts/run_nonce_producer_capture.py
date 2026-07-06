@@ -54,6 +54,7 @@ TOP_LEVEL_FIELDS = {
     "selected_profile",
     "producer_evidence",
     "note",
+    "threshold_nonce_accounting",
     "request",
     "predecessors",
     "capture",
@@ -85,6 +86,7 @@ EXPECTED_DIGEST_FIELDS = {
     "nonce_share_commitment_digest_hex",
     "abort_accountability_digest_hex",
     "external_review_digest_hex",
+    "threshold_nonce_accounting_digest_hex",
     "distributed_nonce_producer_artifact_digest_hex",
 }
 CAPTURE_PAYLOAD_FIELDS = {

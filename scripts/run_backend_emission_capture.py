@@ -30,6 +30,12 @@ FORBIDDEN_BACKEND_COMMAND_TOKENS = (
     "simulation",
     "simulated",
 )
+SMOKE_CORE_MODES = {
+    "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+}
+SMOKE_SIGNATURE_ORIGINS = {
+    "single_seed_standard_mldsa65_provider",
+}
 COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
 COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
 TOP_LEVEL_FIELDS = {
@@ -39,6 +45,7 @@ TOP_LEVEL_FIELDS = {
     "selected_profile",
     "backend_evidence",
     "note",
+    "cryptographic_core",
     "request",
     "predecessors",
     "capture",
@@ -59,10 +66,14 @@ EXPECTED_DIGEST_FIELDS = {
     "backend_source_package_digest_hex",
     "backend_implementation_digest_hex",
     "backend_transcript_digest_hex",
+    "threshold_core_accounting_digest_hex",
     "artifact_digest_hex",
     "public_key_digest_hex",
     "message_digest_hex",
     "accepted_signature_digest_hex",
+}
+OPTIONAL_EXPECTED_DIGEST_FIELDS = {
+    "threshold_reconstruction_digest_hex",
 }
 CAPTURE_PAYLOAD_FIELDS = {
     "validator_count",
@@ -261,8 +272,44 @@ def build_external_capture_provenance(capture, manifest, metadata):
         "evidence_class": manifest["backend_evidence"],
         "runner_status": RUNNER_STATUS,
         "claim_boundary": CLAIM_BOUNDARY,
-        "expected_digest_fields": sorted(EXPECTED_DIGEST_FIELDS),
+        "expected_digest_fields": sorted(capture["expected"]),
         "metadata_fields": sorted(metadata),
+    }
+
+
+def backend_core_admissibility(capture):
+    """Classify whether a capture can feed the strict threshold-core slot."""
+    core = capture.get("cryptographic_core") if isinstance(capture, dict) else None
+    reasons = []
+    core_mode = None
+    signature_origin = None
+    distributed_core = None
+    if isinstance(core, dict):
+        core_mode = core.get("core_mode")
+        signature_origin = core.get("signature_origin")
+        distributed_core = core.get("distributed_threshold_core")
+    else:
+        reasons.append("missing cryptographic_core accounting")
+    if core_mode in SMOKE_CORE_MODES:
+        reasons.append("centralized ML-DSA smoke core mode")
+    if signature_origin in SMOKE_SIGNATURE_ORIGINS:
+        reasons.append("single-seed standard-provider signature origin")
+    if isinstance(distributed_core, dict):
+        required_flags = (
+            "distributed_keygen_vss",
+            "partial_signing_over_secret_shares",
+            "partial_z_i_hint_aggregation",
+            "fips204_rejection_loop_over_threshold_partials",
+        )
+        for flag in required_flags:
+            if distributed_core.get(flag) is not True:
+                reasons.append(f"distributed threshold core flag false: {flag}")
+    return {
+        "strict_threshold_core_admissible": not reasons,
+        "quarantined": bool(reasons),
+        "core_mode": core_mode,
+        "signature_origin": signature_origin,
+        "reasons": reasons,
     }
 
 
@@ -299,6 +346,7 @@ def parse_capture_json(stdout):
         capture["expected"],
         EXPECTED_DIGEST_FIELDS,
         "expected",
+        OPTIONAL_EXPECTED_DIGEST_FIELDS,
     )
 
     payload = capture.get("capture")
@@ -461,17 +509,25 @@ def validate_capture_matches_request(capture, request):
     return request_digest
 
 
-def validate_digest_object(value, required_fields, label):
+def validate_digest_object(value, required_fields, label, optional_fields=()):
     """Validate required nonzero SHA-256-style digest hex fields."""
     if not isinstance(value, dict):
         raise ValueError(f"backend capture runner requires {label} digests")
-    validate_no_unknown_fields(value, set(required_fields), label)
+    allowed_fields = set(required_fields) | set(optional_fields)
+    validate_no_unknown_fields(value, allowed_fields, label)
     for field in required_fields:
         if field not in value:
             raise ValueError(f"backend capture runner missing {label} digest: {field}")
         validate_hex_field(value[field], 32, field)
         if value[field].lower() == "00" * 32:
             raise ValueError(f"backend capture runner rejects all-zero {label} digest: {field}")
+    for field in optional_fields:
+        if field in value:
+            validate_hex_field(value[field], 32, field)
+            if value[field].lower() == "00" * 32:
+                raise ValueError(
+                    f"backend capture runner rejects all-zero {label} digest: {field}"
+                )
 
 
 def validate_hex_field(value, expected_bytes, field):
@@ -604,6 +660,7 @@ def build_report(
         "aggregate_signature_len": payload["aggregate_signature_len"],
         "capture_sha256": sha256_text(capture_json),
     }
+    manifest["backend_core_admissibility"] = backend_core_admissibility(capture)
     manifest["external_capture_provenance"] = build_external_capture_provenance(
         capture,
         manifest,

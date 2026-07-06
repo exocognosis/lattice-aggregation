@@ -65,6 +65,13 @@ def backend_manifest():
         "threshold": 6667,
         "aggregate_signature_len": 3309,
         "capture_sha256": "22" * 32,
+        "backend_core_admissibility": {
+            "strict_threshold_core_admissible": True,
+            "quarantined": False,
+            "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+            "signature_origin": "threshold_partial_aggregation",
+            "reasons": [],
+        },
     }
 
 
@@ -75,6 +82,21 @@ def backend_capture():
         "claim_boundary": "conformance/proof-review evidence only",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
+        "cryptographic_core": {
+            "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
+            "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+            "provider": None,
+            "signature_origin": "threshold_partial_aggregation",
+            "validator_count": 10000,
+            "threshold": 6667,
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": True,
+                "partial_signing_over_secret_shares": True,
+                "partial_z_i_hint_aggregation": True,
+                "fips204_rejection_loop_over_threshold_partials": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+        },
         "request": {
             "schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
             "name": "synthetic-real-threshold-request",

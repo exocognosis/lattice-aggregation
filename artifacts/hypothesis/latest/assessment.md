@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `research scaffold only`
 Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `e46614f86dfdfed81e61b85f935d0b0bfd5c5303`
+Commit: `d4628f3ec8279d52ae6e711e73c1dcbcb9364db1`
 
 ## Testing Statement
 
@@ -11,9 +11,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 
 ## README Comparison
 
-- README states the repository is deterministic research scaffolding.
-- README makes the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.
-- Missing production proof artifacts are blockers, not contradictions.
+- README research boundary was not detected; claim-drift review is required.
 
 ## Selected Backend Direction
 
@@ -93,9 +91,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as scaffold evidence only.
 - Evidence: MaskDistributionClosurePackage and MaskDistributionClosureReport framework checks are present for proof-artifact completeness.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
-- Blocker: README keeps the hypothesis conditional on theorem closure, a reviewed threshold backend, and standard ML-DSA verification.
 - Blocker: Renyi-divergence evidence for epsilon_mask is still a release-readiness blocker.
-- Blocker: Executable scaffold command failed: cargo run
 
 ### Aggregate rejection checks match centralized ML-DSA rejection checks.
 
@@ -138,7 +134,6 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Blocker: A selected P1 Shamir nonce-DKG producer route is documented, but the reviewed distributed nonce-producer artifact digest and backend-generated producer transcript are still required before the hazmat PRF-output oracle is replaced.
 - Blocker: P1 real-threshold backend emission ingestion artifact is present, but actual real threshold backend emissions, rejection-distribution preservation, full validation artifacts, and reviewed cryptographic proof remain open.
 - Blocker: Selected-backend proof-closure artifact package gating is present, but production threshold ML-DSA security, selected-backend proof closure, full ACVP/FIPS KAT coverage, external proof review, CAVP/ACVTS validation artifacts, FIPS validation, rejection-distribution preservation, and completed standard-verifier compatibility remain open; the proof-closure artifact package gate, threshold-output artifact gate, real standard-provider aggregate-output package, P1 recomputation gate, selected-backend aggregate-output artifact gate, and bounded sample-vector KAT are framework/conformance evidence only.
-- Blocker: Executable scaffold command failed: cargo run
 
 ### Selective aborts and retries do not bias accepted signatures.
 
@@ -148,7 +143,6 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: AbortRetryBiasProofPackage and AbortBiasClosureReport framework checks are present for leakage, distribution, threshold, and review artifacts.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: Abort leakage and retry-bias distribution analysis remain open proof obligations.
-- Blocker: Executable scaffold command failed: cargo run
 
 ### Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model.
 
@@ -160,7 +154,6 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: PartialSoundnessClosurePackage framework checks are present for proof-backed verifier, VSS/DKG, leakage, context, and review artifacts.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: Production local acceptance, partial verification, and hiding proof evidence are not complete.
-- Blocker: Executable scaffold command failed: cargo run
 
 ### Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation.
 
@@ -170,9 +163,10 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: Unauthorized aggregate reduction closure package framework records protocol grammar, deterministic classifier, base theorem, hybrid-bound, simulator, and review slots.
 - Blocker: Selected backend direction is a selection artifact only; proof artifacts, backend implementation evidence, and production approval remain open.
 - Blocker: Threshold unforgeability reduction is stated as a target, not a completed proof.
-- Blocker: Executable scaffold command failed: cargo run
 
 ## Command Summary
 
-Passed: 10; failed: 1; all passed: `False`.
+Passed: 11; failed: 0; all passed: `True`.
+- Cargo scaffold checks completed
+- Simulation harness emitted duration, abort, and bandwidth telemetry.
 - Rust test output reported passing test suites.

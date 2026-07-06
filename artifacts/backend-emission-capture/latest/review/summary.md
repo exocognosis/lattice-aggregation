@@ -2,7 +2,7 @@
 
 - Review status: `reviewed_external_backend_emission_capture_ready`
 - Review file origin: `outside_repo_review_manifest`
-- Review SHA-256: `e1d74868e62f7265c191d8dced0026bc3c007492dbbc01b360cafeed6f457b9b`
-- Capture SHA-256: `6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b`
+- Review SHA-256: `e5d5a2b94174916126375c41849c28f8595ddb35768d1f02e9ea6574a13257c0`
+- Capture SHA-256: `4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60`
 
 This review dossier remains conformance/proof-review evidence only.

@@ -44,10 +44,22 @@ REQUIRED_REVIEW_CHECKS = (
     "backend_material_digests_reviewed",
     "mutation_rejection_reviewed",
     "standard_verifier_acceptance_reviewed",
+    "centralized_standard_provider_output_disclosed",
+    "threshold_core_limitations_reviewed",
     "no_localnet_or_deterministic_simulation",
     "no_fixture_harness",
+    "no_undisclosed_single_key_standard_provider_output",
+)
+OPTIONAL_REVIEW_CHECKS = (
+    "real_distributed_threshold_core_verified",
     "no_single_key_standard_provider_output",
 )
+SMOKE_CORE_MODES = {
+    "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+}
+SMOKE_SIGNATURE_ORIGINS = {
+    "single_seed_standard_mldsa65_provider",
+}
 
 
 def canonical_json(data):
@@ -202,6 +214,13 @@ def validate_external_review_manifest(
     for field in REQUIRED_REVIEW_CHECKS:
         if checks.get(field) is not True:
             raise ValueError(f"external review check failed: {field}")
+    if checks.get("real_distributed_threshold_core_verified") is not False:
+        raise ValueError("external review must not claim verified distributed threshold core")
+
+    returned_checks = {field: checks[field] for field in REQUIRED_REVIEW_CHECKS}
+    for field in OPTIONAL_REVIEW_CHECKS:
+        if field in checks:
+            returned_checks[field] = checks[field]
 
     return {
         "schema": review["schema"],
@@ -212,7 +231,49 @@ def validate_external_review_manifest(
         "capture_sha256": expected_capture["capture_sha256"],
         "capture_file_sha256": expected_capture["capture_file_sha256"],
         "review": {field: review_fields[field] for field in REQUIRED_REVIEW_DIGEST_FIELDS},
-        "checks": {field: checks[field] for field in REQUIRED_REVIEW_CHECKS},
+        "checks": returned_checks,
+    }
+
+
+def backend_core_admissibility(capture, review_report):
+    """Classify whether a capture can feed the strict threshold-core slot."""
+    core = capture.get("cryptographic_core") if isinstance(capture, dict) else None
+    checks = review_report.get("checks") if isinstance(review_report, dict) else None
+    reasons = []
+    core_mode = None
+    signature_origin = None
+    distributed_core = None
+    if isinstance(core, dict):
+        core_mode = core.get("core_mode")
+        signature_origin = core.get("signature_origin")
+        distributed_core = core.get("distributed_threshold_core")
+    else:
+        reasons.append("missing cryptographic_core accounting")
+    if core_mode in SMOKE_CORE_MODES:
+        reasons.append("centralized ML-DSA smoke core mode")
+    if signature_origin in SMOKE_SIGNATURE_ORIGINS:
+        reasons.append("single-seed standard-provider signature origin")
+    if isinstance(checks, dict):
+        if checks.get("real_distributed_threshold_core_verified") is not True:
+            reasons.append("real distributed threshold core not externally verified")
+        if checks.get("no_single_key_standard_provider_output") is not True:
+            reasons.append("single-key standard-provider output disclosed")
+    if isinstance(distributed_core, dict):
+        required_flags = (
+            "distributed_keygen_vss",
+            "partial_signing_over_secret_shares",
+            "partial_z_i_hint_aggregation",
+            "fips204_rejection_loop_over_threshold_partials",
+        )
+        for flag in required_flags:
+            if distributed_core.get(flag) is not True:
+                reasons.append(f"distributed threshold core flag false: {flag}")
+    return {
+        "strict_threshold_core_admissible": not reasons,
+        "quarantined": bool(reasons),
+        "core_mode": core_mode,
+        "signature_origin": signature_origin,
+        "reasons": reasons,
     }
 
 
@@ -254,6 +315,10 @@ def build_capture_manifest(
         "capture_file_origin": capture_file_origin_value,
         "external_capture_review": review_report,
     }
+    manifest["backend_core_admissibility"] = backend_core_admissibility(
+        capture,
+        review_report,
+    )
     manifest["external_capture_provenance"] = {
         "schema": EXTERNAL_CAPTURE_PROVENANCE_SCHEMA,
         "request_schema": capture["request"]["schema"],

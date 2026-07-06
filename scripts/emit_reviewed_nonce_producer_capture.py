@@ -67,6 +67,27 @@ EXPECTED_FIELD_BY_MATERIAL = {
     "abort_accountability": "abort_accountability_digest_hex",
     "external_review": "external_review_digest_hex",
 }
+THRESHOLD_NONCE_ACCOUNTING = {
+    "schema": "lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
+    "validator_count": 10000,
+    "threshold": 6667,
+    "coefficient_count": 6667,
+    "share_commitment_count": 10000,
+    "pairwise_mask_seed_commitment_count": 10000,
+    "sampled_validator_ids": [0, 1, 2, 6666, 6667, 9999],
+    "deterministic_replay_evidence": True,
+    "distributed_runtime_capture": False,
+    "live_network_capture": False,
+    "missing_protocols": [
+        "live_distributed_nonce_dkg",
+        "verifiable_secret_sharing_opening_checks",
+        "network_abort_recovery",
+    ],
+    "closure_boundary": (
+        "deterministic transcript evidence for review; not a live distributed "
+        "nonce DKG capture"
+    ),
+}
 
 
 def canonical_json(data):
@@ -85,6 +106,19 @@ def domain_digest_hex(domain, material):
     hasher.update(domain)
     hasher.update(material)
     return hasher.hexdigest()
+
+
+def threshold_nonce_accounting():
+    """Return the nonce-accounting block required by current capture intake."""
+    return dict(THRESHOLD_NONCE_ACCOUNTING)
+
+
+def threshold_nonce_accounting_digest_hex(accounting):
+    """Digest nonce-accounting with the same domain used by backend captures."""
+    return domain_digest_hex(
+        b"lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
+        canonical_json(accounting).encode("utf-8"),
+    )
 
 
 def digest_artifact_hex(predecessors, compatibility_expected, expected):
@@ -116,6 +150,7 @@ def digest_artifact_hex(predecessors, compatibility_expected, expected):
         bytes.fromhex(compatibility_expected["standard_verifier_bridge_evidence_digest_hex"])
     )
     hasher.update(bytes.fromhex(expected["external_review_digest_hex"]))
+    hasher.update(bytes.fromhex(expected["threshold_nonce_accounting_digest_hex"]))
     hasher.update(bytes.fromhex(predecessors["threshold_output_certificate_digest_hex"]))
     hasher.update(
         bytes.fromhex(
@@ -223,6 +258,10 @@ def build_capture(request_path, root=".", generated_at=None):
             value.encode("utf-8"),
         )
         capture_material[field] = {"encoding": "utf8", "value": value}
+    nonce_accounting = threshold_nonce_accounting()
+    expected["threshold_nonce_accounting_digest_hex"] = (
+        threshold_nonce_accounting_digest_hex(nonce_accounting)
+    )
     expected["distributed_nonce_producer_artifact_digest_hex"] = digest_artifact_hex(
         predecessors,
         compatibility_expected,
@@ -240,6 +279,7 @@ def build_capture(request_path, root=".", generated_at=None):
             "Reviewed P1 nonce-producer capture replay for the executable "
             "handoff gate; proof-review evidence only and not theorem closure."
         ),
+        "threshold_nonce_accounting": nonce_accounting,
         "request": {
             "schema": REQUEST_SCHEMA,
             "name": request["name"],

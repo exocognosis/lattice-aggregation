@@ -86,6 +86,18 @@ def external_capture():
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
         "note": "External nonce producer capture produced outside deterministic simulation.",
+        "threshold_nonce_accounting": {
+            "schema": "lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
+            "validator_count": 10000,
+            "threshold": 6667,
+            "coefficient_count": 6667,
+            "share_commitment_count": 10000,
+            "pairwise_mask_seed_commitment_count": 10000,
+            "sampled_validator_ids": [1, 2, 3, 10000],
+            "deterministic_replay_evidence": True,
+            "distributed_runtime_capture": False,
+            "live_network_capture": False,
+        },
         "request": {
             "schema": REQUEST_SCHEMA,
             "name": request["name"],
@@ -112,6 +124,7 @@ def external_capture():
             "nonce_share_commitment_digest_hex": "99" * 32,
             "abort_accountability_digest_hex": "aa" * 32,
             "external_review_digest_hex": "bb" * 32,
+            "threshold_nonce_accounting_digest_hex": "bc" * 32,
             "distributed_nonce_producer_artifact_digest_hex": "cc" * 32,
         },
     }

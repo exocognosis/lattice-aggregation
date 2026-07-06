@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; not theorem closure`
-- Readiness digest SHA-256: `626a8837428aae61c41626e3a48b4119ae5a42447dac97e653cb51d874b41537`
+- Readiness digest SHA-256: `f824436bb9a627836450d83500a2c92330dbb031b065175258f004cfd0e4de66`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -16,10 +16,10 @@ Checks:
 - `hypothesis_boundary_is_research_scaffold_only`: `true`
 - `hypothesis_not_already_completely_proven`: `true`
 - `external_closure_candidate_manifest_present`: `true`
-- `external_closure_candidate_ready`: `true`
+- `external_closure_candidate_ready`: `false`
 - `external_evidence_attempt_manifest_present`: `true`
 - `external_evidence_attempt_ready`: `false`
-- `external_source_exclusions_passed`: `true`
+- `external_source_exclusions_passed`: `false`
 - `external_review_package_binds_inputs`: `false`
 - `external_review_package_ready`: `false`
 - `theorem_review_manifest_present`: `false`
@@ -40,7 +40,11 @@ Checks:
 - `review_claims_fips_validation_false`: `false`
 
 Blocker Groups:
-- `external_backend_evidence`: `1` blocker(s)
+- `external_backend_evidence`: `5` blocker(s)
+  - backend capture is quarantined from strict threshold-core closure
+  - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
+  - real threshold backend emission capture is incomplete
+  - backend core admissibility is quarantined
   - reviewed external evidence package is missing
 - `proof_payload_review`: `1` blocker(s)
   - theorem review manifest is missing required ready flag: proof_payload_reviewed

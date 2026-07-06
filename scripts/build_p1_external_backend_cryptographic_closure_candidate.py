@@ -23,6 +23,12 @@ BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
 REJECTION_BATCH_SCHEMA = "lattice-aggregation:p1-rejection-equivalence-batch:v1"
 REJECTION_BATCH_NONCE_PRODUCER = "distributed-nonce-prf-output-shares"
 MLDSA65_SIGNATURE_BYTES = 3309
+SMOKE_CORE_MODES = {
+    "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+}
+SMOKE_SIGNATURE_ORIGINS = {
+    "single_seed_standard_mldsa65_provider",
+}
 
 
 def canonical_json(data):
@@ -89,6 +95,54 @@ def nonce_gate_ready(nonce_gate, blockers):
     return ready
 
 
+def backend_core_admissible(backend_manifest, backend_capture, blockers):
+    """Reject centralized/single-key smoke captures from the strict core path."""
+    admissible = True
+    manifest_admissibility = (
+        backend_manifest.get("backend_core_admissibility")
+        if isinstance(backend_manifest, dict)
+        else None
+    )
+    cryptographic_core = (
+        backend_capture.get("cryptographic_core")
+        if isinstance(backend_capture, dict)
+        else None
+    )
+    if isinstance(manifest_admissibility, dict):
+        if manifest_admissibility.get("strict_threshold_core_admissible") is not True:
+            blockers.append(
+                "backend capture is quarantined from strict threshold-core closure"
+            )
+            admissible = False
+    if not isinstance(cryptographic_core, dict):
+        blockers.append("backend capture is missing cryptographic core accounting")
+        return False
+    core_mode = cryptographic_core.get("core_mode")
+    signature_origin = cryptographic_core.get("signature_origin")
+    distributed_core = cryptographic_core.get("distributed_threshold_core")
+    if core_mode in SMOKE_CORE_MODES or signature_origin in SMOKE_SIGNATURE_ORIGINS:
+        blockers.append(
+            "centralized/single-seed smoke capture cannot satisfy real threshold emission"
+        )
+        admissible = False
+    if not isinstance(distributed_core, dict):
+        blockers.append("backend capture is missing distributed threshold core status")
+        return False
+    required_flags = (
+        "distributed_keygen_vss",
+        "partial_signing_over_secret_shares",
+        "partial_z_i_hint_aggregation",
+        "fips204_rejection_loop_over_threshold_partials",
+    )
+    missing = [flag for flag in required_flags if distributed_core.get(flag) is not True]
+    if missing:
+        blockers.append(
+            "backend capture lacks strict threshold core evidence: " + ", ".join(missing)
+        )
+        admissible = False
+    return admissible
+
+
 def backend_capture_present(backend_manifest, backend_capture, blockers):
     """Check actual real-threshold backend emission capture evidence."""
     if not isinstance(backend_manifest, dict) or not isinstance(backend_capture, dict):
@@ -119,7 +173,8 @@ def backend_capture_present(backend_manifest, backend_capture, blockers):
         and capture_payload.get("aggregate_signature_len") == MLDSA65_SIGNATURE_BYTES
         and capture_payload.get("reviewed") is True
     )
-    ready = manifest_ready and capture_ready
+    core_ready = backend_core_admissible(backend_manifest, backend_capture, blockers)
+    ready = manifest_ready and capture_ready and core_ready
     if not ready:
         blockers.append("real threshold backend emission capture is incomplete")
     return ready

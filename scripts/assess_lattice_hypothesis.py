@@ -4973,7 +4973,7 @@ def default_commands():
             "--test",
             "production_partial_soundness",
         ],
-        ["cargo", "run"],
+        ["cargo", "run", "--bin", "lattice-aggregation"],
     ]
 
 
