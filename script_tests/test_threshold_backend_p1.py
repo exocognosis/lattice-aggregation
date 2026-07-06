@@ -19,7 +19,40 @@ NONCE_GATE_SCRIPT = ROOT / "scripts" / "verify_actual_nonce_producer_capture.py"
 
 
 class ThresholdBackendP1Tests(unittest.TestCase):
-    def test_backend_emits_stageable_real_mldsa65_capture_and_review_manifest(self):
+    def test_backend_capture_core_path_fails_closed_without_threshold_partials(self):
+        with tempfile.TemporaryDirectory(prefix="threshold-backend-p1-strict.") as temp_dir:
+            out_dir = pathlib.Path(temp_dir)
+            result = subprocess.run(
+                [
+                    "cargo",
+                    "run",
+                    "--quiet",
+                    "--features",
+                    "raw-real-mldsa",
+                    "--bin",
+                    "threshold_backend_p1",
+                    "--",
+                    "emit-backend-capture",
+                    "--request",
+                    str(REQUEST),
+                    "--out-dir",
+                    str(out_dir),
+                    "--seed-hex",
+                    "51" * 32,
+                ],
+                cwd=ROOT,
+                check=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("strict threshold ML-DSA core is unavailable", result.stderr)
+            self.assertIn("partial_signing_over_secret_shares", result.stderr)
+            self.assertFalse((out_dir / "capture.json").exists())
+
+    def test_smoke_backend_emits_stageable_real_mldsa65_capture_and_review_manifest(self):
         with tempfile.TemporaryDirectory(prefix="threshold-backend-p1.") as temp_dir:
             out_dir = pathlib.Path(temp_dir)
             subprocess.run(
@@ -32,7 +65,7 @@ class ThresholdBackendP1Tests(unittest.TestCase):
                     "--bin",
                     "threshold_backend_p1",
                     "--",
-                    "emit-backend-capture",
+                    "emit-smoke-backend-capture",
                     "--request",
                     str(REQUEST),
                     "--out-dir",
@@ -81,6 +114,10 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertEqual(
             capture["cryptographic_core"]["core_mode"],
             "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+        )
+        self.assertIn(
+            "quarantined from the strict threshold core path",
+            capture["cryptographic_core"]["closure_boundary"],
         )
         self.assertFalse(
             capture["cryptographic_core"]["distributed_threshold_core"][

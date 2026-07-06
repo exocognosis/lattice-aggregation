@@ -1,23 +1,41 @@
 {
-  "attempt_digest_sha256": "4f0478c121f7aac22682587e7fd25d7c5ea6f6d03d526f6374305b3348166b76",
+  "attempt_digest_sha256": "9243ee6131bd57dd71f311f453140464b0e9b90749af02548f57fafd6fac902f",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
+    "backend capture is quarantined from strict threshold-core closure",
+    "centralized/single-seed smoke capture cannot satisfy real threshold emission",
+    "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
+    "real threshold backend emission capture is incomplete",
+    "forbidden external-evidence source marker in real-threshold backend manifest: centralized_mldsa65_provider",
+    "forbidden external-evidence source marker in real-threshold backend manifest: centralized ml-dsa",
+    "forbidden external-evidence source marker in real-threshold backend manifest: single-seed",
+    "forbidden external-evidence source marker in real-threshold backend manifest: single-key",
+    "forbidden external-evidence source marker in real-threshold backend manifest: single_seed",
+    "forbidden external-evidence source marker in real-threshold backend capture: centralized ml-dsa",
+    "forbidden external-evidence source marker in real-threshold backend capture: centralized_mldsa65_provider",
+    "forbidden external-evidence source marker in real-threshold backend capture: single_seed",
+    "forbidden external-evidence source marker in rejection-distribution batch: centralized_mldsa65_provider",
+    "forbidden external-evidence source marker in rejection-distribution batch: centralized ml-dsa",
+    "forbidden external-evidence source marker in rejection-distribution batch: single_seed",
+    "backend core admissibility is quarantined",
+    "centralized ML-DSA smoke core cannot feed external evidence",
+    "single-seed standard-provider signature cannot feed external evidence",
     "reviewed external evidence package is missing"
   ],
-  "candidate_digest_sha256": "86d8a3dca45f9718d383402489f81d418a9090f024d45a77fa2b131ab0de2b6d",
+  "candidate_digest_sha256": "2deec67286073ab0970a5c9a7a5fa31d3b37fe8052d56a6581ce86f4a63e4b32",
   "candidate_manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "02b3c984aef99885f5fa6f48dfa5a86d653d98d8483d861f9f6addc7e09720dc",
+  "candidate_manifest_sha256": "58351b75225126b38b51191cb8ca2083cc3db11e3059213d21b3a6003c68f5cc",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
-    "real_threshold_emission_present": true,
+    "real_threshold_emission_present": false,
     "rejection_distribution_comparison_present": true,
     "review_package_binds_inputs": false,
     "review_package_claim_boundary_passed": false,
     "review_package_present": false,
     "review_package_review_digests_present": false,
     "review_package_source_exclusions_passed": false,
-    "source_exclusion_passed": true,
+    "source_exclusion_passed": false,
     "standard_verifier_acceptance_present": true,
     "strict_external_nonce_capture_ready": true
   },
@@ -31,32 +49,32 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-05T16:27:05Z",
+  "generated_at": "2026-07-06T14:07:07Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
-      "sha256": "752dda64bd11706dc2d3b9db5c8c26022f2397c2cd9906027e98aa6c0a37c617"
+      "sha256": "f3b468b4c22475ef05a9479ee6f8b4a2de5273f5a0777c1ff8ecac06109b9d87"
     },
     "closure_candidate_manifest": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "02b3c984aef99885f5fa6f48dfa5a86d653d98d8483d861f9f6addc7e09720dc"
+      "sha256": "58351b75225126b38b51191cb8ca2083cc3db11e3059213d21b3a6003c68f5cc"
     },
     "real_threshold_backend_capture_json": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b"
+      "sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "062dac48ca18dcea4e1999f32e6feb35c1739bc0b3fe45a4220e65b5c466ed5a"
+      "sha256": "83374e9f2a42da4482e617d0f6e7920446b832770d333cb4a35e27674a71d6a8"
     },
     "rejection_equivalence_batch_json": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
-      "sha256": "3bcc18d9fa728052181e31c2cb8b8c7c1bc89903ff19fff0f0859507c61e2980"
+      "sha256": "c9ddac0f460881dd342dfbafb72afe14c52802f4cb91616ddc891eb58d994344"
     },
     "reviewed_external_evidence_package": {
       "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",

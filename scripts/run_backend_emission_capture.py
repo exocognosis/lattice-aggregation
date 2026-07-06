@@ -30,6 +30,12 @@ FORBIDDEN_BACKEND_COMMAND_TOKENS = (
     "simulation",
     "simulated",
 )
+SMOKE_CORE_MODES = {
+    "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+}
+SMOKE_SIGNATURE_ORIGINS = {
+    "single_seed_standard_mldsa65_provider",
+}
 COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
 COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
 TOP_LEVEL_FIELDS = {
@@ -265,6 +271,42 @@ def build_external_capture_provenance(capture, manifest, metadata):
         "claim_boundary": CLAIM_BOUNDARY,
         "expected_digest_fields": sorted(EXPECTED_DIGEST_FIELDS),
         "metadata_fields": sorted(metadata),
+    }
+
+
+def backend_core_admissibility(capture):
+    """Classify whether a capture can feed the strict threshold-core slot."""
+    core = capture.get("cryptographic_core") if isinstance(capture, dict) else None
+    reasons = []
+    core_mode = None
+    signature_origin = None
+    distributed_core = None
+    if isinstance(core, dict):
+        core_mode = core.get("core_mode")
+        signature_origin = core.get("signature_origin")
+        distributed_core = core.get("distributed_threshold_core")
+    else:
+        reasons.append("missing cryptographic_core accounting")
+    if core_mode in SMOKE_CORE_MODES:
+        reasons.append("centralized ML-DSA smoke core mode")
+    if signature_origin in SMOKE_SIGNATURE_ORIGINS:
+        reasons.append("single-seed standard-provider signature origin")
+    if isinstance(distributed_core, dict):
+        required_flags = (
+            "distributed_keygen_vss",
+            "partial_signing_over_secret_shares",
+            "partial_z_i_hint_aggregation",
+            "fips204_rejection_loop_over_threshold_partials",
+        )
+        for flag in required_flags:
+            if distributed_core.get(flag) is not True:
+                reasons.append(f"distributed threshold core flag false: {flag}")
+    return {
+        "strict_threshold_core_admissible": not reasons,
+        "quarantined": bool(reasons),
+        "core_mode": core_mode,
+        "signature_origin": signature_origin,
+        "reasons": reasons,
     }
 
 
@@ -606,6 +648,7 @@ def build_report(
         "aggregate_signature_len": payload["aggregate_signature_len"],
         "capture_sha256": sha256_text(capture_json),
     }
+    manifest["backend_core_admissibility"] = backend_core_admissibility(capture)
     manifest["external_capture_provenance"] = build_external_capture_provenance(
         capture,
         manifest,

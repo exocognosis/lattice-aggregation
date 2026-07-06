@@ -50,6 +50,12 @@ def reviewed_capture(request_name, request_sha256, digest="cc" * 32, reviewed=Tr
         "selected_profile": SELECTED_PROFILE,
         "producer_evidence": EXTERNAL_PRODUCER_EVIDENCE,
         "note": "Reviewed external nonce-producer capture produced outside the repo.",
+        "threshold_nonce_accounting": {
+            "schema": "lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
+            "validator_count": 10000,
+            "threshold": 6667,
+            "closure_boundary": "test nonce-accounting evidence only",
+        },
         "request": {
             "schema": REQUEST_SCHEMA,
             "name": request_name,
@@ -80,6 +86,7 @@ def reviewed_capture(request_name, request_sha256, digest="cc" * 32, reviewed=Tr
             "nonce_share_commitment_digest_hex": "99" * 32,
             "abort_accountability_digest_hex": "aa" * 32,
             "external_review_digest_hex": "bb" * 32,
+            "threshold_nonce_accounting_digest_hex": "bc" * 32,
             "distributed_nonce_producer_artifact_digest_hex": digest,
         },
     }

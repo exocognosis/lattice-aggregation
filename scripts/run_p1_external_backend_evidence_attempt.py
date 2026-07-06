@@ -33,6 +33,10 @@ FORBIDDEN_SOURCE_MARKERS = (
     "single_key",
     "standardprovidersinglekey",
     "standard_provider_single_key",
+    "single-seed",
+    "single_seed",
+    "centralized_mldsa65_provider",
+    "centralized ml-dsa",
     "repo_reference_cli_capture",
     "quarantined_local_schema_replay",
     "centralized-oracle",
@@ -201,6 +205,29 @@ def string_values(value):
             yield from string_values(item)
 
 
+def structured_source_blockers(backend_manifest, backend_capture):
+    """Reject centralized/single-seed smoke sources using structured fields."""
+    blockers = []
+    admissibility = (
+        backend_manifest.get("backend_core_admissibility")
+        if isinstance(backend_manifest, dict)
+        else None
+    )
+    if isinstance(admissibility, dict) and admissibility.get("quarantined") is True:
+        blockers.append("backend core admissibility is quarantined")
+    core = (
+        backend_capture.get("cryptographic_core")
+        if isinstance(backend_capture, dict)
+        else None
+    )
+    if isinstance(core, dict):
+        if core.get("core_mode") == "centralized_mldsa65_provider_with_threshold_evidence_envelope":
+            blockers.append("centralized ML-DSA smoke core cannot feed external evidence")
+        if core.get("signature_origin") == "single_seed_standard_mldsa65_provider":
+            blockers.append("single-seed standard-provider signature cannot feed external evidence")
+    return blockers
+
+
 def review_package_expected_input_sha256s(
     nonce_gate_path,
     backend_manifest_path,
@@ -323,6 +350,7 @@ def build_report(
         ("real-threshold backend capture", backend_capture),
         ("rejection-distribution batch", rejection_batch),
     )
+    source_blockers.extend(structured_source_blockers(backend_manifest, backend_capture))
     review_blockers = []
     review_checks = review_package_checks(
         review_package,

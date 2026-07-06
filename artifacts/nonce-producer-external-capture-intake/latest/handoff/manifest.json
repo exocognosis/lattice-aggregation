@@ -14,17 +14,17 @@
     "source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75"
   },
   "capture_dir": "capture",
-  "capture_manifest_sha256": "9240c9c8a4b053e5c1cef2812609816da53d9840392168c2011c3e7d63ab9040",
+  "capture_manifest_sha256": "aa72668af83da5b1b00a5416e1c232a8b3d0d62a45531339254e7b080ac1364d",
   "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-  "capture_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+  "capture_sha256": "573f1e999e545a89887e498ceed8478213cc8993e5804c35824542844b6c4d80",
   "claim_boundary": "conformance/proof-review evidence only",
   "closure_boundary": "External capture-file intake only; proof review, rejection-distribution preservation, and theorem closure remain open.",
   "external_capture_provenance": {
     "backend_command_sha256": "feb88b3d4eafd9da1b7d9a126aa05b08d24dde7c5f59b29a6254391784076798",
     "capture_file_origin": "outside_repo_capture_file",
-    "capture_file_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+    "capture_file_sha256": "573f1e999e545a89887e498ceed8478213cc8993e5804c35824542844b6c4d80",
     "capture_schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-    "capture_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+    "capture_sha256": "573f1e999e545a89887e498ceed8478213cc8993e5804c35824542844b6c4d80",
     "claim_boundary": "conformance/proof-review evidence only",
     "evidence_class": "p1_shamir_nonce_dkg_tee_external_capture",
     "expected_digest_fields": [
@@ -36,7 +36,8 @@
       "nonce_share_commitment_digest_hex",
       "pairwise_mask_seed_commitment_digest_hex",
       "shamir_nonce_dkg_transcript_digest_hex",
-      "source_reference_digest_hex"
+      "source_reference_digest_hex",
+      "threshold_nonce_accounting_digest_hex"
     ],
     "metadata_fields": [
       "branch",
@@ -51,14 +52,14 @@
     "request_name": "p1-reviewed-nonce-producer-request-001",
     "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
     "request_sha256": "527fd72113f2c52cd3c3154ab9126435081388b6518866eccb0cfd24403c1047",
-    "review_manifest_sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214",
+    "review_manifest_sha256": "a42a0d16f693d4d5c4f1410c67870e010aae26f7be9cf844991e4cd0ff693788",
     "review_status": "reviewed_external_capture_ready",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
   "external_capture_review": {
-    "capture_file_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
-    "capture_sha256": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+    "capture_file_sha256": "573f1e999e545a89887e498ceed8478213cc8993e5804c35824542844b6c4d80",
+    "capture_sha256": "573f1e999e545a89887e498ceed8478213cc8993e5804c35824542844b6c4d80",
     "checks": {
       "capture_generated_outside_repo": true,
       "external_backend_operated_outside_repo": true,
@@ -78,16 +79,16 @@
     "review": {
       "backend_command_digest_hex": "b0f9e412b258d8a1749a0566d7b4d63fbe53f010483eae80bed7c68849d7d3b3",
       "capture_environment_digest_hex": "0c4251880c3412467fc64b54f553bf61430a00d58d656bff6a870b9c15ab509e",
-      "external_review_digest_hex": "bd74984b53ead273beb4b2d2e170a8575d5b5bf95e03c3a5adec28c3a6eef50c",
+      "external_review_digest_hex": "573f1e999e545a89887e498ceed8478213cc8993e5804c35824542844b6c4d80",
       "operator_identity_digest_hex": "b23e77d4224526c7c66e057223459b5dab453e0ae69ecb5f3e3c99f06ed24c83",
       "reviewer_identity_digest_hex": "2118bdfd7c6da7373f49870ae9bbf6d9a3dd7a29a75d7e65912da4ea36af2350"
     },
     "review_file_origin": "outside_repo_review_manifest",
     "review_status": "reviewed_external_capture_ready",
     "schema": "lattice-aggregation:p1-external-nonce-producer-capture-review:v1",
-    "sha256": "7052a5c834ceef725fd811edec6bbb1bcbacaecef2808aa61d22f2da9a4f5214"
+    "sha256": "a42a0d16f693d4d5c4f1410c67870e010aae26f7be9cf844991e4cd0ff693788"
   },
-  "generated_at": "2026-07-05T16:27:04Z",
+  "generated_at": "2026-07-06T14:07:07Z",
   "handoff_source_profile": "admissible_external_backend_capture",
   "handoff_status": "evidence_present_unclosed",
   "predecessors": {

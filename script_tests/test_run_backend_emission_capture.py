@@ -36,12 +36,27 @@ def external_capture():
     request = external_request()
     request_digest = request_sha256(request)
     return {
-        "name": "external-threshold-backend-smoke-capture",
+        "name": "external-threshold-backend-capture",
         "schema": CAPTURE_SCHEMA,
         "claim_boundary": "conformance/proof-review evidence only",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
         "note": "External backend capture produced outside deterministic simulation.",
+        "cryptographic_core": {
+            "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
+            "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+            "provider": None,
+            "signature_origin": "threshold_partial_aggregation",
+            "validator_count": 10000,
+            "threshold": 6667,
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": True,
+                "partial_signing_over_secret_shares": True,
+                "partial_z_i_hint_aggregation": True,
+                "fips204_rejection_loop_over_threshold_partials": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+        },
         "request": {
             "schema": REQUEST_SCHEMA,
             "name": request["name"],
@@ -84,6 +99,7 @@ def external_capture():
             "backend_source_package_digest_hex": "55" * 32,
             "backend_implementation_digest_hex": "66" * 32,
             "backend_transcript_digest_hex": "77" * 32,
+            "threshold_core_accounting_digest_hex": "cc" * 32,
             "artifact_digest_hex": "88" * 32,
             "public_key_digest_hex": "99" * 32,
             "message_digest_hex": "aa" * 32,
@@ -284,6 +300,16 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
             manifest["backend_command_origin"],
             "outside_repo_executable_or_script",
         )
+        self.assertEqual(
+            manifest["backend_core_admissibility"]["core_mode"],
+            "distributed_threshold_mldsa65_partial_aggregation",
+        )
+        self.assertTrue(
+            manifest["backend_core_admissibility"][
+                "strict_threshold_core_admissible"
+            ]
+        )
+        self.assertFalse(manifest["backend_core_admissibility"]["quarantined"])
         provenance = manifest["external_capture_provenance"]
         self.assertEqual(
             provenance["schema"],

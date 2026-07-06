@@ -1,8 +1,8 @@
 {
   "capture": {
     "backend_evidence": "real_threshold_mldsa_external_capture",
-    "capture_file_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
-    "capture_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+    "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
     "request_name": "p1-real-threshold-backend-emission-request-001",
     "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
     "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
@@ -11,14 +11,18 @@
   "checks": {
     "backend_material_digests_reviewed": true,
     "capture_generated_outside_repo": true,
+    "centralized_standard_provider_output_disclosed": true,
     "external_backend_operated_outside_repo": true,
     "mutation_rejection_reviewed": true,
     "no_fixture_harness": true,
     "no_localnet_or_deterministic_simulation": true,
-    "no_single_key_standard_provider_output": true,
+    "no_single_key_standard_provider_output": false,
+    "no_undisclosed_single_key_standard_provider_output": true,
     "predecessor_digests_reviewed": true,
+    "real_distributed_threshold_core_verified": false,
     "request_binding_reviewed": true,
-    "standard_verifier_acceptance_reviewed": true
+    "standard_verifier_acceptance_reviewed": true,
+    "threshold_core_limitations_reviewed": true
   },
   "claim_boundary": "conformance/proof-review evidence only",
   "closure_boundary": "external backend-emission capture review dossier only",
@@ -26,7 +30,7 @@
   "review": {
     "backend_command_digest_hex": "0558e9db5efe2ac20b654b975dc921e1e21c9e35cb12a8756a1b34343470d0c4",
     "capture_environment_digest_hex": "95c8e45049444e7a66e498575061210231d1ab687f4dad88eab7e652cc11caed",
-    "external_review_digest_hex": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "external_review_digest_hex": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
     "operator_identity_digest_hex": "b67d17f1b506c2ad05e95721df132e63ca32ca453d97bfe20404fc7d2a8983d8",
     "reviewer_identity_digest_hex": "559b08c54d4488d73bec4d832658de1e77265ae452f4b6ae5b298c28f9ec4f49"
   },

@@ -4,22 +4,38 @@
     "external-backend-capture-file",
     "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/backend/capture.json"
   ],
+  "backend_core_admissibility": {
+    "core_mode": "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+    "quarantined": true,
+    "reasons": [
+      "centralized ML-DSA smoke core mode",
+      "single-seed standard-provider signature origin",
+      "real distributed threshold core not externally verified",
+      "single-key standard-provider output disclosed",
+      "distributed threshold core flag false: distributed_keygen_vss",
+      "distributed threshold core flag false: partial_signing_over_secret_shares",
+      "distributed threshold core flag false: partial_z_i_hint_aggregation",
+      "distributed threshold core flag false: fips204_rejection_loop_over_threshold_partials"
+    ],
+    "signature_origin": "single_seed_standard_mldsa65_provider",
+    "strict_threshold_core_admissible": false
+  },
   "backend_evidence": "real_threshold_mldsa_external_capture",
   "backend_execution_mode": "preexisting_external_capture_file",
   "capture_file_origin": "outside_repo_capture_file",
   "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/backend/capture.json",
-  "capture_file_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+  "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
   "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-  "capture_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+  "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
   "claim_boundary": "conformance/proof-review evidence only",
   "command_duration_seconds": 0,
   "exit_code": 0,
   "external_capture_provenance": {
     "backend_command_sha256": "6e2daa00ffc4b2a625d6c9e6b8b98a9814c292042c51b0ce9fd37c04e8aff0bf",
     "capture_file_origin": "outside_repo_capture_file",
-    "capture_file_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
     "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-    "capture_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
     "claim_boundary": "conformance/proof-review evidence only",
     "evidence_class": "real_threshold_mldsa_external_capture",
     "expected_digest_fields": [
@@ -30,7 +46,8 @@
       "backend_source_package_digest_hex",
       "backend_transcript_digest_hex",
       "message_digest_hex",
-      "public_key_digest_hex"
+      "public_key_digest_hex",
+      "threshold_core_accounting_digest_hex"
     ],
     "metadata_fields": [
       "branch",
@@ -45,45 +62,47 @@
     "request_name": "p1-real-threshold-backend-emission-request-001",
     "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
     "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
-    "review_manifest_sha256": "e1d74868e62f7265c191d8dced0026bc3c007492dbbc01b360cafeed6f457b9b",
+    "review_manifest_sha256": "492bc97a049a51e15c5ba04ca0acfdf4684ac9911b002cc8c6b00ba3b483b25d",
     "review_status": "reviewed_external_backend_emission_capture_ready",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
   "external_capture_review": {
-    "capture_file_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
-    "capture_sha256": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+    "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+    "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
     "checks": {
       "backend_material_digests_reviewed": true,
       "capture_generated_outside_repo": true,
+      "centralized_standard_provider_output_disclosed": true,
       "external_backend_operated_outside_repo": true,
       "mutation_rejection_reviewed": true,
       "no_fixture_harness": true,
       "no_localnet_or_deterministic_simulation": true,
-      "no_single_key_standard_provider_output": true,
+      "no_undisclosed_single_key_standard_provider_output": true,
       "predecessor_digests_reviewed": true,
       "request_binding_reviewed": true,
-      "standard_verifier_acceptance_reviewed": true
+      "standard_verifier_acceptance_reviewed": true,
+      "threshold_core_limitations_reviewed": true
     },
     "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/backend/review.json",
     "review": {
       "backend_command_digest_hex": "0558e9db5efe2ac20b654b975dc921e1e21c9e35cb12a8756a1b34343470d0c4",
       "capture_environment_digest_hex": "95c8e45049444e7a66e498575061210231d1ab687f4dad88eab7e652cc11caed",
-      "external_review_digest_hex": "6d7612c2dfdb0986ac6d3d144beb218e7a0cf4060e71ee9d2ed8e1f905ff705b",
+      "external_review_digest_hex": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
       "operator_identity_digest_hex": "b67d17f1b506c2ad05e95721df132e63ca32ca453d97bfe20404fc7d2a8983d8",
       "reviewer_identity_digest_hex": "559b08c54d4488d73bec4d832658de1e77265ae452f4b6ae5b298c28f9ec4f49"
     },
     "review_file_origin": "outside_repo_review_manifest",
     "review_status": "reviewed_external_backend_emission_capture_ready",
     "schema": "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
-    "sha256": "e1d74868e62f7265c191d8dced0026bc3c007492dbbc01b360cafeed6f457b9b"
+    "sha256": "492bc97a049a51e15c5ba04ca0acfdf4684ac9911b002cc8c6b00ba3b483b25d"
   },
-  "generated_at": "2026-07-05T16:27:01Z",
+  "generated_at": "2026-07-06T14:07:04Z",
   "metadata": {
     "branch": "codex/p1-real-external-evidence-attempt",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "e46614f86dfdfed81e61b85f935d0b0bfd5c5303",
+    "commit": "6e091a96996ee40ea514a489167c96cccf8f95c4",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",

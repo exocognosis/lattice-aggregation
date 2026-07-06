@@ -54,6 +54,7 @@ mod backend {
     const CORE_MODE: &str = "centralized_mldsa65_provider_with_threshold_evidence_envelope";
     const PROVIDER: &str = "ml-dsa crate MlDsa65";
     const SIGNATURE_ORIGIN: &str = "single_seed_standard_mldsa65_provider";
+    const STRICT_CORE_ERROR: &str = "strict threshold ML-DSA core is unavailable";
 
     #[derive(Debug)]
     struct BackendError(String);
@@ -217,6 +218,9 @@ mod backend {
         let command = args.next().ok_or_else(|| usage_error("missing command"))?;
         match command.as_str() {
             "emit-backend-capture" => emit_backend_capture(parse_emit_args(args.collect())?),
+            "emit-smoke-backend-capture" => {
+                emit_smoke_backend_capture(parse_emit_args(args.collect())?)
+            }
             "emit-nonce-capture" => emit_nonce_capture(parse_nonce_emit_args(args.collect())?),
             "-h" | "--help" | "help" => {
                 print_help();
@@ -229,6 +233,7 @@ mod backend {
     fn print_help() {
         println!(
             "usage: threshold_backend_p1 emit-backend-capture \\\n+  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
+threshold_backend_p1 emit-smoke-backend-capture \\\n+  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
 threshold_backend_p1 emit-nonce-capture \\\n+  --request PATH --readiness PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
 Emits capture.json and review.json for P1 backend-emission or nonce-producer intake."
         );
@@ -317,7 +322,20 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         })
     }
 
-    fn emit_backend_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
+    fn emit_backend_capture(_args: EmitArgs) -> Result<(), Box<dyn Error>> {
+        Err(strict_threshold_core_unavailable().into())
+    }
+
+    fn strict_threshold_core_unavailable() -> BackendError {
+        BackendError(format!(
+            "{STRICT_CORE_ERROR}: distributed_mldsa_keygen_vss, \
+partial_signing_over_secret_shares, partial_z_i_hint_aggregation, \
+fips204_rejection_loop_over_threshold_partials, \
+accepted_aggregate_distribution_compatibility_proof"
+        ))
+    }
+
+    fn emit_smoke_backend_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
         let request_text = fs::read_to_string(&args.request_path)?;
         let request_value: Value = serde_json::from_str(&request_text)?;
         let request: Request = serde_json::from_value(request_value.clone())?;
@@ -373,7 +391,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             "provider": "ml-dsa",
             "parameter_set": "ML-DSA-65",
             "binary": "threshold_backend_p1",
-            "command": "emit-backend-capture",
+            "command": "emit-smoke-backend-capture",
             "cryptographic_core_mode": CORE_MODE,
             "signature_origin": SIGNATURE_ORIGIN,
         }))
@@ -451,7 +469,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             "claim_boundary": CLAIM_BOUNDARY,
             "selected_profile": SELECTED_PROFILE,
             "backend_evidence": BACKEND_EVIDENCE,
-            "note": "threshold_backend_p1 emitted a real ML-DSA-65 verifier-compatible capture for the repo backend-emission intake",
+            "note": "threshold_backend_p1 emitted a centralized ML-DSA-65 smoke capture for backend-emission intake; quarantined from strict threshold closure",
             "cryptographic_core": backend_core_accounting(),
             "request": {
                 "schema": REQUEST_SCHEMA,
@@ -674,7 +692,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 "reviewer_identity_digest_hex": encode_hex(&sha256_text_bytes(&args.reviewer_label)),
                 "operator_identity_digest_hex": encode_hex(&sha256_text_bytes(&args.operator_label)),
                 "capture_environment_digest_hex": encode_hex(&sha256_text_bytes("threshold-backend-p1-ml-dsa-65")),
-                "backend_command_digest_hex": encode_hex(&sha256_text_bytes("threshold_backend_p1 emit-backend-capture")),
+                "backend_command_digest_hex": encode_hex(&sha256_text_bytes("threshold_backend_p1 emit-smoke-backend-capture")),
             },
             "checks": {
                 "external_backend_operated_outside_repo": true,
@@ -692,7 +710,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 "no_undisclosed_single_key_standard_provider_output": true,
                 "no_single_key_standard_provider_output": false,
             },
-            "closure_boundary": "external backend-emission capture review dossier only",
+            "closure_boundary": "external backend-emission smoke capture review dossier only; quarantined from strict threshold-core closure",
         }))
     }
 
@@ -1149,7 +1167,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 "fips204_rejection_loop_over_threshold_partials",
                 "accepted_aggregate_distribution_compatibility_proof"
             ],
-            "closure_boundary": "centralized ML-DSA-65 provider evidence with threshold-shaped transcript accounting; not a live distributed threshold ML-DSA core"
+            "closure_boundary": "centralized ML-DSA-65 provider smoke evidence with threshold-shaped transcript accounting; quarantined from the strict threshold core path"
         })
     }
 

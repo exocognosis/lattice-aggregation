@@ -88,6 +88,12 @@ def external_capture(request):
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
         "note": "Reviewed external nonce-producer capture produced outside the repo.",
+        "threshold_nonce_accounting": {
+            "schema": "lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
+            "validator_count": 10000,
+            "threshold": 6667,
+            "closure_boundary": "test nonce-accounting evidence only",
+        },
         "request": {
             "schema": REQUEST_SCHEMA,
             "name": request["name"],
@@ -114,6 +120,7 @@ def external_capture(request):
             "nonce_share_commitment_digest_hex": "99" * 32,
             "abort_accountability_digest_hex": "aa" * 32,
             "external_review_digest_hex": "bb" * 32,
+            "threshold_nonce_accounting_digest_hex": "bc" * 32,
             "distributed_nonce_producer_artifact_digest_hex": "cc" * 32,
         },
     }

@@ -320,8 +320,25 @@ class StageExternalBackendEmissionCaptureTests(unittest.TestCase):
             "outside_repo_review_manifest",
         )
         self.assertEqual(written_capture["request"]["request_sha256"], request_sha256(request))
-        self.assertTrue(candidate_report["manifest"]["close_candidate"])
-        self.assertTrue(candidate_report["manifest"]["checks"]["real_threshold_emission_present"])
+        self.assertFalse(candidate_report["manifest"]["close_candidate"])
+        self.assertFalse(
+            candidate_report["manifest"]["checks"]["real_threshold_emission_present"]
+        )
+        self.assertTrue(manifest["backend_core_admissibility"]["quarantined"])
+        self.assertFalse(
+            manifest["backend_core_admissibility"][
+                "strict_threshold_core_admissible"
+            ]
+        )
+        blockers = " ".join(candidate_report["manifest"]["blockers"])
+        self.assertIn(
+            "backend capture is quarantined from strict threshold-core closure",
+            blockers,
+        )
+        self.assertIn(
+            "centralized/single-seed smoke capture cannot satisfy real threshold emission",
+            blockers,
+        )
         self.assertIn("does not prove Criterion 2", report["summary_md"])
 
     def test_repo_local_capture_file_is_rejected_before_artifact_write(self):
