@@ -19,10 +19,12 @@ NONCE_GATE_SCRIPT = ROOT / "scripts" / "verify_actual_nonce_producer_capture.py"
 
 
 class ThresholdBackendP1Tests(unittest.TestCase):
-    def test_backend_capture_core_path_fails_closed_without_threshold_partials(self):
+    def test_backend_capture_emits_threshold_reconstruction_run_without_closure_claim(
+        self,
+    ):
         with tempfile.TemporaryDirectory(prefix="threshold-backend-p1-strict.") as temp_dir:
             out_dir = pathlib.Path(temp_dir)
-            result = subprocess.run(
+            subprocess.run(
                 [
                     "cargo",
                     "run",
@@ -41,16 +43,80 @@ class ThresholdBackendP1Tests(unittest.TestCase):
                     "51" * 32,
                 ],
                 cwd=ROOT,
-                check=False,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            staged_dir = out_dir / "staged"
+            subprocess.run(
+                [
+                    "python3",
+                    str(STAGE_SCRIPT),
+                    "--root",
+                    str(ROOT),
+                    "--request",
+                    str(REQUEST),
+                    "--capture-file",
+                    str(out_dir / "capture.json"),
+                    "--review-manifest",
+                    str(out_dir / "review.json"),
+                    "--out",
+                    str(staged_dir),
+                ],
+                cwd=ROOT,
+                check=True,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
 
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("strict threshold ML-DSA core is unavailable", result.stderr)
-            self.assertIn("partial_signing_over_secret_shares", result.stderr)
-            self.assertFalse((out_dir / "capture.json").exists())
+            capture = json.loads((out_dir / "capture.json").read_text())
+            review = json.loads((out_dir / "review.json").read_text())
+            manifest = json.loads((staged_dir / "manifest.json").read_text())
+
+        core = capture["cryptographic_core"]
+        transcript = json.loads(
+            bytes.fromhex(capture["capture"]["backend_transcript"]["value"]).decode(
+                "utf-8"
+            )
+        )
+        self.assertEqual(
+            core["core_mode"],
+            "threshold_seed_reconstruction_mldsa65_provider",
+        )
+        self.assertEqual(
+            core["signature_origin"],
+            "threshold_seed_reconstruction_standard_mldsa65_provider",
+        )
+        self.assertTrue(
+            core["distributed_threshold_core"]["threshold_seed_reconstruction_sharing"]
+        )
+        self.assertTrue(
+            core["distributed_threshold_core"]["standard_verifier_compatible_output"]
+        )
+        self.assertFalse(
+            core["distributed_threshold_core"]["partial_signing_over_secret_shares"]
+        )
+        self.assertEqual(
+            transcript["threshold_reconstruction"]["active_signer_count"],
+            6667,
+        )
+        self.assertTrue(
+            transcript["threshold_reconstruction"]["reconstruction_matches_seed_digest"]
+        )
+        self.assertTrue(capture["capture"]["mutated_message_rejected"])
+        self.assertTrue(capture["capture"]["mutated_public_key_rejected"])
+        self.assertTrue(capture["capture"]["mutated_signature_rejected"])
+        self.assertFalse(review["checks"]["real_distributed_threshold_core_verified"])
+        self.assertTrue(review["checks"]["centralized_standard_provider_output_disclosed"])
+        self.assertTrue(review["checks"]["threshold_core_limitations_reviewed"])
+        self.assertEqual(manifest["runner_status"], "evidence_present_unclosed")
+        self.assertTrue(manifest["backend_core_admissibility"]["quarantined"])
+        self.assertIn(
+            "distributed threshold core flag false: partial_signing_over_secret_shares",
+            manifest["backend_core_admissibility"]["reasons"],
+        )
 
     def test_smoke_backend_emits_stageable_real_mldsa65_capture_and_review_manifest(self):
         with tempfile.TemporaryDirectory(prefix="threshold-backend-p1.") as temp_dir:

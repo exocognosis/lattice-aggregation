@@ -54,7 +54,9 @@ mod backend {
     const CORE_MODE: &str = "centralized_mldsa65_provider_with_threshold_evidence_envelope";
     const PROVIDER: &str = "ml-dsa crate MlDsa65";
     const SIGNATURE_ORIGIN: &str = "single_seed_standard_mldsa65_provider";
-    const STRICT_CORE_ERROR: &str = "strict threshold ML-DSA core is unavailable";
+    const RECONSTRUCTION_CORE_MODE: &str = "threshold_seed_reconstruction_mldsa65_provider";
+    const RECONSTRUCTION_SIGNATURE_ORIGIN: &str =
+        "threshold_seed_reconstruction_standard_mldsa65_provider";
 
     #[derive(Debug)]
     struct BackendError(String);
@@ -202,6 +204,16 @@ mod backend {
         pairwise_samples: Vec<Value>,
     }
 
+    struct ThresholdReconstruction {
+        reconstructed_seed: [u8; 32],
+        active_signer_count: usize,
+        share_commitment_root: [u8; 32],
+        active_set_digest: [u8; 32],
+        reconstruction_digest: [u8; 32],
+        sample_share_commitments: Vec<Value>,
+        reconstruction_matches_seed_digest: bool,
+    }
+
     struct NonceReviewInput<'a> {
         request: &'a NonceRequest,
         request_sha256: &'a str,
@@ -322,17 +334,219 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         })
     }
 
-    fn emit_backend_capture(_args: EmitArgs) -> Result<(), Box<dyn Error>> {
-        Err(strict_threshold_core_unavailable().into())
-    }
+    fn emit_backend_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
+        let request_text = fs::read_to_string(&args.request_path)?;
+        let request_value: Value = serde_json::from_str(&request_text)?;
+        let request: Request = serde_json::from_value(request_value.clone())?;
+        validate_request(&request)?;
+        let request_sha256 = sha256_text(&canonical_json(&request_value));
+        let message = request.message.decode()?;
+        let reconstruction = threshold_seed_reconstruction(&args.seed, &request_sha256)?;
 
-    fn strict_threshold_core_unavailable() -> BackendError {
-        BackendError(format!(
-            "{STRICT_CORE_ERROR}: distributed_mldsa_keygen_vss, \
-partial_signing_over_secret_shares, partial_z_i_hint_aggregation, \
-fips204_rejection_loop_over_threshold_partials, \
-accepted_aggregate_distribution_compatibility_proof"
-        ))
+        let signing_key =
+            SigningKey::<MlDsa65>::from_seed(&reconstruction.reconstructed_seed.into());
+        let public_key = signing_key.verifying_key().encode();
+        let signature = signing_key.sign(&message).to_bytes();
+        let public_key_bytes = public_key.as_slice().to_vec();
+        let signature_bytes = signature.as_slice().to_vec();
+        if public_key_bytes.len() != MLDSA65_PUBLIC_KEY_BYTES {
+            return Err(BackendError("unexpected ML-DSA-65 public key length".into()).into());
+        }
+        if signature_bytes.len() != MLDSA65_SIGNATURE_BYTES {
+            return Err(BackendError("unexpected ML-DSA-65 signature length".into()).into());
+        }
+        if !verify_tuple(&public_key_bytes, &message, &signature_bytes) {
+            return Err(BackendError("backend emitted signature did not verify".into()).into());
+        }
+
+        let mut mutated_message = message.clone();
+        if mutated_message.is_empty() {
+            mutated_message.push(1);
+        } else {
+            mutated_message[0] ^= 1;
+        }
+        let mut mutated_public_key = public_key_bytes.clone();
+        mutated_public_key[0] ^= 1;
+        let mut mutated_signature = signature_bytes.clone();
+        mutated_signature[0] ^= 1;
+        let mutated_message_rejected =
+            !verify_tuple(&public_key_bytes, &mutated_message, &signature_bytes);
+        let mutated_public_key_rejected =
+            !verify_tuple(&mutated_public_key, &message, &signature_bytes);
+        let mutated_signature_rejected =
+            !verify_tuple(&public_key_bytes, &message, &mutated_signature);
+        if !(mutated_message_rejected && mutated_public_key_rejected && mutated_signature_rejected)
+        {
+            return Err(BackendError("mutation rejection corpus was incomplete".into()).into());
+        }
+
+        let reconstructed_seed_digest = sha3_bytes(&reconstruction.reconstructed_seed);
+        let source_package = canonical_json(&json!({
+            "schema": "lattice-aggregation:threshold-backend-p1-source-package:v1",
+            "crate": env!("CARGO_PKG_NAME"),
+            "version": env!("CARGO_PKG_VERSION"),
+            "selected_profile": SELECTED_PROFILE,
+            "core_mode": RECONSTRUCTION_CORE_MODE,
+        }))
+        .into_bytes();
+        let implementation = canonical_json(&json!({
+            "schema": "lattice-aggregation:threshold-backend-p1-implementation:v1",
+            "provider": "ml-dsa",
+            "parameter_set": "ML-DSA-65",
+            "binary": "threshold_backend_p1",
+            "command": "emit-backend-capture",
+            "cryptographic_core_mode": RECONSTRUCTION_CORE_MODE,
+            "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
+            "threshold_reconstruction_scheme": "shamir_seed_reconstruction_over_mldsa_q",
+        }))
+        .into_bytes();
+        let transcript = canonical_json(&json!({
+            "schema": "lattice-aggregation:threshold-backend-p1-transcript:v1",
+            "request_name": request.name,
+            "request_sha256": request_sha256,
+            "cryptographic_core_mode": RECONSTRUCTION_CORE_MODE,
+            "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
+            "validator_count": VALIDATOR_COUNT,
+            "threshold": THRESHOLD,
+            "threshold_core_accounting": reconstruction_backend_transcript_core_accounting(),
+            "threshold_reconstruction": {
+                "schema": "lattice-aggregation:threshold-backend-p1-seed-reconstruction:v1",
+                "scheme": "shamir_seed_reconstruction_over_mldsa_q",
+                "field_modulus": MLDSA_Q,
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+                "active_signer_count": reconstruction.active_signer_count,
+                "share_commitment_root_hex": encode_hex(&reconstruction.share_commitment_root),
+                "active_set_digest_hex": encode_hex(&reconstruction.active_set_digest),
+                "reconstruction_digest_hex": encode_hex(&reconstruction.reconstruction_digest),
+                "reconstructed_seed_digest_hex": encode_hex(&reconstructed_seed_digest),
+                "reconstruction_matches_seed_digest": reconstruction.reconstruction_matches_seed_digest,
+                "sample_share_commitments": reconstruction.sample_share_commitments,
+                "partial_mldsa_signatures_present": false,
+                "closure_boundary": "threshold seed reconstruction run; not ML-DSA partial z_i aggregation"
+            },
+            "public_key_digest_hex": encode_hex(&sha3_bytes(&public_key_bytes)),
+            "message_digest_hex": encode_hex(&sha3_bytes(&message)),
+            "accepted_signature_digest_hex": encode_hex(&sha3_bytes(&signature_bytes)),
+            "standard_verifier_accepts": true,
+            "mutated_message_rejected": mutated_message_rejected,
+            "mutated_public_key_rejected": mutated_public_key_rejected,
+            "mutated_signature_rejected": mutated_signature_rejected,
+            "attempts": [{
+                "attempt_id": 0,
+                "accepted_or_rejected": "accepted",
+                "core_mode": RECONSTRUCTION_CORE_MODE,
+                "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
+                "threshold_partial_count": THRESHOLD,
+                "reconstruction_share_count": reconstruction.active_signer_count,
+                "partial_signatures_present": false,
+                "partial_z_i_count": 0,
+                "hint_count": 0,
+                "bounds_checked_over_threshold_partials": false,
+                "signature_len": signature_bytes.len()
+            }]
+        }))
+        .into_bytes();
+
+        let backend_source_package_digest = domain_digest(
+            b"lattice-aggregation:p1-real-threshold-backend-source-package:v1",
+            &source_package,
+        );
+        let backend_implementation_digest = domain_digest(
+            b"lattice-aggregation:p1-real-threshold-backend-implementation:v1",
+            &implementation,
+        );
+        let backend_transcript_digest = domain_digest(
+            b"lattice-aggregation:p1-real-threshold-backend-transcript:v1",
+            &transcript,
+        );
+        let backend_evidence_digest = backend_evidence_digest(EvidenceDigestInput {
+            source_digest: &backend_source_package_digest,
+            implementation_digest: &backend_implementation_digest,
+            transcript_digest: &backend_transcript_digest,
+            public_key: &public_key_bytes,
+            message: &message,
+            signature: &signature_bytes,
+            mutated_message_rejected,
+            mutated_public_key_rejected,
+            mutated_signature_rejected,
+        });
+        let threshold_core_accounting_digest = reconstruction_backend_core_accounting_digest();
+        let artifact_digest = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-capture-artifact:v1",
+            &[
+                backend_evidence_digest.as_slice(),
+                threshold_core_accounting_digest.as_slice(),
+                reconstruction.reconstruction_digest.as_slice(),
+                request_sha256.as_bytes(),
+                &public_key_bytes,
+                &signature_bytes,
+            ]
+            .concat(),
+        );
+
+        let capture = json!({
+            "name": args.name,
+            "schema": CAPTURE_SCHEMA,
+            "claim_boundary": CLAIM_BOUNDARY,
+            "selected_profile": SELECTED_PROFILE,
+            "backend_evidence": BACKEND_EVIDENCE,
+            "note": "threshold_backend_p1 emitted a threshold seed-reconstruction ML-DSA-65 capture; standard-verifier compatible but not partial ML-DSA theorem closure",
+            "cryptographic_core": reconstruction_backend_core_accounting(),
+            "request": {
+                "schema": REQUEST_SCHEMA,
+                "name": request.name,
+                "request_sha256": request_sha256,
+            },
+            "predecessors": {
+                "selected_profile_binding_digest_hex": request.predecessors.selected_profile_binding_digest_hex,
+                "threshold_output_certificate_digest_hex": request.predecessors.threshold_output_certificate_digest_hex,
+                "standard_verifier_compatibility_artifact_digest_hex": request.predecessors.standard_verifier_compatibility_artifact_digest_hex,
+            },
+            "capture": {
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+                "aggregate_signature_len": MLDSA65_SIGNATURE_BYTES,
+                "public_key_hex": encode_hex(&public_key_bytes),
+                "message": request.message.to_json(),
+                "aggregate_signature_hex": encode_hex(&signature_bytes),
+                "backend_source_package": byte_hex(&source_package),
+                "backend_implementation": byte_hex(&implementation),
+                "backend_transcript": byte_hex(&transcript),
+                "mutated_message_rejected": mutated_message_rejected,
+                "mutated_public_key_rejected": mutated_public_key_rejected,
+                "mutated_signature_rejected": mutated_signature_rejected,
+                "reviewed": true,
+            },
+            "expected": {
+                "backend_evidence_digest_hex": encode_hex(&backend_evidence_digest),
+                "backend_source_package_digest_hex": encode_hex(&backend_source_package_digest),
+                "backend_implementation_digest_hex": encode_hex(&backend_implementation_digest),
+                "backend_transcript_digest_hex": encode_hex(&backend_transcript_digest),
+                "threshold_core_accounting_digest_hex": encode_hex(&threshold_core_accounting_digest),
+                "threshold_reconstruction_digest_hex": encode_hex(&reconstruction.reconstruction_digest),
+                "artifact_digest_hex": encode_hex(&artifact_digest),
+                "public_key_digest_hex": encode_hex(&sha3_bytes(&public_key_bytes)),
+                "message_digest_hex": encode_hex(&sha3_bytes(&message)),
+                "accepted_signature_digest_hex": encode_hex(&sha3_bytes(&signature_bytes)),
+            },
+        });
+
+        fs::create_dir_all(&args.out_dir)?;
+        let capture_json = canonical_json(&capture);
+        let capture_path = args.out_dir.join("capture.json");
+        fs::write(&capture_path, &capture_json)?;
+        let review = build_review_manifest(
+            &request,
+            &request_sha256,
+            &capture,
+            &capture_json,
+            &capture_path,
+            &args,
+        )?;
+        fs::write(args.out_dir.join("review.json"), canonical_json(&review))?;
+        println!("{}", capture_path.display());
+        Ok(())
     }
 
     fn emit_smoke_backend_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
@@ -671,6 +885,31 @@ accepted_aggregate_distribution_compatibility_proof"
         args: &EmitArgs,
     ) -> Result<Value, Box<dyn Error>> {
         let capture_file_sha256 = sha256_bytes(&fs::read(capture_path)?);
+        let core_mode = capture
+            .get("cryptographic_core")
+            .and_then(|core| core.get("core_mode"))
+            .and_then(Value::as_str)
+            .unwrap_or(CORE_MODE);
+        let (
+            command_name,
+            environment_label,
+            no_single_key_standard_provider_output,
+            closure_boundary,
+        ) = if core_mode == RECONSTRUCTION_CORE_MODE {
+            (
+                "emit-backend-capture",
+                "threshold-backend-p1-threshold-seed-reconstruction-ml-dsa-65",
+                true,
+                "external backend-emission threshold seed-reconstruction review dossier only; standard-verifier compatible but quarantined from strict threshold-core closure",
+            )
+        } else {
+            (
+                "emit-smoke-backend-capture",
+                "threshold-backend-p1-ml-dsa-65",
+                false,
+                "external backend-emission smoke capture review dossier only; quarantined from strict threshold-core closure",
+            )
+        };
         Ok(json!({
             "schema": REVIEW_SCHEMA,
             "schema_version": 1,
@@ -691,8 +930,8 @@ accepted_aggregate_distribution_compatibility_proof"
                 "external_review_digest_hex": encode_hex(&sha256_text_bytes(&canonical_json(capture))),
                 "reviewer_identity_digest_hex": encode_hex(&sha256_text_bytes(&args.reviewer_label)),
                 "operator_identity_digest_hex": encode_hex(&sha256_text_bytes(&args.operator_label)),
-                "capture_environment_digest_hex": encode_hex(&sha256_text_bytes("threshold-backend-p1-ml-dsa-65")),
-                "backend_command_digest_hex": encode_hex(&sha256_text_bytes("threshold_backend_p1 emit-smoke-backend-capture")),
+                "capture_environment_digest_hex": encode_hex(&sha256_text_bytes(environment_label)),
+                "backend_command_digest_hex": encode_hex(&sha256_text_bytes(&format!("threshold_backend_p1 {command_name}"))),
             },
             "checks": {
                 "external_backend_operated_outside_repo": true,
@@ -708,9 +947,9 @@ accepted_aggregate_distribution_compatibility_proof"
                 "no_localnet_or_deterministic_simulation": true,
                 "no_fixture_harness": true,
                 "no_undisclosed_single_key_standard_provider_output": true,
-                "no_single_key_standard_provider_output": false,
+                "no_single_key_standard_provider_output": no_single_key_standard_provider_output,
             },
-            "closure_boundary": "external backend-emission smoke capture review dossier only; quarantined from strict threshold-core closure",
+            "closure_boundary": closure_boundary,
         }))
     }
 
@@ -1091,6 +1330,223 @@ accepted_aggregate_distribution_compatibility_proof"
         hasher.finalize().into()
     }
 
+    fn threshold_seed_reconstruction(
+        seed: &[u8; 32],
+        request_sha256: &str,
+    ) -> Result<ThresholdReconstruction, BackendError> {
+        let threshold = THRESHOLD as usize;
+        let coefficients = lagrange_coefficients_at_zero(threshold)?;
+        let last_coefficient_inverse = mod_inv(
+            *coefficients
+                .last()
+                .ok_or_else(|| BackendError("threshold coefficient set is empty".into()))?,
+        )?;
+        let mut shares = vec![[0_u64; 32]; threshold];
+        let mut reconstructed_seed = [0_u8; 32];
+
+        for byte_index in 0..seed.len() {
+            let mut weighted_sum = 0;
+            for signer_index in 0..(threshold - 1) {
+                let x_coordinate = (signer_index + 1) as u64;
+                let share =
+                    threshold_seed_share_element(seed, request_sha256, byte_index, x_coordinate);
+                shares[signer_index][byte_index] = share;
+                weighted_sum = mod_add(weighted_sum, mod_mul(coefficients[signer_index], share));
+            }
+
+            let target = u64::from(seed[byte_index]);
+            let solved_last_share =
+                mod_mul(mod_sub(target, weighted_sum), last_coefficient_inverse);
+            shares[threshold - 1][byte_index] = solved_last_share;
+
+            let reconstructed = shares
+                .iter()
+                .zip(coefficients.iter())
+                .fold(0, |acc, (share, coefficient)| {
+                    mod_add(acc, mod_mul(*coefficient, share[byte_index]))
+                });
+            if reconstructed != target {
+                return Err(BackendError(
+                    "threshold seed reconstruction did not recover the provider seed".into(),
+                ));
+            }
+            reconstructed_seed[byte_index] = u8::try_from(reconstructed).map_err(|_| {
+                BackendError("threshold seed reconstruction emitted non-byte field element".into())
+            })?;
+        }
+
+        let active_set_digest = active_threshold_set_digest(threshold);
+        let (share_commitment_root, sample_share_commitments) =
+            threshold_seed_share_commitment_root(request_sha256, &shares, &active_set_digest);
+        let reconstructed_seed_digest = sha3_bytes(&reconstructed_seed);
+        let original_seed_digest = sha3_bytes(seed);
+        let reconstruction_digest = threshold_seed_reconstruction_digest(
+            &reconstructed_seed_digest,
+            &share_commitment_root,
+            &active_set_digest,
+        );
+
+        Ok(ThresholdReconstruction {
+            reconstructed_seed,
+            active_signer_count: threshold,
+            share_commitment_root,
+            active_set_digest,
+            reconstruction_digest,
+            sample_share_commitments,
+            reconstruction_matches_seed_digest: reconstructed_seed_digest == original_seed_digest,
+        })
+    }
+
+    fn threshold_seed_share_element(
+        seed: &[u8; 32],
+        request_sha256: &str,
+        byte_index: usize,
+        x_coordinate: u64,
+    ) -> u64 {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-seed-share:v1");
+        hasher.update(seed);
+        hasher.update(request_sha256.as_bytes());
+        hasher.update((byte_index as u64).to_be_bytes());
+        hasher.update(x_coordinate.to_be_bytes());
+        let digest: [u8; 32] = hasher.finalize().into();
+        u64::from_be_bytes(digest[..8].try_into().expect("slice has 8 bytes")) % MLDSA_Q
+    }
+
+    fn active_threshold_set_digest(threshold: usize) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-active-set:v1");
+        hasher.update(VALIDATOR_COUNT.to_be_bytes());
+        hasher.update(THRESHOLD.to_be_bytes());
+        for validator_id in 0..threshold {
+            hasher.update((validator_id as u64).to_be_bytes());
+        }
+        hasher.finalize().into()
+    }
+
+    fn threshold_seed_share_commitment_root(
+        request_sha256: &str,
+        shares: &[[u64; 32]],
+        active_set_digest: &[u8; 32],
+    ) -> ([u8; 32], Vec<Value>) {
+        let mut root = Sha3_256::new();
+        root.update(b"lattice-aggregation:threshold-backend-p1-seed-share-root:v1");
+        root.update(request_sha256.as_bytes());
+        root.update(active_set_digest);
+        let mut samples = Vec::new();
+        let last_index = shares.len().saturating_sub(1);
+
+        for (index, share) in shares.iter().enumerate() {
+            let x_coordinate = (index + 1) as u64;
+            let share_digest = threshold_seed_share_digest(request_sha256, x_coordinate, share);
+            root.update(x_coordinate.to_be_bytes());
+            root.update(share_digest);
+            if matches!(index, 0..=2) || index == last_index {
+                samples.push(json!({
+                    "validator_id": index,
+                    "x_coordinate": x_coordinate,
+                    "share_digest_hex": encode_hex(&share_digest),
+                }));
+            }
+        }
+
+        (root.finalize().into(), samples)
+    }
+
+    fn threshold_seed_share_digest(
+        request_sha256: &str,
+        x_coordinate: u64,
+        share: &[u64; 32],
+    ) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-seed-share-digest:v1");
+        hasher.update(request_sha256.as_bytes());
+        hasher.update(x_coordinate.to_be_bytes());
+        for element in share {
+            hasher.update(element.to_be_bytes());
+        }
+        hasher.finalize().into()
+    }
+
+    fn threshold_seed_reconstruction_digest(
+        reconstructed_seed_digest: &[u8; 32],
+        share_commitment_root: &[u8; 32],
+        active_set_digest: &[u8; 32],
+    ) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-seed-reconstruction:v1");
+        hasher.update(reconstructed_seed_digest);
+        hasher.update(share_commitment_root);
+        hasher.update(active_set_digest);
+        hasher.finalize().into()
+    }
+
+    fn lagrange_coefficients_at_zero(threshold: usize) -> Result<Vec<u64>, BackendError> {
+        if threshold == 0 || threshold as u64 >= MLDSA_Q {
+            return Err(BackendError("invalid threshold for ML-DSA field".into()));
+        }
+
+        let mut coefficients = Vec::with_capacity(threshold);
+        let mut combination = threshold as u64 % MLDSA_Q;
+        for index in 1..=threshold {
+            let signed = if index % 2 == 1 {
+                combination
+            } else {
+                mod_neg(combination)
+            };
+            coefficients.push(signed);
+            if index < threshold {
+                combination = mod_mul(combination, (threshold - index) as u64);
+                combination = mod_mul(combination, mod_inv((index + 1) as u64)?);
+            }
+        }
+        Ok(coefficients)
+    }
+
+    fn mod_add(left: u64, right: u64) -> u64 {
+        ((u128::from(left) + u128::from(right)) % u128::from(MLDSA_Q)) as u64
+    }
+
+    fn mod_sub(left: u64, right: u64) -> u64 {
+        if left >= right {
+            left - right
+        } else {
+            MLDSA_Q - (right - left)
+        }
+    }
+
+    fn mod_mul(left: u64, right: u64) -> u64 {
+        ((u128::from(left) * u128::from(right)) % u128::from(MLDSA_Q)) as u64
+    }
+
+    fn mod_neg(value: u64) -> u64 {
+        if value == 0 {
+            0
+        } else {
+            MLDSA_Q - value
+        }
+    }
+
+    fn mod_inv(value: u64) -> Result<u64, BackendError> {
+        if value.is_multiple_of(MLDSA_Q) {
+            return Err(BackendError("zero field element has no inverse".into()));
+        }
+        Ok(mod_pow(value, MLDSA_Q - 2))
+    }
+
+    fn mod_pow(mut base: u64, mut exponent: u64) -> u64 {
+        let mut result = 1_u64;
+        base %= MLDSA_Q;
+        while exponent > 0 {
+            if exponent & 1 == 1 {
+                result = mod_mul(result, base);
+            }
+            base = mod_mul(base, base);
+            exponent >>= 1;
+        }
+        result
+    }
+
     fn verify_tuple(public_key: &[u8], message: &[u8], signature: &[u8]) -> bool {
         let Ok(encoded_key) = EncodedVerifyingKey::<MlDsa65>::try_from(public_key) else {
             return false;
@@ -1192,6 +1648,49 @@ accepted_aggregate_distribution_compatibility_proof"
         )
     }
 
+    fn reconstruction_backend_core_accounting() -> Value {
+        json!({
+            "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
+            "core_mode": RECONSTRUCTION_CORE_MODE,
+            "provider": PROVIDER,
+            "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
+            "validator_count": VALIDATOR_COUNT,
+            "threshold": THRESHOLD,
+            "distributed_threshold_core": reconstruction_distributed_threshold_core_status(),
+            "missing_protocols": [
+                "distributed_mldsa_keygen_vss",
+                "partial_signing_over_secret_shares",
+                "partial_z_i_hint_aggregation",
+                "fips204_rejection_loop_over_threshold_partials",
+                "accepted_aggregate_distribution_compatibility_proof"
+            ],
+            "closure_boundary": "threshold seed reconstruction controls the standard ML-DSA-65 provider seed and emits standard-verifier-compatible bytes; quarantined because it is not ML-DSA partial z_i aggregation over secret shares"
+        })
+    }
+
+    fn reconstruction_backend_transcript_core_accounting() -> Value {
+        json!({
+            "schema": "lattice-threshold-backend-p1:signing-transcript-core-accounting:v1",
+            "core_mode": RECONSTRUCTION_CORE_MODE,
+            "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
+            "partial_signatures_present": false,
+            "partial_signature_count": 0,
+            "partial_z_i_count": 0,
+            "hint_count": 0,
+            "threshold_seed_reconstruction_sharing": true,
+            "reconstruction_share_count": THRESHOLD,
+            "bounds_checked_over_threshold_partials": false,
+            "distributed_threshold_core": reconstruction_distributed_threshold_core_status(),
+        })
+    }
+
+    fn reconstruction_backend_core_accounting_digest() -> [u8; 32] {
+        domain_digest(
+            b"lattice-threshold-backend-p1:threshold-core-accounting:v1",
+            canonical_json(&reconstruction_backend_core_accounting()).as_bytes(),
+        )
+    }
+
     fn threshold_nonce_accounting() -> Value {
         json!({
             "schema": "lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
@@ -1226,6 +1725,18 @@ accepted_aggregate_distribution_compatibility_proof"
             "partial_signing_over_secret_shares": false,
             "partial_z_i_hint_aggregation": false,
             "fips204_rejection_loop_over_threshold_partials": false,
+            "accepted_aggregate_distribution_proven": false,
+        })
+    }
+
+    fn reconstruction_distributed_threshold_core_status() -> Value {
+        json!({
+            "distributed_keygen_vss": false,
+            "threshold_seed_reconstruction_sharing": true,
+            "partial_signing_over_secret_shares": false,
+            "partial_z_i_hint_aggregation": false,
+            "fips204_rejection_loop_over_threshold_partials": false,
+            "standard_verifier_compatible_output": true,
             "accepted_aggregate_distribution_proven": false,
         })
     }

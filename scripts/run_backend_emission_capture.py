@@ -72,6 +72,9 @@ EXPECTED_DIGEST_FIELDS = {
     "message_digest_hex",
     "accepted_signature_digest_hex",
 }
+OPTIONAL_EXPECTED_DIGEST_FIELDS = {
+    "threshold_reconstruction_digest_hex",
+}
 CAPTURE_PAYLOAD_FIELDS = {
     "validator_count",
     "threshold",
@@ -269,7 +272,7 @@ def build_external_capture_provenance(capture, manifest, metadata):
         "evidence_class": manifest["backend_evidence"],
         "runner_status": RUNNER_STATUS,
         "claim_boundary": CLAIM_BOUNDARY,
-        "expected_digest_fields": sorted(EXPECTED_DIGEST_FIELDS),
+        "expected_digest_fields": sorted(capture["expected"]),
         "metadata_fields": sorted(metadata),
     }
 
@@ -343,6 +346,7 @@ def parse_capture_json(stdout):
         capture["expected"],
         EXPECTED_DIGEST_FIELDS,
         "expected",
+        OPTIONAL_EXPECTED_DIGEST_FIELDS,
     )
 
     payload = capture.get("capture")
@@ -505,17 +509,25 @@ def validate_capture_matches_request(capture, request):
     return request_digest
 
 
-def validate_digest_object(value, required_fields, label):
+def validate_digest_object(value, required_fields, label, optional_fields=()):
     """Validate required nonzero SHA-256-style digest hex fields."""
     if not isinstance(value, dict):
         raise ValueError(f"backend capture runner requires {label} digests")
-    validate_no_unknown_fields(value, set(required_fields), label)
+    allowed_fields = set(required_fields) | set(optional_fields)
+    validate_no_unknown_fields(value, allowed_fields, label)
     for field in required_fields:
         if field not in value:
             raise ValueError(f"backend capture runner missing {label} digest: {field}")
         validate_hex_field(value[field], 32, field)
         if value[field].lower() == "00" * 32:
             raise ValueError(f"backend capture runner rejects all-zero {label} digest: {field}")
+    for field in optional_fields:
+        if field in value:
+            validate_hex_field(value[field], 32, field)
+            if value[field].lower() == "00" * 32:
+                raise ValueError(
+                    f"backend capture runner rejects all-zero {label} digest: {field}"
+                )
 
 
 def validate_hex_field(value, expected_bytes, field):

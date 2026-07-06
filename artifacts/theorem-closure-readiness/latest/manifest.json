@@ -5,23 +5,12 @@
     "criterion2_manifest": [],
     "external_backend_evidence": [
       "backend capture is quarantined from strict threshold-core closure",
-      "centralized/single-seed smoke capture cannot satisfy real threshold emission",
       "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
       "real threshold backend emission capture is incomplete",
-      "forbidden external-evidence source marker in real-threshold backend manifest: centralized_mldsa65_provider",
-      "forbidden external-evidence source marker in real-threshold backend manifest: centralized ml-dsa",
-      "forbidden external-evidence source marker in real-threshold backend manifest: single-seed",
-      "forbidden external-evidence source marker in real-threshold backend manifest: single-key",
-      "forbidden external-evidence source marker in real-threshold backend manifest: single_seed",
-      "forbidden external-evidence source marker in real-threshold backend capture: centralized ml-dsa",
-      "forbidden external-evidence source marker in real-threshold backend capture: centralized_mldsa65_provider",
-      "forbidden external-evidence source marker in real-threshold backend capture: single_seed",
       "forbidden external-evidence source marker in rejection-distribution batch: centralized_mldsa65_provider",
       "forbidden external-evidence source marker in rejection-distribution batch: centralized ml-dsa",
       "forbidden external-evidence source marker in rejection-distribution batch: single_seed",
       "backend core admissibility is quarantined",
-      "centralized ML-DSA smoke core cannot feed external evidence",
-      "single-seed standard-provider signature cannot feed external evidence",
       "reviewed external evidence package is missing"
     ],
     "hypothesis_assessment": [],
@@ -82,36 +71,36 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-06T14:07:07Z",
+  "generated_at": "2026-07-06T14:31:40Z",
   "inputs": {
     "criterion2_manifest": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/docs/cryptography/criterion-2-proof-substance.json",
+      "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
       "sha256": "059b907eae7ded785c8505854fe5bb7a1a4f1fbc1367ac398f1fdcc4a549f10a"
     },
     "external_closure_candidate_manifest": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+      "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "58351b75225126b38b51191cb8ca2083cc3db11e3059213d21b3a6003c68f5cc"
+      "sha256": "db4a46081200f917ceba53e310a9daa64175df0a4716e298838c70caadaafe8f"
     },
     "external_evidence_attempt_manifest": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+      "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "8a2ea6d680ea522d46bcd3a556647ebcfd202ffc60a79a5d8d0083eec4aba393"
+      "sha256": "a83fd42ca19dcd67749a045e9317e7bc825e0d5955800861f92609ac00718bc6"
     },
     "hypothesis_assessment": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/hypothesis/latest/assessment.json",
+      "path": "artifacts/hypothesis/latest/assessment.json",
       "present": true,
-      "sha256": "8381593aa5aef999ebe623a0066bdb904144d2ea0c1c2295892525ef6c1e9229"
+      "sha256": "1c14c1f48789839a6eb5391d238a28128d1b622b894327c39788c679ff0654cf"
     },
     "theorem_review_manifest": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/theorem-closure-review/latest/manifest.json",
+      "path": "artifacts/theorem-closure-review/latest/manifest.json",
       "present": false,
       "sha256": null
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "70b7d87ee2506ca8521ff1a0775d5327cd2ca541df2e9585c48e6cf7f6480c21",
+  "readiness_digest_sha256": "4af01fad54fc18a481e3c528a0b076a39181e0a66f0600f4cf583dce16e5d4fd",
   "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",

@@ -5,7 +5,7 @@ This artifact composes the actual external nonce gate, real-threshold backend em
 - Status: `evidence_present_unclosed`
 - Close candidate: `false`
 - Claim boundary: `conformance/proof-review evidence only`
-- Candidate digest SHA-256: `2deec67286073ab0970a5c9a7a5fa31d3b37fe8052d56a6581ce86f4a63e4b32`
+- Candidate digest SHA-256: `77e22b7996008ec7b136baa55a36f2d6effe4b01f495721066637511615f5b2a`
 
 Checks:
 - `strict_external_nonce_capture_ready`: `true`
@@ -17,7 +17,6 @@ Checks:
 
 Blockers:
 - backend capture is quarantined from strict threshold-core closure
-- centralized/single-seed smoke capture cannot satisfy real threshold emission
 - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
 - real threshold backend emission capture is incomplete
 

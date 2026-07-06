@@ -2,40 +2,37 @@
   "aggregate_signature_len": 3309,
   "backend_command": [
     "external-backend-capture-file",
-    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/backend/capture.json"
+    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-threshold-reconstruction/backend/capture.json"
   ],
   "backend_core_admissibility": {
-    "core_mode": "centralized_mldsa65_provider_with_threshold_evidence_envelope",
+    "core_mode": "threshold_seed_reconstruction_mldsa65_provider",
     "quarantined": true,
     "reasons": [
-      "centralized ML-DSA smoke core mode",
-      "single-seed standard-provider signature origin",
       "real distributed threshold core not externally verified",
-      "single-key standard-provider output disclosed",
       "distributed threshold core flag false: distributed_keygen_vss",
       "distributed threshold core flag false: partial_signing_over_secret_shares",
       "distributed threshold core flag false: partial_z_i_hint_aggregation",
       "distributed threshold core flag false: fips204_rejection_loop_over_threshold_partials"
     ],
-    "signature_origin": "single_seed_standard_mldsa65_provider",
+    "signature_origin": "threshold_seed_reconstruction_standard_mldsa65_provider",
     "strict_threshold_core_admissible": false
   },
   "backend_evidence": "real_threshold_mldsa_external_capture",
   "backend_execution_mode": "preexisting_external_capture_file",
   "capture_file_origin": "outside_repo_capture_file",
-  "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/backend/capture.json",
-  "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+  "capture_file_path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-threshold-reconstruction/backend/capture.json",
+  "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
   "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-  "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+  "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
   "claim_boundary": "conformance/proof-review evidence only",
   "command_duration_seconds": 0,
   "exit_code": 0,
   "external_capture_provenance": {
-    "backend_command_sha256": "6e2daa00ffc4b2a625d6c9e6b8b98a9814c292042c51b0ce9fd37c04e8aff0bf",
+    "backend_command_sha256": "dd2ff20ba5108e92d7401c59adacf38d1504ca3f9358236bd532e885a5ef37b1",
     "capture_file_origin": "outside_repo_capture_file",
-    "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+    "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
     "capture_schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
-    "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+    "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
     "claim_boundary": "conformance/proof-review evidence only",
     "evidence_class": "real_threshold_mldsa_external_capture",
     "expected_digest_fields": [
@@ -47,7 +44,8 @@
       "backend_transcript_digest_hex",
       "message_digest_hex",
       "public_key_digest_hex",
-      "threshold_core_accounting_digest_hex"
+      "threshold_core_accounting_digest_hex",
+      "threshold_reconstruction_digest_hex"
     ],
     "metadata_fields": [
       "branch",
@@ -62,14 +60,14 @@
     "request_name": "p1-real-threshold-backend-emission-request-001",
     "request_schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
     "request_sha256": "804a2549a04010dace167d8f5647635f57a2465520dd087b6c80cc9ae3108ec1",
-    "review_manifest_sha256": "492bc97a049a51e15c5ba04ca0acfdf4684ac9911b002cc8c6b00ba3b483b25d",
+    "review_manifest_sha256": "e5d5a2b94174916126375c41849c28f8595ddb35768d1f02e9ea6574a13257c0",
     "review_status": "reviewed_external_backend_emission_capture_ready",
     "runner_status": "evidence_present_unclosed",
     "schema": "lattice-aggregation:external-capture-provenance:v1"
   },
   "external_capture_review": {
-    "capture_file_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
-    "capture_sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+    "capture_file_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
+    "capture_sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
     "checks": {
       "backend_material_digests_reviewed": true,
       "capture_generated_outside_repo": true,
@@ -78,31 +76,33 @@
       "mutation_rejection_reviewed": true,
       "no_fixture_harness": true,
       "no_localnet_or_deterministic_simulation": true,
+      "no_single_key_standard_provider_output": true,
       "no_undisclosed_single_key_standard_provider_output": true,
       "predecessor_digests_reviewed": true,
+      "real_distributed_threshold_core_verified": false,
       "request_binding_reviewed": true,
       "standard_verifier_acceptance_reviewed": true,
       "threshold_core_limitations_reviewed": true
     },
-    "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/latest/backend/review.json",
+    "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/20260706-threshold-reconstruction/backend/review.json",
     "review": {
-      "backend_command_digest_hex": "0558e9db5efe2ac20b654b975dc921e1e21c9e35cb12a8756a1b34343470d0c4",
-      "capture_environment_digest_hex": "95c8e45049444e7a66e498575061210231d1ab687f4dad88eab7e652cc11caed",
-      "external_review_digest_hex": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31",
+      "backend_command_digest_hex": "8c4f8e6250d645802df5479ad376bbadd29478c13dafba07c3bf3076c41eefe1",
+      "capture_environment_digest_hex": "cb87ea8d3255b481c3dd31a612c7cd728d66f4cf0fde1b2d1bee40a1e2be27fa",
+      "external_review_digest_hex": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60",
       "operator_identity_digest_hex": "b67d17f1b506c2ad05e95721df132e63ca32ca453d97bfe20404fc7d2a8983d8",
       "reviewer_identity_digest_hex": "559b08c54d4488d73bec4d832658de1e77265ae452f4b6ae5b298c28f9ec4f49"
     },
     "review_file_origin": "outside_repo_review_manifest",
     "review_status": "reviewed_external_backend_emission_capture_ready",
     "schema": "lattice-aggregation:p1-external-backend-emission-capture-review:v1",
-    "sha256": "492bc97a049a51e15c5ba04ca0acfdf4684ac9911b002cc8c6b00ba3b483b25d"
+    "sha256": "e5d5a2b94174916126375c41849c28f8595ddb35768d1f02e9ea6574a13257c0"
   },
-  "generated_at": "2026-07-06T14:07:04Z",
+  "generated_at": "2026-07-06T14:28:27Z",
   "metadata": {
     "branch": "codex/p1-real-external-evidence-attempt",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "6e091a96996ee40ea514a489167c96cccf8f95c4",
+    "commit": "bfa8cecebcbff4676e068ac33e57d3a4a316a918",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",

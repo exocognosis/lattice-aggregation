@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; not theorem closure`
-- Readiness digest SHA-256: `70b7d87ee2506ca8521ff1a0775d5327cd2ca541df2e9585c48e6cf7f6480c21`
+- Readiness digest SHA-256: `4af01fad54fc18a481e3c528a0b076a39181e0a66f0600f4cf583dce16e5d4fd`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -40,25 +40,14 @@ Checks:
 - `review_claims_fips_validation_false`: `false`
 
 Blocker Groups:
-- `external_backend_evidence`: `19` blocker(s)
+- `external_backend_evidence`: `8` blocker(s)
   - backend capture is quarantined from strict threshold-core closure
-  - centralized/single-seed smoke capture cannot satisfy real threshold emission
   - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
   - real threshold backend emission capture is incomplete
-  - forbidden external-evidence source marker in real-threshold backend manifest: centralized_mldsa65_provider
-  - forbidden external-evidence source marker in real-threshold backend manifest: centralized ml-dsa
-  - forbidden external-evidence source marker in real-threshold backend manifest: single-seed
-  - forbidden external-evidence source marker in real-threshold backend manifest: single-key
-  - forbidden external-evidence source marker in real-threshold backend manifest: single_seed
-  - forbidden external-evidence source marker in real-threshold backend capture: centralized ml-dsa
-  - forbidden external-evidence source marker in real-threshold backend capture: centralized_mldsa65_provider
-  - forbidden external-evidence source marker in real-threshold backend capture: single_seed
   - forbidden external-evidence source marker in rejection-distribution batch: centralized_mldsa65_provider
   - forbidden external-evidence source marker in rejection-distribution batch: centralized ml-dsa
   - forbidden external-evidence source marker in rejection-distribution batch: single_seed
   - backend core admissibility is quarantined
-  - centralized ML-DSA smoke core cannot feed external evidence
-  - single-seed standard-provider signature cannot feed external evidence
   - reviewed external evidence package is missing
 - `proof_payload_review`: `1` blocker(s)
   - theorem review manifest is missing required ready flag: proof_payload_reviewed

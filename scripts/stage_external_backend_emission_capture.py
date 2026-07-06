@@ -50,6 +50,10 @@ REQUIRED_REVIEW_CHECKS = (
     "no_fixture_harness",
     "no_undisclosed_single_key_standard_provider_output",
 )
+OPTIONAL_REVIEW_CHECKS = (
+    "real_distributed_threshold_core_verified",
+    "no_single_key_standard_provider_output",
+)
 SMOKE_CORE_MODES = {
     "centralized_mldsa65_provider_with_threshold_evidence_envelope",
 }
@@ -213,6 +217,11 @@ def validate_external_review_manifest(
     if checks.get("real_distributed_threshold_core_verified") is not False:
         raise ValueError("external review must not claim verified distributed threshold core")
 
+    returned_checks = {field: checks[field] for field in REQUIRED_REVIEW_CHECKS}
+    for field in OPTIONAL_REVIEW_CHECKS:
+        if field in checks:
+            returned_checks[field] = checks[field]
+
     return {
         "schema": review["schema"],
         "path": str(review_manifest_path),
@@ -222,7 +231,7 @@ def validate_external_review_manifest(
         "capture_sha256": expected_capture["capture_sha256"],
         "capture_file_sha256": expected_capture["capture_file_sha256"],
         "review": {field: review_fields[field] for field in REQUIRED_REVIEW_DIGEST_FIELDS},
-        "checks": {field: checks[field] for field in REQUIRED_REVIEW_CHECKS},
+        "checks": returned_checks,
     }
 
 

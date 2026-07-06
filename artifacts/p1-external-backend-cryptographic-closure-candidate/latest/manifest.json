@@ -1,11 +1,10 @@
 {
   "blockers": [
     "backend capture is quarantined from strict threshold-core closure",
-    "centralized/single-seed smoke capture cannot satisfy real threshold emission",
     "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
     "real threshold backend emission capture is incomplete"
   ],
-  "candidate_digest_sha256": "2deec67286073ab0970a5c9a7a5fa31d3b37fe8052d56a6581ce86f4a63e4b32",
+  "candidate_digest_sha256": "77e22b7996008ec7b136baa55a36f2d6effe4b01f495721066637511615f5b2a",
   "checks": {
     "comparison_close_candidate": true,
     "mutation_rejection_complete": true,
@@ -24,25 +23,25 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; not theorem closure, not rejection-distribution preservation, and not selected-backend proof closure.",
-  "generated_at": "2026-07-06T14:07:07Z",
+  "generated_at": "2026-07-06T14:28:27Z",
   "inputs": {
     "actual_external_nonce_gate_manifest": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
+      "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
       "sha256": "f3b468b4c22475ef05a9479ee6f8b4a2de5273f5a0777c1ff8ecac06109b9d87"
     },
     "real_threshold_backend_capture_json": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/capture.json",
+      "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "a109127ff508d47fa20bfa121c6bd67e2876278ce8d0ff9af10cc31719b52d31"
+      "sha256": "4c6ed6044bb8af3efd86dd0d502d13cb6116766dc236a9993e530f0045d83f60"
     },
     "real_threshold_backend_capture_manifest": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/backend-emission-capture/latest/manifest.json",
+      "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "83374e9f2a42da4482e617d0f6e7920446b832770d333cb4a35e27674a71d6a8"
+      "sha256": "ce3370ba2655ed9f30cbc3d44ad48d8bc50221be6dd2f5c27885ba970566a065"
     },
     "rejection_equivalence_batch_json": {
-      "path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
       "sha256": "c9ddac0f460881dd342dfbafb72afe14c52802f4cb91616ddc891eb58d994344"
     }
