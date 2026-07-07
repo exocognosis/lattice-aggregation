@@ -1,5 +1,5 @@
 {
-  "attempt_digest_sha256": "9bed1348fb1c917153521dc4bf7b02e8ae32e1296899e7c48f0d672f1c5bbcea",
+  "attempt_digest_sha256": "44fefb92225372fbefb30aac24750359e172136e2849bddf955b5e2664b56a20",
   "attempt_status": "blocked_external_evidence_missing",
   "blockers": [
     "backend capture is quarantined from strict threshold-core closure",
@@ -20,7 +20,7 @@
   ],
   "candidate_digest_sha256": "885b1e4b75867ac6db4814f37272502dedb7c0962daa788a32a97f7ec23c1129",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "eb27213434154e92b0e8b1aff7b48ea43717deb0e7f5b64ab817d65d36d2f84c",
+  "candidate_manifest_sha256": "24ba71b7405beb1cf19409ea0acdbf833fddb61154bc564c727750c1975c2962",
   "checks": {
     "comparison_close_candidate": true,
     "distribution_abort_review_present": false,
@@ -47,7 +47,7 @@
   "claims_theorem_closure": false,
   "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-07T16:02:17Z",
+  "generated_at": "2026-07-07T16:16:50Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -62,7 +62,7 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "eb27213434154e92b0e8b1aff7b48ea43717deb0e7f5b64ab817d65d36d2f84c"
+      "sha256": "24ba71b7405beb1cf19409ea0acdbf833fddb61154bc564c727750c1975c2962"
     },
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
