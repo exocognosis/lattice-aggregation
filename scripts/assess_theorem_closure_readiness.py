@@ -19,6 +19,10 @@ EXTERNAL_ATTEMPT_READY = "external_evidence_close_candidate_ready"
 THEOREM_REVIEW_SCHEMA = "lattice-aggregation:theorem-closure-review:v1"
 THEOREM_REVIEW_READY = "theorem_closure_review_ready"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+ACCEPTED_HYPOTHESIS_CLAIM_BOUNDARIES = {
+    "research scaffold evidence",
+    "closure-run implementation track",
+}
 
 REQUIRED_REVIEW_FLAGS = {
     "proof_payload_reviewed": "proof_payload_review",
@@ -306,6 +310,15 @@ def external_evidence_checks(candidate, attempt, blocker_groups):
             and attempt_checks.get("review_package_source_exclusions_passed") is True
             and attempt_checks.get("review_package_review_digests_present") is True
         ),
+        "external_production_dkg_no_single_secret_review_ready": (
+            isinstance(attempt_checks, dict)
+            and attempt_checks.get("production_dkg_no_single_secret_review_present")
+            is True
+        ),
+        "external_distribution_abort_review_ready": (
+            isinstance(attempt_checks, dict)
+            and attempt_checks.get("distribution_abort_review_present") is True
+        ),
     }
     if not checks["external_closure_candidate_manifest_present"]:
         add_blocker(
@@ -326,6 +339,18 @@ def external_evidence_checks(candidate, attempt, blocker_groups):
     else:
         for blocker in attempt.get("blockers", []):
             add_blocker(blocker_groups, "external_backend_evidence", blocker)
+    if not checks["external_production_dkg_no_single_secret_review_ready"]:
+        add_blocker(
+            blocker_groups,
+            "external_backend_evidence",
+            "production DKG/no-single-secret review is not ready",
+        )
+    if not checks["external_distribution_abort_review_ready"]:
+        add_blocker(
+            blocker_groups,
+            "external_backend_evidence",
+            "accepted distribution/abort review is not ready",
+        )
     return checks
 
 
@@ -344,7 +369,7 @@ def hypothesis_checks(assessment, blocker_groups):
         )
         return checks
     checks["hypothesis_boundary_is_research_scaffold_only"] = (
-        assessment.get("claim_boundary") == "research scaffold evidence"
+        assessment.get("claim_boundary") in ACCEPTED_HYPOTHESIS_CLAIM_BOUNDARIES
     )
     checks["hypothesis_not_already_completely_proven"] = (
         assessment.get("overall_verdict") != "completely_proven"
@@ -353,7 +378,7 @@ def hypothesis_checks(assessment, blocker_groups):
         add_blocker(
             blocker_groups,
             "claim_boundary",
-            "hypothesis assessment claim boundary is not research scaffold evidence",
+            "hypothesis assessment claim boundary is not an accepted non-closure track",
         )
     return checks
 
@@ -408,6 +433,8 @@ def build_report(
         "external_source_exclusions_passed",
         "external_review_package_binds_inputs",
         "external_review_package_ready",
+        "external_production_dkg_no_single_secret_review_ready",
+        "external_distribution_abort_review_ready",
         "theorem_review_manifest_present",
         "theorem_review_manifest_boundary_valid",
         "theorem_review_status_ready",

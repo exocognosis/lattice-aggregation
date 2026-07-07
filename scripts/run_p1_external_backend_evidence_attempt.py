@@ -52,6 +52,8 @@ REQUIRED_CANDIDATE_CHECK_KEYS = (
     "mutation_rejection_complete",
     "rejection_distribution_comparison_present",
     "comparison_close_candidate",
+    "production_dkg_no_single_secret_review_present",
+    "distribution_abort_review_present",
 )
 REQUIRED_REVIEW_DIGEST_KEYS = (
     "external_review_digest_hex",
@@ -145,6 +147,26 @@ def default_backend_capture(root):
 
 def default_rejection_batch(root):
     return Path(root) / "artifacts" / "p1-rejection-equivalence-batch" / "latest" / "batch.json"
+
+
+def default_dkg_review(root):
+    return (
+        Path(root)
+        / "artifacts"
+        / "p1-production-dkg-no-single-secret-review"
+        / "latest"
+        / "manifest.json"
+    )
+
+
+def default_distribution_abort_review(root):
+    return (
+        Path(root)
+        / "artifacts"
+        / "p1-accepted-distribution-abort-review"
+        / "latest"
+        / "manifest.json"
+    )
 
 
 def default_candidate_out(root):
@@ -242,6 +264,8 @@ def review_package_expected_input_sha256s(
     backend_manifest_path,
     backend_capture_path,
     rejection_batch_path,
+    dkg_review_path,
+    distribution_abort_review_path,
     candidate_digest_sha256,
 ):
     """Build the input digest map a reviewed external evidence package must bind."""
@@ -250,6 +274,8 @@ def review_package_expected_input_sha256s(
         "real_threshold_backend_capture_manifest": sha256_path(backend_manifest_path),
         "real_threshold_backend_capture_json": sha256_path(backend_capture_path),
         "rejection_equivalence_batch_json": sha256_path(rejection_batch_path),
+        "production_dkg_no_single_secret_review": sha256_path(dkg_review_path),
+        "accepted_distribution_abort_review": sha256_path(distribution_abort_review_path),
         "candidate_digest_sha256": candidate_digest_sha256,
     }
 
@@ -321,6 +347,8 @@ def build_report(
     backend_manifest_path=None,
     backend_capture_path=None,
     rejection_batch_path=None,
+    dkg_review_path=None,
+    distribution_abort_review_path=None,
     review_package_path=None,
     candidate_out=None,
     generated_at=None,
@@ -331,6 +359,10 @@ def build_report(
     backend_manifest_path = Path(backend_manifest_path or default_backend_manifest(root))
     backend_capture_path = Path(backend_capture_path or default_backend_capture(root))
     rejection_batch_path = Path(rejection_batch_path or default_rejection_batch(root))
+    dkg_review_path = Path(dkg_review_path or default_dkg_review(root))
+    distribution_abort_review_path = Path(
+        distribution_abort_review_path or default_distribution_abort_review(root)
+    )
     review_package_path = Path(review_package_path or default_review_package(root))
     candidate_out = Path(candidate_out or default_candidate_out(root))
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -339,6 +371,8 @@ def build_report(
     backend_manifest = load_json_if_present(backend_manifest_path)
     backend_capture = load_json_if_present(backend_capture_path)
     rejection_batch = load_json_if_present(rejection_batch_path)
+    dkg_review = load_json_if_present(dkg_review_path)
+    distribution_abort_review = load_json_if_present(distribution_abort_review_path)
     review_package = load_json_if_present(review_package_path)
 
     candidate_builder = load_closure_candidate_builder()
@@ -348,6 +382,8 @@ def build_report(
         backend_manifest_path=backend_manifest_path,
         backend_capture_path=backend_capture_path,
         rejection_batch_path=rejection_batch_path,
+        dkg_review_path=dkg_review_path,
+        distribution_abort_review_path=distribution_abort_review_path,
         generated_at=generated_at,
     )
     candidate_builder.write_artifacts(candidate_report, candidate_out)
@@ -358,6 +394,8 @@ def build_report(
         ("real-threshold backend manifest", backend_manifest),
         ("real-threshold backend capture", backend_capture),
         ("rejection-distribution batch", rejection_batch),
+        ("production DKG/no-single-secret review", dkg_review),
+        ("accepted distribution/abort review", distribution_abort_review),
     )
     source_blockers.extend(structured_source_blockers(backend_manifest, backend_capture))
     review_blockers = []
@@ -368,6 +406,8 @@ def build_report(
             backend_manifest_path,
             backend_capture_path,
             rejection_batch_path,
+            dkg_review_path,
+            distribution_abort_review_path,
             candidate_manifest.get("candidate_digest_sha256"),
         ),
         review_blockers,
@@ -418,6 +458,10 @@ def build_report(
             "real_threshold_backend_capture_manifest": input_record(backend_manifest_path),
             "real_threshold_backend_capture_json": input_record(backend_capture_path),
             "rejection_equivalence_batch_json": input_record(rejection_batch_path),
+            "production_dkg_no_single_secret_review": input_record(dkg_review_path),
+            "accepted_distribution_abort_review": input_record(
+                distribution_abort_review_path
+            ),
             "reviewed_external_evidence_package": input_record(review_package_path),
             "closure_candidate_manifest": input_record(candidate_manifest_path),
         },
@@ -460,7 +504,8 @@ def render_summary(manifest):
         "",
         "This artifact groups the actual external nonce gate, real-threshold backend "
         "emission capture, standard-verifier acceptance evidence, mutation rejection "
-        "evidence, rejection-distribution comparison, and independently reviewed "
+        "evidence, rejection-distribution comparison, production DKG/no-single-secret "
+        "review, accepted-distribution/abort review, and independently reviewed "
         "external evidence package into the Batch 7 closure-candidate gate.",
         "",
         f"- Status: `{manifest['attempt_status']}`",
@@ -539,6 +584,16 @@ def parse_args(argv):
         help="rejection-equivalence batch JSON",
     )
     parser.add_argument(
+        "--dkg-review",
+        default=None,
+        help="production DKG/no-single-secret review manifest",
+    )
+    parser.add_argument(
+        "--distribution-abort-review",
+        default=None,
+        help="accepted distribution/abort review manifest",
+    )
+    parser.add_argument(
         "--review-package",
         default=None,
         help="reviewed external evidence package manifest",
@@ -569,6 +624,8 @@ def main(argv=None):
         backend_manifest_path=args.backend_manifest,
         backend_capture_path=args.backend_capture,
         rejection_batch_path=args.rejection_batch,
+        dkg_review_path=args.dkg_review,
+        distribution_abort_review_path=args.distribution_abort_review,
         review_package_path=args.review_package,
         candidate_out=args.candidate_out,
     )

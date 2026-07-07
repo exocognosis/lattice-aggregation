@@ -22,7 +22,44 @@ BACKEND_REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission
 BACKEND_EVIDENCE = "real_threshold_mldsa_external_capture"
 REJECTION_BATCH_SCHEMA = "lattice-aggregation:p1-rejection-equivalence-batch:v1"
 REJECTION_BATCH_NONCE_PRODUCER = "distributed-nonce-prf-output-shares"
+DKG_NO_SINGLE_SECRET_REVIEW_SCHEMA = (
+    "lattice-aggregation:p1-production-dkg-no-single-secret-review:v1"
+)
+DKG_NO_SINGLE_SECRET_REVIEW_READY = "reviewed_production_dkg_no_single_secret_ready"
+DISTRIBUTION_ABORT_REVIEW_SCHEMA = (
+    "lattice-aggregation:p1-accepted-distribution-abort-review:v1"
+)
+DISTRIBUTION_ABORT_REVIEW_READY = "reviewed_distribution_abort_ready"
 MLDSA65_SIGNATURE_BYTES = 3309
+ALLOWED_DKG_SETUP_ROUTES = {
+    "distributed_dkg_vss",
+    "tee_hsm_no_export",
+}
+REQUIRED_CLAIM_FLAG_KEYS = (
+    "claims_theorem_closure",
+    "claims_rejection_distribution_preservation",
+    "claims_selected_backend_proof_closure",
+    "claims_standard_verifier_compatibility",
+    "claims_production_threshold_mldsa_security",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+)
+REQUIRED_DKG_REVIEW_DIGEST_KEYS = (
+    "dkg_transcript_digest_hex",
+    "public_key_derivation_digest_hex",
+    "no_single_secret_review_digest_hex",
+    "share_shortness_or_trust_digest_hex",
+    "reviewer_identity_digest_hex",
+)
+REQUIRED_DISTRIBUTION_ABORT_REVIEW_DIGEST_KEYS = (
+    "accepted_distribution_review_digest_hex",
+    "centralized_comparison_review_digest_hex",
+    "rejection_distribution_review_digest_hex",
+    "abort_independence_review_digest_hex",
+    "withholding_accountability_review_digest_hex",
+    "concrete_loss_bounds_digest_hex",
+    "reviewer_identity_digest_hex",
+)
 SMOKE_CORE_MODES = {
     "centralized_mldsa65_provider_with_threshold_evidence_envelope",
 }
@@ -270,12 +307,120 @@ def rejection_distribution_close_candidate(rejection_batch, blockers):
     return close
 
 
+def claim_flags_false(document):
+    """Return true when all closure/security claim flags are explicitly false."""
+    claim_flags = document.get("claim_flags") if isinstance(document, dict) else None
+    return isinstance(claim_flags, dict) and all(
+        claim_flags.get(flag) is False for flag in REQUIRED_CLAIM_FLAG_KEYS
+    )
+
+
+def review_digests_present(review_digests, required_keys):
+    """Return true when every required review digest is a nonzero SHA-256 hex string."""
+    return isinstance(review_digests, dict) and all(
+        is_nonzero_hex_digest(review_digests.get(key)) for key in required_keys
+    )
+
+
+def production_dkg_no_single_secret_review_present(review, blockers):
+    """Check reviewed production DKG/no-single-secret setup evidence."""
+    if not isinstance(review, dict):
+        blockers.append("production DKG/no-single-secret review is missing")
+        return False
+
+    checks = review.get("checks")
+    review_digests = review.get("review_digests")
+    setup_route = review.get("setup_route")
+    route_reviewed = (
+        isinstance(checks, dict)
+        and (
+            (
+                setup_route == "distributed_dkg_vss"
+                and checks.get("distributed_dkg_vss_reviewed") is True
+            )
+            or (
+                setup_route == "tee_hsm_no_export"
+                and checks.get("tee_hsm_no_export_trust_record_reviewed") is True
+            )
+        )
+    )
+    centralized_or_hazmat = isinstance(checks, dict) and (
+        checks.get("centralized_seed_or_expanded_key_setup_used") is True
+        or checks.get("hazmat_expanded_key_split_used") is True
+    )
+    present = (
+        review.get("schema") == DKG_NO_SINGLE_SECRET_REVIEW_SCHEMA
+        and review.get("claim_boundary") == CLAIM_BOUNDARY
+        and review.get("selected_profile") == SELECTED_PROFILE
+        and review.get("review_status") == DKG_NO_SINGLE_SECRET_REVIEW_READY
+        and review.get("validator_count") == 10000
+        and review.get("threshold") == 6667
+        and review.get("public_key_count") == 1
+        and setup_route in ALLOWED_DKG_SETUP_ROUTES
+        and isinstance(checks, dict)
+        and route_reviewed
+        and checks.get("no_single_exposed_mldsa_secret_key") is True
+        and checks.get("centralized_seed_or_expanded_key_setup_used") is False
+        and checks.get("hazmat_expanded_key_split_used") is False
+        and checks.get("share_shortness_or_trust_assumption_reviewed") is True
+        and checks.get("public_key_derivation_reviewed") is True
+        and review_digests_present(review_digests, REQUIRED_DKG_REVIEW_DIGEST_KEYS)
+        and claim_flags_false(review)
+    )
+    if centralized_or_hazmat:
+        blockers.append(
+            "production DKG/no-single-secret review allows centralized or hazmat setup"
+        )
+    if not present and not centralized_or_hazmat:
+        blockers.append("production DKG/no-single-secret review is incomplete")
+    return present
+
+
+def distribution_abort_review_present(review, blockers):
+    """Check reviewed accepted-distribution and abort behavior evidence."""
+    if not isinstance(review, dict):
+        blockers.append("accepted distribution/abort review is missing")
+        return False
+
+    checks = review.get("checks")
+    required_checks = (
+        "accepted_threshold_distribution_reviewed",
+        "centralized_comparison_distribution_reviewed",
+        "rejection_distribution_preservation_reviewed",
+        "abort_independence_reviewed",
+        "selective_abort_withholding_reviewed",
+        "concurrent_session_abort_model_reviewed",
+        "observable_restart_leakage_reviewed",
+        "concrete_loss_bounds_reviewed",
+    )
+    present = (
+        review.get("schema") == DISTRIBUTION_ABORT_REVIEW_SCHEMA
+        and review.get("claim_boundary") == CLAIM_BOUNDARY
+        and review.get("selected_profile") == SELECTED_PROFILE
+        and review.get("review_status") == DISTRIBUTION_ABORT_REVIEW_READY
+        and review.get("validator_count") == 10000
+        and review.get("threshold") == 6667
+        and isinstance(checks, dict)
+        and all(checks.get(key) is True for key in required_checks)
+        and review_digests_present(
+            review.get("review_digests"),
+            REQUIRED_DISTRIBUTION_ABORT_REVIEW_DIGEST_KEYS,
+        )
+        and claim_flags_false(review)
+    )
+    if not present:
+        blockers.append("accepted distribution/abort review is incomplete")
+    return present
+
+
 def build_report(
     root,
     nonce_gate_path=None,
     backend_manifest_path=None,
     backend_capture_path=None,
     rejection_batch_path=None,
+    dkg_review_path=None,
+    distribution_abort_review_path=None,
     generated_at=None,
 ):
     """Build the Batch 7 closure-candidate report from existing artifacts."""
@@ -296,12 +441,30 @@ def build_report(
         rejection_batch_path
         or root / "artifacts" / "p1-rejection-equivalence-batch" / "latest" / "batch.json"
     )
+    dkg_review_path = Path(
+        dkg_review_path
+        or root
+        / "artifacts"
+        / "p1-production-dkg-no-single-secret-review"
+        / "latest"
+        / "manifest.json"
+    )
+    distribution_abort_review_path = Path(
+        distribution_abort_review_path
+        or root
+        / "artifacts"
+        / "p1-accepted-distribution-abort-review"
+        / "latest"
+        / "manifest.json"
+    )
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
     nonce_gate = load_json_if_present(nonce_gate_path)
     backend_manifest = load_json_if_present(backend_manifest_path)
     backend_capture = load_json_if_present(backend_capture_path)
     rejection_batch = load_json_if_present(rejection_batch_path)
+    dkg_review = load_json_if_present(dkg_review_path)
+    distribution_abort_review = load_json_if_present(distribution_abort_review_path)
     blockers = []
 
     checks = {
@@ -327,6 +490,13 @@ def build_report(
             rejection_batch or {},
             blockers,
         ),
+        "production_dkg_no_single_secret_review_present": (
+            production_dkg_no_single_secret_review_present(dkg_review, blockers)
+        ),
+        "distribution_abort_review_present": distribution_abort_review_present(
+            distribution_abort_review,
+            blockers,
+        ),
     }
     claim_flags = {
         "claims_theorem_closure": False,
@@ -347,6 +517,10 @@ def build_report(
             "real_threshold_backend_capture_manifest": input_record(backend_manifest_path),
             "real_threshold_backend_capture_json": input_record(backend_capture_path),
             "rejection_equivalence_batch_json": input_record(rejection_batch_path),
+            "production_dkg_no_single_secret_review": input_record(dkg_review_path),
+            "accepted_distribution_abort_review": input_record(
+                distribution_abort_review_path
+            ),
         },
         "close_candidate": close_candidate,
         "claim_flags": claim_flags,
@@ -385,7 +559,8 @@ def render_summary(manifest):
         "",
         "This artifact composes the actual external nonce gate, real-threshold "
         "backend emission capture, standard-verifier evidence, and rejection "
-        "comparison evidence for Batch 7.",
+        "comparison evidence for Batch 7. It also requires reviewed production "
+        "DKG/no-single-secret evidence and accepted-distribution/abort evidence.",
         "",
         f"- Status: `{manifest['status']}`",
         f"- Close candidate: `{str(manifest['close_candidate']).lower()}`",
@@ -465,6 +640,16 @@ def parse_args(argv):
         help="rejection-equivalence batch JSON",
     )
     parser.add_argument(
+        "--dkg-review",
+        default=None,
+        help="production DKG/no-single-secret review manifest",
+    )
+    parser.add_argument(
+        "--distribution-abort-review",
+        default=None,
+        help="accepted distribution/abort review manifest",
+    )
+    parser.add_argument(
         "--out",
         default="artifacts/p1-external-backend-cryptographic-closure-candidate/latest",
         help="output directory",
@@ -480,6 +665,8 @@ def main(argv=None):
         backend_manifest_path=args.backend_manifest,
         backend_capture_path=args.backend_capture,
         rejection_batch_path=args.rejection_batch,
+        dkg_review_path=args.dkg_review,
+        distribution_abort_review_path=args.distribution_abort_review,
     )
     write_artifacts(report, Path(args.out))
     print(f"wrote P1 external backend closure-candidate artifacts to {args.out}")

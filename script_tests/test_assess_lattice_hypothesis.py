@@ -2115,7 +2115,7 @@ class ReportGenerationTests(unittest.TestCase):
             "scripts/stage_external_nonce_producer_capture.py, "
             "backend_candidate_admissible_pending_capture, "
             "capture_promoted, "
-            "actual_external_capture_missing, "
+            "actual_external_capture_ready, "
             "outside_repo_capture_file, "
             "preexisting_external_capture_file, "
             "outside_repo_review_manifest, "
@@ -2551,7 +2551,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "schema": (
                             "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1"
                         ),
-                        "current_status": "actual_external_capture_missing",
+                        "current_status": "actual_external_capture_ready",
                         "claim_boundary": (
                             "conformance/proof-review evidence"
                         ),
@@ -2923,7 +2923,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("repo_reference_cli_capture", aggregate_evidence)
         self.assertIn("reference CLI", aggregate_evidence)
         self.assertIn("actual external nonce-producer capture gate", aggregate_evidence)
-        self.assertIn("actual_external_capture_missing", aggregate_evidence)
+        self.assertIn("actual_external_capture_ready", aggregate_evidence)
         self.assertIn("external command-origin guard", aggregate_evidence)
         self.assertIn("repo-local backend command", aggregate_evidence)
         self.assertIn("outside_repo_executable_or_script", aggregate_evidence)
@@ -2947,7 +2947,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("independently installed backend command", aggregate_blockers)
         self.assertIn("outside the repo", aggregate_blockers)
         self.assertIn("external capture-file intake", aggregate_blockers)
-        self.assertIn("actual_external_capture_missing", aggregate_blockers)
+        self.assertIn("real threshold backend capture", aggregate_blockers)
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 

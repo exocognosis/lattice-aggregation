@@ -140,9 +140,12 @@ The Criterion 2 proof payload requires these slots before any promotion:
   the promoted handoff before it can occupy the actual external backend slot.
   Its current artifact
   `artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
-  `actual_external_capture_missing`: it requires
-  `admissible_external_backend_capture` with quarantine false and rejects the
-  current `repo_reference_cli_capture` as requires actual backend evidence.
+  `actual_external_capture_ready`: it is bound to an
+  `admissible_external_backend_capture` with quarantine false. This actual
+  external nonce capture promotes the nonce-producer capture into the actual
+  external slot, but it remains
+  proof-review evidence and does not discharge the real threshold-backend,
+  rejection-distribution, or theorem-closure obligations.
   Batch 4 hardens the capture-runner source boundary: accepted external
   captures now record `backend_command_origin =
   outside_repo_executable_or_script`, while unmarked repo-local backend
@@ -395,12 +398,13 @@ is quarantined as reference CLI replay only: it exercises the external
 process/JSON/import contract but is requires actual backend evidence. The accepted
 actual-external gate artifact at
 `artifacts/nonce-producer-actual-external-gate/latest/manifest.json` is
-`actual_external_capture_missing`, so the distributed nonce-producer slot still
-cannot be treated as reviewed external backend evidence. The Batch 4
-command-origin guard rejects unmarked repo-local backend commands and records
-`outside_repo_executable_or_script` for accepted external commands, so the next
-capture must come from an independently installed backend outside the repo
-rather than another repo wrapper. The Batch 5 file-intake script
+`actual_external_capture_ready`, so the distributed nonce-producer slot now has
+actual external capture evidence. The Batch 4 command-origin guard rejects
+unmarked repo-local backend commands and records
+`outside_repo_executable_or_script` for accepted external commands; remaining
+Criterion 2 closure work is now on the real threshold backend, reviewed
+evidence package, and proof obligations rather than the nonce gate. The Batch 5
+file-intake script
 `scripts/stage_external_nonce_producer_capture.py` can stage a preexisting
 outside-repo capture file into attempt-compatible handoff artifacts only when a
 matching Batch 6 `outside_repo_review_manifest` with
@@ -490,14 +494,18 @@ is `p1_external_backend_cryptographic_closure_candidate_package`. The gate
 composes the strict actual external nonce-producer gate, request-bound
 real-threshold backend emission capture, standard-verifier acceptance evidence,
 mutation-rejection evidence, and `distributed-nonce-prf-output-shares`
-rejection-distribution comparison into
+rejection-distribution comparison, plus reviewed production
+DKG/no-single-secret evidence and reviewed accepted-distribution/abort evidence,
+into
 `artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`.
 The current checked artifact is `evidence_present_unclosed` with
-`close_candidate = false`: the actual external nonce capture, real threshold
-backend capture, standard-verifier acceptance evidence, mutation-rejection
-evidence, and rejection-distribution comparison slots are still blocked. Even a
-future `close_candidate = true` artifact remains proof-review evidence only; it
-does not by itself prove Criterion 2, rejection-distribution preservation,
+`close_candidate = false`: the actual external nonce gate is ready, and the
+standard-verifier acceptance, mutation-rejection, and rejection-distribution
+comparison checks are present, but the real threshold backend emission slot,
+production DKG/no-single-secret review slot, and accepted-distribution/abort
+review slot remain blocked. Even a future
+`close_candidate = true` artifact remains proof-review evidence only; it does
+not by itself prove Criterion 2, rejection-distribution preservation,
 selected-backend proof closure, or theorem closure.
 Batch 8 adds `scripts/run_p1_external_backend_evidence_attempt.py` as the grouped
 external-evidence attempt runner. Its Criterion 2 evidence source is
@@ -506,13 +514,15 @@ external-evidence attempt runner. Its Criterion 2 evidence source is
 `artifacts/p1-external-backend-evidence-attempt/latest/manifest.json`. The runner
 executes the Batch 7 builder over the actual external nonce gate, real-threshold
 backend emission capture, standard-verifier acceptance evidence, mutation
-rejection evidence, and rejection-distribution comparison, then adds
+rejection evidence, rejection-distribution comparison, production
+DKG/no-single-secret review, and accepted-distribution/abort review, then adds
 `source_exclusion_passed` to reject hazmat, simulation, localnet, fixture,
 test-vector, single-key, repo-reference, and quarantined replay markers before a
 close candidate can be treated as external evidence. The current checked attempt
-is `blocked_external_evidence_missing` with `close_candidate = false`, because
-the actual external nonce capture still resolves to `repo_reference_cli_capture`
-and the real backend/rejection artifacts are absent. This is the first grouped
+is `blocked_external_evidence_missing` with `close_candidate = false`: the nonce
+gate is ready, but the backend capture is explicitly quarantined as threshold
+seed-reconstruction, source exclusion fails on reconstruction markers, and the
+reviewed external evidence package is still missing. This is the first grouped
 attempt harness for the closure run, pending theorem-closure review.
 Batch 9 hardens the same grouped attempt with a reviewed external evidence
 package gate. The runner now accepts `--review-package` pointing at schema
@@ -521,7 +531,8 @@ package must have `reviewed_external_backend_evidence_ready` status,
 `outside_repo_review_manifest` origin, `admissible_external_backend_capture`
 source profile, `review_package_binds_inputs = true` over the actual external
 nonce gate, real-threshold backend capture, rejection batch, and Batch 7
-candidate digest, plus source-exclusion and review-digest checks. The checked
+candidate digest, production DKG/no-single-secret review, and
+accepted-distribution/abort review, plus source-exclusion and review-digest checks. The checked
 attempt records `review_package_present = false` and
 `reviewed external evidence package is missing`, so Criterion 2 remains
 `partially_met`.
@@ -555,6 +566,11 @@ linked:
 - reviewed standard-verifier compatibility argument;
 - reviewed Batch 7 external-backend closure-candidate bundle populated from
   actual external nonce and real-threshold backend captures;
+- reviewed production DKG/no-single-secret package with no centralized seed,
+  expanded-key split, single-key, hazmat, or unreviewed trust setup;
+- reviewed accepted-distribution/abort package covering rejection-distribution
+  preservation, selective abort/withholding, restart leakage, concurrency, and
+  concrete loss bounds;
 - reviewed Batch 8 grouped external-evidence attempt with `source_exclusion_passed`
   true and `close_candidate = true`;
 - reviewed Batch 9 external evidence package with `review_package_binds_inputs`

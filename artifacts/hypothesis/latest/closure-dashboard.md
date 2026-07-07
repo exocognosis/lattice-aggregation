@@ -1,9 +1,9 @@
 # Current Closure Dashboard
 
 Overall verdict: `partially_proven`
-Claim boundary: `research scaffold evidence`
-Branch: `codex/p1-real-external-evidence-attempt`
-Commit: `789747bc037966f5abfc244aa6b8789fdef61af2`
+Claim boundary: `closure-run implementation track`
+Branch: `codex/p1-recomputation-bridge-verified`
+Commit: `d18b08092863be4cee2fa572abb4d5f9c5dd7ea5`
 
 ## Criteria
 
@@ -31,7 +31,7 @@ Commit: `789747bc037966f5abfc244aa6b8789fdef61af2`
 
 - pending theorem-closure review
 - requires selected-backend proof closure evidence
-- requires production threshold ML-DSA security evidence
-- requires CAVP/ACVTS validation evidence
-- requires FIPS validation evidence
+- requires production threshold ml-dsa security evidence
+- requires cavp/acvts validation evidence
+- requires fips validation evidence
 - requires rejection-distribution preservation proof

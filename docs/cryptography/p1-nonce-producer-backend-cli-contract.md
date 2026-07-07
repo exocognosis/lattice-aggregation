@@ -155,6 +155,8 @@ python3 scripts/build_p1_external_backend_cryptographic_closure_candidate.py \
   --backend-manifest artifacts/backend-emission-capture/latest/manifest.json \
   --backend-capture artifacts/backend-emission-capture/latest/capture.json \
   --rejection-batch artifacts/p1-rejection-equivalence-batch/latest/batch.json \
+  --dkg-review artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json \
+  --distribution-abort-review artifacts/p1-accepted-distribution-abort-review/latest/manifest.json \
   --out artifacts/p1-external-backend-cryptographic-closure-candidate/latest
 ```
 
@@ -173,6 +175,8 @@ python3 scripts/run_p1_external_backend_evidence_attempt.py \
   --backend-manifest artifacts/backend-emission-capture/latest/manifest.json \
   --backend-capture artifacts/backend-emission-capture/latest/capture.json \
   --rejection-batch artifacts/p1-rejection-equivalence-batch/latest/batch.json \
+  --dkg-review artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json \
+  --distribution-abort-review artifacts/p1-accepted-distribution-abort-review/latest/manifest.json \
   --candidate-out artifacts/p1-external-backend-cryptographic-closure-candidate/latest \
   --out artifacts/p1-external-backend-evidence-attempt/latest
 ```
@@ -181,8 +185,10 @@ The Batch 8 runner writes `blocked_external_evidence_missing` until the grouped
 inputs produce `close_candidate = true` and `source_exclusion_passed = true`. It
 rejects hazmat, simulation, localnet, fixture, deterministic, test-vector,
 single-key, repo-reference, and quarantined replay markers before an attempt can
-be treated as real external evidence. It also keeps all theorem-closure and
-production-security claims false.
+be treated as real external evidence. The grouped inputs now include the
+production DKG/no-single-secret review and the accepted-distribution/abort
+review, and the external evidence package must bind their SHA-256 digests. It
+also keeps all theorem-closure and production-security claims false.
 
 ## External Command-Origin Guard
 

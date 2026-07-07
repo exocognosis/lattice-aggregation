@@ -107,11 +107,11 @@
         "backend_capture_attempt_quarantine": "reference CLI handoff replay only; requires actual backend evidence; requires Criterion 2 closure evidence",
         "backend_capture_attempt_promotion_rule": "only an admissible readiness manifest may promote the reused request into handoff replay; after readiness passes, command execution or validation failures are preserved as durable non-closing attempt artifacts",
         "actual_external_capture_gate": "scripts/verify_actual_nonce_producer_capture.py",
-        "actual_external_capture_gate_status": "actual_external_capture_missing",
+        "actual_external_capture_gate_status": "actual_external_capture_ready",
         "actual_external_capture_gate_artifact": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
         "actual_external_capture_gate_expected_source_profile": "admissible_external_backend_capture",
-        "actual_external_capture_gate_current_source_profile": "repo_reference_cli_capture",
-        "actual_external_capture_gate_blocker": "current promoted reference CLI capture is quarantined and is requires actual backend evidence",
+        "actual_external_capture_gate_current_source_profile": "admissible_external_backend_capture",
+        "actual_external_capture_gate_blocker": "none; current actual external nonce gate is ready but remains proof-review evidence until Criterion 2 proof obligations are discharged",
         "external_capture_file_intake": "scripts/stage_external_nonce_producer_capture.py",
         "external_capture_file_origin_required": "outside_repo_capture_file",
         "external_capture_file_intake_mode": "preexisting_external_capture_file",
@@ -240,7 +240,9 @@
           "request-bound real-threshold backend emission capture",
           "standard-verifier acceptance evidence",
           "complete mutation-rejection evidence",
-          "distributed-nonce-prf-output-shares rejection-distribution comparison"
+          "distributed-nonce-prf-output-shares rejection-distribution comparison",
+          "reviewed production DKG/no-single-secret evidence",
+          "reviewed accepted-distribution/abort evidence"
         ],
         "certificate_surface": "p1_external_backend_cryptographic_closure_candidate_certificate",
         "certificate_accessor": "candidate_artifact_digest",
@@ -273,6 +275,8 @@
           "standard-verifier acceptance evidence",
           "complete mutation-rejection evidence",
           "distributed-nonce-prf-output-shares rejection-distribution comparison",
+          "reviewed production DKG/no-single-secret evidence",
+          "reviewed accepted-distribution/abort evidence",
           "source exclusion for hazmat/simulation/localnet/fixture/single-key/repo-reference capture sources",
           "reviewed external evidence package with outside_repo_review_manifest origin and exact input digest binding"
         ],
@@ -399,7 +403,7 @@
         "slot_id": "distributed_nonce_producer_artifact_digest",
         "fixture_path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
-        "current_status": "actual_external_capture_missing",
+        "current_status": "actual_external_capture_ready",
         "claim_boundary": "conformance/proof-review evidence"
       },
       {
@@ -471,6 +475,8 @@
     "reviewed rejection-distribution preservation argument",
     "reviewed standard-verifier compatibility argument",
     "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
+    "reviewed production DKG/no-single-secret package with no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup",
+    "reviewed accepted-distribution/abort package covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds",
     "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true",
     "reviewed Batch 9 external evidence package with review_package_binds_inputs true, source exclusions passed, and review digests present",
     "theorem-linkage review"
@@ -576,6 +582,8 @@
     "actual_external_nonce_capture_manifest_sha256",
     "real_threshold_backend_emission_capture_sha256",
     "rejection_distribution_batch_sha256",
+    "production_dkg_no_single_secret_review_sha256",
+    "accepted_distribution_abort_review_sha256",
     "closure_candidate_manifest_sha256",
     "external_backend_evidence_attempt_manifest_sha256",
     "backend_emission_request_manifest_sha256",

@@ -45,6 +45,8 @@ def criterion2_manifest():
             "reviewed rejection-distribution preservation argument",
             "reviewed standard-verifier compatibility argument",
             "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
+            "reviewed production DKG/no-single-secret package with no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup",
+            "reviewed accepted-distribution/abort package covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds",
             "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true",
             "reviewed Batch 9 external evidence package with review_package_binds_inputs true, source exclusions passed, and review digests present",
             "theorem-linkage review",
@@ -52,10 +54,10 @@ def criterion2_manifest():
     }
 
 
-def hypothesis_assessment():
+def hypothesis_assessment(claim_boundary="research scaffold evidence"):
     return {
         "overall_verdict": "partially_proven",
-        "claim_boundary": "research scaffold evidence",
+        "claim_boundary": claim_boundary,
     }
 
 
@@ -83,6 +85,8 @@ def external_attempt(ready):
             "review_package_claim_boundary_passed": ready,
             "review_package_source_exclusions_passed": ready,
             "review_package_review_digests_present": ready,
+            "production_dkg_no_single_secret_review_present": ready,
+            "distribution_abort_review_present": ready,
         },
         "blockers": [] if ready else ["reviewed external evidence package is missing"],
     }
@@ -173,6 +177,10 @@ class TheoremClosureReadinessTests(unittest.TestCase):
 
         manifest = report["manifest"]
         self.assertTrue(manifest["checks"]["external_evidence_attempt_ready"])
+        self.assertTrue(
+            manifest["checks"]["external_production_dkg_no_single_secret_review_ready"]
+        )
+        self.assertTrue(manifest["checks"]["external_distribution_abort_review_ready"])
         self.assertFalse(manifest["checks"]["theorem_review_manifest_present"])
         self.assertFalse(manifest["theorem_closure_assessment_ready"])
         self.assertIn(
@@ -182,6 +190,29 @@ class TheoremClosureReadinessTests(unittest.TestCase):
         self.assertIn(
             "theorem review manifest is missing required ready flag: full_kat_validation_reviewed",
             manifest["blocker_groups"]["validation"],
+        )
+
+    def test_closure_run_hypothesis_boundary_is_accepted_as_nonclosure_track(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            paths = write_minimal_inputs(root, external_ready=False, review_ready=None)
+            write_json(
+                paths["hypothesis_assessment_path"],
+                hypothesis_assessment("closure-run implementation track"),
+            )
+            report = module.build_report(
+                root,
+                generated_at="2026-07-04T00:00:00Z",
+                **paths,
+            )
+
+        manifest = report["manifest"]
+        self.assertTrue(manifest["checks"]["hypothesis_boundary_is_research_scaffold_only"])
+        self.assertNotIn(
+            "hypothesis assessment claim boundary is not research scaffold evidence",
+            manifest["blocker_groups"]["claim_boundary"],
         )
 
     def test_ready_external_and_review_bundle_can_start_assessment_without_closure_claims(self):

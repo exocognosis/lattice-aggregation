@@ -190,6 +190,85 @@ def rejection_batch(close_candidate=True):
     }
 
 
+def dkg_no_single_secret_review():
+    return {
+        "schema": "lattice-aggregation:p1-production-dkg-no-single-secret-review:v1",
+        "name": "synthetic-production-dkg-no-single-secret-review",
+        "claim_boundary": "conformance/proof-review evidence",
+        "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "review_status": "reviewed_production_dkg_no_single_secret_ready",
+        "validator_count": 10000,
+        "threshold": 6667,
+        "public_key_count": 1,
+        "setup_route": "distributed_dkg_vss",
+        "checks": {
+            "distributed_dkg_vss_reviewed": True,
+            "tee_hsm_no_export_trust_record_reviewed": False,
+            "no_single_exposed_mldsa_secret_key": True,
+            "centralized_seed_or_expanded_key_setup_used": False,
+            "hazmat_expanded_key_split_used": False,
+            "share_shortness_or_trust_assumption_reviewed": True,
+            "public_key_derivation_reviewed": True,
+        },
+        "review_digests": {
+            "dkg_transcript_digest_hex": "10" * 32,
+            "public_key_derivation_digest_hex": "20" * 32,
+            "no_single_secret_review_digest_hex": "30" * 32,
+            "share_shortness_or_trust_digest_hex": "40" * 32,
+            "reviewer_identity_digest_hex": "50" * 32,
+        },
+        "claim_flags": {
+            "claims_theorem_closure": False,
+            "claims_rejection_distribution_preservation": False,
+            "claims_selected_backend_proof_closure": False,
+            "claims_standard_verifier_compatibility": False,
+            "claims_production_threshold_mldsa_security": False,
+            "claims_cavp_acvts_validation": False,
+            "claims_fips_validation": False,
+        },
+    }
+
+
+def distribution_abort_review():
+    return {
+        "schema": "lattice-aggregation:p1-accepted-distribution-abort-review:v1",
+        "name": "synthetic-accepted-distribution-abort-review",
+        "claim_boundary": "conformance/proof-review evidence",
+        "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+        "review_status": "reviewed_distribution_abort_ready",
+        "validator_count": 10000,
+        "threshold": 6667,
+        "checks": {
+            "accepted_threshold_distribution_reviewed": True,
+            "centralized_comparison_distribution_reviewed": True,
+            "rejection_distribution_preservation_reviewed": True,
+            "abort_independence_reviewed": True,
+            "selective_abort_withholding_reviewed": True,
+            "concurrent_session_abort_model_reviewed": True,
+            "observable_restart_leakage_reviewed": True,
+            "concrete_loss_bounds_reviewed": True,
+        },
+        "review_digests": {
+            "accepted_distribution_review_digest_hex": "60" * 32,
+            "centralized_comparison_review_digest_hex": "70" * 32,
+            "rejection_distribution_review_digest_hex": "80" * 32,
+            "abort_independence_review_digest_hex": "90" * 32,
+            "withholding_accountability_review_digest_hex": "a0" * 32,
+            "concrete_loss_bounds_digest_hex": "b0" * 32,
+            "reviewer_identity_digest_hex": "c0" * 32,
+        },
+        "claim_flags": {
+            "claims_theorem_closure": False,
+            "claims_rejection_distribution_preservation": False,
+            "claims_selected_backend_proof_closure": False,
+            "claims_standard_verifier_compatibility": False,
+            "claims_production_threshold_mldsa_security": False,
+            "claims_cavp_acvts_validation": False,
+            "claims_fips_validation": False,
+        },
+    }
+
+
 class P1ExternalBackendClosureCandidateBuilderTests(unittest.TestCase):
     def test_missing_inputs_build_blocked_nonclosure_candidate(self):
         module = load_module()
@@ -232,11 +311,15 @@ class P1ExternalBackendClosureCandidateBuilderTests(unittest.TestCase):
             backend_manifest_path = root / "backend" / "manifest.json"
             backend_capture_path = root / "backend" / "capture.json"
             rejection_path = root / "rejection" / "batch.json"
+            dkg_path = root / "dkg-review" / "manifest.json"
+            distribution_abort_path = root / "distribution-abort" / "manifest.json"
             out_dir = root / "candidate"
             write_json(nonce_path, actual_nonce_gate(True))
             write_json(backend_manifest_path, backend_manifest())
             write_json(backend_capture_path, backend_capture())
             write_json(rejection_path, rejection_batch(close_candidate=True))
+            write_json(dkg_path, dkg_no_single_secret_review())
+            write_json(distribution_abort_path, distribution_abort_review())
 
             report = module.build_report(
                 root,
@@ -244,6 +327,8 @@ class P1ExternalBackendClosureCandidateBuilderTests(unittest.TestCase):
                 backend_manifest_path=backend_manifest_path,
                 backend_capture_path=backend_capture_path,
                 rejection_batch_path=rejection_path,
+                dkg_review_path=dkg_path,
+                distribution_abort_review_path=distribution_abort_path,
                 generated_at="2026-07-04T00:00:00Z",
             )
             module.write_artifacts(report, out_dir)
@@ -316,6 +401,80 @@ class P1ExternalBackendClosureCandidateBuilderTests(unittest.TestCase):
         self.assertFalse(manifest["checks"]["real_threshold_emission_present"])
         self.assertIn(
             "threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation",
+            blockers,
+        )
+
+    def test_external_crypto_inputs_without_dkg_and_abort_reviews_remain_blocked(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce-gate" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_path = root / "rejection" / "batch.json"
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, backend_manifest())
+            write_json(backend_capture_path, backend_capture())
+            write_json(rejection_path, rejection_batch(close_candidate=True))
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_path,
+            )
+
+        manifest = report["manifest"]
+        blockers = " ".join(manifest["blockers"])
+        self.assertFalse(manifest["close_candidate"])
+        self.assertFalse(
+            manifest["checks"]["production_dkg_no_single_secret_review_present"]
+        )
+        self.assertFalse(manifest["checks"]["distribution_abort_review_present"])
+        self.assertIn("production DKG/no-single-secret review is missing", blockers)
+        self.assertIn("accepted distribution/abort review is missing", blockers)
+
+    def test_dkg_review_rejects_centralized_or_hazmat_setup_markers(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce-gate" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_path = root / "rejection" / "batch.json"
+            dkg_path = root / "dkg-review" / "manifest.json"
+            distribution_abort_path = root / "distribution-abort" / "manifest.json"
+            bad_dkg = dkg_no_single_secret_review()
+            bad_dkg["checks"]["centralized_seed_or_expanded_key_setup_used"] = True
+            bad_dkg["checks"]["hazmat_expanded_key_split_used"] = True
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, backend_manifest())
+            write_json(backend_capture_path, backend_capture())
+            write_json(rejection_path, rejection_batch(close_candidate=True))
+            write_json(dkg_path, bad_dkg)
+            write_json(distribution_abort_path, distribution_abort_review())
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_path,
+                dkg_review_path=dkg_path,
+                distribution_abort_review_path=distribution_abort_path,
+            )
+
+        manifest = report["manifest"]
+        blockers = " ".join(manifest["blockers"])
+        self.assertFalse(manifest["close_candidate"])
+        self.assertFalse(
+            manifest["checks"]["production_dkg_no_single_secret_review_present"]
+        )
+        self.assertIn(
+            "production DKG/no-single-secret review allows centralized or hazmat setup",
             blockers,
         )
 

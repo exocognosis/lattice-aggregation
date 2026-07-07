@@ -13,6 +13,9 @@ The preflight requires Criterion 2 proof review, does not prove
 rejection-distribution preservation, does not claim selected-backend proof
 closure, and does not claim production threshold ML-DSA security. Its claim
 boundary is `readiness preflight only; pending theorem-closure review`.
+It accepts the top-level hypothesis artifact only when that artifact remains on
+a non-closure boundary such as `research scaffold evidence` or
+`closure-run implementation track`.
 
 ## Preflight Inputs
 
@@ -39,6 +42,10 @@ The preflight remains blocked unless all external evidence checks pass:
 
 - the Batch 7 external-backend closure candidate exists and has
   `close_candidate = true`;
+- the Batch 7 candidate includes
+  `production_dkg_no_single_secret_review_present = true`;
+- the Batch 7 candidate includes
+  `distribution_abort_review_present = true`;
 - the Batch 8 grouped external-evidence attempt exists and has
   `attempt_status = external_evidence_close_candidate_ready`;
 - the Batch 9 reviewed external evidence package binds all inputs with
@@ -72,7 +79,8 @@ without rereading every artifact:
 
 The current checked artifact is expected to remain blocked while the actual
 external nonce capture, real threshold backend emission capture,
-rejection-distribution comparison, reviewed external evidence package, and
+rejection-distribution comparison, production DKG/no-single-secret review,
+accepted distribution/abort review, reviewed external evidence package, and
 theorem review package are absent.
 
 ## Non-Claims
