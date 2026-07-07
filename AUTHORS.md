@@ -5,7 +5,7 @@
 **Rick Glenn** — project lead and maintainer.
 
 - GitHub: [`exocognosis`](https://github.com/exocognosis)
-- Contact: info@hollandbrothers.com
+- Contact: rick@dytallix.com
 
 Rick maintains `lattice-aggregation`, an audit-first research effort studying
 whether a post-quantum validator quorum can be compressed into one
