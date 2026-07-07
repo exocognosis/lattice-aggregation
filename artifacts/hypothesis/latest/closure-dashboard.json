@@ -1,7 +1,7 @@
 {
   "branch": "codex/p1-recomputation-bridge-verified",
   "claim_boundary": "closure-run implementation track",
-  "commit": "f6740c8f362f862756f8bad7a086acbef3e143b5",
+  "commit": "bbf455dfd463d947af89011322d04c75cc989b13",
   "criteria": [
     {
       "blocker_count": 2,

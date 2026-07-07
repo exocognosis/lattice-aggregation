@@ -10,12 +10,12 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T19:40:27Z",
+  "generated_at": "2026-07-07T19:54:01Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+      "sha256": "347ae8795335d5ab0e6d2a1a5a8b25bd22137ce5dac9bcb1da324c01a43f6c17"
     },
     "backend_capture": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
@@ -35,7 +35,7 @@
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "2c4a6f8c66ef4939b409adca9ad038969442aa6d0a18e5aa1f4c37112a9449b1"
+      "sha256": "05ccc9c9b1f7162eb2ba8a072e5d6211bd24b9dd0de88225d5c2f8e046f95a51"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -45,12 +45,12 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "1bf6e48cdca0aa61dda15578bc92bfb0127c494af6b92f064cd16bfd3de47ff2"
+      "sha256": "f27259c63eb6cf0fa7730fa2af2b3d359964d11a947ed983c2203054be38f70b"
     }
   },
   "name": "theorem-closure-blocker-requests-v1",
   "request_boundary": "This artifact defines the exact externally reviewed proof and validation packages required to satisfy the remaining theorem-review flags. It does not assert theorem closure or validation.",
-  "request_digest_sha256": "9112545f51c4cb683e4d5b15117187c80b75197f6a10ec512817deac6dd20b62",
+  "request_digest_sha256": "d88534ffbf3eed07a7de32874aafee9a1f9af5bcfa11d436a4292e488d677151",
   "request_status": "blocker_inputs_required",
   "required_packages": {
     "full_kat_cavp_validation_review": {
@@ -122,7 +122,7 @@
         "claims_theorem_closure": false
       },
       "required_source_inputs": {
-        "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+        "accepted_distribution_abort_review_sha256": "347ae8795335d5ab0e6d2a1a5a8b25bd22137ce5dac9bcb1da324c01a43f6c17",
         "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
       },
       "satisfies_review_flag": "rejection_distribution_preservation_reviewed",
