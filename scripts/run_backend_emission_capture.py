@@ -42,6 +42,10 @@ RECONSTRUCTION_CORE_MODES = {
 RECONSTRUCTION_SIGNATURE_ORIGINS = {
     "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
+STRICT_DISTRIBUTED_CORE_MODE = "distributed_threshold_mldsa65_partial_aggregation"
+STRICT_DISTRIBUTED_SIGNATURE_ORIGIN = "threshold_partial_aggregation"
+STRICT_TEE_HSM_CORE_MODE = "tee_hsm_no_export_threshold_mldsa65_provider"
+STRICT_TEE_HSM_SIGNATURE_ORIGIN = "tee_hsm_no_export_standard_mldsa65_provider"
 COMMAND_ORIGIN_EXTERNAL = "outside_repo_executable_or_script"
 COMMAND_ORIGIN_REPO_LOCAL = "repo_local_executable_or_script"
 TOP_LEVEL_FIELDS = {
@@ -82,6 +86,7 @@ EXPECTED_DIGEST_FIELDS = {
 OPTIONAL_EXPECTED_DIGEST_FIELDS = {
     "threshold_reconstruction_digest_hex",
     "backend_requirement_evidence_digest_hex",
+    "strict_signature_transcript_digest_hex",
 }
 CAPTURE_PAYLOAD_FIELDS = {
     "validator_count",
@@ -96,6 +101,12 @@ CAPTURE_PAYLOAD_FIELDS = {
     "mutated_message_rejected",
     "mutated_public_key_rejected",
     "mutated_signature_rejected",
+    "standard_verifier_accepts",
+    "partial_contribution_receipts",
+    "nonce_commitments",
+    "rejection_predicate_records",
+    "strict_no_export_summary",
+    "claim_flags",
     "reviewed",
 }
 CAPTURE_BYTE_FIELDS = {"encoding", "value"}
@@ -307,15 +318,34 @@ def backend_core_admissibility(capture):
     if signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS:
         reasons.append("threshold seed-reconstruction standard-provider signature origin")
     if isinstance(distributed_core, dict):
-        required_flags = (
-            "distributed_keygen_vss",
-            "partial_signing_over_secret_shares",
-            "partial_z_i_hint_aggregation",
-            "fips204_rejection_loop_over_threshold_partials",
-        )
+        if (
+            core_mode == STRICT_DISTRIBUTED_CORE_MODE
+            and signature_origin == STRICT_DISTRIBUTED_SIGNATURE_ORIGIN
+        ):
+            required_flags = (
+                "distributed_keygen_vss",
+                "partial_signing_over_secret_shares",
+                "partial_z_i_hint_aggregation",
+                "fips204_rejection_loop_over_threshold_partials",
+            )
+        elif (
+            core_mode == STRICT_TEE_HSM_CORE_MODE
+            and signature_origin == STRICT_TEE_HSM_SIGNATURE_ORIGIN
+        ):
+            required_flags = (
+                "tee_hsm_no_export_trust_record_reviewed",
+                "no_single_exposed_mldsa_secret_key",
+                "threshold_authorization_enforced",
+                "standard_verifier_compatible_output",
+            )
+        else:
+            reasons.append("unrecognized strict threshold core mode or signature origin")
+            required_flags = ()
         for flag in required_flags:
             if distributed_core.get(flag) is not True:
                 reasons.append(f"distributed threshold core flag false: {flag}")
+    else:
+        reasons.append("missing distributed threshold core status")
     return {
         "strict_threshold_core_admissible": not reasons,
         "quarantined": bool(reasons),

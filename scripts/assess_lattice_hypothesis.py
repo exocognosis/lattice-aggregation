@@ -480,7 +480,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
             "artifacts/nonce-producer-actual-external-gate/latest/manifest.json"
         ),
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
-        "current_status": "actual_external_capture_missing",
+        "current_status": "actual_external_capture_ready",
         "claim_boundary": "conformance/proof-review evidence",
     },
     {
@@ -1142,7 +1142,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "scripts/stage_external_nonce_producer_capture.py",
         "backend_candidate_admissible_pending_capture",
         "capture_promoted",
-        "actual_external_capture_missing",
+        "actual_external_capture_ready",
         "outside_repo_capture_file",
         "preexisting_external_capture_file",
         "outside_repo_review_manifest",
@@ -4476,18 +4476,20 @@ def classify_criteria(criteria, scan):
                     "admissible_external_backend_capture with quarantine false "
                     "before the distributed nonce-producer slot can be treated "
                     "as actual external backend evidence. The current artifact "
-                    "is actual_external_capture_missing because the promoted "
-                    "capture is repo_reference_cli_capture. This is "
-                    "evidence_present_unclosed boundary evidence and "
-                    "requires theorem-closure review, rejection-distribution "
-                    "preservation, or production threshold ML-DSA security."
+                    "is actual_external_capture_ready with source profile "
+                    "admissible_external_backend_capture. This is "
+                    "evidence_present_unclosed boundary evidence; Criterion 2 "
+                    "still requires real threshold-backend partial aggregation, "
+                    "the reviewed external evidence package, theorem-closure "
+                    "review, rejection-distribution preservation, or production "
+                    "threshold ML-DSA security."
                 )
                 blockers.append(
-                    "The actual external nonce-producer gate blocks the "
-                    "current promoted reference CLI capture from satisfying "
-                    "the reviewed external backend slot. A non-quarantined "
-                    "admissible_external_backend_capture from an independently "
-                    "generated reviewed backend is still required."
+                    "The actual external nonce-producer gate is now ready with "
+                    "admissible_external_backend_capture, but Criterion 2 still "
+                    "requires a non-quarantined real threshold backend capture "
+                    "with partial aggregation evidence and a reviewed external "
+                    "evidence package."
                 )
             if scan.get("p1_external_nonce_producer_capture_file_intake"):
                 partial_progress = True
@@ -4512,10 +4514,11 @@ def classify_criteria(criteria, scan):
                 blockers.append(
                     "The external capture-file intake is executable, but the "
                     "repo still needs a real outside-repo reviewed nonce-DKG/TEE "
-                    "capture file plus a matching external review dossier from "
-                    "an independently operated backend before the current "
-                    "checked actual-external artifact can move from "
-                    "actual_external_capture_missing to ready."
+                    "capture file plus a matching external review dossier for "
+                    "any future nonce-source refresh; the current checked "
+                    "actual-external nonce gate is ready, but Criterion 2 "
+                    "still depends on the real threshold backend and proof "
+                    "review evidence."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True

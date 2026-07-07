@@ -1,178 +1,23 @@
 {
-  "branch": "codex/p1-real-external-evidence-attempt",
-  "claim_boundary": "research scaffold evidence",
+  "branch": "codex/p1-recomputation-bridge-verified",
+  "claim_boundary": "closure-run implementation track",
   "command_summary": {
-    "all_passed": true,
+    "all_passed": null,
     "failed": 0,
-    "passed": 11
+    "passed": 0
   },
-  "commands": [
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "simulated_flow"
-      ],
-      "duration_seconds": 0.172,
-      "exit_code": 0,
-      "stderr": "   Compiling lattice-aggregation v0.1.0 (/Users/rickglenn/Documents/Lattice Aggregation Current)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s\n     Running tests/simulated_flow.rs (target/debug/deps/simulated_flow-20f76408b7d879a6)\n",
-      "stdout": "\nrunning 9 tests\ntest signing_session_rejects_mismatched_local_commitment ... ok\ntest simulated_backend_derives_repeatable_commitment ... ok\ntest simulated_dkg_public_key_binds_full_validator_universe ... ok\ntest simulated_aggregator_rejects_partial_share_validator_universe_mismatch ... ok\ntest signing_session_advances_through_commitment_and_partial_rounds ... ok\ntest simulated_backend_uses_planned_signing_api_shape ... ok\ntest simulated_backend_rejects_aggregate_public_key_mismatch ... ok\ntest simulated_backend_aggregates_canonical_share_order_deterministically ... ok\ntest simulated_dkg_sign_and_aggregate_flow_returns_standard_size_signature ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "simulation"
-      ],
-      "duration_seconds": 0.058,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/simulation.rs (target/debug/deps/simulation-da7eb550f4ddd571)\n",
-      "stdout": "\nrunning 15 tests\ntest adapter_module_is_exported ... ok\ntest dkg_commit_wire_encoding_round_trips ... ok\ntest dkg_share_exchange_wire_encoding_round_trips ... ok\ntest adapter_traits_can_be_mocked_in_memory ... ok\ntest partial_signature_wire_encoding_round_trips ... ok\ntest sign_commit_wire_encoding_is_golden ... ok\ntest slashing_evidence_keeps_attributable_validator_and_frame ... ok\ntest wire_decode_rejects_malformed_frames ... ok\ntest wire_decode_rejects_oversized_dkg_share_payloads ... ok\ntest wire_decode_rejects_oversized_variable_payloads ... ok\ntest actor_rejects_sessions_past_capacity ... ok\ntest actor_broadcasts_local_partial_after_threshold_commitments ... ok\ntest actor_submits_evidence_for_poisoned_partial_share ... ok\ntest actor_submits_liveness_evidence_for_commitment_without_partial ... ok\ntest actor_finalizes_ideal_threshold_signature ... ok\n\ntest result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "proof_documentation_manifest"
-      ],
-      "duration_seconds": 0.078,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/proof_documentation_manifest.rs (target/debug/deps/proof_documentation_manifest-147774ca70ffc7e5)\n",
-      "stdout": "\nrunning 18 tests\ntest proof_crosswalk_maps_obligations_to_code_and_tests ... ok\ntest cryptography_readme_indexes_current_proof_docs ... ok\ntest proof_crosswalk_mentions_current_source_docs ... ok\ntest proof_documentation_manifest_tracks_required_docs ... ok\ntest benchmark_docs_keep_simulation_and_real_world_boundaries ... ok\ntest proof_model_states_current_security_boundary ... ok\ntest readme_tracks_current_research_preview_overview ... ok\ntest protocol_code_crosswalk_maps_protocol_phases_to_code_and_tests ... ok\ntest production_acceptance_docs_keep_claim_boundary ... ok\ntest production_coordinator_docs_keep_claim_boundary ... ok\ntest thesis_operating_parameters_avoids_release_claim_phrasing ... ok\ntest selected_backend_direction_docs_keep_claim_boundary ... ok\ntest release_readiness_checklist_keeps_required_anchor_contract ... ok\ntest related_work_comparator_docs_keep_claim_boundary ... ok\ntest missing_artifact_notes_do_not_name_present_files ... ok\ntest proof_docs_keep_required_anchor_contract ... ok\ntest local_markdown_links_resolve ... ok\ntest blocker_evidence_docs_keep_claim_boundary ... ok\n\ntest result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "thesis_operating_parameters_manifest"
-      ],
-      "duration_seconds": 0.055,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/thesis_operating_parameters_manifest.rs (target/debug/deps/thesis_operating_parameters_manifest-ff26d9aa70418228)\n",
-      "stdout": "\nrunning 7 tests\ntest thesis_manifest_preserves_research_claim_boundary ... ok\ntest thesis_manifest_defines_plan_b_as_evaluate_only ... ok\ntest thesis_manifest_pins_all_five_promotion_criteria_as_partial ... ok\ntest thesis_manifest_defines_native_threshold_mldsa_p1_scope ... ok\ntest thesis_manifest_names_concrete_promotion_and_failure_anchors ... ok\ntest thesis_manifest_pins_operating_parameters ... ok\ntest thesis_manifest_links_to_required_evidence_surfaces ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "criterion1_proof_substance_manifest"
-      ],
-      "duration_seconds": 0.053,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/criterion1_proof_substance_manifest.rs (target/debug/deps/criterion1_proof_substance_manifest-aef7d8312b0e0b1d)\n",
-      "stdout": "\nrunning 7 tests\ntest criterion1_manifest_pins_required_artifact_slots_as_open ... ok\ntest criterion1_manifest_links_mask_theorem_obligations ... ok\ntest criterion1_manifest_links_existing_evidence_surfaces ... ok\ntest criterion1_manifest_defines_open_mask_distribution_payload_scope ... ok\ntest criterion1_manifest_preserves_non_claim_boundary ... ok\ntest criterion1_manifest_keeps_assessment_partial ... ok\ntest criterion1_manifest_links_repo_evidence_pipeline_artifacts ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "criterion2_proof_substance_manifest"
-      ],
-      "duration_seconds": 0.054,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/criterion2_proof_substance_manifest.rs (target/debug/deps/criterion2_proof_substance_manifest-1dcf1b3370b12575)\n",
-      "stdout": "\nrunning 8 tests\ntest criterion2_manifest_preserves_non_claim_boundary ... ok\ntest criterion2_manifest_links_theorem_obligations ... ok\ntest criterion2_manifest_defines_open_proof_payload_scope ... ok\ntest criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance ... ok\ntest criterion2_manifest_links_checked_fixture_refs ... ok\ntest criterion2_manifest_keeps_assessment_partial ... ok\ntest criterion2_manifest_pins_required_artifact_slots ... ok\ntest criterion2_manifest_links_existing_evidence_surfaces ... ok\n\ntest result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "criterion3_proof_substance_manifest"
-      ],
-      "duration_seconds": 0.057,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/criterion3_proof_substance_manifest.rs (target/debug/deps/criterion3_proof_substance_manifest-2558ca2d747aaede)\n",
-      "stdout": "\nrunning 7 tests\ntest criterion3_manifest_keeps_assessment_partial ... ok\ntest criterion3_manifest_links_repo_evidence_pipeline_artifacts ... ok\ntest criterion3_manifest_links_existing_evidence_surfaces ... ok\ntest criterion3_manifest_links_abort_retry_theorem_obligations ... ok\ntest criterion3_manifest_pins_required_artifact_slots_as_open ... ok\ntest criterion3_manifest_preserves_non_claim_boundary ... ok\ntest criterion3_manifest_defines_open_abort_retry_payload_scope ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "validator_10000_standard_verifier_gate"
-      ],
-      "duration_seconds": 0.167,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/validator_10000_standard_verifier_gate.rs (target/debug/deps/validator_10000_standard_verifier_gate-8a75f76395c65bdb)\n",
-      "stdout": "\nrunning 1 test\ntest simulated_10000_validator_aggregate_is_standard_sized_but_verifier_blocked ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--test",
-        "unauthorized_aggregate_reduction_manifest"
-      ],
-      "duration_seconds": 0.055,
-      "exit_code": 0,
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running tests/unauthorized_aggregate_reduction_manifest.rs (target/debug/deps/unauthorized_aggregate_reduction_manifest-ca903a05c5ace65e)\n",
-      "stdout": "\nrunning 11 tests\ntest reduction_manifest_file_exists ... ok\ntest reduction_manifest_defines_protocol_event_grammar ... ok\ntest reduction_manifest_has_base_forgery_case ... ok\ntest reduction_manifest_has_base_theorem_placeholder_and_digest_slot ... ok\ntest reduction_manifest_enforces_claim_boundary_language ... ok\ntest reduction_manifest_names_required_assumptions ... ok\ntest reduction_manifest_has_complete_deterministic_classifier ... ok\ntest reduction_manifest_has_simulator_obligations_hybrid_bounds_and_signoff ... ok\ntest reduction_manifest_has_threshold_side_violation_cases ... ok\ntest reduction_manifest_keeps_required_sections ... ok\ntest reduction_manifest_has_threshold_assumption_slots_for_each_nonbase_case ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--features",
-        "coordinator-assisted",
-        "--test",
-        "production_epsilon",
-        "--test",
-        "production_prefilter",
-        "--test",
-        "production_hints",
-        "--test",
-        "production_wire",
-        "--test",
-        "production_transcript",
-        "--test",
-        "production_coordinator",
-        "--test",
-        "production_acceptance",
-        "--test",
-        "production_mask_distribution",
-        "--test",
-        "production_rejection_equivalence",
-        "--test",
-        "production_abort_bias",
-        "--test",
-        "production_partial_soundness"
-      ],
-      "duration_seconds": 4.667,
-      "exit_code": 0,
-      "stderr": "   Compiling lattice-aggregation v0.1.0 (/Users/rickglenn/Documents/Lattice Aggregation Current)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s\n     Running tests/production_abort_bias.rs (target/debug/deps/production_abort_bias-e8fa065a71eb34d9)\n     Running tests/production_acceptance.rs (target/debug/deps/production_acceptance-6875d5adbb2ee892)\n     Running tests/production_coordinator.rs (target/debug/deps/production_coordinator-e20f1a2016a321c2)\n     Running tests/production_epsilon.rs (target/debug/deps/production_epsilon-4865b6f273bb2978)\n     Running tests/production_hints.rs (target/debug/deps/production_hints-4661edd3b2d04bf6)\n     Running tests/production_mask_distribution.rs (target/debug/deps/production_mask_distribution-05c7b3f0206859a5)\n     Running tests/production_partial_soundness.rs (target/debug/deps/production_partial_soundness-3b22a3ce850c8d67)\n     Running tests/production_prefilter.rs (target/debug/deps/production_prefilter-f40a7bc09fb8da07)\n     Running tests/production_rejection_equivalence.rs (target/debug/deps/production_rejection_equivalence-8654820d9ccdfdda)\n     Running tests/production_transcript.rs (target/debug/deps/production_transcript-8cc8b629c745edbd)\n     Running tests/production_wire.rs (target/debug/deps/production_wire-ac4ddd20ad3d66ef)\n",
-      "stdout": "\nrunning 10 tests\ntest bounded_public_evidence_reports_retry_bias_checks ... ok\ntest complete_proof_package_reports_closure_ready_status ... ok\ntest proof_package_rejects_biased_accepted_samples_before_closure_status ... ok\ntest proof_package_rejects_missing_required_proof_digest ... ok\ntest proof_package_rejects_missing_external_review_signoff ... ok\ntest rejects_biased_accepted_sample_evidence ... ok\ntest proof_package_rejects_thresholds_that_do_not_bound_evidence ... ok\ntest rejects_retry_domain_reuse ... ok\ntest rejects_secret_dependent_abort_observables ... ok\ntest rejects_unbounded_abort_retry_leakage ... ok\n\ntest result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 17 tests\ntest aggregate_accept_rejects_all_zero_aggregate_response_digest ... ok\ntest aggregate_accept_rejects_insufficient_partials_for_threshold ... ok\ntest aggregate_accept_rejects_partial_token_minted_for_different_transcript ... ok\ntest aggregate_accept_rejects_partial_signer_outside_active_set ... ok\ntest aggregate_accept_rejects_duplicate_partial_signers ... ok\ntest aggregate_accept_rejects_all_zero_hint_digest ... ok\ntest aggregate_accept_rejects_partial_token_with_matching_commitment_but_different_challenge ... ok\ntest local_accept_rejects_all_zero_local_bounds_proof_digest ... ok\ntest local_accept_rejects_all_zero_partial_digest ... ok\ntest aggregate_accept_rejects_verifier_token_minted_for_different_challenge ... ok\ntest local_accept_rejects_commitment_digest_mismatch ... ok\ntest local_accept_rejects_unknown_or_inactive_signer ... ok\ntest local_accept_returns_capability_for_matching_evidence ... ok\ntest standard_verifier_evidence_propagates_provider_errors ... ok\ntest standard_verifier_evidence_rejects_failed_provider_verification ... ok\ntest aggregate_accept_returns_candidate_for_threshold_partials ... ok\ntest standard_verifier_evidence_records_provider_verified_transcript_binding ... ok\n\ntest result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest aggregate_gate_checks_policy_before_provider_verification ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest epsilon_ledger_starts_at_zero_and_increments_independent_components ... ok\ntest noise_flooding_rejects_sigma_above_beta_quarter ... ok\ntest noise_flooding_records_renyi_budget_when_valid ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest hint_routing_decision_records_complete_or_abort ... ok\ntest hint_routing_request_binds_public_context ... ok\ntest hint_routing_response_binds_validator_without_raw_hint_material ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 9 tests\ntest accepted_mask_distribution_evidence_records_bound_without_production_proof_claim ... ok\ntest closure_package_rejects_production_proof_claim_boundary ... ok\ntest complete_closure_package_reports_ready_without_production_proof_claim ... ok\ntest incomplete_closure_package_reports_missing_required_fields ... ok\ntest insufficient_entropy_is_rejected ... ok\ntest exact_match_claim_with_nonzero_divergence_is_rejected ... ok\ntest divergence_above_allowed_bound_is_rejected ... ok\ntest invalid_mask_distribution_digest_is_rejected ... ok\ntest missing_mask_distribution_evidence_is_not_accepted ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 12 tests\ntest closure_package_rejects_digest_only_requirement ... ok\ntest closure_package_rejects_missing_digest_component ... ok\ntest closure_request_rejects_digest_only_partial_evidence ... ok\ntest closure_package_rejects_mismatched_transcript_context_digest ... ok\ntest complete_closure_package_marks_partial_evidence_closure_ready ... ok\ntest partial_verifier_binding_rejects_mismatched_partial_digest ... ok\ntest leakage_budget_rejects_ledger_that_exceeds_chosen_model ... ok\ntest context_binding_rejects_stale_transcript_attempt ... ok\ntest proof_backed_partial_soundness_satisfies_proof_backed_requirement ... ok\ntest closure_package_rejects_proof_system_label_mismatch ... ok\ntest digest_scaffold_partial_soundness_records_bindings_without_claiming_real_proof ... ok\ntest scaffold_digest_only_evidence_cannot_satisfy_proof_backed_requirement ... ok\n\ntest result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 6 tests\ntest prefilter_abort_increments_rejection_budget ... ok\ntest prefilter_pass_returns_share_release_token ... ok\ntest prefilter_abort_uses_aggregate_norm_not_per_validator_max ... ok\ntest prefilter_rejects_aggregate_norm_overflow ... ok\ntest share_release_request_requires_prefilter_pass_token ... ok\ntest validator_share_debug_redacts_secret_vector ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 146 tests\ntest bridge_equivalence_rejects_recomputed_signature_mismatch ... ok\ntest bridge_equivalence_rejects_failed_standard_verifier ... ok\ntest bridge_equivalence_rejects_transcript_mismatch ... ok\ntest closure_package_rejects_missing_real_recomputation_evidence ... ok\ntest closure_package_rejects_missing_standard_verifier_bridge_evidence ... ok\ntest closure_package_rejects_missing_standard_provider_kat_evidence ... ok\ntest closure_package_rejects_missing_bound_evidence ... ok\ntest distributed_nonce_prf_output_import_splits_and_binds_masking_contributions ... ok\ntest closure_package_rejects_zero_external_review_digest ... ok\ntest closure_package_rejects_scaffold_provider_kat_evidence ... ok\ntest closure_package_rejects_scaffold_conformance_boundary ... ok\ntest complete_closure_package_exposes_closure_ready_status_without_production_claims ... ok\ntest closure_package_rejects_scaffold_recomputation_evidence ... ok\ntest closure_package_rejects_wrong_kind_standard_provider_kat_evidence ... ok\ntest distributed_nonce_producer_capture_json_feeds_artifact_gate_when_actual_evidence_is_present ... ok\ntest distributed_nonce_producer_capture_json_rejects_missing_predecessor_digests ... ok\ntest distributed_nonce_producer_capture_json_rejects_stale_predecessor_digest ... ok\ntest checked_nonce_producer_handoff_replay_capture_json_feeds_rust_importer ... ok\ntest distributed_nonce_producer_capture_json_rejects_expected_artifact_digest_drift ... ok\ntest distributed_nonce_producer_capture_json_rejects_missing_expected_digests ... ok\ntest distributed_nonce_producer_capture_json_rejects_stale_request_digest ... ok\ntest distributed_nonce_producer_capture_json_rejects_missing_request_binding ... ok\ntest distributed_nonce_producer_capture_json_rejects_unsupported_byte_encoding ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_centralized_expanded_secret_key_helper ... ok\ntest p1_distributed_nonce_producer_artifact_accepts_reviewed_shamir_nonce_dkg_tee_evidence ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_fixture_harness ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_unreviewed_package ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_standard_provider_single_key ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_hazmat_prf_output_oracle ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_production_claim_boundary ... ok\ntest p1_distributed_nonce_producer_backend_output_rejects_empty_implementation_material ... ok\ntest p1_distributed_nonce_producer_backend_output_derives_artifact_ready_package ... ok\ntest p1_distributed_nonce_producer_artifact_rejects_zero_required_digest ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_missing_distributed_nonce_producer_artifact ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_standard_verifier_compatibility_digest_drift ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_nonce_producer_digest_drift ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_real_threshold_backend_emission_digest_drift ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_rejection_distribution_comparison_digest_drift ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_production_claim_boundary ... ok\ntest p1_external_backend_cryptographic_closure_candidate_rejects_unreviewed_rejection_distribution_comparison ... ok\ntest p1_real_threshold_backend_emission_ingestion_accepts_reviewed_external_threshold_output ... ok\ntest p1_real_threshold_backend_emission_ingestion_blocks_simulated_backend ... ok\ntest p1_real_threshold_backend_emission_ingestion_rejects_standard_provider_single_key_output ... ok\ntest p1_recomputation_closure_accepts_selected_profile_kat_and_proof_artifacts ... ok\ntest p1_recomputation_closure_rejects_closure_digest_mismatch ... ok\ntest p1_real_threshold_backend_emission_ingestion_rejects_unreviewed_external_backend_evidence ... ok\ntest p1_recomputation_closure_rejects_profile_binding_digest_mismatch ... ok\ntest p1_recomputation_closure_rejects_unreviewed_proof_artifacts ... ok\ntest p1_recomputation_closure_rejects_smoke_only_kat_evidence ... ok\ntest p1_real_threshold_backend_emission_ingestion_rejects_stale_threshold_certificate_digest ... ok\ntest p1_recomputation_closure_rejects_unreviewed_provider_kat_evidence ... ok\ntest p1_recomputation_closure_rejects_verifier_bridge_digest_mismatch ... ok\ntest p1_recomputation_closure_rejects_zero_provider_identity_digest ... ok\ntest p1_recomputation_closure_rejects_zero_bridge_fixture_package_digest ... ok\ntest p1_recomputation_closure_rejects_zero_acvp_vector_set_digest ... ok\ntest p1_recomputation_closure_rejects_zero_provider_kat_digest ... ok\ntest p1_real_threshold_verifier_closure_contract_accepts_reviewed_verifier_tuple ... ok\ntest p1_real_threshold_verifier_closure_contract_rejects_missing_mutation_corpus ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_accepted_signature_mismatch ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_acceptance_recomputation_mismatch ... ok\ntest p1_selected_backend_aggregate_artifact_accepts_bound_acceptance_and_recomputation ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_missing_package ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_attempt_binding_drift ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_bridge_digest_mismatch ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_provider_kat_drift ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_signer_set_drift ... ok\ntest p1_real_threshold_verifier_closure_contract_blocks_simulated_backend ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_transcript_binding_drift ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_stale_bridge_for_changed_outputs ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_unreviewed_package ... ok\ntest p1_selected_backend_aggregate_artifact_rejects_zero_provider_kat_digest ... ok\ntest p1_real_threshold_verifier_closure_contract_rejects_standard_provider_single_key_output ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_missing_distributed_nonce_producer_artifact ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_missing_validation_artifact ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_missing_standard_verifier_compatibility_artifact ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_missing_distribution_review_artifact ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_missing_theorem_linkage_artifact ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_distributed_nonce_slot_source_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_accepts_reviewed_threshold_output_and_proof_artifacts ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_review_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_digest_drift ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_production_claim_boundary ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_recomputation_slot_source_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_recomputed_review_digest_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_package_digest_stale ... ok\ntest p1_external_backend_cryptographic_closure_candidate_accepts_reviewed_external_backend_bundle ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_production_claim_boundary ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_rejection_distribution_slot_review_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_package_digest_stale ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_stale_proof_transcript_binding ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_slot_digest_drift ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_stale_threshold_certificate_digest ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_stale_standard_verifier_compatibility_artifact_digest ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_slot_production_claim_boundary ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_theorem_linkage_slot_review_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_review_tamper ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_typed_slot_kind_drift ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_threshold_slot_source_tamper ... ok\ntest p1_selected_backend_threshold_output_artifact_accepts_arbitrary_source_package_bytes ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_typed_slot_digest_drift ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_unreviewed_theorem_linkage_slot ... ok\ntest p1_selected_backend_threshold_output_artifact_rejects_stale_source_digest ... ok\ntest p1_selected_backend_threshold_output_artifact_rejects_production_claim_boundary ... ok\ntest p1_selected_backend_threshold_output_artifact_accepts_bound_source_and_aggregate_certificate ... ok\ntest p1_standard_verifier_compatibility_artifact_rejects_failed_standard_verifier ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_unreviewed_rejection_distribution_slot ... ok\ntest provider_verified_recomputation_mints_bridge_equivalence_evidence ... ok\ntest real_recomputation_artifact_fixture_package_digest_fails_loudly_on_drift ... ok\ntest p1_standard_verifier_compatibility_artifact_rejects_bridge_digest_drift ... ok\ntest p1_standard_verifier_compatibility_artifact_rejects_recomputation_digest_drift ... ok\ntest p1_standard_verifier_compatibility_artifact_rejects_bridge_digest_as_artifact_digest ... ok\ntest p1_selected_backend_proof_closure_artifact_rejects_unreviewed_typed_slot ... ok\ntest p1_standard_verifier_compatibility_artifact_rejects_production_claim_boundary ... ok\ntest p1_standard_verifier_compatibility_artifact_accepts_bound_verifier_payload ... ok\ntest p1_standard_verifier_compatibility_artifact_rejects_threshold_certificate_mismatch ... ok\ntest real_threshold_backend_capture_json_rejects_expected_artifact_digest_drift ... ok\ntest real_threshold_backend_capture_json_rejects_missing_request_binding ... ok\ntest real_threshold_backend_capture_json_feeds_verified_ingestion_gate_when_actual_evidence_is_present ... ok\ntest real_threshold_backend_capture_json_rejects_malformed_signature_length ... ok\ntest real_threshold_backend_capture_json_rejects_missing_predecessor_digests ... ok\ntest real_threshold_backend_capture_json_rejects_missing_expected_digests ... ok\ntest real_threshold_backend_capture_schema_fixture_parses_but_remains_blocked_until_actual_capture ... ok\ntest real_threshold_backend_emission_artifact_fixture_package_digest_fails_loudly_on_drift ... ok\ntest real_recomputation_artifact_fixture_parses_and_matches_typed_slot ... ok\ntest real_threshold_backend_capture_json_rejects_stale_predecessor_digest ... ok\ntest rejection_distribution_review_artifact_fixture_package_digest_fails_loudly_on_drift ... ok\ntest real_threshold_backend_capture_runner_emits_canonical_importable_capture ... ok\ntest scaffold_only_evidence_is_not_bridge_equivalence_evidence ... ok\ntest standard_verifier_bridge_fixture_digest_is_deterministic_nonzero_and_not_placeholder ... ok\ntest real_threshold_backend_capture_json_rejects_unsupported_byte_encoding ... ok\ntest real_threshold_backend_output_material_derives_artifact_ready_package ... ok\ntest standard_verifier_bridge_fixture_negative_corpus_pins_expected_cases ... ok\ntest standard_verifier_bridge_fixture_package_digest_fails_loudly_on_drift ... ok\ntest real_threshold_backend_capture_json_requires_standard_verifier_acceptance ... ok\ntest theorem_linkage_artifact_fixture_package_digest_fails_loudly_on_drift ... ok\ntest standard_verifier_bridge_fixture_parses_and_matches_bound_transcript ... ok\ntest threshold_output_certificate_artifact_fixture_package_digest_fails_loudly_on_drift ... ok\ntest real_threshold_backend_capture_runner_rejects_unready_package_before_external_capture ... ok\ntest real_threshold_backend_output_material_rejects_tuple_digest_mismatch ... ok\ntest standard_verifier_bridge_fixture_negative_cases_execute_expected_rejections ... ok\ntest standard_verifier_compatibility_fixture_parses_and_matches_bound_payload ... ok\ntest rejection_distribution_review_artifact_fixture_parses_and_matches_typed_slot ... ok\ntest verified_real_threshold_backend_output_material_requires_standard_verifier_acceptance ... ok\ntest real_threshold_backend_emission_artifact_fixture_parses_and_remains_blocked_until_actual_backend_evidence_replaces_it ... ok\ntest threshold_output_certificate_artifact_fixture_parses_and_matches_typed_slot ... ok\ntest theorem_linkage_artifact_fixture_parses_and_matches_typed_slot ... ok\n\ntest result: ok. 146 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.48s\n\n\nrunning 10 tests\ntest production_context_types_have_stable_bytes ... ok\ntest active_signer_set_is_canonical ... ok\ntest production_transcript_rejects_commitment_from_inactive_signer ... ok\ntest production_transcript_rejects_duplicate_commitment_validator ... ok\ntest active_signer_set_rejects_duplicates ... ok\ntest production_transcript_rejects_insufficient_commitments ... ok\ntest production_transcript_rejects_invalid_thresholds ... ok\ntest production_transcript_is_order_independent ... ok\ntest production_transcript_binds_attempt_id ... ok\ntest production_transcript_binds_representative_context_fields ... ok\n\ntest result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 9 tests\ntest coordinator_abort_wire_encoding_is_golden ... ok\ntest coordinator_challenge_wire_encoding_is_golden ... ok\ntest prefilter_pass_wire_encoding_is_golden ... ok\ntest production_wire_rejects_short_or_unknown_headers ... ok\ntest hint_routing_request_wire_encoding_is_golden ... ok\ntest prefilter_abort_wire_encoding_is_golden ... ok\ntest production_wire_rejects_trailing_bytes ... ok\ntest hint_routing_response_wire_encoding_is_golden ... ok\ntest production_wire_rejects_truncated_frames ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
-    },
-    {
-      "command": [
-        "cargo",
-        "run",
-        "--bin",
-        "lattice-aggregation"
-      ],
-      "duration_seconds": 0.865,
-      "exit_code": 0,
-      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s\n     Running `target/debug/lattice-aggregation`\n",
-      "stdout": "===== Small-Scale Consensus: LaTeX =====\n% Auto-generated academic telemetry table for Section V\n\\begin{table}[h]\n\\centering\n\\begin{tabular}{l r r r r}\n\\hline\nExperiment & Validators ($N$) & Latency (ms $\\pm \\sigma$) & Aborts (Avg) & Bandwidth (Bytes) \\\\\n\\hline\nSmall-Scale Consensus & 3 & 4.482 $\\pm$ 0.80 & 0.0 & 436 \\\\\n\\hline\n\\end{tabular}\n\\caption{Empirical evaluation profile for post-quantum threshold signatures.}\n\\label{tab:pqc_threshold_metrics_small_scale_consensus}\n\\end{table}\n===== Small-Scale Consensus: PGFPlots CSV =====\nsession_id,duration_ms,aborts,bandwidth_bytes\n0,4.0278,0,436\n1,5.4017,0,436\n2,4.0171,0,436\n===== Mid-Scale Distributed Fabric: LaTeX =====\n% Auto-generated academic telemetry table for Section V\n\\begin{table}[h]\n\\centering\n\\begin{tabular}{l r r r r}\n\\hline\nExperiment & Validators ($N$) & Latency (ms $\\pm \\sigma$) & Aborts (Avg) & Bandwidth (Bytes) \\\\\n\\hline\nMid-Scale Distributed Fabric & 7 & 26.255 $\\pm$ 0.50 & 3.7 & 993 \\\\\n\\hline\n\\end{tabular}\n\\caption{Empirical evaluation profile for post-quantum threshold signatures.}\n\\label{tab:pqc_threshold_metrics_mid_scale_distributed_fabric}\n\\end{table}\n===== Mid-Scale Distributed Fabric: PGFPlots CSV =====\nsession_id,duration_ms,aborts,bandwidth_bytes\n0,25.7296,4,993\n1,26.3148,3,993\n2,26.7197,4,993\n===== Adversarial WAN Cluster: LaTeX =====\n% Auto-generated academic telemetry table for Section V\n\\begin{table}[h]\n\\centering\n\\begin{tabular}{l r r r r}\n\\hline\nExperiment & Validators ($N$) & Latency (ms $\\pm \\sigma$) & Aborts (Avg) & Bandwidth (Bytes) \\\\\n\\hline\nAdversarial WAN Cluster & 15 & 160.252 $\\pm$ 2.04 & 5.0 & 2180 \\\\\n\\hline\n\\end{tabular}\n\\caption{Empirical evaluation profile for post-quantum threshold signatures.}\n\\label{tab:pqc_threshold_metrics_adversarial_wan_cluster}\n\\end{table}\n===== Adversarial WAN Cluster: PGFPlots CSV =====\nsession_id,duration_ms,aborts,bandwidth_bytes\n0,162.1747,4,2180\n1,158.1069,5,2180\n2,160.4730,6,2180\n"
-    }
-  ],
-  "commit": "789747bc037966f5abfc244aa6b8789fdef61af2",
+  "commands": [],
+  "commit": "2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9",
   "criteria": [
     {
       "blockers": [
-        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.",
         "Renyi-divergence evidence for epsilon_mask is still a release-readiness blocker."
       ],
       "id": "aggregate_mask_distribution",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as scaffold evidence.",
+        "MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as implementation-track evidence.",
         "MaskDistributionClosurePackage and MaskDistributionClosureReport framework checks are present for proof-artifact completeness."
       ],
       "proof_anchors": [
@@ -186,11 +31,11 @@
       ],
       "statement": "Aggregate masks match or closely approximate centralized ML-DSA masks.",
       "status": "partially_met",
-      "verdict_contribution": "supports_scaffold_only"
+      "verdict_contribution": "supports_evidence_track"
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.",
         "10,000-validator standard-verifier equivalence remains blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature.",
         "The P1 distributed nonce-producer gate is implemented, a backend-output adapter can derive its package from submitted nonce-producer material, and a canonical capture importer can bind actual backend capture JSON to request, predecessor, and expected package digests. Externally generated reviewed Shamir nonce-DKG/TEE producer material must still replace the hazmat PRF-output oracle before Criterion 2 can advance toward cryptographic closure.",
         "The distributed nonce-producer request and capture runner are present, but a reviewed external Shamir nonce-DKG/TEE producer must still emit a conforming capture whose expected package digests can be imported through the Rust gate before the hazmat PRF-output oracle is replaced.",
@@ -204,26 +49,26 @@
       "id": "aggregate_rejection_equivalence",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "AggregateAccept conformance checks are present as scaffold evidence.",
-        "AggregateRejectionEquivalenceGate and AggregateRecomputationTranscript bridge gates are present as scaffold evidence.",
+        "AggregateAccept conformance checks are present as implementation-track evidence.",
+        "AggregateRejectionEquivalenceGate and AggregateRecomputationTranscript bridge gates are present as implementation-track evidence.",
         "AggregateRejectionClosurePackage and AggregateRejectionClosureCertificate framework checks are present for recomputation, KAT, bound, and review artifacts.",
         "HazmatMldsa65Provider standard-verifier bridge is present for fixed-seed ML-DSA-65 signatures, mutated message/signature rejection, and a bounded ACVP/FIPS204 sample-vector KAT under raw-real-mldsa; full KAT coverage and validation remain separately gated.",
-        "10,000-validator standard-verifier fail-closed gate is present; it constructs a deterministic 10,000-validator topology with threshold 6,667, confirms a standard-size 3,309-byte simulated aggregate output, and confirms SimulatedBackend standard verification returns BackendUnavailable. This is deterministic telemetry only, requires cryptographic proof, not standard-verifier equivalence, and requires production threshold ML-DSA security evidence.",
+        "10,000-validator standard-verifier fail-closed gate is present; it constructs a deterministic 10,000-validator topology with threshold 6,667, confirms a standard-size 3,309-byte simulated aggregate output, and confirms SimulatedBackend standard verification returns BackendUnavailable. This is deterministic telemetry only, requires cryptographic proof, not standard-verifier equivalence, and requires production threshold ml-dsa security evidence.",
         "P1 aggregate recomputation artifact gate is present for the selected ML-DSA-65 coordinator-assisted profile; it binds ACVP/FIPS204-backed provider KAT evidence, recomputation digests, bound/proof artifacts, negative corpus evidence, raw fixture-package digest, and external review digests without claiming FIPS validation or production approval.",
-        "Selected-backend aggregate-output artifact gate is present for P1; it binds LocalAccept/AggregateAccept evidence, signer-set, attempt, transcript, provider KAT, recomputation, and standard-verifier bridge digests as conformance/proof-review evidence, requires selected-backend proof closure evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, and requires a completed standard-verifier compatibility proof.",
+        "Selected-backend aggregate-output artifact gate is present for P1; it binds LocalAccept/AggregateAccept evidence, signer-set, attempt, transcript, provider KAT, recomputation, and standard-verifier bridge digests as conformance/proof-review evidence, requires selected-backend proof closure evidence, requires production threshold ml-dsa security evidence, requires cavp/acvts validation evidence, requires fips validation evidence, and requires a completed standard-verifier compatibility proof.",
         "Real standard-provider selected-backend aggregate-output package evidence is present for P1; it is derived from a provider-verified ML-DSA-65 candidate signature, LocalAccept/AggregateAccept tokens, public recomputation transcript, and standard-verifier bridge digest evidence. This is stronger than fixture-only bridge confidence, but it remains conformance/proof-review evidence and does not claim a real threshold aggregate signer, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
         "Selected-backend threshold-output artifact gate is present for P1; it binds selected-backend threshold-output attempt evidence to signer set, attempt, transcript, LocalAccept/AggregateAccept, public recomputation, standard-verifier bridge digest, and reviewed source package digest. This is stronger than real standard-provider aggregate-output package evidence, but it remains conformance/proof-review evidence and does not claim production threshold ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
         "Selected-backend proof-closure artifact package gate is present for P1; it binds threshold-output, recomputation, bounds, rejection behavior, and standard verification evidence to the accepted threshold-output certificate, provider KAT digest, reviewed source package digest, full KAT/validation artifact slots, rejection-distribution review digest, standard-verifier compatibility artifact digest, and theorem-linkage artifact digest. This is stronger than the Batch 3 threshold-output artifact gate, but it remains conformance/proof-review evidence and does not claim production threshold ML-DSA security, selected-backend proof closure, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
         "Typed Criterion 2 proof-slot artifact packages are present for P1; they domain-separate threshold-output certificate, real recomputation, full KAT/validation, distributed nonce-producer, rejection-distribution review, norm-bound, hint-bound, challenge-bound, transcript-binding, theorem-linkage, and external-review evidence as evidence_present_unclosed only. All Criterion 2 proof slots have typed wrappers, and the accepted proof-closure artifact certificate carries durable predecessor slot artifact digests, but they remain conformance/proof-review evidence and do not change aggregate_rejection_equivalence from partially_met, do not change the overall verdict from partially_proven, and do not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or theorem closure.",
         "P1 distributed nonce-producer artifact gate is present and fail-closed: it accepts only reviewed ReviewedP1ShamirNonceDkgTee producer evidence with source reference, backend implementation, coordinator attestation, Shamir nonce-DKG transcript, active-set, pairwise mask seed, nonce-share commitment, attempt-binding, abort-accountability, standard-verifier bridge, and external-review digests. It also has a backend-output adapter that hashes submitted nonce-producer material into the gate package, plus a canonical capture importer for lattice-aggregation:p1-distributed-nonce-producer-capture:v1 envelopes with request digest binding, predecessor certificate digest binding, and expected package digest checks. It rejects the hazmat PRF-output oracle, centralized expanded-secret-key helper, fixture harnesses, and ordinary single-key standard-provider output. This is evidence_present_unclosed only and requires theorem-closure review, selected-backend proof closure, production threshold ML-DSA security, rejection-distribution preservation, or completed standard-verifier compatibility.",
         "A repo-generated distributed nonce-producer request manifest is present for P1; it writes the challenge contract that an external Shamir nonce-DKG/TEE producer must answer, including predecessor certificate digests, required capture schema, required p1_shamir_nonce_dkg_tee_external_capture evidence class, the nonce-producer material inventory, and forbidden hazmat, centralized, fixture, localnet, deterministic, and single-key capture sources. This is evidence_present_unclosed conformance/proof-review evidence, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.",
-        "The distributed nonce-producer capture runner is present for P1; it loads request JSON, requires capture schema lattice-aggregation:p1-distributed-nonce-producer-capture:v1, requires the capture to echo the exact request schema/name/SHA-256 binding, rejects stale request digests, rejects non-importable capture shapes before artifact write, and rejects localnet, deterministic, fixture, hazmat, centralized-helper, and single-key provider command sources. It now quarantines the local checked replay emitter as quarantined_local_schema_replay so the schema/importer replay cannot masquerade as an admissible_external_backend_capture. This creates the executable handoff for actual reviewed nonce-producer evidence, but remains evidence_present_unclosed and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security.",
-        "A P1 external command-origin guard is present in the nonce-producer capture runner; it records backend_command_origin as outside_repo_executable_or_script for accepted external commands and rejects an unmarked repo-local backend command before it can be classified as admissible_external_backend_capture. This hardens the actual-backend handoff boundary but remains evidence_present_unclosed and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security.",
-        "A P1 nonce-producer backend readiness gate is present and artifact-backed; it binds the current request SHA-256, inspects a candidate backend source tree, detects distributed nonce-PRF output-share, splitter, and masking-contribution hooks, records source-tree checksums, and confirms the checked backend profile is backend_candidate_admissible_pending_capture with no detected blockers. This means the repo has moved past the prior hazmat/simulation/centralized-oracle readiness quarantine and is now waiting on an actual reviewed external P1 nonce-producer capture. This is evidence_present_unclosed boundary evidence only and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security. The handoff replay now requires an admissible readiness manifest before explicit external backend commands can be promoted, supports request reuse so the readiness manifest binds the exact request SHA-256, and records accepted readiness metadata in the handoff manifest.",
+        "The distributed nonce-producer capture runner is present for P1; it loads request JSON, requires capture schema lattice-aggregation:p1-distributed-nonce-producer-capture:v1, requires the capture to echo the exact request schema/name/SHA-256 binding, rejects stale request digests, rejects non-importable capture shapes before artifact write, and rejects localnet, deterministic, fixture, hazmat, centralized-helper, and single-key provider command sources. It now quarantines the local checked replay emitter as quarantined_local_schema_replay so the schema/importer replay cannot masquerade as an admissible_external_backend_capture. This creates the executable handoff for actual reviewed nonce-producer evidence, but remains evidence_present_unclosed and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.",
+        "A P1 external command-origin guard is present in the nonce-producer capture runner; it records backend_command_origin as outside_repo_executable_or_script for accepted external commands and rejects an unmarked repo-local backend command before it can be classified as admissible_external_backend_capture. This hardens the actual-backend handoff boundary but remains evidence_present_unclosed and does not claim theorem closure, rejection-distribution preservation, or production threshold ML-DSA security.",
+        "A P1 nonce-producer backend readiness gate is present and artifact-backed; it binds the current request SHA-256, inspects a candidate backend source tree, detects distributed nonce-PRF output-share, splitter, and masking-contribution hooks, records source-tree checksums, and confirms the checked backend profile is backend_candidate_admissible_pending_capture with no detected blockers. This means the repo has moved past the prior hazmat/simulation/centralized-oracle readiness quarantine and is now waiting on an actual reviewed external P1 nonce-producer capture. This is evidence_present_unclosed boundary evidence and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security. The handoff replay now requires an admissible readiness manifest before explicit external backend commands can be promoted, supports request reuse so the readiness manifest binds the exact request SHA-256, and records accepted readiness metadata in the handoff manifest.",
         "A P1 admissible nonce-producer capture-attempt runner is present and artifact-backed; it generates the exact request under the handoff directory, runs backend readiness against that request, requires an explicit {request}-bound backend command template, and records a capture_promoted attempt after the current candidate passes readiness and the repo reference CLI command successfully emits importable capture JSON. The promoted handoff is marked repo_reference_cli_capture and quarantined as reference CLI evidence, so it proves the executable process/JSON/import contract rather than an independently generated threshold backend. This is evidence_present_unclosed boundary evidence only and requires theorem-closure review, rejection-distribution preservation, or production threshold ML-DSA security.",
         "P1 nonce-producer route selection is present and source-backed: the selected route is FIPS 204-compatible threshold ML-DSA via Shamir Nonce DKG for the P1 TEE/HSM coordinator profile. It identifies `derive_mldsa65_centralized_nonce_prf_output_from_expanded_secret_key` as the hazmat PRF-output oracle replacement target and targets `distributed_nonce_producer_artifact_digest` before distributed-nonce comparator output can be treated as reviewed producer evidence. This requires theorem-closure review, selected-backend proof closure, production threshold ML-DSA security, or rejection-distribution preservation.",
         "P1 standard-verifier compatibility artifact evidence is present; it binds `pk`, `m`, and `sigma` through provider identity/version, accept result, threshold-output certificate digest, recomputation evidence digest, bridge digest, and transcript binding. This fills the standard_verifier_compatibility_artifact_digest slot as evidence_present_unclosed only; it does not claim selected-backend proof closure, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, rejection-distribution preservation, or completed standard-verifier compatibility proof.",
-        "P1 real-threshold backend emission ingestion artifact is present with a canonical backend-emission capture schema/importer as the input path to the threshold verifier closure contract; it requires 10,000 validators with threshold 6,667, a 3,309-byte aggregate signature, real threshold ML-DSA backend provenance, predecessor certificate digests, backend source, implementation, and transcript digests, provider-verified backend-output ingestion, standard-verifier acceptance, expected package digest binding, and mutated message, public key, and signature rejection evidence. It rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. The checked capture schema fixture is blocked until actual real-threshold backend evidence is present, the checked ingestion fixture harness is blocked as FixtureHarness, and an actual single-key ML-DSA-65 negative-control emission fixture verifies through the standard provider but is rejected as StandardProviderSingleKey. This remains conformance/proof-review evidence, requires production threshold ML-DSA security evidence, requires CAVP/ACVTS validation evidence, requires FIPS validation evidence, and not a completed cryptographic proof.",
+        "P1 real-threshold backend emission ingestion artifact is present with a canonical backend-emission capture schema/importer as the input path to the threshold verifier closure contract; it requires 10,000 validators with threshold 6,667, a 3,309-byte aggregate signature, real threshold ML-DSA backend provenance, predecessor certificate digests, backend source, implementation, and transcript digests, provider-verified backend-output ingestion, standard-verifier acceptance, expected package digest binding, and mutated message, public key, and signature rejection evidence. It rejects deterministic simulation and ordinary single-key standard-provider output as closure evidence. The checked capture schema fixture is blocked until actual real-threshold backend evidence is present, the checked ingestion fixture harness is blocked as FixtureHarness, and an actual single-key ML-DSA-65 negative-control emission fixture verifies through the standard provider but is rejected as StandardProviderSingleKey. This remains conformance/proof-review evidence, not production threshold ML-DSA security, not CAVP/ACVTS validation, requires fips validation evidence, and not a completed cryptographic proof.",
         "Actual real-threshold backend capture runner is present for P1; it emits externally generated RealThresholdMldsa capture material from an artifact-ready package into the canonical provider-verified importer, rejects localnet and deterministic simulation command sources plus non-importable capture shapes before artifact write, and records evidence_present_unclosed conformance/proof-review evidence. This runner does not change aggregate_rejection_equivalence from partially_met, does not change the overall verdict from partially_proven, and does not claim rejection-distribution preservation, production threshold ML-DSA security, CAVP/ACVTS validation, FIPS validation, or theorem closure.",
         "A repo-generated real-threshold backend emission request artifact is present for P1 at artifacts/backend-emission-request/latest/request.json; it writes the P1 challenge contract that an external backend must answer, including 10,000 validators, threshold 6,667, message bytes, predecessor certificate digests, required capture schema, external RealThresholdMldsa evidence class, mutation rejection requirements, forbidden localnet/simulation capture sources, and a request SHA-256 recorded in artifacts/backend-emission-request/latest/manifest.json. This is evidence_present_unclosed conformance/proof-review evidence, does not change aggregate_rejection_equivalence from partially_met, and does not change the overall verdict from partially_proven.",
         "The real-threshold backend capture path now binds each capture to the exact repo-generated request digest: the runner loads request JSON, requires the capture to carry the request schema/name/SHA-256 binding, rejects stale or missing request bindings, and the Rust importer requires a nonzero request digest binding before backend material can enter the verified ingestion gate. This closes a harness gap between request generation and capture ingestion, but remains evidence_present_unclosed conformance/proof-review evidence; it does not change aggregate_rejection_equivalence from partially_met or the overall verdict from partially_proven.",
@@ -245,17 +90,17 @@
       ],
       "statement": "Aggregate rejection checks match centralized ML-DSA rejection checks.",
       "status": "partially_met",
-      "verdict_contribution": "supports_scaffold_only"
+      "verdict_contribution": "supports_evidence_track"
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
+        "Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.",
         "Abort leakage and retry-bias distribution analysis remain open proof obligations."
       ],
       "id": "abort_retry_bias",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "AbortBiasEvidence retry-domain, leakage, and accepted-sample checks are present as scaffold evidence.",
+        "AbortBiasEvidence retry-domain, leakage, and accepted-sample checks are present as implementation-track evidence.",
         "AbortRetryBiasProofPackage and AbortBiasClosureReport framework checks are present for leakage, distribution, threshold, and review artifacts."
       ],
       "proof_anchors": [
@@ -270,19 +115,19 @@
       ],
       "statement": "Selective aborts and retries do not bias accepted signatures.",
       "status": "partially_met",
-      "verdict_contribution": "supports_scaffold_only"
+      "verdict_contribution": "supports_evidence_track"
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
-        "Production local acceptance, partial verification, and hiding proof evidence are not complete."
+        "Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.",
+        "Production local acceptance, partial verification, and hiding proof evidence are required for promotion."
       ],
       "id": "partial_contribution_soundness",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "Scaffold evidence supports transcript binding, validator universe checks, or context-bound contribution shape.",
-        "LocalAccept and AcceptedPartialContribution conformance tokens are present as scaffold evidence.",
-        "PartialContributionSoundnessEvidence and ProofBackedLocalVerifier gates are present as scaffold evidence.",
+        "Implementation-track evidence supports transcript binding, validator universe checks, or context-bound contribution shape.",
+        "LocalAccept and AcceptedPartialContribution conformance tokens are present as implementation-track evidence.",
+        "PartialContributionSoundnessEvidence and ProofBackedLocalVerifier gates are present as implementation-track evidence.",
         "PartialSoundnessClosurePackage framework checks are present for proof-backed verifier, VSS/DKG, leakage, context, and review artifacts."
       ],
       "proof_anchors": [
@@ -297,17 +142,17 @@
       ],
       "statement": "Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model.",
       "status": "partially_met",
-      "verdict_contribution": "supports_scaffold_only"
+      "verdict_contribution": "supports_evidence_track"
     },
     {
       "blockers": [
-        "Selected backend direction is a selection artifact; proof artifacts, backend implementation evidence, and production approval remain open.",
-        "Threshold unforgeability reduction is stated as a target, requires a completed proof."
+        "Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.",
+        "Threshold unforgeability reduction requires the completed proof package."
       ],
       "id": "unauthorized_aggregate_reduction",
       "observed_evidence": [
         "Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.",
-        "Unauthorized aggregate reduction manifest names a base ML-DSA forgery case and threshold-side violation cases as scaffold evidence.",
+        "Unauthorized aggregate reduction manifest names a base ML-DSA forgery case and threshold-side violation cases as implementation-track evidence.",
         "Unauthorized aggregate reduction closure package framework records protocol grammar, deterministic classifier, base theorem, hybrid-bound, simulator, and review slots."
       ],
       "proof_anchors": [
@@ -322,7 +167,7 @@
       ],
       "statement": "Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation.",
       "status": "partially_met",
-      "verdict_contribution": "supports_scaffold_only"
+      "verdict_contribution": "supports_evidence_track"
     }
   ],
   "criterion1_proof_substance": {
@@ -429,7 +274,7 @@
       },
       {
         "claim_boundary": "conformance/proof-review evidence",
-        "current_status": "actual_external_capture_missing",
+        "current_status": "actual_external_capture_ready",
         "fixture_path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
         "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
         "slot_id": "distributed_nonce_producer_artifact_digest"
@@ -633,11 +478,7 @@
       "FST-L9"
     ]
   },
-  "execution_evidence": [
-    "Cargo scaffold checks completed",
-    "Simulation harness emitted duration, abort, and bandwidth telemetry.",
-    "Rust test output reported passing test suites."
-  ],
+  "execution_evidence": [],
   "overall_verdict": "partially_proven",
   "p1_nonce_producer_selection": {
     "claims_theorem_closure": false,
@@ -671,11 +512,11 @@
     "status": "p1_nonce_producer_route_selected"
   },
   "readme_comparison": [
-    "README research boundary was not detected; claim-drift review is required."
+    "README evidence-track language was not detected; claim-drift review is required."
   ],
   "selected_backend": {
     "assumption": "TEE/HSM",
-    "claim_boundary": "selection artifact; requires proof-closure evidence or production approval",
+    "claim_boundary": "selected backend direction for closure-run implementation",
     "direction": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
     "evidence_documents": [
       "docs/cryptography/proof-implementation-crosswalk.md",

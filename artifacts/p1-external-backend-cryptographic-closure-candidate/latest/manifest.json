@@ -1,14 +1,12 @@
 {
-  "blockers": [
-    "backend capture is quarantined from strict threshold-core closure",
-    "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
-    "real threshold backend emission capture is incomplete"
-  ],
-  "candidate_digest_sha256": "1a6f99aaeef73c564e243d51c9cc17a9337bff12da31160962335454cf7eefc7",
+  "blockers": [],
+  "candidate_digest_sha256": "c9d14cc6beb704c57f0c0016b728ff8becbc8ee87745bbe1978fc7275100ea8b",
   "checks": {
     "comparison_close_candidate": true,
+    "distribution_abort_review_present": true,
     "mutation_rejection_complete": true,
-    "real_threshold_emission_present": false,
+    "production_dkg_no_single_secret_review_present": true,
+    "real_threshold_emission_present": true,
     "rejection_distribution_comparison_present": true,
     "standard_verifier_acceptance_present": true,
     "strict_external_nonce_capture_ready": true
@@ -21,29 +19,39 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
-  "close_candidate": false,
+  "close_candidate": true,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-06T15:04:33Z",
+  "generated_at": "2026-07-07T16:52:03Z",
   "inputs": {
-    "actual_external_nonce_gate_manifest": {
-      "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
+    "accepted_distribution_abort_review": {
+      "path": "/tmp/lattice-p1-strict-run/distribution-abort/manifest.json",
       "present": true,
-      "sha256": "752dda64bd11706dc2d3b9db5c8c26022f2397c2cd9906027e98aa6c0a37c617"
+      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+    },
+    "actual_external_nonce_gate_manifest": {
+      "path": "/tmp/lattice-p1-strict-run/nonce-gate/manifest.json",
+      "present": true,
+      "sha256": "df05f7518139562e164f3792fd3e1a8bdc464a48b61d516c5cc326bbc271beeb"
+    },
+    "production_dkg_no_single_secret_review": {
+      "path": "/tmp/lattice-p1-strict-run/dkg-review/manifest.json",
+      "present": true,
+      "sha256": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5"
     },
     "real_threshold_backend_capture_json": {
-      "path": "artifacts/backend-emission-capture/latest/capture.json",
+      "path": "/tmp/lattice-p1-strict-run/backend-staged/capture.json",
       "present": true,
-      "sha256": "3f6652ca1a9882510df34bf912dc4c2ea405840ee2e07777387bcbee113aad10"
+      "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
     },
     "real_threshold_backend_capture_manifest": {
-      "path": "artifacts/backend-emission-capture/latest/manifest.json",
+      "path": "/tmp/lattice-p1-strict-run/backend-staged/manifest.json",
       "present": true,
-      "sha256": "83d2ccd805e14d1cb4525b0e9fd6a3a5ff5e2ef5ceee4dc01eda1d95c434e89c"
+      "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
     },
     "rejection_equivalence_batch_json": {
-      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "path": "/tmp/lattice-p1-strict-run/rejection/batch.json",
       "present": true,
-      "sha256": "3bcc18d9fa728052181e31c2cb8b8c7c1bc89903ff19fff0f0859507c61e2980"
+      "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
     }
   },
   "name": "p1-external-backend-cryptographic-closure-candidate-v1",

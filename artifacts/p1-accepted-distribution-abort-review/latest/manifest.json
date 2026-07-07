@@ -1,0 +1,238 @@
+{
+  "blockers": [],
+  "checks": {
+    "abort_independence_reviewed": true,
+    "accepted_threshold_distribution_reviewed": true,
+    "centralized_comparison_distribution_reviewed": true,
+    "concrete_loss_bounds_reviewed": true,
+    "concurrent_session_abort_model_reviewed": true,
+    "observable_restart_leakage_reviewed": true,
+    "rejection_distribution_preservation_reviewed": true,
+    "selective_abort_withholding_reviewed": true
+  },
+  "claim_boundary": "conformance/proof-review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility": false,
+    "claims_theorem_closure": false
+  },
+  "generated_at": "2026-07-07T16:52:03Z",
+  "name": "p1-accepted-distribution-abort-review",
+  "package_class": "accepted_distribution_abort_review",
+  "review_digests": {
+    "abort_independence_review_digest_hex": "4e4b33916a0cb7ad4dcf82f058e7f076f04ab3f129ec20aea522f89ce0884cbe",
+    "accepted_distribution_review_digest_hex": "b93b2a400e3a11bad8120a90f047cd05c12453eeb3ec0684dfff7d473af60f8b",
+    "centralized_comparison_review_digest_hex": "68383453807a2cc82c230dcaa4c030e2803f23e4855e0848f7ad986411984d22",
+    "concrete_loss_bounds_digest_hex": "fdf09eec7277857655b84466b5163c9c94467edbca9436c25a80656e0ab911eb",
+    "rejection_distribution_review_digest_hex": "1bc0c920d05d26910097e7536aa1fec9ca79351225b2c8b2448a2da58631e4c7",
+    "reviewer_identity_digest_hex": "b52a9e10250821fdf6acfb80a15431d729ed03422a1e2cf190ea3e4fab9d0f5f",
+    "withholding_accountability_review_digest_hex": "420c5ccbacd759717e356b54bb518704bd8261468d7418cb20cc9bffb8542478"
+  },
+  "review_status": "reviewed_distribution_abort_ready",
+  "schema": "lattice-aggregation:p1-accepted-distribution-abort-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_inputs": {
+    "backend_requirement_evidence": {
+      "aggregation": {
+        "aggregate_z_from_threshold_partials": true,
+        "byte_exact_mldsa65_signature": true,
+        "hint_h_from_threshold_partials": true,
+        "secret_material_exported_to_json": false,
+        "signature_len": 3309,
+        "standard_signature_tuple_present": true
+      },
+      "claim_flags": {
+        "claims_fips_validation": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_theorem_closure": false
+      },
+      "distributed_nonce_path": {
+        "abort_accountability_records": true,
+        "aggregate_commitment_w_evidence": true,
+        "commit_before_reveal": true,
+        "live_distributed_nonce_generation": false,
+        "no_centralized_nonce_oracle": true,
+        "per_attempt_nonce_share_generation": true
+      },
+      "fips204_rejection_loop": {
+        "accepted_and_rejected_attempts_recorded": true,
+        "accepted_attempt_count": 1,
+        "claims_rejection_distribution_preservation": false,
+        "claims_theorem_closure": false,
+        "real_threshold_partial_predicates": true,
+        "rejected_attempt_count": 1,
+        "required_predicates": [
+          "accept_reject_reason",
+          "challenge_digest",
+          "ct0",
+          "hint_omega",
+          "r0",
+          "z_bounds"
+        ],
+        "retry_until_accepted": true,
+        "standard_provider_acceptance_observed": true
+      },
+      "mldsa65_internal_provider": {
+        "exposes_expanded_secret_shares": false,
+        "exposes_rejection_predicates": true,
+        "exposes_signature_tuple": true,
+        "implementation_digest_hex": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
+        "no_export_custody": true,
+        "provider": "ml-dsa crate MlDsa65",
+        "source_digest_hex": "0c844fbdf0f7f438ccb928037208d3087f09d2b89e76bb4d05f748c74cfe3786",
+        "standard_parameter_set": "ML-DSA-65"
+      },
+      "nonce_commitments": [
+        {
+          "commit_before_reveal": true,
+          "commitment_digest_hex": "712e980f33b00cf62a1928f4938a4e9a89ff86b789ae0bab7cc1cafbdd39cb93",
+          "validator_id": 1
+        },
+        {
+          "commit_before_reveal": true,
+          "commitment_digest_hex": "c8771cd0a4637b44fb724feb1650a6d1fe6c5296fd8ea38c169e0fbc836fdb3e",
+          "validator_id": 2
+        },
+        {
+          "commit_before_reveal": true,
+          "commitment_digest_hex": "70f7238a36da4c333bed2c007a49ccdf92630aa0ad5db5d7cba71a0fd9a14a13",
+          "validator_id": 6667
+        },
+        {
+          "commit_before_reveal": true,
+          "commitment_digest_hex": "a9448d6c62f8e0e2f6c7b64529f476a268875757b69c03a7e07fdfc07d7b3203",
+          "validator_id": 10000
+        }
+      ],
+      "partial_contribution_receipts": [
+        {
+          "challenge_binding_present": true,
+          "commitment_binding_present": true,
+          "partial_z_i_no_export": true,
+          "receipt_digest_hex": "8ca51b33b8c77f3e6253af9aa306cef8b391c942c10b438dc981d89a9816fc81",
+          "secret_material_exported_to_json": false,
+          "validator_id": 1
+        },
+        {
+          "challenge_binding_present": true,
+          "commitment_binding_present": true,
+          "partial_z_i_no_export": true,
+          "receipt_digest_hex": "df57568580fe416d19ea5122b5751ca5433e5712e870af427aca721d3a5c516a",
+          "secret_material_exported_to_json": false,
+          "validator_id": 2
+        },
+        {
+          "challenge_binding_present": true,
+          "commitment_binding_present": true,
+          "partial_z_i_no_export": true,
+          "receipt_digest_hex": "941a4e131929d1a2e46da37e81a176a58e4e562d4964a2532e13919e2e95c002",
+          "secret_material_exported_to_json": false,
+          "validator_id": 6667
+        }
+      ],
+      "partial_signing": {
+        "bound_evidence_emitted": true,
+        "challenge_binding_emitted": true,
+        "commitment_binding_emitted": true,
+        "implemented": true,
+        "malformed_stale_duplicate_out_of_set_rejection": true,
+        "partial_contribution_receipts_present": true,
+        "partial_response_count": 6667,
+        "partial_signing_over_secret_shares": true,
+        "partial_z_i_emitted": true,
+        "secret_material_exported_to_json": false,
+        "signer_id_emitted": true
+      },
+      "rejection_predicate_records": [
+        {
+          "attempt_id": 0,
+          "ct0_bounds_checked": true,
+          "hint_omega_checked": true,
+          "predicate": "rejected",
+          "predicate_digest_hex": "959f78cc08d07e4172fd0f9e41ad349ed47e7878336fba9ef4238ce90f5fecd0",
+          "r0_bounds_checked": true,
+          "z_bounds_checked": true
+        },
+        {
+          "attempt_id": 1,
+          "ct0_bounds_checked": true,
+          "hint_omega_checked": true,
+          "predicate": "accepted",
+          "predicate_digest_hex": "41b983b56da306ea6cc63382e592135bb876ee3be3b074f137960245a437851f",
+          "r0_bounds_checked": true,
+          "z_bounds_checked": true
+        }
+      ],
+      "standard_verifier_compatibility": {
+        "mutated_message_rejected": true,
+        "mutated_public_key_rejected": true,
+        "mutated_signature_rejected": true,
+        "signature_len": 3309,
+        "unmodified_mldsa65_verifier_accepts_original": true
+      },
+      "strict_no_export_summary": {
+        "claims_rejection_distribution_preservation": false,
+        "claims_theorem_closure": false,
+        "core_mode": "tee_hsm_no_export_threshold_mldsa65_provider",
+        "schema": "lattice-threshold-backend-p1:strict-no-export-signature-summary:v1",
+        "signature_len": 3309,
+        "signature_origin": "tee_hsm_no_export_standard_mldsa65_provider",
+        "transcript_digest_hex": "a07d2d677f1f1f51bacbbb437a3b6496dae91a81e0a0ce79d9728dc60e35b66c"
+      },
+      "threshold_key_material": {
+        "distributed_dkg_vss_transcript_present": false,
+        "public_key_count": 1,
+        "secret_material_exported_to_json": false,
+        "single_exposed_mldsa_secret_key_prevented": true,
+        "tee_hsm_trust_record_present": true,
+        "threshold": 6667,
+        "validator_count": 10000
+      },
+      "threshold_vs_centralized_comparison": {
+        "accepted_or_rejected_matches": true,
+        "centralized_comparison_attempts_present": true,
+        "challenge_digest_matches": true,
+        "claims_rejection_distribution_preservation": false,
+        "claims_theorem_closure": false,
+        "predicate_mismatch_count": 0
+      }
+    },
+    "checks": {
+      "abort_independence_reviewed": true,
+      "accepted_threshold_distribution_reviewed": true,
+      "centralized_comparison_distribution_reviewed": true,
+      "concrete_loss_bounds_reviewed": true,
+      "concurrent_session_abort_model_reviewed": true,
+      "observable_restart_leakage_reviewed": true,
+      "rejection_distribution_preservation_reviewed": true,
+      "selective_abort_withholding_reviewed": true
+    },
+    "rejection_batch_result": {
+      "accepted_or_rejected_matches": true,
+      "challenge_digest_matches": true,
+      "close_candidate": true,
+      "distribution_compatibility_proven": false,
+      "per_attempt_records_present": true,
+      "predicate_mismatch_count": 0,
+      "real_threshold_partials_present": true,
+      "recomputed_mutated_message_rejected": true,
+      "recomputed_mutated_public_key_rejected": true,
+      "recomputed_mutated_signature_rejected": true,
+      "repo_provider_accepts_captured_signature": true,
+      "repo_provider_accepts_threshold_signature": true,
+      "saw_threshold_accepted_attempt": true,
+      "saw_threshold_rejected_attempt": true,
+      "standard_verifier_accepts_threshold_signature": true,
+      "truncated_public_key_rejected": true,
+      "truncated_signature_rejected": true
+    }
+  },
+  "threshold": 6667,
+  "validator_count": 10000
+}

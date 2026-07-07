@@ -1,6 +1,6 @@
 # P1 Actual External Nonce-Producer Capture Gate
 
-This artifact gates the promoted nonce-producer handoff before it can occupy the actual external backend slot. It is conformance/proof-review evidence.
+This artifact gates the promoted nonce-producer handoff before it can occupy the actual external backend slot. It is conformance/proof-review evidence only.
 
 - Status: `actual_external_capture_ready`
 - Actual external capture ready: `true`

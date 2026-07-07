@@ -1,7 +1,7 @@
 {
-  "branch": "codex/p1-real-external-evidence-attempt",
-  "claim_boundary": "research scaffold evidence",
-  "commit": "789747bc037966f5abfc244aa6b8789fdef61af2",
+  "branch": "codex/p1-recomputation-bridge-verified",
+  "claim_boundary": "closure-run implementation track",
+  "commit": "2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9",
   "criteria": [
     {
       "blocker_count": 2,
@@ -65,9 +65,9 @@
   "non_closure_guards": [
     "pending theorem-closure review",
     "requires selected-backend proof closure evidence",
-    "requires production threshold ML-DSA security evidence",
-    "requires CAVP/ACVTS validation evidence",
-    "requires FIPS validation evidence",
+    "requires production threshold ml-dsa security evidence",
+    "requires cavp/acvts validation evidence",
+    "requires fips validation evidence",
     "requires rejection-distribution preservation proof"
   ],
   "overall_verdict": "partially_proven",

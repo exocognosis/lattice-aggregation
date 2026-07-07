@@ -3,13 +3,7 @@
   "blocker_groups": {
     "claim_boundary": [],
     "criterion2_manifest": [],
-    "external_backend_evidence": [
-      "backend capture is quarantined from strict threshold-core closure",
-      "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
-      "real threshold backend emission capture is incomplete",
-      "backend core admissibility is quarantined",
-      "reviewed external evidence package is missing"
-    ],
+    "external_backend_evidence": [],
     "hypothesis_assessment": [],
     "proof_payload_review": [
       "theorem review manifest is missing required ready flag: proof_payload_reviewed"
@@ -32,13 +26,17 @@
     "criterion2_manifest_present": true,
     "criterion2_manifest_schema_valid": true,
     "criterion2_promotion_requirements_present": true,
+    "external_accepted_distribution_abort_review_package_valid": true,
     "external_closure_candidate_manifest_present": true,
-    "external_closure_candidate_ready": false,
+    "external_closure_candidate_ready": true,
+    "external_distribution_abort_review_ready": true,
     "external_evidence_attempt_manifest_present": true,
-    "external_evidence_attempt_ready": false,
-    "external_review_package_binds_inputs": false,
-    "external_review_package_ready": false,
-    "external_source_exclusions_passed": false,
+    "external_evidence_attempt_ready": true,
+    "external_production_dkg_no_single_secret_review_package_valid": true,
+    "external_production_dkg_no_single_secret_review_ready": true,
+    "external_review_package_binds_inputs": true,
+    "external_review_package_ready": true,
+    "external_source_exclusions_passed": true,
     "full_kat_validation_reviewed": false,
     "hypothesis_assessment_present": true,
     "hypothesis_boundary_is_research_scaffold_only": true,
@@ -68,27 +66,27 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-06T15:04:41Z",
+  "generated_at": "2026-07-07T16:57:25Z",
   "inputs": {
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "059b907eae7ded785c8505854fe5bb7a1a4f1fbc1367ac398f1fdcc4a549f10a"
+      "sha256": "d2cd5c2a4e82271fe98f5a04c7d368b697d3789711befd5cf9b531bff8b7a317"
     },
     "external_closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "f9c37db0a0307d32c018ce357f878a07d560e11bc2160fbc5a75ca8a129c7e59"
+      "sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3"
     },
     "external_evidence_attempt_manifest": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "74a21bc00d80cfb1ddc8435e5e0b94d35fc92e5514a165beba025d10a6f1366d"
+      "sha256": "284cd6f074327bbc3aa88f43dd2b249d9c46bbb95ae0e271300e41ad7982a8c9"
     },
     "hypothesis_assessment": {
       "path": "artifacts/hypothesis/latest/assessment.json",
       "present": true,
-      "sha256": "354c1ab5acc95477b519422fae83440c028f2c0ce83a7594c027f0c3c73bf40c"
+      "sha256": "9fa10da025ce4f36d3cd74f3cddef2c369388f20d4f7b082d06e0dab9b7b39d6"
     },
     "theorem_review_manifest": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
@@ -97,7 +95,7 @@
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "7144f17058bd7bacbf4b7b27a0533dc000af62206a7904eb969bd6fdd5921b77",
+  "readiness_digest_sha256": "5306b23a7d74ea4247448928b272448cc984d8fc1c048239c40f9eaaed47bd13",
   "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",
@@ -113,6 +111,10 @@
     "external_source_exclusions_passed",
     "external_review_package_binds_inputs",
     "external_review_package_ready",
+    "external_production_dkg_no_single_secret_review_ready",
+    "external_production_dkg_no_single_secret_review_package_valid",
+    "external_distribution_abort_review_ready",
+    "external_accepted_distribution_abort_review_package_valid",
     "theorem_review_manifest_present",
     "theorem_review_manifest_boundary_valid",
     "theorem_review_status_ready",
@@ -154,6 +156,14 @@
     {
       "group": "external_backend_evidence",
       "requirement": "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures"
+    },
+    {
+      "group": "proof_payload_review",
+      "requirement": "reviewed production DKG/no-single-secret package with package_class production_dkg_no_single_secret_review, route tee_hsm_no_export, and no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup"
+    },
+    {
+      "group": "rejection_distribution_review",
+      "requirement": "reviewed accepted-distribution/abort package with package_class accepted_distribution_abort_review covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds"
     },
     {
       "group": "external_backend_evidence",

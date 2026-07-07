@@ -115,7 +115,7 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertEqual(manifest["runner_status"], "evidence_present_unclosed")
         self.assertTrue(manifest["backend_core_admissibility"]["quarantined"])
         self.assertIn(
-            "distributed threshold core flag false: partial_signing_over_secret_shares",
+            "unrecognized strict threshold core mode or signature origin",
             manifest["backend_core_admissibility"]["reasons"],
         )
 

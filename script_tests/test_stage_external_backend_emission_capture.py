@@ -160,6 +160,26 @@ def threshold_seed_reconstruction_capture(request):
     return capture
 
 
+def tee_hsm_no_export_capture(request):
+    capture = backend_capture(request)
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "tee_hsm_no_export_threshold_mldsa65_provider",
+            "provider": "tee-hsm-no-export mldsa65 provider",
+            "signature_origin": "tee_hsm_no_export_standard_mldsa65_provider",
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": False,
+                "tee_hsm_no_export_trust_record_reviewed": True,
+                "no_single_exposed_mldsa_secret_key": True,
+                "threshold_authorization_enforced": True,
+                "standard_verifier_compatible_output": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+        }
+    )
+    return capture
+
+
 def external_review_manifest(request, capture, capture_path):
     capture_json = canonical_json(capture)
     return {
@@ -206,6 +226,22 @@ def external_review_manifest(request, capture, capture_path):
             "closure and rejection-distribution preservation remain open."
         ),
     }
+
+
+def strict_tee_hsm_review_manifest(request, capture, capture_path):
+    review = external_review_manifest(request, capture, capture_path)
+    review["checks"].update(
+        {
+            "centralized_standard_provider_output_disclosed": False,
+            "threshold_core_limitations_reviewed": True,
+            "real_distributed_threshold_core_verified": False,
+            "no_single_key_standard_provider_output": True,
+            "tee_hsm_no_export_trust_record_reviewed": True,
+            "no_single_exposed_mldsa_secret_key": True,
+            "threshold_authorization_enforced": True,
+        }
+    )
+    return review
 
 
 def actual_nonce_gate():
@@ -391,6 +427,48 @@ class StageExternalBackendEmissionCaptureTests(unittest.TestCase):
             "threshold seed-reconstruction standard-provider signature origin",
             admissibility["reasons"],
         )
+
+    def test_strict_tee_hsm_no_export_capture_is_admitted_at_intake(self):
+        module = load_module(SCRIPT, "stage_external_backend_emission_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = backend_request()
+            capture = tee_hsm_no_export_capture(request)
+            request_path = repo_root / "request.json"
+            capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
+            write_json(request_path, request)
+            write_json(capture_path, capture)
+            write_json(
+                review_path,
+                strict_tee_hsm_review_manifest(request, capture, capture_path),
+            )
+
+            report = module.build_intake(
+                repo_root,
+                request_path,
+                capture_path,
+                review_path,
+                generated_at="2026-07-05T00:00:02Z",
+                metadata_provider=fake_metadata,
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertTrue(admissibility["strict_threshold_core_admissible"])
+        self.assertFalse(admissibility["quarantined"])
+        self.assertEqual(
+            admissibility["core_mode"],
+            "tee_hsm_no_export_threshold_mldsa65_provider",
+        )
+        self.assertEqual(
+            admissibility["signature_origin"],
+            "tee_hsm_no_export_standard_mldsa65_provider",
+        )
+        self.assertEqual(admissibility["reasons"], [])
 
     def test_repo_local_capture_file_is_rejected_before_artifact_write(self):
         module = load_module(SCRIPT, "stage_external_backend_emission_capture")
