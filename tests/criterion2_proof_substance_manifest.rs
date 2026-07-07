@@ -251,7 +251,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                     slot["builder"],
                     "scripts/build_p1_external_backend_cryptographic_closure_candidate.py"
                 );
-                assert_eq!(slot["close_candidate"], false);
+                assert_eq!(slot["close_candidate"], true);
                 assert_eq!(slot["claims_theorem_closure"], false);
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
@@ -269,9 +269,12 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                     slot["runner"],
                     "scripts/run_p1_external_backend_evidence_attempt.py"
                 );
-                assert_eq!(slot["attempt_status"], "blocked_external_evidence_missing");
-                assert_eq!(slot["close_candidate"], false);
-                assert_eq!(slot["source_exclusion_passed"], false);
+                assert_eq!(
+                    slot["attempt_status"],
+                    "external_evidence_close_candidate_ready"
+                );
+                assert_eq!(slot["close_candidate"], true);
+                assert_eq!(slot["source_exclusion_passed"], true);
                 assert_eq!(
                     slot["review_package_schema"],
                     "lattice-aggregation:p1-external-backend-evidence-package-review:v1"
@@ -280,11 +283,11 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                     slot["review_package_path"],
                     "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json"
                 );
-                assert_eq!(slot["review_package_present"], false);
-                assert_eq!(slot["review_package_binds_inputs"], false);
-                assert_eq!(slot["review_package_claim_boundary_passed"], false);
-                assert_eq!(slot["review_package_source_exclusions_passed"], false);
-                assert_eq!(slot["review_package_review_digests_present"], false);
+                assert_eq!(slot["review_package_present"], true);
+                assert_eq!(slot["review_package_binds_inputs"], true);
+                assert_eq!(slot["review_package_claim_boundary_passed"], true);
+                assert_eq!(slot["review_package_source_exclusions_passed"], true);
+                assert_eq!(slot["review_package_review_digests_present"], true);
                 assert_eq!(slot["claims_theorem_closure"], false);
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
@@ -651,15 +654,15 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             assert_eq!(fixture_ref["current_status"], "evidence_present_unclosed");
         }
         if slot_id == "external_backend_cryptographic_closure_candidate" {
-            assert_eq!(fixture_ref["close_candidate"], false);
+            assert_eq!(fixture_ref["close_candidate"], true);
         }
         if slot_id == "external_backend_evidence_attempt" {
             assert_eq!(
                 fixture_ref["current_status"],
-                "blocked_external_evidence_missing"
+                "external_evidence_close_candidate_ready"
             );
-            assert_eq!(fixture_ref["close_candidate"], false);
-            assert_eq!(fixture_ref["source_exclusion_passed"], false);
+            assert_eq!(fixture_ref["close_candidate"], true);
+            assert_eq!(fixture_ref["source_exclusion_passed"], true);
         }
         assert!(
             root.join(

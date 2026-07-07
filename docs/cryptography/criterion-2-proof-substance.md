@@ -499,14 +499,13 @@ DKG/no-single-secret evidence and reviewed accepted-distribution/abort evidence,
 into
 `artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`.
 The current checked artifact is `evidence_present_unclosed` with
-`close_candidate = false`: the actual external nonce gate is ready, and the
-standard-verifier acceptance, mutation-rejection, and rejection-distribution
-comparison checks are present, but the real threshold backend emission slot,
-production DKG/no-single-secret review slot, and accepted-distribution/abort
-review slot remain blocked. Even a future
-`close_candidate = true` artifact remains proof-review evidence only; it does
-not by itself prove Criterion 2, rejection-distribution preservation,
-selected-backend proof closure, or theorem closure.
+`close_candidate = true`: the actual external nonce gate, strict backend
+emission capture, standard-verifier acceptance, mutation-rejection,
+rejection-batch comparison, production DKG/no-single-secret review, and
+accepted-distribution/abort review slots are present. This remains proof-review
+evidence only; it does not by itself prove Criterion 2,
+rejection-distribution preservation, selected-backend proof closure, or theorem
+closure.
 Batch 8 adds `scripts/run_p1_external_backend_evidence_attempt.py` as the grouped
 external-evidence attempt runner. Its Criterion 2 evidence source is
 `p1_external_backend_evidence_attempt_gate`, its artifact package label is
@@ -519,11 +518,9 @@ DKG/no-single-secret review, and accepted-distribution/abort review, then adds
 `source_exclusion_passed` to reject hazmat, simulation, localnet, fixture,
 test-vector, single-key, repo-reference, and quarantined replay markers before a
 close candidate can be treated as external evidence. The current checked attempt
-is `blocked_external_evidence_missing` with `close_candidate = false`: the nonce
-gate is ready, but the backend capture is explicitly quarantined as threshold
-seed-reconstruction, source exclusion fails on reconstruction markers, and the
-reviewed external evidence package is still missing. This is the first grouped
-attempt harness for the closure run, pending theorem-closure review.
+is `external_evidence_close_candidate_ready` with `close_candidate = true`,
+source exclusions passed, and no external-evidence blockers. This is the first
+grouped attempt harness for the closure run, pending theorem-closure review.
 Batch 9 hardens the same grouped attempt with a reviewed external evidence
 package gate. The runner now accepts `--review-package` pointing at schema
 `lattice-aggregation:p1-external-backend-evidence-package-review:v1`; the
@@ -532,9 +529,10 @@ package must have `reviewed_external_backend_evidence_ready` status,
 source profile, `review_package_binds_inputs = true` over the actual external
 nonce gate, real-threshold backend capture, rejection batch, and Batch 7
 candidate digest, production DKG/no-single-secret review, and
-accepted-distribution/abort review, plus source-exclusion and review-digest checks. The checked
-attempt records `review_package_present = false` and
-`reviewed external evidence package is missing`, so Criterion 2 remains
+accepted-distribution/abort review, plus source-exclusion and review-digest
+checks. The checked attempt records `review_package_present = true`,
+`review_package_binds_inputs = true`, and valid production-DKG plus
+accepted-distribution/abort review-package classes, while Criterion 2 remains
 `partially_met`.
 The attempt manifest now also exposes the two review-package classes that a
 strict external backend closure attempt must carry: `production_dkg_no_single_secret_review`
@@ -542,6 +540,11 @@ with route `tee_hsm_no_export`, and `accepted_distribution_abort_review`. The
 readiness preflight rejects aggregate ready booleans unless those package
 classes and statuses are present alongside a close-candidate strict external
 backend attempt and exact input-bound review package.
+`scripts/build_theorem_closure_review_manifest.py` writes the current
+theorem-review manifest with status `theorem_closure_review_incomplete`. It
+marks the proof payload and standard-verifier compatibility review slots
+satisfied, but leaves rejection-distribution preservation, full KAT/CAVP
+validation, and theorem linkage review unsatisfied.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, requires proof-closure evidence by themselves.

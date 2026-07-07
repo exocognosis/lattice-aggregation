@@ -157,7 +157,7 @@ def write_minimal_inputs(root, *, external_ready, review_ready=None):
 
 
 class TheoremClosureReadinessTests(unittest.TestCase):
-    def test_current_checked_in_artifacts_have_external_bundle_but_await_theorem_review(self):
+    def test_current_checked_in_artifacts_have_partial_theorem_review(self):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-04T00:00:00Z")
@@ -171,9 +171,18 @@ class TheoremClosureReadinessTests(unittest.TestCase):
         self.assertFalse(manifest["claims_theorem_closure"])
         self.assertTrue(manifest["checks"]["external_evidence_attempt_ready"])
         self.assertTrue(manifest["checks"]["external_review_package_ready"])
-        self.assertFalse(manifest["checks"]["theorem_review_manifest_present"])
+        self.assertTrue(manifest["checks"]["theorem_review_manifest_present"])
+        self.assertTrue(manifest["checks"]["theorem_review_manifest_boundary_valid"])
+        self.assertFalse(manifest["checks"]["theorem_review_status_ready"])
+        self.assertTrue(manifest["checks"]["proof_payload_reviewed"])
+        self.assertTrue(manifest["checks"]["standard_verifier_compatibility_reviewed"])
+        self.assertFalse(manifest["checks"]["full_kat_validation_reviewed"])
+        self.assertFalse(
+            manifest["checks"]["rejection_distribution_preservation_reviewed"]
+        )
+        self.assertFalse(manifest["checks"]["theorem_linkage_reviewed"])
         self.assertIn(
-            "theorem review manifest is missing required ready flag: proof_payload_reviewed",
+            "theorem review manifest is not ready",
             manifest["blocker_groups"]["proof_payload_review"],
         )
         self.assertEqual(manifest["blocker_groups"]["external_backend_evidence"], [])

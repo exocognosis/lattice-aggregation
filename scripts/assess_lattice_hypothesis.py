@@ -494,7 +494,7 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
             "candidate:v1"
         ),
         "current_status": "evidence_present_unclosed",
-        "close_candidate": False,
+        "close_candidate": True,
         "claim_boundary": "conformance/proof-review evidence",
     },
     {
@@ -503,10 +503,22 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
             "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json"
         ),
         "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
-        "current_status": "blocked_external_evidence_missing",
-        "close_candidate": False,
-        "source_exclusion_passed": False,
+        "current_status": "external_evidence_close_candidate_ready",
+        "close_candidate": True,
+        "source_exclusion_passed": True,
         "claim_boundary": "conformance/proof-review evidence",
+    },
+    {
+        "slot_id": "theorem_closure_review",
+        "fixture_path": "artifacts/theorem-closure-review/latest/manifest.json",
+        "schema": "lattice-aggregation:theorem-closure-review:v1",
+        "current_status": "theorem_closure_review_incomplete",
+        "proof_payload_reviewed": True,
+        "standard_verifier_compatibility_reviewed": True,
+        "rejection_distribution_preservation_reviewed": False,
+        "full_kat_validation_reviewed": False,
+        "theorem_linkage_reviewed": False,
+        "claim_boundary": "readiness preflight only; pending theorem-closure review",
     },
     {
         "slot_id": "rejection_distribution_review_digest",
@@ -1110,15 +1122,17 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "p1externalbackendcryptographicclosurecandidatepackage",
         "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
         "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-        "close_candidate = false",
+        "close_candidate = true",
         "actual external nonce capture",
         "external_backend_evidence_attempt",
         "p1_external_backend_evidence_attempt_gate",
         "p1_external_backend_evidence_attempt_artifact",
         "scripts/run_p1_external_backend_evidence_attempt.py",
         "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
-        "blocked_external_evidence_missing",
+        "external_evidence_close_candidate_ready",
         "source_exclusion_passed",
+        "scripts/build_theorem_closure_review_manifest.py",
+        "theorem_closure_review_incomplete",
         "evidence_present_unclosed",
         "evidence_present_unclosed only",
         "typed criterion 2 proof-slot artifact packages",
@@ -3744,14 +3758,14 @@ def scan_documents(root):
             for token in [
                 "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
                 "p1-external-backend-evidence-attempt-v1",
-                "\"attempt_status\": \"blocked_external_evidence_missing\"",
-                "\"close_candidate\": false",
-                "\"source_exclusion_passed\": false",
+                "\"attempt_status\": \"external_evidence_close_candidate_ready\"",
+                "\"close_candidate\": true",
+                "\"source_exclusion_passed\": true",
                 "\"claims_theorem_closure\": false",
                 "\"claims_rejection_distribution_preservation\": false",
                 "\"claims_selected_backend_proof_closure\": false",
-                "actual external nonce capture readiness required",
-                "repo_reference_cli_capture",
+                "\"review_package_binds_inputs\": true",
+                "\"review_package_present\": true",
             ]
         )
     )
@@ -3787,12 +3801,11 @@ def scan_documents(root):
             token in p1_external_backend_evidence_attempt_manifest
             for token in [
                 "p1-external-backend-evidence-package-review",
-                "\"review_package_present\": false",
-                "\"review_package_binds_inputs\": false",
-                "\"review_package_claim_boundary_passed\": false",
-                "\"review_package_source_exclusions_passed\": false",
-                "\"review_package_review_digests_present\": false",
-                "reviewed external evidence package is missing",
+                "\"review_package_present\": true",
+                "\"review_package_binds_inputs\": true",
+                "\"review_package_claim_boundary_passed\": true",
+                "\"review_package_source_exclusions_passed\": true",
+                "\"review_package_review_digests_present\": true",
             ]
         )
     )
@@ -4479,17 +4492,17 @@ def classify_criteria(criteria, scan):
                     "is actual_external_capture_ready with source profile "
                     "admissible_external_backend_capture. This is "
                     "evidence_present_unclosed boundary evidence; Criterion 2 "
-                    "still requires real threshold-backend partial aggregation, "
-                    "the reviewed external evidence package, theorem-closure "
-                    "review, rejection-distribution preservation, or production "
+                    "now has the external evidence package path populated but "
+                    "still requires rejection-distribution preservation review, "
+                    "full validation, theorem-linkage review, or production "
                     "threshold ML-DSA security."
                 )
                 blockers.append(
                     "The actual external nonce-producer gate is now ready with "
-                    "admissible_external_backend_capture, but Criterion 2 still "
-                    "requires a non-quarantined real threshold backend capture "
-                    "with partial aggregation evidence and a reviewed external "
-                    "evidence package."
+                    "admissible_external_backend_capture, but Criterion 2 remains "
+                    "blocked on rejection-distribution preservation, full "
+                    "validation artifacts, theorem-linkage review, and proof "
+                    "closure."
                 )
             if scan.get("p1_external_nonce_producer_capture_file_intake"):
                 partial_progress = True
@@ -4585,9 +4598,10 @@ def classify_criteria(criteria, scan):
                 )
                 blockers.append(
                     "P1 real-threshold backend emission ingestion artifact is "
-                    "present, but actual real threshold backend emissions, "
-                    "rejection-distribution preservation, full validation "
-                    "artifacts, and reviewed cryptographic proof remain open."
+                    "present and the strict external backend capture is now "
+                    "admissible, but rejection-distribution preservation, full "
+                    "validation artifacts, theorem-linkage review, and reviewed "
+                    "cryptographic proof remain open."
                 )
             if scan.get("p1_real_threshold_backend_actual_capture_runner_gate"):
                 partial_progress = True
@@ -4731,14 +4745,15 @@ def classify_criteria(criteria, scan):
                     "backend emission capture, standard-verifier acceptance "
                     "evidence, mutation rejection evidence, and "
                     "distributed-nonce-prf-output-shares rejection comparison "
-                    "into one computed close_candidate manifest. The current "
+                    "into one computed close_candidate manifest. The checked "
                     "checked artifact remains evidence_present_unclosed with "
+                    "close_candidate true and "
                     "claims_theorem_closure, "
                     "claims_rejection_distribution_preservation, and "
                     "claims_selected_backend_proof_closure false; it does not "
                     "close the theorem or move aggregate_rejection_equivalence "
-                    "beyond partially_met until the actual external backend "
-                    "captures and proof review are present."
+                    "beyond partially_met until the remaining proof-review "
+                    "obligations are satisfied."
                 )
             if scan.get("p1_external_backend_evidence_attempt_gate"):
                 partial_progress = True
@@ -4748,14 +4763,14 @@ def classify_criteria(criteria, scan):
                     "real-threshold backend emission capture, standard-verifier "
                     "acceptance evidence, mutation rejection evidence, "
                     "rejection-distribution comparison, and source_exclusion_passed "
-                    "guard into the Batch 7 close_candidate artifact. The current "
-                    "checked attempt is blocked_external_evidence_missing and "
+                    "guard into the Batch 7 close_candidate artifact. The checked "
+                    "attempt is external_evidence_close_candidate_ready and "
                     "keeps claims_theorem_closure, "
                     "claims_rejection_distribution_preservation, and "
                     "claims_selected_backend_proof_closure false; it does not "
                     "close the theorem or move aggregate_rejection_equivalence "
-                    "beyond partially_met until real external inputs and proof "
-                    "review replace the blocked slots."
+                    "beyond partially_met until distribution, validation, and "
+                    "theorem-linkage review close."
                 )
             if scan.get("p1_external_backend_evidence_package_review_gate"):
                 partial_progress = True
@@ -4770,11 +4785,11 @@ def classify_criteria(criteria, scan):
                     "gate, real-threshold backend capture, rejection batch, "
                     "and Batch 7 candidate digest, plus source-exclusion and "
                     "review-digest checks before a close_candidate attempt can "
-                    "be treated as externally reviewed evidence. The current "
-                    "checked attempt remains blocked_external_evidence_missing "
-                    "because the reviewed external evidence package is absent; "
-                    "this records remaining theorem review requirements or move "
-                    "aggregate_rejection_equivalence beyond partially_met."
+                    "be treated as externally reviewed evidence. The checked "
+                    "attempt now carries that reviewed external evidence package; "
+                    "the remaining blockers are theorem-review requirements and "
+                    "do not move aggregate_rejection_equivalence beyond "
+                    "partially_met."
                 )
             if scan["standard_verifier_blocked"]:
                 if scan.get("p1_selected_backend_aggregate_artifact_gate"):

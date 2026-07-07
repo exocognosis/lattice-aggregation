@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
 Branch: `codex/p1-recomputation-bridge-verified`
-Commit: `2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9`
+Commit: `16a57a6ccd64536af7c14bf604b1e5f190e5c451`
 
 ## Testing Statement
 
@@ -132,7 +132,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Blocker: The nonce-producer backend readiness gate is now admissible, but Criterion 2 still requires an actual reviewed external Shamir nonce-DKG/TEE producer capture with source, implementation, transcript, attestation, nonce-share commitments, abort-accountability, and external review evidence.
 - Blocker: The P1 admissible capture-attempt runner closes the operational gap between readiness preflight and capture promotion, and the current artifact now promotes a request-bound reference CLI capture through the same handoff/import path. That reference CLI is quarantined as requires actual backend evidence, so a reviewed external backend binary still must be installed or provided and emit a conforming request-bound capture before the distributed nonce-producer slot can advance beyond evidence_present_unclosed.
 - Blocker: A selected P1 Shamir nonce-DKG producer route is documented, but the reviewed distributed nonce-producer artifact digest and backend-generated producer transcript are still required before the hazmat PRF-output oracle is replaced.
-- Blocker: P1 real-threshold backend emission ingestion artifact is present, but actual real threshold backend emissions, rejection-distribution preservation, full validation artifacts, and reviewed cryptographic proof remain open.
+- Blocker: P1 real-threshold backend emission ingestion artifact is present and the strict external backend capture is now admissible, but rejection-distribution preservation, full validation artifacts, theorem-linkage review, and reviewed cryptographic proof remain open.
 - Blocker: Selected-backend proof-closure artifact package gating is present, but production threshold ML-DSA security, selected-backend proof closure, full ACVP/FIPS KAT coverage, external proof review, CAVP/ACVTS validation artifacts, FIPS validation, rejection-distribution preservation, and completed standard-verifier compatibility remain open; the proof-closure artifact package gate, threshold-output artifact gate, real standard-provider aggregate-output package, P1 recomputation gate, selected-backend aggregate-output artifact gate, and bounded sample-vector KAT are framework/conformance evidence.
 
 ### Selective aborts and retries do not bias accepted signatures.

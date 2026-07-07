@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
 Branch: `codex/p1-recomputation-bridge-verified`
-Commit: `2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9`
+Commit: `16a57a6ccd64536af7c14bf604b1e5f190e5c451`
 
 ## Criteria
 

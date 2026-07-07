@@ -7,7 +7,7 @@
     "passed": 0
   },
   "commands": [],
-  "commit": "2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9",
+  "commit": "16a57a6ccd64536af7c14bf604b1e5f190e5c451",
   "criteria": [
     {
       "blockers": [
@@ -43,7 +43,7 @@
         "The nonce-producer backend readiness gate is now admissible, but Criterion 2 still requires an actual reviewed external Shamir nonce-DKG/TEE producer capture with source, implementation, transcript, attestation, nonce-share commitments, abort-accountability, and external review evidence.",
         "The P1 admissible capture-attempt runner closes the operational gap between readiness preflight and capture promotion, and the current artifact now promotes a request-bound reference CLI capture through the same handoff/import path. That reference CLI is quarantined as requires actual backend evidence, so a reviewed external backend binary still must be installed or provided and emit a conforming request-bound capture before the distributed nonce-producer slot can advance beyond evidence_present_unclosed.",
         "A selected P1 Shamir nonce-DKG producer route is documented, but the reviewed distributed nonce-producer artifact digest and backend-generated producer transcript are still required before the hazmat PRF-output oracle is replaced.",
-        "P1 real-threshold backend emission ingestion artifact is present, but actual real threshold backend emissions, rejection-distribution preservation, full validation artifacts, and reviewed cryptographic proof remain open.",
+        "P1 real-threshold backend emission ingestion artifact is present and the strict external backend capture is now admissible, but rejection-distribution preservation, full validation artifacts, theorem-linkage review, and reviewed cryptographic proof remain open.",
         "Selected-backend proof-closure artifact package gating is present, but production threshold ML-DSA security, selected-backend proof closure, full ACVP/FIPS KAT coverage, external proof review, CAVP/ACVTS validation artifacts, FIPS validation, rejection-distribution preservation, and completed standard-verifier compatibility remain open; the proof-closure artifact package gate, threshold-output artifact gate, real standard-provider aggregate-output package, P1 recomputation gate, selected-backend aggregate-output artifact gate, and bounded sample-vector KAT are framework/conformance evidence."
       ],
       "id": "aggregate_rejection_equivalence",
@@ -281,7 +281,7 @@
       },
       {
         "claim_boundary": "conformance/proof-review evidence",
-        "close_candidate": false,
+        "close_candidate": true,
         "current_status": "evidence_present_unclosed",
         "fixture_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
         "schema": "lattice-aggregation:p1-external-backend-cryptographic-closure-candidate:v1",
@@ -289,12 +289,24 @@
       },
       {
         "claim_boundary": "conformance/proof-review evidence",
-        "close_candidate": false,
-        "current_status": "blocked_external_evidence_missing",
+        "close_candidate": true,
+        "current_status": "external_evidence_close_candidate_ready",
         "fixture_path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
         "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",
         "slot_id": "external_backend_evidence_attempt",
-        "source_exclusion_passed": false
+        "source_exclusion_passed": true
+      },
+      {
+        "claim_boundary": "readiness preflight only; pending theorem-closure review",
+        "current_status": "theorem_closure_review_incomplete",
+        "fixture_path": "artifacts/theorem-closure-review/latest/manifest.json",
+        "full_kat_validation_reviewed": false,
+        "proof_payload_reviewed": true,
+        "rejection_distribution_preservation_reviewed": false,
+        "schema": "lattice-aggregation:theorem-closure-review:v1",
+        "slot_id": "theorem_closure_review",
+        "standard_verifier_compatibility_reviewed": true,
+        "theorem_linkage_reviewed": false
       },
       {
         "claim_boundary": "conformance/proof-review evidence",

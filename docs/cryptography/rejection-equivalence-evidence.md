@@ -274,28 +274,31 @@ strict actual external nonce gate, real-threshold backend emission capture,
 standard-verifier acceptance evidence, complete mutation rejection evidence, and
 this rejection-distribution comparison into
 `artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`.
-The checked manifest is still `close_candidate = false` because those actual
-external evidence slots are not all present. A future `close_candidate = true`
-manifest would be closure-candidate evidence for review, not a completed theorem
-proof or a claim of rejection-distribution preservation.
+The checked manifest is now `close_candidate = true` because the strict actual
+external nonce gate, strict backend emission capture, mutation evidence,
+rejection batch, production DKG/no-single-secret review, and
+accepted-distribution/abort review slots are present. This is closure-candidate
+evidence for review, not a completed theorem proof or a claim of
+rejection-distribution preservation.
 Batch 8 adds the grouped execution layer:
 `scripts/run_p1_external_backend_evidence_attempt.py` writes
 `artifacts/p1-external-backend-evidence-attempt/latest/manifest.json` after
 running the Batch 7 candidate builder over the strict nonce gate, backend
 emission capture, verifier/mutation evidence, and rejection batch. Its current
-status is `blocked_external_evidence_missing`; `source_exclusion_passed = false`
-because the available nonce path is still `repo_reference_cli_capture`. A future
-ready attempt requires both `close_candidate = true` and
-`source_exclusion_passed = true`, while keeping theorem-closure and
-rejection-distribution-preservation claims false until external proof review.
+status is `external_evidence_close_candidate_ready`;
+`source_exclusion_passed = true`, while theorem-closure and
+rejection-distribution-preservation claims remain false until external proof
+review.
 Batch 9 adds the reviewed external evidence package precondition to that grouped
 attempt. A ready attempt must also carry schema
 `lattice-aggregation:p1-external-backend-evidence-package-review:v1` from
 `outside_repo_review_manifest` origin, with `review_package_binds_inputs`
 recorded as true over the actual nonce gate, backend capture, rejection batch,
 and Batch 7 candidate digest, plus source-exclusion and review-digest checks.
-The checked attempt remains blocked because the reviewed external evidence
-package is missing; this is a proof-review gate, pending theorem-closure review.
+The checked attempt now carries that reviewed external evidence package. The
+remaining proof-review gate is the theorem-review manifest, which currently
+leaves rejection-distribution preservation, full validation, and theorem linkage
+unsatisfied.
 The selected replacement route is now tracked in
 [`p1-nonce-producer-selection.md`](p1-nonce-producer-selection.md) as
 `FIPS 204-Compatible Threshold ML-DSA via Shamir Nonce DKG P1`; Criterion 2 now
