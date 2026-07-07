@@ -9,10 +9,10 @@ Checks:
 - `provider_kat_vectors_passed`: `false`
 - `fips204_mldsa65_kat_passed`: `false`
 - `acvts_or_cavp_campaign_reviewed`: `false`
-- `signing_verification_vectors_reviewed`: `false`
-- `mutation_negative_vectors_reviewed`: `false`
+- `signing_verification_vectors_reviewed`: `true`
+- `mutation_negative_vectors_reviewed`: `true`
 - `public_key_signature_length_vectors_reviewed`: `true`
-- `implementation_digest_bound`: `false`
+- `implementation_digest_bound`: `true`
 - `binds_backend_capture_digest`: `true`
 - `binds_backend_manifest_digest`: `true`
 - `external_reviewer_digest_present`: `false`
@@ -21,7 +21,4 @@ Blockers:
 - `provider_kat_vectors_passed`
 - `fips204_mldsa65_kat_passed`
 - `acvts_or_cavp_campaign_reviewed`
-- `signing_verification_vectors_reviewed`
-- `mutation_negative_vectors_reviewed`
-- `implementation_digest_bound`
 - `external_reviewer_digest_present`

@@ -1,0 +1,39 @@
+{
+  "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+  "checks": {
+    "accepted_distribution_distance_bound_reviewed": false,
+    "centralized_mldsa_reference_distribution_reviewed": true,
+    "concrete_loss_bound_nonvacuous": false,
+    "concurrency_model_reviewed": true,
+    "rejection_sampling_conditioning_reviewed": true,
+    "restart_leakage_bound_reviewed": true,
+    "selective_abort_withholding_bound_reviewed": true,
+    "threshold_accepted_distribution_reviewed": true
+  },
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "concrete_loss_bound": null,
+  "external_reviewer_digest_hex": null,
+  "generated_at": "2026-07-07T00:00:00Z",
+  "input_status": "draft_requires_external_proof_review",
+  "name": "p1-rejection-distribution-preservation-input-draft",
+  "note": "Draft proof input only. It binds the current rejection batch and distribution/abort review, but it does not claim accepted-distribution distance preservation, a concrete nonvacuous loss bound, or external proof review.",
+  "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1",
+  "schema": "external-review:p1-rejection-distribution-preservation:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "theorem_links": [
+    "Noise Lemma D",
+    "Noise Lemma F",
+    "Noise Lemma H",
+    "FST-L7"
+  ]
+}

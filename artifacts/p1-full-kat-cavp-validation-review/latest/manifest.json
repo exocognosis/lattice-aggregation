@@ -3,9 +3,6 @@
     "provider_kat_vectors_passed",
     "fips204_mldsa65_kat_passed",
     "acvts_or_cavp_campaign_reviewed",
-    "signing_verification_vectors_reviewed",
-    "mutation_negative_vectors_reviewed",
-    "implementation_digest_bound",
     "external_reviewer_digest_present"
   ],
   "checks": {
@@ -14,11 +11,11 @@
     "binds_backend_manifest_digest": true,
     "external_reviewer_digest_present": false,
     "fips204_mldsa65_kat_passed": false,
-    "implementation_digest_bound": false,
-    "mutation_negative_vectors_reviewed": false,
+    "implementation_digest_bound": true,
+    "mutation_negative_vectors_reviewed": true,
     "provider_kat_vectors_passed": false,
     "public_key_signature_length_vectors_reviewed": true,
-    "signing_verification_vectors_reviewed": false
+    "signing_verification_vectors_reviewed": true
   },
   "claim_boundary": "conformance/proof-review evidence",
   "claim_flags": {
@@ -31,16 +28,16 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T19:29:53Z",
+  "generated_at": "2026-07-07T19:34:32Z",
   "name": "p1-full-kat-cavp-validation-review",
   "package_boundary": "This package records reviewed KAT/CAVP/ACVTS validation evidence for the selected ML-DSA-65 provider. It does not assert theorem closure or FIPS validation by itself.",
   "package_class": "full_kat_cavp_validation_review",
   "review_digests": {
-    "acvts_cavp_campaign_digest_hex": "3fe352760cff3860c9c42331ca442310a7b5668fcee35112b8ffa7d566ddd8ad",
+    "acvts_cavp_campaign_digest_hex": "9182936db436c2c49d74baefdc9034d9297afec31ae18870bd0b605a4cc7bf97",
     "backend_capture_digest_hex": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
     "backend_manifest_digest_hex": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-    "implementation_digest_hex": null,
-    "provider_kat_review_digest_hex": "323f547a71026c10a3faaa3069087f54779e7be2d4ac6958a7d9d8b42ac04fde",
+    "implementation_digest_hex": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
+    "provider_kat_review_digest_hex": "f6a155170b45b12410538f5637c44c3962e883721f27285bf64cf1da2df43afb",
     "reviewer_identity_digest_hex": null
   },
   "review_status": "blocked_full_kat_cavp_validation_review",
@@ -50,6 +47,6 @@
   "source_inputs": {
     "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
     "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-    "validation_evidence_sha256": null
+    "validation_evidence_sha256": "412a5e29d1818b7b3453e4e6fdecb8595964513073d279800e195d97d254a80e"
   }
 }

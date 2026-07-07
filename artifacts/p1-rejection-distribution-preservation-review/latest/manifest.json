@@ -1,12 +1,6 @@
 {
   "blockers": [
     "accepted_distribution_distance_bound_reviewed",
-    "threshold_accepted_distribution_reviewed",
-    "centralized_mldsa_reference_distribution_reviewed",
-    "rejection_sampling_conditioning_reviewed",
-    "selective_abort_withholding_bound_reviewed",
-    "restart_leakage_bound_reviewed",
-    "concurrency_model_reviewed",
     "concrete_loss_bound_nonvacuous",
     "external_reviewer_digest_present"
   ],
@@ -14,14 +8,14 @@
     "accepted_distribution_distance_bound_reviewed": false,
     "binds_distribution_abort_review_digest": true,
     "binds_rejection_batch_digest": true,
-    "centralized_mldsa_reference_distribution_reviewed": false,
+    "centralized_mldsa_reference_distribution_reviewed": true,
     "concrete_loss_bound_nonvacuous": false,
-    "concurrency_model_reviewed": false,
+    "concurrency_model_reviewed": true,
     "external_reviewer_digest_present": false,
-    "rejection_sampling_conditioning_reviewed": false,
-    "restart_leakage_bound_reviewed": false,
-    "selective_abort_withholding_bound_reviewed": false,
-    "threshold_accepted_distribution_reviewed": false
+    "rejection_sampling_conditioning_reviewed": true,
+    "restart_leakage_bound_reviewed": true,
+    "selective_abort_withholding_bound_reviewed": true,
+    "threshold_accepted_distribution_reviewed": true
   },
   "claim_boundary": "conformance/proof-review evidence",
   "claim_flags": {
@@ -34,13 +28,13 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T19:29:53Z",
+  "generated_at": "2026-07-07T19:34:32Z",
   "name": "p1-rejection-distribution-preservation-review",
   "package_boundary": "This package records reviewed rejection-distribution preservation input for theorem-readiness. It does not assert theorem closure or production threshold ML-DSA security by itself.",
   "package_class": "rejection_distribution_preservation_review",
   "review_digests": {
     "abort_withholding_bound_digest_hex": "c420755c717dc5116433d8d4e055eeee9161bd0b69b0c2a7e3834c2d4b7ca1fc",
-    "accepted_distribution_distance_digest_hex": "e14defd658703ce539e2221b5d8d17dffa2eac373121480f1095eb53f0a5734e",
+    "accepted_distribution_distance_digest_hex": "0f5ecebbf40d194305ca17fc1beec0a8f7e9e8d9a6dd9bad8cb0cd8208e88beb",
     "centralized_reference_distribution_digest_hex": "e782ff21598abfed0a4c052282c05de797b474fa3f1ad4de4e3f166b7531fef6",
     "concrete_loss_bound_digest_hex": "5afc6e02503fa6cbbd030a63193a6042326efab21166971e841b87f4cdbc4729",
     "reviewer_identity_digest_hex": null,
@@ -52,7 +46,7 @@
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
     "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
-    "proof_evidence_sha256": null,
+    "proof_evidence_sha256": "1fb2356f840b2f08d5949792538725884fac6f19cc94dbe2012e2bad4f306145",
     "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
   }
 }
