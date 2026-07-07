@@ -206,8 +206,11 @@ inputs produce `close_candidate = true` and `source_exclusion_passed = true`. It
 rejects hazmat, simulation, localnet, fixture, deterministic, test-vector,
 single-key, repo-reference, and quarantined replay markers before an attempt can
 be treated as real external evidence. The current checked attempt is
-`external_evidence_close_candidate_ready` with `close_candidate = true`; it still
-keeps all theorem-closure and production-security claims false.
+`external_evidence_close_candidate_ready` with `close_candidate = true`; the
+grouped inputs include the
+production DKG/no-single-secret review and the accepted-distribution/abort
+review, and the external evidence package must bind their SHA-256 digests. It
+also keeps all theorem-closure and production-security claims false.
 
 The generated attempt manifest now exposes two explicit review-package classes
 for strict external backend closure attempts:

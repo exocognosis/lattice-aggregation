@@ -3023,7 +3023,10 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("independently installed backend command", aggregate_blockers)
         self.assertIn("outside the repo", aggregate_blockers)
         self.assertIn("external capture-file intake", aggregate_blockers)
-        self.assertIn("real threshold backend and proof review evidence", aggregate_blockers)
+        self.assertIn(
+            "real threshold backend capture and proof review evidence",
+            aggregate_blockers,
+        )
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 

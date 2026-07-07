@@ -562,8 +562,8 @@ backend attempt and exact input-bound review package.
 `scripts/build_theorem_closure_review_manifest.py` writes the current
 theorem-review manifest with status `theorem_closure_review_incomplete`. It
 marks the proof payload and standard-verifier compatibility review slots
-satisfied, but leaves rejection-distribution preservation, full KAT/CAVP
-validation, and theorem linkage review unsatisfied.
+satisfied, marks theorem linkage reviewed, and leaves rejection-distribution
+preservation plus full KAT/CAVP validation unsatisfied.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, requires proof-closure evidence by themselves.

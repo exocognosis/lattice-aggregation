@@ -4526,16 +4526,16 @@ def classify_criteria(criteria, scan):
                     "is actual_external_capture_ready with source profile "
                     "admissible_external_backend_capture. This is "
                     "evidence_present_unclosed boundary evidence; Criterion 2 "
-                    "now has the external evidence package path populated but "
-                    "still requires rejection-distribution preservation review, "
-                    "full validation, theorem-linkage review, or production "
+                    "now has the external evidence package path and theorem-linkage "
+                    "review populated but still requires rejection-distribution "
+                    "preservation review, full validation, or production "
                     "threshold ML-DSA security."
                 )
                 blockers.append(
                     "The actual external nonce-producer gate is now ready with "
                     "admissible_external_backend_capture, but Criterion 2 remains "
                     "blocked on rejection-distribution preservation, full "
-                    "validation artifacts, theorem-linkage review, and proof "
+                    "validation artifacts, and proof "
                     "closure."
                 )
             if scan.get("p1_external_nonce_producer_capture_file_intake"):
@@ -4564,8 +4564,8 @@ def classify_criteria(criteria, scan):
                     "capture file plus a matching external review dossier for "
                     "any future nonce-source refresh; the current checked "
                     "actual-external nonce gate is ready, but Criterion 2 "
-                    "still depends on the real threshold backend and proof "
-                    "review evidence."
+                    "still depends on the real threshold backend capture and "
+                    "proof review evidence."
                 )
             if scan.get("p1_nonce_producer_route_selected"):
                 partial_progress = True
