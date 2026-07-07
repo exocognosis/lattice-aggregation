@@ -62,7 +62,7 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-07T20:04:56Z",
+  "generated_at": "2026-07-07T23:05:54Z",
   "inputs": {
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
@@ -82,16 +82,16 @@
     "hypothesis_assessment": {
       "path": "artifacts/hypothesis/latest/assessment.json",
       "present": true,
-      "sha256": "4f06d839221501615402872441986722359f8a88fb7a2339fb8e4d68f6333536"
+      "sha256": "1d0f3de32a34ab112ea5dba1a90d077c1c3d8a885db0b006482a3d0a816a6e98"
     },
     "theorem_review_manifest": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
       "present": true,
-      "sha256": "c8cc874de1771348eef10cc3ff53f1c9eb5915f530cebd06ea2f2011dff4a91a"
+      "sha256": "9641b32863e52e8c2aaa87508cdde631a38b079f5b60fdd9b38b9160f619144f"
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "0ba428e31adb835c2c244492c4a5ff09747eb660432d6a3dbd5397d0a57a24a5",
+  "readiness_digest_sha256": "d220a5246c8fa1a31b40f71a59d6fc68932ac77506acdf0b8ac2fe2ffd6f0a43",
   "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",

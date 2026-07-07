@@ -1,0 +1,94 @@
+{
+  "claim_boundary": "external validation input requirements only; not theorem closure or FIPS validation",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "component_status": "external_validation_review_required",
+  "external_input_schema": "external-review:p1-full-kat-cavp-validation:v1",
+  "generated_at": "2026-07-07T00:00:00Z",
+  "name": "p1-full-kat-cavp-validation-component-requirements",
+  "ready_package_schema": "lattice-aggregation:p1-full-kat-cavp-validation-review:v1",
+  "required_components": [
+    {
+      "component_id": "provider_kat_vectors",
+      "current_status": "missing_reviewed_provider_kat_pass",
+      "description": "Reviewed provider KAT evidence for the selected ML-DSA-65 implementation.",
+      "minimum_evidence_fields": [
+        "checks.provider_kat_vectors_passed = true",
+        "implementation_digest_sha256 is bound to the reviewed provider"
+      ],
+      "satisfies_checks": [
+        "provider_kat_vectors_passed"
+      ]
+    },
+    {
+      "component_id": "fips204_mldsa65_kat",
+      "current_status": "missing_reviewed_fips204_mldsa65_kat_pass",
+      "description": "Reviewed ML-DSA-65 FIPS 204 KAT evidence for key generation, signing, and verification behavior.",
+      "minimum_evidence_fields": [
+        "checks.fips204_mldsa65_kat_passed = true",
+        "campaign.parameter_set = ML-DSA-65",
+        "campaign.revision = FIPS204"
+      ],
+      "satisfies_checks": [
+        "fips204_mldsa65_kat_passed"
+      ]
+    },
+    {
+      "component_id": "acvts_or_cavp_campaign",
+      "current_status": "missing_reviewed_acvts_or_cavp_campaign",
+      "description": "Reviewed ACVTS or CAVP campaign evidence covering the selected provider and parameter set.",
+      "minimum_evidence_fields": [
+        "checks.acvts_or_cavp_campaign_reviewed = true",
+        "campaign.route names the reviewed ACVTS or CAVP route",
+        "campaign.modes includes keyGen",
+        "campaign.modes includes sigGen",
+        "campaign.modes includes sigVer"
+      ],
+      "satisfies_checks": [
+        "acvts_or_cavp_campaign_reviewed"
+      ]
+    },
+    {
+      "component_id": "external_validation_reviewer_digest",
+      "current_status": "missing_external_reviewer_digest",
+      "description": "A nonzero 32-byte hex digest binding the independent validation reviewer, report, or validation transcript.",
+      "minimum_evidence_fields": [
+        "external_reviewer_digest_hex is 64 lowercase hex characters",
+        "external_reviewer_digest_hex is not all zeroes"
+      ],
+      "satisfies_checks": [
+        "external_reviewer_digest_present"
+      ]
+    },
+    {
+      "component_id": "backend_digest_binding",
+      "current_status": "local_binding_present",
+      "description": "The validation input must bind the current backend capture and backend manifest digests.",
+      "minimum_evidence_fields": [
+        "backend_capture_sha256 matches source_inputs.backend_capture_sha256",
+        "backend_manifest_sha256 matches source_inputs.backend_manifest_sha256"
+      ],
+      "satisfies_checks": [
+        "binds_backend_capture_digest",
+        "binds_backend_manifest_digest"
+      ]
+    }
+  ],
+  "schema": "lattice-aggregation:p1-full-kat-cavp-validation-component-requirements:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_inputs": {
+    "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+    "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
+    "draft_evidence_path": "artifacts/p1-full-kat-cavp-validation-input/latest/evidence.json",
+    "review_package_path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json"
+  }
+}

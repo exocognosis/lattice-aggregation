@@ -1,0 +1,47 @@
+{
+  "claim_boundary": "evidence component inventory only; pending external proof and validation",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "component_inventory_status": "external_components_required",
+  "generated_at": "2026-07-07T00:00:00Z",
+  "name": "theorem-closure-evidence-components",
+  "package_boundary": "This inventory makes the remaining proof and validation evidence components explicit. It does not flip theorem-readiness flags.",
+  "required_evidence_components": {
+    "full_kat_cavp_validation": {
+      "component_requirements_path": "artifacts/p1-full-kat-cavp-validation-input/latest/component-requirements.json",
+      "draft_input_path": "artifacts/p1-full-kat-cavp-validation-input/latest/evidence.json",
+      "external_input_schema": "external-review:p1-full-kat-cavp-validation:v1",
+      "missing_ready_checks": [
+        "provider_kat_vectors_passed",
+        "fips204_mldsa65_kat_passed",
+        "acvts_or_cavp_campaign_reviewed",
+        "external_reviewer_digest_present"
+      ],
+      "review_package_path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
+      "ready_status": "reviewed_full_kat_cavp_validation_ready"
+    },
+    "rejection_distribution_preservation": {
+      "component_requirements_path": "artifacts/p1-rejection-distribution-proof-input/latest/component-requirements.json",
+      "draft_input_path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
+      "external_input_schema": "external-review:p1-rejection-distribution-preservation:v1",
+      "missing_ready_checks": [
+        "accepted_distribution_distance_bound_reviewed",
+        "concrete_loss_bound_nonvacuous",
+        "external_reviewer_digest_present"
+      ],
+      "review_package_path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
+      "ready_status": "reviewed_rejection_distribution_preservation_ready"
+    }
+  },
+  "schema": "lattice-aggregation:theorem-closure-evidence-components:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

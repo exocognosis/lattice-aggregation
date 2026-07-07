@@ -28,7 +28,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T20:04:25Z",
+  "generated_at": "2026-07-07T23:05:33Z",
   "name": "p1-rejection-distribution-preservation-review",
   "package_boundary": "This package records reviewed rejection-distribution preservation input for theorem-readiness. It does not assert theorem closure or production threshold ML-DSA security by itself.",
   "package_class": "rejection_distribution_preservation_review",

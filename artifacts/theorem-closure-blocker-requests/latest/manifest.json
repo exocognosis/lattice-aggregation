@@ -10,7 +10,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T20:04:28Z",
+  "generated_at": "2026-07-07T23:05:38Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -35,7 +35,7 @@
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "d68f992edd2b569716dcd6b8c2b40240be0d850d41fcff9bb586fc9b1004dbd9"
+      "sha256": "7422361cb3dcfdd59a9945483ee9858f238b9235b74de6f79e237be72aa81f1e"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -45,12 +45,12 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "8933c0d8caeee3e868ff8552b4a07d06db16717492685325ebebd5a5f506d88b"
+      "sha256": "a9a1efaa37bfffcfccd93e87650a617adb57661755331f3958e78eb856ec3abd"
     }
   },
   "name": "theorem-closure-blocker-requests-v1",
   "request_boundary": "This artifact defines the exact externally reviewed proof and validation packages required to satisfy the remaining theorem-review flags. It does not assert theorem closure or validation.",
-  "request_digest_sha256": "9486fffd5097a625370d95d25009444135edfa1f2ca6b43a569f4484e43e33a3",
+  "request_digest_sha256": "1c256c70d2161d1b66d416392362482ac81d827bb31cce61a9ca2426abd2072b",
   "request_status": "blocker_inputs_required",
   "required_packages": {
     "full_kat_cavp_validation_review": {

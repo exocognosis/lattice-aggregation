@@ -101,7 +101,7 @@
       "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-07T20:04:32Z",
+  "generated_at": "2026-07-07T23:05:38Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -121,7 +121,7 @@
     "blocker_closure_requests": {
       "path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
       "present": true,
-      "sha256": "a4a3d079f5317e4b09f24e3dbbb506aa42236821cf1298ce0ec40a7cb5e6e8a8"
+      "sha256": "0cfbcd23fcd3c271244e1922136a18b4b58e3f6a327ae873c45005aba15fb16e"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
@@ -141,7 +141,7 @@
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "d68f992edd2b569716dcd6b8c2b40240be0d850d41fcff9bb586fc9b1004dbd9"
+      "sha256": "7422361cb3dcfdd59a9945483ee9858f238b9235b74de6f79e237be72aa81f1e"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -151,7 +151,7 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "8933c0d8caeee3e868ff8552b4a07d06db16717492685325ebebd5a5f506d88b"
+      "sha256": "a9a1efaa37bfffcfccd93e87650a617adb57661755331f3958e78eb856ec3abd"
     },
     "theorem_linkage_review": {
       "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
@@ -160,7 +160,7 @@
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "2bcd1ec156213c9d11436093a0419bdf2254d9d21383f3b4b8812a5934a1d5f9",
+  "review_digest_sha256": "e82b66d776c63c55bef399d54c25ce7349b773b924b03b8e9dbbd7b53dcddfed",
   "review_flags": {
     "full_kat_validation_reviewed": false,
     "proof_payload_reviewed": true,
