@@ -1,6 +1,6 @@
 {
   "blockers": [],
-  "candidate_digest_sha256": "be11b6f7b73f94aa569f85dfb182fcb569c09cf6ae5d68585499953850d6ccba",
+  "candidate_digest_sha256": "33313b3514630897bd903424702b3b5b675b7a2ba3e16741e12e1b9bb509e979",
   "checks": {
     "comparison_close_candidate": true,
     "distribution_abort_review_present": true,
@@ -21,12 +21,12 @@
   "claims_theorem_closure": false,
   "close_candidate": true,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-07T19:52:11Z",
+  "generated_at": "2026-07-07T20:00:41Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "347ae8795335d5ab0e6d2a1a5a8b25bd22137ce5dac9bcb1da324c01a43f6c17"
+      "sha256": "742db7985afbd5f81f6350cd7a68ed2eae9381e82b10997b4ea607b1870f4e62"
     },
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -36,7 +36,7 @@
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "2947335891a67d634dd2522474004ec4004198b2b9b56a6c0f2dbbd61a418e20"
+      "sha256": "2c786ff107640495bb375513254b28392411161e598ca39b56a3af26d6da6b6c"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",

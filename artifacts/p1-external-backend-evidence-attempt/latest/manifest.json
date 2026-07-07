@@ -1,10 +1,10 @@
 {
-  "attempt_digest_sha256": "bd80f652a84677966db7c3174e7db7d072b05f5a89b6eb36c1a94902ab98b2ee",
+  "attempt_digest_sha256": "48cd5d730ba3e0edfc3de0cd0b92c395fed2518aa2362fc60c64379a833a89fe",
   "attempt_status": "external_evidence_close_candidate_ready",
   "blockers": [],
-  "candidate_digest_sha256": "be11b6f7b73f94aa569f85dfb182fcb569c09cf6ae5d68585499953850d6ccba",
+  "candidate_digest_sha256": "33313b3514630897bd903424702b3b5b675b7a2ba3e16741e12e1b9bb509e979",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "65ae00b4e430f8fe557c7598bcca03b8778f87dd13bc03586132c4b75b2e8294",
+  "candidate_manifest_sha256": "85957e904f6031efb4a1e442a31627c300df43644fab320374235e055cb00b4b",
   "checks": {
     "accepted_distribution_abort_review_package_valid": true,
     "comparison_close_candidate": true,
@@ -33,12 +33,12 @@
   "claims_theorem_closure": false,
   "close_candidate": true,
   "closure_boundary": "Batch 8 external evidence attempt only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-07T19:52:11Z",
+  "generated_at": "2026-07-07T20:00:41Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "347ae8795335d5ab0e6d2a1a5a8b25bd22137ce5dac9bcb1da324c01a43f6c17"
+      "sha256": "742db7985afbd5f81f6350cd7a68ed2eae9381e82b10997b4ea607b1870f4e62"
     },
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -48,12 +48,12 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "65ae00b4e430f8fe557c7598bcca03b8778f87dd13bc03586132c4b75b2e8294"
+      "sha256": "85957e904f6031efb4a1e442a31627c300df43644fab320374235e055cb00b4b"
     },
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "2947335891a67d634dd2522474004ec4004198b2b9b56a6c0f2dbbd61a418e20"
+      "sha256": "2c786ff107640495bb375513254b28392411161e598ca39b56a3af26d6da6b6c"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
@@ -73,12 +73,12 @@
     "reviewed_external_evidence_package": {
       "path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
       "present": true,
-      "sha256": "f9a25ed4181b5c1fe62c6a157ec54128de5c2accb97ad96ff2a0285d495fcaf3"
+      "sha256": "876be2bee318f160b4e0c1f6754d6e526eeb6798ef4b675d30381506078a8710"
     }
   },
   "name": "p1-external-backend-evidence-attempt-v1",
   "review_package_path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
-  "review_package_sha256": "f9a25ed4181b5c1fe62c6a157ec54128de5c2accb97ad96ff2a0285d495fcaf3",
+  "review_package_sha256": "876be2bee318f160b4e0c1f6754d6e526eeb6798ef4b675d30381506078a8710",
   "review_packages": {
     "accepted_distribution_abort_review": {
       "package_class": "accepted_distribution_abort_review",

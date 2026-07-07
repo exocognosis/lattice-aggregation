@@ -28,13 +28,13 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T19:54:01Z",
+  "generated_at": "2026-07-07T20:04:25Z",
   "name": "p1-rejection-distribution-preservation-review",
   "package_boundary": "This package records reviewed rejection-distribution preservation input for theorem-readiness. It does not assert theorem closure or production threshold ML-DSA security by itself.",
   "package_class": "rejection_distribution_preservation_review",
   "review_digests": {
-    "abort_withholding_bound_digest_hex": "220cdd60942065bac89d7646c07fe2a7027b0499505e96db2876d09c0e262ea2",
-    "accepted_distribution_distance_digest_hex": "babaf7f86f4f58bb6ce3fddd96c5f58a9851df882ddaba4f8e3c0ce1723e3a0b",
+    "abort_withholding_bound_digest_hex": "a3a587bd51a13e55adf282421b0b03adfc71074498c12024dfec6404e75d4de8",
+    "accepted_distribution_distance_digest_hex": "0c2aa69bb54244f0b060f046b803486e7c1f89f2f047462b756bd06399e6a38f",
     "centralized_reference_distribution_digest_hex": "e782ff21598abfed0a4c052282c05de797b474fa3f1ad4de4e3f166b7531fef6",
     "concrete_loss_bound_digest_hex": "5afc6e02503fa6cbbd030a63193a6042326efab21166971e841b87f4cdbc4729",
     "reviewer_identity_digest_hex": null,
@@ -45,8 +45,8 @@
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
-    "accepted_distribution_abort_review_sha256": "347ae8795335d5ab0e6d2a1a5a8b25bd22137ce5dac9bcb1da324c01a43f6c17",
-    "proof_evidence_sha256": "1d8288f1fe85058a7f7f0e95b4ad11d1a1d817eb7ac7898aefdc98bfe8a7377b",
+    "accepted_distribution_abort_review_sha256": "742db7985afbd5f81f6350cd7a68ed2eae9381e82b10997b4ea607b1870f4e62",
+    "proof_evidence_sha256": "58305ef969ac95bc605269350131522296a4a9c393725ac1a8bbc09366900615",
     "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
   }
 }
