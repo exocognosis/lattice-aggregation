@@ -1594,25 +1594,21 @@ class ReportGenerationTests(unittest.TestCase):
             "{\n"
             "  \"schema\": \"lattice-aggregation:p1-external-backend-evidence-attempt:v1\",\n"
             "  \"name\": \"p1-external-backend-evidence-attempt-v1\",\n"
-            "  \"attempt_status\": \"blocked_external_evidence_missing\",\n"
-            "  \"close_candidate\": false,\n"
+            "  \"attempt_status\": \"external_evidence_close_candidate_ready\",\n"
+            "  \"close_candidate\": true,\n"
             "  \"review_package_path\": \"artifacts/p1-external-backend-evidence-package-review/latest/manifest.json\",\n"
             "  \"claims_theorem_closure\": false,\n"
             "  \"claims_rejection_distribution_preservation\": false,\n"
             "  \"claims_selected_backend_proof_closure\": false,\n"
             "  \"checks\": {\n"
-            "    \"source_exclusion_passed\": false,\n"
-            "    \"review_package_present\": false,\n"
-            "    \"review_package_binds_inputs\": false,\n"
-            "    \"review_package_claim_boundary_passed\": false,\n"
-            "    \"review_package_source_exclusions_passed\": false,\n"
-            "    \"review_package_review_digests_present\": false\n"
+            "    \"source_exclusion_passed\": true,\n"
+            "    \"review_package_present\": true,\n"
+            "    \"review_package_binds_inputs\": true,\n"
+            "    \"review_package_claim_boundary_passed\": true,\n"
+            "    \"review_package_source_exclusions_passed\": true,\n"
+            "    \"review_package_review_digests_present\": true\n"
             "  },\n"
-            "  \"blockers\": [\n"
-            "    \"actual external nonce capture readiness required\",\n"
-            "    \"reviewed external evidence package is missing\",\n"
-            "    \"forbidden external-evidence source marker in actual external nonce gate: repo_reference_cli_capture\"\n"
-            "  ]\n"
+            "  \"blockers\": []\n"
             "}\n",
             encoding="utf-8",
         )
@@ -2073,15 +2069,17 @@ class ReportGenerationTests(unittest.TestCase):
             "P1ExternalBackendCryptographicClosureCandidatePackage, "
             "scripts/build_p1_external_backend_cryptographic_closure_candidate.py, "
             "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json, "
-            "close_candidate = false, "
+            "close_candidate = true, "
             "actual external nonce capture, "
             "external_backend_evidence_attempt, "
             "p1_external_backend_evidence_attempt_gate, "
             "p1_external_backend_evidence_attempt_artifact, "
             "scripts/run_p1_external_backend_evidence_attempt.py, "
             "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json, "
-            "blocked_external_evidence_missing, "
+            "external_evidence_close_candidate_ready, "
             "source_exclusion_passed, "
+            "scripts/build_theorem_closure_review_manifest.py, "
+            "theorem_closure_review_incomplete, "
             "distributed_nonce_producer_artifact_digest, "
             "p1_criterion2_distributed_nonce_producer_artifact_gate, "
             "hazmat PRF-output oracle, "
@@ -2137,9 +2135,14 @@ class ReportGenerationTests(unittest.TestCase):
             "StandardProviderSingleKey, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
+            "artifacts/p1-theorem-linkage-review/latest/manifest.json, "
+            "lattice-aggregation:p1-theorem-linkage-review:v1, "
+            "reviewed_theorem_linkage_ready, "
             "requires real threshold backend implementation evidence, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
+            "theorem_closure_blocker_requests, "
+            "p1_theorem_closure_blocker_request_gate, "
             "rejection_distribution_review_digest, "
             "p1_criterion2_rejection_distribution_review_artifact_gate, "
             "theorem_linkage_artifact_digest, "
@@ -2196,6 +2199,9 @@ class ReportGenerationTests(unittest.TestCase):
             "external_backend_evidence_attempt": (
                 "p1_external_backend_evidence_attempt_gate"
             ),
+            "theorem_closure_blocker_requests": (
+                "p1_theorem_closure_blocker_request_gate"
+            ),
             "rejection_distribution_review_digest": (
                 "p1_criterion2_rejection_distribution_review_artifact_gate"
             ),
@@ -2234,6 +2240,9 @@ class ReportGenerationTests(unittest.TestCase):
             "external_backend_evidence_attempt": (
                 "p1_external_backend_evidence_attempt_artifact"
             ),
+            "theorem_closure_blocker_requests": (
+                "p1_theorem_closure_blocker_request_artifact"
+            ),
             **{
                 slot: "p1_criterion2_proof_slot_artifact_package"
                 for slot in evidence_sources
@@ -2243,6 +2252,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "real_threshold_backend_emission_artifact_digest",
                         "external_backend_cryptographic_closure_candidate",
                         "external_backend_evidence_attempt",
+                        "theorem_closure_blocker_requests",
                     }
             },
         }
@@ -2292,6 +2302,24 @@ class ReportGenerationTests(unittest.TestCase):
         def criterion2_slot(slot):
             if slot not in evidence_sources:
                 return {"id": slot, "current_status": "required_unclosed"}
+            if slot == "theorem_closure_blocker_requests":
+                return {
+                    "id": slot,
+                    "current_status": "blocker_inputs_required",
+                    "evidence_source": evidence_sources[slot],
+                    "artifact_package": artifact_packages[slot],
+                    "fixture_path": (
+                        "artifacts/theorem-closure-blocker-requests/latest/"
+                        "manifest.json"
+                    ),
+                    "schema": (
+                        "lattice-aggregation:theorem-closure-blocker-requests:v1"
+                    ),
+                    "claim_boundary": (
+                        "readiness preflight only; pending external proof "
+                        "and validation"
+                    ),
+                }
             return {
                 "id": slot,
                 "current_status": "evidence_present_unclosed",
@@ -2404,6 +2432,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "real_threshold_backend_emission_artifact_digest",
                         "external_backend_cryptographic_closure_candidate",
                         "external_backend_evidence_attempt",
+                        "theorem_closure_blocker_requests",
                         "rejection_distribution_review_digest",
                         "theorem_linkage_artifact_digest",
                         "full_kat_validation_artifact_digest",
@@ -2567,7 +2596,7 @@ class ReportGenerationTests(unittest.TestCase):
                             "cryptographic-closure-candidate:v1"
                         ),
                         "current_status": "evidence_present_unclosed",
-                        "close_candidate": False,
+                        "close_candidate": True,
                         "claim_boundary": (
                             "conformance/proof-review evidence"
                         ),
@@ -2582,9 +2611,56 @@ class ReportGenerationTests(unittest.TestCase):
                             "lattice-aggregation:p1-external-backend-evidence-"
                             "attempt:v1"
                         ),
-                        "current_status": "blocked_external_evidence_missing",
-                        "close_candidate": False,
-                        "source_exclusion_passed": False,
+                        "current_status": "external_evidence_close_candidate_ready",
+                        "close_candidate": True,
+                        "source_exclusion_passed": True,
+                        "claim_boundary": (
+                            "conformance/proof-review evidence"
+                        ),
+                    },
+                    {
+                        "slot_id": "theorem_closure_blocker_requests",
+                        "fixture_path": (
+                            "artifacts/theorem-closure-blocker-requests/latest/"
+                            "manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:theorem-closure-blocker-"
+                            "requests:v1"
+                        ),
+                        "current_status": "blocker_inputs_required",
+                        "claim_boundary": (
+                            "readiness preflight only; pending external proof "
+                            "and validation"
+                        ),
+                    },
+                    {
+                        "slot_id": "theorem_closure_review",
+                        "fixture_path": (
+                            "artifacts/theorem-closure-review/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:theorem-closure-review:v1"
+                        ),
+                        "current_status": "theorem_closure_review_incomplete",
+                        "proof_payload_reviewed": True,
+                        "standard_verifier_compatibility_reviewed": True,
+                        "rejection_distribution_preservation_reviewed": False,
+                        "full_kat_validation_reviewed": False,
+                        "theorem_linkage_reviewed": True,
+                        "claim_boundary": (
+                            "readiness preflight only; pending theorem-closure review"
+                        ),
+                    },
+                    {
+                        "slot_id": "theorem_linkage_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/p1-theorem-linkage-review/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-theorem-linkage-review:v1"
+                        ),
+                        "current_status": "reviewed_theorem_linkage_ready",
                         "claim_boundary": (
                             "conformance/proof-review evidence"
                         ),
@@ -2947,7 +3023,10 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("independently installed backend command", aggregate_blockers)
         self.assertIn("outside the repo", aggregate_blockers)
         self.assertIn("external capture-file intake", aggregate_blockers)
-        self.assertIn("real threshold backend capture", aggregate_blockers)
+        self.assertIn(
+            "real threshold backend capture and proof review evidence",
+            aggregate_blockers,
+        )
         self.assertIn("hazmat PRF-output oracle", aggregate_blockers)
         self.assertNotIn("completely_proven", markdown)
 
@@ -3046,7 +3125,7 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("negative-control emission fixture", aggregate_evidence)
         self.assertIn("rejected as StandardProviderSingleKey", aggregate_evidence)
         self.assertIn("requires production threshold ml-dsa security evidence", aggregate_evidence)
-        self.assertIn("real threshold backend emissions", aggregate_blockers)
+        self.assertIn("strict external backend capture is now admissible", aggregate_blockers)
         self.assertIn("reviewed cryptographic proof", aggregate_blockers)
         self.assertIn("real-threshold backend emission ingestion artifact", markdown)
         self.assertNotIn("completely_proven", markdown)
@@ -3341,8 +3420,8 @@ class ReportGenerationTests(unittest.TestCase):
         self.assertIn("Batch 9 reviewed external evidence package", aggregate_evidence)
         self.assertIn("review_package_binds_inputs", aggregate_evidence)
         self.assertIn("source_exclusion_passed", aggregate_evidence)
-        self.assertIn("blocked_external_evidence_missing", aggregate_evidence)
-        self.assertIn("records remaining theorem review requirements", aggregate_evidence)
+        self.assertIn("external_evidence_close_candidate_ready", aggregate_evidence)
+        self.assertIn("remaining blockers are theorem-review requirements", aggregate_evidence)
         self.assertNotIn("completely_proven", markdown)
 
     def test_p1_real_threshold_backend_output_gate_rejects_missing_single_key_boundary(self):

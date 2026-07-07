@@ -140,10 +140,9 @@ python3 scripts/verify_actual_nonce_producer_capture.py \
 
 The gate accepts only a promoted handoff whose source profile is
 `admissible_external_backend_capture` and whose quarantine record is false. The
-current checked artifact is `actual_external_capture_missing` because the
-promoted handoff is `repo_reference_cli_capture`. Use `--strict` when a real
-external backend is available and CI should fail until the actual external slot
-is ready.
+current checked artifact is `actual_external_capture_ready`, sourced from the
+strict external backend evidence run rather than the repo reference replay. Use
+`--strict` when CI should fail unless that actual external slot remains ready.
 
 Batch 7 consumes this gate through
 `scripts/build_p1_external_backend_cryptographic_closure_candidate.py`:
@@ -206,7 +205,9 @@ The Batch 8 runner writes `blocked_external_evidence_missing` until the grouped
 inputs produce `close_candidate = true` and `source_exclusion_passed = true`. It
 rejects hazmat, simulation, localnet, fixture, deterministic, test-vector,
 single-key, repo-reference, and quarantined replay markers before an attempt can
-be treated as real external evidence. The grouped inputs now include the
+be treated as real external evidence. The current checked attempt is
+`external_evidence_close_candidate_ready` with `close_candidate = true`; the
+grouped inputs include the
 production DKG/no-single-secret review and the accepted-distribution/abort
 review, and the external evidence package must bind their SHA-256 digests. It
 also keeps all theorem-closure and production-security claims false.

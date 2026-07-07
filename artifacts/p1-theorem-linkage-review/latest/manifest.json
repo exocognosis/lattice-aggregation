@@ -1,0 +1,93 @@
+{
+  "assessment_boundary": "This package links current Criterion 2 evidence to named theorem obligations for review. It does not claim theorem closure, rejection-distribution preservation, CAVP/ACVTS validation, FIPS validation, or production threshold ML-DSA security.",
+  "blockers": [],
+  "checks": {
+    "closure_candidate_ready": true,
+    "correctness_lemma_7_linked": true,
+    "correctness_lemma_8_linked": true,
+    "criterion2_claim_boundary_preserved": true,
+    "criterion2_schema_valid": true,
+    "distribution_abort_review_ready": true,
+    "dkg_review_ready": true,
+    "external_attempt_ready": true,
+    "external_attempt_source_exclusions_passed": true,
+    "formal_theorem_document_present": true,
+    "fst_l5_linked": true,
+    "fst_l7_linked": true,
+    "noise_lemma_h_linked": true,
+    "proof_obligations_document_present": true,
+    "real_recomputation_slot_present": true,
+    "rejection_batch_predicate_shape_linked": true,
+    "rejection_distribution_proof_still_open": true,
+    "rejection_distribution_slot_present": true,
+    "required_theorem_links_present": true,
+    "review_claim_boundaries_preserved": true,
+    "standard_verifier_slot_present": true,
+    "theorem_linkage_slot_present": true,
+    "threshold_output_slot_present": true
+  },
+  "claim_boundary": "conformance/proof-review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "generated_at": "2026-07-07T18:16:40Z",
+  "inputs": {
+    "accepted_distribution_abort_review": {
+      "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
+      "present": true,
+      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+    },
+    "closure_candidate": {
+      "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+      "present": true,
+      "sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3"
+    },
+    "criterion2_manifest": {
+      "path": "docs/cryptography/criterion-2-proof-substance.json",
+      "present": true,
+      "sha256": "a728eb2de9e3ecc8d0d5c1ec637604effab5e5d292370074beb6a89e416a4ae9"
+    },
+    "external_attempt": {
+      "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
+      "present": true,
+      "sha256": "284cd6f074327bbc3aa88f43dd2b249d9c46bbb95ae0e271300e41ad7982a8c9"
+    },
+    "formal_security_theorem": {
+      "path": "docs/cryptography/formal-security-theorem.md",
+      "present": true,
+      "sha256": "891c2cd060dcd79b7a3264addfffe79bb0684392065ab239862f4b3edaf07a5d"
+    },
+    "production_dkg_no_single_secret_review": {
+      "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
+      "present": true,
+      "sha256": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5"
+    },
+    "proof_obligations": {
+      "path": "docs/cryptography/proof-obligations.md",
+      "present": true,
+      "sha256": "894f0425b0aff69202b014cdc4ac13869cc9cadd6ac62154fa2acd616662c3be"
+    },
+    "rejection_batch": {
+      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "present": true,
+      "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
+    }
+  },
+  "name": "p1-theorem-linkage-review",
+  "review_digests": {
+    "criterion2_theorem_links_digest_hex": "00d93aca1cf8f6695f65178d45c8106e095c94baaa03857400fd2564e9676781",
+    "source_inputs_digest_hex": "d0ecdd8757fa996380abf455b53e84131ba2fedff250bf9d5b84111af8d4e19b",
+    "theorem_linkage_review_digest_hex": "0bb3951dbb95bd067b8af6a79f4f0fdfe9a473c8da76beb07dc07eeb956b014d"
+  },
+  "review_status": "reviewed_theorem_linkage_ready",
+  "schema": "lattice-aggregation:p1-theorem-linkage-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

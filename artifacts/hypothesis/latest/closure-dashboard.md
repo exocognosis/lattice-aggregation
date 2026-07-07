@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
 Branch: `codex/p1-recomputation-bridge-verified`
-Commit: `2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9`
+Commit: `f6740c8f362f862756f8bad7a086acbef3e143b5`
 
 ## Criteria
 
@@ -21,6 +21,7 @@ Commit: `2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9`
 
 ### criterion_2
 - Status: `criterion2_proof_payload_formalized`
+- `blocker_inputs_required`: theorem_closure_blocker_requests
 - `evidence_present_unclosed`: challenge_bound_artifact_digest, distributed_nonce_producer_artifact_digest, external_backend_cryptographic_closure_candidate, external_backend_evidence_attempt, external_review_digest, full_kat_validation_artifact_digest, hint_bound_artifact_digest, norm_bound_artifact_digest, real_recomputation_evidence_digest, real_threshold_backend_emission_artifact_digest, rejection_distribution_review_digest, standard_verifier_compatibility_artifact_digest, theorem_linkage_artifact_digest, threshold_output_certificate_digest, transcript_binding_evidence_digest
 
 ### criterion_3

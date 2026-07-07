@@ -1,7 +1,7 @@
 {
   "branch": "codex/p1-recomputation-bridge-verified",
   "claim_boundary": "closure-run implementation track",
-  "commit": "2f804ada9eba5b5808fe20fc92411f4ef8f7a9e9",
+  "commit": "f6740c8f362f862756f8bad7a086acbef3e143b5",
   "criteria": [
     {
       "blocker_count": 2,
@@ -89,6 +89,9 @@
     },
     "criterion_2": {
       "artifact_slot_statuses": {
+        "blocker_inputs_required": [
+          "theorem_closure_blocker_requests"
+        ],
         "evidence_present_unclosed": [
           "challenge_bound_artifact_digest",
           "distributed_nonce_producer_artifact_digest",
