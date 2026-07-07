@@ -47,6 +47,7 @@ not enough.
 ## Required Artifact Slots
 
 The Criterion 2 proof payload requires these slots before any promotion:
+`required_artifact_slots`.
 
 - `threshold_output_certificate_digest`: `evidence_present_unclosed` from
   `p1_criterion2_threshold_output_certificate_artifact_gate`
@@ -238,6 +239,15 @@ The Criterion 2 proof payload requires these slots before any promotion:
   array with `mask_seed_digest_hex`, `challenge_digest_hex`,
   `z_bound_result`, `r0_bound_result`, `ct0_bound_result`,
   `hint_bound_result`, and `accepted_or_rejected` for each signing attempt.
+- `theorem_closure_blocker_requests`: `blocker_inputs_required` from
+  `p1_theorem_closure_blocker_request_gate`
+  (`p1_theorem_closure_blocker_request_artifact`). This artifact is checked at
+  `artifacts/theorem-closure-blocker-requests/latest/manifest.json` with schema
+  `lattice-aggregation:theorem-closure-blocker-requests:v1`. It defines the
+  exact external packages now required to satisfy
+  `rejection_distribution_preservation_reviewed` and
+  `full_kat_validation_reviewed` without turning those missing packages into
+  closure claims.
   That turns the previous API blocker into predicate-observability evidence for
   the next reviewed batch comparison against centralized ML-DSA rejection
   behavior.

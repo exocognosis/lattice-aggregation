@@ -29,6 +29,7 @@ The preflight consumes the existing Criterion 2 and external-evidence surfaces:
 - `artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`;
 - `artifacts/p1-external-backend-evidence-attempt/latest/manifest.json`;
 - `artifacts/p1-theorem-linkage-review/latest/manifest.json`;
+- `artifacts/theorem-closure-blocker-requests/latest/manifest.json`;
 - `artifacts/theorem-closure-review/latest/manifest.json`.
 
 The theorem-linkage review input uses schema
@@ -106,6 +107,43 @@ theorem-linkage package now lets it also mark
 `theorem_linkage_reviewed = true`, while leaving
 `rejection_distribution_preservation_reviewed` and
 `full_kat_validation_reviewed` false.
+
+The remaining theorem-review blockers now point to exact package requests:
+
+- `artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json`
+  must satisfy schema
+  `lattice-aggregation:p1-rejection-distribution-preservation-review:v1`
+  and bind the current rejection batch plus accepted-distribution/abort review.
+- `artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json`
+  must satisfy schema
+  `lattice-aggregation:p1-full-kat-cavp-validation-review:v1`
+  and bind the current backend capture plus backend manifest.
+
+The repository now includes fail-closed builders for those packages:
+
+```bash
+python3 scripts/build_p1_rejection_distribution_preservation_review.py \
+  --root . \
+  --proof-evidence /outside/review/p1-rejection-distribution-proof.json \
+  --out artifacts/p1-rejection-distribution-preservation-review/latest
+
+python3 scripts/build_p1_full_kat_cavp_validation_review.py \
+  --root . \
+  --validation-evidence /outside/review/p1-full-kat-cavp-validation.json \
+  --out artifacts/p1-full-kat-cavp-validation-review/latest
+```
+
+Without the external input JSON files, both builders emit concrete package
+manifests with `blocked_*` review statuses. The rejection-distribution proof
+input must use schema
+`external-review:p1-rejection-distribution-preservation:v1`, bind the current
+rejection batch and accepted-distribution/abort review SHA-256 values, carry a
+non-empty concrete loss bound, include the required Noise/FST theorem links, and
+set all required proof checks true under an external reviewer digest. The
+validation input must use schema
+`external-review:p1-full-kat-cavp-validation:v1`, bind the current backend
+capture and manifest SHA-256 values, carry implementation and reviewer digests,
+and set the KAT/FIPS204/ACVTS-or-CAVP/vector checks true.
 
 ## Non-Claims
 

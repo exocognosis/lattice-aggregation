@@ -4,12 +4,12 @@
     "claim_boundary": [],
     "proof_payload_review": [],
     "rejection_distribution_review": [
-      "rejection-distribution preservation is not proven by the batch"
+      "rejection-distribution preservation package is missing or not ready; see artifacts/theorem-closure-blocker-requests/latest/manifest.json"
     ],
     "standard_verifier_review": [],
     "theorem_linkage_review": [],
     "validation": [
-      "full KAT/CAVP validation package is not present"
+      "full KAT/CAVP validation package is missing or not ready; see artifacts/theorem-closure-blocker-requests/latest/manifest.json"
     ]
   },
   "claim_boundary": "readiness preflight only; pending theorem-closure review",
@@ -24,6 +24,14 @@
     "claims_theorem_closure": false
   },
   "evidence_summary": {
+    "blocker_closure_requests": {
+      "claim_boundary_preserved": true,
+      "claims_false": true,
+      "present": true,
+      "request_status_ready": true,
+      "required_packages_present": true,
+      "schema_valid": true
+    },
     "claim_boundary_preserved": true,
     "distribution_abort_review": {
       "claims_false": true,
@@ -42,6 +50,17 @@
       "review_package_present": true,
       "source_exclusion_passed": true
     },
+    "full_kat_cavp_validation_package": {
+      "claim_boundary_preserved": true,
+      "claims_false": true,
+      "package_class_valid": true,
+      "present": true,
+      "required_checks_pass": false,
+      "review_ready": false,
+      "review_status_ready": false,
+      "schema_valid": true,
+      "source_inputs_bound": true
+    },
     "full_kat_validation_reviewed": false,
     "mutation_rejections": {
       "message": true,
@@ -49,6 +68,17 @@
       "signature": true
     },
     "predicate_mismatch_count": 0,
+    "rejection_distribution_preservation_package": {
+      "claim_boundary_preserved": true,
+      "claims_false": true,
+      "package_class_valid": true,
+      "present": true,
+      "required_checks_pass": false,
+      "review_ready": false,
+      "review_status_ready": false,
+      "schema_valid": true,
+      "source_inputs_bound": true
+    },
     "saw_accepted_and_rejected": true,
     "standard_verifier_accepts": true,
     "strict_backend": {
@@ -71,7 +101,7 @@
       "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-07T18:16:40Z",
+  "generated_at": "2026-07-07T19:29:53Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -88,6 +118,11 @@
       "present": true,
       "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
     },
+    "blocker_closure_requests": {
+      "path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
+      "present": true,
+      "sha256": "238df68e76a73ee33068dba1891ac047a7c476fea7cf766fd8abd47e4bce846a"
+    },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
@@ -96,17 +131,27 @@
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "a728eb2de9e3ecc8d0d5c1ec637604effab5e5d292370074beb6a89e416a4ae9"
+      "sha256": "ea7a8fc8f6559f5d69a5caebe18233351eb20d8f7378692e62ea3e1e666a9575"
     },
     "external_attempt": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
       "sha256": "284cd6f074327bbc3aa88f43dd2b249d9c46bbb95ae0e271300e41ad7982a8c9"
     },
+    "full_kat_cavp_validation_review": {
+      "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
+      "present": true,
+      "sha256": "81ca819f52ee4470be6f6967ae8995efccc6ad33e06cf2ebabf26bcd48b98ef6"
+    },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
       "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
+    },
+    "rejection_distribution_preservation_review": {
+      "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
+      "present": true,
+      "sha256": "8fb4dff34f42dc1953bed5ed726bfd44b8951c9ce347b7bdb516bd8a6f943fdf"
     },
     "theorem_linkage_review": {
       "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
@@ -115,7 +160,7 @@
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "fe3e4898e4b9835431738acf9c34478289174f796cf332258cd012160641f7ce",
+  "review_digest_sha256": "170fc3594f36dca0f001b34b59f3ee0aa17f14ed2ea8f419d837281a422ab505",
   "review_flags": {
     "full_kat_validation_reviewed": false,
     "proof_payload_reviewed": true,

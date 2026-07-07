@@ -283,6 +283,7 @@ CRITERION2_REQUIRED_ARTIFACT_SLOTS = [
     "real_threshold_backend_emission_artifact_digest",
     "external_backend_cryptographic_closure_candidate",
     "external_backend_evidence_attempt",
+    "theorem_closure_blocker_requests",
     "rejection_distribution_review_digest",
     "theorem_linkage_artifact_digest",
     "full_kat_validation_artifact_digest",
@@ -313,6 +314,9 @@ CRITERION2_EVIDENCE_PRESENT_SLOTS = {
     ),
     "external_backend_evidence_attempt": (
         "p1_external_backend_evidence_attempt_gate"
+    ),
+    "theorem_closure_blocker_requests": (
+        "p1_theorem_closure_blocker_request_gate"
     ),
     "rejection_distribution_review_digest": (
         "p1_criterion2_rejection_distribution_review_artifact_gate"
@@ -349,6 +353,9 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
     "external_backend_evidence_attempt": (
         "p1_external_backend_evidence_attempt_artifact"
     ),
+    "theorem_closure_blocker_requests": (
+        "p1_theorem_closure_blocker_request_artifact"
+    ),
     **{
         slot: "p1_criterion2_proof_slot_artifact_package"
         for slot in CRITERION2_ARTIFACT_SLOT_SOURCES
@@ -358,6 +365,7 @@ CRITERION2_EVIDENCE_PRESENT_PACKAGES = {
             "real_threshold_backend_emission_artifact_digest",
             "external_backend_cryptographic_closure_candidate",
             "external_backend_evidence_attempt",
+            "theorem_closure_blocker_requests",
         }
     },
 }
@@ -509,6 +517,15 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "claim_boundary": "conformance/proof-review evidence",
     },
     {
+        "slot_id": "theorem_closure_blocker_requests",
+        "fixture_path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
+        "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
+        "current_status": "blocker_inputs_required",
+        "claim_boundary": (
+            "readiness preflight only; pending external proof and validation"
+        ),
+    },
+    {
         "slot_id": "theorem_closure_review",
         "fixture_path": "artifacts/theorem-closure-review/latest/manifest.json",
         "schema": "lattice-aggregation:theorem-closure-review:v1",
@@ -552,6 +569,16 @@ CRITERION2_ARTIFACT_SLOT_STATUSES = {
     )
     for slot in CRITERION2_REQUIRED_ARTIFACT_SLOTS
 }
+CRITERION2_ARTIFACT_SLOT_STATUSES["theorem_closure_blocker_requests"] = (
+    "blocker_inputs_required"
+)
+CRITERION2_ARTIFACT_SLOT_CLAIM_BOUNDARIES = {
+    slot: "conformance/proof-review evidence"
+    for slot in CRITERION2_EVIDENCE_PRESENT_SLOTS
+}
+CRITERION2_ARTIFACT_SLOT_CLAIM_BOUNDARIES[
+    "theorem_closure_blocker_requests"
+] = "readiness preflight only; pending external proof and validation"
 CRITERION2_THEOREM_LINKS = [
     "Correctness Lemma 7",
     "Correctness Lemma 8",
@@ -1248,7 +1275,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         and slot_by_id.get(slot_id, {}).get("artifact_package")
         == CRITERION2_EVIDENCE_PRESENT_PACKAGES[slot_id]
         and slot_by_id.get(slot_id, {}).get("claim_boundary")
-        == "conformance/proof-review evidence"
+        == CRITERION2_ARTIFACT_SLOT_CLAIM_BOUNDARIES[slot_id]
         for slot_id, evidence_source in CRITERION2_EVIDENCE_PRESENT_SLOTS.items()
     )
     artifact_slots_pinned = (

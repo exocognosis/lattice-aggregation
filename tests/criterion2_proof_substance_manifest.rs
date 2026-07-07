@@ -87,6 +87,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
         "real_threshold_backend_emission_artifact_digest",
         "external_backend_cryptographic_closure_candidate",
         "external_backend_evidence_attempt",
+        "theorem_closure_blocker_requests",
         "rejection_distribution_review_digest",
         "theorem_linkage_artifact_digest",
         "full_kat_validation_artifact_digest",
@@ -138,6 +139,11 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             "p1_external_backend_evidence_attempt_artifact",
         ),
         (
+            "theorem_closure_blocker_requests",
+            "p1_theorem_closure_blocker_request_gate",
+            "p1_theorem_closure_blocker_request_artifact",
+        ),
+        (
             "rejection_distribution_review_digest",
             "p1_criterion2_rejection_distribution_review_artifact_gate",
             "p1_criterion2_proof_slot_artifact_package",
@@ -185,7 +191,12 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             .iter()
             .find(|(expected_slot, _, _)| expected_slot == &slot_id)
         {
-            assert_eq!(slot["current_status"], "evidence_present_unclosed");
+            let expected_status = if slot_id == "theorem_closure_blocker_requests" {
+                "blocker_inputs_required"
+            } else {
+                "evidence_present_unclosed"
+            };
+            assert_eq!(slot["current_status"], expected_status);
             assert_eq!(slot["evidence_source"], *source);
             assert_eq!(slot["artifact_package"], *package);
             if slot_id == "real_threshold_backend_emission_artifact_digest" {
@@ -292,7 +303,12 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                 assert_eq!(slot["claims_rejection_distribution_preservation"], false);
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
             }
-            assert_eq!(slot["claim_boundary"], "conformance/proof-review evidence");
+            let expected_boundary = if slot_id == "theorem_closure_blocker_requests" {
+                "readiness preflight only; pending external proof and validation"
+            } else {
+                "conformance/proof-review evidence"
+            };
+            assert_eq!(slot["claim_boundary"], expected_boundary);
             evidence_present_slots.push(slot_id);
         } else {
             assert_eq!(
@@ -635,6 +651,12 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             "external_evidence_close_candidate_ready",
         ),
         (
+            "theorem_closure_blocker_requests",
+            "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
+            "lattice-aggregation:theorem-closure-blocker-requests:v1",
+            "blocker_inputs_required",
+        ),
+        (
             "rejection_distribution_review_digest",
             "tests/fixtures/p1_rejection_distribution_review_artifact_fixture.json",
             "lattice-aggregation:p1-rejection-distribution-review-artifact:v1",
@@ -663,10 +685,12 @@ fn criterion2_manifest_links_checked_fixture_refs() {
 
         assert_eq!(fixture_ref["fixture_path"], fixture_path);
         assert_eq!(fixture_ref["schema"], schema);
-        assert_eq!(
-            fixture_ref["claim_boundary"],
+        let expected_boundary = if slot_id == "theorem_closure_blocker_requests" {
+            "readiness preflight only; pending external proof and validation"
+        } else {
             "conformance/proof-review evidence"
-        );
+        };
+        assert_eq!(fixture_ref["claim_boundary"], expected_boundary);
         assert_eq!(fixture_ref["current_status"], current_status);
         if slot_id == "external_backend_cryptographic_closure_candidate" {
             assert_eq!(fixture_ref["close_candidate"], true);

@@ -3,15 +3,15 @@
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
 Branch: `codex/p1-recomputation-bridge-verified`
-Commit: `01c3a2e53bc89e1d6d6f691d6a64e4dd62345010`
+Commit: `5bd72cbe61d8b4971f1bd85844ef4d862fbfdef6`
 
 ## Criteria
 
-- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 11 blockers)
-- `abort_retry_bias`: `partially_met` (3 evidence entries, 3 blockers)
-- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 3 blockers)
-- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 3 blockers)
+- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 2 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 10 blockers)
+- `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
+- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
+- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)
 
 ## Proof Artifact Slots
 
@@ -21,6 +21,7 @@ Commit: `01c3a2e53bc89e1d6d6f691d6a64e4dd62345010`
 
 ### criterion_2
 - Status: `criterion2_proof_payload_formalized`
+- `blocker_inputs_required`: theorem_closure_blocker_requests
 - `evidence_present_unclosed`: challenge_bound_artifact_digest, distributed_nonce_producer_artifact_digest, external_backend_cryptographic_closure_candidate, external_backend_evidence_attempt, external_review_digest, full_kat_validation_artifact_digest, hint_bound_artifact_digest, norm_bound_artifact_digest, real_recomputation_evidence_digest, real_threshold_backend_emission_artifact_digest, rejection_distribution_review_digest, standard_verifier_compatibility_artifact_digest, theorem_linkage_artifact_digest, threshold_output_certificate_digest, transcript_binding_evidence_digest
 
 ### criterion_3

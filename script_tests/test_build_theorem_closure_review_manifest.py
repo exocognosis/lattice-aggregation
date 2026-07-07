@@ -70,12 +70,44 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
                 "review_status_ready"
             ]
         )
+        self.assertTrue(
+            manifest["evidence_summary"]["blocker_closure_requests"][
+                "request_status_ready"
+            ]
+        )
+        self.assertTrue(
+            manifest["evidence_summary"][
+                "rejection_distribution_preservation_package"
+            ]["present"]
+        )
+        self.assertFalse(
+            manifest["evidence_summary"][
+                "rejection_distribution_preservation_package"
+            ]["review_ready"]
+        )
+        self.assertTrue(
+            manifest["evidence_summary"]["full_kat_cavp_validation_package"][
+                "present"
+            ]
+        )
+        self.assertFalse(
+            manifest["evidence_summary"]["full_kat_cavp_validation_package"][
+                "review_ready"
+            ]
+        )
         self.assertIn(
-            "rejection-distribution preservation is not proven by the batch",
+            (
+                "rejection-distribution preservation package is missing or not "
+                "ready; see artifacts/theorem-closure-blocker-requests/latest/"
+                "manifest.json"
+            ),
             manifest["blocker_groups"]["rejection_distribution_review"],
         )
         self.assertIn(
-            "full KAT/CAVP validation package is not present",
+            (
+                "full KAT/CAVP validation package is missing or not ready; see "
+                "artifacts/theorem-closure-blocker-requests/latest/manifest.json"
+            ),
             manifest["blocker_groups"]["validation"],
         )
         self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
@@ -114,6 +146,84 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
             manifest["blocker_groups"]["validation"],
         )
         self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
+
+    def test_reviewed_distribution_and_validation_packages_can_ready_assessment(self):
+        module = load_module(SCRIPT, "build_theorem_closure_review_manifest")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            rejection_package = {
+                "schema": (
+                    "lattice-aggregation:"
+                    "p1-rejection-distribution-preservation-review:v1"
+                ),
+                "schema_version": 1,
+                "package_class": "rejection_distribution_preservation_review",
+                "selected_profile": (
+                    "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+                ),
+                "claim_boundary": "conformance/proof-review evidence",
+                "review_status": "reviewed_rejection_distribution_preservation_ready",
+                "source_inputs": {
+                    "rejection_batch_sha256": module.sha256_path(
+                        module.default_rejection_batch(ROOT)
+                    ),
+                    "accepted_distribution_abort_review_sha256": module.sha256_path(
+                        module.default_distribution_abort_review(ROOT)
+                    ),
+                },
+                "checks": {
+                    name: True
+                    for name in module.REJECTION_DISTRIBUTION_PACKAGE_CHECKS
+                },
+                "claim_flags": {key: False for key in module.CLAIM_FLAG_KEYS},
+            }
+            validation_package = {
+                "schema": "lattice-aggregation:p1-full-kat-cavp-validation-review:v1",
+                "schema_version": 1,
+                "package_class": "full_kat_cavp_validation_review",
+                "selected_profile": (
+                    "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+                ),
+                "claim_boundary": "conformance/proof-review evidence",
+                "review_status": "reviewed_full_kat_cavp_validation_ready",
+                "source_inputs": {
+                    "backend_capture_sha256": module.sha256_path(
+                        module.default_backend_capture(ROOT)
+                    ),
+                    "backend_manifest_sha256": module.sha256_path(
+                        module.default_backend_manifest(ROOT)
+                    ),
+                },
+                "checks": {
+                    name: True for name in module.FULL_KAT_VALIDATION_PACKAGE_CHECKS
+                },
+                "claim_flags": {key: False for key in module.CLAIM_FLAG_KEYS},
+            }
+            rejection_path = root / "rejection-package.json"
+            validation_path = root / "validation-package.json"
+            write_json(rejection_path, rejection_package)
+            write_json(validation_path, validation_package)
+
+            report = module.build_report(
+                ROOT,
+                rejection_distribution_preservation_review_path=rejection_path,
+                full_kat_cavp_validation_review_path=validation_path,
+                generated_at="2026-07-07T00:00:00Z",
+            )
+
+        manifest = report["manifest"]
+        self.assertEqual(
+            manifest["review_status"],
+            "theorem_closure_review_ready",
+        )
+        self.assertTrue(
+            manifest["review_flags"]["rejection_distribution_preservation_reviewed"]
+        )
+        self.assertTrue(manifest["review_flags"]["full_kat_validation_reviewed"])
+        self.assertFalse(any(manifest["claim_flags"].values()))
+        self.assertEqual(manifest["blocker_groups"]["rejection_distribution_review"], [])
+        self.assertEqual(manifest["blocker_groups"]["validation"], [])
 
     def test_theorem_linkage_artifact_claiming_closure_is_rejected(self):
         module = load_module(SCRIPT, "build_theorem_closure_review_manifest")

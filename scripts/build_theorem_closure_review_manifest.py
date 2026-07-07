@@ -20,6 +20,18 @@ THEOREM_LINKAGE_SCHEMA = "lattice-aggregation:p1-theorem-linkage-review:v1"
 THEOREM_LINKAGE_READY = "reviewed_theorem_linkage_ready"
 DISTRIBUTION_ABORT_SCHEMA = "lattice-aggregation:p1-accepted-distribution-abort-review:v1"
 DISTRIBUTION_ABORT_READY = "reviewed_distribution_abort_ready"
+BLOCKER_REQUESTS_SCHEMA = "lattice-aggregation:theorem-closure-blocker-requests:v1"
+BLOCKER_REQUESTS_READY = "blocker_inputs_required"
+REJECTION_DISTRIBUTION_PACKAGE_SCHEMA = (
+    "lattice-aggregation:p1-rejection-distribution-preservation-review:v1"
+)
+REJECTION_DISTRIBUTION_PACKAGE_READY = (
+    "reviewed_rejection_distribution_preservation_ready"
+)
+FULL_KAT_VALIDATION_PACKAGE_SCHEMA = (
+    "lattice-aggregation:p1-full-kat-cavp-validation-review:v1"
+)
+FULL_KAT_VALIDATION_PACKAGE_READY = "reviewed_full_kat_cavp_validation_ready"
 
 REVIEW_FLAGS = (
     "proof_payload_reviewed",
@@ -38,6 +50,33 @@ CLAIM_FLAG_KEYS = (
     "claims_production_threshold_mldsa_security",
     "claims_cavp_acvts_validation",
     "claims_fips_validation",
+)
+
+REJECTION_DISTRIBUTION_PACKAGE_CHECKS = (
+    "accepted_distribution_distance_bound_reviewed",
+    "threshold_accepted_distribution_reviewed",
+    "centralized_mldsa_reference_distribution_reviewed",
+    "rejection_sampling_conditioning_reviewed",
+    "selective_abort_withholding_bound_reviewed",
+    "restart_leakage_bound_reviewed",
+    "concurrency_model_reviewed",
+    "concrete_loss_bound_nonvacuous",
+    "binds_rejection_batch_digest",
+    "binds_distribution_abort_review_digest",
+    "external_reviewer_digest_present",
+)
+
+FULL_KAT_VALIDATION_PACKAGE_CHECKS = (
+    "provider_kat_vectors_passed",
+    "fips204_mldsa65_kat_passed",
+    "acvts_or_cavp_campaign_reviewed",
+    "signing_verification_vectors_reviewed",
+    "mutation_negative_vectors_reviewed",
+    "public_key_signature_length_vectors_reviewed",
+    "implementation_digest_bound",
+    "binds_backend_capture_digest",
+    "binds_backend_manifest_digest",
+    "external_reviewer_digest_present",
 )
 
 
@@ -136,6 +175,24 @@ def default_distribution_abort_review(root):
     return (
         Path(root)
         / "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json"
+    )
+
+
+def default_blocker_requests(root):
+    return Path(root) / "artifacts/theorem-closure-blocker-requests/latest/manifest.json"
+
+
+def default_rejection_distribution_preservation_review(root):
+    return (
+        Path(root)
+        / "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json"
+    )
+
+
+def default_full_kat_cavp_validation_review(root):
+    return (
+        Path(root)
+        / "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json"
     )
 
 
@@ -297,6 +354,100 @@ def distribution_abort_review_checks(distribution_abort_review):
     }
 
 
+def blocker_request_checks(blocker_requests):
+    """Extract the remaining-blocker request package checks."""
+    if not isinstance(blocker_requests, dict):
+        return {
+            "present": False,
+            "schema_valid": False,
+            "request_status_ready": False,
+            "claim_boundary_preserved": False,
+            "required_packages_present": False,
+            "claims_false": False,
+        }
+    required_packages = blocker_requests.get("required_packages", {})
+    claim_flags = blocker_requests.get("claim_flags", {})
+    return {
+        "present": True,
+        "schema_valid": blocker_requests.get("schema") == BLOCKER_REQUESTS_SCHEMA,
+        "request_status_ready": (
+            blocker_requests.get("request_status") == BLOCKER_REQUESTS_READY
+        ),
+        "claim_boundary_preserved": (
+            blocker_requests.get("selected_profile") == SELECTED_PROFILE
+            and blocker_requests.get("claim_boundary")
+            == "readiness preflight only; pending external proof and validation"
+        ),
+        "required_packages_present": (
+            isinstance(required_packages, dict)
+            and "rejection_distribution_preservation_review" in required_packages
+            and "full_kat_cavp_validation_review" in required_packages
+        ),
+        "claims_false": (
+            isinstance(claim_flags, dict)
+            and all(claim_flags.get(key) is False for key in CLAIM_FLAG_KEYS)
+        ),
+    }
+
+
+def package_claims_false(package):
+    """Return true when a review package keeps top-level claims false."""
+    claim_flags = package.get("claim_flags", {}) if isinstance(package, dict) else {}
+    return isinstance(claim_flags, dict) and all(
+        claim_flags.get(key) is False for key in CLAIM_FLAG_KEYS
+    )
+
+
+def review_package_checks(
+    package,
+    *,
+    schema,
+    package_class,
+    ready_status,
+    required_checks,
+    expected_source_inputs,
+):
+    """Validate an optional external review package."""
+    if not isinstance(package, dict):
+        return {
+            "present": False,
+            "schema_valid": False,
+            "package_class_valid": False,
+            "review_status_ready": False,
+            "claim_boundary_preserved": False,
+            "source_inputs_bound": False,
+            "required_checks_pass": False,
+            "claims_false": False,
+            "review_ready": False,
+        }
+    checks = package.get("checks", {})
+    source_inputs = package.get("source_inputs", {})
+    required_checks_pass = (
+        isinstance(checks, dict)
+        and all(checks.get(name) is True for name in required_checks)
+    )
+    source_inputs_bound = isinstance(source_inputs, dict) and all(
+        source_inputs.get(key) == value
+        for key, value in expected_source_inputs.items()
+        if value is not None
+    )
+    result = {
+        "present": True,
+        "schema_valid": package.get("schema") == schema,
+        "package_class_valid": package.get("package_class") == package_class,
+        "review_status_ready": package.get("review_status") == ready_status,
+        "claim_boundary_preserved": (
+            package.get("claim_boundary") == "conformance/proof-review evidence"
+            and package.get("selected_profile") == SELECTED_PROFILE
+        ),
+        "source_inputs_bound": source_inputs_bound,
+        "required_checks_pass": required_checks_pass,
+        "claims_false": package_claims_false(package),
+    }
+    result["review_ready"] = all(result.values())
+    return result
+
+
 def criterion2_validation_slot_checks(criterion2):
     """Return non-promoting validation proof-slot status from Criterion 2."""
     proof_payload = criterion2.get("proof_payload", {}) if isinstance(criterion2, dict) else {}
@@ -364,6 +515,9 @@ def build_report(
     external_attempt_path=None,
     theorem_linkage_review_path=None,
     distribution_abort_review_path=None,
+    blocker_requests_path=None,
+    rejection_distribution_preservation_review_path=None,
+    full_kat_cavp_validation_review_path=None,
     criterion2_manifest_path=None,
     generated_at=None,
 ):
@@ -380,6 +534,15 @@ def build_report(
     distribution_abort_review_path = Path(
         distribution_abort_review_path or default_distribution_abort_review(root)
     )
+    blocker_requests_path = Path(blocker_requests_path or default_blocker_requests(root))
+    rejection_distribution_preservation_review_path = Path(
+        rejection_distribution_preservation_review_path
+        or default_rejection_distribution_preservation_review(root)
+    )
+    full_kat_cavp_validation_review_path = Path(
+        full_kat_cavp_validation_review_path
+        or default_full_kat_cavp_validation_review(root)
+    )
     criterion2_manifest_path = Path(
         criterion2_manifest_path or default_criterion2_manifest(root)
     )
@@ -392,6 +555,13 @@ def build_report(
     attempt = load_json(external_attempt_path)
     theorem_linkage_review = load_json_if_present(theorem_linkage_review_path)
     distribution_abort_review = load_json_if_present(distribution_abort_review_path)
+    blocker_requests = load_json_if_present(blocker_requests_path)
+    rejection_distribution_review = load_json_if_present(
+        rejection_distribution_preservation_review_path
+    )
+    full_kat_validation_review = load_json_if_present(
+        full_kat_cavp_validation_review_path
+    )
     criterion2 = load_json(criterion2_manifest_path)
 
     blockers = empty_blocker_groups()
@@ -400,6 +570,31 @@ def build_report(
     batch_checks = rejection_batch_checks(rejection_batch)
     theorem_linkage_checks = theorem_linkage_review_checks(theorem_linkage_review)
     distribution_abort_checks = distribution_abort_review_checks(distribution_abort_review)
+    blocker_request_status = blocker_request_checks(blocker_requests)
+    rejection_distribution_package_checks = review_package_checks(
+        rejection_distribution_review,
+        schema=REJECTION_DISTRIBUTION_PACKAGE_SCHEMA,
+        package_class="rejection_distribution_preservation_review",
+        ready_status=REJECTION_DISTRIBUTION_PACKAGE_READY,
+        required_checks=REJECTION_DISTRIBUTION_PACKAGE_CHECKS,
+        expected_source_inputs={
+            "rejection_batch_sha256": sha256_path(rejection_batch_path),
+            "accepted_distribution_abort_review_sha256": sha256_path(
+                distribution_abort_review_path
+            ),
+        },
+    )
+    full_kat_validation_package_checks = review_package_checks(
+        full_kat_validation_review,
+        schema=FULL_KAT_VALIDATION_PACKAGE_SCHEMA,
+        package_class="full_kat_cavp_validation_review",
+        ready_status=FULL_KAT_VALIDATION_PACKAGE_READY,
+        required_checks=FULL_KAT_VALIDATION_PACKAGE_CHECKS,
+        expected_source_inputs={
+            "backend_capture_sha256": sha256_path(backend_capture_path),
+            "backend_manifest_sha256": sha256_path(backend_manifest_path),
+        },
+    )
     validation_slot_checks = criterion2_validation_slot_checks(criterion2)
     external_checks = external_evidence_checks(candidate, attempt)
     claim_boundary_preserved = claim_boundary_is_preserved(
@@ -432,10 +627,11 @@ def build_report(
         and batch_checks["standard_verifier_accepts_threshold_signature"]
         and batch_checks["repo_provider_accepts_threshold_signature"]
     )
-    rejection_distribution_preservation_reviewed = batch_checks[
-        "distribution_compatibility_proven"
-    ]
-    full_kat_validation_reviewed = False
+    rejection_distribution_preservation_reviewed = (
+        batch_checks["distribution_compatibility_proven"]
+        or rejection_distribution_package_checks["review_ready"]
+    )
+    full_kat_validation_reviewed = full_kat_validation_package_checks["review_ready"]
     theorem_linkage_reviewed = all(theorem_linkage_checks.values())
 
     if not proof_payload_reviewed:
@@ -454,13 +650,20 @@ def build_report(
         add_blocker(
             blockers,
             "rejection_distribution_review",
-            "rejection-distribution preservation is not proven by the batch",
+            (
+                "rejection-distribution preservation package is missing or not "
+                "ready; see artifacts/theorem-closure-blocker-requests/latest/"
+                "manifest.json"
+            ),
         )
     if not full_kat_validation_reviewed:
         add_blocker(
             blockers,
             "validation",
-            "full KAT/CAVP validation package is not present",
+            (
+                "full KAT/CAVP validation package is missing or not ready; see "
+                "artifacts/theorem-closure-blocker-requests/latest/manifest.json"
+            ),
         )
     if not theorem_linkage_reviewed:
         add_blocker(
@@ -507,6 +710,11 @@ def build_report(
             "distribution_compatibility_proven"
         ],
         "distribution_abort_review": distribution_abort_checks,
+        "blocker_closure_requests": blocker_request_status,
+        "rejection_distribution_preservation_package": (
+            rejection_distribution_package_checks
+        ),
+        "full_kat_cavp_validation_package": full_kat_validation_package_checks,
         "validation_artifact_slot": validation_slot_checks,
         "full_kat_validation_reviewed": full_kat_validation_reviewed,
         "theorem_linkage_review": theorem_linkage_checks,
@@ -520,6 +728,13 @@ def build_report(
         "external_attempt": input_record(external_attempt_path),
         "theorem_linkage_review": input_record(theorem_linkage_review_path),
         "accepted_distribution_abort_review": input_record(distribution_abort_review_path),
+        "blocker_closure_requests": input_record(blocker_requests_path),
+        "rejection_distribution_preservation_review": input_record(
+            rejection_distribution_preservation_review_path
+        ),
+        "full_kat_cavp_validation_review": input_record(
+            full_kat_cavp_validation_review_path
+        ),
         "criterion2_manifest": input_record(criterion2_manifest_path),
     }
     digest_material = {
@@ -600,6 +815,14 @@ def render_summary(manifest):
         "- `full_kat_validation_reviewed`: "
         f"`{str(manifest['review_flags']['full_kat_validation_reviewed']).lower()}`"
     )
+    lines.append(
+        "- `rejection_distribution_preservation_package_ready`: "
+        f"`{str(summary['rejection_distribution_preservation_package']['review_ready']).lower()}`"
+    )
+    lines.append(
+        "- `full_kat_cavp_validation_package_ready`: "
+        f"`{str(summary['full_kat_cavp_validation_package']['review_ready']).lower()}`"
+    )
     lines.extend(["", "Blocker Groups:"])
     for group, blockers in manifest["blocker_groups"].items():
         lines.append(f"- `{group}`: `{len(blockers)}` blocker(s)")
@@ -646,6 +869,9 @@ def parse_args(argv):
     parser.add_argument("--external-attempt", default=None)
     parser.add_argument("--theorem-linkage-review", default=None)
     parser.add_argument("--distribution-abort-review", default=None)
+    parser.add_argument("--blocker-requests", default=None)
+    parser.add_argument("--rejection-distribution-preservation-review", default=None)
+    parser.add_argument("--full-kat-cavp-validation-review", default=None)
     parser.add_argument("--criterion2-manifest", default=None)
     parser.add_argument(
         "--out",
@@ -667,6 +893,11 @@ def main(argv=None):
         external_attempt_path=args.external_attempt,
         theorem_linkage_review_path=args.theorem_linkage_review,
         distribution_abort_review_path=args.distribution_abort_review,
+        blocker_requests_path=args.blocker_requests,
+        rejection_distribution_preservation_review_path=(
+            args.rejection_distribution_preservation_review
+        ),
+        full_kat_cavp_validation_review_path=args.full_kat_cavp_validation_review,
         criterion2_manifest_path=args.criterion2_manifest,
     )
     out = Path(args.out) if args.out else default_out(root)

@@ -4,7 +4,7 @@ This artifact reviews the current external-backend close-candidate evidence for 
 
 - Review status: `theorem_closure_review_incomplete`
 - Claim boundary: `readiness preflight only; pending theorem-closure review`
-- Review digest SHA-256: `fe3e4898e4b9835431738acf9c34478289174f796cf332258cd012160641f7ce`
+- Review digest SHA-256: `170fc3594f36dca0f001b34b59f3ee0aa17f14ed2ea8f419d837281a422ab505`
 
 Review Flags:
 - `proof_payload_reviewed`: `true`
@@ -20,13 +20,15 @@ Evidence Summary:
 - `distribution_compatibility_proven`: `false`
 - `theorem_linkage_reviewed`: `true`
 - `full_kat_validation_reviewed`: `false`
+- `rejection_distribution_preservation_package_ready`: `false`
+- `full_kat_cavp_validation_package_ready`: `false`
 
 Blocker Groups:
 - `proof_payload_review`: `0` blocker(s)
 - `validation`: `1` blocker(s)
-  - full KAT/CAVP validation package is not present
+  - full KAT/CAVP validation package is missing or not ready; see artifacts/theorem-closure-blocker-requests/latest/manifest.json
 - `rejection_distribution_review`: `1` blocker(s)
-  - rejection-distribution preservation is not proven by the batch
+  - rejection-distribution preservation package is missing or not ready; see artifacts/theorem-closure-blocker-requests/latest/manifest.json
 - `standard_verifier_review`: `0` blocker(s)
 - `theorem_linkage_review`: `0` blocker(s)
 - `claim_boundary`: `0` blocker(s)

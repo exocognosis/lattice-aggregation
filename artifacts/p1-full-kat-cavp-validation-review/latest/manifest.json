@@ -1,0 +1,55 @@
+{
+  "blockers": [
+    "provider_kat_vectors_passed",
+    "fips204_mldsa65_kat_passed",
+    "acvts_or_cavp_campaign_reviewed",
+    "signing_verification_vectors_reviewed",
+    "mutation_negative_vectors_reviewed",
+    "implementation_digest_bound",
+    "external_reviewer_digest_present"
+  ],
+  "checks": {
+    "acvts_or_cavp_campaign_reviewed": false,
+    "binds_backend_capture_digest": true,
+    "binds_backend_manifest_digest": true,
+    "external_reviewer_digest_present": false,
+    "fips204_mldsa65_kat_passed": false,
+    "implementation_digest_bound": false,
+    "mutation_negative_vectors_reviewed": false,
+    "provider_kat_vectors_passed": false,
+    "public_key_signature_length_vectors_reviewed": true,
+    "signing_verification_vectors_reviewed": false
+  },
+  "claim_boundary": "conformance/proof-review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "generated_at": "2026-07-07T19:29:53Z",
+  "name": "p1-full-kat-cavp-validation-review",
+  "package_boundary": "This package records reviewed KAT/CAVP/ACVTS validation evidence for the selected ML-DSA-65 provider. It does not assert theorem closure or FIPS validation by itself.",
+  "package_class": "full_kat_cavp_validation_review",
+  "review_digests": {
+    "acvts_cavp_campaign_digest_hex": "3fe352760cff3860c9c42331ca442310a7b5668fcee35112b8ffa7d566ddd8ad",
+    "backend_capture_digest_hex": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+    "backend_manifest_digest_hex": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
+    "implementation_digest_hex": null,
+    "provider_kat_review_digest_hex": "323f547a71026c10a3faaa3069087f54779e7be2d4ac6958a7d9d8b42ac04fde",
+    "reviewer_identity_digest_hex": null
+  },
+  "review_status": "blocked_full_kat_cavp_validation_review",
+  "schema": "lattice-aggregation:p1-full-kat-cavp-validation-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_inputs": {
+    "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+    "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
+    "validation_evidence_sha256": null
+  }
+}

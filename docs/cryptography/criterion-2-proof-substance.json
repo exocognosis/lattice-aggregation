@@ -301,6 +301,15 @@
         "claims_selected_backend_proof_closure": false
       },
       {
+        "id": "theorem_closure_blocker_requests",
+        "current_status": "blocker_inputs_required",
+        "evidence_source": "p1_theorem_closure_blocker_request_gate",
+        "artifact_package": "p1_theorem_closure_blocker_request_artifact",
+        "fixture_path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
+        "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
+        "claim_boundary": "readiness preflight only; pending external proof and validation"
+      },
+      {
         "id": "rejection_distribution_review_digest",
         "current_status": "evidence_present_unclosed",
         "evidence_source": "p1_criterion2_rejection_distribution_review_artifact_gate",
@@ -437,6 +446,13 @@
         "close_candidate": true,
         "source_exclusion_passed": true,
         "claim_boundary": "conformance/proof-review evidence"
+      },
+      {
+        "slot_id": "theorem_closure_blocker_requests",
+        "fixture_path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
+        "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
+        "current_status": "blocker_inputs_required",
+        "claim_boundary": "readiness preflight only; pending external proof and validation"
       },
       {
         "slot_id": "theorem_closure_review",

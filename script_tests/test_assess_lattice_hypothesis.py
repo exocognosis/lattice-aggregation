@@ -2141,6 +2141,8 @@ class ReportGenerationTests(unittest.TestCase):
             "requires real threshold backend implementation evidence, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
+            "theorem_closure_blocker_requests, "
+            "p1_theorem_closure_blocker_request_gate, "
             "rejection_distribution_review_digest, "
             "p1_criterion2_rejection_distribution_review_artifact_gate, "
             "theorem_linkage_artifact_digest, "
@@ -2197,6 +2199,9 @@ class ReportGenerationTests(unittest.TestCase):
             "external_backend_evidence_attempt": (
                 "p1_external_backend_evidence_attempt_gate"
             ),
+            "theorem_closure_blocker_requests": (
+                "p1_theorem_closure_blocker_request_gate"
+            ),
             "rejection_distribution_review_digest": (
                 "p1_criterion2_rejection_distribution_review_artifact_gate"
             ),
@@ -2235,6 +2240,9 @@ class ReportGenerationTests(unittest.TestCase):
             "external_backend_evidence_attempt": (
                 "p1_external_backend_evidence_attempt_artifact"
             ),
+            "theorem_closure_blocker_requests": (
+                "p1_theorem_closure_blocker_request_artifact"
+            ),
             **{
                 slot: "p1_criterion2_proof_slot_artifact_package"
                 for slot in evidence_sources
@@ -2244,6 +2252,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "real_threshold_backend_emission_artifact_digest",
                         "external_backend_cryptographic_closure_candidate",
                         "external_backend_evidence_attempt",
+                        "theorem_closure_blocker_requests",
                     }
             },
         }
@@ -2293,6 +2302,24 @@ class ReportGenerationTests(unittest.TestCase):
         def criterion2_slot(slot):
             if slot not in evidence_sources:
                 return {"id": slot, "current_status": "required_unclosed"}
+            if slot == "theorem_closure_blocker_requests":
+                return {
+                    "id": slot,
+                    "current_status": "blocker_inputs_required",
+                    "evidence_source": evidence_sources[slot],
+                    "artifact_package": artifact_packages[slot],
+                    "fixture_path": (
+                        "artifacts/theorem-closure-blocker-requests/latest/"
+                        "manifest.json"
+                    ),
+                    "schema": (
+                        "lattice-aggregation:theorem-closure-blocker-requests:v1"
+                    ),
+                    "claim_boundary": (
+                        "readiness preflight only; pending external proof "
+                        "and validation"
+                    ),
+                }
             return {
                 "id": slot,
                 "current_status": "evidence_present_unclosed",
@@ -2405,6 +2432,7 @@ class ReportGenerationTests(unittest.TestCase):
                         "real_threshold_backend_emission_artifact_digest",
                         "external_backend_cryptographic_closure_candidate",
                         "external_backend_evidence_attempt",
+                        "theorem_closure_blocker_requests",
                         "rejection_distribution_review_digest",
                         "theorem_linkage_artifact_digest",
                         "full_kat_validation_artifact_digest",
@@ -2588,6 +2616,22 @@ class ReportGenerationTests(unittest.TestCase):
                         "source_exclusion_passed": True,
                         "claim_boundary": (
                             "conformance/proof-review evidence"
+                        ),
+                    },
+                    {
+                        "slot_id": "theorem_closure_blocker_requests",
+                        "fixture_path": (
+                            "artifacts/theorem-closure-blocker-requests/latest/"
+                            "manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:theorem-closure-blocker-"
+                            "requests:v1"
+                        ),
+                        "current_status": "blocker_inputs_required",
+                        "claim_boundary": (
+                            "readiness preflight only; pending external proof "
+                            "and validation"
                         ),
                     },
                     {

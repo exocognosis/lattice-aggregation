@@ -1,0 +1,135 @@
+{
+  "claim_boundary": "readiness preflight only; pending external proof and validation",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "generated_at": "2026-07-07T19:29:53Z",
+  "inputs": {
+    "accepted_distribution_abort_review": {
+      "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
+      "present": true,
+      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+    },
+    "backend_capture": {
+      "path": "artifacts/backend-emission-capture/latest/capture.json",
+      "present": true,
+      "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
+    },
+    "backend_manifest": {
+      "path": "artifacts/backend-emission-capture/latest/manifest.json",
+      "present": true,
+      "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
+    },
+    "criterion2_manifest": {
+      "path": "docs/cryptography/criterion-2-proof-substance.json",
+      "present": true,
+      "sha256": "ea7a8fc8f6559f5d69a5caebe18233351eb20d8f7378692e62ea3e1e666a9575"
+    },
+    "full_kat_cavp_validation_review": {
+      "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
+      "present": true,
+      "sha256": "81ca819f52ee4470be6f6967ae8995efccc6ad33e06cf2ebabf26bcd48b98ef6"
+    },
+    "rejection_batch": {
+      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "present": true,
+      "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
+    },
+    "rejection_distribution_preservation_review": {
+      "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
+      "present": true,
+      "sha256": "8fb4dff34f42dc1953bed5ed726bfd44b8951c9ce347b7bdb516bd8a6f943fdf"
+    }
+  },
+  "name": "theorem-closure-blocker-requests-v1",
+  "request_boundary": "This artifact defines the exact externally reviewed proof and validation packages required to satisfy the remaining theorem-review flags. It does not assert theorem closure or validation.",
+  "request_digest_sha256": "79c4739bb93202a685d21ef83ce9eaa37b36f88e28ffd91ed350c1ecdc2d1bfd",
+  "request_status": "blocker_inputs_required",
+  "required_packages": {
+    "full_kat_cavp_validation_review": {
+      "can_be_satisfied_from_current_repo": false,
+      "current_status": "candidate_package_present_pending_review",
+      "description": "Externally reviewed ML-DSA-65 KAT/CAVP validation package for the selected provider and capture, including positive vectors, negative mutation vectors, length vectors, and implementation digest binding.",
+      "expected_path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
+      "package_class": "full_kat_cavp_validation_review",
+      "ready_status": "reviewed_full_kat_cavp_validation_ready",
+      "required_checks": [
+        "provider_kat_vectors_passed",
+        "fips204_mldsa65_kat_passed",
+        "acvts_or_cavp_campaign_reviewed",
+        "signing_verification_vectors_reviewed",
+        "mutation_negative_vectors_reviewed",
+        "public_key_signature_length_vectors_reviewed",
+        "implementation_digest_bound",
+        "binds_backend_capture_digest",
+        "binds_backend_manifest_digest",
+        "external_reviewer_digest_present"
+      ],
+      "required_claim_boundary": "conformance/proof-review evidence",
+      "required_claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "required_source_inputs": {
+        "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+        "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
+      },
+      "satisfies_review_flag": "full_kat_validation_reviewed",
+      "schema": "lattice-aggregation:p1-full-kat-cavp-validation-review:v1"
+    },
+    "rejection_distribution_preservation_review": {
+      "can_be_satisfied_from_current_repo": false,
+      "current_status": "candidate_package_present_pending_review",
+      "description": "Externally reviewed proof package that bounds accepted threshold signature distribution against centralized ML-DSA behavior and covers selective abort, withholding, restart leakage, concurrency, and concrete loss terms.",
+      "expected_path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
+      "package_class": "rejection_distribution_preservation_review",
+      "ready_status": "reviewed_rejection_distribution_preservation_ready",
+      "required_checks": [
+        "accepted_distribution_distance_bound_reviewed",
+        "threshold_accepted_distribution_reviewed",
+        "centralized_mldsa_reference_distribution_reviewed",
+        "rejection_sampling_conditioning_reviewed",
+        "selective_abort_withholding_bound_reviewed",
+        "restart_leakage_bound_reviewed",
+        "concurrency_model_reviewed",
+        "concrete_loss_bound_nonvacuous",
+        "binds_rejection_batch_digest",
+        "binds_distribution_abort_review_digest",
+        "external_reviewer_digest_present"
+      ],
+      "required_claim_boundary": "conformance/proof-review evidence",
+      "required_claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "required_source_inputs": {
+        "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+        "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
+      },
+      "satisfies_review_flag": "rejection_distribution_preservation_reviewed",
+      "schema": "lattice-aggregation:p1-rejection-distribution-preservation-review:v1"
+    }
+  },
+  "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}
