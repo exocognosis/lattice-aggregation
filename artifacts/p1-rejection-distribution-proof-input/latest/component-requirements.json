@@ -1,0 +1,81 @@
+{
+  "claim_boundary": "external proof input requirements only; not theorem closure",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "component_status": "external_review_required",
+  "external_input_schema": "external-review:p1-rejection-distribution-preservation:v1",
+  "generated_at": "2026-07-07T00:00:00Z",
+  "name": "p1-rejection-distribution-proof-component-requirements",
+  "ready_package_schema": "lattice-aggregation:p1-rejection-distribution-preservation-review:v1",
+  "required_components": [
+    {
+      "component_id": "accepted_distribution_distance_bound",
+      "current_status": "missing_external_proof_review",
+      "description": "A reviewed bound comparing the accepted threshold output distribution against centralized ML-DSA-65 under the selected profile.",
+      "minimum_evidence_fields": [
+        "checks.accepted_distribution_distance_bound_reviewed = true",
+        "theorem_links includes Noise Lemma D",
+        "theorem_links includes Noise Lemma F",
+        "theorem_links includes Noise Lemma H",
+        "theorem_links includes FST-L7"
+      ],
+      "satisfies_checks": [
+        "accepted_distribution_distance_bound_reviewed"
+      ]
+    },
+    {
+      "component_id": "concrete_loss_bound",
+      "current_status": "missing_nonvacuous_bound",
+      "description": "A concrete nonempty loss statement whose parameters remain meaningful for ML-DSA-65 at the selected threshold profile.",
+      "minimum_evidence_fields": [
+        "checks.concrete_loss_bound_nonvacuous = true",
+        "concrete_loss_bound is a nonempty reviewed string or structured object"
+      ],
+      "satisfies_checks": [
+        "concrete_loss_bound_nonvacuous"
+      ]
+    },
+    {
+      "component_id": "external_proof_reviewer_digest",
+      "current_status": "missing_external_reviewer_digest",
+      "description": "A nonzero 32-byte hex digest binding the independent proof reviewer, report, or review transcript.",
+      "minimum_evidence_fields": [
+        "external_reviewer_digest_hex is 64 lowercase hex characters",
+        "external_reviewer_digest_hex is not all zeroes"
+      ],
+      "satisfies_checks": [
+        "external_reviewer_digest_present"
+      ]
+    },
+    {
+      "component_id": "source_digest_binding",
+      "current_status": "local_binding_present",
+      "description": "The proof input must bind the current rejection batch and accepted-distribution/abort review digests.",
+      "minimum_evidence_fields": [
+        "rejection_batch_sha256 matches source_inputs.rejection_batch_sha256",
+        "accepted_distribution_abort_review_sha256 matches source_inputs.accepted_distribution_abort_review_sha256"
+      ],
+      "satisfies_checks": [
+        "binds_rejection_batch_digest",
+        "binds_distribution_abort_review_digest"
+      ]
+    }
+  ],
+  "schema": "lattice-aggregation:p1-rejection-distribution-proof-component-requirements:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_inputs": {
+    "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+    "draft_evidence_path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
+    "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1",
+    "review_package_path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json"
+  }
+}
