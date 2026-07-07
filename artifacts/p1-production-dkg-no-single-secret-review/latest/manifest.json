@@ -1,0 +1,66 @@
+{
+  "blockers": [],
+  "checks": {
+    "centralized_seed_or_expanded_key_setup_used": false,
+    "distributed_dkg_vss_reviewed": false,
+    "hazmat_expanded_key_split_used": false,
+    "no_single_exposed_mldsa_secret_key": true,
+    "public_key_derivation_reviewed": true,
+    "share_shortness_or_trust_assumption_reviewed": true,
+    "tee_hsm_no_export_trust_record_reviewed": true
+  },
+  "claim_boundary": "conformance/proof-review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility": false,
+    "claims_theorem_closure": false
+  },
+  "generated_at": "2026-07-07T16:52:03Z",
+  "name": "p1-production-dkg-no-single-secret-review",
+  "package_class": "production_dkg_no_single_secret_review",
+  "public_key_count": 1,
+  "review_digests": {
+    "dkg_transcript_digest_hex": "bfe58545d26cabd85ace359e495cbb06dd332068e3d8ff623f9518d6535c597f",
+    "no_single_secret_review_digest_hex": "7ccf9d1184f8e9a9f45574af6813a07e9315dcd5cc4d1d65198ceb6f6c7ac283",
+    "public_key_derivation_digest_hex": "4c59c6f2ddf66f2bd6a240a760539bad8f19d4e4e89eb1eb1b6c40c43d13f025",
+    "reviewer_identity_digest_hex": "b52a9e10250821fdf6acfb80a15431d729ed03422a1e2cf190ea3e4fab9d0f5f",
+    "share_shortness_or_trust_digest_hex": "bd57003e5a9f3e6bb2ff140649095b2593979163d9154a390bdffd98da73cba7"
+  },
+  "review_status": "reviewed_production_dkg_no_single_secret_ready",
+  "schema": "lattice-aggregation:p1-production-dkg-no-single-secret-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "setup_route": "tee_hsm_no_export",
+  "source_inputs": {
+    "backend_capture_expected": {
+      "accepted_signature_digest_hex": "560f55d8a4c9aa75490e665283ec444269eace1ca8fff654ec25efb4f344fbd8",
+      "artifact_digest_hex": "c7f81c08c13db5e9676cd3cd5e8d24257401f9597473596467b90974ba0a96a0",
+      "backend_evidence_digest_hex": "83d2431feaa0d5fd77b00451f3a12b628397bc2b7a845bcc6fd8fa57643493a8",
+      "backend_implementation_digest_hex": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
+      "backend_requirement_evidence_digest_hex": "2fbc71d8c66f00a23cf2644f7b56a26a5c59e469b99d3b72ab037bec13b4d517",
+      "backend_source_package_digest_hex": "0c844fbdf0f7f438ccb928037208d3087f09d2b89e76bb4d05f748c74cfe3786",
+      "backend_transcript_digest_hex": "5495c141d074447ca15ba63763ce5ce453b57b3309de0aecb43d9580093adc42",
+      "message_digest_hex": "4e6eaca508443033bd8eea1bd741af0087b79a1412f70aa146966fa4c1e05d02",
+      "public_key_digest_hex": "f07600f87af83211d428d2f74451c1ad5a2a48547e87b14215a1e19ca67c8a80",
+      "strict_signature_transcript_digest_hex": "a07d2d677f1f1f51bacbbb437a3b6496dae91a81e0a0ce79d9728dc60e35b66c",
+      "threshold_core_accounting_digest_hex": "6b9435d422697f9d3641dab8c5267208dd824604fc5638acc15ecd489d4ac782"
+    },
+    "backend_manifest_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+    "strict_no_export_checks": {
+      "core_mode": true,
+      "no_single_exposed_mldsa_secret_key": true,
+      "public_key_count_one": true,
+      "secret_material_not_exported": true,
+      "signature_origin": true,
+      "strict_threshold_core_admissible": true,
+      "tee_hsm_no_export_trust_record_reviewed": true,
+      "threshold_authorization_enforced": true
+    }
+  },
+  "threshold": 6667,
+  "validator_count": 10000
+}

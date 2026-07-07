@@ -1,0 +1,43 @@
+{
+  "claim_boundary": "conformance/proof-review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_theorem_closure": false
+  },
+  "generated_at": "2026-07-07T16:52:03Z",
+  "input_sha256s": {
+    "accepted_distribution_abort_review": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+    "actual_external_nonce_gate_manifest": "df05f7518139562e164f3792fd3e1a8bdc464a48b61d516c5cc326bbc271beeb",
+    "candidate_digest_sha256": "c9d14cc6beb704c57f0c0016b728ff8becbc8ee87745bbe1978fc7275100ea8b",
+    "production_dkg_no_single_secret_review": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5",
+    "real_threshold_backend_capture_json": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+    "real_threshold_backend_capture_manifest": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
+    "rejection_equivalence_batch_json": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
+  },
+  "name": "p1-reviewed-external-backend-evidence-package",
+  "package_source_profile": "admissible_external_backend_capture",
+  "review_digests": {
+    "backend_command_digest_hex": "1041feaa483d2c7351416ad8fe1aaa1622b982db4dd4607edd25c999421475d1",
+    "capture_environment_digest_hex": "82cae29cdefef2d9b03d7cc8143ddd73e78824bc206a51cd0970e3bae028c75a",
+    "external_review_digest_hex": "41b286e44faa6fb2a819544ce1dc8f0f0edbbd8cda2bf491d64cf2d21fdb2454",
+    "external_source_package_digest_hex": "d58da69bb9f1cc1865f389a9aa20681a9ad2a877192629868ca3d4c59c65f11e",
+    "operator_identity_digest_hex": "2737a01f9455bf95500542cd83d7c0614f14ee0530859ff5f7d870228e5c86a2",
+    "reviewer_identity_digest_hex": "b52a9e10250821fdf6acfb80a15431d729ed03422a1e2cf190ea3e4fab9d0f5f"
+  },
+  "review_status": "reviewed_external_backend_evidence_ready",
+  "schema": "lattice-aggregation:p1-external-backend-evidence-package-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_exclusions": {
+    "centralized_expanded_secret_key_helper": false,
+    "fixture_harness": false,
+    "hazmat_prf_oracle": false,
+    "localnet_or_deterministic_simulation": false,
+    "single_key_standard_provider_output": false
+  },
+  "source_origin": "outside_repo_review_manifest"
+}

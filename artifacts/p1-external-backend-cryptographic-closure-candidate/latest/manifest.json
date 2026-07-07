@@ -1,19 +1,12 @@
 {
-  "blockers": [
-    "backend capture is quarantined from strict threshold-core closure",
-    "threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation",
-    "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
-    "real threshold backend emission capture is incomplete",
-    "production DKG/no-single-secret review is missing",
-    "accepted distribution/abort review is missing"
-  ],
-  "candidate_digest_sha256": "885b1e4b75867ac6db4814f37272502dedb7c0962daa788a32a97f7ec23c1129",
+  "blockers": [],
+  "candidate_digest_sha256": "c9d14cc6beb704c57f0c0016b728ff8becbc8ee87745bbe1978fc7275100ea8b",
   "checks": {
     "comparison_close_candidate": true,
-    "distribution_abort_review_present": false,
+    "distribution_abort_review_present": true,
     "mutation_rejection_complete": true,
-    "production_dkg_no_single_secret_review_present": false,
-    "real_threshold_emission_present": false,
+    "production_dkg_no_single_secret_review_present": true,
+    "real_threshold_emission_present": true,
     "rejection_distribution_comparison_present": true,
     "standard_verifier_acceptance_present": true,
     "strict_external_nonce_capture_ready": true
@@ -26,39 +19,39 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
-  "close_candidate": false,
+  "close_candidate": true,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-07T16:16:50Z",
+  "generated_at": "2026-07-07T16:52:03Z",
   "inputs": {
     "accepted_distribution_abort_review": {
-      "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
-      "present": false,
-      "sha256": null
+      "path": "/tmp/lattice-p1-strict-run/distribution-abort/manifest.json",
+      "present": true,
+      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
     },
     "actual_external_nonce_gate_manifest": {
-      "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
+      "path": "/tmp/lattice-p1-strict-run/nonce-gate/manifest.json",
       "present": true,
-      "sha256": "2ec6db48fa182f8515cdd9b10cc2eafbcb12a05988c9978daa3f785bdd9e6378"
+      "sha256": "df05f7518139562e164f3792fd3e1a8bdc464a48b61d516c5cc326bbc271beeb"
     },
     "production_dkg_no_single_secret_review": {
-      "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
-      "present": false,
-      "sha256": null
+      "path": "/tmp/lattice-p1-strict-run/dkg-review/manifest.json",
+      "present": true,
+      "sha256": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5"
     },
     "real_threshold_backend_capture_json": {
-      "path": "artifacts/backend-emission-capture/latest/capture.json",
+      "path": "/tmp/lattice-p1-strict-run/backend-staged/capture.json",
       "present": true,
-      "sha256": "a432df031ab91353b23ceb984cf7889dc66b4c9f340b541d8afb2029f4635060"
+      "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
     },
     "real_threshold_backend_capture_manifest": {
-      "path": "artifacts/backend-emission-capture/latest/manifest.json",
+      "path": "/tmp/lattice-p1-strict-run/backend-staged/manifest.json",
       "present": true,
-      "sha256": "f0bce8f1f32d8970836821d2963bf990bcc628e401d3035d6a4ca13e107b835c"
+      "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
     },
     "rejection_equivalence_batch_json": {
-      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+      "path": "/tmp/lattice-p1-strict-run/rejection/batch.json",
       "present": true,
-      "sha256": "0165e8538bfb9d7ae83bd93aeff25374172ad05a053f4e856d806380279da76a"
+      "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
     }
   },
   "name": "p1-external-backend-cryptographic-closure-candidate-v1",

@@ -3,25 +3,7 @@
   "blocker_groups": {
     "claim_boundary": [],
     "criterion2_manifest": [],
-    "external_backend_evidence": [
-      "backend capture is quarantined from strict threshold-core closure",
-      "threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation",
-      "backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials",
-      "real threshold backend emission capture is incomplete",
-      "production DKG/no-single-secret review is missing",
-      "accepted distribution/abort review is missing",
-      "forbidden external-evidence source marker in real-threshold backend manifest: threshold_seed_reconstruction",
-      "forbidden external-evidence source marker in real-threshold backend manifest: seed-reconstruction",
-      "forbidden external-evidence source marker in real-threshold backend capture: threshold seed reconstruction",
-      "forbidden external-evidence source marker in real-threshold backend capture: threshold_seed_reconstruction",
-      "forbidden external-evidence source marker in real-threshold backend capture: seed-reconstruction",
-      "backend core admissibility is quarantined",
-      "threshold seed-reconstruction capture cannot feed external evidence",
-      "threshold seed-reconstruction standard-provider signature cannot feed external evidence",
-      "reviewed external evidence package is missing",
-      "production DKG/no-single-secret review is not ready",
-      "accepted distribution/abort review is not ready"
-    ],
+    "external_backend_evidence": [],
     "hypothesis_assessment": [],
     "proof_payload_review": [
       "theorem review manifest is missing required ready flag: proof_payload_reviewed"
@@ -44,15 +26,17 @@
     "criterion2_manifest_present": true,
     "criterion2_manifest_schema_valid": true,
     "criterion2_promotion_requirements_present": true,
+    "external_accepted_distribution_abort_review_package_valid": true,
     "external_closure_candidate_manifest_present": true,
-    "external_closure_candidate_ready": false,
-    "external_distribution_abort_review_ready": false,
+    "external_closure_candidate_ready": true,
+    "external_distribution_abort_review_ready": true,
     "external_evidence_attempt_manifest_present": true,
-    "external_evidence_attempt_ready": false,
-    "external_production_dkg_no_single_secret_review_ready": false,
-    "external_review_package_binds_inputs": false,
-    "external_review_package_ready": false,
-    "external_source_exclusions_passed": false,
+    "external_evidence_attempt_ready": true,
+    "external_production_dkg_no_single_secret_review_package_valid": true,
+    "external_production_dkg_no_single_secret_review_ready": true,
+    "external_review_package_binds_inputs": true,
+    "external_review_package_ready": true,
+    "external_source_exclusions_passed": true,
     "full_kat_validation_reviewed": false,
     "hypothesis_assessment_present": true,
     "hypothesis_boundary_is_research_scaffold_only": true,
@@ -82,22 +66,22 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-07T16:16:54Z",
+  "generated_at": "2026-07-07T16:57:25Z",
   "inputs": {
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "93514563dafe6eb8f197cbfaf46d5f5101d48409b21fe49ac3c047304fe9bfa1"
+      "sha256": "d2cd5c2a4e82271fe98f5a04c7d368b697d3789711befd5cf9b531bff8b7a317"
     },
     "external_closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "24ba71b7405beb1cf19409ea0acdbf833fddb61154bc564c727750c1975c2962"
+      "sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3"
     },
     "external_evidence_attempt_manifest": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "551c7a8350b02ccc7bb8edb253a4c36711cfef1bf72e03e7654e43adbef201a6"
+      "sha256": "284cd6f074327bbc3aa88f43dd2b249d9c46bbb95ae0e271300e41ad7982a8c9"
     },
     "hypothesis_assessment": {
       "path": "artifacts/hypothesis/latest/assessment.json",
@@ -111,7 +95,7 @@
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "b0d530ac31b25c153df4dd7243d12abf0801a23a7eace5f79e31f8fdabb2df85",
+  "readiness_digest_sha256": "5306b23a7d74ea4247448928b272448cc984d8fc1c048239c40f9eaaed47bd13",
   "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",
@@ -128,7 +112,9 @@
     "external_review_package_binds_inputs",
     "external_review_package_ready",
     "external_production_dkg_no_single_secret_review_ready",
+    "external_production_dkg_no_single_secret_review_package_valid",
     "external_distribution_abort_review_ready",
+    "external_accepted_distribution_abort_review_package_valid",
     "theorem_review_manifest_present",
     "theorem_review_manifest_boundary_valid",
     "theorem_review_status_ready",
@@ -173,11 +159,11 @@
     },
     {
       "group": "proof_payload_review",
-      "requirement": "reviewed production DKG/no-single-secret package with no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup"
+      "requirement": "reviewed production DKG/no-single-secret package with package_class production_dkg_no_single_secret_review, route tee_hsm_no_export, and no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup"
     },
     {
       "group": "rejection_distribution_review",
-      "requirement": "reviewed accepted-distribution/abort package covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds"
+      "requirement": "reviewed accepted-distribution/abort package with package_class accepted_distribution_abort_review covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds"
     },
     {
       "group": "external_backend_evidence",

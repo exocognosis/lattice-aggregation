@@ -44,8 +44,17 @@ The preflight remains blocked unless all external evidence checks pass:
   `close_candidate = true`;
 - the Batch 7 candidate includes
   `production_dkg_no_single_secret_review_present = true`;
+- the Batch 8/9 attempt records an explicit
+  `production_dkg_no_single_secret_review` package with
+  `package_class = production_dkg_no_single_secret_review`,
+  `route = tee_hsm_no_export`, and
+  `review_status = reviewed_production_dkg_no_single_secret_ready`;
 - the Batch 7 candidate includes
   `distribution_abort_review_present = true`;
+- the Batch 8/9 attempt records an explicit
+  `accepted_distribution_abort_review` package with
+  `package_class = accepted_distribution_abort_review` and
+  `review_status = reviewed_distribution_abort_ready`;
 - the Batch 8 grouped external-evidence attempt exists and has
   `attempt_status = external_evidence_close_candidate_ready`;
 - the Batch 9 reviewed external evidence package binds all inputs with
@@ -81,7 +90,9 @@ The current checked artifact is expected to remain blocked while the actual
 external nonce capture, real threshold backend emission capture,
 rejection-distribution comparison, production DKG/no-single-secret review,
 accepted distribution/abort review, reviewed external evidence package, and
-theorem review package are absent.
+theorem review package are absent. The current checked attempt also records the
+explicit review-package classes as absent, so the package-validity checks remain
+false even though the preflight can parse the package shape.
 
 ## Non-Claims
 

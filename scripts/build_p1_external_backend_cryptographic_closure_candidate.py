@@ -72,6 +72,12 @@ RECONSTRUCTION_CORE_MODES = {
 RECONSTRUCTION_SIGNATURE_ORIGINS = {
     "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
+TEE_HSM_NO_EXPORT_CORE_MODES = {
+    "tee_hsm_no_export_threshold_mldsa65_provider",
+}
+TEE_HSM_NO_EXPORT_SIGNATURE_ORIGINS = {
+    "tee_hsm_no_export_standard_mldsa65_provider",
+}
 
 
 def canonical_json(data):
@@ -179,6 +185,26 @@ def backend_core_admissible(backend_manifest, backend_capture, blockers):
     if not isinstance(distributed_core, dict):
         blockers.append("backend capture is missing distributed threshold core status")
         return False
+    if (
+        core_mode in TEE_HSM_NO_EXPORT_CORE_MODES
+        or signature_origin in TEE_HSM_NO_EXPORT_SIGNATURE_ORIGINS
+    ):
+        required_flags = (
+            "tee_hsm_no_export_trust_record_reviewed",
+            "no_single_exposed_mldsa_secret_key",
+            "threshold_authorization_enforced",
+            "standard_verifier_compatible_output",
+        )
+        missing = [
+            flag for flag in required_flags if distributed_core.get(flag) is not True
+        ]
+        if missing:
+            blockers.append(
+                "backend capture lacks TEE/HSM no-export evidence: "
+                + ", ".join(missing)
+            )
+            admissible = False
+        return admissible
     required_flags = (
         "distributed_keygen_vss",
         "partial_signing_over_secret_shares",

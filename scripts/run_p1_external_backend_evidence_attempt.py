@@ -18,6 +18,13 @@ REVIEW_PACKAGE_SCHEMA = "lattice-aggregation:p1-external-backend-evidence-packag
 REVIEW_STATUS_READY = "reviewed_external_backend_evidence_ready"
 REVIEW_SOURCE_ORIGIN = "outside_repo_review_manifest"
 REVIEW_SOURCE_PROFILE = "admissible_external_backend_capture"
+PRODUCTION_DKG_REVIEW_PACKAGE_CLASS = "production_dkg_no_single_secret_review"
+PRODUCTION_DKG_REVIEW_ROUTE = "tee_hsm_no_export"
+PRODUCTION_DKG_REVIEW_READY = "reviewed_production_dkg_no_single_secret_ready"
+ACCEPTED_DISTRIBUTION_ABORT_REVIEW_PACKAGE_CLASS = (
+    "accepted_distribution_abort_review"
+)
+ACCEPTED_DISTRIBUTION_ABORT_REVIEW_READY = "reviewed_distribution_abort_ready"
 STATUS_READY = "external_evidence_close_candidate_ready"
 STATUS_BLOCKED = "blocked_external_evidence_missing"
 FORBIDDEN_SOURCE_MARKERS = (
@@ -341,6 +348,58 @@ def review_package_checks(review_package, expected_input_sha256s, blockers):
     }
 
 
+def review_package_summaries(dkg_review, distribution_abort_review, blockers):
+    """Return explicit review package-class summaries for downstream readiness."""
+    dkg_present = isinstance(dkg_review, dict)
+    distribution_present = isinstance(distribution_abort_review, dict)
+    dkg_summary = {
+        "package_class": (
+            dkg_review.get("package_class") if dkg_present else None
+        ),
+        "route": dkg_review.get("setup_route") if dkg_present else None,
+        "review_status": dkg_review.get("review_status") if dkg_present else None,
+    }
+    distribution_summary = {
+        "package_class": (
+            distribution_abort_review.get("package_class")
+            if distribution_present
+            else None
+        ),
+        "review_status": (
+            distribution_abort_review.get("review_status")
+            if distribution_present
+            else None
+        ),
+    }
+    dkg_valid = (
+        dkg_summary["package_class"] == PRODUCTION_DKG_REVIEW_PACKAGE_CLASS
+        and dkg_summary["route"] == PRODUCTION_DKG_REVIEW_ROUTE
+        and dkg_summary["review_status"] == PRODUCTION_DKG_REVIEW_READY
+    )
+    distribution_valid = (
+        distribution_summary["package_class"]
+        == ACCEPTED_DISTRIBUTION_ABORT_REVIEW_PACKAGE_CLASS
+        and distribution_summary["review_status"]
+        == ACCEPTED_DISTRIBUTION_ABORT_REVIEW_READY
+    )
+    if not dkg_valid:
+        blockers.append(
+            "production DKG/no-single-secret review package class or route is not ready"
+        )
+    if not distribution_valid:
+        blockers.append("accepted distribution/abort review package class is not ready")
+    return {
+        "checks": {
+            "production_dkg_no_single_secret_review_package_valid": dkg_valid,
+            "accepted_distribution_abort_review_package_valid": distribution_valid,
+        },
+        "packages": {
+            "production_dkg_no_single_secret_review": dkg_summary,
+            "accepted_distribution_abort_review": distribution_summary,
+        },
+    }
+
+
 def build_report(
     root,
     nonce_gate_path=None,
@@ -412,6 +471,11 @@ def build_report(
         ),
         review_blockers,
     )
+    explicit_review_packages = review_package_summaries(
+        dkg_review,
+        distribution_abort_review,
+        review_blockers,
+    )
     missing_check_blockers = [
         f"closure candidate missing required check: {key}"
         for key in REQUIRED_CANDIDATE_CHECK_KEYS
@@ -422,6 +486,7 @@ def build_report(
         **candidate_manifest["checks"],
         "source_exclusion_passed": not source_blockers,
         **review_checks,
+        **explicit_review_packages["checks"],
     }
     blockers = list(
         dict.fromkeys(
@@ -435,6 +500,7 @@ def build_report(
         bool(candidate_manifest["close_candidate"])
         and not source_blockers
         and all(review_checks.values())
+        and all(explicit_review_packages["checks"].values())
         and not missing_check_blockers
     )
     claim_flags = {
@@ -476,6 +542,7 @@ def build_report(
         "attempt_status": STATUS_READY if close_candidate else STATUS_BLOCKED,
         "close_candidate": close_candidate,
         "checks": checks,
+        "review_packages": explicit_review_packages["packages"],
         "blockers": blockers,
         "inputs": digest_material["inputs"],
         "candidate_manifest_path": str(candidate_manifest_path),

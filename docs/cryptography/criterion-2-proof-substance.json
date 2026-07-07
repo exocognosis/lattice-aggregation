@@ -269,6 +269,19 @@
         "review_package_claim_boundary_passed": false,
         "review_package_source_exclusions_passed": false,
         "review_package_review_digests_present": false,
+        "review_package_classes": [
+          {
+            "package_class": "production_dkg_no_single_secret_review",
+            "route": "tee_hsm_no_export",
+            "review_status": "reviewed_production_dkg_no_single_secret_ready",
+            "attempt_check": "production_dkg_no_single_secret_review_package_valid"
+          },
+          {
+            "package_class": "accepted_distribution_abort_review",
+            "review_status": "reviewed_distribution_abort_ready",
+            "attempt_check": "accepted_distribution_abort_review_package_valid"
+          }
+        ],
         "requires": [
           "strict actual external nonce-producer gate",
           "request-bound real-threshold backend emission capture",
@@ -278,7 +291,9 @@
           "reviewed production DKG/no-single-secret evidence",
           "reviewed accepted-distribution/abort evidence",
           "source exclusion for hazmat/simulation/localnet/fixture/single-key/repo-reference capture sources",
-          "reviewed external evidence package with outside_repo_review_manifest origin and exact input digest binding"
+          "reviewed external evidence package with outside_repo_review_manifest origin and exact input digest binding",
+          "production_dkg_no_single_secret_review package class with tee_hsm_no_export route",
+          "accepted_distribution_abort_review package class"
         ],
         "claim_boundary": "conformance/proof-review evidence",
         "claims_theorem_closure": false,
@@ -475,8 +490,8 @@
     "reviewed rejection-distribution preservation argument",
     "reviewed standard-verifier compatibility argument",
     "reviewed Batch 7 external-backend closure-candidate bundle populated from actual external nonce and real-threshold backend captures",
-    "reviewed production DKG/no-single-secret package with no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup",
-    "reviewed accepted-distribution/abort package covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds",
+    "reviewed production DKG/no-single-secret package with package_class production_dkg_no_single_secret_review, route tee_hsm_no_export, and no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup",
+    "reviewed accepted-distribution/abort package with package_class accepted_distribution_abort_review covering rejection-distribution preservation, selective abort/withholding, restart leakage, concurrency, and concrete loss bounds",
     "reviewed Batch 8 grouped external-evidence attempt with source_exclusion_passed true and close_candidate true",
     "reviewed Batch 9 external evidence package with review_package_binds_inputs true, source exclusions passed, and review digests present",
     "theorem-linkage review"
@@ -589,7 +604,9 @@
     "backend_emission_request_manifest_sha256",
     "source_exclusion_passed",
     "review_package_binds_inputs",
-    "review_package_review_digests_present"
+    "review_package_review_digests_present",
+    "production_dkg_no_single_secret_review_package_valid",
+    "accepted_distribution_abort_review_package_valid"
   ],
   "assessment": {
     "criterion_status": "partially_met",
@@ -605,6 +622,8 @@
     "batch8_claim_boundary": "conformance/proof-review evidence",
     "batch9_review_package_present": false,
     "batch9_review_package_binds_inputs": false,
+    "batch9_production_dkg_no_single_secret_review_package_valid": false,
+    "batch9_accepted_distribution_abort_review_package_valid": false,
     "batch9_review_package_status": "review_package_missing",
     "theorem_closure_readiness_status": "blocked_before_theorem_closure_assessment",
     "theorem_closure_assessment_ready": false

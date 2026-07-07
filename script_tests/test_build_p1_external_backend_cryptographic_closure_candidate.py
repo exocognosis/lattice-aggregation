@@ -157,6 +157,33 @@ def mark_as_threshold_seed_reconstruction(manifest, capture):
     )
 
 
+def mark_as_tee_hsm_no_export(manifest, capture):
+    manifest["backend_core_admissibility"].update(
+        {
+            "strict_threshold_core_admissible": True,
+            "quarantined": False,
+            "core_mode": "tee_hsm_no_export_threshold_mldsa65_provider",
+            "signature_origin": "tee_hsm_no_export_standard_mldsa65_provider",
+            "reasons": [],
+        }
+    )
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "tee_hsm_no_export_threshold_mldsa65_provider",
+            "provider": "tee-hsm-no-export mldsa65 provider",
+            "signature_origin": "tee_hsm_no_export_standard_mldsa65_provider",
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": False,
+                "tee_hsm_no_export_trust_record_reviewed": True,
+                "no_single_exposed_mldsa_secret_key": True,
+                "threshold_authorization_enforced": True,
+                "standard_verifier_compatible_output": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+        }
+    )
+
+
 def rejection_batch(close_candidate=True):
     return {
         "name": "synthetic-p1-rejection-equivalence-batch",
@@ -194,16 +221,17 @@ def dkg_no_single_secret_review():
     return {
         "schema": "lattice-aggregation:p1-production-dkg-no-single-secret-review:v1",
         "name": "synthetic-production-dkg-no-single-secret-review",
+        "package_class": "production_dkg_no_single_secret_review",
         "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "review_status": "reviewed_production_dkg_no_single_secret_ready",
         "validator_count": 10000,
         "threshold": 6667,
         "public_key_count": 1,
-        "setup_route": "distributed_dkg_vss",
+        "setup_route": "tee_hsm_no_export",
         "checks": {
-            "distributed_dkg_vss_reviewed": True,
-            "tee_hsm_no_export_trust_record_reviewed": False,
+            "distributed_dkg_vss_reviewed": False,
+            "tee_hsm_no_export_trust_record_reviewed": True,
             "no_single_exposed_mldsa_secret_key": True,
             "centralized_seed_or_expanded_key_setup_used": False,
             "hazmat_expanded_key_split_used": False,
@@ -229,10 +257,19 @@ def dkg_no_single_secret_review():
     }
 
 
+def tee_hsm_no_export_review():
+    review = dkg_no_single_secret_review()
+    review["setup_route"] = "tee_hsm_no_export"
+    review["checks"]["distributed_dkg_vss_reviewed"] = False
+    review["checks"]["tee_hsm_no_export_trust_record_reviewed"] = True
+    return review
+
+
 def distribution_abort_review():
     return {
         "schema": "lattice-aggregation:p1-accepted-distribution-abort-review:v1",
         "name": "synthetic-accepted-distribution-abort-review",
+        "package_class": "accepted_distribution_abort_review",
         "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "review_status": "reviewed_distribution_abort_ready",
@@ -340,6 +377,45 @@ class P1ExternalBackendClosureCandidateBuilderTests(unittest.TestCase):
         self.assertFalse(written_manifest["claims_theorem_closure"])
         self.assertFalse(written_manifest["claims_selected_backend_proof_closure"])
         self.assertFalse(written_manifest["claims_rejection_distribution_preservation"])
+
+    def test_tee_hsm_no_export_capture_can_satisfy_real_threshold_emission_slot(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce-gate" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_path = root / "rejection" / "batch.json"
+            dkg_path = root / "dkg-review" / "manifest.json"
+            distribution_abort_path = root / "distribution-abort" / "manifest.json"
+            manifest_payload = backend_manifest()
+            capture_payload = backend_capture()
+            mark_as_tee_hsm_no_export(manifest_payload, capture_payload)
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, manifest_payload)
+            write_json(backend_capture_path, capture_payload)
+            write_json(rejection_path, rejection_batch(close_candidate=True))
+            write_json(dkg_path, tee_hsm_no_export_review())
+            write_json(distribution_abort_path, distribution_abort_review())
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_path,
+                dkg_review_path=dkg_path,
+                distribution_abort_review_path=distribution_abort_path,
+                generated_at="2026-07-04T00:00:00Z",
+            )
+
+        manifest = report["manifest"]
+        self.assertTrue(manifest["checks"]["real_threshold_emission_present"])
+        self.assertTrue(manifest["close_candidate"])
+        self.assertEqual(manifest["blockers"], [])
+        self.assertFalse(manifest["claims_theorem_closure"])
+        self.assertFalse(manifest["claims_rejection_distribution_preservation"])
 
     def test_distribution_comparison_must_also_be_close_candidate(self):
         module = load_module()

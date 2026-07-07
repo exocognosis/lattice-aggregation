@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; pending theorem-closure review`
-- Readiness digest SHA-256: `b0d530ac31b25c153df4dd7243d12abf0801a23a7eace5f79e31f8fdabb2df85`
+- Readiness digest SHA-256: `5306b23a7d74ea4247448928b272448cc984d8fc1c048239c40f9eaaed47bd13`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -16,14 +16,16 @@ Checks:
 - `hypothesis_boundary_is_research_scaffold_only`: `true`
 - `hypothesis_not_already_completely_proven`: `true`
 - `external_closure_candidate_manifest_present`: `true`
-- `external_closure_candidate_ready`: `false`
+- `external_closure_candidate_ready`: `true`
 - `external_evidence_attempt_manifest_present`: `true`
-- `external_evidence_attempt_ready`: `false`
-- `external_source_exclusions_passed`: `false`
-- `external_review_package_binds_inputs`: `false`
-- `external_review_package_ready`: `false`
-- `external_production_dkg_no_single_secret_review_ready`: `false`
-- `external_distribution_abort_review_ready`: `false`
+- `external_evidence_attempt_ready`: `true`
+- `external_source_exclusions_passed`: `true`
+- `external_review_package_binds_inputs`: `true`
+- `external_review_package_ready`: `true`
+- `external_production_dkg_no_single_secret_review_ready`: `true`
+- `external_production_dkg_no_single_secret_review_package_valid`: `true`
+- `external_distribution_abort_review_ready`: `true`
+- `external_accepted_distribution_abort_review_package_valid`: `true`
 - `theorem_review_manifest_present`: `false`
 - `theorem_review_manifest_boundary_valid`: `false`
 - `theorem_review_status_ready`: `false`
@@ -42,24 +44,7 @@ Checks:
 - `review_claims_fips_validation_false`: `false`
 
 Blocker Groups:
-- `external_backend_evidence`: `17` blocker(s)
-  - backend capture is quarantined from strict threshold-core closure
-  - threshold seed-reconstruction capture cannot satisfy real threshold partial aggregation
-  - backend capture lacks strict threshold core evidence: distributed_keygen_vss, partial_signing_over_secret_shares, partial_z_i_hint_aggregation, fips204_rejection_loop_over_threshold_partials
-  - real threshold backend emission capture is incomplete
-  - production DKG/no-single-secret review is missing
-  - accepted distribution/abort review is missing
-  - forbidden external-evidence source marker in real-threshold backend manifest: threshold_seed_reconstruction
-  - forbidden external-evidence source marker in real-threshold backend manifest: seed-reconstruction
-  - forbidden external-evidence source marker in real-threshold backend capture: threshold seed reconstruction
-  - forbidden external-evidence source marker in real-threshold backend capture: threshold_seed_reconstruction
-  - forbidden external-evidence source marker in real-threshold backend capture: seed-reconstruction
-  - backend core admissibility is quarantined
-  - threshold seed-reconstruction capture cannot feed external evidence
-  - threshold seed-reconstruction standard-provider signature cannot feed external evidence
-  - reviewed external evidence package is missing
-  - production DKG/no-single-secret review is not ready
-  - accepted distribution/abort review is not ready
+- `external_backend_evidence`: `0` blocker(s)
 - `proof_payload_review`: `1` blocker(s)
   - theorem review manifest is missing required ready flag: proof_payload_reviewed
 - `validation`: `1` blocker(s)

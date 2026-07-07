@@ -19,6 +19,13 @@ EXTERNAL_ATTEMPT_READY = "external_evidence_close_candidate_ready"
 THEOREM_REVIEW_SCHEMA = "lattice-aggregation:theorem-closure-review:v1"
 THEOREM_REVIEW_READY = "theorem_closure_review_ready"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+PRODUCTION_DKG_REVIEW_PACKAGE_CLASS = "production_dkg_no_single_secret_review"
+PRODUCTION_DKG_REVIEW_ROUTE = "tee_hsm_no_export"
+PRODUCTION_DKG_REVIEW_READY = "reviewed_production_dkg_no_single_secret_ready"
+ACCEPTED_DISTRIBUTION_ABORT_REVIEW_PACKAGE_CLASS = (
+    "accepted_distribution_abort_review"
+)
+ACCEPTED_DISTRIBUTION_ABORT_REVIEW_READY = "reviewed_distribution_abort_ready"
 ACCEPTED_HYPOTHESIS_CLAIM_BOUNDARIES = {
     "research scaffold evidence",
     "closure-run implementation track",
@@ -284,6 +291,19 @@ def criterion2_checks(criterion2, blocker_groups):
 def external_evidence_checks(candidate, attempt, blocker_groups):
     """Validate external evidence readiness from Batch 7/8/9 artifacts."""
     attempt_checks = attempt.get("checks", {}) if isinstance(attempt, dict) else {}
+    review_packages = (
+        attempt.get("review_packages", {}) if isinstance(attempt, dict) else {}
+    )
+    dkg_review_package = (
+        review_packages.get("production_dkg_no_single_secret_review")
+        if isinstance(review_packages, dict)
+        else None
+    )
+    distribution_abort_review_package = (
+        review_packages.get("accepted_distribution_abort_review")
+        if isinstance(review_packages, dict)
+        else None
+    )
     checks = {
         "external_closure_candidate_manifest_present": isinstance(candidate, dict),
         "external_closure_candidate_ready": (
@@ -315,9 +335,23 @@ def external_evidence_checks(candidate, attempt, blocker_groups):
             and attempt_checks.get("production_dkg_no_single_secret_review_present")
             is True
         ),
+        "external_production_dkg_no_single_secret_review_package_valid": (
+            isinstance(dkg_review_package, dict)
+            and dkg_review_package.get("package_class")
+            == PRODUCTION_DKG_REVIEW_PACKAGE_CLASS
+            and dkg_review_package.get("route") == PRODUCTION_DKG_REVIEW_ROUTE
+            and dkg_review_package.get("review_status") == PRODUCTION_DKG_REVIEW_READY
+        ),
         "external_distribution_abort_review_ready": (
             isinstance(attempt_checks, dict)
             and attempt_checks.get("distribution_abort_review_present") is True
+        ),
+        "external_accepted_distribution_abort_review_package_valid": (
+            isinstance(distribution_abort_review_package, dict)
+            and distribution_abort_review_package.get("package_class")
+            == ACCEPTED_DISTRIBUTION_ABORT_REVIEW_PACKAGE_CLASS
+            and distribution_abort_review_package.get("review_status")
+            == ACCEPTED_DISTRIBUTION_ABORT_REVIEW_READY
         ),
     }
     if not checks["external_closure_candidate_manifest_present"]:
@@ -345,11 +379,23 @@ def external_evidence_checks(candidate, attempt, blocker_groups):
             "external_backend_evidence",
             "production DKG/no-single-secret review is not ready",
         )
+    if not checks["external_production_dkg_no_single_secret_review_package_valid"]:
+        add_blocker(
+            blocker_groups,
+            "external_backend_evidence",
+            "production DKG/no-single-secret review package class or route is not ready",
+        )
     if not checks["external_distribution_abort_review_ready"]:
         add_blocker(
             blocker_groups,
             "external_backend_evidence",
             "accepted distribution/abort review is not ready",
+        )
+    if not checks["external_accepted_distribution_abort_review_package_valid"]:
+        add_blocker(
+            blocker_groups,
+            "external_backend_evidence",
+            "accepted distribution/abort review package class is not ready",
         )
     return checks
 
@@ -434,7 +480,9 @@ def build_report(
         "external_review_package_binds_inputs",
         "external_review_package_ready",
         "external_production_dkg_no_single_secret_review_ready",
+        "external_production_dkg_no_single_secret_review_package_valid",
         "external_distribution_abort_review_ready",
+        "external_accepted_distribution_abort_review_package_valid",
         "theorem_review_manifest_present",
         "theorem_review_manifest_boundary_valid",
         "theorem_review_status_ready",

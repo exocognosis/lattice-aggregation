@@ -121,6 +121,26 @@ def threshold_seed_reconstruction_capture():
     return capture
 
 
+def tee_hsm_no_export_capture():
+    capture = external_capture()
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "tee_hsm_no_export_threshold_mldsa65_provider",
+            "provider": "tee-hsm-no-export mldsa65 provider",
+            "signature_origin": "tee_hsm_no_export_standard_mldsa65_provider",
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": False,
+                "tee_hsm_no_export_trust_record_reviewed": True,
+                "no_single_exposed_mldsa_secret_key": True,
+                "threshold_authorization_enforced": True,
+                "standard_verifier_compatible_output": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+        }
+    )
+    return capture
+
+
 def external_request():
     return {
         "schema": REQUEST_SCHEMA,
@@ -216,6 +236,16 @@ def reconstruction_capture_runner(command, root, env):
         "exit_code": 0,
         "duration_seconds": 0.2,
         "stdout": json.dumps(threshold_seed_reconstruction_capture()),
+        "stderr": "",
+    }
+
+
+def tee_hsm_no_export_capture_runner(command, root, env):
+    return {
+        "command": command,
+        "exit_code": 0,
+        "duration_seconds": 0.2,
+        "stdout": json.dumps(tee_hsm_no_export_capture()),
         "stderr": "",
     }
 
@@ -385,6 +415,35 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
             "threshold seed-reconstruction standard-provider signature origin",
             admissibility["reasons"],
         )
+
+    def test_tee_hsm_no_export_capture_is_strictly_admissible(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            report = module.build_report(
+                root,
+                request_path=request_path,
+                backend_command=["/opt/threshold-backend", "emit-tee-hsm-capture"],
+                command_runner=tee_hsm_no_export_capture_runner,
+                metadata_provider=fake_metadata,
+                generated_at="2026-07-01T00:00:00Z",
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertTrue(admissibility["strict_threshold_core_admissible"])
+        self.assertFalse(admissibility["quarantined"])
+        self.assertEqual(
+            admissibility["core_mode"],
+            "tee_hsm_no_export_threshold_mldsa65_provider",
+        )
+        self.assertEqual(
+            admissibility["signature_origin"],
+            "tee_hsm_no_export_standard_mldsa65_provider",
+        )
+        self.assertEqual(admissibility["reasons"], [])
 
     def test_build_report_rejects_capture_that_omits_or_stales_request_binding(self):
         module = load_module()

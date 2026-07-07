@@ -165,6 +165,27 @@ claim and it keeps `claims_theorem_closure`,
 `claims_rejection_distribution_preservation`, and
 `claims_selected_backend_proof_closure` false.
 
+The grouped review packages for a strict external backend attempt are built with
+`scripts/build_p1_external_backend_review_packages.py`:
+
+```bash
+python3 scripts/build_p1_external_backend_review_packages.py \
+  --root . \
+  --nonce-gate artifacts/nonce-producer-actual-external-gate/latest/manifest.json \
+  --backend-manifest artifacts/backend-emission-capture/latest/manifest.json \
+  --backend-capture artifacts/backend-emission-capture/latest/capture.json \
+  --rejection-batch artifacts/p1-rejection-equivalence-batch/latest/batch.json \
+  --dkg-out artifacts/p1-production-dkg-no-single-secret-review/latest \
+  --distribution-abort-out artifacts/p1-accepted-distribution-abort-review/latest \
+  --review-package-out artifacts/p1-external-backend-evidence-package-review/latest \
+  --candidate-out artifacts/p1-external-backend-cryptographic-closure-candidate/latest
+```
+
+This builder writes the production DKG/no-single-secret review, the
+accepted-distribution/abort review, and the input-bound external evidence
+package review. It keeps all theorem-closure, rejection-distribution
+preservation, FIPS-standard-approval, and production-security claims false.
+
 Batch 8 groups the full external-evidence attempt through
 `scripts/run_p1_external_backend_evidence_attempt.py`:
 
@@ -189,6 +210,19 @@ be treated as real external evidence. The grouped inputs now include the
 production DKG/no-single-secret review and the accepted-distribution/abort
 review, and the external evidence package must bind their SHA-256 digests. It
 also keeps all theorem-closure and production-security claims false.
+
+The generated attempt manifest now exposes two explicit review-package classes
+for strict external backend closure attempts:
+
+- `production_dkg_no_single_secret_review` with route `tee_hsm_no_export` and
+  review status `reviewed_production_dkg_no_single_secret_ready`;
+- `accepted_distribution_abort_review` with review status
+  `reviewed_distribution_abort_ready`.
+
+The attempt remains blocked unless those class summaries are present, the
+Batch 7 candidate is a close candidate, source exclusions pass, and the Batch 9
+external evidence package binds the same input digests. These package classes
+are review-entry material only; they do not claim theorem closure.
 
 ## External Command-Origin Guard
 

@@ -536,6 +536,12 @@ accepted-distribution/abort review, plus source-exclusion and review-digest chec
 attempt records `review_package_present = false` and
 `reviewed external evidence package is missing`, so Criterion 2 remains
 `partially_met`.
+The attempt manifest now also exposes the two review-package classes that a
+strict external backend closure attempt must carry: `production_dkg_no_single_secret_review`
+with route `tee_hsm_no_export`, and `accepted_distribution_abort_review`. The
+readiness preflight rejects aggregate ready booleans unless those package
+classes and statuses are present alongside a close-candidate strict external
+backend attempt and exact input-bound review package.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, requires proof-closure evidence by themselves.
@@ -566,11 +572,14 @@ linked:
 - reviewed standard-verifier compatibility argument;
 - reviewed Batch 7 external-backend closure-candidate bundle populated from
   actual external nonce and real-threshold backend captures;
-- reviewed production DKG/no-single-secret package with no centralized seed,
-  expanded-key split, single-key, hazmat, or unreviewed trust setup;
-- reviewed accepted-distribution/abort package covering rejection-distribution
-  preservation, selective abort/withholding, restart leakage, concurrency, and
-  concrete loss bounds;
+- reviewed production DKG/no-single-secret package with
+  `package_class = production_dkg_no_single_secret_review`,
+  `route = tee_hsm_no_export`, no centralized seed, expanded-key split,
+  single-key, hazmat, or unreviewed trust setup;
+- reviewed accepted-distribution/abort package with
+  `package_class = accepted_distribution_abort_review` covering
+  rejection-distribution preservation, selective abort/withholding, restart
+  leakage, concurrency, and concrete loss bounds;
 - reviewed Batch 8 grouped external-evidence attempt with `source_exclusion_passed`
   true and `close_candidate = true`;
 - reviewed Batch 9 external evidence package with `review_package_binds_inputs`

@@ -1,7 +1,7 @@
 {
   "actual_external_capture_ready": true,
-  "attempt_manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-external-capture-intake/latest/manifest.json",
-  "attempt_manifest_sha256": "d2f3e2037afa122261989754276290b4252d789ff5998c1746f8c88745af14d9",
+  "attempt_manifest_path": "/tmp/lattice-p1-strict-run/nonce-staged/manifest.json",
+  "attempt_manifest_sha256": "fbd9838b7c452b951752d2d7050eaf20df8582bc26d9a2c60bd2a1a533ca5e0e",
   "attempt_quarantine": {
     "allowed_use": "preexisting external backend capture file gated by admissible readiness",
     "quarantined": false,
@@ -14,16 +14,16 @@
   "closure_boundary": "Actual external nonce-producer capture gate only; even a ready capture remains proof-review evidence until rejection-distribution and theorem obligations are discharged.",
   "expected_source_profile": "admissible_external_backend_capture",
   "gate_status": "actual_external_capture_ready",
-  "generated_at": "2026-07-05T16:27:05Z",
-  "handoff_manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation Current/artifacts/nonce-producer-external-capture-intake/latest/handoff/manifest.json",
-  "handoff_manifest_sha256": "0569f5304a857860a27053d69aa2c0905d7020e01126d96ab34b508ba391fbb2",
+  "generated_at": "2026-07-07T16:52:03Z",
+  "handoff_manifest_path": "/tmp/lattice-p1-strict-run/nonce-staged/handoff/manifest.json",
+  "handoff_manifest_sha256": "2a233f99a89a2197254ea50c5d4f0efa0caefef61eabebc52775dc3952b527e6",
   "handoff_quarantine": {
     "allowed_use": "preexisting external backend capture file gated by admissible readiness",
     "quarantined": false,
     "reason": null
   },
   "handoff_source_profile": "admissible_external_backend_capture",
-  "root": "/Users/rickglenn/Documents/Lattice Aggregation Current",
+  "root": "/Users/rickglenn/Documents/Lattice Aggregation",
   "schema": "lattice-aggregation:p1-actual-external-nonce-producer-gate:v1",
   "schema_version": 1
 }

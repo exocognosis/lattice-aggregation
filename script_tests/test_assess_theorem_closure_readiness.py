@@ -88,6 +88,19 @@ def external_attempt(ready):
             "production_dkg_no_single_secret_review_present": ready,
             "distribution_abort_review_present": ready,
         },
+        "review_packages": {
+            "production_dkg_no_single_secret_review": {
+                "package_class": "production_dkg_no_single_secret_review",
+                "route": "tee_hsm_no_export",
+                "review_status": "reviewed_production_dkg_no_single_secret_ready",
+            },
+            "accepted_distribution_abort_review": {
+                "package_class": "accepted_distribution_abort_review",
+                "review_status": "reviewed_distribution_abort_ready",
+            },
+        }
+        if ready
+        else {},
         "blockers": [] if ready else ["reviewed external evidence package is missing"],
     }
 
@@ -144,7 +157,7 @@ def write_minimal_inputs(root, *, external_ready, review_ready=None):
 
 
 class TheoremClosureReadinessTests(unittest.TestCase):
-    def test_current_checked_in_artifacts_remain_blocked_before_assessment(self):
+    def test_current_checked_in_artifacts_have_external_bundle_but_await_theorem_review(self):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-04T00:00:00Z")
@@ -156,12 +169,14 @@ class TheoremClosureReadinessTests(unittest.TestCase):
         )
         self.assertFalse(manifest["theorem_closure_assessment_ready"])
         self.assertFalse(manifest["claims_theorem_closure"])
-        self.assertFalse(manifest["checks"]["external_evidence_attempt_ready"])
+        self.assertTrue(manifest["checks"]["external_evidence_attempt_ready"])
+        self.assertTrue(manifest["checks"]["external_review_package_ready"])
         self.assertFalse(manifest["checks"]["theorem_review_manifest_present"])
         self.assertIn(
-            "reviewed external evidence package is missing",
-            " ".join(manifest["blocker_groups"]["external_backend_evidence"]),
+            "theorem review manifest is missing required ready flag: proof_payload_reviewed",
+            manifest["blocker_groups"]["proof_payload_review"],
         )
+        self.assertEqual(manifest["blocker_groups"]["external_backend_evidence"], [])
 
     def test_external_ready_bundle_without_theorem_review_stays_blocked(self):
         module = load_module()
@@ -190,6 +205,40 @@ class TheoremClosureReadinessTests(unittest.TestCase):
         self.assertIn(
             "theorem review manifest is missing required ready flag: full_kat_validation_reviewed",
             manifest["blocker_groups"]["validation"],
+        )
+
+    def test_external_ready_booleans_without_explicit_review_packages_stay_blocked(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            paths = write_minimal_inputs(root, external_ready=True, review_ready=True)
+            attempt = external_attempt(True)
+            attempt.pop("review_packages")
+            write_json(paths["external_attempt_path"], attempt)
+            report = module.build_report(
+                root,
+                generated_at="2026-07-04T00:00:00Z",
+                **paths,
+            )
+
+        manifest = report["manifest"]
+        self.assertFalse(manifest["theorem_closure_assessment_ready"])
+        self.assertFalse(
+            manifest["checks"][
+                "external_production_dkg_no_single_secret_review_package_valid"
+            ]
+        )
+        self.assertFalse(
+            manifest["checks"]["external_accepted_distribution_abort_review_package_valid"]
+        )
+        self.assertIn(
+            "production DKG/no-single-secret review package class or route is not ready",
+            manifest["blocker_groups"]["external_backend_evidence"],
+        )
+        self.assertIn(
+            "accepted distribution/abort review package class is not ready",
+            manifest["blocker_groups"]["external_backend_evidence"],
         )
 
     def test_closure_run_hypothesis_boundary_is_accepted_as_nonclosure_track(self):

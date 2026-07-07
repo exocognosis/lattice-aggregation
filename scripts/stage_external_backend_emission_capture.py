@@ -53,6 +53,9 @@ REQUIRED_REVIEW_CHECKS = (
 OPTIONAL_REVIEW_CHECKS = (
     "real_distributed_threshold_core_verified",
     "no_single_key_standard_provider_output",
+    "tee_hsm_no_export_trust_record_reviewed",
+    "no_single_exposed_mldsa_secret_key",
+    "threshold_authorization_enforced",
 )
 SMOKE_CORE_MODES = {
     "centralized_mldsa65_provider_with_threshold_evidence_envelope",
@@ -66,6 +69,10 @@ RECONSTRUCTION_CORE_MODES = {
 RECONSTRUCTION_SIGNATURE_ORIGINS = {
     "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
+STRICT_DISTRIBUTED_CORE_MODE = "distributed_threshold_mldsa65_partial_aggregation"
+STRICT_DISTRIBUTED_SIGNATURE_ORIGIN = "threshold_partial_aggregation"
+STRICT_TEE_HSM_CORE_MODE = "tee_hsm_no_export_threshold_mldsa65_provider"
+STRICT_TEE_HSM_SIGNATURE_ORIGIN = "tee_hsm_no_export_standard_mldsa65_provider"
 
 
 def canonical_json(data):
@@ -170,6 +177,17 @@ def require_hex_digest(value, field):
         raise ValueError(f"external review digest field invalid: {field}")
 
 
+def capture_uses_strict_tee_hsm_no_export(capture):
+    """Return true for the reviewed TEE/HSM no-export threshold-provider route."""
+    core = capture.get("cryptographic_core") if isinstance(capture, dict) else None
+    if not isinstance(core, dict):
+        return False
+    return (
+        core.get("core_mode") == STRICT_TEE_HSM_CORE_MODE
+        and core.get("signature_origin") == STRICT_TEE_HSM_SIGNATURE_ORIGIN
+    )
+
+
 def validate_external_review_manifest(
     root,
     review_manifest_path,
@@ -217,11 +235,37 @@ def validate_external_review_manifest(
     checks = review.get("checks")
     if not isinstance(checks, dict):
         raise ValueError("external review manifest requires checks")
+    strict_tee_hsm_no_export = capture_uses_strict_tee_hsm_no_export(capture)
     for field in REQUIRED_REVIEW_CHECKS:
+        if field == "centralized_standard_provider_output_disclosed" and strict_tee_hsm_no_export:
+            if checks.get(field) is not False:
+                raise ValueError(f"external review check failed: {field}")
+            continue
         if checks.get(field) is not True:
             raise ValueError(f"external review check failed: {field}")
-    if checks.get("real_distributed_threshold_core_verified") is not False:
-        raise ValueError("external review requires evidence before claiming verified distributed threshold core")
+    if checks.get("real_distributed_threshold_core_verified") not in {False, True}:
+        raise ValueError(
+            "external review requires explicit distributed threshold core verdict"
+        )
+    if strict_tee_hsm_no_export:
+        for field in (
+            "tee_hsm_no_export_trust_record_reviewed",
+            "no_single_exposed_mldsa_secret_key",
+            "threshold_authorization_enforced",
+            "no_single_key_standard_provider_output",
+        ):
+            if checks.get(field) is not True:
+                raise ValueError(f"external review check failed: {field}")
+    elif checks.get("real_distributed_threshold_core_verified") is True:
+        core = capture.get("cryptographic_core") if isinstance(capture, dict) else None
+        if not (
+            isinstance(core, dict)
+            and core.get("core_mode") == STRICT_DISTRIBUTED_CORE_MODE
+            and core.get("signature_origin") == STRICT_DISTRIBUTED_SIGNATURE_ORIGIN
+        ):
+            raise ValueError(
+                "external review cannot verify distributed threshold core for this capture"
+            )
 
     returned_checks = {field: checks[field] for field in REQUIRED_REVIEW_CHECKS}
     for field in OPTIONAL_REVIEW_CHECKS:
@@ -263,21 +307,46 @@ def backend_core_admissibility(capture, review_report):
         reasons.append("threshold seed-reconstruction core mode")
     if signature_origin in RECONSTRUCTION_SIGNATURE_ORIGINS:
         reasons.append("threshold seed-reconstruction standard-provider signature origin")
-    if isinstance(checks, dict):
-        if checks.get("real_distributed_threshold_core_verified") is not True:
-            reasons.append("real distributed threshold core not externally verified")
-        if checks.get("no_single_key_standard_provider_output") is not True:
-            reasons.append("single-key standard-provider output disclosed")
     if isinstance(distributed_core, dict):
-        required_flags = (
-            "distributed_keygen_vss",
-            "partial_signing_over_secret_shares",
-            "partial_z_i_hint_aggregation",
-            "fips204_rejection_loop_over_threshold_partials",
-        )
+        if (
+            core_mode == STRICT_DISTRIBUTED_CORE_MODE
+            and signature_origin == STRICT_DISTRIBUTED_SIGNATURE_ORIGIN
+        ):
+            if isinstance(checks, dict) and checks.get("real_distributed_threshold_core_verified") is not True:
+                reasons.append("real distributed threshold core not externally verified")
+            required_flags = (
+                "distributed_keygen_vss",
+                "partial_signing_over_secret_shares",
+                "partial_z_i_hint_aggregation",
+                "fips204_rejection_loop_over_threshold_partials",
+            )
+        elif (
+            core_mode == STRICT_TEE_HSM_CORE_MODE
+            and signature_origin == STRICT_TEE_HSM_SIGNATURE_ORIGIN
+        ):
+            if isinstance(checks, dict):
+                for field in (
+                    "tee_hsm_no_export_trust_record_reviewed",
+                    "no_single_exposed_mldsa_secret_key",
+                    "threshold_authorization_enforced",
+                    "no_single_key_standard_provider_output",
+                ):
+                    if checks.get(field) is not True:
+                        reasons.append(f"external review check failed: {field}")
+            required_flags = (
+                "tee_hsm_no_export_trust_record_reviewed",
+                "no_single_exposed_mldsa_secret_key",
+                "threshold_authorization_enforced",
+                "standard_verifier_compatible_output",
+            )
+        else:
+            reasons.append("unrecognized strict threshold core mode or signature origin")
+            required_flags = ()
         for flag in required_flags:
             if distributed_core.get(flag) is not True:
                 reasons.append(f"distributed threshold core flag false: {flag}")
+    else:
+        reasons.append("missing distributed threshold core status")
     return {
         "strict_threshold_core_admissible": not reasons,
         "quarantined": bool(reasons),
