@@ -2135,6 +2135,9 @@ class ReportGenerationTests(unittest.TestCase):
             "StandardProviderSingleKey, "
             "checked rejection-distribution review fixture, "
             "checked theorem-linkage fixture, "
+            "artifacts/p1-theorem-linkage-review/latest/manifest.json, "
+            "lattice-aggregation:p1-theorem-linkage-review:v1, "
+            "reviewed_theorem_linkage_ready, "
             "requires real threshold backend implementation evidence, "
             "p1_criterion2_threshold_output_certificate_artifact_gate, "
             "p1_criterion2_real_recomputation_evidence_artifact_gate, "
@@ -2600,9 +2603,22 @@ class ReportGenerationTests(unittest.TestCase):
                         "standard_verifier_compatibility_reviewed": True,
                         "rejection_distribution_preservation_reviewed": False,
                         "full_kat_validation_reviewed": False,
-                        "theorem_linkage_reviewed": False,
+                        "theorem_linkage_reviewed": True,
                         "claim_boundary": (
                             "readiness preflight only; pending theorem-closure review"
+                        ),
+                    },
+                    {
+                        "slot_id": "theorem_linkage_artifact_digest",
+                        "fixture_path": (
+                            "artifacts/p1-theorem-linkage-review/latest/manifest.json"
+                        ),
+                        "schema": (
+                            "lattice-aggregation:p1-theorem-linkage-review:v1"
+                        ),
+                        "current_status": "reviewed_theorem_linkage_ready",
+                        "claim_boundary": (
+                            "conformance/proof-review evidence"
                         ),
                     },
                     {

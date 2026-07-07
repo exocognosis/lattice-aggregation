@@ -345,6 +345,9 @@ The Criterion 2 proof payload requires these slots before any promotion:
   (`p1_criterion2_proof_slot_artifact_package`).
   Checked theorem-linkage fixture:
   `tests/fixtures/p1_theorem_linkage_artifact_fixture.json`.
+  Live theorem-linkage review package:
+  `artifacts/p1-theorem-linkage-review/latest/manifest.json`
+  (`reviewed_theorem_linkage_ready`).
 - `external_review_digest`: `evidence_present_unclosed` from
   `p1_criterion2_external_review_artifact_gate`
   (`p1_criterion2_proof_slot_artifact_package`).
@@ -484,6 +487,12 @@ The theorem-linkage slot is now backed by the checked
 can inspect the bound theorem-linkage source evidence, review digest,
 threshold-output certificate digest, transcript binding, and typed slot artifact
 digest without promoting the slot beyond `evidence_present_unclosed`.
+The current close-candidate run also has a generated theorem-linkage review at
+`artifacts/p1-theorem-linkage-review/latest/manifest.json`; it binds Criterion 2
+theorem links, formal theorem/proof-obligation documents, the external
+close-candidate attempt, DKG/no-single-secret review, accepted-distribution/abort
+review, and rejection-batch predicate evidence while keeping all closure,
+distribution-preservation, CAVP/ACVTS, and FIPS claims false.
 Batch 7 adds
 `P1ExternalBackendCryptographicClosureCandidatePackage` and
 `scripts/build_p1_external_backend_cryptographic_closure_candidate.py` as the
@@ -587,7 +596,9 @@ linked:
   true and `close_candidate = true`;
 - reviewed Batch 9 external evidence package with `review_package_binds_inputs`
   true, source exclusions passed, and review digests present;
-- theorem-linkage review.
+- theorem-linkage review. Current status: reviewed for theorem-linkage
+  inventory, but Criterion 2 still requires rejection-distribution preservation
+  and full KAT/validation before theorem-closure assessment readiness.
 
 `scripts/assess_theorem_closure_readiness.py` records these blockers in
 `artifacts/theorem-closure-readiness/latest/manifest.json` before theorem

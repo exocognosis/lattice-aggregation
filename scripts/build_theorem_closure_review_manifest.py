@@ -16,6 +16,10 @@ SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 READY_STATUS = "theorem_closure_review_ready"
 INCOMPLETE_STATUS = "theorem_closure_review_incomplete"
 EXTERNAL_ATTEMPT_READY = "external_evidence_close_candidate_ready"
+THEOREM_LINKAGE_SCHEMA = "lattice-aggregation:p1-theorem-linkage-review:v1"
+THEOREM_LINKAGE_READY = "reviewed_theorem_linkage_ready"
+DISTRIBUTION_ABORT_SCHEMA = "lattice-aggregation:p1-accepted-distribution-abort-review:v1"
+DISTRIBUTION_ABORT_READY = "reviewed_distribution_abort_ready"
 
 REVIEW_FLAGS = (
     "proof_payload_reviewed",
@@ -58,6 +62,14 @@ def sha256_path(path):
 def load_json(path):
     """Load JSON from a required path."""
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def load_json_if_present(path):
+    """Load JSON from a path if present."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def input_record(path):
@@ -114,6 +126,17 @@ def default_closure_candidate(root):
 
 def default_external_attempt(root):
     return Path(root) / "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json"
+
+
+def default_theorem_linkage_review(root):
+    return Path(root) / "artifacts/p1-theorem-linkage-review/latest/manifest.json"
+
+
+def default_distribution_abort_review(root):
+    return (
+        Path(root)
+        / "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json"
+    )
 
 
 def default_criterion2_manifest(root):
@@ -212,6 +235,109 @@ def rejection_batch_checks(rejection_batch):
     }
 
 
+def theorem_linkage_review_checks(theorem_linkage_review):
+    """Extract theorem-linkage package checks."""
+    if not isinstance(theorem_linkage_review, dict):
+        return {
+            "present": False,
+            "schema_valid": False,
+            "review_status_ready": False,
+            "claim_boundary_preserved": False,
+            "source_checks_pass": False,
+            "claims_false": False,
+        }
+    claim_flags = theorem_linkage_review.get("claim_flags", {})
+    source_checks = theorem_linkage_review.get("checks", {})
+    return {
+        "present": True,
+        "schema_valid": theorem_linkage_review.get("schema") == THEOREM_LINKAGE_SCHEMA,
+        "review_status_ready": (
+            theorem_linkage_review.get("review_status") == THEOREM_LINKAGE_READY
+        ),
+        "claim_boundary_preserved": (
+            theorem_linkage_review.get("claim_boundary") == "conformance/proof-review evidence"
+            and theorem_linkage_review.get("selected_profile") == SELECTED_PROFILE
+        ),
+        "source_checks_pass": (
+            isinstance(source_checks, dict)
+            and len(source_checks) > 0
+            and all(value is True for value in source_checks.values())
+        ),
+        "claims_false": (
+            isinstance(claim_flags, dict)
+            and len(claim_flags) > 0
+            and all(value is False for value in claim_flags.values())
+        ),
+    }
+
+
+def distribution_abort_review_checks(distribution_abort_review):
+    """Extract non-promoting accepted-distribution/abort review checks."""
+    if not isinstance(distribution_abort_review, dict):
+        return {
+            "present": False,
+            "schema_valid": False,
+            "review_status_ready": False,
+            "claims_false": False,
+        }
+    claim_flags = distribution_abort_review.get("claim_flags", {})
+    return {
+        "present": True,
+        "schema_valid": (
+            distribution_abort_review.get("schema") == DISTRIBUTION_ABORT_SCHEMA
+        ),
+        "review_status_ready": (
+            distribution_abort_review.get("review_status") == DISTRIBUTION_ABORT_READY
+        ),
+        "claims_false": (
+            isinstance(claim_flags, dict)
+            and len(claim_flags) > 0
+            and all(value is False for value in claim_flags.values())
+        ),
+    }
+
+
+def criterion2_validation_slot_checks(criterion2):
+    """Return non-promoting validation proof-slot status from Criterion 2."""
+    proof_payload = criterion2.get("proof_payload", {}) if isinstance(criterion2, dict) else {}
+    artifact_refs = proof_payload.get("artifact_fixture_refs", [])
+    required_slots = proof_payload.get("required_artifact_slots", [])
+    validation_refs = [
+        item
+        for item in artifact_refs
+        if isinstance(item, dict)
+        and item.get("slot_id") == "full_kat_validation_artifact_digest"
+    ]
+    validation_required_slots = [
+        item
+        for item in required_slots
+        if isinstance(item, dict)
+        and item.get("id") == "full_kat_validation_artifact_digest"
+    ]
+    slot_present = len(validation_refs) > 0 or len(validation_required_slots) > 0
+    status_evidence_present = any(
+        item.get("current_status") == "evidence_present_unclosed"
+        for item in validation_refs
+    )
+    status_evidence_present = status_evidence_present or any(
+        item.get("current_status") == "evidence_present_unclosed"
+        for item in validation_required_slots
+    )
+    claim_boundary_preserved = any(
+        item.get("claim_boundary") == "conformance/proof-review evidence"
+        for item in validation_refs
+    )
+    claim_boundary_preserved = claim_boundary_preserved or any(
+        item.get("claim_boundary") == "conformance/proof-review evidence"
+        for item in validation_required_slots
+    )
+    return {
+        "slot_present": slot_present,
+        "slot_status_evidence_present_unclosed": status_evidence_present,
+        "slot_claim_boundary_preserved": claim_boundary_preserved,
+    }
+
+
 def external_evidence_checks(candidate, attempt):
     """Extract close-candidate and external-evidence attempt checks."""
     attempt_checks = attempt.get("checks", {}) if isinstance(attempt, dict) else {}
@@ -236,6 +362,8 @@ def build_report(
     rejection_batch_path=None,
     closure_candidate_path=None,
     external_attempt_path=None,
+    theorem_linkage_review_path=None,
+    distribution_abort_review_path=None,
     criterion2_manifest_path=None,
     generated_at=None,
 ):
@@ -246,6 +374,12 @@ def build_report(
     rejection_batch_path = Path(rejection_batch_path or default_rejection_batch(root))
     closure_candidate_path = Path(closure_candidate_path or default_closure_candidate(root))
     external_attempt_path = Path(external_attempt_path or default_external_attempt(root))
+    theorem_linkage_review_path = Path(
+        theorem_linkage_review_path or default_theorem_linkage_review(root)
+    )
+    distribution_abort_review_path = Path(
+        distribution_abort_review_path or default_distribution_abort_review(root)
+    )
     criterion2_manifest_path = Path(
         criterion2_manifest_path or default_criterion2_manifest(root)
     )
@@ -256,12 +390,17 @@ def build_report(
     rejection_batch = load_json(rejection_batch_path)
     candidate = load_json(closure_candidate_path)
     attempt = load_json(external_attempt_path)
+    theorem_linkage_review = load_json_if_present(theorem_linkage_review_path)
+    distribution_abort_review = load_json_if_present(distribution_abort_review_path)
     criterion2 = load_json(criterion2_manifest_path)
 
     blockers = empty_blocker_groups()
     backend_checks = strict_backend_checks(backend_manifest)
     verifier_checks = backend_standard_verifier_checks(backend_capture)
     batch_checks = rejection_batch_checks(rejection_batch)
+    theorem_linkage_checks = theorem_linkage_review_checks(theorem_linkage_review)
+    distribution_abort_checks = distribution_abort_review_checks(distribution_abort_review)
+    validation_slot_checks = criterion2_validation_slot_checks(criterion2)
     external_checks = external_evidence_checks(candidate, attempt)
     claim_boundary_preserved = claim_boundary_is_preserved(
         candidate,
@@ -297,7 +436,7 @@ def build_report(
         "distribution_compatibility_proven"
     ]
     full_kat_validation_reviewed = False
-    theorem_linkage_reviewed = False
+    theorem_linkage_reviewed = all(theorem_linkage_checks.values())
 
     if not proof_payload_reviewed:
         add_blocker(
@@ -327,7 +466,7 @@ def build_report(
         add_blocker(
             blockers,
             "theorem_linkage_review",
-            "theorem-linkage review package is not present",
+            "theorem-linkage review package is not ready",
         )
     if not claim_boundary_preserved:
         add_blocker(
@@ -367,6 +506,10 @@ def build_report(
         "distribution_compatibility_proven": batch_checks[
             "distribution_compatibility_proven"
         ],
+        "distribution_abort_review": distribution_abort_checks,
+        "validation_artifact_slot": validation_slot_checks,
+        "full_kat_validation_reviewed": full_kat_validation_reviewed,
+        "theorem_linkage_review": theorem_linkage_checks,
         "claim_boundary_preserved": claim_boundary_preserved,
     }
     inputs = {
@@ -375,6 +518,8 @@ def build_report(
         "rejection_batch": input_record(rejection_batch_path),
         "closure_candidate": input_record(closure_candidate_path),
         "external_attempt": input_record(external_attempt_path),
+        "theorem_linkage_review": input_record(theorem_linkage_review_path),
+        "accepted_distribution_abort_review": input_record(distribution_abort_review_path),
         "criterion2_manifest": input_record(criterion2_manifest_path),
     }
     digest_material = {
@@ -447,6 +592,14 @@ def render_summary(manifest):
         "- `distribution_compatibility_proven`: "
         f"`{str(summary['distribution_compatibility_proven']).lower()}`"
     )
+    lines.append(
+        "- `theorem_linkage_reviewed`: "
+        f"`{str(manifest['review_flags']['theorem_linkage_reviewed']).lower()}`"
+    )
+    lines.append(
+        "- `full_kat_validation_reviewed`: "
+        f"`{str(manifest['review_flags']['full_kat_validation_reviewed']).lower()}`"
+    )
     lines.extend(["", "Blocker Groups:"])
     for group, blockers in manifest["blocker_groups"].items():
         lines.append(f"- `{group}`: `{len(blockers)}` blocker(s)")
@@ -491,6 +644,8 @@ def parse_args(argv):
     parser.add_argument("--rejection-batch", default=None)
     parser.add_argument("--closure-candidate", default=None)
     parser.add_argument("--external-attempt", default=None)
+    parser.add_argument("--theorem-linkage-review", default=None)
+    parser.add_argument("--distribution-abort-review", default=None)
     parser.add_argument("--criterion2-manifest", default=None)
     parser.add_argument(
         "--out",
@@ -510,6 +665,8 @@ def main(argv=None):
         rejection_batch_path=args.rejection_batch,
         closure_candidate_path=args.closure_candidate,
         external_attempt_path=args.external_attempt,
+        theorem_linkage_review_path=args.theorem_linkage_review,
+        distribution_abort_review_path=args.distribution_abort_review,
         criterion2_manifest_path=args.criterion2_manifest,
     )
     out = Path(args.out) if args.out else default_out(root)

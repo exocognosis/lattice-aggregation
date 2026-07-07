@@ -28,7 +28,12 @@ The preflight consumes the existing Criterion 2 and external-evidence surfaces:
 - `artifacts/hypothesis/latest/assessment.json`;
 - `artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json`;
 - `artifacts/p1-external-backend-evidence-attempt/latest/manifest.json`;
+- `artifacts/p1-theorem-linkage-review/latest/manifest.json`;
 - `artifacts/theorem-closure-review/latest/manifest.json`.
+
+The theorem-linkage review input uses schema
+`lattice-aggregation:p1-theorem-linkage-review:v1` and current ready status
+`reviewed_theorem_linkage_ready`.
 
 The theorem-review input is intentionally separate from the external evidence
 attempt. The expected review schema is
@@ -96,9 +101,11 @@ emission capture, rejection batch, production DKG/no-single-secret review,
 accepted-distribution/abort review, reviewed external evidence package, and
 theorem-review manifest are now present. The theorem-review manifest marks
 `proof_payload_reviewed = true` and
-`standard_verifier_compatibility_reviewed = true`, while leaving
-`rejection_distribution_preservation_reviewed`,
-`full_kat_validation_reviewed`, and `theorem_linkage_reviewed` false.
+`standard_verifier_compatibility_reviewed = true`. The generated
+theorem-linkage package now lets it also mark
+`theorem_linkage_reviewed = true`, while leaving
+`rejection_distribution_preservation_reviewed` and
+`full_kat_validation_reviewed` false.
 
 ## Non-Claims
 

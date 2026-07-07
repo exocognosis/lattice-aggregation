@@ -447,8 +447,15 @@
         "standard_verifier_compatibility_reviewed": true,
         "rejection_distribution_preservation_reviewed": false,
         "full_kat_validation_reviewed": false,
-        "theorem_linkage_reviewed": false,
+        "theorem_linkage_reviewed": true,
         "claim_boundary": "readiness preflight only; pending theorem-closure review"
+      },
+      {
+        "slot_id": "theorem_linkage_artifact_digest",
+        "fixture_path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-theorem-linkage-review:v1",
+        "current_status": "reviewed_theorem_linkage_ready",
+        "claim_boundary": "conformance/proof-review evidence"
       },
       {
         "slot_id": "rejection_distribution_review_digest",
@@ -557,6 +564,9 @@
   "artifacts/theorem-closure-review/latest/manifest.json",
   "artifacts/theorem-closure-review/latest/summary.md",
   "artifacts/theorem-closure-review/latest/SHA256SUMS",
+  "artifacts/p1-theorem-linkage-review/latest/manifest.json",
+  "artifacts/p1-theorem-linkage-review/latest/summary.md",
+  "artifacts/p1-theorem-linkage-review/latest/SHA256SUMS",
   "artifacts/backend-emission-request/latest/request.json",
     "artifacts/backend-emission-request/latest/manifest.json",
     "artifacts/backend-emission-request/latest/summary.md",
@@ -647,7 +657,7 @@
     "theorem_review_standard_verifier_compatibility_reviewed": true,
     "theorem_review_rejection_distribution_preservation_reviewed": false,
     "theorem_review_full_kat_validation_reviewed": false,
-    "theorem_review_theorem_linkage_reviewed": false,
+    "theorem_review_theorem_linkage_reviewed": true,
     "theorem_closure_readiness_status": "blocked_before_theorem_closure_assessment",
     "theorem_closure_assessment_ready": false
   }

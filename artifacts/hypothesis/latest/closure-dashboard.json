@@ -1,34 +1,34 @@
 {
   "branch": "codex/p1-recomputation-bridge-verified",
   "claim_boundary": "closure-run implementation track",
-  "commit": "16a57a6ccd64536af7c14bf604b1e5f190e5c451",
+  "commit": "01c3a2e53bc89e1d6d6f691d6a64e4dd62345010",
   "criteria": [
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "aggregate_mask_distribution",
       "observed_evidence_count": 3,
       "status": "partially_met"
     },
     {
-      "blocker_count": 10,
+      "blocker_count": 11,
       "id": "aggregate_rejection_equivalence",
       "observed_evidence_count": 28,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "abort_retry_bias",
       "observed_evidence_count": 3,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "partial_contribution_soundness",
       "observed_evidence_count": 5,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 3,
       "id": "unauthorized_aggregate_reduction",
       "observed_evidence_count": 3,
       "status": "partially_met"

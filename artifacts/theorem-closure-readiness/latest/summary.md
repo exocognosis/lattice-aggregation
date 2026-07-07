@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `blocked_before_theorem_closure_assessment`
 - Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; pending theorem-closure review`
-- Readiness digest SHA-256: `e39b79c71a41b74c8d15329af09f67ce85a7cd42b43273f2789bc35441f120ab`
+- Readiness digest SHA-256: `10be42d365cc239a6a00b5449fe7eae487031512a0b853be2d9f3a7d4f5e2db9`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -33,7 +33,7 @@ Checks:
 - `full_kat_validation_reviewed`: `false`
 - `rejection_distribution_preservation_reviewed`: `false`
 - `standard_verifier_compatibility_reviewed`: `true`
-- `theorem_linkage_reviewed`: `false`
+- `theorem_linkage_reviewed`: `true`
 - `review_claims_theorem_closure_false`: `true`
 - `review_claims_criterion_met_false`: `true`
 - `review_claims_selected_backend_proof_closure_false`: `true`
@@ -52,8 +52,7 @@ Blocker Groups:
 - `rejection_distribution_review`: `1` blocker(s)
   - theorem review manifest has not satisfied rejection_distribution_preservation_reviewed
 - `standard_verifier_review`: `0` blocker(s)
-- `theorem_linkage_review`: `1` blocker(s)
-  - theorem review manifest has not satisfied theorem_linkage_reviewed
+- `theorem_linkage_review`: `0` blocker(s)
 - `criterion2_manifest`: `0` blocker(s)
 - `hypothesis_assessment`: `0` blocker(s)
 - `claim_boundary`: `0` blocker(s)

@@ -517,8 +517,15 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "standard_verifier_compatibility_reviewed": True,
         "rejection_distribution_preservation_reviewed": False,
         "full_kat_validation_reviewed": False,
-        "theorem_linkage_reviewed": False,
+        "theorem_linkage_reviewed": True,
         "claim_boundary": "readiness preflight only; pending theorem-closure review",
+    },
+    {
+        "slot_id": "theorem_linkage_artifact_digest",
+        "fixture_path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
+        "schema": "lattice-aggregation:p1-theorem-linkage-review:v1",
+        "current_status": "reviewed_theorem_linkage_ready",
+        "claim_boundary": "conformance/proof-review evidence",
     },
     {
         "slot_id": "rejection_distribution_review_digest",

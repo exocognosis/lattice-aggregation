@@ -12,9 +12,7 @@
       "theorem review manifest has not satisfied rejection_distribution_preservation_reviewed"
     ],
     "standard_verifier_review": [],
-    "theorem_linkage_review": [
-      "theorem review manifest has not satisfied theorem_linkage_reviewed"
-    ],
+    "theorem_linkage_review": [],
     "validation": [
       "theorem review manifest has not satisfied full_kat_validation_reviewed"
     ]
@@ -50,7 +48,7 @@
     "review_claims_standard_verifier_compatibility_complete_false": true,
     "review_claims_theorem_closure_false": true,
     "standard_verifier_compatibility_reviewed": true,
-    "theorem_linkage_reviewed": false,
+    "theorem_linkage_reviewed": true,
     "theorem_review_manifest_boundary_valid": true,
     "theorem_review_manifest_present": true,
     "theorem_review_status_ready": false
@@ -64,12 +62,12 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-07T17:27:36Z",
+  "generated_at": "2026-07-07T18:16:40Z",
   "inputs": {
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "0262ce091f2ddbbbfc8bd90d5e36eabe5eacf8bd951f4ecdeedb76b8c0e19de9"
+      "sha256": "a728eb2de9e3ecc8d0d5c1ec637604effab5e5d292370074beb6a89e416a4ae9"
     },
     "external_closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
@@ -84,16 +82,16 @@
     "hypothesis_assessment": {
       "path": "artifacts/hypothesis/latest/assessment.json",
       "present": true,
-      "sha256": "32dde3372c56b2db54b67b9ce36aaa485518fcbd9dcf6d69a574e8412bb92a22"
+      "sha256": "e6eac7bb97bee7f72a957c9e2c63b779f496a30069a24b6483afa225bf579cd1"
     },
     "theorem_review_manifest": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
       "present": true,
-      "sha256": "4f9408838fb3a1b2f19e6d0022c395ed8786dbcebc00a6297fe4019db9a7ecef"
+      "sha256": "68d0ee4ae4be80782af1e15ceae19d57667260b09a231aab8abc6b41cef6a35b"
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "e39b79c71a41b74c8d15329af09f67ce85a7cd42b43273f2789bc35441f120ab",
+  "readiness_digest_sha256": "10be42d365cc239a6a00b5449fe7eae487031512a0b853be2d9f3a7d4f5e2db9",
   "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",

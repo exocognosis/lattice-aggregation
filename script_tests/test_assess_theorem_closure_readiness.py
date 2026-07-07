@@ -180,12 +180,13 @@ class TheoremClosureReadinessTests(unittest.TestCase):
         self.assertFalse(
             manifest["checks"]["rejection_distribution_preservation_reviewed"]
         )
-        self.assertFalse(manifest["checks"]["theorem_linkage_reviewed"])
+        self.assertTrue(manifest["checks"]["theorem_linkage_reviewed"])
         self.assertIn(
             "theorem review manifest is not ready",
             manifest["blocker_groups"]["proof_payload_review"],
         )
         self.assertEqual(manifest["blocker_groups"]["external_backend_evidence"], [])
+        self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
 
     def test_external_ready_bundle_without_theorem_review_stays_blocked(self):
         module = load_module()

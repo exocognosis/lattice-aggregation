@@ -7,9 +7,7 @@
       "rejection-distribution preservation is not proven by the batch"
     ],
     "standard_verifier_review": [],
-    "theorem_linkage_review": [
-      "theorem-linkage review package is not present"
-    ],
+    "theorem_linkage_review": [],
     "validation": [
       "full KAT/CAVP validation package is not present"
     ]
@@ -27,6 +25,12 @@
   },
   "evidence_summary": {
     "claim_boundary_preserved": true,
+    "distribution_abort_review": {
+      "claims_false": true,
+      "present": true,
+      "review_status_ready": true,
+      "schema_valid": true
+    },
     "distribution_compatibility_proven": false,
     "external_evidence": {
       "attempt_close_candidate": true,
@@ -38,6 +42,7 @@
       "review_package_present": true,
       "source_exclusion_passed": true
     },
+    "full_kat_validation_reviewed": false,
     "mutation_rejections": {
       "message": true,
       "public_key": true,
@@ -51,10 +56,28 @@
       "not_quarantined": true,
       "signature_origin": "tee_hsm_no_export_standard_mldsa65_provider",
       "strict_threshold_core_admissible": true
+    },
+    "theorem_linkage_review": {
+      "claim_boundary_preserved": true,
+      "claims_false": true,
+      "present": true,
+      "review_status_ready": true,
+      "schema_valid": true,
+      "source_checks_pass": true
+    },
+    "validation_artifact_slot": {
+      "slot_claim_boundary_preserved": true,
+      "slot_present": true,
+      "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-07T17:27:36Z",
+  "generated_at": "2026-07-07T18:16:40Z",
   "inputs": {
+    "accepted_distribution_abort_review": {
+      "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
+      "present": true,
+      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+    },
     "backend_capture": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
@@ -73,7 +96,7 @@
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "0262ce091f2ddbbbfc8bd90d5e36eabe5eacf8bd951f4ecdeedb76b8c0e19de9"
+      "sha256": "a728eb2de9e3ecc8d0d5c1ec637604effab5e5d292370074beb6a89e416a4ae9"
     },
     "external_attempt": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
@@ -84,16 +107,21 @@
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
       "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
+    },
+    "theorem_linkage_review": {
+      "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
+      "present": true,
+      "sha256": "f61360719ee7c1e3acb862ce2a92a70646dffff4a167755c20892048eef47d19"
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "e2fc12efb6207ccde1ab2d9571a55c6899e2b24805d177386694ef7d487eafbc",
+  "review_digest_sha256": "fe3e4898e4b9835431738acf9c34478289174f796cf332258cd012160641f7ce",
   "review_flags": {
     "full_kat_validation_reviewed": false,
     "proof_payload_reviewed": true,
     "rejection_distribution_preservation_reviewed": false,
     "standard_verifier_compatibility_reviewed": true,
-    "theorem_linkage_reviewed": false
+    "theorem_linkage_reviewed": true
   },
   "review_status": "theorem_closure_review_incomplete",
   "schema": "lattice-aggregation:theorem-closure-review:v1",

@@ -3,15 +3,15 @@
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
 Branch: `codex/p1-recomputation-bridge-verified`
-Commit: `16a57a6ccd64536af7c14bf604b1e5f190e5c451`
+Commit: `01c3a2e53bc89e1d6d6f691d6a64e4dd62345010`
 
 ## Criteria
 
-- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 2 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 10 blockers)
-- `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
-- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
-- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)
+- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 3 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 11 blockers)
+- `abort_retry_bias`: `partially_met` (3 evidence entries, 3 blockers)
+- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 3 blockers)
+- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 3 blockers)
 
 ## Proof Artifact Slots
 
