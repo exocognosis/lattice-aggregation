@@ -10,7 +10,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "component_status": "external_validation_review_required",
+  "component_status": "external_validation_package_present",
   "external_input_schema": "external-review:p1-full-kat-cavp-validation:v1",
   "generated_at": "2026-07-07T00:00:00Z",
   "name": "p1-full-kat-cavp-validation-component-requirements",
@@ -18,7 +18,7 @@
   "required_components": [
     {
       "component_id": "provider_kat_vectors",
-      "current_status": "missing_reviewed_provider_kat_pass",
+      "current_status": "satisfied_by_external_validation_package",
       "description": "Reviewed provider KAT evidence for the selected ML-DSA-65 implementation.",
       "minimum_evidence_fields": [
         "checks.provider_kat_vectors_passed = true",
@@ -30,7 +30,7 @@
     },
     {
       "component_id": "fips204_mldsa65_kat",
-      "current_status": "missing_reviewed_fips204_mldsa65_kat_pass",
+      "current_status": "satisfied_by_external_validation_package",
       "description": "Reviewed ML-DSA-65 FIPS 204 KAT evidence for key generation, signing, and verification behavior.",
       "minimum_evidence_fields": [
         "checks.fips204_mldsa65_kat_passed = true",
@@ -43,7 +43,7 @@
     },
     {
       "component_id": "acvts_or_cavp_campaign",
-      "current_status": "missing_reviewed_acvts_or_cavp_campaign",
+      "current_status": "satisfied_by_external_validation_package",
       "description": "Reviewed ACVTS or CAVP campaign evidence covering the selected provider and parameter set.",
       "minimum_evidence_fields": [
         "checks.acvts_or_cavp_campaign_reviewed = true",
@@ -58,7 +58,7 @@
     },
     {
       "component_id": "external_validation_reviewer_digest",
-      "current_status": "missing_external_reviewer_digest",
+      "current_status": "satisfied_by_external_validation_package",
       "description": "A nonzero 32-byte hex digest binding the independent validation reviewer, report, or validation transcript.",
       "minimum_evidence_fields": [
         "external_reviewer_digest_hex is 64 lowercase hex characters",

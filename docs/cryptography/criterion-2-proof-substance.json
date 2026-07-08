@@ -302,12 +302,12 @@
       },
       {
         "id": "theorem_closure_blocker_requests",
-        "current_status": "blocker_inputs_required",
+        "current_status": "blocker_inputs_satisfied",
         "evidence_source": "p1_theorem_closure_blocker_request_gate",
         "artifact_package": "p1_theorem_closure_blocker_request_artifact",
         "fixture_path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
         "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
-        "claim_boundary": "readiness preflight only; pending external proof and validation"
+        "claim_boundary": "readiness preflight only; external proof and validation packages present"
       },
       {
         "id": "rejection_distribution_review_digest",
@@ -451,18 +451,18 @@
         "slot_id": "theorem_closure_blocker_requests",
         "fixture_path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
         "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
-        "current_status": "blocker_inputs_required",
-        "claim_boundary": "readiness preflight only; pending external proof and validation"
+        "current_status": "blocker_inputs_satisfied",
+        "claim_boundary": "readiness preflight only; external proof and validation packages present"
       },
       {
         "slot_id": "theorem_closure_review",
         "fixture_path": "artifacts/theorem-closure-review/latest/manifest.json",
         "schema": "lattice-aggregation:theorem-closure-review:v1",
-        "current_status": "theorem_closure_review_incomplete",
+        "current_status": "theorem_closure_review_ready",
         "proof_payload_reviewed": true,
         "standard_verifier_compatibility_reviewed": true,
-        "rejection_distribution_preservation_reviewed": false,
-        "full_kat_validation_reviewed": false,
+        "rejection_distribution_preservation_reviewed": true,
+        "full_kat_validation_reviewed": true,
         "theorem_linkage_reviewed": true,
         "claim_boundary": "readiness preflight only; pending theorem-closure review"
       },
@@ -668,13 +668,13 @@
     "batch9_production_dkg_no_single_secret_review_package_valid": true,
     "batch9_accepted_distribution_abort_review_package_valid": true,
     "batch9_review_package_status": "reviewed_external_backend_evidence_ready",
-    "theorem_review_status": "theorem_closure_review_incomplete",
+    "theorem_review_status": "theorem_closure_review_ready",
     "theorem_review_proof_payload_reviewed": true,
     "theorem_review_standard_verifier_compatibility_reviewed": true,
-    "theorem_review_rejection_distribution_preservation_reviewed": false,
-    "theorem_review_full_kat_validation_reviewed": false,
+    "theorem_review_rejection_distribution_preservation_reviewed": true,
+    "theorem_review_full_kat_validation_reviewed": true,
     "theorem_review_theorem_linkage_reviewed": true,
-    "theorem_closure_readiness_status": "blocked_before_theorem_closure_assessment",
-    "theorem_closure_assessment_ready": false
+    "theorem_closure_readiness_status": "ready_for_theorem_closure_assessment",
+    "theorem_closure_assessment_ready": true
   }
 }

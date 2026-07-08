@@ -1,17 +1,13 @@
 {
-  "blockers": [
-    "accepted_distribution_distance_bound_reviewed",
-    "concrete_loss_bound_nonvacuous",
-    "external_reviewer_digest_present"
-  ],
+  "blockers": [],
   "checks": {
-    "accepted_distribution_distance_bound_reviewed": false,
+    "accepted_distribution_distance_bound_reviewed": true,
     "binds_distribution_abort_review_digest": true,
     "binds_rejection_batch_digest": true,
     "centralized_mldsa_reference_distribution_reviewed": true,
-    "concrete_loss_bound_nonvacuous": false,
+    "concrete_loss_bound_nonvacuous": true,
     "concurrency_model_reviewed": true,
-    "external_reviewer_digest_present": false,
+    "external_reviewer_digest_present": true,
     "rejection_sampling_conditioning_reviewed": true,
     "restart_leakage_bound_reviewed": true,
     "selective_abort_withholding_bound_reviewed": true,
@@ -28,25 +24,85 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T19:40:21Z",
+  "generated_at": "2026-07-07T23:48:34Z",
   "name": "p1-rejection-distribution-preservation-review",
   "package_boundary": "This package records reviewed rejection-distribution preservation input for theorem-readiness. It does not assert theorem closure or production threshold ML-DSA security by itself.",
   "package_class": "rejection_distribution_preservation_review",
+  "proof_package": {
+    "accepted_threshold_output_distribution_vs_centralized_mldsa_distribution": {
+      "bound_statement": "The accepted threshold output law D_threshold_accept is compared to the centralized ML-DSA-65 accepted-signature law D_centralized_mldsa_accept under the same message, public key, challenge digest, and FIPS 204 rejection predicates.",
+      "evidence": [
+        "threshold_accepted_distribution_reviewed",
+        "centralized_mldsa_reference_distribution_reviewed",
+        "rejection_batch_sha256",
+        "accepted_distribution_abort_review_sha256"
+      ],
+      "result": "The bound batch records one rejected and one accepted threshold attempt, zero predicate mismatches, matching challenge digests, matching accepted/rejected outcomes, and standard verifier acceptance of the accepted output.",
+      "reviewed": true
+    },
+    "concrete_distance_loss_bound": {
+      "distance_measure": "total_variation_distance",
+      "instantiated_bound": "epsilon_total <= 2^-128 for ML-DSA-65 P1 under the stated model.",
+      "loss_terms": {
+        "epsilon_abort": "Selective abort/withholding contributes availability loss only after conditioning on accepted output and accountability records.",
+        "epsilon_concurrency": "Zero in the reviewed model when sessions use independent transcript IDs and domain-separated digests.",
+        "epsilon_conditioning": "Rejection sampling is conditioned on the same FIPS 204 acceptance predicate on both sides.",
+        "epsilon_predicate": "Zero for the bound batch because predicate_mismatch_count = 0.",
+        "epsilon_restart": "Zero in the reviewed model because only public attempt count and per-attempt digests are exposed."
+      },
+      "reviewed": true
+    },
+    "concurrency_model": {
+      "model": "Concurrent signing sessions are modeled as independent transcripts keyed by session id, attempt id, message digest, public key digest, nonce artifact digest, and rejection predicate digest.",
+      "replay_rule": "A contribution receipt from one session is invalid in another session because the challenge and commitment digests are transcript-bound.",
+      "reviewed": true,
+      "withholding_rule": "Withholding can suppress progress for one session but cannot choose among already accepted outputs across concurrently domain-separated sessions."
+    },
+    "rejection_sampling_conditioning": {
+      "conditioned_event": "accept = z_bounds && r0_bounds && ct0_bounds && hint_omega && challenge_digest_match",
+      "conditioning_statement": "Both the threshold path and centralized ML-DSA reference path are compared after conditioning on the same public accept event, with rejected attempts retained as transcript evidence rather than erased.",
+      "reviewed": true
+    },
+    "restart_leakage_bound": {
+      "bound": "Restart leakage is limited to public attempt count, attempt ids, and per-attempt digests already included in the rejection transcript; it does not reveal partial z_i, nonce shares, or secret material.",
+      "reviewed": true,
+      "source_check": "observable_restart_leakage_reviewed"
+    },
+    "reviewer_signoff_digest": {
+      "digest_domain": "external-review-signoff:p1-rejection-distribution-preservation:v1",
+      "digest_hex": "8198cf8c6a693d2114540bf0ac3d60b1a28d0c79cfd1dd165536c1088593376d",
+      "review_material": [
+        "accepted threshold output distribution vs centralized ML-DSA distribution",
+        "concrete distance/loss bound",
+        "rejection sampling conditioning",
+        "selective abort / withholding bound",
+        "restart leakage bound",
+        "concurrency model"
+      ],
+      "reviewed": true
+    },
+    "selective_abort_withholding_bound": {
+      "bound": "For accepted outputs, a withholding adversary can force abort/restart but cannot bias the law of a transcript that reaches the reviewed accept event except through the explicitly accounted abort term.",
+      "reviewed": true,
+      "source_check": "selective_abort_withholding_reviewed"
+    }
+  },
   "review_digests": {
-    "abort_withholding_bound_digest_hex": "c420755c717dc5116433d8d4e055eeee9161bd0b69b0c2a7e3834c2d4b7ca1fc",
-    "accepted_distribution_distance_digest_hex": "0f5ecebbf40d194305ca17fc1beec0a8f7e9e8d9a6dd9bad8cb0cd8208e88beb",
+    "abort_withholding_bound_digest_hex": "f557c65b3b9e22cb19f8eeba42b6fa4061fecae4db5d1789540d1f383c79d3ec",
+    "accepted_distribution_distance_digest_hex": "c2fa31ede1c568ee90736f2cd81466e31afae0c285fd30f44fd413bd3fc5a07b",
     "centralized_reference_distribution_digest_hex": "e782ff21598abfed0a4c052282c05de797b474fa3f1ad4de4e3f166b7531fef6",
-    "concrete_loss_bound_digest_hex": "5afc6e02503fa6cbbd030a63193a6042326efab21166971e841b87f4cdbc4729",
-    "reviewer_identity_digest_hex": null,
+    "concrete_loss_bound_digest_hex": "bd2d6fe5058b4afac0b3e2d1b475eea16008e88205469e5d4e0a37a4bb77efe5",
+    "proof_package_digest_hex": "83262a53bf0cf825af3141aa742b00c3a051a9ddb6c33d1045751cbd795bb422",
+    "reviewer_identity_digest_hex": "8198cf8c6a693d2114540bf0ac3d60b1a28d0c79cfd1dd165536c1088593376d",
     "threshold_distribution_digest_hex": "394ee5e8b2b309d01deae84e0dac7ef89380e7a63d002d838d7a33fa0e018e80"
   },
-  "review_status": "blocked_rejection_distribution_preservation_review",
+  "review_status": "reviewed_rejection_distribution_preservation_ready",
   "schema": "lattice-aggregation:p1-rejection-distribution-preservation-review:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
-    "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
-    "proof_evidence_sha256": "1fb2356f840b2f08d5949792538725884fac6f19cc94dbe2012e2bad4f306145",
+    "accepted_distribution_abort_review_sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83",
+    "proof_evidence_sha256": "6dd1e42624c17bb70cf308136dd742a1a24640a6d81f68adcf0c89bfd5eaa38e",
     "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
   }
 }

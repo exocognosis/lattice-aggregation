@@ -21,7 +21,7 @@ THEOREM_LINKAGE_READY = "reviewed_theorem_linkage_ready"
 DISTRIBUTION_ABORT_SCHEMA = "lattice-aggregation:p1-accepted-distribution-abort-review:v1"
 DISTRIBUTION_ABORT_READY = "reviewed_distribution_abort_ready"
 BLOCKER_REQUESTS_SCHEMA = "lattice-aggregation:theorem-closure-blocker-requests:v1"
-BLOCKER_REQUESTS_READY = "blocker_inputs_required"
+BLOCKER_REQUESTS_READY = "blocker_inputs_satisfied"
 REJECTION_DISTRIBUTION_PACKAGE_SCHEMA = (
     "lattice-aggregation:p1-rejection-distribution-preservation-review:v1"
 )
@@ -376,7 +376,7 @@ def blocker_request_checks(blocker_requests):
         "claim_boundary_preserved": (
             blocker_requests.get("selected_profile") == SELECTED_PROFILE
             and blocker_requests.get("claim_boundary")
-            == "readiness preflight only; pending external proof and validation"
+            == "readiness preflight only; external proof and validation packages present"
         ),
         "required_packages_present": (
             isinstance(required_packages, dict)

@@ -41,6 +41,8 @@ REQUIRED_CHECKS = (
     "external_reviewer_digest_present",
 )
 
+REQUIRED_CAMPAIGN_MODES = ("keyGen", "sigGen", "sigVer")
+
 
 def canonical_json(data):
     """Render stable pretty JSON with a trailing newline."""
@@ -125,6 +127,73 @@ def is_digest(value):
     return True
 
 
+def validation_package_section(validation_evidence, section_key):
+    """Return a structured validation package section, or an empty dict."""
+    if not isinstance(validation_evidence, dict):
+        return {}
+    validation_package = validation_evidence.get("validation_package", {})
+    if not isinstance(validation_package, dict):
+        return {}
+    section = validation_package.get(section_key, {})
+    return section if isinstance(section, dict) else {}
+
+
+def reviewed_passed_section(validation_evidence, section_key):
+    """Return true when a validation package section is reviewed and passed."""
+    section = validation_package_section(validation_evidence, section_key)
+    return section.get("reviewed") is True and section.get("passed") is True
+
+
+def campaign_modes_cover(campaign):
+    """Return true when the campaign covers keyGen, sigGen, and sigVer."""
+    modes = campaign.get("modes", []) if isinstance(campaign, dict) else []
+    return all(mode in modes for mode in REQUIRED_CAMPAIGN_MODES)
+
+
+def campaign_transcript_or_lab_equivalent(validation_evidence):
+    """Return true when ACVTS/CAVP transcript evidence or lab equivalent exists."""
+    if not isinstance(validation_evidence, dict):
+        return False
+    campaign = validation_evidence.get("campaign", {})
+    section = validation_package_section(
+        validation_evidence,
+        "acvts_cavp_campaign_transcript",
+    )
+    return (
+        section.get("reviewed") is True
+        and (
+            is_digest(section.get("transcript_digest_hex"))
+            or is_digest(campaign.get("transcript_digest_hex"))
+            or campaign.get("official_cavp_certificate_present") is True
+            or campaign.get("lab_reviewed_equivalent") is True
+        )
+    )
+
+
+def keygen_siggen_sigver_coverage_reviewed(validation_evidence):
+    """Return true when keyGen, sigGen, and sigVer coverage is reviewed."""
+    section = validation_package_section(
+        validation_evidence,
+        "keygen_siggen_sigver_coverage",
+    )
+    return (
+        section.get("reviewed") is True
+        and section.get("keyGen") is True
+        and section.get("sigGen") is True
+        and section.get("sigVer") is True
+    )
+
+
+def reviewer_signoff_section_matches(validation_evidence, reviewer_digest):
+    """Return true when the validation package binds reviewer signoff digest."""
+    section = validation_package_section(validation_evidence, "reviewer_signoff_digest")
+    return (
+        section.get("reviewed") is True
+        and section.get("digest_hex") == reviewer_digest
+        and is_digest(reviewer_digest)
+    )
+
+
 def hex_len(hex_value):
     """Return decoded hex length, or -1 for invalid hex."""
     if not isinstance(hex_value, str):
@@ -176,22 +245,37 @@ def validation_checks(
         if isinstance(validation_evidence, dict)
         else None
     )
+    campaign = (
+        validation_evidence.get("campaign", {})
+        if isinstance(validation_evidence, dict)
+        else {}
+    )
     return {
         "provider_kat_vectors_passed": (
             evidence_schema_valid
             and evidence_checks.get("provider_kat_vectors_passed") is True
+            and reviewed_passed_section(validation_evidence, "provider_kat_vectors")
         ),
         "fips204_mldsa65_kat_passed": (
             evidence_schema_valid
             and evidence_checks.get("fips204_mldsa65_kat_passed") is True
+            and reviewed_passed_section(
+                validation_evidence,
+                "fips204_mldsa65_kat_vectors",
+            )
+            and campaign.get("parameter_set") == "ML-DSA-65"
+            and campaign.get("revision") == "FIPS204"
         ),
         "acvts_or_cavp_campaign_reviewed": (
             evidence_schema_valid
             and evidence_checks.get("acvts_or_cavp_campaign_reviewed") is True
+            and campaign_modes_cover(campaign)
+            and campaign_transcript_or_lab_equivalent(validation_evidence)
         ),
         "signing_verification_vectors_reviewed": (
             evidence_schema_valid
             and evidence_checks.get("signing_verification_vectors_reviewed") is True
+            and keygen_siggen_sigver_coverage_reviewed(validation_evidence)
             and vector_checks["standard_verifier_accepts"]
         ),
         "mutation_negative_vectors_reviewed": (
@@ -223,7 +307,10 @@ def validation_checks(
             == backend_manifest_sha256
         )
         or validation_evidence is None,
-        "external_reviewer_digest_present": is_digest(reviewer_digest),
+        "external_reviewer_digest_present": reviewer_signoff_section_matches(
+            validation_evidence,
+            reviewer_digest,
+        ),
     }
 
 
@@ -269,6 +356,11 @@ def build_report(
         "validation_evidence": validation_evidence,
         "checks": checks,
     }
+    validation_package = (
+        validation_evidence.get("validation_package", {})
+        if isinstance(validation_evidence, dict)
+        else {}
+    )
     manifest = {
         "schema": SCHEMA,
         "schema_version": 1,
@@ -281,6 +373,7 @@ def build_report(
         "checks": checks,
         "blockers": blockers,
         "source_inputs": source_inputs,
+        "validation_package": validation_package,
         "review_digests": {
             "provider_kat_review_digest_hex": digest_json(
                 "provider_kat_review",
@@ -291,6 +384,10 @@ def build_report(
                 validation_evidence.get("campaign", {})
                 if isinstance(validation_evidence, dict)
                 else {},
+            ),
+            "validation_package_digest_hex": digest_json(
+                "validation_package",
+                validation_package,
             ),
             "implementation_digest_hex": (
                 validation_evidence.get("implementation_digest_sha256")
@@ -317,6 +414,7 @@ def build_report(
 
 def render_summary(manifest):
     """Render a concise package summary."""
+    validation_package = manifest.get("validation_package", {})
     lines = [
         "# P1 Full KAT/CAVP Validation Review",
         "",
@@ -334,6 +432,24 @@ def render_summary(manifest):
     if manifest["blockers"]:
         for blocker in manifest["blockers"]:
             lines.append(f"- `{blocker}`")
+    else:
+        lines.append("- none")
+    lines.extend(["", "Validation package:"])
+    if isinstance(validation_package, dict) and validation_package:
+        for name in sorted(validation_package):
+            section = validation_package[name]
+            reviewed = (
+                section.get("reviewed")
+                if isinstance(section, dict)
+                else False
+            )
+            if name == "reviewer_signoff_digest" and isinstance(section, dict):
+                lines.append(
+                    f"- `{name}`: `reviewed={str(reviewed).lower()}`, "
+                    f"digest `{section.get('digest_hex')}`"
+                )
+            else:
+                lines.append(f"- `{name}`: `reviewed={str(reviewed).lower()}`")
     else:
         lines.append("- none")
     lines.append("")

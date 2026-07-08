@@ -13,7 +13,8 @@ SCHEMA = "lattice-aggregation:theorem-closure-blocker-requests:v1"
 NAME = "theorem-closure-blocker-requests-v1"
 CLAIM_BOUNDARY = "readiness preflight only; pending external proof and validation"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
-REQUEST_STATUS = "blocker_inputs_required"
+REQUEST_STATUS_REQUIRED = "blocker_inputs_required"
+REQUEST_STATUS_SATISFIED = "blocker_inputs_satisfied"
 REJECTION_PACKAGE_SCHEMA = (
     "lattice-aggregation:p1-rejection-distribution-preservation-review:v1"
 )
@@ -88,6 +89,14 @@ def input_record(path):
     }
 
 
+def load_json_if_present(path):
+    """Load JSON from a path when present and well-formed."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def false_claim_flags():
     """Return all theorem/security claim flags pinned false."""
     return {key: False for key in CLAIM_FLAG_KEYS}
@@ -131,9 +140,20 @@ def default_out(root):
     return Path(root) / "artifacts/theorem-closure-blocker-requests/latest"
 
 
-def package_status(path, missing_status):
-    """Report whether a requested package already exists."""
-    return "candidate_package_present_pending_review" if Path(path).is_file() else missing_status
+def package_status(path, missing_status, schema, ready_status, required_checks, source_inputs):
+    """Report whether a requested package already satisfies its ready contract."""
+    package = load_json_if_present(path)
+    if package is None:
+        return missing_status
+    checks = package.get("checks", {})
+    observed_sources = package.get("source_inputs", {})
+    ready = (
+        package.get("schema") == schema
+        and package.get("review_status") == ready_status
+        and all(checks.get(check) is True for check in required_checks)
+        and all(observed_sources.get(key) == value for key, value in source_inputs.items())
+    )
+    return "package_ready" if ready else "candidate_package_present_pending_review"
 
 
 def build_required_packages(
@@ -149,6 +169,14 @@ def build_required_packages(
     distribution_abort_sha256 = sha256_path(distribution_abort_review_path)
     backend_manifest_sha256 = sha256_path(backend_manifest_path)
     backend_capture_sha256 = sha256_path(backend_capture_path)
+    rejection_source_inputs = {
+        "rejection_batch_sha256": rejection_batch_sha256,
+        "accepted_distribution_abort_review_sha256": distribution_abort_sha256,
+    }
+    validation_source_inputs = {
+        "backend_capture_sha256": backend_capture_sha256,
+        "backend_manifest_sha256": backend_manifest_sha256,
+    }
     return {
         "rejection_distribution_preservation_review": {
             "schema": REJECTION_PACKAGE_SCHEMA,
@@ -158,14 +186,15 @@ def build_required_packages(
             "current_status": package_status(
                 rejection_package_path,
                 "required_external_proof_unavailable",
+                REJECTION_PACKAGE_SCHEMA,
+                REJECTION_PACKAGE_READY,
+                REJECTION_DISTRIBUTION_PACKAGE_CHECKS,
+                rejection_source_inputs,
             ),
             "satisfies_review_flag": "rejection_distribution_preservation_reviewed",
             "can_be_satisfied_from_current_repo": False,
             "required_checks": list(REJECTION_DISTRIBUTION_PACKAGE_CHECKS),
-            "required_source_inputs": {
-                "rejection_batch_sha256": rejection_batch_sha256,
-                "accepted_distribution_abort_review_sha256": distribution_abort_sha256,
-            },
+            "required_source_inputs": rejection_source_inputs,
             "required_claim_boundary": "conformance/proof-review evidence",
             "required_claim_flags": false_claim_flags(),
             "description": (
@@ -183,14 +212,15 @@ def build_required_packages(
             "current_status": package_status(
                 validation_package_path,
                 "required_external_validation_unavailable",
+                VALIDATION_PACKAGE_SCHEMA,
+                VALIDATION_PACKAGE_READY,
+                FULL_KAT_VALIDATION_PACKAGE_CHECKS,
+                validation_source_inputs,
             ),
             "satisfies_review_flag": "full_kat_validation_reviewed",
             "can_be_satisfied_from_current_repo": False,
             "required_checks": list(FULL_KAT_VALIDATION_PACKAGE_CHECKS),
-            "required_source_inputs": {
-                "backend_capture_sha256": backend_capture_sha256,
-                "backend_manifest_sha256": backend_manifest_sha256,
-            },
+            "required_source_inputs": validation_source_inputs,
             "required_claim_boundary": "conformance/proof-review evidence",
             "required_claim_flags": false_claim_flags(),
             "description": (
@@ -248,10 +278,24 @@ def build_report(
         rejection_package_path,
         validation_package_path,
     )
+    request_status = (
+        REQUEST_STATUS_SATISFIED
+        if all(
+            package.get("current_status") == "package_ready"
+            for package in required_packages.values()
+        )
+        else REQUEST_STATUS_REQUIRED
+    )
+    claim_boundary = (
+        "readiness preflight only; external proof and validation packages present"
+        if request_status == REQUEST_STATUS_SATISFIED
+        else CLAIM_BOUNDARY
+    )
     digest_material = {
         "schema": SCHEMA,
         "name": NAME,
         "selected_profile": SELECTED_PROFILE,
+        "request_status": request_status,
         "required_packages": required_packages,
         "inputs": inputs,
         "claim_flags": false_claim_flags(),
@@ -262,16 +306,16 @@ def build_report(
         "name": NAME,
         "generated_at": generated_at,
         "selected_profile": SELECTED_PROFILE,
-        "claim_boundary": CLAIM_BOUNDARY,
-        "request_status": REQUEST_STATUS,
+        "claim_boundary": claim_boundary,
+        "request_status": request_status,
         "required_packages": required_packages,
         "claim_flags": false_claim_flags(),
         "inputs": inputs,
         "request_digest_sha256": sha256_text(canonical_json(digest_material)),
         "request_boundary": (
             "This artifact defines the exact externally reviewed proof and "
-            "validation packages required to satisfy the remaining theorem-review "
-            "flags. It does not assert theorem closure or validation."
+            "validation packages required by theorem-review flags. It does not "
+            "assert theorem closure, CAVP/ACVTS certification, or FIPS validation."
         ),
     }
     contents = artifact_contents({"manifest": manifest, "summary_md": render_summary(manifest)})
@@ -287,8 +331,8 @@ def render_summary(manifest):
     lines = [
         "# Theorem Closure Blocker Requests",
         "",
-        "This artifact defines the remaining external proof and validation inputs "
-        "needed before theorem-closure assessment can become ready.",
+        "This artifact tracks the external proof and validation inputs required "
+        "before theorem-closure assessment can become ready.",
         "",
         f"- Request status: `{manifest['request_status']}`",
         f"- Claim boundary: `{manifest['claim_boundary']}`",

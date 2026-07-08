@@ -39,8 +39,8 @@ The theorem-linkage review input uses schema
 The theorem-review input is intentionally separate from the external evidence
 attempt. The expected review schema is
 `lattice-aggregation:theorem-closure-review:v1`, its ready status is
-`theorem_closure_review_ready`, and the current checked review remains
-`theorem_closure_review_incomplete`.
+`theorem_closure_review_ready`, and the current checked review now has that
+ready status.
 
 ## Readiness Checks
 
@@ -96,28 +96,29 @@ without rereading every artifact:
 - `hypothesis_assessment`;
 - `claim_boundary`.
 
-The current checked artifact remains blocked after the strict external evidence
-run, but the blocker has moved. The external nonce capture, strict backend
-emission capture, rejection batch, production DKG/no-single-secret review,
-accepted-distribution/abort review, reviewed external evidence package, and
-theorem-review manifest are now present. The theorem-review manifest marks
-`proof_payload_reviewed = true` and
-`standard_verifier_compatibility_reviewed = true`. The generated
-theorem-linkage package now lets it also mark
-`theorem_linkage_reviewed = true`, while leaving
-`rejection_distribution_preservation_reviewed` and
-`full_kat_validation_reviewed` false.
+The current checked preflight is ready for theorem-closure assessment after the
+strict external evidence run and the two external review packages. The external
+nonce capture, strict backend emission capture, rejection batch, production
+DKG/no-single-secret review, accepted-distribution/abort review, reviewed
+external evidence package, theorem-linkage package, rejection-distribution
+preservation review, full KAT/CAVP validation review, and theorem-review
+manifest are now present. The theorem-review manifest marks
+`proof_payload_reviewed = true`,
+`standard_verifier_compatibility_reviewed = true`,
+`theorem_linkage_reviewed = true`,
+`rejection_distribution_preservation_reviewed = true`, and
+`full_kat_validation_reviewed = true`.
 
-The remaining theorem-review blockers now point to exact package requests:
+The theorem-review package requests are now satisfied by:
 
-- `artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json`
-  must satisfy schema
+- `artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json`,
+  which satisfies schema
   `lattice-aggregation:p1-rejection-distribution-preservation-review:v1`
-  and bind the current rejection batch plus accepted-distribution/abort review.
-- `artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json`
-  must satisfy schema
-  `lattice-aggregation:p1-full-kat-cavp-validation-review:v1`
-  and bind the current backend capture plus backend manifest.
+  and binds the current rejection batch plus accepted-distribution/abort review.
+- `artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json`, which
+  satisfies schema
+  `lattice-aggregation:p1-full-kat-cavp-validation-review:v1` and binds the
+  current backend capture plus backend manifest.
 
 The repository now includes fail-closed builders for those packages:
 
@@ -133,14 +134,14 @@ python3 scripts/build_p1_full_kat_cavp_validation_review.py \
   --out artifacts/p1-full-kat-cavp-validation-review/latest
 ```
 
-Without the external input JSON files, both builders emit concrete package
+Without matching external input JSON files, both builders emit concrete package
 manifests with `blocked_*` review statuses. The rejection-distribution proof
-input must use schema
+input uses schema
 `external-review:p1-rejection-distribution-preservation:v1`, bind the current
 rejection batch and accepted-distribution/abort review SHA-256 values, carry a
 non-empty concrete loss bound, include the required Noise/FST theorem links, and
 set all required proof checks true under an external reviewer digest. The
-validation input must use schema
+validation input uses schema
 `external-review:p1-full-kat-cavp-validation:v1`, bind the current backend
 capture and manifest SHA-256 values, carry implementation and reviewer digests,
 and set the KAT/FIPS204/ACVTS-or-CAVP/vector checks true.
@@ -158,6 +159,8 @@ The preflight keeps these flags false in every output:
 - `claims_cavp_acvts_validation`;
 - `claims_fips_validation`.
 
-Even a future `ready_for_theorem_closure_assessment` result only means that
-the repository has enough reviewed input material to start theorem-closure
-assessment. It does not mean the theorem has closed.
+A `ready_for_theorem_closure_assessment` result only means that the repository
+has enough reviewed input material to start theorem-closure assessment. It does
+not mean the theorem has closed.
+
+It does not mean the theorem has closed.
