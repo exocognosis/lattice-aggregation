@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
-Branch: `main`
-Commit: `0f4cdc68b3704365a95de9c5350a26a9756232a1`
+Branch: `chore/gitignore-hardening`
+Commit: `f0aefc38f3eb926f15979a29153713370baff5a9`
 
 ## Testing Statement
 
@@ -166,4 +166,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 
 ## Command Summary
 
-Commands were skipped.
+Passed: 11; failed: 0; all passed: `True`.
+- Cargo scaffold checks completed
+- Simulation harness emitted duration, abort, and bandwidth telemetry.
+- Rust test output reported passing test suites.

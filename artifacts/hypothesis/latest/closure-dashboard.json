@@ -1,7 +1,7 @@
 {
-  "branch": "main",
+  "branch": "chore/gitignore-hardening",
   "claim_boundary": "closure-run implementation track",
-  "commit": "0f4cdc68b3704365a95de9c5350a26a9756232a1",
+  "commit": "f0aefc38f3eb926f15979a29153713370baff5a9",
   "criteria": [
     {
       "blocker_count": 2,

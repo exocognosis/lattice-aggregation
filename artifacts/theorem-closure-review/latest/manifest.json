@@ -97,12 +97,12 @@
       "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-08T00:04:11Z",
+  "generated_at": "2026-07-08T14:23:02Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83"
+      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
     },
     "backend_capture": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
@@ -117,12 +117,12 @@
     "blocker_closure_requests": {
       "path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
       "present": true,
-      "sha256": "9707d04507903bd8090e8cf6cbe495aa4e1d45c3ac2ddce6053f38d362804997"
+      "sha256": "cd52be6ec8969ec91f091c030031920e07d516a80b033e905162dd9181f81340"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "4df16220a032eccd693fd1b064640c62b58d60517b6c09d3f471669c05bd23ce"
+      "sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3"
     },
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
@@ -132,7 +132,7 @@
     "external_attempt": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "b498394c90f5a1fc5f17b5b122f8a7ce13c7e9e66eb67738b326fae09e55fb11"
+      "sha256": "284cd6f074327bbc3aa88f43dd2b249d9c46bbb95ae0e271300e41ad7982a8c9"
     },
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
@@ -147,7 +147,7 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "296a6da51f7a97e606f01312f15d1f88931bcbbb03af6cf7e39ebbe65d16b0a6"
+      "sha256": "e883c1375adb8c9aa53e5ff553b10b288a58b70a32ab94852465a56be896fe89"
     },
     "theorem_linkage_review": {
       "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
@@ -156,7 +156,7 @@
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "bb61d2b10842764aa07a0ca9afceb925e2352897f300b6ddb69f458309f0dce1",
+  "review_digest_sha256": "c4aa7ed8b1675b39f17eca297834ecad058ead4f3c92fb17ef5b3253f45be5f4",
   "review_flags": {
     "full_kat_validation_reviewed": true,
     "proof_payload_reviewed": true,

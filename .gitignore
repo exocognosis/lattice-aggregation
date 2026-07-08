@@ -9,10 +9,18 @@
 !/artifacts/hypothesis/latest/closure-dashboard.md
 /artifacts/benchmarks/
 /artifacts/localnet/
+/dist/
 **/*.rs.bk
+**/__pycache__/
+*.py[cod]
 .DS_Store
 *.swp
 *.swo
 .env
 .env.*
 !.env.example
+
+# macOS / sync-tool conflict copies (e.g. "AUTHORS 2.md", "one-pager 2.md")
+* [0-9].*
+* [0-9][0-9].*
+*(conflicted copy*).*
