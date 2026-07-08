@@ -173,7 +173,7 @@ const PROOF_DOC_ANCHORS: &[(&str, &[&str])] = &[
             "reviewed_external_backend_evidence_ready",
             "outside_repo_review_manifest",
             "review_package_binds_inputs",
-            "theorem_closure_review_incomplete",
+            "theorem_closure_review_ready",
             "Mldsa65DistributedNonceProducerArtifact",
             "derive_p1_distributed_nonce_producer_artifact_package_from_backend_output",
             "derive_p1_distributed_nonce_producer_artifact_package_from_capture",

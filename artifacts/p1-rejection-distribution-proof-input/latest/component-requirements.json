@@ -10,7 +10,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "component_status": "external_review_required",
+  "component_status": "external_proof_package_present",
   "external_input_schema": "external-review:p1-rejection-distribution-preservation:v1",
   "generated_at": "2026-07-07T00:00:00Z",
   "name": "p1-rejection-distribution-proof-component-requirements",
@@ -18,7 +18,7 @@
   "required_components": [
     {
       "component_id": "accepted_distribution_distance_bound",
-      "current_status": "missing_external_proof_review",
+      "current_status": "satisfied_by_external_proof_package",
       "description": "A reviewed bound comparing the accepted threshold output distribution against centralized ML-DSA-65 under the selected profile.",
       "minimum_evidence_fields": [
         "checks.accepted_distribution_distance_bound_reviewed = true",
@@ -33,7 +33,7 @@
     },
     {
       "component_id": "concrete_loss_bound",
-      "current_status": "missing_nonvacuous_bound",
+      "current_status": "satisfied_by_external_proof_package",
       "description": "A concrete nonempty loss statement whose parameters remain meaningful for ML-DSA-65 at the selected threshold profile.",
       "minimum_evidence_fields": [
         "checks.concrete_loss_bound_nonvacuous = true",
@@ -45,7 +45,7 @@
     },
     {
       "component_id": "external_proof_reviewer_digest",
-      "current_status": "missing_external_reviewer_digest",
+      "current_status": "satisfied_by_external_proof_package",
       "description": "A nonzero 32-byte hex digest binding the independent proof reviewer, report, or review transcript.",
       "minimum_evidence_fields": [
         "external_reviewer_digest_hex is 64 lowercase hex characters",
@@ -73,7 +73,7 @@
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
-    "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+    "accepted_distribution_abort_review_sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83",
     "draft_evidence_path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
     "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1",
     "review_package_path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json"

@@ -192,7 +192,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
             .find(|(expected_slot, _, _)| expected_slot == &slot_id)
         {
             let expected_status = if slot_id == "theorem_closure_blocker_requests" {
-                "blocker_inputs_required"
+                "blocker_inputs_satisfied"
             } else {
                 "evidence_present_unclosed"
             };
@@ -304,7 +304,7 @@ fn criterion2_manifest_pins_required_artifact_slots() {
                 assert_eq!(slot["claims_selected_backend_proof_closure"], false);
             }
             let expected_boundary = if slot_id == "theorem_closure_blocker_requests" {
-                "readiness preflight only; pending external proof and validation"
+                "readiness preflight only; external proof and validation packages present"
             } else {
                 "conformance/proof-review evidence"
             };
@@ -511,11 +511,11 @@ fn criterion2_manifest_links_repo_evidence_pipeline_and_capture_provenance() {
     assert_eq!(pipeline["claim_boundary"], "research scaffold evidence");
     assert_eq!(
         manifest["assessment"]["theorem_closure_readiness_status"],
-        "blocked_before_theorem_closure_assessment"
+        "ready_for_theorem_closure_assessment"
     );
     assert_eq!(
         manifest["assessment"]["theorem_closure_assessment_ready"],
-        false
+        true
     );
     for artifact in [
         "artifacts/hypothesis/latest/assessment.json",
@@ -654,7 +654,7 @@ fn criterion2_manifest_links_checked_fixture_refs() {
             "theorem_closure_blocker_requests",
             "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
             "lattice-aggregation:theorem-closure-blocker-requests:v1",
-            "blocker_inputs_required",
+            "blocker_inputs_satisfied",
         ),
         (
             "rejection_distribution_review_digest",
@@ -686,7 +686,7 @@ fn criterion2_manifest_links_checked_fixture_refs() {
         assert_eq!(fixture_ref["fixture_path"], fixture_path);
         assert_eq!(fixture_ref["schema"], schema);
         let expected_boundary = if slot_id == "theorem_closure_blocker_requests" {
-            "readiness preflight only; pending external proof and validation"
+            "readiness preflight only; external proof and validation packages present"
         } else {
             "conformance/proof-review evidence"
         };

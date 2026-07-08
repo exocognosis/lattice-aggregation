@@ -2079,7 +2079,7 @@ class ReportGenerationTests(unittest.TestCase):
             "external_evidence_close_candidate_ready, "
             "source_exclusion_passed, "
             "scripts/build_theorem_closure_review_manifest.py, "
-            "theorem_closure_review_incomplete, "
+            "theorem_closure_review_ready, "
             "distributed_nonce_producer_artifact_digest, "
             "p1_criterion2_distributed_nonce_producer_artifact_gate, "
             "hazmat PRF-output oracle, "
@@ -2305,7 +2305,7 @@ class ReportGenerationTests(unittest.TestCase):
             if slot == "theorem_closure_blocker_requests":
                 return {
                     "id": slot,
-                    "current_status": "blocker_inputs_required",
+                    "current_status": "blocker_inputs_satisfied",
                     "evidence_source": evidence_sources[slot],
                     "artifact_package": artifact_packages[slot],
                     "fixture_path": (
@@ -2316,8 +2316,8 @@ class ReportGenerationTests(unittest.TestCase):
                         "lattice-aggregation:theorem-closure-blocker-requests:v1"
                     ),
                     "claim_boundary": (
-                        "readiness preflight only; pending external proof "
-                        "and validation"
+                        "readiness preflight only; external proof and "
+                        "validation packages present"
                     ),
                 }
             return {
@@ -2628,10 +2628,10 @@ class ReportGenerationTests(unittest.TestCase):
                             "lattice-aggregation:theorem-closure-blocker-"
                             "requests:v1"
                         ),
-                        "current_status": "blocker_inputs_required",
+                        "current_status": "blocker_inputs_satisfied",
                         "claim_boundary": (
-                            "readiness preflight only; pending external proof "
-                            "and validation"
+                            "readiness preflight only; external proof and "
+                            "validation packages present"
                         ),
                     },
                     {
@@ -2642,11 +2642,11 @@ class ReportGenerationTests(unittest.TestCase):
                         "schema": (
                             "lattice-aggregation:theorem-closure-review:v1"
                         ),
-                        "current_status": "theorem_closure_review_incomplete",
+                        "current_status": "theorem_closure_review_ready",
                         "proof_payload_reviewed": True,
                         "standard_verifier_compatibility_reviewed": True,
-                        "rejection_distribution_preservation_reviewed": False,
-                        "full_kat_validation_reviewed": False,
+                        "rejection_distribution_preservation_reviewed": True,
+                        "full_kat_validation_reviewed": True,
                         "theorem_linkage_reviewed": True,
                         "claim_boundary": (
                             "readiness preflight only; pending theorem-closure review"

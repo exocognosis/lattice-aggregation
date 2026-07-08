@@ -49,6 +49,17 @@ REQUIRED_THEOREM_LINKS = (
     "FST-L7",
 )
 
+REQUIRED_PROOF_PACKAGE_SECTIONS = {
+    "accepted_distribution_distance_bound_reviewed": (
+        "accepted_threshold_output_distribution_vs_centralized_mldsa_distribution"
+    ),
+    "concrete_loss_bound_nonvacuous": "concrete_distance_loss_bound",
+    "rejection_sampling_conditioning_reviewed": "rejection_sampling_conditioning",
+    "selective_abort_withholding_bound_reviewed": "selective_abort_withholding_bound",
+    "restart_leakage_bound_reviewed": "restart_leakage_bound",
+    "concurrency_model_reviewed": "concurrency_model",
+}
+
 
 def canonical_json(data):
     """Render stable pretty JSON with a trailing newline."""
@@ -139,6 +150,48 @@ def is_digest(value):
     return True
 
 
+def nonempty_reviewed_section(proof_evidence, section_key):
+    """Return true when a proof-package section is present and reviewed."""
+    if not isinstance(proof_evidence, dict):
+        return False
+    proof_package = proof_evidence.get("proof_package", {})
+    if not isinstance(proof_package, dict):
+        return False
+    section = proof_package.get(section_key)
+    if not isinstance(section, dict) or not section:
+        return False
+    return section.get("reviewed") is True
+
+
+def reviewer_signoff_section_matches(proof_evidence, reviewer_digest):
+    """Return true when the proof package binds the reviewer signoff digest."""
+    if not isinstance(proof_evidence, dict):
+        return False
+    proof_package = proof_evidence.get("proof_package", {})
+    if not isinstance(proof_package, dict):
+        return False
+    section = proof_package.get("reviewer_signoff_digest")
+    if not isinstance(section, dict):
+        return False
+    return (
+        section.get("reviewed") is True
+        and section.get("digest_hex") == reviewer_digest
+        and is_digest(reviewer_digest)
+    )
+
+
+def concrete_loss_bound_present(proof_evidence):
+    """Return true when the concrete distance/loss bound is nonempty."""
+    if not isinstance(proof_evidence, dict):
+        return False
+    bound = proof_evidence.get("concrete_loss_bound")
+    if isinstance(bound, dict):
+        return bool(bound)
+    if isinstance(bound, str):
+        return bool(bound.strip())
+    return False
+
+
 def proof_checks(
     rejection_batch,
     distribution_abort_review,
@@ -170,6 +223,32 @@ def proof_checks(
         if isinstance(proof_evidence, dict)
         else None
     )
+    accepted_distribution_section = nonempty_reviewed_section(
+        proof_evidence,
+        REQUIRED_PROOF_PACKAGE_SECTIONS[
+            "accepted_distribution_distance_bound_reviewed"
+        ],
+    )
+    concrete_loss_section = nonempty_reviewed_section(
+        proof_evidence,
+        REQUIRED_PROOF_PACKAGE_SECTIONS["concrete_loss_bound_nonvacuous"],
+    )
+    rejection_conditioning_section = nonempty_reviewed_section(
+        proof_evidence,
+        REQUIRED_PROOF_PACKAGE_SECTIONS["rejection_sampling_conditioning_reviewed"],
+    )
+    selective_abort_section = nonempty_reviewed_section(
+        proof_evidence,
+        REQUIRED_PROOF_PACKAGE_SECTIONS["selective_abort_withholding_bound_reviewed"],
+    )
+    restart_leakage_section = nonempty_reviewed_section(
+        proof_evidence,
+        REQUIRED_PROOF_PACKAGE_SECTIONS["restart_leakage_bound_reviewed"],
+    )
+    concurrency_section = nonempty_reviewed_section(
+        proof_evidence,
+        REQUIRED_PROOF_PACKAGE_SECTIONS["concurrency_model_reviewed"],
+    )
     source_bound_rejection = (
         isinstance(proof_evidence, dict)
         and proof_evidence.get("rejection_batch_sha256") == rejection_batch_sha256
@@ -184,6 +263,7 @@ def proof_checks(
             proof_schema_valid
             and evidence_checks.get("accepted_distribution_distance_bound_reviewed")
             is True
+            and accepted_distribution_section
             and all(link in theorem_links for link in REQUIRED_THEOREM_LINKS)
         ),
         "threshold_accepted_distribution_reviewed": (
@@ -200,32 +280,40 @@ def proof_checks(
         "rejection_sampling_conditioning_reviewed": (
             proof_schema_valid
             and evidence_checks.get("rejection_sampling_conditioning_reviewed") is True
+            and rejection_conditioning_section
             and result.get("saw_threshold_rejected_attempt") is True
         ),
         "selective_abort_withholding_bound_reviewed": (
             proof_schema_valid
             and evidence_checks.get("selective_abort_withholding_bound_reviewed")
             is True
+            and selective_abort_section
             and distribution_checks.get("selective_abort_withholding_reviewed") is True
         ),
         "restart_leakage_bound_reviewed": (
             proof_schema_valid
             and evidence_checks.get("restart_leakage_bound_reviewed") is True
+            and restart_leakage_section
             and distribution_checks.get("observable_restart_leakage_reviewed") is True
         ),
         "concurrency_model_reviewed": (
             proof_schema_valid
             and evidence_checks.get("concurrency_model_reviewed") is True
+            and concurrency_section
             and distribution_checks.get("concurrent_session_abort_model_reviewed") is True
         ),
         "concrete_loss_bound_nonvacuous": (
             proof_schema_valid
             and evidence_checks.get("concrete_loss_bound_nonvacuous") is True
-            and bool(proof_evidence.get("concrete_loss_bound"))
+            and concrete_loss_section
+            and concrete_loss_bound_present(proof_evidence)
         ),
         "binds_rejection_batch_digest": source_bound_rejection,
         "binds_distribution_abort_review_digest": source_bound_distribution,
-        "external_reviewer_digest_present": is_digest(reviewer_digest),
+        "external_reviewer_digest_present": reviewer_signoff_section_matches(
+            proof_evidence,
+            reviewer_digest,
+        ),
     }
 
 
@@ -271,6 +359,9 @@ def build_report(
         "proof_evidence": proof_evidence,
         "checks": checks,
     }
+    proof_package = (
+        proof_evidence.get("proof_package", {}) if isinstance(proof_evidence, dict) else {}
+    )
     manifest = {
         "schema": SCHEMA,
         "schema_version": 1,
@@ -283,6 +374,7 @@ def build_report(
         "checks": checks,
         "blockers": blockers,
         "source_inputs": source_inputs,
+        "proof_package": proof_package,
         "review_digests": {
             "accepted_distribution_distance_digest_hex": digest_json(
                 "accepted_distribution_distance",
@@ -306,6 +398,10 @@ def build_report(
                 if isinstance(proof_evidence, dict)
                 else None,
             ),
+            "proof_package_digest_hex": digest_json(
+                "proof_package",
+                proof_package,
+            ),
             "reviewer_identity_digest_hex": (
                 proof_evidence.get("external_reviewer_digest_hex")
                 if isinstance(proof_evidence, dict)
@@ -324,6 +420,7 @@ def build_report(
 
 def render_summary(manifest):
     """Render a concise package summary."""
+    proof_package = manifest.get("proof_package", {})
     lines = [
         "# P1 Rejection-Distribution Preservation Review",
         "",
@@ -341,6 +438,24 @@ def render_summary(manifest):
     if manifest["blockers"]:
         for blocker in manifest["blockers"]:
             lines.append(f"- `{blocker}`")
+    else:
+        lines.append("- none")
+    lines.extend(["", "Proof package:"])
+    if isinstance(proof_package, dict) and proof_package:
+        for name in sorted(proof_package):
+            section = proof_package[name]
+            reviewed = (
+                section.get("reviewed")
+                if isinstance(section, dict)
+                else False
+            )
+            if name == "reviewer_signoff_digest" and isinstance(section, dict):
+                lines.append(
+                    f"- `{name}`: `reviewed={str(reviewed).lower()}`, "
+                    f"digest `{section.get('digest_hex')}`"
+                )
+            else:
+                lines.append(f"- `{name}`: `reviewed={str(reviewed).lower()}`")
     else:
         lines.append("- none")
     lines.append("")

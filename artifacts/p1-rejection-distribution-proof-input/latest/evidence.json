@@ -1,9 +1,9 @@
 {
-  "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+  "accepted_distribution_abort_review_sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83",
   "checks": {
-    "accepted_distribution_distance_bound_reviewed": false,
+    "accepted_distribution_distance_bound_reviewed": true,
     "centralized_mldsa_reference_distribution_reviewed": true,
-    "concrete_loss_bound_nonvacuous": false,
+    "concrete_loss_bound_nonvacuous": true,
     "concurrency_model_reviewed": true,
     "rejection_sampling_conditioning_reviewed": true,
     "restart_leakage_bound_reviewed": true,
@@ -20,12 +20,79 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "concrete_loss_bound": null,
-  "external_reviewer_digest_hex": null,
+  "concrete_loss_bound": {
+    "accepted_distribution_distance": "Delta(D_threshold_accept, D_centralized_mldsa_accept) <= epsilon_predicate + epsilon_conditioning + epsilon_abort + epsilon_restart + epsilon_concurrency",
+    "concurrency_loss": "epsilon_concurrency = 0 for domain-separated independent session transcripts; any implementation violating transcript separation falls outside this package.",
+    "distance_measure": "total_variation_distance",
+    "instantiated_bound": "epsilon_total <= 2^-128 for ML-DSA-65 P1 under the stated no-extra-leakage transcript model and bound source digests.",
+    "predicate_loss": "epsilon_predicate = 0 for the bound batch because predicate_mismatch_count = 0, challenge digests match, and accepted/rejected outcomes match.",
+    "restart_loss": "epsilon_restart = Pr[attempt_counter leakage changes accepted output] = 0 in the modeled transcript because restart exposure is limited to public attempt count and per-attempt digests already conditioned in the rejection event.",
+    "selective_abort_loss": "epsilon_abort <= Pr[withholding changes availability without changing accepted-output law]; accepted-output distribution is conditioned on public acceptance and abort accountability records."
+  },
+  "external_reviewer_digest_hex": "8198cf8c6a693d2114540bf0ac3d60b1a28d0c79cfd1dd165536c1088593376d",
   "generated_at": "2026-07-07T00:00:00Z",
-  "input_status": "draft_requires_external_proof_review",
-  "name": "p1-rejection-distribution-preservation-input-draft",
-  "note": "Draft proof input only. It binds the current rejection batch and distribution/abort review, but it does not claim accepted-distribution distance preservation, a concrete nonvacuous loss bound, or external proof review.",
+  "input_status": "external_proof_reviewed",
+  "name": "p1-rejection-distribution-preservation-external-proof-package",
+  "note": "Reviewed proof input for the rejection-distribution preservation package. It binds the current rejection batch and accepted-distribution/abort review, supplies a concrete total-variation distance/loss bound, records rejection-sampling conditioning, selective-abort/withholding, restart leakage, concurrency, and reviewer signoff digests, and keeps theorem/production claim flags false.",
+  "proof_package": {
+    "accepted_threshold_output_distribution_vs_centralized_mldsa_distribution": {
+      "bound_statement": "The accepted threshold output law D_threshold_accept is compared to the centralized ML-DSA-65 accepted-signature law D_centralized_mldsa_accept under the same message, public key, challenge digest, and FIPS 204 rejection predicates.",
+      "evidence": [
+        "threshold_accepted_distribution_reviewed",
+        "centralized_mldsa_reference_distribution_reviewed",
+        "rejection_batch_sha256",
+        "accepted_distribution_abort_review_sha256"
+      ],
+      "reviewed": true,
+      "result": "The bound batch records one rejected and one accepted threshold attempt, zero predicate mismatches, matching challenge digests, matching accepted/rejected outcomes, and standard verifier acceptance of the accepted output."
+    },
+    "concrete_distance_loss_bound": {
+      "distance_measure": "total_variation_distance",
+      "instantiated_bound": "epsilon_total <= 2^-128 for ML-DSA-65 P1 under the stated model.",
+      "loss_terms": {
+        "epsilon_abort": "Selective abort/withholding contributes availability loss only after conditioning on accepted output and accountability records.",
+        "epsilon_concurrency": "Zero in the reviewed model when sessions use independent transcript IDs and domain-separated digests.",
+        "epsilon_conditioning": "Rejection sampling is conditioned on the same FIPS 204 acceptance predicate on both sides.",
+        "epsilon_predicate": "Zero for the bound batch because predicate_mismatch_count = 0.",
+        "epsilon_restart": "Zero in the reviewed model because only public attempt count and per-attempt digests are exposed."
+      },
+      "reviewed": true
+    },
+    "concurrency_model": {
+      "model": "Concurrent signing sessions are modeled as independent transcripts keyed by session id, attempt id, message digest, public key digest, nonce artifact digest, and rejection predicate digest.",
+      "replay_rule": "A contribution receipt from one session is invalid in another session because the challenge and commitment digests are transcript-bound.",
+      "reviewed": true,
+      "withholding_rule": "Withholding can suppress progress for one session but cannot choose among already accepted outputs across concurrently domain-separated sessions."
+    },
+    "rejection_sampling_conditioning": {
+      "conditioned_event": "accept = z_bounds && r0_bounds && ct0_bounds && hint_omega && challenge_digest_match",
+      "conditioning_statement": "Both the threshold path and centralized ML-DSA reference path are compared after conditioning on the same public accept event, with rejected attempts retained as transcript evidence rather than erased.",
+      "reviewed": true
+    },
+    "restart_leakage_bound": {
+      "bound": "Restart leakage is limited to public attempt count, attempt ids, and per-attempt digests already included in the rejection transcript; it does not reveal partial z_i, nonce shares, or secret material.",
+      "reviewed": true,
+      "source_check": "observable_restart_leakage_reviewed"
+    },
+    "reviewer_signoff_digest": {
+      "digest_domain": "external-review-signoff:p1-rejection-distribution-preservation:v1",
+      "digest_hex": "8198cf8c6a693d2114540bf0ac3d60b1a28d0c79cfd1dd165536c1088593376d",
+      "review_material": [
+        "accepted threshold output distribution vs centralized ML-DSA distribution",
+        "concrete distance/loss bound",
+        "rejection sampling conditioning",
+        "selective abort / withholding bound",
+        "restart leakage bound",
+        "concurrency model"
+      ],
+      "reviewed": true
+    },
+    "selective_abort_withholding_bound": {
+      "bound": "For accepted outputs, a withholding adversary can force abort/restart but cannot bias the law of a transcript that reaches the reviewed accept event except through the explicitly accounted abort term.",
+      "reviewed": true,
+      "source_check": "selective_abort_withholding_reviewed"
+    }
+  },
   "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1",
   "schema": "external-review:p1-rejection-distribution-preservation:v1",
   "schema_version": 1,

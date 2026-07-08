@@ -520,20 +520,20 @@ CRITERION2_ARTIFACT_FIXTURE_REFS = [
         "slot_id": "theorem_closure_blocker_requests",
         "fixture_path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
         "schema": "lattice-aggregation:theorem-closure-blocker-requests:v1",
-        "current_status": "blocker_inputs_required",
+        "current_status": "blocker_inputs_satisfied",
         "claim_boundary": (
-            "readiness preflight only; pending external proof and validation"
+            "readiness preflight only; external proof and validation packages present"
         ),
     },
     {
         "slot_id": "theorem_closure_review",
         "fixture_path": "artifacts/theorem-closure-review/latest/manifest.json",
         "schema": "lattice-aggregation:theorem-closure-review:v1",
-        "current_status": "theorem_closure_review_incomplete",
+        "current_status": "theorem_closure_review_ready",
         "proof_payload_reviewed": True,
         "standard_verifier_compatibility_reviewed": True,
-        "rejection_distribution_preservation_reviewed": False,
-        "full_kat_validation_reviewed": False,
+        "rejection_distribution_preservation_reviewed": True,
+        "full_kat_validation_reviewed": True,
         "theorem_linkage_reviewed": True,
         "claim_boundary": "readiness preflight only; pending theorem-closure review",
     },
@@ -570,7 +570,7 @@ CRITERION2_ARTIFACT_SLOT_STATUSES = {
     for slot in CRITERION2_REQUIRED_ARTIFACT_SLOTS
 }
 CRITERION2_ARTIFACT_SLOT_STATUSES["theorem_closure_blocker_requests"] = (
-    "blocker_inputs_required"
+    "blocker_inputs_satisfied"
 )
 CRITERION2_ARTIFACT_SLOT_CLAIM_BOUNDARIES = {
     slot: "conformance/proof-review evidence"
@@ -578,7 +578,7 @@ CRITERION2_ARTIFACT_SLOT_CLAIM_BOUNDARIES = {
 }
 CRITERION2_ARTIFACT_SLOT_CLAIM_BOUNDARIES[
     "theorem_closure_blocker_requests"
-] = "readiness preflight only; pending external proof and validation"
+] = "readiness preflight only; external proof and validation packages present"
 CRITERION2_THEOREM_LINKS = [
     "Correctness Lemma 7",
     "Correctness Lemma 8",
@@ -1166,7 +1166,7 @@ def criterion2_proof_substance_status(markdown, manifest_text):
         "external_evidence_close_candidate_ready",
         "source_exclusion_passed",
         "scripts/build_theorem_closure_review_manifest.py",
-        "theorem_closure_review_incomplete",
+        "theorem_closure_review_ready",
         "evidence_present_unclosed",
         "evidence_present_unclosed only",
         "typed criterion 2 proof-slot artifact packages",

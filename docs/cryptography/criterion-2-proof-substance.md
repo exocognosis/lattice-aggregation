@@ -239,15 +239,15 @@ The Criterion 2 proof payload requires these slots before any promotion:
   array with `mask_seed_digest_hex`, `challenge_digest_hex`,
   `z_bound_result`, `r0_bound_result`, `ct0_bound_result`,
   `hint_bound_result`, and `accepted_or_rejected` for each signing attempt.
-- `theorem_closure_blocker_requests`: `blocker_inputs_required` from
+- `theorem_closure_blocker_requests`: `blocker_inputs_satisfied` from
   `p1_theorem_closure_blocker_request_gate`
   (`p1_theorem_closure_blocker_request_artifact`). This artifact is checked at
   `artifacts/theorem-closure-blocker-requests/latest/manifest.json` with schema
   `lattice-aggregation:theorem-closure-blocker-requests:v1`. It defines the
   exact external packages now required to satisfy
   `rejection_distribution_preservation_reviewed` and
-  `full_kat_validation_reviewed` without turning those missing packages into
-  closure claims.
+  `full_kat_validation_reviewed` while keeping those package reviews separate
+  from closure claims.
   That turns the previous API blocker into predicate-observability evidence for
   the next reviewed batch comparison against centralized ML-DSA rejection
   behavior.
@@ -560,10 +560,10 @@ readiness preflight rejects aggregate ready booleans unless those package
 classes and statuses are present alongside a close-candidate strict external
 backend attempt and exact input-bound review package.
 `scripts/build_theorem_closure_review_manifest.py` writes the current
-theorem-review manifest with status `theorem_closure_review_incomplete`. It
-marks the proof payload and standard-verifier compatibility review slots
-satisfied, marks theorem linkage reviewed, and leaves rejection-distribution
-preservation plus full KAT/CAVP validation unsatisfied.
+theorem-review manifest with status `theorem_closure_review_ready`. It marks
+the proof payload, standard-verifier compatibility, theorem linkage,
+rejection-distribution preservation, and full KAT/CAVP validation review slots
+satisfied while preserving the readiness-only claim boundary.
 Batch 4 proof-closure artifact packages, typed Criterion 2 proof-slot artifact
 packages, and the P1 standard-verifier compatibility artifact gate are inputs
 to this payload, requires proof-closure evidence by themselves.
@@ -639,4 +639,4 @@ The assessor may report `criterion2_proof_payload_formalized` when this
 contract and its manifest are present and internally consistent. That report
 field keeps `aggregate_rejection_equivalence` at `partially_met`, keeps the
 overall verdict at `partially_proven`, and records the remaining theorem
-review requirements.
+review requirements and readiness-only boundaries.
