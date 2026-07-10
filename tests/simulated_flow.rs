@@ -2,7 +2,7 @@ use lattice_aggregation::{
     Commitment, CommitmentSet, Mldsa65Backend, PartialShareSet, PartialSignatureShare,
     PrivateKeyShare, SignatureAggregator, SigningSession, SigningTranscript, SimulatedAggregator,
     SimulatedBackend, SimulatedDkg, ThresholdError, ThresholdKeyGeneration, ThresholdPublicKey,
-    ThresholdSigner, ThresholdSigningTranscript, ValidatorId,
+    ThresholdSigningTranscript, ValidatorId,
 };
 
 #[test]
@@ -166,9 +166,9 @@ fn signing_session_advances_through_commitment_and_partial_rounds() {
     )
     .unwrap();
 
-    let (awaiting_partials, partial) =
-        SigningSession::generate_partial_signature(awaiting, commitments, b"block payload")
-            .unwrap();
+    let (awaiting_partials, partial) = awaiting
+        .generate_partial_signature(commitments, b"block payload")
+        .unwrap();
 
     assert_eq!(partial.signer, ValidatorId(1));
     assert_eq!(awaiting_partials.challenge().0.len(), 32);
@@ -192,8 +192,7 @@ fn signing_session_rejects_mismatched_local_commitment() {
     )
     .unwrap();
 
-    let result =
-        SigningSession::generate_partial_signature(awaiting, commitments, b"block payload");
+    let result = awaiting.generate_partial_signature(commitments, b"block payload");
 
     assert_eq!(
         result.unwrap_err(),
@@ -251,12 +250,12 @@ fn simulated_dkg_sign_and_aggregate_flow_returns_standard_size_signature() {
     )
     .unwrap();
 
-    let (state_1, partial_1) =
-        SigningSession::generate_partial_signature(awaiting_1, commitments.clone(), b"block")
-            .unwrap();
-    let (_, partial_2) =
-        SigningSession::generate_partial_signature(awaiting_2, commitments.clone(), b"block")
-            .unwrap();
+    let (state_1, partial_1) = awaiting_1
+        .generate_partial_signature(commitments.clone(), b"block")
+        .unwrap();
+    let (_, partial_2) = awaiting_2
+        .generate_partial_signature(commitments.clone(), b"block")
+        .unwrap();
     let transcript = ThresholdSigningTranscript::new(
         session_id,
         2,

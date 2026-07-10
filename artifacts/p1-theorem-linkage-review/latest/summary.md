@@ -4,7 +4,7 @@ This artifact links the current P1 evidence package to the named theorem obligat
 
 - Review status: `reviewed_theorem_linkage_ready`
 - Claim boundary: `conformance/proof-review evidence`
-- Theorem-linkage digest SHA-256: `0bb3951dbb95bd067b8af6a79f4f0fdfe9a473c8da76beb07dc07eeb956b014d`
+- Theorem-linkage digest SHA-256: `a798c401fa79a3007c762c70ac19d3baa270a35604511fd985d1d7a73ba39fa9`
 
 Checks:
 - `criterion2_schema_valid`: `true`

@@ -3,7 +3,7 @@
   "attempt_status": "capture_promoted",
   "backend_command": [
     "external-capture-file",
-    "/tmp/lattice-p1-strict-run/nonce-raw/capture.json"
+    "/tmp/p1-nonce-external.7nAMjx/capture.json"
   ],
   "backend_command_executed": true,
   "backend_command_template": [
@@ -12,16 +12,16 @@
   ],
   "backend_execution_mode": "preexisting_external_capture_file",
   "backend_package_name": "lattice-aggregation",
-  "backend_source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75",
+  "backend_source_tree_sha256": "2782ab4874ea74f1ab72e9aa7a3a13836e8b610f4c49778cbe9dfa1c5dca136d",
   "capture_failure": null,
-  "capture_file_path": "/tmp/lattice-p1-strict-run/nonce-raw/capture.json",
-  "capture_file_sha256": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
+  "capture_file_path": "/tmp/p1-nonce-external.7nAMjx/capture.json",
+  "capture_file_sha256": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
   "claim_boundary": "conformance/proof-review evidence",
   "closure_boundary": "External capture-file intake only; actual theorem closure still requires rejection-distribution proof and reviewed theorem linkage.",
   "detected_blockers": [],
   "external_capture_review": {
-    "capture_file_sha256": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
-    "capture_sha256": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
+    "capture_file_sha256": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
+    "capture_sha256": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
     "checks": {
       "capture_generated_outside_repo": true,
       "external_backend_operated_outside_repo": true,
@@ -35,26 +35,26 @@
       "readiness_source_tree_reviewed": true,
       "request_binding_reviewed": true
     },
-    "path": "/tmp/lattice-p1-strict-run/nonce-raw/review.json",
-    "readiness_manifest_sha256": "eaa4d7aec353226c1070d66a260742aee7f198925e827b5f94ebe5832ec8afcf",
-    "readiness_source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75",
+    "path": "/tmp/p1-nonce-external.7nAMjx/review.json",
+    "readiness_manifest_sha256": "dbdfdfc3f722566b692173c37d76aa68cbc0579e85d87e6f9fac0d172ae2fc7c",
+    "readiness_source_tree_sha256": "2782ab4874ea74f1ab72e9aa7a3a13836e8b610f4c49778cbe9dfa1c5dca136d",
     "review": {
-      "backend_command_digest_hex": "b0f9e412b258d8a1749a0566d7b4d63fbe53f010483eae80bed7c68849d7d3b3",
+      "backend_command_digest_hex": "16a4401b4be75759296e89041e1d2b02c4e488c9cf625cc121be2b6fed166a36",
       "capture_environment_digest_hex": "0c4251880c3412467fc64b54f553bf61430a00d58d656bff6a870b9c15ab509e",
-      "external_review_digest_hex": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
+      "external_review_digest_hex": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
       "operator_identity_digest_hex": "b23e77d4224526c7c66e057223459b5dab453e0ae69ecb5f3e3c99f06ed24c83",
       "reviewer_identity_digest_hex": "2118bdfd7c6da7373f49870ae9bbf6d9a3dd7a29a75d7e65912da4ea36af2350"
     },
     "review_file_origin": "outside_repo_review_manifest",
     "review_status": "reviewed_external_capture_ready",
     "schema": "lattice-aggregation:p1-external-nonce-producer-capture-review:v1",
-    "sha256": "85a89c1aa475eb2135da4436b0aef021791e2a4154fab6fcaafaed5b7f41f3dc"
+    "sha256": "3e863dff3d7ef8e9fc82e81512c88ca27fc914e3fe5e18ee006acc24273b0bfb"
   },
   "external_review_manifest_path": "review/manifest.json",
-  "external_review_manifest_sha256": "85a89c1aa475eb2135da4436b0aef021791e2a4154fab6fcaafaed5b7f41f3dc",
-  "generated_at": "2026-07-07T16:52:03Z",
+  "external_review_manifest_sha256": "3e863dff3d7ef8e9fc82e81512c88ca27fc914e3fe5e18ee006acc24273b0bfb",
+  "generated_at": "2026-07-10T14:49:59Z",
   "handoff_manifest_path": "handoff/manifest.json",
-  "handoff_manifest_sha256": "2a233f99a89a2197254ea50c5d4f0efa0caefef61eabebc52775dc3952b527e6",
+  "handoff_manifest_sha256": "49b6a17db6e0aa2082d29fa8252c4870177fbb67cdfe49f67483c5882ef7f469",
   "handoff_quarantine": {
     "allowed_use": "preexisting external backend capture file gated by admissible readiness",
     "quarantined": false,
@@ -62,7 +62,7 @@
   },
   "handoff_source_profile": "admissible_external_backend_capture",
   "readiness_manifest_path": "readiness/manifest.json",
-  "readiness_manifest_sha256": "eaa4d7aec353226c1070d66a260742aee7f198925e827b5f94ebe5832ec8afcf",
+  "readiness_manifest_sha256": "dbdfdfc3f722566b692173c37d76aa68cbc0579e85d87e6f9fac0d172ae2fc7c",
   "readiness_schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
   "readiness_status": "backend_candidate_admissible_pending_capture",
   "request_name": "p1-reviewed-nonce-producer-request-001",

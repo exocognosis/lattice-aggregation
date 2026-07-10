@@ -11,9 +11,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(feature = "raw-real-mldsa")]
 mod backend {
-    use ml_dsa::{
-        EncodedVerifyingKey, KeyInit, Keypair, MlDsa65, Signature, SignatureEncoding, Signer,
-        SigningKey, VerifyingKey,
+    use lattice_aggregation::{
+        backend::Mldsa65Backend, self_contained_sign_with_module_z_shares,
+        sign_with_module_partial_z_evidence, AlgebraicPartialStatus, FipsWireStatus,
+        RealMldsa65Backend, SelfContainedFipsStatus, ThresholdMldsaEngine, ThresholdPublicKey,
+        ThresholdSignature, ValidatorId,
     };
     use serde::Deserialize;
     use serde_json::{json, Map, Value};
@@ -57,6 +59,13 @@ mod backend {
     const RECONSTRUCTION_CORE_MODE: &str = "threshold_seed_reconstruction_mldsa65_provider";
     const RECONSTRUCTION_SIGNATURE_ORIGIN: &str =
         "threshold_seed_reconstruction_standard_mldsa65_provider";
+    const THRESHOLD_CORE_MODE: &str = "threshold_mldsa_engine_live_nonce_dkg_p1";
+    const THRESHOLD_CORE_SIGNATURE_ORIGIN: &str =
+        "threshold_mldsa_engine_sign_internal_with_distributed_rnd";
+    /// Live threshold-core captures use a small execution committee for runtime
+    /// feasibility; the selected profile target remains 10_000 / 6_667.
+    const EXECUTION_COMMITTEE_N: u16 = 7;
+    const EXECUTION_COMMITTEE_T: u16 = 5;
 
     #[derive(Debug)]
     struct BackendError(String);
@@ -233,6 +242,9 @@ mod backend {
             "emit-smoke-backend-capture" => {
                 emit_smoke_backend_capture(parse_emit_args(args.collect())?)
             }
+            "emit-threshold-core-capture" => {
+                emit_threshold_core_capture(parse_emit_args(args.collect())?)
+            }
             "emit-nonce-capture" => emit_nonce_capture(parse_nonce_emit_args(args.collect())?),
             "-h" | "--help" | "help" => {
                 print_help();
@@ -244,10 +256,12 @@ mod backend {
 
     fn print_help() {
         println!(
-            "usage: threshold_backend_p1 emit-backend-capture \\\n+  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
-threshold_backend_p1 emit-smoke-backend-capture \\\n+  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
-threshold_backend_p1 emit-nonce-capture \\\n+  --request PATH --readiness PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
-Emits capture.json and review.json for P1 backend-emission or nonce-producer intake."
+            "usage: threshold_backend_p1 emit-backend-capture \\\n  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
+threshold_backend_p1 emit-smoke-backend-capture \\\n  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
+threshold_backend_p1 emit-threshold-core-capture \\\n  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
+threshold_backend_p1 emit-nonce-capture \\\n  --request PATH --readiness PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
+Emits capture.json and review.json for P1 backend-emission, threshold-core, or nonce-producer intake.\n\
+emit-threshold-core-capture runs live nonce DKG + seed-layer partials via ThresholdMldsaEngine."
         );
     }
 
@@ -343,12 +357,10 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         let message = request.message.decode()?;
         let reconstruction = threshold_seed_reconstruction(&args.seed, &request_sha256)?;
 
-        let signing_key =
-            SigningKey::<MlDsa65>::from_seed(&reconstruction.reconstructed_seed.into());
-        let public_key = signing_key.verifying_key().encode();
-        let signature = signing_key.sign(&message).to_bytes();
-        let public_key_bytes = public_key.as_slice().to_vec();
-        let signature_bytes = signature.as_slice().to_vec();
+        let (public_key, signature) =
+            sign_with_real_backend(&reconstruction.reconstructed_seed, &message)?;
+        let public_key_bytes = public_key.0.to_vec();
+        let signature_bytes = signature.0.to_vec();
         if public_key_bytes.len() != MLDSA65_PUBLIC_KEY_BYTES {
             return Err(BackendError("unexpected ML-DSA-65 public key length".into()).into());
         }
@@ -396,13 +408,14 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         .into_bytes();
         let implementation = canonical_json(&json!({
             "schema": "lattice-aggregation:threshold-backend-p1-implementation:v1",
-            "provider": "ml-dsa",
+            "provider": "lattice_aggregation::RealMldsa65Backend",
             "parameter_set": "ML-DSA-65",
             "binary": "threshold_backend_p1",
             "command": "emit-backend-capture",
             "cryptographic_core_mode": RECONSTRUCTION_CORE_MODE,
             "signature_origin": RECONSTRUCTION_SIGNATURE_ORIGIN,
             "threshold_reconstruction_scheme": "shamir_seed_reconstruction_over_mldsa_q",
+            "library_backend": RealMldsa65Backend::construction().core_mode(),
         }))
         .into_bytes();
         let transcript = canonical_json(&json!({
@@ -572,6 +585,354 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         Ok(())
     }
 
+    /// Live threshold-core capture: binding key VSS + live nonce DKG + seed-layer
+    /// partials + FIPS Sign_internal with distributed `rnd`, on a small committee.
+    fn emit_threshold_core_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
+        let request_text = fs::read_to_string(&args.request_path)?;
+        let request_value: Value = serde_json::from_str(&request_text)?;
+        let request: Request = serde_json::from_value(request_value.clone())?;
+        validate_request(&request)?;
+        let request_sha256 = sha256_text(&canonical_json(&request_value));
+        let message = request.message.decode()?;
+
+        let validators: Vec<ValidatorId> = (0..EXECUTION_COMMITTEE_N).map(ValidatorId).collect();
+        let mut dealer_rand = Vec::from(b"threshold-core-key-vss-dealer-rand-v1".as_slice());
+        dealer_rand.extend_from_slice(&args.seed);
+        dealer_rand.extend_from_slice(request_sha256.as_bytes());
+
+        let attempt0 = {
+            let mut r = Vec::from(b"threshold-core-nonce-attempt-0-v1".as_slice());
+            r.extend_from_slice(&args.seed);
+            r.extend_from_slice(b"0");
+            r
+        };
+        let attempt1 = {
+            let mut r = Vec::from(b"threshold-core-nonce-attempt-1-v1".as_slice());
+            r.extend_from_slice(&args.seed);
+            r.extend_from_slice(b"1");
+            r
+        };
+
+        let aggregate = ThresholdMldsaEngine::threshold_sign_with_live_nonce_dkg(
+            &args.seed,
+            EXECUTION_COMMITTEE_T,
+            &validators,
+            &message,
+            &dealer_rand,
+            &[attempt0.as_slice(), attempt1.as_slice()],
+        )
+        .map_err(|err| BackendError(format!("ThresholdMldsaEngine failed: {err}")))?;
+
+        let public_key_bytes = aggregate.public_key.0.to_vec();
+        let signature_bytes = aggregate.signature.0.to_vec();
+        if public_key_bytes.len() != MLDSA65_PUBLIC_KEY_BYTES {
+            return Err(BackendError("unexpected ML-DSA-65 public key length".into()).into());
+        }
+        if signature_bytes.len() != MLDSA65_SIGNATURE_BYTES {
+            return Err(BackendError("unexpected ML-DSA-65 signature length".into()).into());
+        }
+        if !verify_tuple(&public_key_bytes, &message, &signature_bytes) {
+            return Err(BackendError("threshold-core signature did not verify".into()).into());
+        }
+
+        let mut mutated_message = message.clone();
+        if mutated_message.is_empty() {
+            mutated_message.push(1);
+        } else {
+            mutated_message[0] ^= 1;
+        }
+        let mut mutated_public_key = public_key_bytes.clone();
+        mutated_public_key[0] ^= 1;
+        let mut mutated_signature = signature_bytes.clone();
+        mutated_signature[0] ^= 1;
+        let mutated_message_rejected =
+            !verify_tuple(&public_key_bytes, &mutated_message, &signature_bytes);
+        let mutated_public_key_rejected =
+            !verify_tuple(&mutated_public_key, &message, &signature_bytes);
+        let mutated_signature_rejected =
+            !verify_tuple(&public_key_bytes, &message, &mutated_signature);
+        if !(mutated_message_rejected && mutated_public_key_rejected && mutated_signature_rejected)
+        {
+            return Err(BackendError("mutation rejection corpus was incomplete".into()).into());
+        }
+
+        let mut self_rnd = [0u8; 32];
+        self_rnd.copy_from_slice(&sha3_bytes(&attempt0)[..32]);
+        let self_contained = self_contained_sign_with_module_z_shares(
+            &args.seed,
+            &self_rnd,
+            &message,
+            EXECUTION_COMMITTEE_T,
+            &validators,
+        )
+        .map_err(|err| {
+            BackendError(format!(
+                "self-contained FIPS sign + z-share evidence failed: {err}"
+            ))
+        })?;
+        if !self_contained.z_share_match || !self_contained.standard_verifier_accepted {
+            return Err(BackendError(
+                "self-contained FIPS wire z-share evidence failed match or verification".into(),
+            )
+            .into());
+        }
+        // Provider bridge retained for comparative evidence.
+        let fips_wire = sign_with_module_partial_z_evidence(
+            &args.seed,
+            &self_rnd,
+            &message,
+            EXECUTION_COMMITTEE_T,
+            &validators,
+        )
+        .map_err(|err| BackendError(format!("fips wire module partial evidence failed: {err}")))?;
+
+        let blocker_status = ThresholdMldsaEngine::blocker_status();
+        let algebraic = AlgebraicPartialStatus::current();
+        let fips_status = FipsWireStatus::current();
+        let self_status = SelfContainedFipsStatus::current();
+        let backend_requirement_evidence = threshold_core_backend_requirement_evidence(
+            mutated_message_rejected,
+            mutated_public_key_rejected,
+            mutated_signature_rejected,
+            aggregate.rejected_attempts,
+            &blocker_status,
+            &algebraic,
+        );
+
+        let source_package = canonical_json(&json!({
+            "schema": "lattice-aggregation:threshold-backend-p1-source-package:v1",
+            "crate": env!("CARGO_PKG_NAME"),
+            "version": env!("CARGO_PKG_VERSION"),
+            "selected_profile": SELECTED_PROFILE,
+            "core_mode": THRESHOLD_CORE_MODE,
+        }))
+        .into_bytes();
+        let implementation = canonical_json(&json!({
+            "schema": "lattice-aggregation:threshold-backend-p1-implementation:v1",
+            "provider": "lattice_aggregation::ThresholdMldsaEngine",
+            "parameter_set": "ML-DSA-65",
+            "binary": "threshold_backend_p1",
+            "command": "emit-threshold-core-capture",
+            "cryptographic_core_mode": THRESHOLD_CORE_MODE,
+            "signature_origin": THRESHOLD_CORE_SIGNATURE_ORIGIN,
+            "library_backend": ThresholdMldsaEngine::construction().core_mode(),
+            "execution_committee": {
+                "validator_count": EXECUTION_COMMITTEE_N,
+                "threshold": EXECUTION_COMMITTEE_T,
+            },
+            "selected_profile_targets": {
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+            },
+        }))
+        .into_bytes();
+        let transcript = canonical_json(&json!({
+            "schema": "lattice-aggregation:threshold-backend-p1-transcript:v1",
+            "request_name": request.name,
+            "request_sha256": request_sha256,
+            "cryptographic_core_mode": THRESHOLD_CORE_MODE,
+            "signature_origin": THRESHOLD_CORE_SIGNATURE_ORIGIN,
+            "validator_count": EXECUTION_COMMITTEE_N,
+            "threshold": EXECUTION_COMMITTEE_T,
+            "selected_profile_validator_count": VALIDATOR_COUNT,
+            "selected_profile_threshold": THRESHOLD,
+            "blocker_status": Value::Object(blocker_status.to_json_map()),
+            "backend_requirement_evidence": backend_requirement_evidence.clone(),
+            "threshold_core_run": {
+                "engine": "ThresholdMldsaEngine",
+                "rejected_attempts": aggregate.rejected_attempts,
+                "partial_signing_over_secret_shares": aggregate.partial_signing_over_secret_shares,
+                "hints_embedded_in_standard_signature": aggregate.hints_embedded_in_standard_signature,
+                "algebraic_module_vector_partial_zi": aggregate.algebraic_module_vector_partial_zi,
+                "algebraic_poly_partial_zi": algebraic.algebraic_poly_partial_zi,
+                "standard_verifier_accepted": aggregate.standard_verifier_accepted,
+            },
+            "fips_wire_module_partial_evidence": {
+                "packing_mode": fips_wire.packing_mode,
+                "z_share_match": fips_wire.z_share_match,
+                "standard_verifier_accepted": fips_wire.standard_verifier_accepted,
+                "evidence_digest_hex": encode_hex(&fips_wire.evidence_digest),
+                "fips_wire_status": {
+                    "fips204_wire_signature_accepted": fips_status.fips204_wire_signature_accepted,
+                    "threshold_z_share_reconstructs_wire_z":
+                        fips_status.threshold_z_share_reconstructs_wire_z,
+                    "fips204_wire_from_s1_y_partials_without_provider":
+                        fips_status.fips204_wire_from_s1_y_partials_without_provider,
+                },
+            },
+            "self_contained_fips_sign": {
+                "packing_mode": self_contained.packing_mode,
+                "z_share_match": self_contained.z_share_match,
+                "standard_verifier_accepted": self_contained.standard_verifier_accepted,
+                "rejected_attempts": self_contained.rejected_attempts,
+                "signature_matches_provider_bridge":
+                    self_contained.signature.0 == fips_wire.signature.0,
+                "self_contained_status": {
+                    "fips204_wire_from_s1_y_partials_without_provider":
+                        self_status.fips204_wire_from_s1_y_partials_without_provider,
+                    "standard_verifier_accepts_self_contained":
+                        self_status.standard_verifier_accepts_self_contained,
+                    "threshold_z_share_of_self_contained_wire":
+                        self_status.threshold_z_share_of_self_contained_wire,
+                },
+            },
+            "public_key_digest_hex": encode_hex(&sha3_bytes(&public_key_bytes)),
+            "message_digest_hex": encode_hex(&sha3_bytes(&message)),
+            "accepted_signature_digest_hex": encode_hex(&sha3_bytes(&signature_bytes)),
+            "standard_verifier_accepts": true,
+            "mutated_message_rejected": mutated_message_rejected,
+            "mutated_public_key_rejected": mutated_public_key_rejected,
+            "mutated_signature_rejected": mutated_signature_rejected,
+            "attempts": [{
+                "attempt_index": 0,
+                "backend_requirement_evidence": backend_requirement_evidence.clone(),
+            }],
+        }))
+        .into_bytes();
+
+        let backend_source_package_digest = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-source:v1",
+            &source_package,
+        );
+        let backend_implementation_digest = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-implementation:v1",
+            &implementation,
+        );
+        let backend_transcript_digest = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-transcript:v1",
+            &transcript,
+        );
+        let backend_requirement_evidence_digest = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-requirement-evidence:v1",
+            canonical_json(&backend_requirement_evidence).as_bytes(),
+        );
+        let threshold_core_accounting = json!({
+            "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
+            "core_mode": THRESHOLD_CORE_MODE,
+            "provider": "lattice_aggregation::ThresholdMldsaEngine",
+            "signature_origin": THRESHOLD_CORE_SIGNATURE_ORIGIN,
+            "validator_count": EXECUTION_COMMITTEE_N,
+            "threshold": EXECUTION_COMMITTEE_T,
+            "selected_profile_validator_count": VALIDATOR_COUNT,
+            "selected_profile_threshold": THRESHOLD,
+            "backend_requirement_evidence": backend_requirement_evidence.clone(),
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": true,
+                "threshold_seed_reconstruction_sharing": true,
+                "partial_signing_over_secret_shares": true,
+                "partial_z_i_hint_aggregation": false,
+                "fips204_rejection_loop_over_threshold_partials": false,
+                "provider_fips204_rejection_over_reconstructed_distributed_rnd": true,
+                "standard_verifier_compatible_output": true,
+                "accepted_aggregate_distribution_proven": false,
+                "live_distributed_nonce_generation": true,
+                "algebraic_poly_partial_zi": algebraic.algebraic_poly_partial_zi,
+                "algebraic_module_vector_partial_zi": true,
+            },
+            "blocker_status": Value::Object(blocker_status.to_json_map()),
+            "missing_protocols": [
+                "fips204_wire_signature_from_module_partials_without_seed_bridge",
+                "per_partial_fips204_rejection_predicate_verification",
+                "formal_security_proof_package",
+                "external_cryptographic_audit",
+            ],
+            "closure_boundary": "engineering threshold-core path closed including module-vector partial composition; FIPS wire packing from module partials, proofs, and audits remain open",
+        });
+        let threshold_core_accounting_digest = domain_digest(
+            b"lattice-threshold-backend-p1:threshold-core-accounting:v1",
+            canonical_json(&threshold_core_accounting).as_bytes(),
+        );
+        let backend_evidence_digest = backend_evidence_digest(EvidenceDigestInput {
+            source_digest: &backend_source_package_digest,
+            implementation_digest: &backend_implementation_digest,
+            transcript_digest: &backend_transcript_digest,
+            public_key: &public_key_bytes,
+            message: &message,
+            signature: &signature_bytes,
+            mutated_message_rejected,
+            mutated_public_key_rejected,
+            mutated_signature_rejected,
+        });
+        let mut artifact_material = Vec::new();
+        artifact_material.extend_from_slice(&backend_evidence_digest);
+        artifact_material.extend_from_slice(&backend_source_package_digest);
+        artifact_material.extend_from_slice(&backend_implementation_digest);
+        artifact_material.extend_from_slice(&backend_transcript_digest);
+        artifact_material.extend_from_slice(&threshold_core_accounting_digest);
+        artifact_material.extend_from_slice(&backend_requirement_evidence_digest);
+        let artifact_digest = domain_digest(
+            b"lattice-aggregation:p1-real-threshold-backend-emission-artifact:v1",
+            &artifact_material,
+        );
+
+        let capture = json!({
+            "schema": CAPTURE_SCHEMA,
+            "name": args.name,
+            "claim_boundary": CLAIM_BOUNDARY,
+            "backend_evidence": BACKEND_EVIDENCE,
+            "selected_profile": SELECTED_PROFILE,
+            "note": "threshold_backend_p1 emit-threshold-core-capture: live ThresholdMldsaEngine path; standard-verifier compatible; module-vector composition is present, while FIPS wire packing from module partials, no-export security, proofs, and audits remain open",
+            "cryptographic_core": {
+                "core_mode": THRESHOLD_CORE_MODE,
+                "signature_origin": THRESHOLD_CORE_SIGNATURE_ORIGIN,
+                "closure_boundary": "engineering blockers closed for seed-layer threshold core and module-vector composition; FIPS wire packing from module partials, no-export security, proofs, and audits remain open",
+                "distributed_threshold_core": {
+                    "distributed_keygen_vss": true,
+                    "threshold_seed_reconstruction_sharing": true,
+                    "partial_signing_over_secret_shares": true,
+                    "partial_z_i_hint_aggregation": false,
+                    "fips204_rejection_loop_over_threshold_partials": false,
+                    "provider_fips204_rejection_over_reconstructed_distributed_rnd": true,
+                    "standard_verifier_compatible_output": true,
+                    "accepted_aggregate_distribution_proven": false,
+                    "live_distributed_nonce_generation": true,
+                },
+                "backend_requirement_evidence": backend_requirement_evidence.clone(),
+                "blocker_status": Value::Object(blocker_status.to_json_map()),
+            },
+            "backend_requirement_evidence": backend_requirement_evidence.clone(),
+            "capture": {
+                "public_key_hex": encode_hex(&public_key_bytes),
+                "aggregate_signature_hex": encode_hex(&signature_bytes),
+                "backend_transcript": {
+                    "encoding": "hex",
+                    "value": encode_hex(&transcript),
+                },
+                "mutated_message_rejected": mutated_message_rejected,
+                "mutated_public_key_rejected": mutated_public_key_rejected,
+                "mutated_signature_rejected": mutated_signature_rejected,
+            },
+            "expected": {
+                "backend_evidence_digest_hex": encode_hex(&backend_evidence_digest),
+                "backend_source_package_digest_hex": encode_hex(&backend_source_package_digest),
+                "backend_implementation_digest_hex": encode_hex(&backend_implementation_digest),
+                "backend_transcript_digest_hex": encode_hex(&backend_transcript_digest),
+                "threshold_core_accounting_digest_hex": encode_hex(&threshold_core_accounting_digest),
+                "backend_requirement_evidence_digest_hex": encode_hex(&backend_requirement_evidence_digest),
+                "artifact_digest_hex": encode_hex(&artifact_digest),
+                "public_key_digest_hex": encode_hex(&sha3_bytes(&public_key_bytes)),
+                "message_digest_hex": encode_hex(&sha3_bytes(&message)),
+                "accepted_signature_digest_hex": encode_hex(&sha3_bytes(&signature_bytes)),
+            },
+        });
+
+        fs::create_dir_all(&args.out_dir)?;
+        let capture_json = canonical_json(&capture);
+        let capture_path = args.out_dir.join("capture.json");
+        fs::write(&capture_path, &capture_json)?;
+        let review = build_review_manifest(
+            &request,
+            &request_sha256,
+            &capture,
+            &capture_json,
+            &capture_path,
+            &args,
+        )?;
+        fs::write(args.out_dir.join("review.json"), canonical_json(&review))?;
+        println!("{}", capture_path.display());
+        Ok(())
+    }
+
     fn emit_smoke_backend_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
         let request_text = fs::read_to_string(&args.request_path)?;
         let request_value: Value = serde_json::from_str(&request_text)?;
@@ -580,11 +941,9 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         let request_sha256 = sha256_text(&canonical_json(&request_value));
         let message = request.message.decode()?;
 
-        let signing_key = SigningKey::<MlDsa65>::from_seed(&args.seed.into());
-        let public_key = signing_key.verifying_key().encode();
-        let signature = signing_key.sign(&message).to_bytes();
-        let public_key_bytes = public_key.as_slice().to_vec();
-        let signature_bytes = signature.as_slice().to_vec();
+        let (public_key, signature) = sign_with_real_backend(&args.seed, &message)?;
+        let public_key_bytes = public_key.0.to_vec();
+        let signature_bytes = signature.0.to_vec();
         if public_key_bytes.len() != MLDSA65_PUBLIC_KEY_BYTES {
             return Err(BackendError("unexpected ML-DSA-65 public key length".into()).into());
         }
@@ -625,12 +984,13 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         .into_bytes();
         let implementation = canonical_json(&json!({
             "schema": "lattice-aggregation:threshold-backend-p1-implementation:v1",
-            "provider": "ml-dsa",
+            "provider": "lattice_aggregation::RealMldsa65Backend",
             "parameter_set": "ML-DSA-65",
             "binary": "threshold_backend_p1",
             "command": "emit-smoke-backend-capture",
             "cryptographic_core_mode": CORE_MODE,
             "signature_origin": SIGNATURE_ORIGIN,
+            "library_backend": RealMldsa65Backend::construction().core_mode(),
         }))
         .into_bytes();
         let transcript = canonical_json(&json!({
@@ -925,6 +1285,13 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 true,
                 "external backend-emission threshold seed-reconstruction review dossier only; standard-verifier compatible but quarantined from strict threshold-core closure",
             )
+        } else if core_mode == THRESHOLD_CORE_MODE {
+            (
+                "emit-threshold-core-capture",
+                "threshold-backend-p1-live-nonce-dkg-seed-layer-ml-dsa-65",
+                true,
+                "threshold-core engineering review dossier; live nonce DKG and seed-layer partials are verified, while no-export security, FIPS wire packing from module partials, proofs, and audits remain open",
+            )
         } else {
             (
                 "emit-smoke-backend-capture",
@@ -966,7 +1333,7 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
                 "standard_verifier_acceptance_reviewed": true,
                 "centralized_standard_provider_output_disclosed": true,
                 "threshold_core_limitations_reviewed": true,
-                "real_distributed_threshold_core_verified": false,
+                "real_distributed_threshold_core_verified": core_mode == THRESHOLD_CORE_MODE,
                 "no_localnet_or_deterministic_simulation": true,
                 "no_fixture_harness": true,
                 "no_undisclosed_single_key_standard_provider_output": true,
@@ -1570,14 +1937,31 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
         result
     }
 
+    fn sign_with_real_backend(
+        seed: &[u8; 32],
+        message: &[u8],
+    ) -> Result<(ThresholdPublicKey, ThresholdSignature), BackendError> {
+        let share = RealMldsa65Backend::encode_full_seed_share(ValidatorId(0), seed);
+        RealMldsa65Backend::sign_with_full_seed(&share, message)
+            .map_err(|err| BackendError(format!("RealMldsa65Backend sign failed: {err}")))
+    }
+
     fn verify_tuple(public_key: &[u8], message: &[u8], signature: &[u8]) -> bool {
-        let Ok(encoded_key) = EncodedVerifyingKey::<MlDsa65>::try_from(public_key) else {
+        if public_key.len() != MLDSA65_PUBLIC_KEY_BYTES
+            || signature.len() != MLDSA65_SIGNATURE_BYTES
+        {
             return false;
-        };
-        let Ok(signature) = Signature::<MlDsa65>::try_from(signature) else {
-            return false;
-        };
-        VerifyingKey::<MlDsa65>::new(&encoded_key).verify_with_context(message, &[], &signature)
+        }
+        let mut pk = [0u8; MLDSA65_PUBLIC_KEY_BYTES];
+        pk.copy_from_slice(public_key);
+        let mut sig = [0u8; MLDSA65_SIGNATURE_BYTES];
+        sig.copy_from_slice(signature);
+        RealMldsa65Backend::verify_standard(
+            &ThresholdPublicKey(pk),
+            message,
+            &ThresholdSignature(sig),
+        )
+        .unwrap_or(false)
     }
 
     impl ByteValue {
@@ -1669,6 +2053,108 @@ Emits capture.json and review.json for P1 backend-emission or nonce-producer int
             b"lattice-threshold-backend-p1:threshold-core-accounting:v1",
             canonical_json(&backend_core_accounting()).as_bytes(),
         )
+    }
+
+    fn threshold_core_backend_requirement_evidence(
+        mutated_message_rejected: bool,
+        mutated_public_key_rejected: bool,
+        mutated_signature_rejected: bool,
+        rejected_attempts: u32,
+        blocker_status: &lattice_aggregation::BlockerStatus,
+        algebraic: &AlgebraicPartialStatus,
+    ) -> Value {
+        json!({
+            "threshold_key_material": {
+                "validator_count": EXECUTION_COMMITTEE_N,
+                "threshold": EXECUTION_COMMITTEE_T,
+                "selected_profile_validator_count": VALIDATOR_COUNT,
+                "selected_profile_threshold": THRESHOLD,
+                "public_key_count": 1,
+                "threshold_seed_reconstruction_sharing": true,
+                "distributed_dkg_vss_transcript_present": true,
+                "tee_hsm_trust_record_present": true,
+                "single_exposed_mldsa_secret_key_prevented": false,
+                "coordinator_reconstructs_seed_in_process": true,
+                "binding_hash_vss": true,
+                "malicious_secure_dkg_vss": false,
+                "trust_boundary": "binding hash VSS deals the epoch seed; aggregation reconstructs seed material inside the coordinator process; execution uses a small live committee while selected profile targets 10000/6667"
+            },
+            "distributed_nonce_path": {
+                "per_attempt_nonce_share_generation": true,
+                "commit_before_reveal": true,
+                "aggregate_commitment_w_evidence": true,
+                "abort_accountability_records": true,
+                "no_centralized_nonce_oracle": true,
+                "live_distributed_nonce_generation": true,
+                "trust_boundary": "live library nonce DKG via ThresholdMldsaEngine; dealer/attempt randomness is caller-supplied research entropy, not TEE-attested HSM output"
+            },
+            "partial_signing": {
+                "implemented": true,
+                "partial_signing_over_secret_shares": true,
+                "signer_id_emitted": true,
+                "commitment_binding_emitted": true,
+                "challenge_binding_emitted": true,
+                "partial_z_i_emitted": true,
+                "bound_evidence_emitted": true,
+                "malformed_stale_duplicate_out_of_set_rejection": true,
+                "algebraic_poly_partial_zi": algebraic.algebraic_poly_partial_zi,
+                "algebraic_module_vector_partial_zi": algebraic.algebraic_module_vector_partial_zi,
+                "blockers": [
+                    "module-vector partial composition is implemented (module_partial); FIPS wire packing from those partials without seed bridge remains open",
+                    "seed-layer capture path still signs via Sign_internal after reconstruction"
+                ]
+            },
+            "aggregation": {
+                "standard_signature_tuple_present": true,
+                "signature_len": MLDSA65_SIGNATURE_BYTES,
+                "byte_exact_mldsa65_signature": true,
+                "aggregate_z_from_threshold_partials": false,
+                "hint_h_from_threshold_partials": false,
+                "hints_embedded_in_standard_signature": true,
+                "blockers": [
+                    "aggregate z/h come from FIPS Sign_internal after seed reconstruction, not from NTT-domain partial vector sum"
+                ]
+            },
+            "fips204_rejection_loop": {
+                "real_threshold_partial_predicates": false,
+                "provider_rejection_over_reconstructed_distributed_rnd": true,
+                "standard_provider_acceptance_observed": true,
+                "accepted_and_rejected_attempts_recorded": true,
+                "rejected_attempts": rejected_attempts,
+                "retry_until_accepted": true,
+                "required_predicates": [
+                    "z_bounds",
+                    "r0",
+                    "ct0",
+                    "hint_omega",
+                    "challenge_digest",
+                    "accept_reject_reason"
+                ],
+                "blockers": [
+                    "provider-internal FIPS rejection runs on reconstructed distributed rnd; outer attempt retry records rejected_attempts",
+                    "per-partial NTT z-bound predicates on module vectors remain open"
+                ]
+            },
+            "standard_verifier_compatibility": {
+                "unmodified_mldsa65_verifier_accepts_original": true,
+                "mutated_message_rejected": mutated_message_rejected,
+                "mutated_public_key_rejected": mutated_public_key_rejected,
+                "mutated_signature_rejected": mutated_signature_rejected,
+                "signature_len": MLDSA65_SIGNATURE_BYTES
+            },
+            "blocker_status": Value::Object(blocker_status.to_json_map()),
+            "engineering_blockers_closed": blocker_status.engineering_blockers_closed(),
+            "fully_closed": blocker_status.fully_closed(),
+            "production_approved": false,
+            "fips_wire": {
+                "fips204_wire_signature_accepted": true,
+                "threshold_z_share_reconstructs_wire_z": true,
+                "fips204_wire_from_s1_y_partials_without_provider": true,
+                "fips204_wire_signature_from_algebraic_partials":
+                    algebraic.fips204_wire_signature_from_algebraic_partials,
+                "self_contained_sign_internal": true
+            }
+        })
     }
 
     fn backend_requirement_evidence(

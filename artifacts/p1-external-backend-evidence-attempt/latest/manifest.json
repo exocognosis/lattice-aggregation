@@ -1,10 +1,10 @@
 {
-  "attempt_digest_sha256": "403283e434af3c3089406db74103d4b41faf8c0320333319e97e13ffaea7097d",
+  "attempt_digest_sha256": "98b583109ddde0be27839310df3f8c02c9c1c0bb5366e4180157d3148cb55422",
   "attempt_status": "external_evidence_close_candidate_ready",
   "blockers": [],
-  "candidate_digest_sha256": "c9d14cc6beb704c57f0c0016b728ff8becbc8ee87745bbe1978fc7275100ea8b",
-  "candidate_manifest_path": "/tmp/lattice-p1-strict-run/candidate/manifest.json",
-  "candidate_manifest_sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3",
+  "candidate_digest_sha256": "16f4db8e7b7fb800548beaebc73c5a2ae5e72497dbbee04a3231a01278887843",
+  "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
+  "candidate_manifest_sha256": "4df16220a032eccd693fd1b064640c62b58d60517b6c09d3f471669c05bd23ce",
   "checks": {
     "accepted_distribution_abort_review_package_valid": true,
     "comparison_close_candidate": true,
@@ -33,52 +33,52 @@
   "claims_theorem_closure": false,
   "close_candidate": true,
   "closure_boundary": "Batch 8 external evidence attempt only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-07T16:52:03Z",
+  "generated_at": "2026-07-07T23:36:26Z",
   "inputs": {
     "accepted_distribution_abort_review": {
-      "path": "/tmp/lattice-p1-strict-run/distribution-abort/manifest.json",
+      "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+      "sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83"
     },
     "actual_external_nonce_gate_manifest": {
-      "path": "/tmp/lattice-p1-strict-run/nonce-gate/manifest.json",
+      "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
       "sha256": "df05f7518139562e164f3792fd3e1a8bdc464a48b61d516c5cc326bbc271beeb"
     },
     "closure_candidate_manifest": {
-      "path": "/tmp/lattice-p1-strict-run/candidate/manifest.json",
+      "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3"
+      "sha256": "4df16220a032eccd693fd1b064640c62b58d60517b6c09d3f471669c05bd23ce"
     },
     "production_dkg_no_single_secret_review": {
-      "path": "/tmp/lattice-p1-strict-run/dkg-review/manifest.json",
+      "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5"
+      "sha256": "b8b34b0105dd9caa4c2640be668f1123577b01ed01fd7afa732556cc396e2750"
     },
     "real_threshold_backend_capture_json": {
-      "path": "/tmp/lattice-p1-strict-run/backend-staged/capture.json",
+      "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
       "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
     },
     "real_threshold_backend_capture_manifest": {
-      "path": "/tmp/lattice-p1-strict-run/backend-staged/manifest.json",
+      "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
       "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
     },
     "rejection_equivalence_batch_json": {
-      "path": "/tmp/lattice-p1-strict-run/rejection/batch.json",
+      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
       "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
     },
     "reviewed_external_evidence_package": {
-      "path": "/tmp/lattice-p1-strict-run/review-package/manifest.json",
+      "path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
       "present": true,
-      "sha256": "0fa4bb331f55401216d9be8a1c0ef9b976b9ff4e0925589ad49bafbf73f587f3"
+      "sha256": "468ea3bc0f69d011d3456624197a3c67f72b9a594a5fbe9e1d1b01886592cd71"
     }
   },
   "name": "p1-external-backend-evidence-attempt-v1",
-  "review_package_path": "/tmp/lattice-p1-strict-run/review-package/manifest.json",
-  "review_package_sha256": "0fa4bb331f55401216d9be8a1c0ef9b976b9ff4e0925589ad49bafbf73f587f3",
+  "review_package_path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
+  "review_package_sha256": "468ea3bc0f69d011d3456624197a3c67f72b9a594a5fbe9e1d1b01886592cd71",
   "review_packages": {
     "accepted_distribution_abort_review": {
       "package_class": "accepted_distribution_abort_review",

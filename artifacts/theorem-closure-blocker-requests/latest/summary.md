@@ -4,7 +4,7 @@ This artifact tracks the external proof and validation inputs required before th
 
 - Request status: `blocker_inputs_satisfied`
 - Claim boundary: `readiness preflight only; external proof and validation packages present`
-- Request digest SHA-256: `883b90be0776458799c277da3d8b8d0f67c7cb5e5bd34b6fb1461bdde56ebb1f`
+- Request digest SHA-256: `0e8465542dc2e57bec75ba4dac8acc6534ab4fece8aac0cab5230479ec519e4e`
 
 Required Packages:
 - `rejection_distribution_preservation_review`: `package_ready`

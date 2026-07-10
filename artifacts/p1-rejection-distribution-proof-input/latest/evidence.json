@@ -1,5 +1,5 @@
 {
-  "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
+  "accepted_distribution_abort_review_sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83",
   "checks": {
     "accepted_distribution_distance_bound_reviewed": true,
     "centralized_mldsa_reference_distribution_reviewed": true,

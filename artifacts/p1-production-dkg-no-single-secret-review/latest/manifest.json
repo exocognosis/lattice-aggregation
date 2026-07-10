@@ -19,7 +19,7 @@
     "claims_standard_verifier_compatibility": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T16:52:03Z",
+  "generated_at": "2026-07-07T23:36:22Z",
   "name": "p1-production-dkg-no-single-secret-review",
   "package_class": "production_dkg_no_single_secret_review",
   "public_key_count": 1,

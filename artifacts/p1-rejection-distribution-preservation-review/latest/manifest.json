@@ -24,7 +24,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-08T14:22:48Z",
+  "generated_at": "2026-07-10T15:02:36Z",
   "name": "p1-rejection-distribution-preservation-review",
   "package_boundary": "This package records reviewed rejection-distribution preservation input for theorem-readiness. It does not assert theorem closure or production threshold ML-DSA security by itself.",
   "package_class": "rejection_distribution_preservation_review",
@@ -88,8 +88,8 @@
     }
   },
   "review_digests": {
-    "abort_withholding_bound_digest_hex": "c420755c717dc5116433d8d4e055eeee9161bd0b69b0c2a7e3834c2d4b7ca1fc",
-    "accepted_distribution_distance_digest_hex": "495c378c6d7f666fb470066408d9a25588efe140672ce6c8a9aa72cfb8878739",
+    "abort_withholding_bound_digest_hex": "f557c65b3b9e22cb19f8eeba42b6fa4061fecae4db5d1789540d1f383c79d3ec",
+    "accepted_distribution_distance_digest_hex": "c2fa31ede1c568ee90736f2cd81466e31afae0c285fd30f44fd413bd3fc5a07b",
     "centralized_reference_distribution_digest_hex": "e782ff21598abfed0a4c052282c05de797b474fa3f1ad4de4e3f166b7531fef6",
     "concrete_loss_bound_digest_hex": "bd2d6fe5058b4afac0b3e2d1b475eea16008e88205469e5d4e0a37a4bb77efe5",
     "proof_package_digest_hex": "83262a53bf0cf825af3141aa742b00c3a051a9ddb6c33d1045751cbd795bb422",
@@ -101,8 +101,8 @@
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
-    "accepted_distribution_abort_review_sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7",
-    "proof_evidence_sha256": "05caa4ad2de658b89c3c734805625f14b4c846ad157862bcb8b9f72f7175ff3f",
+    "accepted_distribution_abort_review_sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83",
+    "proof_evidence_sha256": "6dd1e42624c17bb70cf308136dd742a1a24640a6d81f68adcf0c89bfd5eaa38e",
     "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
   }
 }

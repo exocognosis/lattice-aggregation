@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
-Branch: `chore/gitignore-hardening`
-Commit: `f0aefc38f3eb926f15979a29153713370baff5a9`
+Branch: `codex/p1-validation-proof-packages`
+Commit: `b5932fcc5c665486fbc11a6450f4ccbd5e5a275a`
 
 ## Criteria
 

@@ -20,6 +20,30 @@ pub trait SignatureAggregator {
     ) -> Result<ThresholdSignature, Self::Error>;
 }
 
+/// Aggregate partial shares with an explicit cryptographic backend.
+///
+/// Validates transcript/validator binding, then delegates to
+/// [`Mldsa65Backend::aggregate`].
+pub fn aggregate_with_backend<B>(
+    transcript: ThresholdSigningTranscript,
+    partial_shares: PartialShareSet,
+) -> Result<ThresholdSignature, ThresholdError>
+where
+    B: Mldsa65Backend<Error = ThresholdError>,
+{
+    if partial_shares.threshold() != transcript.threshold()
+        || !partial_shares
+            .validators()
+            .iter()
+            .copied()
+            .eq(transcript.validator_set().iter().copied())
+    {
+        return Err(ThresholdError::TranscriptMismatch);
+    }
+
+    B::aggregate(transcript.public_key(), &transcript, partial_shares)
+}
+
 /// Deterministic simulation aggregator reserved for the aggregation task.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct SimulatedAggregator;
@@ -31,16 +55,6 @@ impl SignatureAggregator for SimulatedAggregator {
         transcript: ThresholdSigningTranscript,
         partial_shares: PartialShareSet,
     ) -> Result<ThresholdSignature, Self::Error> {
-        if partial_shares.threshold() != transcript.threshold()
-            || !partial_shares
-                .validators()
-                .iter()
-                .copied()
-                .eq(transcript.validator_set().iter().copied())
-        {
-            return Err(ThresholdError::TranscriptMismatch);
-        }
-
-        SimulatedBackend::aggregate(transcript.public_key(), &transcript, partial_shares)
+        aggregate_with_backend::<SimulatedBackend>(transcript, partial_shares)
     }
 }

@@ -37,27 +37,27 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-07T18:16:40Z",
+  "generated_at": "2026-07-10T14:14:03Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+      "sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "8838c7f68ea79e340b8bade6d34d2fb8b1f2d0d8316b4f8ca58f46cf7654eab3"
+      "sha256": "4df16220a032eccd693fd1b064640c62b58d60517b6c09d3f471669c05bd23ce"
     },
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "a728eb2de9e3ecc8d0d5c1ec637604effab5e5d292370074beb6a89e416a4ae9"
+      "sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d"
     },
     "external_attempt": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "284cd6f074327bbc3aa88f43dd2b249d9c46bbb95ae0e271300e41ad7982a8c9"
+      "sha256": "b498394c90f5a1fc5f17b5b122f8a7ce13c7e9e66eb67738b326fae09e55fb11"
     },
     "formal_security_theorem": {
       "path": "docs/cryptography/formal-security-theorem.md",
@@ -67,7 +67,7 @@
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5"
+      "sha256": "b8b34b0105dd9caa4c2640be668f1123577b01ed01fd7afa732556cc396e2750"
     },
     "proof_obligations": {
       "path": "docs/cryptography/proof-obligations.md",
@@ -83,8 +83,8 @@
   "name": "p1-theorem-linkage-review",
   "review_digests": {
     "criterion2_theorem_links_digest_hex": "00d93aca1cf8f6695f65178d45c8106e095c94baaa03857400fd2564e9676781",
-    "source_inputs_digest_hex": "d0ecdd8757fa996380abf455b53e84131ba2fedff250bf9d5b84111af8d4e19b",
-    "theorem_linkage_review_digest_hex": "0bb3951dbb95bd067b8af6a79f4f0fdfe9a473c8da76beb07dc07eeb956b014d"
+    "source_inputs_digest_hex": "1ad1049a0e57c3a234ddc448ce5ababdd3c84213e2e5f8f066e4f16247d206e8",
+    "theorem_linkage_review_digest_hex": "a798c401fa79a3007c762c70ac19d3baa270a35604511fd985d1d7a73ba39fa9"
   },
   "review_status": "reviewed_theorem_linkage_ready",
   "schema": "lattice-aggregation:p1-theorem-linkage-review:v1",

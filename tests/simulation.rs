@@ -319,8 +319,13 @@ async fn actor_rejects_sessions_past_capacity() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(actor_config(1), network.clone(), consensus.clone(), rx)
-        .expect("actor config should be valid");
+    let actor = ThresholdActor::<_, _, lattice_aggregation::SimulatedBackend>::new(
+        actor_config(1),
+        network.clone(),
+        consensus.clone(),
+        rx,
+    )
+    .expect("actor config should be valid");
 
     assert_eq!(actor.active_session_count(), 0);
     let handle = tokio::spawn(actor.run());
@@ -363,7 +368,7 @@ async fn actor_finalizes_ideal_threshold_signature() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(
+    let actor = ThresholdActor::<_, _, lattice_aggregation::SimulatedBackend>::new(
         actor_config_with_timeout(4, Duration::ZERO),
         network.clone(),
         consensus.clone(),
@@ -413,7 +418,7 @@ async fn actor_broadcasts_local_partial_after_threshold_commitments() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(
+    let actor = ThresholdActor::<_, _, lattice_aggregation::SimulatedBackend>::new(
         actor_config_with_timeout(4, Duration::ZERO),
         network.clone(),
         consensus.clone(),
@@ -459,7 +464,7 @@ async fn actor_submits_evidence_for_poisoned_partial_share() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(
+    let actor = ThresholdActor::<_, _, lattice_aggregation::SimulatedBackend>::new(
         actor_config_with_timeout(4, Duration::ZERO),
         network.clone(),
         consensus.clone(),
@@ -512,7 +517,7 @@ async fn actor_submits_liveness_evidence_for_commitment_without_partial() {
     let (tx, rx) = mpsc::channel(8);
     let network = RecordingNetwork::default();
     let consensus = RecordingConsensus::default();
-    let actor = ThresholdActor::new(
+    let actor = ThresholdActor::<_, _, lattice_aggregation::SimulatedBackend>::new(
         actor_config_with_timeout(4, Duration::ZERO),
         network.clone(),
         consensus.clone(),

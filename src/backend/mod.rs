@@ -2,6 +2,59 @@
 //!
 //! The simulation backend is deterministic test machinery. It does not produce
 //! real ML-DSA signatures and cannot verify standard ML-DSA signatures.
+//!
+//! When the `raw-real-mldsa` feature is enabled, [`real::RealMldsa65Backend`]
+//! and [`threshold_core::ThresholdMldsaEngine`] provide hazmat real-crypto
+//! paths: seed-share reconstruction, live nonce DKG, binding VSS, partial
+//! share contributions, and FIPS Sign_internal with rejection. Formal proofs
+//! and external audits remain open.
+
+#[cfg(feature = "raw-real-mldsa")]
+pub mod algebraic_partial;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod fips_sign;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod fips_wire;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod module_partial;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod real;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod threshold_core;
+
+#[cfg(feature = "raw-real-mldsa")]
+pub use algebraic_partial::{
+    aggregate_algebraic_partials, challenge_scalar_from_digest, emit_algebraic_partial_zi,
+    split_secret_poly_shamir, AlgebraicAggregateZ, AlgebraicPartialStatus, AlgebraicPartialZi,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use fips_sign::{
+    keygen_from_seed, self_contained_sign_with_module_z_shares, sign_internal_empty_ctx,
+    ExpandedSecret65, SelfContainedFipsStatus, SelfContainedSignPackage,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use fips_wire::{
+    pack_z_encoding, reconstruct_module_from_partials, sign_with_module_partial_z_evidence,
+    unpack_z_from_signature, FipsWireModulePartialPackage, FipsWireStatus, C_TILDE_BYTES,
+    H_ENCODED_BYTES, Z_ENCODED_BYTES,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use module_partial::{
+    aggregate_module_partials, compute_z, emit_module_partial_zi, expand_s1_research,
+    expand_y_research, module_partial_round_trip, sample_in_ball, split_module_vector_shamir,
+    ModuleAggregateZ, ModulePartialZi, ModuleVecL, BETA, GAMMA1, L as MODULE_L, TAU, Z_BOUND,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use real::{
+    RealAggregator, RealCommitmentSecret, RealMldsa65Backend, RealMldsaConstruction,
+    SEED_SHARE_DOMAIN_DEFAULT,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use threshold_core::{
+    AggregateWithRejection, BlockerStatus, KeyDkgOutput, NonceDkgAttempt, PartialZiContribution,
+    ThresholdAttemptPartials, ThresholdMldsaEngine, KEY_VSS_DOMAIN, NONCE_DKG_DOMAIN,
+    PARTIAL_ZI_DOMAIN,
+};
 
 use core::fmt;
 

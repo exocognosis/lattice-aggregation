@@ -4,3 +4,4 @@
 //! integration work. It is not a complete FIPS 204 backend.
 
 pub mod poly;
+pub mod ring;

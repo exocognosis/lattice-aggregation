@@ -8,6 +8,9 @@ use sha3::{Digest, Sha3_256};
 
 use crate::SimulatedBackend;
 
+#[cfg(feature = "raw-real-mldsa")]
+use crate::RealMldsa65Backend;
+
 /// ML-DSA parameter set selected for the production-candidate profile.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ParameterSet {
@@ -107,6 +110,15 @@ pub trait BackendSelectionMetadata {
 impl BackendSelectionMetadata for SimulatedBackend {
     fn selection_status() -> BackendSelectionStatus {
         BackendSelectionStatus::SimulationOnly
+    }
+}
+
+/// Real ML-DSA-65 seed-reconstruction backend is the selected hazmat candidate
+/// construction target. It remains not production-approved until proof/audit gates close.
+#[cfg(feature = "raw-real-mldsa")]
+impl BackendSelectionMetadata for RealMldsa65Backend {
+    fn selection_status() -> BackendSelectionStatus {
+        BackendSelectionStatus::SelectedProductionCandidate
     }
 }
 

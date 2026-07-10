@@ -2,6 +2,7 @@
 
 use std::{
     collections::{BTreeMap, HashMap},
+    marker::PhantomData,
     time::{Duration, Instant},
 };
 
@@ -13,9 +14,10 @@ use crate::{
         traits::{ConsensusStateAdapter, P2pNetworkAdapter},
         wire::PqcThresholdWireMsg,
     },
+    aggregation::aggregate_with_backend,
     state, Commitment, CommitmentSet, PartialShareSet, PartialSignatureShare, PrivateKeyShare,
-    SessionId, SignatureAggregator, SigningSession, SimulatedAggregator, ThresholdError,
-    ThresholdPublicKey, ThresholdSigner, ThresholdSigningTranscript, ValidatorId,
+    SessionBackend, SessionId, SigningSession, SimulatedBackend, ThresholdError,
+    ThresholdPublicKey, ThresholdSigningTranscript, ValidatorId,
 };
 
 /// Events consumed by the threshold actor.
@@ -93,34 +95,43 @@ impl ActorConfig {
 }
 
 /// Async threshold protocol actor.
-pub struct ThresholdActor<N, C>
+///
+/// Parameterized by network and consensus adapters plus a cryptographic
+/// backend (`B`, default [`SimulatedBackend`]).
+pub struct ThresholdActor<N, C, B = SimulatedBackend>
 where
     N: P2pNetworkAdapter,
     C: ConsensusStateAdapter,
+    B: SessionBackend,
 {
     config: ActorConfig,
     network: N,
     consensus: C,
     inbox: mpsc::Receiver<ActorEvent>,
-    active_sessions: HashMap<SessionId, ActiveSigningSession>,
+    active_sessions: HashMap<SessionId, ActiveSigningSession<B>>,
+    _backend: PhantomData<fn() -> B>,
 }
 
 #[derive(Debug)]
-struct ActiveSigningSession {
+struct ActiveSigningSession<B>
+where
+    B: SessionBackend,
+{
     block_height: u64,
     message_hash: [u8; 32],
     created_at: Instant,
-    session: Option<SigningSession<state::AwaitingCommitments>>,
+    session: Option<SigningSession<state::AwaitingCommitments, B>>,
     local_commitment: Commitment,
     commitments: BTreeMap<ValidatorId, Commitment>,
     partials: BTreeMap<ValidatorId, PartialSignatureShare>,
     finalized: bool,
 }
 
-impl<N, C> ThresholdActor<N, C>
+impl<N, C, B> ThresholdActor<N, C, B>
 where
     N: P2pNetworkAdapter,
     C: ConsensusStateAdapter,
+    B: SessionBackend,
 {
     /// Construct a threshold actor with bounded session capacity.
     pub fn new(
@@ -129,7 +140,7 @@ where
         consensus: C,
         inbox: mpsc::Receiver<ActorEvent>,
     ) -> Result<Self, ThresholdError> {
-        let _validated = SigningSession::new(
+        let _validated = SigningSession::<state::Initialized, B>::with_backend(
             [0; 32],
             config.threshold,
             config.validator_set.clone(),
@@ -143,6 +154,7 @@ where
             consensus,
             inbox,
             active_sessions: HashMap::new(),
+            _backend: PhantomData,
         })
     }
 
@@ -181,7 +193,7 @@ where
             return;
         }
 
-        let Ok(session) = SigningSession::new(
+        let Ok(session) = SigningSession::<state::Initialized, B>::with_backend(
             session_id,
             self.config.threshold,
             self.config.validator_set.clone(),
@@ -363,11 +375,9 @@ where
             return None;
         };
         let session = active.session.take()?;
-        let Ok((_, partial)) = SigningSession::generate_partial_signature(
-            session,
-            commitment_set,
-            &active.message_hash,
-        ) else {
+        let Ok((_, partial)) =
+            session.generate_partial_signature(commitment_set, &active.message_hash)
+        else {
             return None;
         };
         let message = PqcThresholdWireMsg::PartialSignature {
@@ -434,7 +444,7 @@ where
             self.config.threshold,
             active.partials.values().cloned().collect(),
         )?;
-        let signature = SimulatedAggregator::aggregate_shares(transcript, shares)?;
+        let signature = aggregate_with_backend::<B>(transcript, shares)?;
 
         Ok((active.block_height, signature.0.to_vec()))
     }
