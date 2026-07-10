@@ -8,5 +8,6 @@ pub mod poly {
     pub use crate::low_level::poly::{Poly, N, Q};
 }
 
+pub mod feldman_vss;
 pub mod interpolation;
 pub mod vss;

@@ -1,6 +1,5 @@
 use lattice_aggregation::{
-    Commitment, CommitmentSet, PrivateKeyShare, SigningSession, ThresholdPublicKey,
-    ThresholdSigner, ValidatorId,
+    Commitment, CommitmentSet, PrivateKeyShare, SigningSession, ThresholdPublicKey, ValidatorId,
 };
 
 fn main() {
@@ -20,5 +19,5 @@ fn main() {
     )
     .unwrap();
 
-    let _ = SigningSession::generate_partial_signature(session, commitments, b"message");
+    let _ = session.generate_partial_signature(commitments, b"message");
 }

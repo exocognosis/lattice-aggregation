@@ -1,15 +1,7 @@
-error[E0308]: mismatched types
-  --> tests/ui/type_state_invalid_partial.rs:23:56
+error[E0599]: no method named `generate_partial_signature` found for struct `SigningSession` in the current scope
+  --> tests/ui/type_state_invalid_partial.rs:22:21
    |
-23 |     let _ = SigningSession::generate_partial_signature(session, commitments, b"message");
-   |             ------------------------------------------ ^^^^^^^ expected `SigningSession<AwaitingCommitments>`, found `SigningSession`
-   |             |
-   |             arguments to this function are incorrect
+22 |     let _ = session.generate_partial_signature(commitments, b"message");
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `SigningSession`
    |
-   = note: expected struct `SigningSession<AwaitingCommitments>`
-              found struct `SigningSession<Initialized>`
-note: associated function defined here
-  --> src/protocol.rs
-   |
-   |     fn generate_partial_signature(
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: the method was found for `SigningSession<AwaitingCommitments, B>`

@@ -3,7 +3,7 @@ use lattice_aggregation::{
         EvidenceDecodeError, EvidenceKind, SlashingEvidence, SlashingEvidencePayload,
     },
     Commitment, CommitmentSet, Poly, PrivateKeyShare, SigningSession, ThresholdPublicKey,
-    ThresholdSigner, ValidatorId, N, Q,
+    ValidatorId, N, Q,
 };
 
 #[test]
@@ -112,8 +112,9 @@ fn signing_state_exposes_polynomial_buffers() {
         ],
     )
     .unwrap();
-    let (awaiting_partials, _) =
-        SigningSession::generate_partial_signature(awaiting, commitments, b"block").unwrap();
+    let (awaiting_partials, _) = awaiting
+        .generate_partial_signature(commitments, b"block")
+        .unwrap();
 
     assert_eq!(
         awaiting_partials.internal_state().global_challenge,

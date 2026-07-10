@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
-Branch: `main`
-Commit: `0f4cdc68b3704365a95de9c5350a26a9756232a1`
+Branch: `codex/p1-validation-proof-packages`
+Commit: `7fe8828510580423e7d45bc6e56d21262aeb2a00`
 
 ## Criteria
 

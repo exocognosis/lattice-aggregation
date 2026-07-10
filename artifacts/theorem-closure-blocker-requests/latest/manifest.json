@@ -10,7 +10,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-08T00:02:18Z",
+  "generated_at": "2026-07-10T14:14:03Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -30,12 +30,12 @@
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "6a2f8d337f2bb3cefad3f69a2b691e3fed8c9343cf6c53b7695b4c0f44eb1d4a"
+      "sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d"
     },
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "844b74551227c54266b7f019e528ac52f86b7b99339a3f533a0ed1644f517aca"
+      "sha256": "15b316edc5fe98a508cb16894aabd88cd5b62be4043b26cdc039b177f24e90eb"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -45,12 +45,12 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "296a6da51f7a97e606f01312f15d1f88931bcbbb03af6cf7e39ebbe65d16b0a6"
+      "sha256": "b9e33e267ad05deee538d10458362ebe2d778a243d100106ab463fbd7337d2ce"
     }
   },
   "name": "theorem-closure-blocker-requests-v1",
   "request_boundary": "This artifact defines the exact externally reviewed proof and validation packages required by theorem-review flags. It does not assert theorem closure, CAVP/ACVTS certification, or FIPS validation.",
-  "request_digest_sha256": "af531632f2a43d0b5f750eb5b9c090ad9e12d20fe3401dfec13a11dadf30f7c2",
+  "request_digest_sha256": "9f71051e2461ff98dcf580db0e2f423292f185cc61fea10a8a03ecd9b4c7fd2d",
   "request_status": "blocker_inputs_satisfied",
   "required_packages": {
     "full_kat_cavp_validation_review": {

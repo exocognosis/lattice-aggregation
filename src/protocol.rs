@@ -1,9 +1,14 @@
 //! Type-state signing protocol.
+//!
+//! Sessions are parameterized by a [`SessionBackend`]. The default backend is
+//! [`SimulatedBackend`]; enable `raw-real-mldsa` and construct sessions with
+//! [`SigningSession::with_backend`] plus [`crate::RealMldsa65Backend`] for real
+//! ML-DSA-65 seed-reconstruction crypto.
 
-use core::fmt;
+use core::{fmt, marker::PhantomData};
 
 use crate::{
-    backend::{Mldsa65Backend, SimulatedBackend, SimulatedCommitmentSecret},
+    backend::{Mldsa65Backend, SimulatedBackend},
     collections::{set_from_validators, validate_threshold, CommitmentSet},
     errors::ThresholdError,
     transcript::SigningTranscript,
@@ -51,8 +56,29 @@ pub mod state {
     pub struct Finalized;
 }
 
+/// Backend bound used by the type-state signing session.
+///
+/// Concrete backends must report [`ThresholdError`] and store key material as
+/// [`PrivateKeyShare`] so the public session API stays stable across sim and
+/// real constructions.
+pub trait SessionBackend:
+    Mldsa65Backend<Error = ThresholdError, KeyShare = PrivateKeyShare> + Default
+{
+}
+
+impl<B> SessionBackend for B where
+    B: Mldsa65Backend<Error = ThresholdError, KeyShare = PrivateKeyShare> + Default
+{
+}
+
 /// Participant-local threshold signing session.
-pub struct SigningSession<State = state::Initialized> {
+///
+/// The second type parameter selects the cryptographic backend. Defaults to
+/// [`SimulatedBackend`] for deterministic protocol tests.
+pub struct SigningSession<State = state::Initialized, B = SimulatedBackend>
+where
+    B: SessionBackend,
+{
     session_id: SessionId,
     threshold: u16,
     total_nodes: u16,
@@ -60,12 +86,14 @@ pub struct SigningSession<State = state::Initialized> {
     public_key: ThresholdPublicKey,
     validator_set: Vec<ValidatorId>,
     internal_state: State,
-    commitment_secret: Option<SimulatedCommitmentSecret>,
+    commitment_secret: Option<B::CommitmentSecret>,
+    _backend: PhantomData<fn() -> B>,
 }
 
-impl<State> fmt::Debug for SigningSession<State>
+impl<State, B> fmt::Debug for SigningSession<State, B>
 where
     State: fmt::Debug,
+    B: SessionBackend,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SigningSession")
@@ -84,16 +112,22 @@ where
     }
 }
 
-impl<State> SigningSession<State> {
+impl<State, B> SigningSession<State, B>
+where
+    B: SessionBackend,
+{
     /// Borrow the current type-state marker and its public buffers.
     pub fn internal_state(&self) -> &State {
         &self.internal_state
     }
 }
 
-impl SigningSession<state::Initialized> {
-    /// Construct and validate an initialized signing session.
-    pub fn new(
+impl<B> SigningSession<state::Initialized, B>
+where
+    B: SessionBackend,
+{
+    /// Construct and validate an initialized signing session for backend `B`.
+    pub fn with_backend(
         session_id: SessionId,
         threshold: u16,
         validator_set: Vec<ValidatorId>,
@@ -119,40 +153,14 @@ impl SigningSession<state::Initialized> {
             validator_set,
             internal_state: state::Initialized,
             commitment_secret: None,
+            _backend: PhantomData,
         })
     }
-}
-
-/// Public signing round interface.
-pub trait ThresholdSigner: Sized {
-    /// Error returned by the signing state machine.
-    type Error;
 
     /// Generate the local commitment and advance to commitment collection.
-    fn initiate_signing(
+    pub fn initiate_signing(
         self,
-    ) -> Result<(SigningSession<state::AwaitingCommitments>, Commitment), Self::Error>;
-
-    /// Bind all commitments, derive the challenge, and emit the local partial signature.
-    fn generate_partial_signature(
-        session: SigningSession<state::AwaitingCommitments>,
-        all_commitments: CommitmentSet,
-        message: &[u8],
-    ) -> Result<
-        (
-            SigningSession<state::AwaitingPartialSignatures>,
-            PartialSignatureShare,
-        ),
-        Self::Error,
-    >;
-}
-
-impl ThresholdSigner for SigningSession<state::Initialized> {
-    type Error = ThresholdError;
-
-    fn initiate_signing(
-        self,
-    ) -> Result<(SigningSession<state::AwaitingCommitments>, Commitment), Self::Error> {
+    ) -> Result<(SigningSession<state::AwaitingCommitments, B>, Commitment), ThresholdError> {
         let precommit_commitments = CommitmentSet::new(
             self.validator_set.clone(),
             1,
@@ -166,8 +174,7 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
             b"precommit",
             precommit_commitments,
         )?;
-        let (commitment, secret) =
-            SimulatedBackend::derive_commitment(&self.local_share, &precommit_transcript)?;
+        let (commitment, secret) = B::derive_commitment(&self.local_share, &precommit_transcript)?;
 
         Ok((
             SigningSession {
@@ -183,24 +190,50 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
                     received_commitments: std::collections::HashMap::new(),
                 },
                 commitment_secret: Some(secret),
+                _backend: PhantomData,
             },
             commitment,
         ))
     }
+}
 
-    fn generate_partial_signature(
-        session: SigningSession<state::AwaitingCommitments>,
+impl SigningSession<state::Initialized, SimulatedBackend> {
+    /// Construct a simulation-backend session (stable default entry point).
+    pub fn new(
+        session_id: SessionId,
+        threshold: u16,
+        validator_set: Vec<ValidatorId>,
+        public_key: ThresholdPublicKey,
+        local_share: PrivateKeyShare,
+    ) -> Result<Self, ThresholdError> {
+        Self::with_backend(
+            session_id,
+            threshold,
+            validator_set,
+            public_key,
+            local_share,
+        )
+    }
+}
+
+impl<B> SigningSession<state::AwaitingCommitments, B>
+where
+    B: SessionBackend,
+{
+    /// Bind all commitments, derive the challenge, and emit the local partial signature.
+    pub fn generate_partial_signature(
+        self,
         all_commitments: CommitmentSet,
         message: &[u8],
     ) -> Result<
         (
-            SigningSession<state::AwaitingPartialSignatures>,
+            SigningSession<state::AwaitingPartialSignatures, B>,
             PartialSignatureShare,
         ),
-        Self::Error,
+        ThresholdError,
     > {
-        let local_validator = session.local_share.share_id;
-        let local_commitment = session.internal_state.local_commitment;
+        let local_validator = self.local_share.share_id;
+        let local_commitment = self.internal_state.local_commitment;
         if all_commitments.get(local_validator) != Some(&local_commitment) {
             return Err(ThresholdError::CommitmentVerificationFailed {
                 validator: local_validator,
@@ -208,40 +241,77 @@ impl ThresholdSigner for SigningSession<state::Initialized> {
         }
 
         let transcript = SigningTranscript::new(
-            session.session_id,
-            session.threshold,
-            session.validator_set.clone(),
-            session.public_key.clone(),
+            self.session_id,
+            self.threshold,
+            self.validator_set.clone(),
+            self.public_key.clone(),
             message,
             all_commitments,
         )?;
-        let secret = session
+        let secret = self
             .commitment_secret
             .ok_or(ThresholdError::TranscriptMismatch)?;
-        let partial = SimulatedBackend::partial_sign(&session.local_share, secret, &transcript);
-        let partial = partial?;
+        let partial = B::partial_sign(&self.local_share, secret, &transcript)?;
         let challenge = transcript.challenge();
 
         Ok((
             SigningSession {
-                session_id: session.session_id,
-                threshold: session.threshold,
-                total_nodes: session.total_nodes,
-                local_share: session.local_share,
-                public_key: session.public_key,
-                validator_set: session.validator_set,
+                session_id: self.session_id,
+                threshold: self.threshold,
+                total_nodes: self.total_nodes,
+                local_share: self.local_share,
+                public_key: self.public_key,
+                validator_set: self.validator_set,
                 internal_state: state::AwaitingPartialSignatures {
                     global_challenge: challenge,
                     partial_shares: std::collections::HashMap::new(),
                 },
                 commitment_secret: None,
+                _backend: PhantomData,
             },
             partial,
         ))
     }
 }
 
-impl SigningSession<state::AwaitingPartialSignatures> {
+/// Public signing round interface for the initialized state.
+pub trait ThresholdSigner: Sized {
+    /// Error returned by the signing state machine.
+    type Error;
+    /// Cryptographic backend used by this signer.
+    type Backend: SessionBackend;
+
+    /// Generate the local commitment and advance to commitment collection.
+    #[allow(clippy::type_complexity)]
+    fn initiate_signing(
+        self,
+    ) -> Result<
+        (
+            SigningSession<state::AwaitingCommitments, Self::Backend>,
+            Commitment,
+        ),
+        Self::Error,
+    >;
+}
+
+impl<B> ThresholdSigner for SigningSession<state::Initialized, B>
+where
+    B: SessionBackend,
+{
+    type Error = ThresholdError;
+    type Backend = B;
+
+    fn initiate_signing(
+        self,
+    ) -> Result<(SigningSession<state::AwaitingCommitments, B>, Commitment), Self::Error> {
+        SigningSession::<state::Initialized, B>::initiate_signing(self)
+    }
+}
+
+impl<B> SigningSession<state::AwaitingPartialSignatures, B>
+where
+    B: SessionBackend,
+{
     /// Return the transcript-derived challenge.
     pub fn challenge(&self) -> Challenge {
         self.internal_state.global_challenge

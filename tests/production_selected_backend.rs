@@ -79,3 +79,16 @@ fn simulated_backend_is_not_the_selected_production_backend() {
     assert_ne!(status, BackendSelectionStatus::SelectedProductionCandidate);
     assert!(!status.is_selected_production_candidate());
 }
+
+#[cfg(feature = "raw-real-mldsa")]
+#[test]
+fn real_mldsa_backend_is_selected_hazmat_candidate() {
+    use lattice_aggregation::RealMldsa65Backend;
+
+    let status = RealMldsa65Backend::selection_status();
+    assert_eq!(status, BackendSelectionStatus::SelectedProductionCandidate);
+    assert!(status.is_selected_production_candidate());
+    assert!(
+        !SelectedProductionBackendProfile::mldsa65_coordinator_assisted_p1().production_approved()
+    );
+}

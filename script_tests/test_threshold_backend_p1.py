@@ -391,6 +391,95 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertTrue(gate["actual_external_capture_ready"])
         self.assertEqual(gate["gate_status"], "actual_external_capture_ready")
 
+    def test_threshold_core_capture_reports_engineering_blocker_closure(self):
+        with tempfile.TemporaryDirectory(prefix="threshold-backend-p1-core.") as temp_dir:
+            out_dir = pathlib.Path(temp_dir)
+            subprocess.run(
+                [
+                    "cargo",
+                    "run",
+                    "--quiet",
+                    "--features",
+                    "raw-real-mldsa",
+                    "--bin",
+                    "threshold_backend_p1",
+                    "--",
+                    "emit-threshold-core-capture",
+                    "--request",
+                    str(REQUEST),
+                    "--out-dir",
+                    str(out_dir),
+                    "--seed-hex",
+                    "51" * 32,
+                ],
+                cwd=ROOT,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            capture = json.loads((out_dir / "capture.json").read_text())
+            review = json.loads((out_dir / "review.json").read_text())
+
+        core = capture["cryptographic_core"]
+        self.assertEqual(core["core_mode"], "threshold_mldsa_engine_live_nonce_dkg_p1")
+        self.assertTrue(core["distributed_threshold_core"]["live_distributed_nonce_generation"])
+        self.assertTrue(core["distributed_threshold_core"]["partial_signing_over_secret_shares"])
+        self.assertFalse(
+            core["distributed_threshold_core"]["fips204_rejection_loop_over_threshold_partials"]
+        )
+        self.assertTrue(
+            core["distributed_threshold_core"][
+                "provider_fips204_rejection_over_reconstructed_distributed_rnd"
+            ]
+        )
+        self.assertTrue(core["distributed_threshold_core"]["standard_verifier_compatible_output"])
+        self.assertFalse(
+            core["distributed_threshold_core"]["accepted_aggregate_distribution_proven"]
+        )
+        self.assertTrue(
+            core["blocker_status"]["algebraic_module_vector_partial_zi"]
+        )
+
+        ledger = core["backend_requirement_evidence"]
+        self.assertTrue(ledger["distributed_nonce_path"]["live_distributed_nonce_generation"])
+        self.assertTrue(ledger["partial_signing"]["implemented"])
+        self.assertTrue(ledger["partial_signing"]["partial_signing_over_secret_shares"])
+        self.assertTrue(ledger["partial_signing"]["algebraic_poly_partial_zi"])
+        self.assertTrue(ledger["partial_signing"]["algebraic_module_vector_partial_zi"])
+        self.assertFalse(ledger["fips204_rejection_loop"]["real_threshold_partial_predicates"])
+        self.assertTrue(
+            ledger["fips204_rejection_loop"][
+                "provider_rejection_over_reconstructed_distributed_rnd"
+            ]
+        )
+        self.assertFalse(
+            ledger["threshold_key_material"]["single_exposed_mldsa_secret_key_prevented"]
+        )
+        self.assertTrue(ledger["threshold_key_material"]["coordinator_reconstructs_seed_in_process"])
+        self.assertTrue(ledger["engineering_blockers_closed"])
+        self.assertFalse(ledger["fully_closed"])
+        self.assertFalse(ledger["production_approved"])
+
+        blocker = core["blocker_status"]
+        self.assertTrue(blocker["distributed_nonce_dkg_live"])
+        self.assertTrue(blocker["engineering_blockers_closed"])
+        self.assertFalse(blocker["closed_proofs"])
+        self.assertFalse(blocker["closed_audits"])
+
+        self.assertEqual(len(bytes.fromhex(capture["capture"]["public_key_hex"])), 1952)
+        self.assertEqual(
+            len(bytes.fromhex(capture["capture"]["aggregate_signature_hex"])),
+            3309,
+        )
+        self.assertTrue(capture["capture"]["mutated_message_rejected"])
+        self.assertIn("review_status", review)
+        self.assertIn("fips_wire", ledger)
+        self.assertTrue(ledger["fips_wire"]["fips204_wire_signature_accepted"])
+        self.assertTrue(ledger["fips_wire"]["threshold_z_share_reconstructs_wire_z"])
+        self.assertFalse(ledger["fips_wire"]["fips204_wire_from_s1_y_partials_without_provider"])
+
+
 
 if __name__ == "__main__":
     unittest.main()

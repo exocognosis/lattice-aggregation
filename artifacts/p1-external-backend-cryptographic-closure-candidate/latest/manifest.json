@@ -1,6 +1,6 @@
 {
   "blockers": [],
-  "candidate_digest_sha256": "c9d14cc6beb704c57f0c0016b728ff8becbc8ee87745bbe1978fc7275100ea8b",
+  "candidate_digest_sha256": "16f4db8e7b7fb800548beaebc73c5a2ae5e72497dbbee04a3231a01278887843",
   "checks": {
     "comparison_close_candidate": true,
     "distribution_abort_review_present": true,
@@ -21,35 +21,35 @@
   "claims_theorem_closure": false,
   "close_candidate": true,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-07T16:52:03Z",
+  "generated_at": "2026-07-07T23:36:26Z",
   "inputs": {
     "accepted_distribution_abort_review": {
-      "path": "/tmp/lattice-p1-strict-run/distribution-abort/manifest.json",
+      "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "70835408b35c1298e5909c372b5e510ba29df2f69a4300d5562032f91a75c0e7"
+      "sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83"
     },
     "actual_external_nonce_gate_manifest": {
-      "path": "/tmp/lattice-p1-strict-run/nonce-gate/manifest.json",
+      "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
       "present": true,
       "sha256": "df05f7518139562e164f3792fd3e1a8bdc464a48b61d516c5cc326bbc271beeb"
     },
     "production_dkg_no_single_secret_review": {
-      "path": "/tmp/lattice-p1-strict-run/dkg-review/manifest.json",
+      "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "c3c7fc6edb2f281096e24bc779933bdd9f180f1459c11418d912aaf2b62ff1e5"
+      "sha256": "b8b34b0105dd9caa4c2640be668f1123577b01ed01fd7afa732556cc396e2750"
     },
     "real_threshold_backend_capture_json": {
-      "path": "/tmp/lattice-p1-strict-run/backend-staged/capture.json",
+      "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
       "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
     },
     "real_threshold_backend_capture_manifest": {
-      "path": "/tmp/lattice-p1-strict-run/backend-staged/manifest.json",
+      "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
       "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
     },
     "rejection_equivalence_batch_json": {
-      "path": "/tmp/lattice-p1-strict-run/rejection/batch.json",
+      "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
       "present": true,
       "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
     }

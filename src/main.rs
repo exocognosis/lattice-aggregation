@@ -277,7 +277,7 @@ async fn run_single_trial(
     let (tx, rx) = mpsc::channel(128);
     let network = HarnessNetwork::default();
     let consensus = HarnessConsensus::default();
-    let actor = ThresholdActor::new(
+    let actor = ThresholdActor::<_, _, lattice_aggregation::SimulatedBackend>::new(
         ActorConfig::new(
             ValidatorId(1),
             (1..=spec.validators).map(ValidatorId).collect(),

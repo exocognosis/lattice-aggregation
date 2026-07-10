@@ -23,13 +23,27 @@ pub mod transcript;
 pub mod types;
 pub mod utils;
 
-pub use aggregation::{SignatureAggregator, SimulatedAggregator};
+pub use aggregation::{aggregate_with_backend, SignatureAggregator, SimulatedAggregator};
+#[cfg(feature = "raw-real-mldsa")]
+pub use backend::{
+    aggregate_algebraic_partials, aggregate_module_partials, challenge_scalar_from_digest,
+    compute_z, emit_algebraic_partial_zi, emit_module_partial_zi, expand_s1_research,
+    expand_y_research, module_partial_round_trip, pack_z_encoding, sample_in_ball,
+    sign_with_module_partial_z_evidence, split_module_vector_shamir, split_secret_poly_shamir,
+    unpack_z_from_signature, AggregateWithRejection, AlgebraicAggregateZ, AlgebraicPartialStatus,
+    AlgebraicPartialZi, BlockerStatus, FipsWireModulePartialPackage, FipsWireStatus, KeyDkgOutput,
+    ModuleAggregateZ, ModulePartialZi, ModuleVecL, NonceDkgAttempt, PartialZiContribution,
+    RealAggregator, RealCommitmentSecret, RealMldsa65Backend, RealMldsaConstruction,
+    ThresholdAttemptPartials, ThresholdMldsaEngine, BETA, C_TILDE_BYTES, GAMMA1, H_ENCODED_BYTES,
+    KEY_VSS_DOMAIN, MODULE_L, NONCE_DKG_DOMAIN, PARTIAL_ZI_DOMAIN, SEED_SHARE_DOMAIN_DEFAULT, TAU,
+    Z_BOUND, Z_ENCODED_BYTES,
+};
 pub use backend::{Mldsa65Backend, SimulatedBackend};
 pub use collections::{CommitmentSet, PartialShareSet, ValidatedDkgShares};
 pub use dkg::{SimulatedDkg, ThresholdKeyGeneration};
 pub use errors::ThresholdError;
 pub use low_level::poly::{Poly, N, Q};
-pub use protocol::{state, SigningSession, ThresholdSigner};
+pub use protocol::{state, SessionBackend, SigningSession, ThresholdSigner};
 pub use transcript::{SigningTranscript, ThresholdSigningTranscript};
 pub use types::{
     Challenge, Commitment, PartialSignatureShare, PrivateKeyShare, SessionId, ThresholdPublicKey,

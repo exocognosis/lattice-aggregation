@@ -1,7 +1,7 @@
 {
   "capture": {
-    "capture_file_sha256": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
-    "capture_sha256": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
+    "capture_file_sha256": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
+    "capture_sha256": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
     "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
     "request_name": "p1-reviewed-nonce-producer-request-001",
     "request_schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1",
@@ -25,15 +25,15 @@
   "closure_boundary": "external nonce-producer capture review dossier only",
   "generated_at": "1970-01-01T00:00:00Z",
   "readiness": {
-    "manifest_sha256": "eaa4d7aec353226c1070d66a260742aee7f198925e827b5f94ebe5832ec8afcf",
+    "manifest_sha256": "dbdfdfc3f722566b692173c37d76aa68cbc0579e85d87e6f9fac0d172ae2fc7c",
     "readiness_status": "backend_candidate_admissible_pending_capture",
     "schema": "lattice-aggregation:p1-nonce-producer-backend-readiness:v1",
-    "source_tree_sha256": "c1d75f2b5ef7070cf5434665112c07ec39afe8cd233cec9c512b721e7d2c4e75"
+    "source_tree_sha256": "2782ab4874ea74f1ab72e9aa7a3a13836e8b610f4c49778cbe9dfa1c5dca136d"
   },
   "review": {
-    "backend_command_digest_hex": "b0f9e412b258d8a1749a0566d7b4d63fbe53f010483eae80bed7c68849d7d3b3",
+    "backend_command_digest_hex": "16a4401b4be75759296e89041e1d2b02c4e488c9cf625cc121be2b6fed166a36",
     "capture_environment_digest_hex": "0c4251880c3412467fc64b54f553bf61430a00d58d656bff6a870b9c15ab509e",
-    "external_review_digest_hex": "59425328c0f878b36387345cb60b0b7e5c734f45c0256c63a3cc4e3b98b3c9c9",
+    "external_review_digest_hex": "8828d61fa78dc54479ccf0575b86562957c63993a8ff2df018bb367e54a1a435",
     "operator_identity_digest_hex": "b23e77d4224526c7c66e057223459b5dab453e0ae69ecb5f3e3c99f06ed24c83",
     "reviewer_identity_digest_hex": "2118bdfd7c6da7373f49870ae9bbf6d9a3dd7a29a75d7e65912da4ea36af2350"
   },

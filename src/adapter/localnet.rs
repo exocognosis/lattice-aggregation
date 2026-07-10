@@ -240,7 +240,7 @@ pub async fn run_localnet(config: LocalnetConfig) -> Result<LocalnetReport, Thre
         let (tx, rx) = mpsc::channel(256);
         hub.register(validator, tx.clone());
         senders.push(tx);
-        let actor = ThresholdActor::new(
+        let actor = ThresholdActor::<_, _, crate::SimulatedBackend>::new(
             ActorConfig::new(
                 validator,
                 validator_set.clone(),

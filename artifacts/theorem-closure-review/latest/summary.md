@@ -4,7 +4,7 @@ This artifact reviews the current external-backend close-candidate evidence for 
 
 - Review status: `theorem_closure_review_ready`
 - Claim boundary: `readiness preflight only; pending theorem-closure review`
-- Review digest SHA-256: `bb61d2b10842764aa07a0ca9afceb925e2352897f300b6ddb69f458309f0dce1`
+- Review digest SHA-256: `4dafe34c73e42d309c13e03d814cb30360a6fcf55f25c5755d1430141525d76c`
 
 Review Flags:
 - `proof_payload_reviewed`: `true`

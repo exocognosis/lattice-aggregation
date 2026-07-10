@@ -39,12 +39,13 @@
     "abort_accountability_digest_hex": "08ced1e31ed8d742aa56f74850d4eb8f9082fee8fe8b1bb07b6dcbd4d02579e4",
     "backend_implementation_digest_hex": "8e0834411d0ddaa280cc0f25aa4a267b2be3380abfb3201da81ab88649971bd2",
     "coordinator_attestation_digest_hex": "409cc1f0525b7187e07f03db9535d0e0b584d1c8310b81a9b571ce47a1b76dc3",
-    "distributed_nonce_producer_artifact_digest_hex": "69276321cc84439a43fa73dd0f3db5311779b13fed9a93f7125de0e76dfb4ffb",
+    "distributed_nonce_producer_artifact_digest_hex": "a7d31b79b47bc73053cb2104432ee4ce2e463cec8dd260311825a753923a52c7",
     "external_review_digest_hex": "636a9ad2f7b40831cdac98ef916c51492de63895faae2155b707ef3598b92585",
     "nonce_share_commitment_digest_hex": "c10379971c927d07d1eb36ae8586da1ce6912bda61096a6d99479173a757d4f8",
     "pairwise_mask_seed_commitment_digest_hex": "bf9fcc16f5cd852d508146cd56bf27bef3cc45d1b83ea7df0629bac489fdb4ad",
     "shamir_nonce_dkg_transcript_digest_hex": "6b542eee3035e9c53f51dddd46e2e84adf84b1a8b2c42fad8cf8a339dda2e67c",
-    "source_reference_digest_hex": "63c79bb3bf126f74c98fef69da79cadfc5287915800a0de34ab8372a227be75d"
+    "source_reference_digest_hex": "63c79bb3bf126f74c98fef69da79cadfc5287915800a0de34ab8372a227be75d",
+    "threshold_nonce_accounting_digest_hex": "3ac31acf39c5c4c84810488ef664025ef33adc8a70a57f735408038b69d9376c"
   },
   "name": "p1-reviewed-nonce-producer-capture-001",
   "note": "Reviewed P1 nonce-producer capture replay for the executable handoff gate; proof-review evidence only and pending theorem-closure review.",
@@ -56,9 +57,34 @@
   "producer_evidence": "p1_shamir_nonce_dkg_tee_external_capture",
   "request": {
     "name": "p1-reviewed-nonce-producer-request-001",
-    "request_sha256": "d0c5eb664cc2e562d8c50f5fb2c698c60295b7e450bfb86765b9d78a6c6ff4e2",
+    "request_sha256": "dd2928e0755b7f61dddcf0942fd67412479a6471fc582db9c3d21ab5f3018685",
     "schema": "lattice-aggregation:p1-distributed-nonce-producer-request:v1"
   },
   "schema": "lattice-aggregation:p1-distributed-nonce-producer-capture:v1",
-  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "threshold_nonce_accounting": {
+    "closure_boundary": "deterministic transcript evidence for review; not a live distributed nonce DKG capture",
+    "coefficient_count": 6667,
+    "deterministic_replay_evidence": true,
+    "distributed_runtime_capture": false,
+    "live_network_capture": false,
+    "missing_protocols": [
+      "live_distributed_nonce_dkg",
+      "verifiable_secret_sharing_opening_checks",
+      "network_abort_recovery"
+    ],
+    "pairwise_mask_seed_commitment_count": 10000,
+    "sampled_validator_ids": [
+      0,
+      1,
+      2,
+      6666,
+      6667,
+      9999
+    ],
+    "schema": "lattice-threshold-backend-p1:threshold-nonce-accounting:v1",
+    "share_commitment_count": 10000,
+    "threshold": 6667,
+    "validator_count": 10000
+  }
 }

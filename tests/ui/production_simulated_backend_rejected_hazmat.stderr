@@ -24,7 +24,7 @@ error[E0599]: the associated function or constant `finalize` exists for struct `
 12 |     let _ = CoordinatorAggregateGate::<SimulatedBackend>::finalize;
    |                                                           ^^^^^^^^ associated function or constant cannot be called on `CoordinatorAggregateGate<SimulatedBackend>` due to unsatisfied trait bounds
    |
-  ::: src/backend.rs
+  ::: src/backend/mod.rs
    |
    | pub struct SimulatedBackend;
    | --------------------------- doesn't satisfy `SimulatedBackend: StandardMldsa65Provider`
