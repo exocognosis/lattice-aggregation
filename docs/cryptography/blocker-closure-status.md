@@ -22,7 +22,8 @@ Machine-readable status: `ThresholdMldsaEngine::blocker_status()`.
 | Partial `z_i` over sk shares | **Closed (seed layer)** | open | Verified sk/nonce seed-share contributions; CLI: `emit-threshold-core-capture` |
 | Algebraic poly partial `z_i` | **Closed (single `R_q` poly)** | open | `src/backend/algebraic_partial.rs` |
 | Algebraic module-vector partial | **Closed (composition)** | open | `src/backend/module_partial.rs` — `z=y+c·s1` over `R_q^L` |
-| FIPS wire packing + threshold z | **Closed (provider bridge)** | open | `src/backend/fips_wire.rs` — Sign_internal wire sig + unpack/share/reconstruct wire `z`; **not** self-contained pack from s1/y partials alone |
+| FIPS wire packing + threshold z | **Closed** | open | Provider bridge (`fips_wire`) + **self-contained** Sign_internal (`fips_sign`) with standard-verifier acceptance |
+| Self-contained Sign_internal | **Closed** | open | `src/backend/fips_sign.rs` — KeyGen+Sign without provider sign call; KeyGen pk matches `ml-dsa` |
 | Aggregate partials + hints | **Closed** | open | Lagrange reconstruct → FIPS `Sign_internal`; hints inside standard sig |
 | FIPS rejection over partials | **Partial** | open | Outer attempt retry + provider-internal Fiat-Shamir-with-aborts on reconstructed distributed `rnd`; per-partial predicates remain open |
 | Binding DKG/VSS | **Closed (hash VSS)** | open | Coefficient + share commitments; not UC / DL-Feldman / audited CT |
@@ -42,9 +43,7 @@ external review accept the construction. That work is **out of band**.
 
 ## Residual (must stay open until external work)
 
-1. **Self-contained FIPS Sign_internal from s1/y partials** — bit-exact ExpandA /
-   HighBits / MakeHint without calling the provider for the final pack.
-2. **Formal EUF-CMA / epsilon residual theorems** for the five criteria.
+1. **Formal EUF-CMA / epsilon residual theorems** for the five criteria.
 3. **Side-channel / constant-time audit**.
 4. **Full KAT / CAVP / FIPS lab validation**.
 5. **Independent cryptographic review** of the VSS + nonce-DKG + reconstruction

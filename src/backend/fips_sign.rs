@@ -11,6 +11,9 @@
 //! - Still research/hazmat: not constant-time audited, not FIPS lab validated.
 //! - `production_approved` remains false.
 
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::many_single_char_names)]
+
 use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
     Shake128, Shake256,
@@ -59,20 +62,20 @@ const ZETA_POW_BITREV: [u32; 256] = [
     5183169, 1736313, 235407, 5130263, 3258457, 5801164, 1787943, 5989328, 6125690, 3482206,
     4197502, 7080401, 6018354, 7062739, 2461387, 3035980, 621164, 3901472, 7153756, 2925816,
     3374250, 1356448, 5604662, 2683270, 5601629, 4912752, 2312838, 7727142, 7921254, 348812,
-    8052569, 1011223, 6026202, 4561790, 6458164, 6143691, 1744507, 1753, 6444997, 5720892,
-    6924527, 2660408, 6600190, 8321269, 2772600, 1182243, 87208, 636927, 4415111, 4423672,
-    6084020, 5095502, 4663471, 8352605, 822541, 1009365, 5926272, 6400920, 1596822, 4423473,
-    4620952, 6695264, 4969849, 2678278, 4611469, 4829411, 635956, 8129971, 5925040, 4234153,
-    6607829, 2192938, 6653329, 2387513, 4768667, 8111961, 5199961, 3747250, 2296099, 1239911,
-    4541938, 3195676, 2642980, 1254190, 8368000, 2998219, 141835, 8291116, 2513018, 7025525,
-    613238, 7070156, 6161950, 7921677, 6458423, 4040196, 4908348, 2039144, 6500539, 7561656,
-    6201452, 6757063, 2105286, 6006015, 6346610, 586241, 7200804, 527981, 5637006, 6903432,
-    1994046, 2491325, 6987258, 507927, 7192532, 7655613, 6545891, 5346675, 8041997, 2647994,
-    3009748, 5767564, 4148469, 749577, 4357667, 3980599, 2569011, 6764887, 1723229, 1665318,
-    2028038, 1163598, 5011144, 3994671, 8368538, 7009900, 3020393, 3363542, 214880, 545376,
-    7609976, 3105558, 7277073, 508145, 7826699, 860144, 3430436, 140244, 6866265, 6195333,
-    3123762, 2358373, 6187330, 5365997, 6663603, 2926054, 7987710, 8077412, 3531229, 4405932,
-    4606686, 1900052, 7598542, 1054478, 7648983,
+    8052569, 1011223, 6026202, 4561790, 6458164, 6143691, 1744507, 1753, 6444997, 5720892, 6924527,
+    2660408, 6600190, 8321269, 2772600, 1182243, 87208, 636927, 4415111, 4423672, 6084020, 5095502,
+    4663471, 8352605, 822541, 1009365, 5926272, 6400920, 1596822, 4423473, 4620952, 6695264,
+    4969849, 2678278, 4611469, 4829411, 635956, 8129971, 5925040, 4234153, 6607829, 2192938,
+    6653329, 2387513, 4768667, 8111961, 5199961, 3747250, 2296099, 1239911, 4541938, 3195676,
+    2642980, 1254190, 8368000, 2998219, 141835, 8291116, 2513018, 7025525, 613238, 7070156,
+    6161950, 7921677, 6458423, 4040196, 4908348, 2039144, 6500539, 7561656, 6201452, 6757063,
+    2105286, 6006015, 6346610, 586241, 7200804, 527981, 5637006, 6903432, 1994046, 2491325,
+    6987258, 507927, 7192532, 7655613, 6545891, 5346675, 8041997, 2647994, 3009748, 5767564,
+    4148469, 749577, 4357667, 3980599, 2569011, 6764887, 1723229, 1665318, 2028038, 1163598,
+    5011144, 3994671, 8368538, 7009900, 3020393, 3363542, 214880, 545376, 7609976, 3105558,
+    7277073, 508145, 7826699, 860144, 3430436, 140244, 6866265, 6195333, 3123762, 2358373, 6187330,
+    5365997, 6663603, 2926054, 7987710, 8077412, 3531229, 4405932, 4606686, 1900052, 7598542,
+    1054478, 7648983,
 ];
 
 /// Status for self-contained FIPS wire production.
@@ -87,6 +90,7 @@ pub struct SelfContainedFipsStatus {
 }
 
 impl SelfContainedFipsStatus {
+    /// Current engineering status for the self-contained FIPS path.
     pub const fn current() -> Self {
         Self {
             fips204_wire_from_s1_y_partials_without_provider: true,
@@ -99,25 +103,38 @@ impl SelfContainedFipsStatus {
 /// Expanded secret material for ML-DSA-65 (research representation).
 #[derive(Clone)]
 pub struct ExpandedSecret65 {
+    /// Public matrix seed `ρ`.
     pub rho: [u8; 32],
+    /// Private signing seed `K`.
     pub k_seed: [u8; 32],
+    /// Public-key hash `tr`.
     pub tr: [u8; 64],
+    /// Secret vector `s1 ∈ R_q^L`.
     pub s1: [Poly; L],
+    /// Secret vector `s2 ∈ R_q^K`.
     pub s2: [Poly; K],
+    /// Low bits `t0` of public `t`.
     pub t0: [Poly; K],
-    /// Public key bytes (1952).
+    /// Encoded public key (1,952 bytes).
     pub public_key: ThresholdPublicKey,
 }
 
 /// Result of self-contained sign + module-partial z evidence.
 #[derive(Clone, Debug)]
 pub struct SelfContainedSignPackage {
+    /// Verifying key.
     pub public_key: ThresholdPublicKey,
+    /// Wire signature (3,309 bytes).
     pub signature: ThresholdSignature,
+    /// Unpacked module-vector `z`.
     pub z: ModuleVecL,
+    /// Threshold share reconstruction matched wire `z`.
     pub z_share_match: bool,
+    /// Standard verifier accepted the wire signature.
     pub standard_verifier_accepted: bool,
+    /// Inner rejection-loop aborts before acceptance.
     pub rejected_attempts: u32,
+    /// Stable packing mode label.
     pub packing_mode: &'static str,
 }
 
@@ -653,7 +670,6 @@ fn decompose(r: i32) -> (i32, i32) {
     // Algorithm 36 with TwoGamma2
     let r_plus = to_can(r) as u32;
     let r0 = mod_plus_minus(r_plus, TWO_GAMMA2 as u32);
-    let r0_u = to_can(r0) as u32;
     // r0 as centered; convert to field for subtraction
     let r0_field = to_can(r0) as u32;
     let diff = field_sub(r_plus, r0_field);
@@ -700,11 +716,7 @@ fn infinity_norm(p: &Poly) -> u32 {
     let mut max = 0u32;
     for &c in &p.coeffs {
         let u = to_can(c) as u32;
-        let n = if u > (Q as u32) / 2 {
-            Q as u32 - u
-        } else {
-            u
-        };
+        let n = if u > (Q as u32) / 2 { Q as u32 - u } else { u };
         if n > max {
             max = n;
         }
@@ -788,7 +800,7 @@ fn encode_w1(w1: &[Poly; K]) -> Vec<u8> {
 }
 
 fn encode_public_key(rho: &[u8; 32], t1: &[Poly; K]) -> Result<ThresholdPublicKey, ThresholdError> {
-    // pk = rho (32) || SimpleBitPack_10(t1) — d=13 so t1 uses 10 bits? 
+    // pk = rho (32) || SimpleBitPack_10(t1) — d=13 so t1 uses 10 bits?
     // Verifying key: rho || t1 with bitlen(q)-d = 23-13 = 10 bits
     let mut bytes = vec![0u8; MLDSA65_PUBLICKEY_BYTES];
     bytes[..32].copy_from_slice(rho);
@@ -853,7 +865,7 @@ fn module_eq(a: &ModuleVecL, b: &ModuleVecL) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ml_dsa::{Keypair, MlDsa65, SignatureEncoding, Signer, SigningKey};
+    use ml_dsa::{Keypair, MlDsa65, SigningKey};
 
     #[test]
     fn keygen_public_key_matches_ml_dsa() {

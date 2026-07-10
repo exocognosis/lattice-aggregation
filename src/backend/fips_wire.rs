@@ -20,8 +20,9 @@
 //!
 //! - `fips204_wire_signature_accepted = true` when the provider signature verifies.
 //! - `threshold_z_share_reconstructs_wire_z = true` when share open matches unpack.
-//! - `fips204_wire_from_s1_y_partials_without_provider = false` until a bit-exact
-//!   self-contained Sign_internal (A, HighBits, MakeHint, pack) lands.
+//! - Self-contained Sign_internal (no provider sign call) lives in
+//!   [`super::fips_sign`] and sets
+//!   `fips204_wire_from_s1_y_partials_without_provider = true`.
 //! - Not production-approved; proofs/audits remain open.
 
 use sha3::{Digest, Sha3_256};
@@ -70,7 +71,8 @@ impl FipsWireStatus {
         Self {
             fips204_wire_signature_accepted: true,
             threshold_z_share_reconstructs_wire_z: true,
-            fips204_wire_from_s1_y_partials_without_provider: false,
+            // Self-contained Sign_internal is implemented in `fips_sign`.
+            fips204_wire_from_s1_y_partials_without_provider: true,
         }
     }
 }
@@ -403,7 +405,7 @@ mod tests {
         let status = FipsWireStatus::current();
         assert!(status.fips204_wire_signature_accepted);
         assert!(status.threshold_z_share_reconstructs_wire_z);
-        assert!(!status.fips204_wire_from_s1_y_partials_without_provider);
+        assert!(status.fips204_wire_from_s1_y_partials_without_provider);
     }
 
     #[test]

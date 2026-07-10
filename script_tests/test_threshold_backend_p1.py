@@ -477,7 +477,8 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertIn("fips_wire", ledger)
         self.assertTrue(ledger["fips_wire"]["fips204_wire_signature_accepted"])
         self.assertTrue(ledger["fips_wire"]["threshold_z_share_reconstructs_wire_z"])
-        self.assertFalse(ledger["fips_wire"]["fips204_wire_from_s1_y_partials_without_provider"])
+        self.assertTrue(ledger["fips_wire"]["fips204_wire_from_s1_y_partials_without_provider"])
+        self.assertTrue(ledger["fips_wire"]["self_contained_sign_internal"])
 
 
 

@@ -12,8 +12,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(feature = "raw-real-mldsa")]
 mod backend {
     use lattice_aggregation::{
-        backend::Mldsa65Backend, sign_with_module_partial_z_evidence, AlgebraicPartialStatus,
-        FipsWireStatus, RealMldsa65Backend, ThresholdMldsaEngine, ThresholdPublicKey,
+        backend::Mldsa65Backend, self_contained_sign_with_module_z_shares,
+        sign_with_module_partial_z_evidence, AlgebraicPartialStatus, FipsWireStatus,
+        RealMldsa65Backend, SelfContainedFipsStatus, ThresholdMldsaEngine, ThresholdPublicKey,
         ThresholdSignature, ValidatorId,
     };
     use serde::Deserialize;
@@ -655,28 +656,40 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             return Err(BackendError("mutation rejection corpus was incomplete".into()).into());
         }
 
+        let mut self_rnd = [0u8; 32];
+        self_rnd.copy_from_slice(&sha3_bytes(&attempt0)[..32]);
+        let self_contained = self_contained_sign_with_module_z_shares(
+            &args.seed,
+            &self_rnd,
+            &message,
+            EXECUTION_COMMITTEE_T,
+            &validators,
+        )
+        .map_err(|err| {
+            BackendError(format!(
+                "self-contained FIPS sign + z-share evidence failed: {err}"
+            ))
+        })?;
+        if !self_contained.z_share_match || !self_contained.standard_verifier_accepted {
+            return Err(BackendError(
+                "self-contained FIPS wire z-share evidence failed match or verification".into(),
+            )
+            .into());
+        }
+        // Provider bridge retained for comparative evidence.
         let fips_wire = sign_with_module_partial_z_evidence(
             &args.seed,
-            &{
-                let mut rnd = [0u8; 32];
-                rnd.copy_from_slice(&sha3_bytes(&attempt0)[..32]);
-                rnd
-            },
+            &self_rnd,
             &message,
             EXECUTION_COMMITTEE_T,
             &validators,
         )
         .map_err(|err| BackendError(format!("fips wire module partial evidence failed: {err}")))?;
-        if !fips_wire.z_share_match || !fips_wire.standard_verifier_accepted {
-            return Err(BackendError(
-                "fips wire z-share evidence failed match or verification".into(),
-            )
-            .into());
-        }
 
         let blocker_status = ThresholdMldsaEngine::blocker_status();
         let algebraic = AlgebraicPartialStatus::current();
         let fips_status = FipsWireStatus::current();
+        let self_status = SelfContainedFipsStatus::current();
         let backend_requirement_evidence = threshold_core_backend_requirement_evidence(
             mutated_message_rejected,
             mutated_public_key_rejected,
@@ -745,6 +758,22 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
                         fips_status.threshold_z_share_reconstructs_wire_z,
                     "fips204_wire_from_s1_y_partials_without_provider":
                         fips_status.fips204_wire_from_s1_y_partials_without_provider,
+                },
+            },
+            "self_contained_fips_sign": {
+                "packing_mode": self_contained.packing_mode,
+                "z_share_match": self_contained.z_share_match,
+                "standard_verifier_accepted": self_contained.standard_verifier_accepted,
+                "rejected_attempts": self_contained.rejected_attempts,
+                "signature_matches_provider_bridge":
+                    self_contained.signature.0 == fips_wire.signature.0,
+                "self_contained_status": {
+                    "fips204_wire_from_s1_y_partials_without_provider":
+                        self_status.fips204_wire_from_s1_y_partials_without_provider,
+                    "standard_verifier_accepts_self_contained":
+                        self_status.standard_verifier_accepts_self_contained,
+                    "threshold_z_share_of_self_contained_wire":
+                        self_status.threshold_z_share_of_self_contained_wire,
                 },
             },
             "public_key_digest_hex": encode_hex(&sha3_bytes(&public_key_bytes)),
@@ -2120,9 +2149,10 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             "fips_wire": {
                 "fips204_wire_signature_accepted": true,
                 "threshold_z_share_reconstructs_wire_z": true,
-                "fips204_wire_from_s1_y_partials_without_provider": false,
+                "fips204_wire_from_s1_y_partials_without_provider": true,
                 "fips204_wire_signature_from_algebraic_partials":
-                    algebraic.fips204_wire_signature_from_algebraic_partials
+                    algebraic.fips204_wire_signature_from_algebraic_partials,
+                "self_contained_sign_internal": true
             }
         })
     }

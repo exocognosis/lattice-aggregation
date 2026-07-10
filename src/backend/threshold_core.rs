@@ -162,6 +162,18 @@ impl BlockerStatus {
                     fw.fips204_wire_from_s1_y_partials_without_provider,
             }),
         );
+        let sc = crate::backend::fips_sign::SelfContainedFipsStatus::current();
+        map.insert(
+            "self_contained_fips_status".into(),
+            json!({
+                "fips204_wire_from_s1_y_partials_without_provider":
+                    sc.fips204_wire_from_s1_y_partials_without_provider,
+                "standard_verifier_accepts_self_contained":
+                    sc.standard_verifier_accepts_self_contained,
+                "threshold_z_share_of_self_contained_wire":
+                    sc.threshold_z_share_of_self_contained_wire,
+            }),
+        );
         map
     }
 }
