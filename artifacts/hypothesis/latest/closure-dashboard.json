@@ -1,7 +1,7 @@
 {
   "branch": "codex/p1-validation-proof-packages",
   "claim_boundary": "closure-run implementation track",
-  "commit": "7fe8828510580423e7d45bc6e56d21262aeb2a00",
+  "commit": "b5932fcc5c665486fbc11a6450f4ccbd5e5a275a",
   "criteria": [
     {
       "blocker_count": 2,

@@ -97,7 +97,7 @@
       "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-10T14:48:50Z",
+  "generated_at": "2026-07-10T15:02:36Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -117,7 +117,7 @@
     "blocker_closure_requests": {
       "path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
       "present": true,
-      "sha256": "7b2d2fef674ef5534d8a1b390a3210d1e753ab9a1a57d9156d150e41e4de9d8c"
+      "sha256": "40e9b04505c24a5194129ce719389ccc54ee3506a8b63e6affee8716815d493a"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
@@ -137,7 +137,7 @@
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "15b316edc5fe98a508cb16894aabd88cd5b62be4043b26cdc039b177f24e90eb"
+      "sha256": "8ab82352958fdd0564624b1944ee5f789ff93669487785684ce50f85a50b5c47"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -147,7 +147,7 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "b9e33e267ad05deee538d10458362ebe2d778a243d100106ab463fbd7337d2ce"
+      "sha256": "45a1f40fc01ea98b75bc3ab2c84a02b4124d3dccb0e7a39c1d5d6554edf0c559"
     },
     "theorem_linkage_review": {
       "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
@@ -156,7 +156,7 @@
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "4dafe34c73e42d309c13e03d814cb30360a6fcf55f25c5755d1430141525d76c",
+  "review_digest_sha256": "2af4ab28509ef5525f89003ff8bebd61c66b1df57be28a832d88e33ee5a7e3b6",
   "review_flags": {
     "full_kat_validation_reviewed": true,
     "proof_payload_reviewed": true,

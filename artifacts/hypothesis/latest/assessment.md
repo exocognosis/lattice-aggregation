@@ -3,7 +3,7 @@
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
 Branch: `codex/p1-validation-proof-packages`
-Commit: `7fe8828510580423e7d45bc6e56d21262aeb2a00`
+Commit: `b5932fcc5c665486fbc11a6450f4ccbd5e5a275a`
 
 ## Testing Statement
 
@@ -166,4 +166,7 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 
 ## Command Summary
 
-Commands were skipped.
+Passed: 11; failed: 0; all passed: `True`.
+- Cargo scaffold checks completed
+- Simulation harness emitted duration, abort, and bandwidth telemetry.
+- Rust test output reported passing test suites.
