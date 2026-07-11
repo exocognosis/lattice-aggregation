@@ -91,6 +91,16 @@ impl CommitmentKey {
         Self { a1, a2 }
     }
 
+    /// Public binding matrix `A1 in R_q^{KAPPA x K}`.
+    pub fn binding_matrix(&self) -> &[Vec<Poly>] {
+        &self.a1
+    }
+
+    /// Public message row `a2 in R_q^K`.
+    pub fn message_row(&self) -> &[Poly] {
+        &self.a2
+    }
+
     /// Commit to `message` with short `randomness`.
     ///
     /// # Panics
