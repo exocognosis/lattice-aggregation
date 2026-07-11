@@ -33,26 +33,29 @@
 //! - **Hiding** rests on the (parameter-pending) Module-LWE assumption of
 //!   [`crate::crypto::bdlop`]. It is computational, not the perfect hiding of
 //!   plain Shamir.
-//! - **Binding is NOT enforced by [`verify_share`].** The aggregated randomness
-//!   `rho(i) = sum_j i^j rho_j` is legitimately non-short, so `verify_share`
-//!   checks only the homomorphic relation and applies no norm bound. It
-//!   therefore does not bind a malicious dealer: a dealer able to solve the
-//!   linear system could hand different receivers inconsistent values that each
-//!   verify. Binding of the underlying commitments holds only for the short
-//!   openings checked by
-//!   [`crate::crypto::bdlop::CommitmentKey::verify_opening`]; malicious-dealer
-//!   binding and extractability require the per-share validity proofs deferred
-//!   to a later increment. The test
-//!   `verify_share_does_not_enforce_randomness_shortness` documents this gap.
+//! - **Per-commitment well-formedness is now proven; full binding is not.**
+//!   [`deal_secret`] attaches a [`crate::crypto::bdlop_pok`] opening proof to
+//!   each commitment, checkable with [`verify_commitments`]: this certifies each
+//!   commitment's `t1` is a genuine relaxed MSIS image, ruling out out-of-image
+//!   (unopenable) commitments from a malicious dealer. But [`verify_share`]
+//!   still checks only the homomorphic relation, with no norm bound on the
+//!   aggregated randomness `rho(i)` (which is legitimately non-short), and the
+//!   per-coefficient proof slacks do not reconcile into a single sharing
+//!   polynomial. So malicious-dealer binding / extractability still require
+//!   slack reconciliation plus a share norm bound (or small evaluation points),
+//!   deferred to a later increment. The test
+//!   `verify_share_does_not_enforce_randomness_shortness` documents the share
+//!   gap.
 //!
 //! This module does not implement encrypted per-receiver share transport,
-//! per-share validity proofs, complaints, or a malicious-secure DKG, closes no
-//! hypothesis criterion, and makes no production threshold ML-DSA security
-//! claim.
+//! slack-reconciled extractability proofs, complaints, or a malicious-secure
+//! DKG, closes no hypothesis criterion, and makes no production threshold ML-DSA
+//! security claim.
 
 use crate::{
     crypto::{
         bdlop::{Commitment, CommitmentKey, K},
+        bdlop_pok::{self, OpeningProof},
         interpolation::reconstruct_secret_poly,
         module_lattice::{sample_short_vec, uniform_poly, vec_add, vec_scalar_mul},
         poly::{Poly, Q},
@@ -62,6 +65,10 @@ use crate::{
 
 const COEFFICIENT_SAMPLE_DOMAIN: u32 = 0x0100_0000;
 const RANDOMNESS_SAMPLE_DOMAIN: u32 = 0x0200_0000;
+
+/// Output of [`deal_secret`]: per-receiver shares, per-coefficient commitments,
+/// and a well-formedness opening proof for each commitment.
+type DealtSecret = (Vec<HidingShare>, Vec<Commitment>, Vec<OpeningProof>);
 
 /// A hiding VSS share issued to one receiver.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -81,15 +88,20 @@ pub struct HidingShare {
 /// Returns one share per receiver index `1..=total_nodes` plus the public
 /// per-coefficient BDLOP commitments (`threshold` of them, constant term first).
 ///
+/// Each commitment is accompanied by a [`bdlop_pok`] opening proof certifying it
+/// is well-formed (its `t1` is a genuine relaxed MSIS image), checkable with
+/// [`verify_commitments`].
+///
 /// Returns [`ThresholdError::InvalidThresholdParameters`] when `threshold` is
-/// zero or exceeds `total_nodes`.
+/// zero or exceeds `total_nodes`, or [`ThresholdError::BackendUnavailable`] if a
+/// well-formedness proof fails to converge (not expected for honest input).
 pub fn deal_secret(
     secret: &Poly,
     threshold: u16,
     total_nodes: u16,
     dealer_seed: &[u8; 32],
     key: &CommitmentKey,
-) -> Result<(Vec<HidingShare>, Vec<Commitment>), ThresholdError> {
+) -> Result<DealtSecret, ThresholdError> {
     if threshold == 0 || total_nodes < threshold {
         return Err(ThresholdError::InvalidThresholdParameters {
             threshold,
@@ -118,6 +130,19 @@ pub fn deal_secret(
         coefficient_randomness.push(randomness);
     }
 
+    // Well-formedness opening proof for each commitment. `prove` binds its mask
+    // to the (statement, witness) internally, so the same dealer seed is safe
+    // across coefficients (distinct commitments => distinct masks).
+    let mut proofs = Vec::with_capacity(usize::from(threshold));
+    for (commitment, randomness) in commitments.iter().zip(coefficient_randomness.iter()) {
+        let proof = bdlop_pok::prove(key, commitment, randomness, dealer_seed).ok_or(
+            ThresholdError::BackendUnavailable {
+                reason: "opening proof did not converge",
+            },
+        )?;
+        proofs.push(proof);
+    }
+
     // Each receiver's share is the polynomial value and the aggregated
     // randomness evaluated at the receiver index.
     let mut shares = Vec::with_capacity(usize::from(total_nodes));
@@ -129,7 +154,29 @@ pub fn deal_secret(
         });
     }
 
-    Ok((shares, commitments))
+    Ok((shares, commitments, proofs))
+}
+
+/// Verify the well-formedness opening proofs for a set of per-coefficient
+/// commitments.
+///
+/// Each proof certifies that its commitment's `t1` is a genuine relaxed MSIS
+/// image, ruling out an out-of-image (unopenable) commitment from a malicious
+/// dealer. Returns `false` on a count mismatch, an empty set, or any failing
+/// proof. This provides **per-commitment well-formedness only** — see the module
+/// claim boundary for the gaps that remain before full extractability.
+pub fn verify_commitments(
+    commitments: &[Commitment],
+    proofs: &[OpeningProof],
+    key: &CommitmentKey,
+) -> bool {
+    if commitments.is_empty() || commitments.len() != proofs.len() {
+        return false;
+    }
+    commitments
+        .iter()
+        .zip(proofs.iter())
+        .all(|(commitment, proof)| bdlop_pok::verify(key, commitment, proof))
 }
 
 /// Verify a share against the public per-coefficient commitments.
@@ -214,7 +261,7 @@ mod vss_bdlop_tests {
     fn deal_and_reconstruct_recovers_secret() {
         let key = CommitmentKey::from_seed(b"public");
         let secret = secret_fixture();
-        let (shares, _commitments) = deal_secret(&secret, 3, 5, &[7u8; 32], &key).unwrap();
+        let (shares, _commitments, _proofs) = deal_secret(&secret, 3, 5, &[7u8; 32], &key).unwrap();
 
         let subset = [shares[0].clone(), shares[2].clone(), shares[4].clone()];
         assert_eq!(
@@ -227,7 +274,8 @@ mod vss_bdlop_tests {
     fn valid_shares_verify() {
         let key = CommitmentKey::from_seed(b"public");
         let secret = secret_fixture();
-        let (shares, commitments) = deal_secret(&secret, 4, 7, &[3u8; 32], &key).unwrap();
+        let (shares, commitments, proofs) = deal_secret(&secret, 4, 7, &[3u8; 32], &key).unwrap();
+        assert!(verify_commitments(&commitments, &proofs, &key));
         for share in &shares {
             assert!(verify_share(share, &commitments, &key));
         }
@@ -237,7 +285,8 @@ mod vss_bdlop_tests {
     fn tampered_value_fails_verification() {
         let key = CommitmentKey::from_seed(b"public");
         let secret = secret_fixture();
-        let (mut shares, commitments) = deal_secret(&secret, 3, 5, &[1u8; 32], &key).unwrap();
+        let (mut shares, commitments, _proofs) =
+            deal_secret(&secret, 3, 5, &[1u8; 32], &key).unwrap();
         shares[0].value.coeffs[0] = (shares[0].value.coeffs[0] + 1) % Q;
         assert!(!verify_share(&shares[0], &commitments, &key));
     }
@@ -246,7 +295,8 @@ mod vss_bdlop_tests {
     fn tampered_randomness_fails_verification() {
         let key = CommitmentKey::from_seed(b"public");
         let secret = secret_fixture();
-        let (mut shares, commitments) = deal_secret(&secret, 3, 5, &[1u8; 32], &key).unwrap();
+        let (mut shares, commitments, _proofs) =
+            deal_secret(&secret, 3, 5, &[1u8; 32], &key).unwrap();
         shares[1].randomness[0].coeffs[0] = (shares[1].randomness[0].coeffs[0] + 1) % Q;
         assert!(!verify_share(&shares[1], &commitments, &key));
     }
@@ -255,7 +305,7 @@ mod vss_bdlop_tests {
     fn different_threshold_subsets_agree() {
         let key = CommitmentKey::from_seed(b"public");
         let secret = secret_fixture();
-        let (shares, _commitments) = deal_secret(&secret, 3, 6, &[9u8; 32], &key).unwrap();
+        let (shares, _commitments, _proofs) = deal_secret(&secret, 3, 6, &[9u8; 32], &key).unwrap();
         let first = reconstruct(&[shares[0].clone(), shares[1].clone(), shares[2].clone()]);
         let second = reconstruct(&[shares[3].clone(), shares[4].clone(), shares[5].clone()]);
         assert_eq!(first.canonical().coeffs, second.canonical().coeffs);
@@ -265,7 +315,8 @@ mod vss_bdlop_tests {
     fn sub_threshold_does_not_recover_secret() {
         let key = CommitmentKey::from_seed(b"public");
         let secret = secret_fixture();
-        let (shares, _commitments) = deal_secret(&secret, 3, 5, &[42u8; 32], &key).unwrap();
+        let (shares, _commitments, _proofs) =
+            deal_secret(&secret, 3, 5, &[42u8; 32], &key).unwrap();
         let recovered = reconstruct(&[shares[0].clone(), shares[1].clone()]);
         assert_ne!(recovered.canonical().coeffs, secret.canonical().coeffs);
     }
@@ -276,6 +327,25 @@ mod vss_bdlop_tests {
         let secret = secret_fixture();
         assert!(deal_secret(&secret, 0, 5, &[0u8; 32], &key).is_err());
         assert!(deal_secret(&secret, 4, 3, &[0u8; 32], &key).is_err());
+    }
+
+    #[test]
+    fn verify_commitments_rejects_tampered_commitment_and_count_mismatch() {
+        let key = CommitmentKey::from_seed(b"public");
+        let secret = secret_fixture();
+        let (_shares, mut commitments, proofs) =
+            deal_secret(&secret, 3, 5, &[5u8; 32], &key).unwrap();
+
+        // A tampered commitment no longer matches its opening proof.
+        commitments[0].t1[0].coeffs[0] = (commitments[0].t1[0].coeffs[0] + 1) % Q;
+        assert!(!verify_commitments(&commitments, &proofs, &key));
+
+        // A count mismatch is rejected.
+        assert!(!verify_commitments(
+            &commitments,
+            &proofs[..proofs.len() - 1],
+            &key
+        ));
     }
 
     #[test]

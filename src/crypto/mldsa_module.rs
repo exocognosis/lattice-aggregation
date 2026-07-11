@@ -34,6 +34,7 @@ use sha3::{Digest, Sha3_256};
 use crate::{
     crypto::{
         bdlop::{Commitment, CommitmentKey},
+        bdlop_pok::OpeningProof,
         module_lattice::{matrix_vec_mul, sample_eta_vec, sample_uniform_matrix, vec_add},
         poly::Poly,
         vss_bdlop::{self, HidingShare},
@@ -59,6 +60,17 @@ type ComponentShares = Vec<Vec<HidingShare>>;
 /// Per-component public commitments: `commitments[j]` are the `threshold`
 /// coefficient commitments for component `j`.
 type ComponentCommitments = Vec<Vec<Commitment>>;
+/// Per-component well-formedness opening proofs: `proofs[j]` matches
+/// `commitments[j]` one-for-one.
+type ComponentProofs = Vec<Vec<OpeningProof>>;
+
+/// Well-formedness opening proofs for every commitment of a dealt secret key,
+/// checkable with [`SharedSecretKey::verify_commitment_proofs`].
+#[derive(Clone, Debug)]
+pub struct KeyProofs {
+    s1_proofs: ComponentProofs,
+    s2_proofs: ComponentProofs,
+}
 
 /// ML-DSA-65 secret key in module form.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -144,25 +156,34 @@ pub struct SharedSecretKey {
 /// seed, so the components use independent sharing randomness. Returns
 /// [`ThresholdError::InvalidThresholdParameters`] when `threshold` is zero or
 /// exceeds `total_nodes`.
+///
+/// Also returns the per-commitment well-formedness proofs
+/// ([`KeyProofs`]), checkable with [`SharedSecretKey::verify_commitment_proofs`].
 pub fn deal_secret_key(
     secret: &SecretKey,
     threshold: u16,
     total_nodes: u16,
     dealer_seed: &[u8; 32],
     key: &CommitmentKey,
-) -> Result<SharedSecretKey, ThresholdError> {
-    let (s1_shares, s1_commitments) =
+) -> Result<(SharedSecretKey, KeyProofs), ThresholdError> {
+    let (s1_shares, s1_commitments, s1_proofs) =
         deal_components(&secret.s1, b"s1", threshold, total_nodes, dealer_seed, key)?;
-    let (s2_shares, s2_commitments) =
+    let (s2_shares, s2_commitments, s2_proofs) =
         deal_components(&secret.s2, b"s2", threshold, total_nodes, dealer_seed, key)?;
-    Ok(SharedSecretKey {
-        total_nodes,
-        threshold,
-        s1_shares,
-        s2_shares,
-        s1_commitments,
-        s2_commitments,
-    })
+    Ok((
+        SharedSecretKey {
+            total_nodes,
+            threshold,
+            s1_shares,
+            s2_shares,
+            s1_commitments,
+            s2_commitments,
+        },
+        KeyProofs {
+            s1_proofs,
+            s2_proofs,
+        },
+    ))
 }
 
 impl SharedSecretKey {
@@ -177,10 +198,21 @@ impl SharedSecretKey {
     }
 
     /// Verify every validator's share of every component against the public
-    /// commitments.
+    /// commitments (the homomorphic share relation).
     pub fn verify(&self, key: &CommitmentKey) -> bool {
         verify_components(&self.s1_shares, &self.s1_commitments, key)
             && verify_components(&self.s2_shares, &self.s2_commitments, key)
+    }
+
+    /// Verify the well-formedness opening proofs for every commitment.
+    ///
+    /// Certifies each per-coefficient commitment is a genuine relaxed MSIS image
+    /// (well-formed), complementing [`SharedSecretKey::verify`]. Per the claim
+    /// boundary of [`crate::crypto::bdlop_pok`], this does not by itself deliver
+    /// full extractability.
+    pub fn verify_commitment_proofs(&self, proofs: &KeyProofs, key: &CommitmentKey) -> bool {
+        verify_component_proofs(&self.s1_commitments, &proofs.s1_proofs, key)
+            && verify_component_proofs(&self.s2_commitments, &proofs.s2_proofs, key)
     }
 
     /// Reconstruct the secret key from shares at the given one-based receiver
@@ -304,17 +336,19 @@ fn deal_components(
     total_nodes: u16,
     dealer_seed: &[u8; 32],
     key: &CommitmentKey,
-) -> Result<(ComponentShares, ComponentCommitments), ThresholdError> {
+) -> Result<(ComponentShares, ComponentCommitments, ComponentProofs), ThresholdError> {
     let mut all_shares = Vec::with_capacity(components.len());
     let mut all_commitments = Vec::with_capacity(components.len());
+    let mut all_proofs = Vec::with_capacity(components.len());
     for (index, component) in components.iter().enumerate() {
         let seed = derive_seed(dealer_seed, label, index as u16);
-        let (shares, commitments) =
+        let (shares, commitments, proofs) =
             vss_bdlop::deal_secret(component, threshold, total_nodes, &seed, key)?;
         all_shares.push(shares);
         all_commitments.push(commitments);
+        all_proofs.push(proofs);
     }
-    Ok((all_shares, all_commitments))
+    Ok((all_shares, all_commitments, all_proofs))
 }
 
 fn verify_components(
@@ -330,6 +364,20 @@ fn verify_components(
                 .iter()
                 .all(|share| vss_bdlop::verify_share(share, component_commitments, key))
         })
+}
+
+fn verify_component_proofs(
+    commitments: &[Vec<Commitment>],
+    proofs: &[Vec<OpeningProof>],
+    key: &CommitmentKey,
+) -> bool {
+    commitments.len() == proofs.len()
+        && commitments
+            .iter()
+            .zip(proofs.iter())
+            .all(|(component_commitments, component_proofs)| {
+                vss_bdlop::verify_commitments(component_commitments, component_proofs, key)
+            })
 }
 
 fn reconstruct_components(shares: &[Vec<HidingShare>], receiver_indices: &[u16]) -> Vec<Poly> {
@@ -395,9 +443,13 @@ mod mldsa_module_tests {
     fn threshold_reconstruction_recovers_key_and_public_t() {
         let (sk, pk) = keygen(&[1u8; 32]);
         let commit_key = CommitmentKey::from_seed(b"public");
-        let shared = deal_secret_key(&sk, 2, 3, &[7u8; 32], &commit_key).unwrap();
+        let (shared, proofs) = deal_secret_key(&sk, 2, 3, &[7u8; 32], &commit_key).unwrap();
 
         assert!(shared.verify(&commit_key), "all shares must verify");
+        assert!(
+            shared.verify_commitment_proofs(&proofs, &commit_key),
+            "all commitment well-formedness proofs must verify"
+        );
 
         // Reconstruct from a threshold-sized subset and confirm the key and the
         // public t both recompute.
@@ -414,7 +466,7 @@ mod mldsa_module_tests {
     fn sub_threshold_is_rejected() {
         let (sk, _pk) = keygen(&[2u8; 32]);
         let commit_key = CommitmentKey::from_seed(b"public");
-        let shared = deal_secret_key(&sk, 3, 5, &[8u8; 32], &commit_key).unwrap();
+        let (shared, _proofs) = deal_secret_key(&sk, 3, 5, &[8u8; 32], &commit_key).unwrap();
 
         // Only two indices for a threshold-3 sharing: fail closed, do not return
         // a silently-wrong key.
@@ -425,7 +477,7 @@ mod mldsa_module_tests {
     fn reconstruct_fails_closed_on_bad_index_sets() {
         let (sk, _pk) = keygen(&[4u8; 32]);
         let commit_key = CommitmentKey::from_seed(b"public");
-        let shared = deal_secret_key(&sk, 2, 3, &[6u8; 32], &commit_key).unwrap();
+        let (shared, _proofs) = deal_secret_key(&sk, 2, 3, &[6u8; 32], &commit_key).unwrap();
 
         // Unknown index is dropped, leaving 1 valid < threshold 2.
         assert!(shared.reconstruct(&[1, 99]).is_err());

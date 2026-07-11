@@ -20,8 +20,9 @@
 //!   [`DealerContribution::commitment_digest`] (commit-before-reveal binding),
 //!   and VSS-shares the contribution.
 //! - **Complaint** — [`DkgCoordinator::finalize`] accepts a dealer only when
-//!   every one of its shares verifies against its published commitments; dealers
-//!   that fail are excluded.
+//!   every one of its shares verifies (the homomorphic relation) AND every
+//!   commitment carries a valid well-formedness opening proof
+//!   ([`crate::crypto::bdlop_pok`]); dealers that fail either check are excluded.
 //! - **Finalize** — the joint public key is the sum of accepted `t^(d)`, and the
 //!   per-validator shares and commitments are summed into the joint key.
 //!
@@ -32,9 +33,14 @@
 //! - the complaint rule *detects* non-verifying dealers, but complaint
 //!   *adjudication* (a dealer answering a complaint with public, anti-framing
 //!   evidence) is deferred to Increment 5;
-//! - a published `t^(d)` is not yet cryptographically bound to the dealer's VSS
-//!   commitments, so a malicious dealer's public/secret consistency is not
-//!   enforced (needs the Increment 2b validity proofs);
+//! - dealer commitments are now proven well-formed (opening proofs, checked in
+//!   `finalize`), but a published `t^(d)` is still not cryptographically bound to
+//!   those commitments, so a malicious dealer's public/secret consistency is not
+//!   enforced (needs a lattice linear-relation proof over `R_q`, deferred);
+//! - the opening proofs give per-commitment well-formedness only: full
+//!   extractability additionally needs slack reconciliation and a share norm
+//!   bound (see the [`crate::crypto::bdlop_pok`] and [`crate::crypto::vss_bdlop`]
+//!   claim boundaries);
 //! - rushing / last-mover key-bias resistance is Increment 5. The commit digest
 //!   is computable but not yet consumed by `finalize` (no
 //!   commit->reveal->compare round), so no bias-resistance is claimed;
@@ -53,7 +59,7 @@ use crate::{
     crypto::{
         bdlop::CommitmentKey,
         mldsa_module::{
-            self, aggregate, compute_t, expand_matrix_a, sample_secret_key, PublicKey,
+            self, aggregate, compute_t, expand_matrix_a, sample_secret_key, KeyProofs, PublicKey,
             SharedSecretKey, MODULE_K,
         },
         module_lattice::vec_add,
@@ -73,6 +79,7 @@ const DEALER_DIGEST_LABEL: &[u8] = b"lattice-aggregation/mldsa-dkg/dealer-commit
 pub struct DealerContribution {
     dealer_id: u16,
     shared: SharedSecretKey,
+    proofs: KeyProofs,
     public_contribution: Vec<Poly>,
 }
 
@@ -152,7 +159,7 @@ impl DkgCoordinator {
     ) -> Result<DealerContribution, ThresholdError> {
         let secret = sample_secret_key(&derive_subseed(contribution_seed, dealer_id, b"secret"));
         let public_contribution = compute_t(&self.matrix_a, &secret);
-        let shared = mldsa_module::deal_secret_key(
+        let (shared, proofs) = mldsa_module::deal_secret_key(
             &secret,
             self.threshold,
             self.total_nodes,
@@ -162,6 +169,7 @@ impl DkgCoordinator {
         Ok(DealerContribution {
             dealer_id,
             shared,
+            proofs,
             public_contribution,
         })
     }
@@ -183,9 +191,17 @@ impl DkgCoordinator {
             });
         }
 
+        // Complaint rule: accept a dealer only when every share verifies (the
+        // homomorphic relation) AND every commitment carries a valid
+        // well-formedness opening proof.
         let mut accepted: Vec<&DealerContribution> = contributions
             .iter()
-            .filter(|contribution| contribution.shared.verify(&self.commit_key))
+            .filter(|contribution| {
+                contribution.shared.verify(&self.commit_key)
+                    && contribution
+                        .shared
+                        .verify_commitment_proofs(&contribution.proofs, &self.commit_key)
+            })
             .collect();
         accepted.sort_by_key(|contribution| contribution.dealer_id);
         if accepted.is_empty() {

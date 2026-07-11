@@ -46,8 +46,9 @@
 //!   rest of the BDLOP parameter set). Closes no hypothesis criterion; no
 //!   production threshold ML-DSA security claim.
 //!
-//! This is a standalone primitive in this increment: it is not yet wired into
-//! [`crate::crypto::vss_bdlop`] or the DKG dealer-acceptance path.
+//! This primitive is wired into [`crate::crypto::vss_bdlop`] (`deal_secret`
+//! emits a proof per commitment; `verify_commitments` checks them) and enforced
+//! by the DKG complaint rule in [`crate::crypto::mldsa_dkg`] (`finalize`).
 
 use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
@@ -64,8 +65,15 @@ use crate::crypto::{
 pub const MASK_BOUND: i32 = 1 << 16;
 /// Acceptance bound on the response: `||z||_inf <= B - 1`.
 pub const RESPONSE_BOUND: i32 = MASK_BOUND - 1;
-/// Parallel repetitions; knowledge error `512^-REPETITIONS ~= 2^-135`.
+/// Parallel repetitions; knowledge error `512^-REPETITIONS ~= 2^-135` in
+/// production. Reduced under `cfg(test)` to keep proof-heavy downstream tests
+/// fast — the protocol logic is identical, only the soundness margin differs.
+#[cfg(not(test))]
 pub const REPETITIONS: usize = 15;
+/// Test-only reduced repetition count (correctness is repetition-count
+/// independent; production uses 15).
+#[cfg(test)]
+pub const REPETITIONS: usize = 4;
 /// Maximum rejection-sampling restarts before giving up (astronomically large
 /// margin; honest prover accepts in ~2 attempts).
 const RESTART_CAP: usize = 128;
