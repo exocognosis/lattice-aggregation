@@ -81,9 +81,24 @@ module and captured by `verify_share_does_not_enforce_randomness_shortness`.
 
 ### Increment 3: Module structure and the ML-DSA key relation
 
-- [ ] Lift from single `Poly` to module vectors `s1 in R_q^l`, `s2 in R_q^k`
-  with `eta`-bounded sampling, matrix `A = ExpandA(rho)`, and the key relation
-  `t = A s1 + s2`, so the shared object is a real ML-DSA-65 secret key.
+- [x] `src/crypto/mldsa_module.rs`: lift from single `Poly` to ML-DSA-65 module
+  vectors `s1 in R_q^L` (L=5), `s2 in R_q^K` (K=6), with `eta=4` sampling
+  (FIPS 204 RejBoundedPoly distribution), matrix `A` expanded from `rho`, and the
+  key relation `t = A s1 + s2`.
+- [x] Threshold sharing of the whole secret key: each of the `L + K` component
+  polynomials is dealt with the hiding VSS (`vss_bdlop`) under a
+  component-separated seed; `verify` / `reconstruct` recover the key and confirm
+  the public `t` recomputes.
+- [x] Adversarial review (subagent); fixes applied for a fail-closed
+  `reconstruct` (rejects duplicate/unknown/insufficient index sets rather than
+  returning a silently-wrong key) and a non-canonical `t`.
+
+**Claim boundary:** `A` is uniform over `R_q` (byte-exact FIPS 204 `ExpandA`
+deferred); the `eta` distribution is FIPS-correct but not asserted bit-identical
+to `ExpandS`; `Power2Round` (t1/t0) and public-key encoding are deferred. So this
+is the ML-DSA-65 module key *structure and relation*, not a wire-format FIPS 204
+key. Multi-dealer DKG is Increment 4; malicious-dealer binding is the inherited
+Increment 2b gap.
 
 ### Increment 4: DKG state machine
 
