@@ -52,7 +52,8 @@ pub const ETA: i32 = 4;
 const S1_SAMPLE_DOMAIN: u32 = 0x0001_0000;
 const S2_SAMPLE_DOMAIN: u32 = 0x0002_0000;
 const SEED_DERIVE_LABEL: &[u8] = b"lattice-aggregation/mldsa-module/derive-seed";
-const COMMITMENT_DIGEST_LABEL: &[u8] = b"lattice-aggregation/mldsa-module/commitment-digest";
+const REVEAL_DIGEST_LABEL: &[u8] = b"lattice-aggregation/mldsa-module/reveal-digest/v1";
+const PROOFS_DIGEST_LABEL: &[u8] = b"lattice-aggregation/mldsa-module/proofs-digest/v1";
 
 /// Per-component receiver shares: `shares[j][p]` is validator `p`'s share of
 /// component `j`.
@@ -242,18 +243,63 @@ impl SharedSecretKey {
         })
     }
 
-    /// Domain-separated digest binding all public coefficient commitments.
+    /// Domain-separated digest binding this dealer's **full reveal**: every
+    /// share value *and* every public coefficient commitment.
     ///
-    /// The DKG commit phase uses this to bind a dealer to its contribution
-    /// before shares are aggregated (commit-before-reveal).
-    pub fn commitment_digest(&self) -> [u8; 32] {
+    /// The DKG commit phase binds a dealer to its contribution before shares are
+    /// aggregated (commit-before-reveal). Crucially this covers the share values,
+    /// not only the commitments, so the commit pins exactly what
+    /// [`verify`](Self::verify) re-checks: a party cannot substitute a
+    /// same-commitment contribution with corrupted shares under the same digest.
+    /// (Shares are cleartext in this increment; a future encrypted-transport
+    /// version would bind the per-receiver ciphertexts instead.)
+    pub fn reveal_digest(&self) -> [u8; 32] {
         let mut hasher = Sha3_256::new();
-        hasher.update(COMMITMENT_DIGEST_LABEL);
+        hasher.update(REVEAL_DIGEST_LABEL);
         hasher.update(self.threshold.to_be_bytes());
         hasher.update(self.total_nodes.to_be_bytes());
+        for component in self.s1_shares.iter().chain(self.s2_shares.iter()) {
+            hasher.update((component.len() as u64).to_be_bytes());
+            for share in component {
+                absorb_share(&mut hasher, share);
+            }
+        }
         for component in self.s1_commitments.iter().chain(self.s2_commitments.iter()) {
+            hasher.update((component.len() as u64).to_be_bytes());
             for commitment in component {
                 absorb_commitment(&mut hasher, commitment);
+            }
+        }
+        hasher.finalize().into()
+    }
+
+    /// Test-only: clone with the first `s1` share value perturbed so the shares
+    /// no longer open their commitments ([`verify`](Self::verify) becomes false)
+    /// while the commitments are untouched. Exercises anti-framing against a
+    /// same-commitment, corrupted-share substitution.
+    #[cfg(test)]
+    pub(crate) fn with_corrupted_first_share(&self) -> Self {
+        let mut corrupted = self.clone();
+        let value = &mut corrupted.s1_shares[0][0].value;
+        value.coeffs[0] = (value.coeffs[0] + 1).rem_euclid(crate::crypto::poly::Q);
+        corrupted
+    }
+}
+
+impl KeyProofs {
+    /// Domain-separated digest binding every well-formedness opening proof.
+    ///
+    /// The DKG commit phase folds this into the dealer's commitment so the
+    /// proofs [`SharedSecretKey::verify_commitment_proofs`] re-checks are pinned:
+    /// an honest dealer cannot be reframed by grafting invalid proofs onto its
+    /// (otherwise valid) contribution.
+    pub fn digest(&self) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(PROOFS_DIGEST_LABEL);
+        for component in self.s1_proofs.iter().chain(self.s2_proofs.iter()) {
+            hasher.update((component.len() as u64).to_be_bytes());
+            for proof in component {
+                absorb_proof(&mut hasher, proof);
             }
         }
         hasher.finalize().into()
@@ -325,6 +371,33 @@ fn absorb_commitment(hasher: &mut Sha3_256, commitment: &Commitment) {
     for poly in commitment.t1.iter().chain(std::iter::once(&commitment.t2)) {
         for coeff in poly.canonical().coeffs {
             hasher.update(coeff.to_be_bytes());
+        }
+    }
+}
+
+fn absorb_poly(hasher: &mut Sha3_256, poly: &Poly) {
+    for coeff in poly.canonical().coeffs {
+        hasher.update(coeff.to_be_bytes());
+    }
+}
+
+fn absorb_share(hasher: &mut Sha3_256, share: &HidingShare) {
+    hasher.update(share.receiver_index.to_be_bytes());
+    absorb_poly(hasher, &share.value);
+    hasher.update((share.randomness.len() as u64).to_be_bytes());
+    for poly in &share.randomness {
+        absorb_poly(hasher, poly);
+    }
+}
+
+fn absorb_proof(hasher: &mut Sha3_256, proof: &OpeningProof) {
+    hasher.update(proof.challenge_seed());
+    let responses = proof.responses();
+    hasher.update((responses.len() as u64).to_be_bytes());
+    for response in responses {
+        hasher.update((response.len() as u64).to_be_bytes());
+        for poly in response {
+            absorb_poly(hasher, poly);
         }
     }
 }

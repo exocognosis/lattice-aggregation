@@ -100,6 +100,20 @@ pub struct OpeningProof {
     responses: Vec<Vec<Poly>>,
 }
 
+impl OpeningProof {
+    /// The Fiat-Shamir challenge seed — transcript-binding material for a
+    /// caller that needs to fold this proof into a larger commitment digest.
+    pub(crate) fn challenge_seed(&self) -> &[u8; 32] {
+        &self.challenge_seed
+    }
+
+    /// The signed response vectors (`REPETITIONS` of them), exposed so a caller
+    /// can bind the full proof into a commitment digest.
+    pub(crate) fn responses(&self) -> &[Vec<Poly>] {
+        &self.responses
+    }
+}
+
 /// Prove knowledge of the short opening `randomness` (`A1*randomness =
 /// commitment.t1`).
 ///
