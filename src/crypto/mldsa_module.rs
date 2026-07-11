@@ -253,23 +253,22 @@ impl SharedSecretKey {
     /// same-commitment contribution with corrupted shares under the same digest.
     /// (Shares are cleartext in this increment; a future encrypted-transport
     /// version would bind the per-receiver ciphertexts instead.)
+    ///
+    /// The `s1` and `s2` groups are absorbed as **separate, individually
+    /// component-counted** runs, so the `s1`/`s2` partition (component
+    /// cardinality) is itself bound: two keys that differ only by moving a
+    /// component across the `s1`/`s2` boundary produce different digests. Without
+    /// this, `chain()`-ing the groups under only per-component length prefixes
+    /// would leave the partition invisible to the hash.
     pub fn reveal_digest(&self) -> [u8; 32] {
         let mut hasher = Sha3_256::new();
         hasher.update(REVEAL_DIGEST_LABEL);
         hasher.update(self.threshold.to_be_bytes());
         hasher.update(self.total_nodes.to_be_bytes());
-        for component in self.s1_shares.iter().chain(self.s2_shares.iter()) {
-            hasher.update((component.len() as u64).to_be_bytes());
-            for share in component {
-                absorb_share(&mut hasher, share);
-            }
-        }
-        for component in self.s1_commitments.iter().chain(self.s2_commitments.iter()) {
-            hasher.update((component.len() as u64).to_be_bytes());
-            for commitment in component {
-                absorb_commitment(&mut hasher, commitment);
-            }
-        }
+        absorb_share_group(&mut hasher, &self.s1_shares);
+        absorb_share_group(&mut hasher, &self.s2_shares);
+        absorb_commitment_group(&mut hasher, &self.s1_commitments);
+        absorb_commitment_group(&mut hasher, &self.s2_commitments);
         hasher.finalize().into()
     }
 
@@ -284,6 +283,23 @@ impl SharedSecretKey {
         value.coeffs[0] = (value.coeffs[0] + 1).rem_euclid(crate::crypto::poly::Q);
         corrupted
     }
+
+    /// Test-only: clone with the first `s2` share component moved into the `s1`
+    /// group (a repartition of the same underlying share blocks). The share
+    /// *bytes* are unchanged; only the `s1`/`s2` component split differs. Used to
+    /// prove [`reveal_digest`](Self::reveal_digest) binds the partition, closing
+    /// the s1|s2 boundary collision.
+    #[cfg(test)]
+    pub(crate) fn with_first_s2_share_component_moved_to_s1(&self) -> Self {
+        let mut moved = self.clone();
+        assert!(
+            !moved.s2_shares.is_empty(),
+            "s2 must have a component to move"
+        );
+        let component = moved.s2_shares.remove(0);
+        moved.s1_shares.push(component);
+        moved
+    }
 }
 
 impl KeyProofs {
@@ -296,12 +312,8 @@ impl KeyProofs {
     pub fn digest(&self) -> [u8; 32] {
         let mut hasher = Sha3_256::new();
         hasher.update(PROOFS_DIGEST_LABEL);
-        for component in self.s1_proofs.iter().chain(self.s2_proofs.iter()) {
-            hasher.update((component.len() as u64).to_be_bytes());
-            for proof in component {
-                absorb_proof(&mut hasher, proof);
-            }
-        }
+        absorb_proof_group(&mut hasher, &self.s1_proofs);
+        absorb_proof_group(&mut hasher, &self.s2_proofs);
         hasher.finalize().into()
     }
 }
@@ -398,6 +410,43 @@ fn absorb_proof(hasher: &mut Sha3_256, proof: &OpeningProof) {
         hasher.update((response.len() as u64).to_be_bytes());
         for poly in response {
             absorb_poly(hasher, poly);
+        }
+    }
+}
+
+/// Absorb one secret-vector group of share components, prefixed by the number of
+/// components (so the `s1`/`s2` partition is bound) and each component by its
+/// receiver count.
+fn absorb_share_group(hasher: &mut Sha3_256, group: &[Vec<HidingShare>]) {
+    hasher.update((group.len() as u64).to_be_bytes());
+    for component in group {
+        hasher.update((component.len() as u64).to_be_bytes());
+        for share in component {
+            absorb_share(hasher, share);
+        }
+    }
+}
+
+/// Absorb one secret-vector group of commitment components, prefixed by the
+/// number of components and each component by its coefficient count.
+fn absorb_commitment_group(hasher: &mut Sha3_256, group: &[Vec<Commitment>]) {
+    hasher.update((group.len() as u64).to_be_bytes());
+    for component in group {
+        hasher.update((component.len() as u64).to_be_bytes());
+        for commitment in component {
+            absorb_commitment(hasher, commitment);
+        }
+    }
+}
+
+/// Absorb one secret-vector group of proof components, prefixed by the number of
+/// components and each component by its proof count.
+fn absorb_proof_group(hasher: &mut Sha3_256, group: &[Vec<OpeningProof>]) {
+    hasher.update((group.len() as u64).to_be_bytes());
+    for component in group {
+        hasher.update((component.len() as u64).to_be_bytes());
+        for proof in component {
+            absorb_proof(hasher, proof);
         }
     }
 }
@@ -510,6 +559,24 @@ mod mldsa_module_tests {
         for (lhs, rhs) in recomputed.iter().zip(pk.t.iter()) {
             assert_eq!(lhs.canonical().coeffs, rhs.canonical().coeffs);
         }
+    }
+
+    #[test]
+    fn reveal_digest_binds_s1_s2_partition() {
+        // Moving a component across the s1|s2 boundary (same share bytes, different
+        // partition) must change the reveal digest — otherwise a repartitioned
+        // key with a failing `verify` could collide with an honest dealer's digest
+        // and frame them once an untrusted-decode path exists.
+        let (sk, _pk) = keygen(&[13u8; 32]);
+        let commit_key = CommitmentKey::from_seed(b"public");
+        let (shared, _proofs) = deal_secret_key(&sk, 2, 3, &[14u8; 32], &commit_key).unwrap();
+
+        let repartitioned = shared.with_first_s2_share_component_moved_to_s1();
+        assert_ne!(
+            shared.reveal_digest(),
+            repartitioned.reveal_digest(),
+            "the s1/s2 component partition must be bound by the reveal digest"
+        );
     }
 
     #[test]
