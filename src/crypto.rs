@@ -14,6 +14,7 @@ pub mod feldman_vss;
 pub mod interpolation;
 pub mod mldsa_dkg;
 pub mod mldsa_module;
+pub mod mldsa_primitives;
 pub(crate) mod module_lattice;
 pub mod vss;
 pub mod vss_bdlop;
