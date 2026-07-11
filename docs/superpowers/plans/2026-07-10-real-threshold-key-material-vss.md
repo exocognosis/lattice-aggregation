@@ -53,10 +53,31 @@ and part of item 2 (typed coefficient commitments + verifiable shares).
 
 ### Increment 2: Hiding commitment (module-SIS / BDLOP)
 
-- [ ] Replace the Feldman map with an Ajtai/BDLOP commitment `C = A r + [msg]`
-  with short randomness `r`, giving computational hiding + binding under a
-  stated module-SIS assumption with selected parameters.
-- [ ] Encrypted per-receiver shares + per-share validity proofs (checklist 2).
+- [x] Replace the Feldman map with a BDLOP module-lattice commitment
+  (`C = (A1 r, <a2,r> + m)`, short `r`) in `src/crypto/bdlop.rs`, giving
+  computational hiding under a stated Module-LWE assumption and MSIS-binding for
+  short openings (`verify_opening`). Parameters `KAPPA=4`, `K=12`, ternary
+  randomness are a chosen set pending lattice-estimator validation.
+- [x] Module-lattice arithmetic + sampling in `src/crypto/module_lattice.rs`.
+- [x] Hiding verifiable secret sharing (`src/crypto/vss_bdlop.rs`) with
+  homomorphic share verification, replacing the leaky Feldman path for hiding.
+- [x] Adversarial review (implementation + design subagents); fixes applied for
+  `i32::MIN` norm-check overflow, non-canonical aggregated randomness, and
+  non-canonical opening comparison. Binding/hiding claims reworded to match what
+  the code enforces.
+
+**Honesty note (from review):** `verify_share` enforces no norm bound on the
+aggregated randomness (which is legitimately non-short), so it provides
+homomorphic consistency, not malicious-dealer binding. This is documented in the
+module and captured by `verify_share_does_not_enforce_randomness_shortness`.
+
+### Increment 2b: Malicious-dealer binding + encrypted transport
+
+- [ ] Per-share validity proofs: a relaxed-norm opening bound
+  `beta ~ sum_j i^j` on `rho(i)` reducing share-binding to `MSIS_{2 beta}`,
+  giving malicious-dealer binding and extractability (security plan
+  Binding/Extractability).
+- [ ] Encrypted per-receiver share transport (checklist item 2).
 
 ### Increment 3: Module structure and the ML-DSA key relation
 

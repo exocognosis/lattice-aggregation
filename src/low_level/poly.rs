@@ -51,17 +51,18 @@ impl Poly {
 
     /// Return `true` when every coefficient has absolute value below `bound`.
     ///
-    /// The comparison uses branch-free absolute value for the expected ML-DSA
-    /// coefficient range. It is test infrastructure, not a formal timing proof.
+    /// The absolute value is computed in `i64` so that `i32::MIN` is handled
+    /// correctly (a plain `i32` abs would wrap and spuriously pass). This is
+    /// test/validation infrastructure, not a formal timing proof.
     pub fn check_noise_bounds(&self, bound: i32) -> bool {
         if bound <= 0 {
             return false;
         }
 
+        let bound = i64::from(bound);
         let mut within_bounds = true;
         for coeff in self.coeffs {
-            let sign = coeff >> 31;
-            let abs = (coeff ^ sign).wrapping_sub(sign);
+            let abs = i64::from(coeff).abs();
             within_bounds &= abs < bound;
         }
 
