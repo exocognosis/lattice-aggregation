@@ -11,3 +11,4 @@ pub mod poly {
 pub mod feldman_vss;
 pub mod interpolation;
 pub mod vss;
+pub mod vss_real;
