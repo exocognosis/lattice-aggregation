@@ -10,6 +10,7 @@ pub mod poly {
 
 pub mod bdlop;
 pub mod bdlop_pok;
+pub mod distributed_nonce;
 pub mod feldman_vss;
 pub mod interpolation;
 pub mod mldsa_dkg;
