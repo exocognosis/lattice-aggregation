@@ -123,11 +123,25 @@ impl Poly {
     /// Multiply by another polynomial in the negacyclic ring
     /// `R_q = Z_q[X] / (X^256 + 1)`.
     ///
-    /// This is a schoolbook `O(N^2)` product with the reduction `X^256 = -1`.
-    /// Inputs are canonicalized first, so any `i32` coefficients are accepted;
-    /// the result is canonical in `[0, Q)`. It is a correct reference
-    /// multiplication, not a constant-time NTT.
+    /// Uses the `O(N log N)` NTT ([`crate::low_level::ntt`]). Inputs are
+    /// canonicalized first, so any `i32` coefficients are accepted; the result
+    /// is canonical in `[0, Q)`. It is a correct reference multiplication, not a
+    /// constant-time implementation. The schoolbook product `mul_schoolbook`
+    /// is retained (test-only) as the property-test reference.
     pub fn mul(&self, rhs: &Self) -> Self {
+        Self {
+            coeffs: crate::low_level::ntt::ntt_mul(
+                &self.canonical().coeffs,
+                &rhs.canonical().coeffs,
+            ),
+        }
+    }
+
+    /// Schoolbook `O(N^2)` negacyclic product with the reduction `X^256 = -1`.
+    ///
+    /// Correctness reference for [`Poly::mul`]; canonical inputs and output.
+    #[cfg(test)]
+    fn mul_schoolbook(&self, rhs: &Self) -> Self {
         let lhs = self.canonical();
         let rhs = rhs.canonical();
         let q = i64::from(Q);
@@ -201,6 +215,32 @@ mod poly_ring_tests {
         let mut expected = Poly::zero();
         expected.coeffs[0] = Q - 1; // -1 mod Q
         assert_eq!(product.coeffs, expected.coeffs);
+    }
+
+    #[test]
+    fn ntt_mul_matches_schoolbook_reference() {
+        let fixed = [
+            monomial(0, 1),
+            monomial(1, 1),
+            monomial(255, Q - 1),
+            Poly::zero(),
+        ];
+        for a in &fixed {
+            for b in &fixed {
+                assert_eq!(a.mul(b).coeffs, a.mul_schoolbook(b).coeffs);
+            }
+        }
+
+        // Randomized dense sweep against the schoolbook reference.
+        for seed in 1..40 {
+            let a = sample(seed * 7 + 1);
+            let b = sample(seed * 13 + 3);
+            assert_eq!(
+                a.mul(&b).coeffs,
+                a.mul_schoolbook(&b).coeffs,
+                "NTT product must equal the schoolbook reference (seed {seed})"
+            );
+        }
     }
 
     #[test]

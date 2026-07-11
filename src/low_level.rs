@@ -3,5 +3,6 @@
 //! This module exposes hazmat-style polynomial primitives for adapter and test
 //! integration work. It is not a complete FIPS 204 backend.
 
+pub(crate) mod ntt;
 pub mod poly;
 pub mod ring;
