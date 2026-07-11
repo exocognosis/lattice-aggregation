@@ -102,9 +102,23 @@ Increment 2b gap.
 
 ### Increment 4: DKG state machine
 
-- [ ] Replace `SimulatedDkg` with commit -> share -> complaint -> response ->
-  adjudicate -> finalize phases (checklist 3), typed DKG transcript
-  (checklist 4), and joint-key derivation with output agreement.
+- [x] `src/crypto/mldsa_dkg.rs`: multi-dealer DKG. Each dealer VSS-shares an
+  independent random contribution and publishes `t^(d) = A s1^(d) + s2^(d)`;
+  `finalize` accepts dealers whose shares all verify (complaint rule), sums the
+  accepted contributions into the joint key, and derives per-validator shares by
+  homomorphic aggregation (`mldsa_module::aggregate`). Deterministic, id-sorted
+  accepted-dealer set (output agreement); joint shares verify against summed
+  commitments; reconstruction from `>= threshold` shares recomputes the joint
+  `t`.
+- [x] Adversarial review (subagent): confirmed the aggregation homomorphism,
+  determinism, seed separation, and panic/overflow safety. Fixed two honesty
+  over-claims (secrecy scoped to sub-threshold *validator* coalitions since
+  shares are unencrypted here; commit digest labelled computable-but-inert).
+
+**Deferred (Increment 5 / 2b):** complaint *adjudication* with public evidence,
+binding `t^(d)` to the VSS commitments (Increment 2b validity proofs), rushing /
+last-mover key-bias resistance, and encrypted per-receiver share transport. This
+is an honest-but-verifiable DKG, not yet malicious-secure.
 
 ### Increment 5: Key-bias resistance, evidence, negative tests
 

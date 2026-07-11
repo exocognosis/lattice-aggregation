@@ -11,6 +11,7 @@ pub mod poly {
 pub mod bdlop;
 pub mod feldman_vss;
 pub mod interpolation;
+pub mod mldsa_dkg;
 pub mod mldsa_module;
 pub(crate) mod module_lattice;
 pub mod vss;
