@@ -51,6 +51,7 @@ pub const ETA: i32 = 4;
 const S1_SAMPLE_DOMAIN: u32 = 0x0001_0000;
 const S2_SAMPLE_DOMAIN: u32 = 0x0002_0000;
 const SEED_DERIVE_LABEL: &[u8] = b"lattice-aggregation/mldsa-module/derive-seed";
+const COMMITMENT_DIGEST_LABEL: &[u8] = b"lattice-aggregation/mldsa-module/commitment-digest";
 
 /// Per-component receiver shares: `shares[j][p]` is validator `p`'s share of
 /// component `j`.
@@ -207,6 +208,92 @@ impl SharedSecretKey {
             s1: reconstruct_components(&self.s1_shares, &distinct),
             s2: reconstruct_components(&self.s2_shares, &distinct),
         })
+    }
+
+    /// Domain-separated digest binding all public coefficient commitments.
+    ///
+    /// The DKG commit phase uses this to bind a dealer to its contribution
+    /// before shares are aggregated (commit-before-reveal).
+    pub fn commitment_digest(&self) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(COMMITMENT_DIGEST_LABEL);
+        hasher.update(self.threshold.to_be_bytes());
+        hasher.update(self.total_nodes.to_be_bytes());
+        for component in self.s1_commitments.iter().chain(self.s2_commitments.iter()) {
+            for commitment in component {
+                absorb_commitment(&mut hasher, commitment);
+            }
+        }
+        hasher.finalize().into()
+    }
+}
+
+/// Aggregate several verifiable shared secret keys into their component-wise sum.
+///
+/// Every input must share the same threshold, validator count, and module
+/// dimensions. Because the hiding VSS is additively homomorphic, the summed
+/// shares form a valid verifiable sharing of the summed secret key (summed
+/// shares verify against summed commitments). The DKG uses this to combine
+/// accepted dealer contributions into the joint key.
+///
+/// Returns [`ThresholdError::BackendUnavailable`] on an empty input or a
+/// shape mismatch between contributions.
+pub fn aggregate(contributions: &[SharedSecretKey]) -> Result<SharedSecretKey, ThresholdError> {
+    let (first, rest) = contributions
+        .split_first()
+        .ok_or(ThresholdError::BackendUnavailable {
+            reason: "aggregate requires at least one contribution",
+        })?;
+
+    let mut accumulator = first.clone();
+    for contribution in rest {
+        if contribution.threshold != accumulator.threshold
+            || contribution.total_nodes != accumulator.total_nodes
+            || contribution.s1_shares.len() != accumulator.s1_shares.len()
+            || contribution.s2_shares.len() != accumulator.s2_shares.len()
+        {
+            return Err(ThresholdError::BackendUnavailable {
+                reason: "aggregate: mismatched contribution shape",
+            });
+        }
+        add_shares_into(&mut accumulator.s1_shares, &contribution.s1_shares);
+        add_shares_into(&mut accumulator.s2_shares, &contribution.s2_shares);
+        add_commitments_into(
+            &mut accumulator.s1_commitments,
+            &contribution.s1_commitments,
+        );
+        add_commitments_into(
+            &mut accumulator.s2_commitments,
+            &contribution.s2_commitments,
+        );
+    }
+    Ok(accumulator)
+}
+
+fn add_shares_into(accumulator: &mut ComponentShares, other: &ComponentShares) {
+    for (acc_component, other_component) in accumulator.iter_mut().zip(other.iter()) {
+        for (acc_share, other_share) in acc_component.iter_mut().zip(other_component.iter()) {
+            acc_share.value.add_assign(&other_share.value);
+            acc_share.randomness = vec_add(&acc_share.randomness, &other_share.randomness);
+        }
+    }
+}
+
+fn add_commitments_into(accumulator: &mut ComponentCommitments, other: &ComponentCommitments) {
+    for (acc_component, other_component) in accumulator.iter_mut().zip(other.iter()) {
+        for (acc_commitment, other_commitment) in
+            acc_component.iter_mut().zip(other_component.iter())
+        {
+            *acc_commitment = acc_commitment.add(other_commitment);
+        }
+    }
+}
+
+fn absorb_commitment(hasher: &mut Sha3_256, commitment: &Commitment) {
+    for poly in commitment.t1.iter().chain(std::iter::once(&commitment.t2)) {
+        for coeff in poly.canonical().coeffs {
+            hasher.update(coeff.to_be_bytes());
+        }
     }
 }
 
