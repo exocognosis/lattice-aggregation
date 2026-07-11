@@ -122,9 +122,34 @@ is an honest-but-verifiable DKG, not yet malicious-secure.
 
 ### Increment 5: Key-bias resistance, evidence, negative tests
 
-- [ ] Commit-before-share binding, deterministic accepted-dealer rule, and the
-  publicly checkable evidence records (`InvalidDealerShare`,
-  `DealerEquivocation`, ...) from the security plan (checklist 6, 10).
+- [x] `src/crypto/mldsa_dkg.rs`: committing round + public fault evidence.
+  `DkgCoordinator::contribution_digest` is a session-bound commit digest (folds
+  `rho`, threshold, validator count, dealer id, `t^(d)`, and the VSS commitment
+  digest); `collect_commitments` freezes an id-sorted, dedup'd commit vector
+  (round 1); `finalize_with_evidence` (round 2) opens each commit and emits a
+  [`DealerFault`] per excluded committed dealer, with a deterministic id-ordered
+  accepted set and a `transcript_digest` binding the round. `verify_fault`
+  re-checks any fault from public state only (anti-framing), and the original
+  one-shot `finalize` is retained for back-compat.
+- [x] Fault classes are restricted to the publicly *recomputable* ones —
+  `CommitMismatch`, `InvalidShareRelation`, `InvalidCommitmentProof`
+  (`DealerFaultClass`) — with an over-claim guard test. No `DealerEquivocation`
+  class exists: proving equivocation-across-receivers needs signed dealer frames
+  this synchronous in-memory model does not have.
+- [x] Negative / property tests: anti-framing (no forged fault verifies against an
+  honest dealer), order-independent acceptance, commit-binding rejects a
+  post-commit swap, genuine bad share/proof yield a re-verifiable fault,
+  verifier uses no private state, missing reveal is exclusion-not-fault,
+  transcript-digest binds the outcome.
+
+**Honest boundary (this increment does *not* reach malicious security):** the
+fault records are **diagnostic, not slashing-grade** (no signed frames ⇒ not
+cryptographically attributable to a dealer key); the commit round stops
+**adaptive-choice** bias but **not last-mover abort** bias (a final dealer can
+still abort after seeing others' reveals); a **missing reveal is a silent
+exclusion, not a fault**; and binding `t^(d)` to the VSS commitments plus
+encrypted per-receiver transport remain deferred (Increment 2b). It closes no
+hypothesis criterion.
 
 ---
 
