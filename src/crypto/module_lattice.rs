@@ -15,6 +15,7 @@ use crate::crypto::poly::{Poly, N, Q};
 
 const UNIFORM_SAMPLE_LABEL: &[u8] = b"lattice-aggregation/module-lattice/uniform";
 const SHORT_SAMPLE_LABEL: &[u8] = b"lattice-aggregation/module-lattice/short";
+const ETA_SAMPLE_LABEL: &[u8] = b"lattice-aggregation/module-lattice/eta4";
 
 /// Inner product `sum_i a[i] * b[i]` over `R_q`.
 ///
@@ -94,6 +95,41 @@ pub(crate) fn uniform_poly(seed: &[u8], nonce: u32) -> Poly {
         if (candidate as i32) < Q {
             coeffs[filled] = candidate as i32;
             filled += 1;
+        }
+    }
+    Poly::from_coeffs(coeffs)
+}
+
+/// Sample a length-`len` vector of ML-DSA secret polynomials with coefficients
+/// uniform over `[-4, 4]` (the ML-DSA-65 `eta = 4` range), signed centered.
+pub(crate) fn sample_eta_vec(seed: &[u8], domain: u32, len: usize) -> Vec<Poly> {
+    (0..len)
+        .map(|index| eta4_poly(seed, domain + index as u32))
+        .collect()
+}
+
+/// Sample a poly with coefficients in `{-4,...,4}` via FIPS 204-style nibble
+/// rejection: a 4-bit value `b < 9` maps to `4 - b`, others are rejected.
+fn eta4_poly(seed: &[u8], nonce: u32) -> Poly {
+    let mut hasher = Shake256::default();
+    absorb(&mut hasher, ETA_SAMPLE_LABEL);
+    absorb(&mut hasher, seed);
+    hasher.update(&nonce.to_be_bytes());
+    let mut reader = hasher.finalize_xof();
+
+    let mut coeffs = [0i32; N];
+    let mut filled = 0usize;
+    let mut buf = [0u8; 1];
+    while filled < N {
+        reader.read(&mut buf);
+        for nibble in [buf[0] & 0x0f, buf[0] >> 4] {
+            if nibble < 9 {
+                coeffs[filled] = 4 - i32::from(nibble);
+                filled += 1;
+                if filled == N {
+                    break;
+                }
+            }
         }
     }
     Poly::from_coeffs(coeffs)
@@ -189,6 +225,18 @@ mod module_lattice_tests {
         let repeated = vec_add(&vec_add(&vector, &vector), &vector);
         for (s, r) in scaled.iter().zip(repeated.iter()) {
             assert_eq!(s.canonical().coeffs, r.canonical().coeffs);
+        }
+    }
+
+    #[test]
+    fn eta_samples_are_within_bound_four() {
+        let vector = sample_eta_vec(b"seed", 0, 4);
+        assert_eq!(vector.len(), 4);
+        for poly in &vector {
+            assert!(
+                poly.check_noise_bounds(5),
+                "eta samples must lie in [-4, 4]"
+            );
         }
     }
 }
