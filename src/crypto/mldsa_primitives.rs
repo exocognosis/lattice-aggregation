@@ -17,6 +17,17 @@
 //! simple 20-bit unpack rather than the exact `ExpandMask` bit-packing. KAT/CAVP
 //! validation and byte-exact packing are deferred. No hypothesis criterion is
 //! closed here.
+//!
+//! ## Relationship to `backend::fips_sign`
+//!
+//! A parallel single-signer implementation of these primitives exists in
+//! `src/backend/fips_sign.rs`, gated behind the `raw-real-mldsa` feature and
+//! built on a separate `[u32; N]` `Poly` with its own NTT. This module provides
+//! the same FIPS 204 semantics on the always-compiled `low_level::poly` (`[i32;
+//! N]`) stack that the threshold VSS/DKG shares live on, so the threshold
+//! signing path can compose natively with the key shares. Unifying the two
+//! arithmetic stacks (or documenting a tested bridge) is a tracked concern
+//! before the partial-signing path reuses either.
 
 use sha3::{
     digest::{ExtendableOutput, Update, XofReader},
