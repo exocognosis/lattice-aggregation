@@ -17,6 +17,7 @@ pub mod mldsa_dkg;
 pub mod mldsa_module;
 pub mod mldsa_primitives;
 pub(crate) mod module_lattice;
+pub mod share_transport;
 pub mod vss;
 pub mod vss_bdlop;
 pub mod vss_real;

@@ -355,6 +355,109 @@ pub fn module_partial_round_trip(
     })
 }
 
+/// Result of the real local partial-share validity gate.
+///
+/// This is executable evidence for the SOUNDNESS leg of Criterion 4
+/// (`partial_contribution_soundness`) only. It is produced by recomputing
+/// `z_i = y_i + c · s1_i` over `R_q^L` from the opened share/mask and checking
+/// the centered infinity-norm bound against `γ₁ − β` with real ring arithmetic
+/// (not a digest comparison).
+///
+/// Claim boundary (why this does NOT close Criterion 4):
+///
+/// - It is **not** zero-knowledge: the gate consumes `y_i` and `s1_i` in the
+///   clear, so it does **not** discharge the hiding/leakage obligation that a
+///   production partial verifier must satisfy without seeing the secret share
+///   or one-time mask.
+/// - The research expanders in this module are **not** claimed CAVP-identical to
+///   FIPS 204 `ExpandS`/`ExpandMask`.
+/// - It does **not** replace the audited proof-backed local verifier, VSS/DKG
+///   binding proof, formal leakage model, or external review tracked in
+///   `docs/cryptography/partial-soundness-evidence.md`.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ModulePartialLocalValidity {
+    /// Signer whose partial was checked.
+    pub signer: ValidatorId,
+    /// Evaluation point of the checked partial.
+    pub x: u16,
+    /// Centered infinity norm `‖z_i‖_∞` of the checked response.
+    pub infinity_norm: i32,
+    /// SHA3-256 digest binding `(signer, x, z_i, c)`, minted only after the
+    /// algebraic-relation and norm-bound checks pass. It is a *real* value that
+    /// can feed the digest-only evidence surface in `partial_soundness`.
+    pub local_validity_digest: [u8; 32],
+}
+
+/// Real local partial-share validity gate over a module-vector partial.
+///
+/// Recomputes `z_i = y_i + c · s1_i` from the opened `(y_i, s1_i)` and challenge
+/// `c`, and checks the ML-DSA-65 acceptance bound `‖z_i‖_∞ < γ₁ − β`.
+///
+/// Rejects, with a typed [`ThresholdError`]:
+///
+/// - a claimed response `z_i` that does not equal the recomputed
+///   `y_i + c · s1_i` (tampered response, wrong/rebound challenge, or a share
+///   not bound to this signer) with [`ThresholdError::PartialShareVerificationFailed`];
+/// - a response whose centered infinity norm reaches `γ₁ − β`
+///   with [`ThresholdError::RejectionSamplingFailed`].
+///
+/// The algebraic-relation check runs before the norm check, so a response that
+/// is both mis-formed and out of bound is reported as a verification failure.
+pub fn verify_module_partial_local_validity(
+    partial: &ModulePartialZi,
+    opened_y_i: &ModuleVecL,
+    opened_s1_i: &ModuleVecL,
+    c: &Poly,
+) -> Result<ModulePartialLocalValidity, ThresholdError> {
+    if partial.x == 0 {
+        return Err(ThresholdError::BackendUnavailable {
+            reason: "module partial local validity requires nonzero x",
+        });
+    }
+
+    let recomputed = compute_z(opened_y_i, opened_s1_i, c);
+    for component in 0..L {
+        if recomputed.components[component].canonical().coeffs
+            != partial.z_i.components[component].canonical().coeffs
+        {
+            return Err(ThresholdError::PartialShareVerificationFailed {
+                validator: partial.signer,
+            });
+        }
+    }
+
+    if !partial.z_i.check_z_bound(Z_BOUND) {
+        return Err(ThresholdError::RejectionSamplingFailed {
+            validator: partial.signer,
+        });
+    }
+
+    Ok(ModulePartialLocalValidity {
+        signer: partial.signer,
+        x: partial.x,
+        infinity_norm: partial.z_i.infinity_norm(),
+        local_validity_digest: module_partial_validity_digest(partial, c),
+    })
+}
+
+fn module_partial_validity_digest(partial: &ModulePartialZi, c: &Poly) -> [u8; 32] {
+    use sha3::{Digest, Sha3_256};
+
+    let mut buf = Vec::new();
+    buf.extend_from_slice(b"lattice-aggregation/module-partial/local-validity/v1");
+    buf.extend_from_slice(&partial.signer.0.to_be_bytes());
+    buf.extend_from_slice(&partial.x.to_be_bytes());
+    for component in &partial.z_i.components {
+        for coeff in component.coeffs {
+            buf.extend_from_slice(&coeff.to_le_bytes());
+        }
+    }
+    for coeff in c.coeffs {
+        buf.extend_from_slice(&coeff.to_le_bytes());
+    }
+    Sha3_256::digest(&buf).into()
+}
+
 fn expand_bounded_poly(seed: &[u8], label: &[u8], index: u16, eta: i32) -> Poly {
     let mut hasher = Shake256::default();
     hasher.update(b"lattice-aggregation/module-partial/expand-bounded/v1");
@@ -445,6 +548,7 @@ fn eval_poly_coeffs(coeffs: &[Poly], x: u16) -> Poly {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::low_level::poly::N;
 
     #[test]
     fn sample_in_ball_has_weight_tau() {
@@ -472,6 +576,50 @@ mod tests {
         assert_eq!(agg.active_xs.len(), 2);
         // Algebraic identity already checked inside round_trip.
         assert_eq!(agg.z.components.len(), L);
+    }
+
+    #[test]
+    fn local_validity_gate_accepts_honest_partial_and_rebinds_a_real_digest() {
+        let mut s1 = ModuleVecL::zero();
+        let mut y = ModuleVecL::zero();
+        for component in 0..L {
+            for i in 0..N {
+                // η-bounded secret and small mask keep ‖z‖_∞ well under γ₁ − β.
+                s1.components[component].coeffs[i] = ((i as i32 + component as i32) % 9) - 4;
+                y.components[component].coeffs[i] = (i as i32 * 3 + component as i32) % 500;
+            }
+        }
+        let c = sample_in_ball(b"local-validity-honest", TAU);
+        let partial = emit_module_partial_zi(ValidatorId(7), 3, &s1, &y, &c).unwrap();
+
+        let validity = verify_module_partial_local_validity(&partial, &y, &s1, &c).unwrap();
+        assert_eq!(validity.signer, ValidatorId(7));
+        assert_eq!(validity.x, 3);
+        assert!(validity.infinity_norm < Z_BOUND);
+        assert_ne!(validity.local_validity_digest, [0u8; 32]);
+    }
+
+    #[test]
+    fn local_validity_gate_rejects_out_of_bound_response() {
+        // c = 0 and s1 = 0 so z_i = y_i exactly (algebraic relation holds),
+        // but one coefficient is placed just below γ₁, above the γ₁ − β bound.
+        let zero_s1 = ModuleVecL::zero();
+        let zero_c = Poly::zero();
+        let mut y = ModuleVecL::zero();
+        y.components[0].coeffs[0] = GAMMA1 - 1;
+        let z_i = compute_z(&y, &zero_s1, &zero_c);
+        let partial = ModulePartialZi {
+            signer: ValidatorId(1),
+            x: 1,
+            z_i,
+        };
+
+        let err =
+            verify_module_partial_local_validity(&partial, &y, &zero_s1, &zero_c).unwrap_err();
+        assert!(matches!(
+            err,
+            ThresholdError::RejectionSamplingFailed { .. }
+        ));
     }
 
     #[test]
