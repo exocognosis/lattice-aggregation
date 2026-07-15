@@ -35,6 +35,31 @@ RECONSTRUCTION_CORE_MODES = {
 RECONSTRUCTION_SIGNATURE_ORIGINS = {
     "threshold_seed_reconstruction_standard_mldsa65_provider",
 }
+STRICT_DISTRIBUTED_CORE_FLAGS = (
+    "distributed_keygen_vss",
+    "partial_signing_over_secret_shares",
+    "partial_z_i_hint_aggregation",
+    "fips204_rejection_loop_over_threshold_partials",
+    "standard_verifier_compatible_output",
+)
+FULL_BACKEND_REQUIREMENT_FIELDS = (
+    "mldsa65_internal_provider",
+    "threshold_key_material",
+    "distributed_nonce_path",
+    "partial_signing",
+    "aggregation",
+    "fips204_rejection_loop",
+    "standard_verifier_compatibility",
+    "threshold_vs_centralized_comparison",
+)
+FULL_BACKEND_REQUIRED_PREDICATES = {
+    "z_bounds",
+    "r0",
+    "ct0",
+    "hint_omega",
+    "challenge_digest",
+    "accept_reject_reason",
+}
 
 
 def canonical_json(data):
@@ -142,19 +167,193 @@ def backend_core_admissible(backend_manifest, backend_capture, blockers):
     if not isinstance(distributed_core, dict):
         blockers.append("backend capture is missing distributed threshold core status")
         return False
-    required_flags = (
-        "distributed_keygen_vss",
-        "partial_signing_over_secret_shares",
-        "partial_z_i_hint_aggregation",
-        "fips204_rejection_loop_over_threshold_partials",
-    )
-    missing = [flag for flag in required_flags if distributed_core.get(flag) is not True]
+    missing = [
+        flag
+        for flag in STRICT_DISTRIBUTED_CORE_FLAGS
+        if distributed_core.get(flag) is not True
+    ]
     if missing:
         blockers.append(
             "backend capture lacks strict threshold core evidence: " + ", ".join(missing)
         )
         admissible = False
+    if not backend_requirement_evidence_present(backend_capture, blockers):
+        admissible = False
     return admissible
+
+
+def backend_requirement_evidence_present(backend_capture, blockers):
+    """Check that a strict backend capture carries the full evidence ledger."""
+    evidence = backend_capture.get("backend_requirement_evidence")
+    core = backend_capture.get("cryptographic_core")
+    core_evidence = (
+        core.get("backend_requirement_evidence") if isinstance(core, dict) else None
+    )
+    ready = True
+    if not isinstance(evidence, dict):
+        for field in FULL_BACKEND_REQUIREMENT_FIELDS:
+            blockers.append(f"backend capture missing backend requirement evidence: {field}")
+        return False
+    if core_evidence != evidence:
+        blockers.append("backend capture requirement evidence does not match core accounting")
+        ready = False
+    for field in FULL_BACKEND_REQUIREMENT_FIELDS:
+        if field not in evidence:
+            blockers.append(f"backend capture missing backend requirement evidence: {field}")
+            ready = False
+    if not ready:
+        return False
+
+    provider = evidence["mldsa65_internal_provider"]
+    for field in (
+        "exposes_signature_tuple",
+        "exposes_expanded_secret_shares",
+        "exposes_rejection_predicates",
+    ):
+        if provider.get(field) is not True:
+            blockers.append(f"mldsa65_internal_provider required flag false: {field}")
+            ready = False
+    for field in ("source_digest_hex", "implementation_digest_hex"):
+        if not is_nonzero_hex_digest(provider.get(field)):
+            blockers.append(f"mldsa65_internal_provider missing digest: {field}")
+            ready = False
+    if provider.get("standard_parameter_set") != "ML-DSA-65":
+        blockers.append("mldsa65_internal_provider standard parameter set mismatch")
+        ready = False
+
+    key_material = evidence["threshold_key_material"]
+    expected_key_counts = {
+        "validator_count": 10000,
+        "threshold": 6667,
+        "public_key_count": 1,
+    }
+    for field, expected in expected_key_counts.items():
+        if key_material.get(field) != expected:
+            blockers.append(f"threshold_key_material {field} mismatch")
+            ready = False
+    if not (
+        key_material.get("distributed_dkg_vss_transcript_present") is True
+        or key_material.get("tee_hsm_trust_record_present") is True
+    ):
+        blockers.append(
+            "threshold_key_material requires DKG/VSS transcript or TEE/HSM trust record"
+        )
+        ready = False
+    if key_material.get("single_exposed_mldsa_secret_key_prevented") is not True:
+        blockers.append(
+            "threshold_key_material required flag false: single_exposed_mldsa_secret_key_prevented"
+        )
+        ready = False
+
+    nonce_path = evidence["distributed_nonce_path"]
+    for field in (
+        "per_attempt_nonce_share_generation",
+        "commit_before_reveal",
+        "aggregate_commitment_w_evidence",
+        "abort_accountability_records",
+        "no_centralized_nonce_oracle",
+        "live_distributed_nonce_generation",
+    ):
+        if nonce_path.get(field) is not True:
+            blockers.append(f"distributed_nonce_path required flag false: {field}")
+            ready = False
+
+    partial = evidence["partial_signing"]
+    for field in (
+        "implemented",
+        "partial_signing_over_secret_shares",
+        "signer_id_emitted",
+        "commitment_binding_emitted",
+        "challenge_binding_emitted",
+        "partial_z_i_emitted",
+        "bound_evidence_emitted",
+        "malformed_stale_duplicate_out_of_set_rejection",
+    ):
+        if partial.get(field) is not True:
+            blockers.append(f"partial_signing required flag false: {field}")
+            ready = False
+    if partial.get("partial_response_count", 0) < 6667:
+        blockers.append("partial_signing partial_response_count below threshold")
+        ready = False
+
+    aggregation = evidence["aggregation"]
+    for field in (
+        "standard_signature_tuple_present",
+        "byte_exact_mldsa65_signature",
+        "aggregate_z_from_threshold_partials",
+        "hint_h_from_threshold_partials",
+    ):
+        if aggregation.get(field) is not True:
+            blockers.append(f"aggregation required flag false: {field}")
+            ready = False
+    if aggregation.get("signature_len") != MLDSA65_SIGNATURE_BYTES:
+        blockers.append("aggregation signature_len mismatch")
+        ready = False
+
+    rejection = evidence["fips204_rejection_loop"]
+    for field in (
+        "real_threshold_partial_predicates",
+        "standard_provider_acceptance_observed",
+        "accepted_and_rejected_attempts_recorded",
+        "retry_until_accepted",
+    ):
+        if rejection.get(field) is not True:
+            blockers.append(f"fips204_rejection_loop required flag false: {field}")
+            ready = False
+    if rejection.get("accepted_attempt_count", 0) < 1:
+        blockers.append("fips204_rejection_loop accepted attempts missing")
+        ready = False
+    if rejection.get("rejected_attempt_count", 0) < 1:
+        blockers.append("fips204_rejection_loop rejected attempts missing")
+        ready = False
+    predicates = set(rejection.get("required_predicates", []))
+    for predicate in sorted(FULL_BACKEND_REQUIRED_PREDICATES - predicates):
+        blockers.append(f"fips204_rejection_loop missing predicate: {predicate}")
+        ready = False
+
+    verifier = evidence["standard_verifier_compatibility"]
+    for field in (
+        "unmodified_mldsa65_verifier_accepts_original",
+        "mutated_message_rejected",
+        "mutated_public_key_rejected",
+        "mutated_signature_rejected",
+    ):
+        if verifier.get(field) is not True:
+            blockers.append(f"standard_verifier_compatibility required flag false: {field}")
+            ready = False
+    if verifier.get("signature_len") != MLDSA65_SIGNATURE_BYTES:
+        blockers.append("standard_verifier_compatibility signature_len mismatch")
+        ready = False
+
+    comparison = evidence["threshold_vs_centralized_comparison"]
+    for field in (
+        "centralized_comparison_attempts_present",
+        "accepted_or_rejected_matches",
+        "challenge_digest_matches",
+    ):
+        if comparison.get(field) is not True:
+            blockers.append(
+                f"threshold_vs_centralized_comparison required flag false: {field}"
+            )
+            ready = False
+    if comparison.get("predicate_mismatch_count") != 0:
+        blockers.append("threshold_vs_centralized_comparison predicate mismatches present")
+        ready = False
+    if comparison.get("claims_theorem_closure") is not False:
+        blockers.append("threshold_vs_centralized_comparison must not claim theorem closure")
+        ready = False
+    if comparison.get("claims_rejection_distribution_preservation") is not False:
+        blockers.append(
+            "threshold_vs_centralized_comparison must not claim rejection distribution preservation"
+        )
+        ready = False
+
+    expected = backend_capture.get("expected", {})
+    if not is_nonzero_hex_digest(expected.get("backend_requirement_evidence_digest_hex")):
+        blockers.append("backend capture missing backend requirement evidence digest")
+        ready = False
+
+    return ready
 
 
 def backend_capture_present(backend_manifest, backend_capture, blockers):

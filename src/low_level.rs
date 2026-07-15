@@ -4,3 +4,6 @@
 //! integration work. It is not a complete FIPS 204 backend.
 
 pub mod poly;
+
+#[cfg(feature = "hazmat-real-mldsa")]
+pub mod mldsa65;

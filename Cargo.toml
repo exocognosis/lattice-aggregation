@@ -19,6 +19,8 @@ default = []
 protocol-sim = []
 raw-mldsa-internals = []
 raw-real-mldsa = ["raw-mldsa-internals", "dep:ml-dsa"]
+hazmat-real-mldsa = ["raw-mldsa-internals"]
+experimental-vss = []
 coordinator-assisted = []
 production-mldsa65-coordinator = ["coordinator-assisted", "raw-real-mldsa"]
 

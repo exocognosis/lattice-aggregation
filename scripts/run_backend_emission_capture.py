@@ -99,6 +99,24 @@ CAPTURE_PAYLOAD_FIELDS = {
     "reviewed",
 }
 CAPTURE_BYTE_FIELDS = {"encoding", "value"}
+FULL_BACKEND_REQUIREMENT_FIELDS = (
+    "mldsa65_internal_provider",
+    "threshold_key_material",
+    "distributed_nonce_path",
+    "partial_signing",
+    "aggregation",
+    "fips204_rejection_loop",
+    "standard_verifier_compatibility",
+    "threshold_vs_centralized_comparison",
+)
+FULL_BACKEND_REQUIRED_PREDICATES = {
+    "z_bounds",
+    "r0",
+    "ct0",
+    "hint_omega",
+    "challenge_digest",
+    "accept_reject_reason",
+}
 
 
 def sha256_text(text):
@@ -312,10 +330,13 @@ def backend_core_admissibility(capture):
             "partial_signing_over_secret_shares",
             "partial_z_i_hint_aggregation",
             "fips204_rejection_loop_over_threshold_partials",
+            "standard_verifier_compatible_output",
         )
         for flag in required_flags:
             if distributed_core.get(flag) is not True:
                 reasons.append(f"distributed threshold core flag false: {flag}")
+        if all(distributed_core.get(flag) is True for flag in required_flags):
+            reasons.extend(backend_requirement_evidence_reasons(capture))
     return {
         "strict_threshold_core_admissible": not reasons,
         "quarantined": bool(reasons),
@@ -323,6 +344,171 @@ def backend_core_admissibility(capture):
         "signature_origin": signature_origin,
         "reasons": reasons,
     }
+
+
+def backend_requirement_evidence_reasons(capture):
+    """Return strict-core blockers for missing seven-item backend evidence."""
+    reasons = []
+    evidence = capture.get("backend_requirement_evidence")
+    core = capture.get("cryptographic_core")
+    core_evidence = (
+        core.get("backend_requirement_evidence") if isinstance(core, dict) else None
+    )
+    if not isinstance(evidence, dict):
+        for field in FULL_BACKEND_REQUIREMENT_FIELDS:
+            reasons.append(f"missing backend requirement evidence: {field}")
+        return reasons
+    if core_evidence != evidence:
+        reasons.append("cryptographic_core backend requirement evidence mismatch")
+    for field in FULL_BACKEND_REQUIREMENT_FIELDS:
+        if field not in evidence:
+            reasons.append(f"missing backend requirement evidence: {field}")
+    if reasons:
+        return reasons
+
+    provider = evidence["mldsa65_internal_provider"]
+    require_bool(provider, "exposes_signature_tuple", reasons, "mldsa65_internal_provider")
+    require_bool(provider, "exposes_expanded_secret_shares", reasons, "mldsa65_internal_provider")
+    require_bool(provider, "exposes_rejection_predicates", reasons, "mldsa65_internal_provider")
+    require_digest(provider, "source_digest_hex", reasons, "mldsa65_internal_provider")
+    require_digest(
+        provider,
+        "implementation_digest_hex",
+        reasons,
+        "mldsa65_internal_provider",
+    )
+    if provider.get("standard_parameter_set") != "ML-DSA-65":
+        reasons.append("mldsa65_internal_provider standard parameter set mismatch")
+
+    key_material = evidence["threshold_key_material"]
+    if key_material.get("validator_count") != 10_000:
+        reasons.append("threshold_key_material validator_count mismatch")
+    if key_material.get("threshold") != 6_667:
+        reasons.append("threshold_key_material threshold mismatch")
+    if key_material.get("public_key_count") != 1:
+        reasons.append("threshold_key_material public_key_count mismatch")
+    if not (
+        key_material.get("distributed_dkg_vss_transcript_present") is True
+        or key_material.get("tee_hsm_trust_record_present") is True
+    ):
+        reasons.append("threshold_key_material requires DKG/VSS transcript or TEE/HSM trust record")
+    require_bool(
+        key_material,
+        "single_exposed_mldsa_secret_key_prevented",
+        reasons,
+        "threshold_key_material",
+    )
+
+    nonce_path = evidence["distributed_nonce_path"]
+    for field in (
+        "per_attempt_nonce_share_generation",
+        "commit_before_reveal",
+        "aggregate_commitment_w_evidence",
+        "abort_accountability_records",
+        "no_centralized_nonce_oracle",
+        "live_distributed_nonce_generation",
+    ):
+        require_bool(nonce_path, field, reasons, "distributed_nonce_path")
+
+    partial = evidence["partial_signing"]
+    for field in (
+        "implemented",
+        "partial_signing_over_secret_shares",
+        "signer_id_emitted",
+        "commitment_binding_emitted",
+        "challenge_binding_emitted",
+        "partial_z_i_emitted",
+        "bound_evidence_emitted",
+        "malformed_stale_duplicate_out_of_set_rejection",
+    ):
+        require_bool(partial, field, reasons, "partial_signing")
+    if partial.get("partial_response_count", 0) < 6_667:
+        reasons.append("partial_signing partial_response_count below threshold")
+
+    aggregation = evidence["aggregation"]
+    for field in (
+        "standard_signature_tuple_present",
+        "byte_exact_mldsa65_signature",
+        "aggregate_z_from_threshold_partials",
+        "hint_h_from_threshold_partials",
+    ):
+        require_bool(aggregation, field, reasons, "aggregation")
+    if aggregation.get("signature_len") != MLDSA65_SIGNATURE_BYTES:
+        reasons.append("aggregation signature_len mismatch")
+
+    rejection = evidence["fips204_rejection_loop"]
+    for field in (
+        "real_threshold_partial_predicates",
+        "standard_provider_acceptance_observed",
+        "accepted_and_rejected_attempts_recorded",
+        "retry_until_accepted",
+    ):
+        require_bool(rejection, field, reasons, "fips204_rejection_loop")
+    if rejection.get("accepted_attempt_count", 0) < 1:
+        reasons.append("fips204_rejection_loop accepted attempts missing")
+    if rejection.get("rejected_attempt_count", 0) < 1:
+        reasons.append("fips204_rejection_loop rejected attempts missing")
+    predicates = set(rejection.get("required_predicates", []))
+    missing_predicates = sorted(FULL_BACKEND_REQUIRED_PREDICATES - predicates)
+    for predicate in missing_predicates:
+        reasons.append(f"fips204_rejection_loop missing predicate: {predicate}")
+
+    verifier = evidence["standard_verifier_compatibility"]
+    for field in (
+        "unmodified_mldsa65_verifier_accepts_original",
+        "mutated_message_rejected",
+        "mutated_public_key_rejected",
+        "mutated_signature_rejected",
+    ):
+        require_bool(verifier, field, reasons, "standard_verifier_compatibility")
+    if verifier.get("signature_len") != MLDSA65_SIGNATURE_BYTES:
+        reasons.append("standard_verifier_compatibility signature_len mismatch")
+
+    comparison = evidence["threshold_vs_centralized_comparison"]
+    for field in (
+        "centralized_comparison_attempts_present",
+        "accepted_or_rejected_matches",
+        "challenge_digest_matches",
+    ):
+        require_bool(comparison, field, reasons, "threshold_vs_centralized_comparison")
+    if comparison.get("predicate_mismatch_count") != 0:
+        reasons.append("threshold_vs_centralized_comparison predicate mismatches present")
+    if comparison.get("claims_theorem_closure") is not False:
+        reasons.append("threshold_vs_centralized_comparison must not claim theorem closure")
+    if comparison.get("claims_rejection_distribution_preservation") is not False:
+        reasons.append(
+            "threshold_vs_centralized_comparison must not claim rejection distribution preservation"
+        )
+
+    expected = capture.get("expected", {})
+    if "backend_requirement_evidence_digest_hex" not in expected:
+        reasons.append("missing expected digest: backend_requirement_evidence_digest_hex")
+    elif not valid_nonzero_digest(expected["backend_requirement_evidence_digest_hex"]):
+        reasons.append("invalid expected digest: backend_requirement_evidence_digest_hex")
+
+    return reasons
+
+
+def require_bool(value, field, reasons, section):
+    """Append a section-specific reason when a required boolean is not true."""
+    if not isinstance(value, dict) or value.get(field) is not True:
+        reasons.append(f"{section} required flag false: {field}")
+
+
+def require_digest(value, field, reasons, section):
+    """Append a section-specific reason when a required digest is absent."""
+    if not isinstance(value, dict) or not valid_nonzero_digest(value.get(field)):
+        reasons.append(f"{section} missing digest: {field}")
+
+
+def valid_nonzero_digest(value):
+    """Return true for nonzero 32-byte hex digests."""
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(char in "0123456789abcdefABCDEF" for char in value)
+        and value.lower() != "00" * 32
+    )
 
 
 def parse_capture_json(stdout):

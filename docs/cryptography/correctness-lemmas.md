@@ -12,17 +12,17 @@ The available implementation evidence is:
 
 - `src/crypto/interpolation.rs`
 - `src/crypto/vss.rs`
+- `src/low_level/mldsa65.rs`
 - `src/low_level/poly.rs`
 - `src/backend.rs`
 - `src/aggregation.rs`
 - `src/transcript.rs`
 - `src/collections.rs`
+- `tests/hazmat_mldsa65_threshold_bridge.rs`
 - `docs/cryptography/phase-1-noise-bound-model.md`
 
 The following requested inputs were not present in this checkout at the time of
-writing: `src/low_level/mldsa65.rs`,
-`tests/hazmat_mldsa65_threshold_bridge.rs`,
-`docs/cryptography/noise-bound-proof-outline.md`, and
+writing: `docs/cryptography/noise-bound-proof-outline.md` and
 `docs/cryptography/threshold-mldsa-protocol-spec.md`. Lemmas that depend on
 those missing artifacts are stated as obligations for a future real backend.
 
@@ -214,9 +214,14 @@ Required preconditions:
   secret-share commitment.
 - All arithmetic is in the same ML-DSA ring/module representation.
 
-Implementation mapping: The current `SimulatedBackend` does not implement this
-algebra; it hashes partial-share bytes into deterministic test signatures. This
-lemma is therefore a requirement for the missing real backend.
+Implementation mapping: `src/low_level/mldsa65.rs` now exposes a
+feature-gated `hazmat-real-mldsa` bridge for ML-DSA-65 expanded-key sharing,
+partial secret contributions, aggregate masking, threshold response
+aggregation, and per-attempt rejection predicate transcripts. The
+`tests/hazmat_mldsa65_threshold_bridge.rs` suite checks that partial secret
+contributions interpolate to centralized signing terms and that an ideal
+3-of-5 threshold session emits a standard-verifying ML-DSA-65 signature. This
+is hazmat/internal evidence, not production DKG or theorem closure.
 
 Remaining proof work:
 
@@ -246,14 +251,15 @@ Required preconditions:
 - No threshold-only metadata appears in the final standard signature.
 
 Implementation mapping: `Mldsa65Backend::verify_standard` is part of the
-backend contract, but `SimulatedBackend::verify_standard` returns
-`BackendUnavailable`.
+backend contract, and `SimulatedBackend::verify_standard` still returns
+`BackendUnavailable`. The hazmat ML-DSA bridge adds a feature-gated internal
+path that packs `(c_tilde, z, h)` into a 3309-byte signature and verifies the
+accepted threshold attempt against the internal ML-DSA-65 verifier path.
 
 Remaining proof work:
 
-- Implement or bind to a real standard ML-DSA-65 verifier.
-- Add a bridge test showing threshold aggregate signatures verify under that
-  standard verifier.
+- Promote the hazmat bridge behind a reviewed external backend or
+  production-approved provider boundary.
 - Prove threshold transcript derivation yields the same challenge bytes as the
   standard signature format requires, or specify a compatible construction that
   makes it so.

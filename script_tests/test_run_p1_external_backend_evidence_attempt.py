@@ -80,12 +80,14 @@ def backend_manifest():
 
 
 def backend_capture():
+    requirement_evidence = full_backend_requirement_evidence()
     return {
         "name": "batch8-real-threshold-capture",
         "schema": "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1",
         "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
+        "backend_requirement_evidence": requirement_evidence,
         "cryptographic_core": {
             "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
             "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
@@ -98,8 +100,10 @@ def backend_capture():
                 "partial_signing_over_secret_shares": True,
                 "partial_z_i_hint_aggregation": True,
                 "fips204_rejection_loop_over_threshold_partials": True,
+                "standard_verifier_compatible_output": True,
                 "accepted_aggregate_distribution_proven": False,
             },
+            "backend_requirement_evidence": requirement_evidence,
         },
         "request": {
             "schema": "lattice-aggregation:p1-real-threshold-backend-emission-request:v1",
@@ -131,10 +135,96 @@ def backend_capture():
             "backend_source_package_digest_hex": "77" * 32,
             "backend_implementation_digest_hex": "88" * 32,
             "backend_transcript_digest_hex": "99" * 32,
+            "backend_requirement_evidence_digest_hex": "ab" * 32,
             "artifact_digest_hex": "aa" * 32,
             "public_key_digest_hex": "bb" * 32,
             "message_digest_hex": "cc" * 32,
             "accepted_signature_digest_hex": "dd" * 32,
+        },
+    }
+
+
+def full_backend_requirement_evidence():
+    return {
+        "mldsa65_internal_provider": {
+            "source_digest_hex": "41" * 32,
+            "implementation_digest_hex": "42" * 32,
+            "exposes_signature_tuple": True,
+            "exposes_expanded_secret_shares": True,
+            "exposes_rejection_predicates": True,
+            "standard_parameter_set": "ML-DSA-65",
+        },
+        "threshold_key_material": {
+            "validator_count": 10000,
+            "threshold": 6667,
+            "public_key_count": 1,
+            "distributed_dkg_vss_transcript_present": True,
+            "tee_hsm_trust_record_present": False,
+            "single_exposed_mldsa_secret_key_prevented": True,
+            "dkg_vss_transcript_digest_hex": "43" * 32,
+        },
+        "distributed_nonce_path": {
+            "per_attempt_nonce_share_generation": True,
+            "commit_before_reveal": True,
+            "aggregate_commitment_w_evidence": True,
+            "abort_accountability_records": True,
+            "no_centralized_nonce_oracle": True,
+            "live_distributed_nonce_generation": True,
+            "attempt_binding_digest_hex": "44" * 32,
+        },
+        "partial_signing": {
+            "implemented": True,
+            "partial_signing_over_secret_shares": True,
+            "signer_id_emitted": True,
+            "commitment_binding_emitted": True,
+            "challenge_binding_emitted": True,
+            "partial_z_i_emitted": True,
+            "bound_evidence_emitted": True,
+            "malformed_stale_duplicate_out_of_set_rejection": True,
+            "partial_response_count": 6667,
+            "partial_response_root_digest_hex": "45" * 32,
+        },
+        "aggregation": {
+            "standard_signature_tuple_present": True,
+            "byte_exact_mldsa65_signature": True,
+            "signature_len": 3309,
+            "aggregate_z_from_threshold_partials": True,
+            "hint_h_from_threshold_partials": True,
+            "ctilde_z_h_tuple_digest_hex": "46" * 32,
+        },
+        "fips204_rejection_loop": {
+            "real_threshold_partial_predicates": True,
+            "standard_provider_acceptance_observed": True,
+            "accepted_and_rejected_attempts_recorded": True,
+            "retry_until_accepted": True,
+            "accepted_attempt_count": 1,
+            "rejected_attempt_count": 1,
+            "required_predicates": [
+                "z_bounds",
+                "r0",
+                "ct0",
+                "hint_omega",
+                "challenge_digest",
+                "accept_reject_reason",
+            ],
+            "attempt_transcript_digest_hex": "47" * 32,
+        },
+        "standard_verifier_compatibility": {
+            "unmodified_mldsa65_verifier_accepts_original": True,
+            "mutated_message_rejected": True,
+            "mutated_public_key_rejected": True,
+            "mutated_signature_rejected": True,
+            "signature_len": 3309,
+            "standard_verifier_evidence_digest_hex": "48" * 32,
+        },
+        "threshold_vs_centralized_comparison": {
+            "centralized_comparison_attempts_present": True,
+            "predicate_mismatch_count": 0,
+            "accepted_or_rejected_matches": True,
+            "challenge_digest_matches": True,
+            "comparison_digest_hex": "49" * 32,
+            "claims_rejection_distribution_preservation": False,
+            "claims_theorem_closure": False,
         },
     }
 

@@ -14,6 +14,16 @@ CANDIDATE_SCRIPT = (
 REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
 REVIEW_SCHEMA = "lattice-aggregation:p1-external-backend-emission-capture-review:v1"
+FULL_BACKEND_REQUIREMENT_KEYS = {
+    "mldsa65_internal_provider",
+    "threshold_key_material",
+    "distributed_nonce_path",
+    "partial_signing",
+    "aggregation",
+    "fips204_rejection_loop",
+    "standard_verifier_compatibility",
+    "threshold_vs_centralized_comparison",
+}
 
 
 def load_module(path, name):
@@ -147,6 +157,115 @@ def backend_capture(request):
     }
 
 
+def strict_backend_capture(request):
+    capture = backend_capture(request)
+    requirement_evidence = full_backend_requirement_evidence()
+    capture["backend_requirement_evidence"] = requirement_evidence
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+            "provider": None,
+            "signature_origin": "threshold_partial_aggregation",
+            "backend_requirement_evidence": requirement_evidence,
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": True,
+                "partial_signing_over_secret_shares": True,
+                "partial_z_i_hint_aggregation": True,
+                "fips204_rejection_loop_over_threshold_partials": True,
+                "standard_verifier_compatible_output": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+        }
+    )
+    capture["expected"]["backend_requirement_evidence_digest_hex"] = "dd" * 32
+    return capture
+
+
+def full_backend_requirement_evidence():
+    return {
+        "mldsa65_internal_provider": {
+            "source_digest_hex": "41" * 32,
+            "implementation_digest_hex": "42" * 32,
+            "exposes_signature_tuple": True,
+            "exposes_expanded_secret_shares": True,
+            "exposes_rejection_predicates": True,
+            "standard_parameter_set": "ML-DSA-65",
+        },
+        "threshold_key_material": {
+            "validator_count": 10000,
+            "threshold": 6667,
+            "public_key_count": 1,
+            "distributed_dkg_vss_transcript_present": True,
+            "tee_hsm_trust_record_present": False,
+            "single_exposed_mldsa_secret_key_prevented": True,
+            "dkg_vss_transcript_digest_hex": "43" * 32,
+        },
+        "distributed_nonce_path": {
+            "per_attempt_nonce_share_generation": True,
+            "commit_before_reveal": True,
+            "aggregate_commitment_w_evidence": True,
+            "abort_accountability_records": True,
+            "no_centralized_nonce_oracle": True,
+            "live_distributed_nonce_generation": True,
+            "attempt_binding_digest_hex": "44" * 32,
+        },
+        "partial_signing": {
+            "implemented": True,
+            "partial_signing_over_secret_shares": True,
+            "signer_id_emitted": True,
+            "commitment_binding_emitted": True,
+            "challenge_binding_emitted": True,
+            "partial_z_i_emitted": True,
+            "bound_evidence_emitted": True,
+            "malformed_stale_duplicate_out_of_set_rejection": True,
+            "partial_response_count": 6667,
+            "partial_response_root_digest_hex": "45" * 32,
+        },
+        "aggregation": {
+            "standard_signature_tuple_present": True,
+            "byte_exact_mldsa65_signature": True,
+            "signature_len": 3309,
+            "aggregate_z_from_threshold_partials": True,
+            "hint_h_from_threshold_partials": True,
+            "ctilde_z_h_tuple_digest_hex": "46" * 32,
+        },
+        "fips204_rejection_loop": {
+            "real_threshold_partial_predicates": True,
+            "standard_provider_acceptance_observed": True,
+            "accepted_and_rejected_attempts_recorded": True,
+            "retry_until_accepted": True,
+            "accepted_attempt_count": 1,
+            "rejected_attempt_count": 1,
+            "required_predicates": [
+                "z_bounds",
+                "r0",
+                "ct0",
+                "hint_omega",
+                "challenge_digest",
+                "accept_reject_reason",
+            ],
+            "attempt_transcript_digest_hex": "47" * 32,
+        },
+        "standard_verifier_compatibility": {
+            "unmodified_mldsa65_verifier_accepts_original": True,
+            "mutated_message_rejected": True,
+            "mutated_public_key_rejected": True,
+            "mutated_signature_rejected": True,
+            "signature_len": 3309,
+            "standard_verifier_evidence_digest_hex": "48" * 32,
+        },
+        "threshold_vs_centralized_comparison": {
+            "centralized_comparison_attempts_present": True,
+            "predicate_mismatch_count": 0,
+            "accepted_or_rejected_matches": True,
+            "challenge_digest_matches": True,
+            "comparison_digest_hex": "49" * 32,
+            "claims_rejection_distribution_preservation": False,
+            "claims_theorem_closure": False,
+        },
+    }
+
+
 def threshold_seed_reconstruction_capture(request):
     capture = backend_capture(request)
     capture["cryptographic_core"].update(
@@ -157,6 +276,14 @@ def threshold_seed_reconstruction_capture(request):
             ),
         }
     )
+    return capture
+
+
+def strict_backend_capture_without_requirement_evidence(request):
+    capture = strict_backend_capture(request)
+    del capture["backend_requirement_evidence"]
+    capture["cryptographic_core"].pop("backend_requirement_evidence", None)
+    capture["expected"].pop("backend_requirement_evidence_digest_hex", None)
     return capture
 
 
@@ -206,6 +333,14 @@ def external_review_manifest(request, capture, capture_path):
             "closure and rejection-distribution preservation remain open."
         ),
     }
+
+
+def strict_external_review_manifest(request, capture, capture_path):
+    review = external_review_manifest(request, capture, capture_path)
+    review["checks"]["real_distributed_threshold_core_verified"] = True
+    review["checks"]["no_single_key_standard_provider_output"] = True
+    review["checks"]["centralized_standard_provider_output_disclosed"] = True
+    return review
 
 
 def actual_nonce_gate():
@@ -353,6 +488,108 @@ class StageExternalBackendEmissionCaptureTests(unittest.TestCase):
             blockers,
         )
         self.assertIn("requires Criterion 2 proof review", report["summary_md"])
+
+    def test_strict_distributed_capture_with_verified_review_is_admissible(self):
+        module = load_module(SCRIPT, "stage_external_backend_emission_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = backend_request()
+            capture = strict_backend_capture(request)
+            request_path = repo_root / "request.json"
+            capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
+            write_json(request_path, request)
+            write_json(capture_path, capture)
+            write_json(
+                review_path,
+                strict_external_review_manifest(request, capture, capture_path),
+            )
+
+            report = module.build_intake(
+                repo_root,
+                request_path,
+                capture_path,
+                review_path,
+                generated_at="2026-07-05T00:00:02Z",
+                metadata_provider=fake_metadata,
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertTrue(admissibility["strict_threshold_core_admissible"])
+        self.assertFalse(admissibility["quarantined"])
+        self.assertEqual(admissibility["reasons"], [])
+
+    def test_strict_distributed_capture_requires_backend_requirement_evidence(self):
+        module = load_module(SCRIPT, "stage_external_backend_emission_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = backend_request()
+            capture = strict_backend_capture_without_requirement_evidence(request)
+            request_path = repo_root / "request.json"
+            capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
+            write_json(request_path, request)
+            write_json(capture_path, capture)
+            write_json(
+                review_path,
+                strict_external_review_manifest(request, capture, capture_path),
+            )
+
+            report = module.build_intake(
+                repo_root,
+                request_path,
+                capture_path,
+                review_path,
+                generated_at="2026-07-05T00:00:02Z",
+                metadata_provider=fake_metadata,
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertFalse(admissibility["strict_threshold_core_admissible"])
+        self.assertTrue(admissibility["quarantined"])
+        self.assertIn(
+            "missing backend requirement evidence: mldsa65_internal_provider",
+            admissibility["reasons"],
+        )
+
+    def test_smoke_capture_review_cannot_claim_real_threshold_core(self):
+        module = load_module(SCRIPT, "stage_external_backend_emission_capture")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_root = pathlib.Path(temp_dir)
+            repo_root = temp_root / "repo"
+            repo_root.mkdir()
+            external_dir = temp_root / "external"
+            request = backend_request()
+            capture = backend_capture(request)
+            request_path = repo_root / "request.json"
+            capture_path = external_dir / "capture.json"
+            review_path = external_dir / "review.json"
+            write_json(request_path, request)
+            write_json(capture_path, capture)
+            review = strict_external_review_manifest(request, capture, capture_path)
+            write_json(review_path, review)
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "external review cannot verify distributed threshold core",
+            ):
+                module.build_intake(
+                    repo_root,
+                    request_path,
+                    capture_path,
+                    review_path,
+                    generated_at="2026-07-05T00:00:02Z",
+                    metadata_provider=fake_metadata,
+                )
 
     def test_threshold_seed_reconstruction_capture_is_quarantined_at_intake(self):
         module = load_module(SCRIPT, "stage_external_backend_emission_capture")

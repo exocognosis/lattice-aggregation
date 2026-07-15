@@ -9,6 +9,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "run_backend_emission_capture.py"
 REQUEST_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-real-threshold-backend-emission-capture:v1"
+FULL_BACKEND_REQUIREMENT_KEYS = {
+    "mldsa65_internal_provider",
+    "threshold_key_material",
+    "distributed_nonce_path",
+    "partial_signing",
+    "aggregation",
+    "fips204_rejection_loop",
+    "standard_verifier_compatibility",
+    "threshold_vs_centralized_comparison",
+}
 
 
 def load_module():
@@ -35,12 +45,14 @@ def external_capture():
     digest = "11" * 32
     request = external_request()
     request_digest = request_sha256(request)
+    requirement_evidence = full_backend_requirement_evidence()
     return {
         "name": "external-threshold-backend-capture",
         "schema": CAPTURE_SCHEMA,
         "claim_boundary": "conformance/proof-review evidence",
         "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
         "backend_evidence": "real_threshold_mldsa_external_capture",
+        "backend_requirement_evidence": requirement_evidence,
         "note": "External backend capture produced outside deterministic simulation.",
         "cryptographic_core": {
             "schema": "lattice-threshold-backend-p1:threshold-core-accounting:v1",
@@ -54,8 +66,10 @@ def external_capture():
                 "partial_signing_over_secret_shares": True,
                 "partial_z_i_hint_aggregation": True,
                 "fips204_rejection_loop_over_threshold_partials": True,
+                "standard_verifier_compatible_output": True,
                 "accepted_aggregate_distribution_proven": False,
             },
+            "backend_requirement_evidence": requirement_evidence,
         },
         "request": {
             "schema": REQUEST_SCHEMA,
@@ -100,10 +114,96 @@ def external_capture():
             "backend_implementation_digest_hex": "66" * 32,
             "backend_transcript_digest_hex": "77" * 32,
             "threshold_core_accounting_digest_hex": "cc" * 32,
+            "backend_requirement_evidence_digest_hex": "dd" * 32,
             "artifact_digest_hex": "88" * 32,
             "public_key_digest_hex": "99" * 32,
             "message_digest_hex": "aa" * 32,
             "accepted_signature_digest_hex": "bb" * 32,
+        },
+    }
+
+
+def full_backend_requirement_evidence():
+    return {
+        "mldsa65_internal_provider": {
+            "source_digest_hex": "41" * 32,
+            "implementation_digest_hex": "42" * 32,
+            "exposes_signature_tuple": True,
+            "exposes_expanded_secret_shares": True,
+            "exposes_rejection_predicates": True,
+            "standard_parameter_set": "ML-DSA-65",
+        },
+        "threshold_key_material": {
+            "validator_count": 10000,
+            "threshold": 6667,
+            "public_key_count": 1,
+            "distributed_dkg_vss_transcript_present": True,
+            "tee_hsm_trust_record_present": False,
+            "single_exposed_mldsa_secret_key_prevented": True,
+            "dkg_vss_transcript_digest_hex": "43" * 32,
+        },
+        "distributed_nonce_path": {
+            "per_attempt_nonce_share_generation": True,
+            "commit_before_reveal": True,
+            "aggregate_commitment_w_evidence": True,
+            "abort_accountability_records": True,
+            "no_centralized_nonce_oracle": True,
+            "live_distributed_nonce_generation": True,
+            "attempt_binding_digest_hex": "44" * 32,
+        },
+        "partial_signing": {
+            "implemented": True,
+            "partial_signing_over_secret_shares": True,
+            "signer_id_emitted": True,
+            "commitment_binding_emitted": True,
+            "challenge_binding_emitted": True,
+            "partial_z_i_emitted": True,
+            "bound_evidence_emitted": True,
+            "malformed_stale_duplicate_out_of_set_rejection": True,
+            "partial_response_count": 6667,
+            "partial_response_root_digest_hex": "45" * 32,
+        },
+        "aggregation": {
+            "standard_signature_tuple_present": True,
+            "byte_exact_mldsa65_signature": True,
+            "signature_len": 3309,
+            "aggregate_z_from_threshold_partials": True,
+            "hint_h_from_threshold_partials": True,
+            "ctilde_z_h_tuple_digest_hex": "46" * 32,
+        },
+        "fips204_rejection_loop": {
+            "real_threshold_partial_predicates": True,
+            "standard_provider_acceptance_observed": True,
+            "accepted_and_rejected_attempts_recorded": True,
+            "retry_until_accepted": True,
+            "accepted_attempt_count": 1,
+            "rejected_attempt_count": 1,
+            "required_predicates": [
+                "z_bounds",
+                "r0",
+                "ct0",
+                "hint_omega",
+                "challenge_digest",
+                "accept_reject_reason",
+            ],
+            "attempt_transcript_digest_hex": "47" * 32,
+        },
+        "standard_verifier_compatibility": {
+            "unmodified_mldsa65_verifier_accepts_original": True,
+            "mutated_message_rejected": True,
+            "mutated_public_key_rejected": True,
+            "mutated_signature_rejected": True,
+            "signature_len": 3309,
+            "standard_verifier_evidence_digest_hex": "48" * 32,
+        },
+        "threshold_vs_centralized_comparison": {
+            "centralized_comparison_attempts_present": True,
+            "predicate_mismatch_count": 0,
+            "accepted_or_rejected_matches": True,
+            "challenge_digest_matches": True,
+            "comparison_digest_hex": "49" * 32,
+            "claims_rejection_distribution_preservation": False,
+            "claims_theorem_closure": False,
         },
     }
 
@@ -118,6 +218,14 @@ def threshold_seed_reconstruction_capture():
             ),
         }
     )
+    return capture
+
+
+def distributed_core_without_requirement_evidence_capture():
+    capture = external_capture()
+    del capture["backend_requirement_evidence"]
+    capture["cryptographic_core"].pop("backend_requirement_evidence", None)
+    capture["expected"].pop("backend_requirement_evidence_digest_hex", None)
     return capture
 
 
@@ -216,6 +324,16 @@ def reconstruction_capture_runner(command, root, env):
         "exit_code": 0,
         "duration_seconds": 0.2,
         "stdout": json.dumps(threshold_seed_reconstruction_capture()),
+        "stderr": "",
+    }
+
+
+def distributed_core_without_requirement_evidence_runner(command, root, env):
+    return {
+        "command": command,
+        "exit_code": 0,
+        "duration_seconds": 0.2,
+        "stdout": json.dumps(distributed_core_without_requirement_evidence_capture()),
         "stderr": "",
     }
 
@@ -357,6 +475,58 @@ class BackendEmissionCaptureRunnerTests(unittest.TestCase):
         self.assertNotIn("validator_localnet", " ".join(manifest["backend_command"]))
         self.assertNotIn("run_simulation_benchmarks", " ".join(manifest["backend_command"]))
         self.assertIn("evidence_present_unclosed", summary_md)
+
+    def test_distributed_core_requires_all_full_backend_requirement_evidence(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            request_path = root / "request.json"
+            request_path.write_text(json.dumps(external_request()), encoding="utf-8")
+            report = module.build_report(
+                root,
+                request_path=request_path,
+                backend_command=["/opt/threshold-backend", "emit-capture"],
+                command_runner=distributed_core_without_requirement_evidence_runner,
+                metadata_provider=fake_metadata,
+                generated_at="2026-07-01T00:00:00Z",
+            )
+
+        admissibility = report["manifest"]["backend_core_admissibility"]
+        self.assertFalse(admissibility["strict_threshold_core_admissible"])
+        self.assertTrue(admissibility["quarantined"])
+        self.assertIn(
+            "missing backend requirement evidence: mldsa65_internal_provider",
+            admissibility["reasons"],
+        )
+
+    def test_full_backend_requirement_evidence_names_the_seven_core_work_items(self):
+        capture = external_capture()
+        evidence = capture["backend_requirement_evidence"]
+
+        self.assertEqual(set(evidence), FULL_BACKEND_REQUIREMENT_KEYS)
+        self.assertTrue(evidence["mldsa65_internal_provider"]["exposes_signature_tuple"])
+        self.assertTrue(
+            evidence["threshold_key_material"][
+                "distributed_dkg_vss_transcript_present"
+            ]
+        )
+        self.assertTrue(evidence["distributed_nonce_path"]["commit_before_reveal"])
+        self.assertTrue(evidence["partial_signing"]["partial_z_i_emitted"])
+        self.assertTrue(evidence["aggregation"]["aggregate_z_from_threshold_partials"])
+        self.assertTrue(
+            evidence["fips204_rejection_loop"]["real_threshold_partial_predicates"]
+        )
+        self.assertTrue(
+            evidence["standard_verifier_compatibility"][
+                "unmodified_mldsa65_verifier_accepts_original"
+            ]
+        )
+        self.assertFalse(
+            evidence["threshold_vs_centralized_comparison"][
+                "claims_theorem_closure"
+            ]
+        )
 
     def test_threshold_seed_reconstruction_capture_is_quarantined(self):
         module = load_module()
