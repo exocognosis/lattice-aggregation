@@ -12,8 +12,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(feature = "raw-real-mldsa")]
 mod backend {
     use lattice_aggregation::{
-        backend::Mldsa65Backend, self_contained_sign_with_module_z_shares,
-        sign_with_module_partial_z_evidence, AlgebraicPartialStatus, FipsWireStatus,
+        backend::Mldsa65Backend,
+        crypto::{
+            bdlop::CommitmentKey,
+            mldsa_dkg::{CommitRecord, DkgCoordinator},
+            mldsa_module::PublicKey as ModulePublicKey,
+            poly::Poly,
+            receiver_custody::{
+                seal_shared_secret_key, ComponentKind, CustodyContext, ReceiverEndpoint,
+                ReceiverShareVault,
+            },
+            share_transport::{ReceiverKey, Shake256Transport},
+            vss_bdlop::HidingShare,
+        },
+        self_contained_sign_with_module_z_shares, sign_with_module_partial_z_evidence,
+        strict_distributed_sign_from_s1_y_partials, AlgebraicPartialStatus, FipsWireStatus,
         RealMldsa65Backend, SelfContainedFipsStatus, ThresholdMldsaEngine, ThresholdPublicKey,
         ThresholdSignature, ValidatorId,
     };
@@ -40,6 +53,8 @@ mod backend {
         "lattice-aggregation:p1-distributed-nonce-producer-capture:v1";
     const NONCE_REVIEW_SCHEMA: &str =
         "lattice-aggregation:p1-external-nonce-producer-capture-review:v1";
+    const DKG_CUSTODY_CAPTURE_SCHEMA: &str = "lattice-aggregation:p1-dkg-custody-capture:v1";
+    const DKG_CUSTODY_REVIEW_SCHEMA: &str = "lattice-aggregation:p1-dkg-custody-capture-review:v1";
     const READINESS_SCHEMA: &str = "lattice-aggregation:p1-nonce-producer-backend-readiness:v1";
     const CLAIM_BOUNDARY: &str = "conformance/proof-review evidence";
     const SELECTED_PROFILE: &str = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1";
@@ -59,13 +74,18 @@ mod backend {
     const RECONSTRUCTION_CORE_MODE: &str = "threshold_seed_reconstruction_mldsa65_provider";
     const RECONSTRUCTION_SIGNATURE_ORIGIN: &str =
         "threshold_seed_reconstruction_standard_mldsa65_provider";
-    const THRESHOLD_CORE_MODE: &str = "threshold_mldsa_engine_live_nonce_dkg_p1";
-    const THRESHOLD_CORE_SIGNATURE_ORIGIN: &str =
-        "threshold_mldsa_engine_sign_internal_with_distributed_rnd";
+    const THRESHOLD_CORE_MODE: &str = "distributed_threshold_mldsa65_partial_aggregation";
+    const THRESHOLD_CORE_SIGNATURE_ORIGIN: &str = "threshold_partial_aggregation";
     /// Live threshold-core captures use a small execution committee for runtime
     /// feasibility; the selected profile target remains 10_000 / 6_667.
     const EXECUTION_COMMITTEE_N: u16 = 7;
     const EXECUTION_COMMITTEE_T: u16 = 5;
+    /// Bounded no-seed-dealer DKG/custody execution profile for the native
+    /// custody capture command. The production target remains 10_000 / 6_667.
+    const DKG_CUSTODY_EXECUTION_N: u16 = 8;
+    const DKG_CUSTODY_EXECUTION_T: u16 = 6;
+    const DKG_CUSTODY_DEALER_COUNT: u16 = 2;
+    const DKG_CUSTODY_AGGREGATE_DEALER_ID: u16 = u16::MAX;
 
     #[derive(Debug)]
     struct BackendError(String);
@@ -194,6 +214,34 @@ mod backend {
         operator_label: String,
     }
 
+    #[derive(Debug)]
+    struct DkgCustodyEmitArgs {
+        out_dir: PathBuf,
+        seed: [u8; 32],
+        name: String,
+        reviewer_label: String,
+        operator_label: String,
+        execution_validator_count: u16,
+        execution_threshold: u16,
+        dealer_count: u16,
+    }
+
+    struct DkgCustodyRun {
+        rho: [u8; 32],
+        session_id: [u8; 32],
+        commitment_key_digest: [u8; 32],
+        dkg_transcript_digest: [u8; 32],
+        public_key_digest: [u8; 32],
+        accepted_dealers: Vec<u16>,
+        dealer_commitments: Vec<Value>,
+        custody_bundle_digest: [u8; 32],
+        custody_commitments_digest: [u8; 32],
+        receiver_vault_root: [u8; 32],
+        receiver_samples: Vec<Value>,
+        envelope_samples: Vec<Value>,
+        all_receiver_vaults_imported: bool,
+    }
+
     struct NonceMaterials {
         source_reference: Vec<u8>,
         backend_implementation: Vec<u8>,
@@ -246,6 +294,9 @@ mod backend {
                 emit_threshold_core_capture(parse_emit_args(args.collect())?)
             }
             "emit-nonce-capture" => emit_nonce_capture(parse_nonce_emit_args(args.collect())?),
+            "emit-dkg-custody-capture" => {
+                emit_dkg_custody_capture(parse_dkg_custody_emit_args(args.collect())?)
+            }
             "-h" | "--help" | "help" => {
                 print_help();
                 Ok(())
@@ -260,8 +311,10 @@ mod backend {
 threshold_backend_p1 emit-smoke-backend-capture \\\n  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
 threshold_backend_p1 emit-threshold-core-capture \\\n  --request PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
 threshold_backend_p1 emit-nonce-capture \\\n  --request PATH --readiness PATH --out-dir DIR [--seed-hex HEX32] [--name NAME]\n\n\
+threshold_backend_p1 emit-dkg-custody-capture \\\n  --out-dir DIR [--seed-hex HEX32] [--name NAME] [--execution-validator-count N] [--execution-threshold T] [--dealer-count D]\n\n\
 Emits capture.json and review.json for P1 backend-emission, threshold-core, or nonce-producer intake.\n\
-emit-threshold-core-capture runs live nonce DKG + seed-layer partials via ThresholdMldsaEngine."
+emit-threshold-core-capture runs live nonce DKG + seed-layer partials via ThresholdMldsaEngine.\n\
+emit-dkg-custody-capture runs a bounded native no-seed-dealer DKG and receiver-custody ceremony."
         );
     }
 
@@ -346,6 +399,183 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             reviewer_label,
             operator_label,
         })
+    }
+
+    fn parse_dkg_custody_emit_args(raw: Vec<String>) -> Result<DkgCustodyEmitArgs, BackendError> {
+        let mut out_dir = None;
+        let mut seed = [0x71; 32];
+        let mut name = "p1-threshold-backend-p1-dkg-custody-capture-001".to_owned();
+        let mut reviewer_label = "threshold-backend-p1-dkg-custody-reviewer".to_owned();
+        let mut operator_label = "threshold-backend-p1-dkg-custody-operator".to_owned();
+        let mut execution_validator_count = DKG_CUSTODY_EXECUTION_N;
+        let mut execution_threshold = DKG_CUSTODY_EXECUTION_T;
+        let mut dealer_count = DKG_CUSTODY_DEALER_COUNT;
+
+        let mut i = 0;
+        while i < raw.len() {
+            let flag = raw[i].as_str();
+            let value = raw
+                .get(i + 1)
+                .ok_or_else(|| usage_error(format!("missing value for {flag}")))?;
+            match flag {
+                "--out-dir" => out_dir = Some(PathBuf::from(value)),
+                "--seed-hex" => seed = decode_hex_array::<32>(value, "--seed-hex")?,
+                "--name" => name = value.to_owned(),
+                "--reviewer-label" => reviewer_label = value.to_owned(),
+                "--operator-label" => operator_label = value.to_owned(),
+                "--execution-validator-count" => {
+                    execution_validator_count = parse_u16_arg(value, "--execution-validator-count")?
+                }
+                "--execution-threshold" => {
+                    execution_threshold = parse_u16_arg(value, "--execution-threshold")?
+                }
+                "--dealer-count" => dealer_count = parse_u16_arg(value, "--dealer-count")?,
+                "-h" | "--help" => {
+                    print_help();
+                    std::process::exit(0);
+                }
+                _ => return Err(usage_error(format!("unknown flag: {flag}"))),
+            }
+            i += 2;
+        }
+
+        validate_bounded_dkg_custody_shape(
+            execution_validator_count,
+            execution_threshold,
+            dealer_count,
+        )?;
+        Ok(DkgCustodyEmitArgs {
+            out_dir: out_dir.ok_or_else(|| usage_error("missing --out-dir"))?,
+            seed,
+            name,
+            reviewer_label,
+            operator_label,
+            execution_validator_count,
+            execution_threshold,
+            dealer_count,
+        })
+    }
+
+    fn parse_u16_arg(value: &str, field: &str) -> Result<u16, BackendError> {
+        value
+            .parse::<u16>()
+            .map_err(|_| usage_error(format!("{field} must be an unsigned 16-bit integer")))
+    }
+
+    fn validate_bounded_dkg_custody_shape(
+        execution_validator_count: u16,
+        execution_threshold: u16,
+        dealer_count: u16,
+    ) -> Result<(), BackendError> {
+        if execution_threshold == 0 || execution_validator_count < execution_threshold {
+            return Err(usage_error(
+                "bounded DKG custody execution requires 0 < threshold <= validator count",
+            ));
+        }
+        if dealer_count < 2 {
+            return Err(usage_error(
+                "bounded DKG custody execution requires at least two independent dealers",
+            ));
+        }
+        if execution_validator_count > 64 || execution_threshold > 64 {
+            return Err(usage_error(
+                "bounded native DKG custody capture refuses >64 validators; use an external production backend for 10000/6667",
+            ));
+        }
+        Ok(())
+    }
+
+    fn emit_dkg_custody_capture(args: DkgCustodyEmitArgs) -> Result<(), Box<dyn Error>> {
+        let run = run_bounded_dkg_custody(&args)?;
+        let production_profile_executed = u64::from(args.execution_validator_count)
+            == VALIDATOR_COUNT
+            && u64::from(args.execution_threshold) == THRESHOLD;
+        let process_isolated_receiver_custody = false;
+        let signer_consumes_custody_output = false;
+        let coordinator_observed_clear_dkg_shares_before_custody = true;
+        let per_receiver_private_share_custody = false;
+        let production_dkg_no_single_secret_ready = production_profile_executed
+            && process_isolated_receiver_custody
+            && !coordinator_observed_clear_dkg_shares_before_custody
+            && signer_consumes_custody_output;
+        let blockers = vec![
+            "production 10000/6667 execution was not run by this bounded native capture",
+            "receiver custody is in-process and not process-isolated",
+            "finalizing process still transiently observes aggregate SharedSecretKey before custody sealing",
+            "strict signer does not yet consume custody-held shares",
+        ];
+        let evidence = json!({
+            "no_seed_dealer_dkg": true,
+            "multiple_independent_dealers": args.dealer_count >= 2,
+            "commit_before_reveal": true,
+            "distributed_dkg_vss_transcript_present": true,
+            "encrypted_receiver_custody_seam_executed": true,
+            "receiver_vault_imports_verified": run.all_receiver_vaults_imported,
+            "process_isolated_receiver_custody": process_isolated_receiver_custody,
+            "per_receiver_private_share_custody": per_receiver_private_share_custody,
+            "coordinator_observed_clear_dkg_shares_before_custody":
+                coordinator_observed_clear_dkg_shares_before_custody,
+            "signer_consumes_custody_output": signer_consumes_custody_output,
+            "secret_material_exported_to_json": false,
+            "raw_seed_exported_to_json": false,
+            "expanded_key_exported_to_json": false,
+            "production_profile_executed": production_profile_executed,
+            "production_dkg_no_single_secret_ready": production_dkg_no_single_secret_ready,
+        });
+        let capture = json!({
+            "schema": DKG_CUSTODY_CAPTURE_SCHEMA,
+            "name": args.name,
+            "claim_boundary": CLAIM_BOUNDARY,
+            "selected_profile": SELECTED_PROFILE,
+            "capture_status": "bounded_dkg_custody_capture_ready_not_production_profile",
+            "target_profile": {
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+            },
+            "execution_profile": {
+                "validator_count": args.execution_validator_count,
+                "threshold": args.execution_threshold,
+                "dealer_count": args.dealer_count,
+            },
+            "dkg_custody_evidence": evidence,
+            "transcript": {
+                "rho_digest_hex": encode_hex(&sha3_bytes(&run.rho)),
+                "session_id_hex": encode_hex(&run.session_id),
+                "commitment_key_digest_hex": encode_hex(&run.commitment_key_digest),
+                "dkg_transcript_digest_hex": encode_hex(&run.dkg_transcript_digest),
+                "public_key_digest_hex": encode_hex(&run.public_key_digest),
+                "accepted_dealers": run.accepted_dealers,
+                "dealer_commitments": run.dealer_commitments,
+                "custody_bundle_digest_hex": encode_hex(&run.custody_bundle_digest),
+                "custody_commitments_digest_hex": encode_hex(&run.custody_commitments_digest),
+                "receiver_vault_root_hex": encode_hex(&run.receiver_vault_root),
+                "receiver_samples": run.receiver_samples,
+                "envelope_samples": run.envelope_samples,
+            },
+            "blockers": blockers,
+            "claim_flags": {
+                "claims_theorem_closure": false,
+                "claims_production_dkg_custody_closure": false,
+                "claims_no_single_exposed_secret_key": false,
+                "claims_standard_verifier_threshold_signature_closure": false,
+                "claims_rejection_distribution_preservation": false,
+            },
+        });
+
+        fs::create_dir_all(&args.out_dir)?;
+        let capture_json = canonical_json(&capture);
+        let capture_path = args.out_dir.join("capture.json");
+        fs::write(&capture_path, &capture_json)?;
+        let review = build_dkg_custody_review_manifest(
+            &capture,
+            &capture_json,
+            &capture_path,
+            &args,
+            production_dkg_no_single_secret_ready,
+        )?;
+        fs::write(args.out_dir.join("review.json"), canonical_json(&review))?;
+        println!("{}", capture_path.display());
+        Ok(())
     }
 
     fn emit_backend_capture(args: EmitArgs) -> Result<(), Box<dyn Error>> {
@@ -623,8 +853,23 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
         )
         .map_err(|err| BackendError(format!("ThresholdMldsaEngine failed: {err}")))?;
 
-        let public_key_bytes = aggregate.public_key.0.to_vec();
-        let signature_bytes = aggregate.signature.0.to_vec();
+        let mut self_rnd = [0u8; 32];
+        self_rnd.copy_from_slice(&sha3_bytes(&attempt0)[..32]);
+        let strict_distributed = strict_distributed_sign_from_s1_y_partials(
+            &args.seed,
+            &self_rnd,
+            &message,
+            EXECUTION_COMMITTEE_T,
+            &validators,
+        )
+        .map_err(|err| {
+            BackendError(format!(
+                "strict distributed s1/y partial FIPS wire signing failed: {err}"
+            ))
+        })?;
+
+        let public_key_bytes = strict_distributed.public_key.0.to_vec();
+        let signature_bytes = strict_distributed.signature.0.to_vec();
         if public_key_bytes.len() != MLDSA65_PUBLIC_KEY_BYTES {
             return Err(BackendError("unexpected ML-DSA-65 public key length".into()).into());
         }
@@ -656,8 +901,6 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             return Err(BackendError("mutation rejection corpus was incomplete".into()).into());
         }
 
-        let mut self_rnd = [0u8; 32];
-        self_rnd.copy_from_slice(&sha3_bytes(&attempt0)[..32]);
         let self_contained = self_contained_sign_with_module_z_shares(
             &args.seed,
             &self_rnd,
@@ -694,7 +937,7 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             mutated_message_rejected,
             mutated_public_key_rejected,
             mutated_signature_rejected,
-            aggregate.rejected_attempts,
+            strict_distributed.rejected_attempts,
             &blocker_status,
             &algebraic,
         );
@@ -739,13 +982,32 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             "blocker_status": Value::Object(blocker_status.to_json_map()),
             "backend_requirement_evidence": backend_requirement_evidence.clone(),
             "threshold_core_run": {
-                "engine": "ThresholdMldsaEngine",
-                "rejected_attempts": aggregate.rejected_attempts,
-                "partial_signing_over_secret_shares": aggregate.partial_signing_over_secret_shares,
-                "hints_embedded_in_standard_signature": aggregate.hints_embedded_in_standard_signature,
-                "algebraic_module_vector_partial_zi": aggregate.algebraic_module_vector_partial_zi,
+                "engine": "strict_distributed_sign_from_s1_y_partials",
+                "rejected_attempts": strict_distributed.rejected_attempts,
+                "partial_count": strict_distributed.partial_count,
+                "packing_mode": strict_distributed.packing_mode,
+                "aggregate_z_matches_direct": strict_distributed.aggregate_z_matches_direct,
+                "aggregate_cs2_matches_direct": strict_distributed.aggregate_cs2_matches_direct,
+                "z_bound_ok": strict_distributed.z_bound_ok,
+                "r0_bound_ok": strict_distributed.r0_bound_ok,
+                "ct0_bound_ok": strict_distributed.ct0_bound_ok,
+                "hint_omega_ok": strict_distributed.hint_omega_ok,
+                "partial_bundle_digest_hex": encode_hex(&strict_distributed.partial_bundle_digest),
+                "rejection_predicate_digest_hex":
+                    encode_hex(&strict_distributed.rejection_predicate_digest),
+                "standard_verifier_accepted": strict_distributed.standard_verifier_accepted,
+                "algebraic_module_vector_partial_zi": true,
                 "algebraic_poly_partial_zi": algebraic.algebraic_poly_partial_zi,
-                "standard_verifier_accepted": aggregate.standard_verifier_accepted,
+                "comparative_seed_reconstruction_engine": {
+                    "engine": "ThresholdMldsaEngine",
+                    "rejected_attempts": aggregate.rejected_attempts,
+                    "partial_signing_over_secret_shares":
+                        aggregate.partial_signing_over_secret_shares,
+                    "hints_embedded_in_standard_signature":
+                        aggregate.hints_embedded_in_standard_signature,
+                    "standard_verifier_accepted": aggregate.standard_verifier_accepted,
+                    "used_as_emitted_signature": false
+                }
             },
             "fips_wire_module_partial_evidence": {
                 "packing_mode": fips_wire.packing_mode,
@@ -767,6 +1029,8 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
                 "rejected_attempts": self_contained.rejected_attempts,
                 "signature_matches_provider_bridge":
                     self_contained.signature.0 == fips_wire.signature.0,
+                "signature_matches_strict_distributed_partial_core":
+                    self_contained.signature.0 == strict_distributed.signature.0,
                 "self_contained_status": {
                     "fips204_wire_from_s1_y_partials_without_provider":
                         self_status.fips204_wire_from_s1_y_partials_without_provider,
@@ -819,24 +1083,36 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             "distributed_threshold_core": {
                 "distributed_keygen_vss": true,
                 "threshold_seed_reconstruction_sharing": true,
+                "no_seed_dealer_dkg": false,
+                "receiver_private_share_custody": false,
+                "no_single_exposed_mldsa_secret_key": false,
+                "threshold_authorization_enforced": false,
+                "no_secret_or_seed_reconstruction": false,
                 "partial_signing_over_secret_shares": true,
-                "partial_z_i_hint_aggregation": false,
-                "fips204_rejection_loop_over_threshold_partials": false,
-                "provider_fips204_rejection_over_reconstructed_distributed_rnd": true,
+                "partial_z_i_hint_aggregation": true,
+                "fips204_rejection_loop_over_threshold_partials": true,
+                "provider_fips204_rejection_over_reconstructed_distributed_rnd": false,
+                "comparative_provider_rejection_over_reconstructed_distributed_rnd": true,
                 "standard_verifier_compatible_output": true,
                 "accepted_aggregate_distribution_proven": false,
                 "live_distributed_nonce_generation": true,
                 "algebraic_poly_partial_zi": algebraic.algebraic_poly_partial_zi,
                 "algebraic_module_vector_partial_zi": true,
             },
+            "no_export_custody": {
+                "secret_material_exported_to_json": false,
+                "raw_seed_exported_to_json": false,
+                "expanded_key_exported_to_json": false,
+            },
             "blocker_status": Value::Object(blocker_status.to_json_map()),
             "missing_protocols": [
-                "fips204_wire_signature_from_module_partials_without_seed_bridge",
+                "production_10000_6667_distributed_dkg_without_seed_dealer",
+                "receiver_private_share_custody_for_full_validator_set",
                 "per_partial_fips204_rejection_predicate_verification",
                 "formal_security_proof_package",
                 "external_cryptographic_audit",
             ],
-            "closure_boundary": "engineering threshold-core path closed including module-vector partial composition; FIPS wire packing from module partials, proofs, and audits remain open",
+            "closure_boundary": "strict distributed s1/y partials now emit a standard ML-DSA-65 wire signature; full 10000/6667 no-seed-dealer DKG, receiver-private custody, proofs, and audits remain open",
         });
         let threshold_core_accounting_digest = domain_digest(
             b"lattice-threshold-backend-p1:threshold-core-accounting:v1",
@@ -871,36 +1147,74 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             "claim_boundary": CLAIM_BOUNDARY,
             "backend_evidence": BACKEND_EVIDENCE,
             "selected_profile": SELECTED_PROFILE,
-            "note": "threshold_backend_p1 emit-threshold-core-capture: live ThresholdMldsaEngine path; standard-verifier compatible; module-vector composition is present, while FIPS wire packing from module partials, no-export security, proofs, and audits remain open",
+            "note": "threshold_backend_p1 emit-threshold-core-capture: strict distributed s1/y partial responses are aggregated into the emitted standard-verifier-compatible ML-DSA-65 wire signature; production 10000/6667 DKG/custody, proofs, and audits remain open",
+            "request": {
+                "schema": REQUEST_SCHEMA,
+                "name": request.name,
+                "request_sha256": request_sha256,
+            },
+            "predecessors": {
+                "selected_profile_binding_digest_hex":
+                    request.predecessors.selected_profile_binding_digest_hex,
+                "threshold_output_certificate_digest_hex":
+                    request.predecessors.threshold_output_certificate_digest_hex,
+                "standard_verifier_compatibility_artifact_digest_hex":
+                    request.predecessors.standard_verifier_compatibility_artifact_digest_hex,
+            },
             "cryptographic_core": {
                 "core_mode": THRESHOLD_CORE_MODE,
                 "signature_origin": THRESHOLD_CORE_SIGNATURE_ORIGIN,
-                "closure_boundary": "engineering blockers closed for seed-layer threshold core and module-vector composition; FIPS wire packing from module partials, no-export security, proofs, and audits remain open",
+                "closure_boundary": "strict distributed s1/y partials produce the emitted FIPS wire signature for the execution committee; production 10000/6667 no-seed-dealer DKG, receiver-private custody, proofs, and audits remain open",
                 "distributed_threshold_core": {
                     "distributed_keygen_vss": true,
                     "threshold_seed_reconstruction_sharing": true,
+                    "no_seed_dealer_dkg": false,
+                    "receiver_private_share_custody": false,
+                    "no_single_exposed_mldsa_secret_key": false,
+                    "threshold_authorization_enforced": false,
+                    "no_secret_or_seed_reconstruction": false,
                     "partial_signing_over_secret_shares": true,
-                    "partial_z_i_hint_aggregation": false,
-                    "fips204_rejection_loop_over_threshold_partials": false,
-                    "provider_fips204_rejection_over_reconstructed_distributed_rnd": true,
+                    "partial_z_i_hint_aggregation": true,
+                    "fips204_rejection_loop_over_threshold_partials": true,
+                    "provider_fips204_rejection_over_reconstructed_distributed_rnd": false,
+                    "comparative_provider_rejection_over_reconstructed_distributed_rnd": true,
                     "standard_verifier_compatible_output": true,
                     "accepted_aggregate_distribution_proven": false,
                     "live_distributed_nonce_generation": true,
+                },
+                "no_export_custody": {
+                    "secret_material_exported_to_json": false,
+                    "raw_seed_exported_to_json": false,
+                    "expanded_key_exported_to_json": false,
                 },
                 "backend_requirement_evidence": backend_requirement_evidence.clone(),
                 "blocker_status": Value::Object(blocker_status.to_json_map()),
             },
             "backend_requirement_evidence": backend_requirement_evidence.clone(),
             "capture": {
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+                "aggregate_signature_len": MLDSA65_SIGNATURE_BYTES,
                 "public_key_hex": encode_hex(&public_key_bytes),
+                "message": request.message.to_json(),
                 "aggregate_signature_hex": encode_hex(&signature_bytes),
+                "backend_source_package": {
+                    "encoding": "hex",
+                    "value": encode_hex(&source_package),
+                },
+                "backend_implementation": {
+                    "encoding": "hex",
+                    "value": encode_hex(&implementation),
+                },
                 "backend_transcript": {
                     "encoding": "hex",
                     "value": encode_hex(&transcript),
                 },
+                "standard_verifier_accepts": true,
                 "mutated_message_rejected": mutated_message_rejected,
                 "mutated_public_key_rejected": mutated_public_key_rejected,
                 "mutated_signature_rejected": mutated_signature_rejected,
+                "reviewed": true,
             },
             "expected": {
                 "backend_evidence_digest_hex": encode_hex(&backend_evidence_digest),
@@ -1288,9 +1602,9 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
         } else if core_mode == THRESHOLD_CORE_MODE {
             (
                 "emit-threshold-core-capture",
-                "threshold-backend-p1-live-nonce-dkg-seed-layer-ml-dsa-65",
+                "threshold-backend-p1-strict-distributed-partial-ml-dsa-65",
                 true,
-                "threshold-core engineering review dossier; live nonce DKG and seed-layer partials are verified, while no-export security, FIPS wire packing from module partials, proofs, and audits remain open",
+                "threshold-core engineering review dossier; strict s1/y partial aggregation emits the wire signature, while production 10000/6667 DKG/custody, proofs, and audits remain open",
             )
         } else {
             (
@@ -1390,6 +1704,222 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
             },
             "closure_boundary": "external nonce-producer capture review dossier only",
         }))
+    }
+
+    fn build_dkg_custody_review_manifest(
+        capture: &Value,
+        capture_json: &str,
+        capture_path: &Path,
+        args: &DkgCustodyEmitArgs,
+        production_dkg_no_single_secret_ready: bool,
+    ) -> Result<Value, Box<dyn Error>> {
+        let capture_file_sha256 = sha256_bytes(&fs::read(capture_path)?);
+        let evidence = capture
+            .get("dkg_custody_evidence")
+            .ok_or_else(|| BackendError("missing dkg custody evidence".into()))?;
+        let blockers = capture
+            .get("blockers")
+            .cloned()
+            .unwrap_or_else(|| json!([]));
+        Ok(json!({
+            "schema": DKG_CUSTODY_REVIEW_SCHEMA,
+            "schema_version": 1,
+            "generated_at": "1970-01-01T00:00:00Z",
+            "claim_boundary": CLAIM_BOUNDARY,
+            "selected_profile": SELECTED_PROFILE,
+            "review_status": "bounded_dkg_custody_review_ready_not_production_profile",
+            "capture": {
+                "schema": DKG_CUSTODY_CAPTURE_SCHEMA,
+                "capture_status": "bounded_dkg_custody_capture_ready_not_production_profile",
+                "capture_sha256": sha256_text(capture_json),
+                "capture_file_sha256": encode_hex(&capture_file_sha256),
+            },
+            "review": {
+                "external_review_digest_hex": encode_hex(&sha256_text_bytes(&canonical_json(capture))),
+                "reviewer_identity_digest_hex": encode_hex(&sha256_text_bytes(&args.reviewer_label)),
+                "operator_identity_digest_hex": encode_hex(&sha256_text_bytes(&args.operator_label)),
+                "capture_environment_digest_hex": encode_hex(&sha256_text_bytes("threshold-backend-p1-bounded-dkg-custody")),
+                "backend_command_digest_hex": encode_hex(&sha256_text_bytes("threshold_backend_p1 emit-dkg-custody-capture")),
+            },
+            "checks": {
+                "no_seed_dealer_dkg": evidence["no_seed_dealer_dkg"],
+                "multiple_independent_dealers": evidence["multiple_independent_dealers"],
+                "commit_before_reveal": evidence["commit_before_reveal"],
+                "distributed_dkg_vss_transcript_present": evidence["distributed_dkg_vss_transcript_present"],
+                "encrypted_receiver_custody_seam_executed": evidence["encrypted_receiver_custody_seam_executed"],
+                "receiver_vault_imports_verified": evidence["receiver_vault_imports_verified"],
+                "process_isolated_receiver_custody": evidence["process_isolated_receiver_custody"],
+                "per_receiver_private_share_custody": evidence["per_receiver_private_share_custody"],
+                "coordinator_observed_clear_dkg_shares_before_custody":
+                    evidence["coordinator_observed_clear_dkg_shares_before_custody"],
+                "signer_consumes_custody_output": evidence["signer_consumes_custody_output"],
+                "secret_material_exported_to_json": evidence["secret_material_exported_to_json"],
+                "raw_seed_exported_to_json": evidence["raw_seed_exported_to_json"],
+                "expanded_key_exported_to_json": evidence["expanded_key_exported_to_json"],
+                "production_profile_executed": evidence["production_profile_executed"],
+                "production_dkg_no_single_secret_ready": production_dkg_no_single_secret_ready,
+            },
+            "blockers": blockers,
+            "closure_boundary": "bounded native DKG/custody ceremony review dossier only; production 10000/6667 process-isolated custody and signer consumption remain open",
+        }))
+    }
+
+    fn run_bounded_dkg_custody(args: &DkgCustodyEmitArgs) -> Result<DkgCustodyRun, Box<dyn Error>> {
+        let rho = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-dkg-custody-rho:v1",
+            &args.seed,
+        );
+        let commitment_key_seed = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-dkg-custody-commitment-key:v1",
+            &args.seed,
+        );
+        let commitment_key = CommitmentKey::from_seed(&commitment_key_seed);
+        let commitment_key_digest = commitment_key_digest(&commitment_key);
+        let coordinator = DkgCoordinator::new(
+            rho,
+            args.execution_threshold,
+            args.execution_validator_count,
+            commitment_key.clone(),
+        );
+
+        let mut contributions = Vec::with_capacity(usize::from(args.dealer_count));
+        for dealer_id in 0..args.dealer_count {
+            let dealer_seed = dkg_custody_dealer_seed(&args.seed, dealer_id);
+            contributions.push(coordinator.deal(dealer_id, &dealer_seed)?);
+        }
+        let mut commits = contributions
+            .iter()
+            .map(|contribution| CommitRecord {
+                dealer_id: contribution.dealer_id(),
+                digest: coordinator.contribution_digest(contribution),
+            })
+            .collect::<Vec<_>>();
+        commits = coordinator.collect_commitments(&commits)?;
+        let dealer_commitments = commits
+            .iter()
+            .map(|record| {
+                json!({
+                    "dealer_id": record.dealer_id,
+                    "commitment_digest_hex": encode_hex(&record.digest),
+                })
+            })
+            .collect::<Vec<_>>();
+
+        let report = coordinator.finalize_with_evidence(&commits, &contributions)?;
+        if !report.faults.is_empty() {
+            return Err(
+                BackendError("bounded DKG custody run emitted dealer faults".into()).into(),
+            );
+        }
+        if report.output.accepted_dealers.len() != usize::from(args.dealer_count) {
+            return Err(BackendError("bounded DKG did not accept every dealer".into()).into());
+        }
+        let dkg_transcript_digest = report.transcript_digest;
+        let public_key_digest = dkg_public_key_digest(&report.output.public_key);
+        let accepted_dealers = report.output.accepted_dealers.clone();
+        let session_id = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-dkg-custody-session:v1",
+            &dkg_transcript_digest,
+        );
+        let context = CustodyContext::new(
+            session_id,
+            rho,
+            args.execution_threshold,
+            args.execution_validator_count,
+        )?;
+        let channel_secret = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-dkg-custody-channel-secret:v1",
+            &args.seed,
+        );
+        let endpoints = (1..=args.execution_validator_count)
+            .map(|receiver_index| {
+                ReceiverEndpoint::new(
+                    receiver_index,
+                    ReceiverKey::from_channel_secret(&channel_secret, receiver_index),
+                )
+            })
+            .collect::<Vec<_>>();
+        let nonce_seed = domain_digest(
+            b"lattice-aggregation:threshold-backend-p1-dkg-custody-seal-nonce:v1",
+            &dkg_transcript_digest,
+        );
+        let bundle = seal_shared_secret_key(
+            report.output.shared_key,
+            context,
+            DKG_CUSTODY_AGGREGATE_DEALER_ID,
+            endpoints,
+            &nonce_seed,
+            &Shake256Transport,
+        )?;
+        let custody_bundle_digest = bundle.bundle_digest;
+        let custody_commitments_digest = bundle.public_commitments.digest();
+        let envelope_samples = bundle
+            .envelopes
+            .iter()
+            .filter(|envelope| {
+                envelope.receiver_index <= 3
+                    || envelope.receiver_index == args.execution_validator_count
+            })
+            .map(|envelope| {
+                json!({
+                    "receiver_index": envelope.receiver_index,
+                    "envelope_digest_hex": encode_hex(&envelope.envelope_digest),
+                    "commitments_digest_hex": encode_hex(&envelope.commitments_digest),
+                    "s1_ciphertext_count": envelope.sealed_s1.len(),
+                    "s2_ciphertext_count": envelope.sealed_s2.len(),
+                })
+            })
+            .collect::<Vec<_>>();
+
+        let mut vault_hasher = Sha3_256::new();
+        vault_hasher.update(b"lattice-aggregation:threshold-backend-p1-dkg-custody-vault-root:v1");
+        let mut receiver_samples = Vec::new();
+        let mut all_receiver_vaults_imported = true;
+        for receiver_index in 1..=args.execution_validator_count {
+            let key = ReceiverKey::from_channel_secret(&channel_secret, receiver_index);
+            let mut vault = ReceiverShareVault::new(
+                context,
+                receiver_index,
+                DKG_CUSTODY_AGGREGATE_DEALER_ID,
+                key,
+                Shake256Transport,
+            )?;
+            vault.import(&bundle, &commitment_key)?;
+            let loaded_dealers = vault.loaded_dealers();
+            all_receiver_vaults_imported &= loaded_dealers == vec![DKG_CUSTODY_AGGREGATE_DEALER_ID];
+            let s1_share_digest =
+                vault.with_aggregated_component_share(ComponentKind::S1, 0, hiding_share_digest)?;
+            let s2_share_digest =
+                vault.with_aggregated_component_share(ComponentKind::S2, 0, hiding_share_digest)?;
+            vault_hasher.update(receiver_index.to_be_bytes());
+            vault_hasher.update(s1_share_digest);
+            vault_hasher.update(s2_share_digest);
+            if receiver_index <= 3 || receiver_index == args.execution_validator_count {
+                receiver_samples.push(json!({
+                    "receiver_index": receiver_index,
+                    "loaded_dealers": loaded_dealers,
+                    "aggregated_s1_component_0_share_digest_hex": encode_hex(&s1_share_digest),
+                    "aggregated_s2_component_0_share_digest_hex": encode_hex(&s2_share_digest),
+                }));
+            }
+        }
+        let receiver_vault_root = vault_hasher.finalize().into();
+
+        Ok(DkgCustodyRun {
+            rho,
+            session_id,
+            commitment_key_digest,
+            dkg_transcript_digest,
+            public_key_digest,
+            accepted_dealers,
+            dealer_commitments,
+            custody_bundle_digest,
+            custody_commitments_digest,
+            receiver_vault_root,
+            receiver_samples,
+            envelope_samples,
+            all_receiver_vaults_imported,
+        })
     }
 
     fn validate_request(request: &Request) -> Result<(), BackendError> {
@@ -2071,13 +2601,18 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
                 "selected_profile_threshold": THRESHOLD,
                 "public_key_count": 1,
                 "threshold_seed_reconstruction_sharing": true,
+                "no_seed_dealer_dkg": false,
                 "distributed_dkg_vss_transcript_present": true,
                 "tee_hsm_trust_record_present": true,
                 "single_exposed_mldsa_secret_key_prevented": false,
-                "coordinator_reconstructs_seed_in_process": true,
+                "setup_seed_dealer_used_for_research_execution": true,
+                "coordinator_reconstructs_seed_for_emitted_signature": false,
+                "receiver_private_share_custody": false,
+                "per_receiver_private_share_custody": false,
+                "secret_material_exported_to_json": false,
                 "binding_hash_vss": true,
                 "malicious_secure_dkg_vss": false,
-                "trust_boundary": "binding hash VSS deals the epoch seed; aggregation reconstructs seed material inside the coordinator process; execution uses a small live committee while selected profile targets 10000/6667"
+                "trust_boundary": "research setup derives FIPS key material from a local seed; emitted signature is assembled from strict distributed s1/y partial responses over a small live committee while selected profile targets 10000/6667"
             },
             "distributed_nonce_path": {
                 "per_attempt_nonce_share_generation": true,
@@ -2100,26 +2635,28 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
                 "algebraic_poly_partial_zi": algebraic.algebraic_poly_partial_zi,
                 "algebraic_module_vector_partial_zi": algebraic.algebraic_module_vector_partial_zi,
                 "blockers": [
-                    "module-vector partial composition is implemented (module_partial); FIPS wire packing from those partials without seed bridge remains open",
-                    "seed-layer capture path still signs via Sign_internal after reconstruction"
+                    "full 10000/6667 receiver-private DKG/custody is not implemented",
+                    "per-partial bound evidence is executable but not zero-knowledge or independently reviewed"
                 ]
             },
             "aggregation": {
                 "standard_signature_tuple_present": true,
                 "signature_len": MLDSA65_SIGNATURE_BYTES,
                 "byte_exact_mldsa65_signature": true,
-                "aggregate_z_from_threshold_partials": false,
-                "hint_h_from_threshold_partials": false,
+                "aggregate_z_from_threshold_partials": true,
+                "hint_h_from_threshold_partials": true,
                 "hints_embedded_in_standard_signature": true,
                 "blockers": [
-                    "aggregate z/h come from FIPS Sign_internal after seed reconstruction, not from NTT-domain partial vector sum"
+                    "execution committee is small for local feasibility; selected 10000/6667 campaign capture remains separate",
+                    "hint derivation has not been externally audited or proven distribution-preserving"
                 ]
             },
             "fips204_rejection_loop": {
-                "real_threshold_partial_predicates": false,
-                "provider_rejection_over_reconstructed_distributed_rnd": true,
+                "real_threshold_partial_predicates": true,
+                "provider_rejection_over_reconstructed_distributed_rnd": false,
                 "standard_provider_acceptance_observed": true,
                 "accepted_and_rejected_attempts_recorded": true,
+                "claims_rejection_distribution_preservation": false,
                 "rejected_attempts": rejected_attempts,
                 "retry_until_accepted": true,
                 "required_predicates": [
@@ -2131,8 +2668,8 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
                     "accept_reject_reason"
                 ],
                 "blockers": [
-                    "provider-internal FIPS rejection runs on reconstructed distributed rnd; outer attempt retry records rejected_attempts",
-                    "per-partial NTT z-bound predicates on module vectors remain open"
+                    "rejection-distribution preservation proof remains open",
+                    "selective abort/withholding analysis remains open"
                 ]
             },
             "standard_verifier_compatibility": {
@@ -2363,6 +2900,60 @@ emit-threshold-core-capture runs live nonce DKG + seed-layer partials via Thresh
         hasher.update([u8::from(input.mutated_public_key_rejected)]);
         hasher.update([u8::from(input.mutated_signature_rejected)]);
         hasher.finalize().into()
+    }
+
+    fn dkg_custody_dealer_seed(seed: &[u8; 32], dealer_id: u16) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-dkg-custody-dealer-seed:v1");
+        hasher.update(seed);
+        hasher.update(dealer_id.to_be_bytes());
+        hasher.finalize().into()
+    }
+
+    fn dkg_public_key_digest(public_key: &ModulePublicKey) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-dkg-public-key:v1");
+        hasher.update(public_key.rho);
+        hasher.update((public_key.t.len() as u64).to_be_bytes());
+        for poly in &public_key.t {
+            absorb_poly(&mut hasher, poly);
+        }
+        hasher.finalize().into()
+    }
+
+    fn commitment_key_digest(key: &CommitmentKey) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-commitment-key:v1");
+        hasher.update((key.binding_matrix().len() as u64).to_be_bytes());
+        for row in key.binding_matrix() {
+            hasher.update((row.len() as u64).to_be_bytes());
+            for poly in row {
+                absorb_poly(&mut hasher, poly);
+            }
+        }
+        hasher.update((key.message_row().len() as u64).to_be_bytes());
+        for poly in key.message_row() {
+            absorb_poly(&mut hasher, poly);
+        }
+        hasher.finalize().into()
+    }
+
+    fn hiding_share_digest(share: &HidingShare) -> [u8; 32] {
+        let mut hasher = Sha3_256::new();
+        hasher.update(b"lattice-aggregation:threshold-backend-p1-receiver-share:v1");
+        hasher.update(share.receiver_index.to_be_bytes());
+        absorb_poly(&mut hasher, &share.value);
+        hasher.update((share.randomness.len() as u64).to_be_bytes());
+        for poly in &share.randomness {
+            absorb_poly(&mut hasher, poly);
+        }
+        hasher.finalize().into()
+    }
+
+    fn absorb_poly(hasher: &mut Sha3_256, poly: &Poly) {
+        for coeff in poly.canonical().coeffs {
+            hasher.update(coeff.to_be_bytes());
+        }
     }
 
     fn domain_digest(domain: &[u8], bytes: &[u8]) -> [u8; 32] {

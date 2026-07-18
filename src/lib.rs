@@ -38,14 +38,14 @@ pub use backend::{
     expand_y_research, keygen_from_seed, module_partial_round_trip, pack_z_encoding,
     sample_in_ball, self_contained_sign_with_module_z_shares, sign_internal_empty_ctx,
     sign_with_module_partial_z_evidence, split_module_vector_shamir, split_secret_poly_shamir,
-    unpack_z_from_signature, AggregateWithRejection, AlgebraicAggregateZ, AlgebraicPartialStatus,
-    AlgebraicPartialZi, BlockerStatus, ExpandedSecret65, FipsWireModulePartialPackage,
-    FipsWireStatus, KeyDkgOutput, ModuleAggregateZ, ModulePartialZi, ModuleVecL, NonceDkgAttempt,
-    PartialZiContribution, RealAggregator, RealCommitmentSecret, RealMldsa65Backend,
-    RealMldsaConstruction, SelfContainedFipsStatus, SelfContainedSignPackage,
-    ThresholdAttemptPartials, ThresholdMldsaEngine, BETA, C_TILDE_BYTES, GAMMA1, H_ENCODED_BYTES,
-    KEY_VSS_DOMAIN, MODULE_L, NONCE_DKG_DOMAIN, PARTIAL_ZI_DOMAIN, SEED_SHARE_DOMAIN_DEFAULT, TAU,
-    Z_BOUND, Z_ENCODED_BYTES,
+    strict_distributed_sign_from_s1_y_partials, unpack_z_from_signature, AggregateWithRejection,
+    AlgebraicAggregateZ, AlgebraicPartialStatus, AlgebraicPartialZi, BlockerStatus,
+    ExpandedSecret65, FipsWireModulePartialPackage, FipsWireStatus, KeyDkgOutput, ModuleAggregateZ,
+    ModulePartialZi, ModuleVecL, NonceDkgAttempt, PartialZiContribution, RealAggregator,
+    RealCommitmentSecret, RealMldsa65Backend, RealMldsaConstruction, SelfContainedFipsStatus,
+    SelfContainedSignPackage, StrictDistributedSignPackage, ThresholdAttemptPartials,
+    ThresholdMldsaEngine, BETA, C_TILDE_BYTES, GAMMA1, H_ENCODED_BYTES, KEY_VSS_DOMAIN, MODULE_L,
+    NONCE_DKG_DOMAIN, PARTIAL_ZI_DOMAIN, SEED_SHARE_DOMAIN_DEFAULT, TAU, Z_BOUND, Z_ENCODED_BYTES,
 };
 pub use backend::{Mldsa65Backend, SimulatedBackend};
 pub use collections::{CommitmentSet, PartialShareSet, ValidatedDkgShares};

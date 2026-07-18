@@ -1,7 +1,7 @@
 #[cfg(not(feature = "coordinator-assisted"))]
 #[test]
 fn coordinator_profile_is_not_enabled_without_gate() {
-    assert!(!cfg!(feature = "coordinator-assisted"));
+    const { assert!(!cfg!(feature = "coordinator-assisted")) };
 }
 
 #[cfg(feature = "coordinator-assisted")]

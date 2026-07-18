@@ -360,13 +360,37 @@ def parse_args(argv):
         description="Build a deterministic internal aggregation campaign request"
     )
     parser.add_argument("--campaign-id", required=True)
+    parser.add_argument(
+        "--authorization-verifier-id",
+        default=None,
+        help="reviewed threshold-authorization verifier id to bind into the request",
+    )
+    parser.add_argument(
+        "--authorization-verifier-implementation-sha256",
+        default=None,
+        help="lowercase SHA-256 digest of the reviewed authorization verifier implementation",
+    )
     parser.add_argument("--out", default=DEFAULT_REQUEST_OUT)
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv or sys.argv[1:])
-    report = build_request(args.campaign_id)
+    verifier_profile = {}
+    if (
+        args.authorization_verifier_id is not None
+        or args.authorization_verifier_implementation_sha256 is not None
+    ):
+        verifier_profile = {
+            "verifier_id": args.authorization_verifier_id,
+            "verifier_implementation_sha256": (
+                args.authorization_verifier_implementation_sha256
+            ),
+        }
+    report = build_request(
+        args.campaign_id,
+        authorization_verifier_profile=verifier_profile,
+    )
     write_artifacts(report, args.out)
     print(f"wrote internal aggregation campaign request to {args.out}")
 

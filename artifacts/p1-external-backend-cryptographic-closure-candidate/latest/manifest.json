@@ -1,11 +1,13 @@
 {
-  "blockers": [],
-  "candidate_digest_sha256": "fbdc07e7ab0b85a08d7264730d544b35e6cd0648a7eceaf90310a59485c8b7c7",
+  "blockers": [
+    "production DKG/no-single-secret review is incomplete"
+  ],
+  "candidate_digest_sha256": "f0a7e2f8ae99b3b42f31f77ee63b35991a7349675f85c7bb4b205a710362089a",
   "checks": {
     "comparison_close_candidate": true,
     "distribution_abort_review_present": true,
     "mutation_rejection_complete": true,
-    "production_dkg_no_single_secret_review_present": true,
+    "production_dkg_no_single_secret_review_present": false,
     "real_threshold_emission_present": true,
     "rejection_distribution_comparison_present": true,
     "standard_verifier_acceptance_present": true,
@@ -19,14 +21,14 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
-  "close_candidate": true,
+  "close_candidate": false,
   "closure_boundary": "External-backend cryptographic closure-candidate artifact only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-18T00:18:22Z",
+  "generated_at": "2026-07-18T21:15:33Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe"
+      "sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d"
     },
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -36,17 +38,17 @@
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "94bff5798e0524e5f6013aaf230f5f8dea09bd7ab59f2c7ec88065b23d9f5700"
+      "sha256": "ec2d3e05921ce8d63b6599b009edeab17c9b043b7a12717d62568121caf18f9d"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
+      "sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
+      "sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",

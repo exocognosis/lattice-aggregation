@@ -391,6 +391,88 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertTrue(gate["actual_external_capture_ready"])
         self.assertEqual(gate["gate_status"], "actual_external_capture_ready")
 
+    def test_dkg_custody_capture_runs_bounded_no_seed_dealer_ceremony(self):
+        with tempfile.TemporaryDirectory(prefix="threshold-backend-p1-dkg-custody.") as temp_dir:
+            out_dir = pathlib.Path(temp_dir)
+            subprocess.run(
+                [
+                    "cargo",
+                    "run",
+                    "--quiet",
+                    "--features",
+                    "raw-real-mldsa",
+                    "--bin",
+                    "threshold_backend_p1",
+                    "--",
+                    "emit-dkg-custody-capture",
+                    "--out-dir",
+                    str(out_dir),
+                    "--seed-hex",
+                    "71" * 32,
+                ],
+                cwd=ROOT,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            capture = json.loads((out_dir / "capture.json").read_text())
+            review = json.loads((out_dir / "review.json").read_text())
+
+        self.assertEqual(
+            capture["schema"],
+            "lattice-aggregation:p1-dkg-custody-capture:v1",
+        )
+        self.assertEqual(
+            capture["capture_status"],
+            "bounded_dkg_custody_capture_ready_not_production_profile",
+        )
+        self.assertEqual(capture["target_profile"]["validator_count"], 10000)
+        self.assertEqual(capture["target_profile"]["threshold"], 6667)
+        self.assertEqual(capture["execution_profile"]["validator_count"], 8)
+        self.assertEqual(capture["execution_profile"]["threshold"], 6)
+        self.assertEqual(capture["execution_profile"]["dealer_count"], 2)
+        evidence = capture["dkg_custody_evidence"]
+        self.assertTrue(evidence["no_seed_dealer_dkg"])
+        self.assertTrue(evidence["multiple_independent_dealers"])
+        self.assertTrue(evidence["commit_before_reveal"])
+        self.assertTrue(evidence["distributed_dkg_vss_transcript_present"])
+        self.assertTrue(evidence["encrypted_receiver_custody_seam_executed"])
+        self.assertTrue(evidence["receiver_vault_imports_verified"])
+        self.assertFalse(evidence["process_isolated_receiver_custody"])
+        self.assertFalse(evidence["per_receiver_private_share_custody"])
+        self.assertTrue(evidence["coordinator_observed_clear_dkg_shares_before_custody"])
+        self.assertFalse(evidence["signer_consumes_custody_output"])
+        self.assertFalse(evidence["secret_material_exported_to_json"])
+        self.assertFalse(evidence["raw_seed_exported_to_json"])
+        self.assertFalse(evidence["expanded_key_exported_to_json"])
+        self.assertFalse(evidence["production_profile_executed"])
+        self.assertFalse(evidence["production_dkg_no_single_secret_ready"])
+        self.assertEqual(len(capture["transcript"]["dkg_transcript_digest_hex"]), 64)
+        self.assertEqual(len(capture["transcript"]["custody_bundle_digest_hex"]), 64)
+        self.assertEqual(len(capture["transcript"]["receiver_vault_root_hex"]), 64)
+        self.assertEqual(len(capture["transcript"]["receiver_samples"]), 4)
+        self.assertEqual(
+            review["schema"],
+            "lattice-aggregation:p1-dkg-custody-capture-review:v1",
+        )
+        self.assertEqual(
+            review["review_status"],
+            "bounded_dkg_custody_review_ready_not_production_profile",
+        )
+        self.assertTrue(review["checks"]["no_seed_dealer_dkg"])
+        self.assertTrue(review["checks"]["encrypted_receiver_custody_seam_executed"])
+        self.assertTrue(review["checks"]["receiver_vault_imports_verified"])
+        self.assertFalse(review["checks"]["process_isolated_receiver_custody"])
+        self.assertFalse(review["checks"]["per_receiver_private_share_custody"])
+        self.assertTrue(
+            review["checks"]["coordinator_observed_clear_dkg_shares_before_custody"]
+        )
+        self.assertFalse(review["checks"]["signer_consumes_custody_output"])
+        self.assertFalse(review["checks"]["production_profile_executed"])
+        self.assertFalse(review["checks"]["production_dkg_no_single_secret_ready"])
+
     def test_threshold_core_capture_reports_engineering_blocker_closure(self):
         with tempfile.TemporaryDirectory(prefix="threshold-backend-p1-core.") as temp_dir:
             out_dir = pathlib.Path(temp_dir)
@@ -418,25 +500,69 @@ class ThresholdBackendP1Tests(unittest.TestCase):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+            staged_dir = out_dir / "staged"
+            subprocess.run(
+                [
+                    "python3",
+                    str(STAGE_SCRIPT),
+                    "--root",
+                    str(ROOT),
+                    "--request",
+                    str(REQUEST),
+                    "--capture-file",
+                    str(out_dir / "capture.json"),
+                    "--review-manifest",
+                    str(out_dir / "review.json"),
+                    "--out",
+                    str(staged_dir),
+                ],
+                cwd=ROOT,
+                check=True,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             capture = json.loads((out_dir / "capture.json").read_text())
             review = json.loads((out_dir / "review.json").read_text())
+            manifest = json.loads((staged_dir / "manifest.json").read_text())
 
         core = capture["cryptographic_core"]
-        self.assertEqual(core["core_mode"], "threshold_mldsa_engine_live_nonce_dkg_p1")
+        transcript = json.loads(
+            bytes.fromhex(capture["capture"]["backend_transcript"]["value"]).decode(
+                "utf-8"
+            )
+        )
+        run = transcript["threshold_core_run"]
+        self.assertEqual(core["core_mode"], "distributed_threshold_mldsa65_partial_aggregation")
+        self.assertEqual(core["signature_origin"], "threshold_partial_aggregation")
         self.assertTrue(core["distributed_threshold_core"]["live_distributed_nonce_generation"])
         self.assertTrue(core["distributed_threshold_core"]["partial_signing_over_secret_shares"])
-        self.assertFalse(
+        self.assertTrue(
             core["distributed_threshold_core"]["fips204_rejection_loop_over_threshold_partials"]
         )
-        self.assertTrue(
+        self.assertFalse(
             core["distributed_threshold_core"][
                 "provider_fips204_rejection_over_reconstructed_distributed_rnd"
             ]
         )
+        self.assertTrue(
+            core["distributed_threshold_core"][
+                "comparative_provider_rejection_over_reconstructed_distributed_rnd"
+            ]
+        )
+        self.assertTrue(core["distributed_threshold_core"]["partial_z_i_hint_aggregation"])
         self.assertTrue(core["distributed_threshold_core"]["standard_verifier_compatible_output"])
+        self.assertFalse(core["distributed_threshold_core"]["no_seed_dealer_dkg"])
+        self.assertFalse(core["distributed_threshold_core"]["receiver_private_share_custody"])
+        self.assertFalse(core["distributed_threshold_core"]["no_single_exposed_mldsa_secret_key"])
+        self.assertFalse(core["distributed_threshold_core"]["threshold_authorization_enforced"])
+        self.assertFalse(core["distributed_threshold_core"]["no_secret_or_seed_reconstruction"])
         self.assertFalse(
             core["distributed_threshold_core"]["accepted_aggregate_distribution_proven"]
         )
+        self.assertFalse(core["no_export_custody"]["secret_material_exported_to_json"])
+        self.assertFalse(core["no_export_custody"]["raw_seed_exported_to_json"])
+        self.assertFalse(core["no_export_custody"]["expanded_key_exported_to_json"])
         self.assertTrue(
             core["blocker_status"]["algebraic_module_vector_partial_zi"]
         )
@@ -447,8 +573,8 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertTrue(ledger["partial_signing"]["partial_signing_over_secret_shares"])
         self.assertTrue(ledger["partial_signing"]["algebraic_poly_partial_zi"])
         self.assertTrue(ledger["partial_signing"]["algebraic_module_vector_partial_zi"])
-        self.assertFalse(ledger["fips204_rejection_loop"]["real_threshold_partial_predicates"])
-        self.assertTrue(
+        self.assertTrue(ledger["fips204_rejection_loop"]["real_threshold_partial_predicates"])
+        self.assertFalse(
             ledger["fips204_rejection_loop"][
                 "provider_rejection_over_reconstructed_distributed_rnd"
             ]
@@ -456,7 +582,21 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertFalse(
             ledger["threshold_key_material"]["single_exposed_mldsa_secret_key_prevented"]
         )
-        self.assertTrue(ledger["threshold_key_material"]["coordinator_reconstructs_seed_in_process"])
+        self.assertTrue(
+            ledger["threshold_key_material"]["setup_seed_dealer_used_for_research_execution"]
+        )
+        self.assertFalse(ledger["threshold_key_material"]["no_seed_dealer_dkg"])
+        self.assertFalse(ledger["threshold_key_material"]["receiver_private_share_custody"])
+        self.assertFalse(ledger["threshold_key_material"]["per_receiver_private_share_custody"])
+        self.assertFalse(ledger["threshold_key_material"]["secret_material_exported_to_json"])
+        self.assertFalse(
+            ledger["threshold_key_material"]["coordinator_reconstructs_seed_for_emitted_signature"]
+        )
+        self.assertFalse(
+            ledger["fips204_rejection_loop"][
+                "claims_rejection_distribution_preservation"
+            ]
+        )
         self.assertTrue(ledger["engineering_blockers_closed"])
         self.assertFalse(ledger["fully_closed"])
         self.assertFalse(ledger["production_approved"])
@@ -472,8 +612,42 @@ class ThresholdBackendP1Tests(unittest.TestCase):
             len(bytes.fromhex(capture["capture"]["aggregate_signature_hex"])),
             3309,
         )
+        self.assertEqual(capture["capture"]["validator_count"], 10000)
+        self.assertEqual(capture["capture"]["threshold"], 6667)
+        self.assertEqual(capture["capture"]["aggregate_signature_len"], 3309)
+        self.assertTrue(capture["capture"]["standard_verifier_accepts"])
+        self.assertTrue(capture["capture"]["reviewed"])
         self.assertTrue(capture["capture"]["mutated_message_rejected"])
+        self.assertTrue(capture["capture"]["mutated_public_key_rejected"])
+        self.assertTrue(capture["capture"]["mutated_signature_rejected"])
         self.assertIn("review_status", review)
+        self.assertTrue(review["checks"]["real_distributed_threshold_core_verified"])
+        self.assertTrue(review["checks"]["no_single_key_standard_provider_output"])
+        self.assertTrue(
+            manifest["backend_core_admissibility"]["strict_threshold_core_admissible"]
+        )
+        self.assertFalse(manifest["backend_core_admissibility"]["quarantined"])
+        self.assertEqual(manifest["backend_core_admissibility"]["reasons"], [])
+
+        self.assertEqual(run["engine"], "strict_distributed_sign_from_s1_y_partials")
+        self.assertEqual(run["partial_count"], 5)
+        self.assertEqual(
+            run["packing_mode"],
+            "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+        )
+        self.assertTrue(run["aggregate_z_matches_direct"])
+        self.assertTrue(run["aggregate_cs2_matches_direct"])
+        self.assertTrue(run["z_bound_ok"])
+        self.assertTrue(run["r0_bound_ok"])
+        self.assertTrue(run["ct0_bound_ok"])
+        self.assertTrue(run["hint_omega_ok"])
+        self.assertTrue(run["standard_verifier_accepted"])
+        self.assertEqual(len(run["partial_bundle_digest_hex"]), 64)
+        self.assertEqual(len(run["rejection_predicate_digest_hex"]), 64)
+        self.assertFalse(
+            run["comparative_seed_reconstruction_engine"]["used_as_emitted_signature"]
+        )
+
         self.assertIn("fips_wire", ledger)
         self.assertTrue(ledger["fips_wire"]["fips204_wire_signature_accepted"])
         self.assertTrue(ledger["fips_wire"]["threshold_z_share_reconstructs_wire_z"])

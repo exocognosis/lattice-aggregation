@@ -19,7 +19,7 @@ def load_module():
 
 
 class P1TheoremLinkageReviewTests(unittest.TestCase):
-    def test_current_evidence_builds_reviewed_theorem_linkage_package(self):
+    def test_current_evidence_preserves_strict_core_linkage_blockers(self):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-07T00:00:00Z")
@@ -31,14 +31,20 @@ class P1TheoremLinkageReviewTests(unittest.TestCase):
         )
         self.assertEqual(
             manifest["review_status"],
-            "reviewed_theorem_linkage_ready",
+            "blocked_theorem_linkage_review",
         )
         self.assertEqual(
             manifest["claim_boundary"],
             "conformance/proof-review evidence",
         )
-        self.assertTrue(all(manifest["checks"].values()))
-        self.assertEqual(manifest["blockers"], [])
+        self.assertFalse(manifest["checks"]["closure_candidate_ready"])
+        self.assertFalse(manifest["checks"]["external_attempt_ready"])
+        self.assertFalse(manifest["checks"]["dkg_review_ready"])
+        self.assertTrue(manifest["checks"]["distribution_abort_review_ready"])
+        self.assertIn("closure_candidate_ready", manifest["blockers"])
+        self.assertIn("external_attempt_ready", manifest["blockers"])
+        self.assertIn("dkg_review_ready", manifest["blockers"])
+        self.assertNotIn("distribution_abort_review_ready", manifest["blockers"])
         self.assertFalse(any(manifest["claim_flags"].values()))
         self.assertIn(
             "theorem_linkage_review_digest_hex",

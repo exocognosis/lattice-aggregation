@@ -20,6 +20,10 @@ REVIEW_PACKAGE_SCHEMA = "lattice-aggregation:p1-external-backend-evidence-packag
 REVIEW_PACKAGE_READY = "reviewed_external_backend_evidence_ready"
 TEE_HSM_CORE_MODE = "tee_hsm_no_export_threshold_mldsa65_provider"
 TEE_HSM_SIGNATURE_ORIGIN = "tee_hsm_no_export_standard_mldsa65_provider"
+STRICT_DISTRIBUTED_CORE_MODE = "distributed_threshold_mldsa65_partial_aggregation"
+STRICT_DISTRIBUTED_SIGNATURE_ORIGIN = "threshold_partial_aggregation"
+TEE_HSM_ROUTE = "tee_hsm_no_export"
+DISTRIBUTED_DKG_ROUTE = "distributed_dkg_vss"
 
 
 def canonical_json(data):
@@ -157,15 +161,87 @@ def strict_no_export_evidence(backend_manifest, backend_capture):
     }
 
 
+def native_distributed_dkg_evidence(backend_manifest, backend_capture):
+    """Return strict native DKG/custody checks for the no-seed-dealer route."""
+    admissibility = backend_manifest.get("backend_core_admissibility", {})
+    core = backend_capture.get("cryptographic_core", {})
+    distributed = core.get("distributed_threshold_core", {})
+    custody = core.get("no_export_custody", {})
+    evidence = backend_capture.get("backend_requirement_evidence", {})
+    threshold_key = evidence.get("threshold_key_material", {})
+    return {
+        "strict_threshold_core_admissible": (
+            admissibility.get("strict_threshold_core_admissible") is True
+        ),
+        "core_mode": core.get("core_mode") == STRICT_DISTRIBUTED_CORE_MODE,
+        "signature_origin": (
+            core.get("signature_origin") == STRICT_DISTRIBUTED_SIGNATURE_ORIGIN
+        ),
+        "distributed_dkg_vss_reviewed": (
+            distributed.get("distributed_keygen_vss") is True
+            and threshold_key.get("distributed_dkg_vss_transcript_present") is True
+        ),
+        "no_seed_dealer_dkg_reviewed": (
+            distributed.get("no_seed_dealer_dkg") is True
+            and threshold_key.get("setup_seed_dealer_used_for_research_execution")
+            is False
+            and threshold_key.get("threshold_seed_reconstruction_sharing") is False
+        ),
+        "receiver_private_share_custody_reviewed": (
+            distributed.get("receiver_private_share_custody") is True
+            and threshold_key.get("receiver_private_share_custody") is True
+            and threshold_key.get("per_receiver_private_share_custody") is True
+        ),
+        "no_single_exposed_mldsa_secret_key": (
+            distributed.get("no_single_exposed_mldsa_secret_key") is True
+            and threshold_key.get("single_exposed_mldsa_secret_key_prevented")
+            is True
+        ),
+        "threshold_authorization_enforced": (
+            distributed.get("threshold_authorization_enforced") is True
+        ),
+        "no_secret_or_seed_reconstruction": (
+            distributed.get("no_secret_or_seed_reconstruction") is True
+            and threshold_key.get("coordinator_reconstructs_seed_for_emitted_signature")
+            is False
+        ),
+        "secret_material_not_exported": (
+            custody.get("secret_material_exported_to_json") is False
+            and custody.get("raw_seed_exported_to_json") is False
+            and custody.get("expanded_key_exported_to_json") is False
+            and threshold_key.get("secret_material_exported_to_json") is False
+        ),
+        "public_key_count_one": threshold_key.get("public_key_count") == 1,
+    }
+
+
+def dkg_route_evidence(backend_manifest, backend_capture):
+    """Choose the production DKG review route and return route-specific checks."""
+    core = backend_capture.get("cryptographic_core", {})
+    core_mode = core.get("core_mode")
+    signature_origin = core.get("signature_origin")
+    if (
+        core_mode == STRICT_DISTRIBUTED_CORE_MODE
+        and signature_origin == STRICT_DISTRIBUTED_SIGNATURE_ORIGIN
+    ):
+        return DISTRIBUTED_DKG_ROUTE, native_distributed_dkg_evidence(
+            backend_manifest,
+            backend_capture,
+        )
+    return TEE_HSM_ROUTE, strict_no_export_evidence(backend_manifest, backend_capture)
+
+
 def build_dkg_review(backend_manifest, backend_capture, reviewer_label, generated_at):
     """Build a production DKG/no-single-secret review package."""
-    evidence_checks = strict_no_export_evidence(backend_manifest, backend_capture)
+    setup_route, evidence_checks = dkg_route_evidence(backend_manifest, backend_capture)
     ready = all(evidence_checks.values())
     evidence = {
         "backend_manifest_sha256": backend_manifest.get("capture_sha256"),
         "backend_capture_expected": backend_capture.get("expected", {}),
+        "setup_route": setup_route,
         "strict_no_export_checks": evidence_checks,
     }
+    distributed_route = setup_route == DISTRIBUTED_DKG_ROUTE
     return {
         "schema": DKG_SCHEMA,
         "schema_version": 1,
@@ -180,12 +256,15 @@ def build_dkg_review(backend_manifest, backend_capture, reviewer_label, generate
         "validator_count": 10000,
         "threshold": 6667,
         "public_key_count": 1,
-        "setup_route": "tee_hsm_no_export",
+        "setup_route": setup_route,
         "checks": {
-            "distributed_dkg_vss_reviewed": False,
-            "tee_hsm_no_export_trust_record_reviewed": evidence_checks[
-                "tee_hsm_no_export_trust_record_reviewed"
-            ],
+            "distributed_dkg_vss_reviewed": (
+                evidence_checks.get("distributed_dkg_vss_reviewed") is True
+            ),
+            "tee_hsm_no_export_trust_record_reviewed": (
+                evidence_checks.get("tee_hsm_no_export_trust_record_reviewed")
+                is True
+            ),
             "no_single_exposed_mldsa_secret_key": evidence_checks[
                 "no_single_exposed_mldsa_secret_key"
             ],
@@ -195,6 +274,24 @@ def build_dkg_review(backend_manifest, backend_capture, reviewer_label, generate
                 "secret_material_not_exported"
             ],
             "public_key_derivation_reviewed": evidence_checks["public_key_count_one"],
+            "no_seed_dealer_dkg_reviewed": (
+                evidence_checks.get("no_seed_dealer_dkg_reviewed") is True
+                if distributed_route
+                else evidence_checks.get("tee_hsm_no_export_trust_record_reviewed") is True
+            ),
+            "receiver_private_share_custody_reviewed": (
+                evidence_checks.get("receiver_private_share_custody_reviewed") is True
+                if distributed_route
+                else evidence_checks.get("tee_hsm_no_export_trust_record_reviewed") is True
+            ),
+            "threshold_authorization_reviewed": (
+                evidence_checks.get("threshold_authorization_enforced") is True
+            ),
+            "no_secret_or_seed_reconstruction_reviewed": (
+                evidence_checks.get("no_secret_or_seed_reconstruction") is True
+                if distributed_route
+                else evidence_checks.get("secret_material_not_exported") is True
+            ),
         },
         "review_digests": {
             "dkg_transcript_digest_hex": digest_json("dkg_transcript", evidence),

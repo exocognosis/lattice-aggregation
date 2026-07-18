@@ -269,6 +269,22 @@ def tee_hsm_no_export_review():
     return review
 
 
+def distributed_dkg_vss_review():
+    review = dkg_no_single_secret_review()
+    review["setup_route"] = "distributed_dkg_vss"
+    review["checks"].update(
+        {
+            "distributed_dkg_vss_reviewed": True,
+            "tee_hsm_no_export_trust_record_reviewed": False,
+            "no_seed_dealer_dkg_reviewed": True,
+            "receiver_private_share_custody_reviewed": True,
+            "threshold_authorization_reviewed": True,
+            "no_secret_or_seed_reconstruction_reviewed": True,
+        }
+    )
+    return review
+
+
 def distribution_abort_review():
     return {
         "schema": "lattice-aggregation:p1-accepted-distribution-abort-review:v1",
@@ -602,6 +618,80 @@ class P1ExternalBackendEvidenceAttemptTests(unittest.TestCase):
         self.assertTrue(manifest["close_candidate"])
         self.assertFalse(manifest["claims_theorem_closure"])
         self.assertFalse(manifest["claims_rejection_distribution_preservation"])
+
+    def test_distributed_dkg_vss_review_route_is_accepted(self):
+        module = load_module()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            nonce_path = root / "nonce" / "manifest.json"
+            backend_manifest_path = root / "backend" / "manifest.json"
+            backend_capture_path = root / "backend" / "capture.json"
+            rejection_batch_path = root / "rejection" / "batch.json"
+            dkg_review_path = root / "dkg-review" / "manifest.json"
+            distribution_abort_review_path = root / "distribution-abort" / "manifest.json"
+            review_package_path = root / "review" / "manifest.json"
+            candidate_dir = root / "candidate"
+            write_json(nonce_path, actual_nonce_gate(True))
+            write_json(backend_manifest_path, backend_manifest())
+            write_json(backend_capture_path, backend_capture())
+            write_json(rejection_batch_path, rejection_batch(True))
+            write_json(dkg_review_path, distributed_dkg_vss_review())
+            write_json(distribution_abort_review_path, distribution_abort_review())
+            candidate_digest = build_candidate_digest(
+                module,
+                root,
+                nonce_path,
+                backend_manifest_path,
+                backend_capture_path,
+                rejection_batch_path,
+                dkg_review_path,
+                distribution_abort_review_path,
+            )
+            write_json(
+                review_package_path,
+                reviewed_external_evidence_package(
+                    module,
+                    nonce_path,
+                    backend_manifest_path,
+                    backend_capture_path,
+                    rejection_batch_path,
+                    dkg_review_path,
+                    distribution_abort_review_path,
+                    candidate_digest,
+                ),
+            )
+
+            report = module.build_report(
+                root,
+                nonce_gate_path=nonce_path,
+                backend_manifest_path=backend_manifest_path,
+                backend_capture_path=backend_capture_path,
+                rejection_batch_path=rejection_batch_path,
+                dkg_review_path=dkg_review_path,
+                distribution_abort_review_path=distribution_abort_review_path,
+                review_package_path=review_package_path,
+                candidate_out=candidate_dir,
+                generated_at="2026-07-04T00:00:00Z",
+            )
+
+        manifest = report["manifest"]
+        self.assertEqual(
+            manifest["attempt_status"],
+            "external_evidence_close_candidate_ready",
+        )
+        self.assertEqual(
+            manifest["review_packages"]["production_dkg_no_single_secret_review"][
+                "route"
+            ],
+            "distributed_dkg_vss",
+        )
+        self.assertTrue(
+            manifest["checks"][
+                "production_dkg_no_single_secret_review_package_valid"
+            ]
+        )
+        self.assertTrue(manifest["close_candidate"])
 
     def test_review_package_digest_drift_blocks_close_candidate(self):
         module = load_module()

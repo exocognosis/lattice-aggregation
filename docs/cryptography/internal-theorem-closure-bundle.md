@@ -73,6 +73,12 @@ no promotion authority.
 
 ## Build and Gate
 
+Generate the current fail-closed criterion input manifests:
+
+```sh
+python3 scripts/build_internal_theorem_closure_criterion_inputs.py --root .
+```
+
 Build the current fail-closed package:
 
 ```sh

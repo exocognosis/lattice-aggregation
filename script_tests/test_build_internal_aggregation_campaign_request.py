@@ -82,6 +82,58 @@ class InternalAggregationCampaignRequestTests(unittest.TestCase):
         self.assertIn("request.json", checksums)
         self.assertIn("request-manifest.json", checksums)
 
+    def test_request_can_bind_reviewed_authorization_verifier(self):
+        module = load_module()
+        verifier_digest = "12" * 32
+        report = module.build_request(
+            "theorem-closure-internal-001",
+            authorization_verifier_profile={
+                "verifier_id": "reviewed-threshold-auth-v1",
+                "verifier_implementation_sha256": verifier_digest,
+            },
+        )
+        authorization = report["request"]["capture_requirements"][
+            "authorization_certificate"
+        ]
+
+        self.assertEqual(
+            authorization["cryptographic_verifier_status"], "reviewed_ready"
+        )
+        self.assertEqual(authorization["verifier_id"], "reviewed-threshold-auth-v1")
+        self.assertEqual(
+            authorization["verifier_implementation_sha256"], verifier_digest
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_dir = pathlib.Path(temp_dir) / "campaign"
+            exit_code = module.main(
+                [
+                    "--campaign-id",
+                    "theorem-closure-internal-001",
+                    "--authorization-verifier-id",
+                    "reviewed-threshold-auth-v1",
+                    "--authorization-verifier-implementation-sha256",
+                    verifier_digest,
+                    "--out",
+                    str(out_dir),
+                ]
+            )
+            request = json.loads((out_dir / "request.json").read_text())
+
+        self.assertIsNone(exit_code)
+        self.assertEqual(
+            request["capture_requirements"]["authorization_certificate"][
+                "cryptographic_verifier_status"
+            ],
+            "reviewed_ready",
+        )
+        self.assertEqual(
+            request["capture_requirements"]["authorization_certificate"][
+                "verifier_implementation_sha256"
+            ],
+            verifier_digest,
+        )
+
     def test_request_rejects_ambiguous_campaign_identifier(self):
         module = load_module()
         with self.assertRaisesRegex(ValueError, "campaign id"):

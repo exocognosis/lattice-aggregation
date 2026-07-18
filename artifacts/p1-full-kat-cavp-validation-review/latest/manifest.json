@@ -23,27 +23,27 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-18T00:18:28Z",
+  "generated_at": "2026-07-18T21:17:07Z",
   "name": "p1-full-kat-cavp-validation-review",
   "package_boundary": "This package records reviewed KAT/CAVP/ACVTS validation evidence for the selected ML-DSA-65 provider. It does not assert theorem closure or FIPS validation by itself.",
   "package_class": "full_kat_cavp_validation_review",
   "review_digests": {
     "acvts_cavp_campaign_digest_hex": "fb4ec43729ef5b1bc2c84d2bb43bda9c3d2689b74e3ad5f3e3de874f368e84c7",
-    "backend_capture_digest_hex": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-    "backend_manifest_digest_hex": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-    "implementation_digest_hex": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
-    "provider_kat_review_digest_hex": "45630ee7a0c901c26580bfa595df27735f85ee06c2c1f7d2984eedf58fbdf859",
+    "backend_capture_digest_hex": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057",
+    "backend_manifest_digest_hex": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe",
+    "implementation_digest_hex": "6941061407feb36e88e1addb3ecc46f674dbe688e93d906d728e55b125fbfa14",
+    "provider_kat_review_digest_hex": "2c06e19f19802252ea1202c3bb179646c20322a498985ce9b16a8306b31bf13f",
     "reviewer_identity_digest_hex": "6e35fd8bc1d51e584b02b729084d47d05535a81d975bc07b1e4c7d3c2cb317e6",
-    "validation_package_digest_hex": "7886f237da1384ff6c15677297269db723ec7248a0f15a735abb14a9069fd966"
+    "validation_package_digest_hex": "a26e7f7124161cfd25340ace57bdfa92a9cc24ab56d33f4fd4173c0455a55485"
   },
   "review_status": "reviewed_full_kat_cavp_validation_ready",
   "schema": "lattice-aggregation:p1-full-kat-cavp-validation-review:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
-    "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-    "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-    "validation_evidence_sha256": "bfadb04fa63846a7a3b41d6dd4cd761c24c83d601a5b7ff07584c79cbb198a1d"
+    "backend_capture_sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057",
+    "backend_manifest_sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe",
+    "validation_evidence_sha256": "47324cf01bfafbec1ea3ca8417ea479ca289a5a32e796daf2f4f7e9edea0ac0b"
   },
   "validation_package": {
     "acvts_cavp_campaign_transcript": {
@@ -75,14 +75,14 @@
       "sigVer": true
     },
     "provider_kat_vectors": {
-      "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-      "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-      "implementation_digest_sha256": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
+      "backend_capture_sha256": "b0de933f3e64013c84b6452bfca2020669b65c856fadb3c7fde446f5bfdc8704",
+      "backend_manifest_sha256": "898c5ddb7ae70d049a3cbff5f799501d53a574279770f04d79f34fa5dfacbbd7",
+      "implementation_digest_sha256": "6941061407feb36e88e1addb3ecc46f674dbe688e93d906d728e55b125fbfa14",
       "parameter_set": "ML-DSA-65",
       "passed": true,
       "provider": "ml-dsa crate MlDsa65",
       "reviewed": true,
-      "source_digest_sha256": "0c844fbdf0f7f438ccb928037208d3087f09d2b89e76bb4d05f748c74cfe3786"
+      "source_digest_sha256": "83d91c59fd958dd6db5379d952578ea8f7c3f12598bf71ed7532a3b6c6792539"
     },
     "reviewer_signoff_digest": {
       "digest_domain": "external-review-signoff:p1-full-kat-cavp-validation:v1",

@@ -157,6 +157,62 @@ def backend_capture():
     }
 
 
+def distributed_dkg_backend_manifest():
+    manifest = backend_manifest()
+    manifest["backend_core_admissibility"].update(
+        {
+            "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+            "signature_origin": "threshold_partial_aggregation",
+        }
+    )
+    return manifest
+
+
+def distributed_dkg_backend_capture():
+    capture = backend_capture()
+    capture["name"] = "strict-distributed-dkg-capture"
+    capture["cryptographic_core"].update(
+        {
+            "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+            "provider": "reviewed distributed ML-DSA-65 threshold backend",
+            "signature_origin": "threshold_partial_aggregation",
+            "distributed_threshold_core": {
+                "distributed_keygen_vss": True,
+                "no_seed_dealer_dkg": True,
+                "receiver_private_share_custody": True,
+                "no_single_exposed_mldsa_secret_key": True,
+                "threshold_authorization_enforced": True,
+                "no_secret_or_seed_reconstruction": True,
+                "partial_signing_over_secret_shares": True,
+                "partial_z_i_hint_aggregation": True,
+                "fips204_rejection_loop_over_threshold_partials": True,
+                "standard_verifier_compatible_output": True,
+                "accepted_aggregate_distribution_proven": False,
+            },
+            "no_export_custody": {
+                "secret_material_exported_to_json": False,
+                "raw_seed_exported_to_json": False,
+                "expanded_key_exported_to_json": False,
+            },
+        }
+    )
+    capture["backend_requirement_evidence"]["threshold_key_material"].update(
+        {
+            "threshold_seed_reconstruction_sharing": False,
+            "no_seed_dealer_dkg": True,
+            "distributed_dkg_vss_transcript_present": True,
+            "tee_hsm_trust_record_present": False,
+            "single_exposed_mldsa_secret_key_prevented": True,
+            "setup_seed_dealer_used_for_research_execution": False,
+            "coordinator_reconstructs_seed_for_emitted_signature": False,
+            "receiver_private_share_custody": True,
+            "per_receiver_private_share_custody": True,
+            "secret_material_exported_to_json": False,
+        }
+    )
+    return capture
+
+
 def rejection_batch():
     return {
         "schema": "lattice-aggregation:p1-rejection-equivalence-batch:v1",
@@ -268,6 +324,46 @@ class P1ExternalBackendReviewPackageBuilderTests(unittest.TestCase):
             "blocked_production_dkg_no_single_secret_review",
         )
         self.assertIn("secret_material_not_exported", review["blockers"])
+
+    def test_distributed_dkg_route_requires_no_seed_dealer_and_private_custody(self):
+        builder = load_module(SCRIPT, "build_p1_external_backend_review_packages")
+        review = builder.build_dkg_review(
+            distributed_dkg_backend_manifest(),
+            distributed_dkg_backend_capture(),
+            "reviewer",
+            "2026-07-07T00:00:00Z",
+        )
+
+        self.assertEqual(review["setup_route"], "distributed_dkg_vss")
+        self.assertEqual(
+            review["review_status"],
+            "reviewed_production_dkg_no_single_secret_ready",
+        )
+        self.assertTrue(review["checks"]["distributed_dkg_vss_reviewed"])
+        self.assertTrue(review["checks"]["no_seed_dealer_dkg_reviewed"])
+        self.assertTrue(review["checks"]["receiver_private_share_custody_reviewed"])
+        self.assertTrue(review["checks"]["no_secret_or_seed_reconstruction_reviewed"])
+
+    def test_distributed_dkg_route_blocks_seed_dealer_research_setup(self):
+        builder = load_module(SCRIPT, "build_p1_external_backend_review_packages")
+        capture = distributed_dkg_backend_capture()
+        capture["backend_requirement_evidence"]["threshold_key_material"][
+            "setup_seed_dealer_used_for_research_execution"
+        ] = True
+
+        review = builder.build_dkg_review(
+            distributed_dkg_backend_manifest(),
+            capture,
+            "reviewer",
+            "2026-07-07T00:00:00Z",
+        )
+
+        self.assertEqual(review["setup_route"], "distributed_dkg_vss")
+        self.assertEqual(
+            review["review_status"],
+            "blocked_production_dkg_no_single_secret_review",
+        )
+        self.assertIn("no_seed_dealer_dkg_reviewed", review["blockers"])
 
 
 if __name__ == "__main__":

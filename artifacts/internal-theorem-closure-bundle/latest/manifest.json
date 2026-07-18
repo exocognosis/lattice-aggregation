@@ -1,0 +1,2457 @@
+{
+  "artifact_inventory": {
+    "file_count": 9,
+    "files": [
+      {
+        "path": "artifacts/backend-emission-capture/latest/capture.json",
+        "present": true,
+        "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+        "size_bytes": 47668
+      },
+      {
+        "path": "artifacts/backend-emission-capture/latest/manifest.json",
+        "present": true,
+        "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
+        "size_bytes": 5740
+      },
+      {
+        "path": "artifacts/hypothesis/latest/assessment.json",
+        "present": true,
+        "sha256": "45815e4f4d3782156d44c91db54986e417f5aa2f24a727759e429b2eae048c1a",
+        "size_bytes": 89923
+      },
+      {
+        "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
+        "present": true,
+        "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2",
+        "size_bytes": 1499
+      },
+      {
+        "path": "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+        "present": true,
+        "sha256": "01ea439f946d652ed0bcc30d0e0502086df2e939f07675fe3724d7f5249e6b05",
+        "size_bytes": 1128
+      },
+      {
+        "path": "artifacts/internal-aggregation-campaign/latest/request.json",
+        "present": true,
+        "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
+        "size_bytes": 27805
+      },
+      {
+        "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
+        "present": true,
+        "sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1",
+        "size_bytes": 4504
+      },
+      {
+        "path": "artifacts/theorem-closure-readiness/latest/manifest.json",
+        "present": true,
+        "sha256": "d38c9a0fd9a2f1a7614d4bffd5d7f3b018256bd823b75a9ce3c74a0a20147f20",
+        "size_bytes": 7989
+      },
+      {
+        "path": "artifacts/theorem-closure-review/latest/manifest.json",
+        "present": true,
+        "sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
+        "size_bytes": 6568
+      }
+    ],
+    "tree_sha256": "7f7dc159041663f1ae3084089b94c148863aad8364162bf8b9ee75b187c27776"
+  },
+  "assessment_boundary": "This bundle may record an internally closed candidate only after all five criteria and their content-addressed evidence pass. It never asserts public theorem closure, production security, FIPS validation, or completion of independent cryptographic review.",
+  "bundle_digest_sha256": "c9e323577d1a34a433d9d0c3dc6b0b7a844de0cd4749d910e944f17e07867bb5",
+  "bundle_status": "blocked_incomplete",
+  "campaign": {
+    "authorization_verification": null,
+    "blockers": [
+      "capture_present_and_valid",
+      "capture_schema_valid",
+      "validation_ready",
+      "exact_24_case_campaign",
+      "evidence_bundle_bound",
+      "strong_profile_executed",
+      "threshold_authorization_verified",
+      "deterministic_validator_revalidation"
+    ],
+    "capture_sha256": null,
+    "checks": {
+      "capture_digest_bound": true,
+      "capture_present_and_valid": false,
+      "capture_schema_valid": false,
+      "deterministic_validator_revalidation": false,
+      "evidence_bundle_bound": false,
+      "exact_24_case_campaign": false,
+      "nonclosure_boundary_preserved": true,
+      "request_digest_bound": true,
+      "request_present_and_valid": true,
+      "request_schema_valid": true,
+      "strong_profile_executed": false,
+      "strong_profile_preregistered": true,
+      "threshold_authorization_verified": false,
+      "validation_present_and_valid": true,
+      "validation_ready": false,
+      "validation_schema_valid": true
+    },
+    "evidence_bundle_binding_sha256": null,
+    "inputs": {
+      "capture": {
+        "path": "artifacts/internal-aggregation-campaign/latest/capture.json",
+        "present": false,
+        "sha256": null,
+        "size_bytes": null
+      },
+      "request": {
+        "path": "artifacts/internal-aggregation-campaign/latest/request.json",
+        "present": true,
+        "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
+        "size_bytes": 27805
+      },
+      "validation": {
+        "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
+        "present": true,
+        "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2",
+        "size_bytes": 1499
+      }
+    },
+    "ready": false,
+    "request_sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f"
+  },
+  "checks": {
+    "all_criteria_internally_closed": false,
+    "artifact_inventory_present": true,
+    "campaign_binding_ready": false,
+    "clean_git_provenance": false,
+    "five_criteria_present": true,
+    "source_claim_boundary_preserved": true,
+    "source_inventory_present": true,
+    "toolchain_identified": true
+  },
+  "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_criterion_met": false,
+    "claims_fips_validation": false,
+    "claims_internal_theorem_closure": false,
+    "claims_mask_distribution_proven": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_selected_backend_proof_closure": false,
+    "claims_standard_verifier_compatibility_complete": false,
+    "claims_theorem_closure": false
+  },
+  "criteria": [
+    {
+      "artifact_groups": {
+        "implementation_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "358187174a51883ab7cfe36c9a4ce2839615eb87cd8e90a3fdbbab845e34e48c",
+              "digest_matches": true,
+              "observed_sha256": "358187174a51883ab7cfe36c9a4ce2839615eb87cd8e90a3fdbbab845e34e48c",
+              "path": "src/production/mask_distribution.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "d23223645a4768dd0dc25fd5e183346ed4382ca87eeb5d08b5a8d3a49e20f045",
+              "digest_matches": true,
+              "observed_sha256": "d23223645a4768dd0dc25fd5e183346ed4382ca87eeb5d08b5a8d3a49e20f045",
+              "path": "src/production/epsilon.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "d5abbce481503c97a7b215ef484c761ba6dc2bd9259ed831bc1c4e089507a978",
+              "digest_matches": true,
+              "observed_sha256": "d5abbce481503c97a7b215ef484c761ba6dc2bd9259ed831bc1c4e089507a978",
+              "path": "src/crypto/distributed_nonce.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "26606cbe55524379c76a27793774446f68c1dfb05dc4e11171f94daff5e085b2",
+              "digest_matches": true,
+              "observed_sha256": "26606cbe55524379c76a27793774446f68c1dfb05dc4e11171f94daff5e085b2",
+              "path": "src/crypto/mldsa_primitives.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "74134b9d29d41aa49ebdeeee1f1b5a1d18a271c22b468a224758d97a209cff0c"
+        },
+        "proof_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "3ab9a342c9bd7beb93a9710fb5508fb081c6250340347c344917a00b9a53a8ef",
+              "digest_matches": true,
+              "observed_sha256": "3ab9a342c9bd7beb93a9710fb5508fb081c6250340347c344917a00b9a53a8ef",
+              "path": "docs/cryptography/criterion-1-proof-substance.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "e6825872d971ea656047a889a828d744e76890a9055f3cb8694815f34871271a",
+              "digest_matches": true,
+              "observed_sha256": "e6825872d971ea656047a889a828d744e76890a9055f3cb8694815f34871271a",
+              "path": "docs/cryptography/criterion-1-proof-substance.json",
+              "present": true
+            },
+            {
+              "declared_sha256": "7566bda014986f1dd6b286193a4e4df1f50bcc2724ec1f0c33f24dec2b14d3bd",
+              "digest_matches": true,
+              "observed_sha256": "7566bda014986f1dd6b286193a4e4df1f50bcc2724ec1f0c33f24dec2b14d3bd",
+              "path": "docs/cryptography/mask-distribution-evidence.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "af3404122a6e4ca50faeac14944f74a9f8b0459d376a0535c981de1f6e2606aa",
+              "digest_matches": true,
+              "observed_sha256": "af3404122a6e4ca50faeac14944f74a9f8b0459d376a0535c981de1f6e2606aa",
+              "path": "docs/cryptography/distributed-mask-mpc-feasibility.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "e2613bd402279e119af03dfae6616cfdfa0946b725cf1bfda08fba5ce6eaa32f",
+              "digest_matches": true,
+              "observed_sha256": "e2613bd402279e119af03dfae6616cfdfa0946b725cf1bfda08fba5ce6eaa32f",
+              "path": "docs/cryptography/epsilon-mask-fork-decision.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "883208c34c6b457475c19ab504ea68992aa621714e8b96dafc0aff881caa81b2"
+        },
+        "protocol_spec_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "digest_matches": true,
+              "observed_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "path": "docs/cryptography/security-model.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "digest_matches": true,
+              "observed_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "digest_matches": true,
+              "observed_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "path": "docs/cryptography/formal-security-theorem.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "digest_matches": true,
+              "observed_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "digest_matches": true,
+              "observed_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba"
+        },
+        "test_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "ac1d2bb210441310f0748247629597211c981b261bedf541203a34e32368ae89",
+              "digest_matches": true,
+              "observed_sha256": "ac1d2bb210441310f0748247629597211c981b261bedf541203a34e32368ae89",
+              "path": "tests/production_mask_distribution.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "999d60d0d7a7794f9a726866bfe00d99af456fbadbd51d8c62189c3135930618",
+              "digest_matches": true,
+              "observed_sha256": "999d60d0d7a7794f9a726866bfe00d99af456fbadbd51d8c62189c3135930618",
+              "path": "tests/production_epsilon.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "e034705951347e4db572f6cd73e632857400ed568a4aebee301cb32879944ed5",
+              "digest_matches": true,
+              "observed_sha256": "e034705951347e4db572f6cd73e632857400ed568a4aebee301cb32879944ed5",
+              "path": "tests/criterion1_proof_substance_manifest.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "5a9fcc0e6aa8e4aa62945ae33742bbb0acf8f5ed58f9fa2de3511ea99d45cfa2",
+              "digest_matches": true,
+              "observed_sha256": "5a9fcc0e6aa8e4aa62945ae33742bbb0acf8f5ed58f9fa2de3511ea99d45cfa2",
+              "path": "script_tests/test_model_distributed_mask_mpc_feasibility.py",
+              "present": true
+            }
+          ],
+          "group_sha256": "9aafe6ded9a0f49938d009d2d8b2413df301b3303bc9b500c521406909745522"
+        }
+      },
+      "assessment_status": "unproven",
+      "blockers": [
+        "criterion evidence is not an internal closure candidate",
+        "criterion internal claims or pending-independent-review flags are invalid",
+        "criterion evidence declares unresolved blockers",
+        "reproducibility commands are incomplete or not recorded passing",
+        "internal review record is incomplete or crosses the claim boundary",
+        "criterion provenance does not bind the current clean commit and source tree",
+        "criterion substantive/profile/review semantics are invalid",
+        "criterion-specific substantive checks are incomplete"
+      ],
+      "bundle_evidence_status": "unproven",
+      "checks": {
+        "artifact_groups_complete": true,
+        "assessment_status_met": false,
+        "claim_boundary_valid": false,
+        "criterion_claim_flags_valid": false,
+        "evidence_digests_bind_artifact_groups": true,
+        "input_semantics_valid": false,
+        "internal_review_valid": false,
+        "no_declared_blockers": false,
+        "provenance_valid": false,
+        "reproducibility_valid": false,
+        "schema_valid": true,
+        "substantive_checks_valid": false
+      },
+      "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+      "claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_internal_theorem_closure": false,
+        "claims_mask_distribution_proven": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "criterion_id": "aggregate_mask_distribution",
+      "declared_evidence_status": "required_unclosed",
+      "evidence_input": {
+        "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
+        "present": true,
+        "sha256": "e19bd0c2dfd3dbbc656213a9a613c15aa614adfe40810a8387ae796ce1ce164e",
+        "size_bytes": 6566
+      },
+      "internal_closure_ready": false,
+      "internal_review": {
+        "record": {
+          "completed": false,
+          "independent_review_completed": false,
+          "required_internal_reviewer_count": 2,
+          "review_digest_sha256": null,
+          "reviewed_at": null,
+          "reviewer_identity_sha256": null
+        },
+        "valid": false
+      },
+      "legacy_assessment_status": "partially_met",
+      "protocol_profile": {
+        "committee_authorization_bound_to_validator_threshold": true,
+        "exact_distributed_keygen": true,
+        "exact_expand_mask_mpc": true,
+        "maximum_committee_size": 64,
+        "no_secret_or_seed_reconstruction": true,
+        "parameter_set": "ML-DSA-65",
+        "per_receiver_private_share_custody": true,
+        "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+        "standard_wire_signature_bytes": 3309,
+        "threshold": 6667,
+        "validator_count": 10000
+      },
+      "reproducibility": {
+        "commands": [],
+        "valid": false
+      },
+      "statement": "Aggregate masks match or closely approximate centralized ML-DSA masks."
+    },
+    {
+      "artifact_groups": {
+        "implementation_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "04ab0bf99ba2aee0ebb3eb7c924f766a9bedff34f8f02e06c9cd68f9e1d8d16c",
+              "digest_matches": true,
+              "observed_sha256": "04ab0bf99ba2aee0ebb3eb7c924f766a9bedff34f8f02e06c9cd68f9e1d8d16c",
+              "path": "src/production/rejection_equivalence.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "cf2a4c5d6a739b7c2ae0299f6a79646d9fc9f6658fc0ccb7139d25c5efcf0981",
+              "digest_matches": true,
+              "observed_sha256": "cf2a4c5d6a739b7c2ae0299f6a79646d9fc9f6658fc0ccb7139d25c5efcf0981",
+              "path": "src/production/acceptance.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "02be8f226460d98d20d92b34c10acf0833636f4fc89d79cbc960d34b1e3b1d7f",
+              "digest_matches": true,
+              "observed_sha256": "02be8f226460d98d20d92b34c10acf0833636f4fc89d79cbc960d34b1e3b1d7f",
+              "path": "src/production/provider.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "9b77447b67524d94beaef25f977de85732442a773267d87ce618f68351b6f428",
+              "digest_matches": true,
+              "observed_sha256": "9b77447b67524d94beaef25f977de85732442a773267d87ce618f68351b6f428",
+              "path": "src/backend/fips_sign.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "9797fc91c35b5adb37ddfb88f91e206c253db1c5dc4b4631e1ebe8ff6f90327b",
+              "digest_matches": true,
+              "observed_sha256": "9797fc91c35b5adb37ddfb88f91e206c253db1c5dc4b4631e1ebe8ff6f90327b",
+              "path": "src/backend/fips_wire.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "a9e6a8c13a988fcb49889944e301f4fdf81e3b08dce75553160ac56e0c15ca7e",
+              "digest_matches": true,
+              "observed_sha256": "a9e6a8c13a988fcb49889944e301f4fdf81e3b08dce75553160ac56e0c15ca7e",
+              "path": "src/backend/threshold_core.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "92138f61f9f80f428b4d7c7e04819566d617ee54b3ffb4bd798dad38c10da8ae"
+        },
+        "proof_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "eb796438e85896042f9389997351b41377f960533c1e5f21d3ac0e5543381bfd",
+              "digest_matches": true,
+              "observed_sha256": "eb796438e85896042f9389997351b41377f960533c1e5f21d3ac0e5543381bfd",
+              "path": "docs/cryptography/criterion-2-proof-substance.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d",
+              "digest_matches": true,
+              "observed_sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d",
+              "path": "docs/cryptography/criterion-2-proof-substance.json",
+              "present": true
+            },
+            {
+              "declared_sha256": "7b6e6fee46bcd33f715986500636f13a7632ed7ef5f3393a561820258caa00c6",
+              "digest_matches": true,
+              "observed_sha256": "7b6e6fee46bcd33f715986500636f13a7632ed7ef5f3393a561820258caa00c6",
+              "path": "docs/cryptography/rejection-equivalence-evidence.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "5e492e1517fdd416ffe0ae12f39f155aca57b2c4ccf5b351b61c07cd4949900c",
+              "digest_matches": true,
+              "observed_sha256": "5e492e1517fdd416ffe0ae12f39f155aca57b2c4ccf5b351b61c07cd4949900c",
+              "path": "docs/cryptography/noise-rejection-proof-plan.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b",
+              "digest_matches": true,
+              "observed_sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b",
+              "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
+              "present": true
+            },
+            {
+              "declared_sha256": "0fb8721fcdd83647b4fa4bddcedf6653c6657bbc5b184afc7e588664c26c36c0",
+              "digest_matches": true,
+              "observed_sha256": "0fb8721fcdd83647b4fa4bddcedf6653c6657bbc5b184afc7e588664c26c36c0",
+              "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
+              "present": true
+            },
+            {
+              "declared_sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
+              "digest_matches": true,
+              "observed_sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
+              "path": "artifacts/theorem-closure-review/latest/manifest.json",
+              "present": true
+            }
+          ],
+          "group_sha256": "7e33691573b1a84f16677d8dfd279d1b3fcd9594c209f46fa39e6c72b83ba848"
+        },
+        "protocol_spec_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "digest_matches": true,
+              "observed_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "path": "docs/cryptography/security-model.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "digest_matches": true,
+              "observed_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "digest_matches": true,
+              "observed_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "path": "docs/cryptography/formal-security-theorem.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "digest_matches": true,
+              "observed_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "digest_matches": true,
+              "observed_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba"
+        },
+        "test_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "f84f5e791b7ba8024ca3c20eaf77923bd1289e1aa7349c744331df5a5bda2ebd",
+              "digest_matches": true,
+              "observed_sha256": "f84f5e791b7ba8024ca3c20eaf77923bd1289e1aa7349c744331df5a5bda2ebd",
+              "path": "tests/production_rejection_equivalence.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "220ca3d0487a80a32e062c2a0bac6450d900d1815d6e552e2d91e6c0876c7043",
+              "digest_matches": true,
+              "observed_sha256": "220ca3d0487a80a32e062c2a0bac6450d900d1815d6e552e2d91e6c0876c7043",
+              "path": "tests/production_acceptance.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "ef321ed81f414b5ad48cd48d0e79f0795fb598536b8bb7acf16232b2ca1a6160",
+              "digest_matches": true,
+              "observed_sha256": "ef321ed81f414b5ad48cd48d0e79f0795fb598536b8bb7acf16232b2ca1a6160",
+              "path": "tests/production_provider.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "fcbb3db2d828ea350259a937b8001035e24384dcee2965f0b5222746c80c9c9c",
+              "digest_matches": true,
+              "observed_sha256": "fcbb3db2d828ea350259a937b8001035e24384dcee2965f0b5222746c80c9c9c",
+              "path": "tests/criterion2_proof_substance_manifest.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "06979cfc471fea148449da704b7b1df2a571451a8511d4067ad2a50f0c37447d",
+              "digest_matches": true,
+              "observed_sha256": "06979cfc471fea148449da704b7b1df2a571451a8511d4067ad2a50f0c37447d",
+              "path": "script_tests/test_build_theorem_closure_review_manifest.py",
+              "present": true
+            },
+            {
+              "declared_sha256": "071a5030227c25a089cf01c9f2be8bd05e40c7323abebaed6457b5c754970ff1",
+              "digest_matches": true,
+              "observed_sha256": "071a5030227c25a089cf01c9f2be8bd05e40c7323abebaed6457b5c754970ff1",
+              "path": "script_tests/test_assess_theorem_closure_readiness.py",
+              "present": true
+            }
+          ],
+          "group_sha256": "b63b723b69aabb69abf31b875fcf19497f63ced333c5b91e8846bc058c544b47"
+        }
+      },
+      "assessment_status": "unproven",
+      "blockers": [
+        "criterion evidence is not an internal closure candidate",
+        "criterion internal claims or pending-independent-review flags are invalid",
+        "criterion evidence declares unresolved blockers",
+        "reproducibility commands are incomplete or not recorded passing",
+        "internal review record is incomplete or crosses the claim boundary",
+        "criterion provenance does not bind the current clean commit and source tree",
+        "criterion substantive/profile/review semantics are invalid",
+        "criterion-specific substantive checks are incomplete"
+      ],
+      "bundle_evidence_status": "unproven",
+      "checks": {
+        "artifact_groups_complete": true,
+        "assessment_status_met": false,
+        "claim_boundary_valid": false,
+        "criterion_claim_flags_valid": false,
+        "evidence_digests_bind_artifact_groups": true,
+        "input_semantics_valid": false,
+        "internal_review_valid": false,
+        "no_declared_blockers": false,
+        "provenance_valid": false,
+        "reproducibility_valid": false,
+        "schema_valid": true,
+        "substantive_checks_valid": false
+      },
+      "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+      "claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_internal_theorem_closure": false,
+        "claims_mask_distribution_proven": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "criterion_id": "aggregate_rejection_equivalence",
+      "declared_evidence_status": "required_unclosed",
+      "evidence_input": {
+        "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
+        "present": true,
+        "sha256": "eead5d9f960c4dd94866dd83717af777cdb9146a0467e91150d5309c033a429b",
+        "size_bytes": 7604
+      },
+      "internal_closure_ready": false,
+      "internal_review": {
+        "record": {
+          "completed": false,
+          "independent_review_completed": false,
+          "required_internal_reviewer_count": 2,
+          "review_digest_sha256": null,
+          "reviewed_at": null,
+          "reviewer_identity_sha256": null
+        },
+        "valid": false
+      },
+      "legacy_assessment_status": "partially_met",
+      "protocol_profile": {
+        "committee_authorization_bound_to_validator_threshold": true,
+        "exact_distributed_keygen": true,
+        "exact_expand_mask_mpc": true,
+        "maximum_committee_size": 64,
+        "no_secret_or_seed_reconstruction": true,
+        "parameter_set": "ML-DSA-65",
+        "per_receiver_private_share_custody": true,
+        "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+        "standard_wire_signature_bytes": 3309,
+        "threshold": 6667,
+        "validator_count": 10000
+      },
+      "reproducibility": {
+        "commands": [],
+        "valid": false
+      },
+      "statement": "Aggregate rejection checks match centralized ML-DSA rejection checks."
+    },
+    {
+      "artifact_groups": {
+        "implementation_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "2f7ca0e460bebd22205464679a795ac74a568bbe4749f33a1ad1b05cb05c689d",
+              "digest_matches": true,
+              "observed_sha256": "2f7ca0e460bebd22205464679a795ac74a568bbe4749f33a1ad1b05cb05c689d",
+              "path": "src/production/abort_bias.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "19801fc2d1b48bb1e41b6aff5cd71c45461a015e5ab0785c9e21f8daaba98f31",
+              "digest_matches": true,
+              "observed_sha256": "19801fc2d1b48bb1e41b6aff5cd71c45461a015e5ab0785c9e21f8daaba98f31",
+              "path": "src/production/prefilter.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "6999633fc28505e3380115137608d3b3115f4ae2eea5dedc572ad77f65c81378",
+              "digest_matches": true,
+              "observed_sha256": "6999633fc28505e3380115137608d3b3115f4ae2eea5dedc572ad77f65c81378",
+              "path": "src/production/preprocess.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "e70c934e7f6af34f84d988b6d0c640a4f861dbb6a3e45cff65dbdcd8a33e7fd8",
+              "digest_matches": true,
+              "observed_sha256": "e70c934e7f6af34f84d988b6d0c640a4f861dbb6a3e45cff65dbdcd8a33e7fd8",
+              "path": "src/production/transcript.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "c7a1dea0f2888c33c8321300d3d2690fc75b23e0d981b20b6ed4680e451cf67f"
+        },
+        "proof_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "e8a8bf138bffbc4e8f0805e7056b4a587f13a64432eb53651438d48cb897f8d6",
+              "digest_matches": true,
+              "observed_sha256": "e8a8bf138bffbc4e8f0805e7056b4a587f13a64432eb53651438d48cb897f8d6",
+              "path": "docs/cryptography/criterion-3-proof-substance.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "b7144eb85325282949666ffcab728c629b0b85561dcff7896d11410dc7e26863",
+              "digest_matches": true,
+              "observed_sha256": "b7144eb85325282949666ffcab728c629b0b85561dcff7896d11410dc7e26863",
+              "path": "docs/cryptography/criterion-3-proof-substance.json",
+              "present": true
+            },
+            {
+              "declared_sha256": "e99611e32b6c380dd7cf9570412cb3587fedc12e6c7488be2e2346cdf69d7f04",
+              "digest_matches": true,
+              "observed_sha256": "e99611e32b6c380dd7cf9570412cb3587fedc12e6c7488be2e2346cdf69d7f04",
+              "path": "docs/cryptography/abort-retry-bias-evidence.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
+              "digest_matches": true,
+              "observed_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
+              "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
+              "present": true
+            },
+            {
+              "declared_sha256": "65119aed0396718aacec87adbc8968b0840eda968c07abd525f993f1837c2f9a",
+              "digest_matches": true,
+              "observed_sha256": "65119aed0396718aacec87adbc8968b0840eda968c07abd525f993f1837c2f9a",
+              "path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
+              "present": true
+            }
+          ],
+          "group_sha256": "57331e533705139e1063d40dead803ddb4ff8b328d64050d32bae8b6ddff69f6"
+        },
+        "protocol_spec_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "digest_matches": true,
+              "observed_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "path": "docs/cryptography/security-model.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "digest_matches": true,
+              "observed_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "digest_matches": true,
+              "observed_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "path": "docs/cryptography/formal-security-theorem.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "digest_matches": true,
+              "observed_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "digest_matches": true,
+              "observed_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba"
+        },
+        "test_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "5bbbbb174f6d11c58fdc2b1294bafa2408a406248bbc02359819e77b1c8c2a4a",
+              "digest_matches": true,
+              "observed_sha256": "5bbbbb174f6d11c58fdc2b1294bafa2408a406248bbc02359819e77b1c8c2a4a",
+              "path": "tests/production_abort_bias.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "c4cc9980e13ca458aac664fac792ae35b5d65687ab45689220a6e1587d08115d",
+              "digest_matches": true,
+              "observed_sha256": "c4cc9980e13ca458aac664fac792ae35b5d65687ab45689220a6e1587d08115d",
+              "path": "tests/production_prefilter.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "df1030c1c1a0cc41760165be369c3d73a0879c10bc8e8c33a8a4a193250b0c7e",
+              "digest_matches": true,
+              "observed_sha256": "df1030c1c1a0cc41760165be369c3d73a0879c10bc8e8c33a8a4a193250b0c7e",
+              "path": "tests/production_preprocess.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "959334c83502a93b87273f68e580a52f3fa4e76b69bfce49f32fea55fb3c9388",
+              "digest_matches": true,
+              "observed_sha256": "959334c83502a93b87273f68e580a52f3fa4e76b69bfce49f32fea55fb3c9388",
+              "path": "tests/criterion3_proof_substance_manifest.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "e88ac87b893fe5ecdcdb485563695c5bb453ff7848655635b397786a413d2f19"
+        }
+      },
+      "assessment_status": "unproven",
+      "blockers": [
+        "criterion evidence is not an internal closure candidate",
+        "criterion internal claims or pending-independent-review flags are invalid",
+        "criterion evidence declares unresolved blockers",
+        "reproducibility commands are incomplete or not recorded passing",
+        "internal review record is incomplete or crosses the claim boundary",
+        "criterion provenance does not bind the current clean commit and source tree",
+        "criterion substantive/profile/review semantics are invalid",
+        "criterion-specific substantive checks are incomplete"
+      ],
+      "bundle_evidence_status": "unproven",
+      "checks": {
+        "artifact_groups_complete": true,
+        "assessment_status_met": false,
+        "claim_boundary_valid": false,
+        "criterion_claim_flags_valid": false,
+        "evidence_digests_bind_artifact_groups": true,
+        "input_semantics_valid": false,
+        "internal_review_valid": false,
+        "no_declared_blockers": false,
+        "provenance_valid": false,
+        "reproducibility_valid": false,
+        "schema_valid": true,
+        "substantive_checks_valid": false
+      },
+      "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+      "claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_internal_theorem_closure": false,
+        "claims_mask_distribution_proven": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "criterion_id": "abort_retry_bias",
+      "declared_evidence_status": "required_unclosed",
+      "evidence_input": {
+        "path": "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
+        "present": true,
+        "sha256": "b671394089b972fd01c55b2825c31e68fea04aa728cddbf65334a74a85f5145b",
+        "size_bytes": 6592
+      },
+      "internal_closure_ready": false,
+      "internal_review": {
+        "record": {
+          "completed": false,
+          "independent_review_completed": false,
+          "required_internal_reviewer_count": 2,
+          "review_digest_sha256": null,
+          "reviewed_at": null,
+          "reviewer_identity_sha256": null
+        },
+        "valid": false
+      },
+      "legacy_assessment_status": "partially_met",
+      "protocol_profile": {
+        "committee_authorization_bound_to_validator_threshold": true,
+        "exact_distributed_keygen": true,
+        "exact_expand_mask_mpc": true,
+        "maximum_committee_size": 64,
+        "no_secret_or_seed_reconstruction": true,
+        "parameter_set": "ML-DSA-65",
+        "per_receiver_private_share_custody": true,
+        "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+        "standard_wire_signature_bytes": 3309,
+        "threshold": 6667,
+        "validator_count": 10000
+      },
+      "reproducibility": {
+        "commands": [],
+        "valid": false
+      },
+      "statement": "Selective aborts and retries do not bias accepted signatures."
+    },
+    {
+      "artifact_groups": {
+        "implementation_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "83b8180fbebbf34c61dfb9825ee86ffaee17b44565d8a954a9fef0de422a332a",
+              "digest_matches": true,
+              "observed_sha256": "83b8180fbebbf34c61dfb9825ee86ffaee17b44565d8a954a9fef0de422a332a",
+              "path": "src/production/partial_soundness.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "3290aa5c6291e40d902b0098c344e1bee0e743ddf6710b47783b7609664ba732",
+              "digest_matches": true,
+              "observed_sha256": "3290aa5c6291e40d902b0098c344e1bee0e743ddf6710b47783b7609664ba732",
+              "path": "src/backend/module_partial.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "7aab479ad37bb3ff8f12684487589a6a7e81669418ac763b9e7269a94160c65f",
+              "digest_matches": true,
+              "observed_sha256": "7aab479ad37bb3ff8f12684487589a6a7e81669418ac763b9e7269a94160c65f",
+              "path": "src/backend/algebraic_partial.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "3a7e7a8192853a34243713c9298022e504b53bd1693a6f6e0349f7683a97fe9b",
+              "digest_matches": true,
+              "observed_sha256": "3a7e7a8192853a34243713c9298022e504b53bd1693a6f6e0349f7683a97fe9b",
+              "path": "src/crypto/bdlop.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "6fa678a57647124d5e8f021a4ebc6d5095e8fcc78855da709eae8c403a14846b",
+              "digest_matches": true,
+              "observed_sha256": "6fa678a57647124d5e8f021a4ebc6d5095e8fcc78855da709eae8c403a14846b",
+              "path": "src/crypto/bdlop_pok.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "d1f73707bb04bf75bc2a1cbb587dfecdd697e40d6ef026fd8688fa30b55ded17",
+              "digest_matches": true,
+              "observed_sha256": "d1f73707bb04bf75bc2a1cbb587dfecdd697e40d6ef026fd8688fa30b55ded17",
+              "path": "src/crypto/vss_bdlop.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d",
+              "digest_matches": true,
+              "observed_sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d",
+              "path": "src/crypto/mldsa_dkg.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "2a0bcf8054e5a45aad41dc1d7418a031e32cbc72ad35b26afa4795daddc6e361"
+        },
+        "proof_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "0c37a38655d6437d5cd336d580ed2bf89c1e49ed909562e8774115a249995616",
+              "digest_matches": true,
+              "observed_sha256": "0c37a38655d6437d5cd336d580ed2bf89c1e49ed909562e8774115a249995616",
+              "path": "docs/cryptography/partial-soundness-evidence.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "6c7f6a45aa538d0fd805a91f5ac9b42647000c7c1fc326eb3ecea5ffbde13455",
+              "digest_matches": true,
+              "observed_sha256": "6c7f6a45aa538d0fd805a91f5ac9b42647000c7c1fc326eb3ecea5ffbde13455",
+              "path": "docs/cryptography/partial-soundness-advancement-2026-07-12.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "0a2a6a794fd6fd86393e46b73c4d5477b32baacba3239cefbe6ed83fc29c4d19",
+              "digest_matches": true,
+              "observed_sha256": "0a2a6a794fd6fd86393e46b73c4d5477b32baacba3239cefbe6ed83fc29c4d19",
+              "path": "docs/cryptography/vss-dkg-security-plan.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "da241ddeb912bc947af517f829733951f673bb7fec48731215e985f255aae738",
+              "digest_matches": true,
+              "observed_sha256": "da241ddeb912bc947af517f829733951f673bb7fec48731215e985f255aae738",
+              "path": "docs/cryptography/formal-threshold-mldsa-transcript.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "f15bfa9a625f0146936c954a95f2d85a34d99ce270aafe594c0d4e285eb98214"
+        },
+        "protocol_spec_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "digest_matches": true,
+              "observed_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "path": "docs/cryptography/security-model.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "digest_matches": true,
+              "observed_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "digest_matches": true,
+              "observed_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "path": "docs/cryptography/formal-security-theorem.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "digest_matches": true,
+              "observed_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "digest_matches": true,
+              "observed_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba"
+        },
+        "test_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "cdadf00eead854dda640bc4ccbc804bc976005bed053d184963a5db2af52eea0",
+              "digest_matches": true,
+              "observed_sha256": "cdadf00eead854dda640bc4ccbc804bc976005bed053d184963a5db2af52eea0",
+              "path": "tests/production_partial_soundness.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "f44f17ade3257f78396cdade7804af2661975e9e3bd0ede4992dbe27a6361594",
+              "digest_matches": true,
+              "observed_sha256": "f44f17ade3257f78396cdade7804af2661975e9e3bd0ede4992dbe27a6361594",
+              "path": "tests/partial_soundness_real_local_verifier.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "5ecadebe49ddc84e3b6dcc5f93329433cd2354ba38ea15c6b3eb9ae031c427c8",
+              "digest_matches": true,
+              "observed_sha256": "5ecadebe49ddc84e3b6dcc5f93329433cd2354ba38ea15c6b3eb9ae031c427c8",
+              "path": "tests/threshold_core.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "9d02c19619f577263cb4403884c4faa7964b2de75d35dc00f885f1497b7c249c",
+              "digest_matches": true,
+              "observed_sha256": "9d02c19619f577263cb4403884c4faa7964b2de75d35dc00f885f1497b7c249c",
+              "path": "tests/ui/type_state_invalid_partial.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "891a2c201555f72d9666780dbb86122f579098010cf4324a5eb9f02fb4608b65"
+        }
+      },
+      "assessment_status": "unproven",
+      "blockers": [
+        "criterion evidence is not an internal closure candidate",
+        "criterion internal claims or pending-independent-review flags are invalid",
+        "criterion evidence declares unresolved blockers",
+        "reproducibility commands are incomplete or not recorded passing",
+        "internal review record is incomplete or crosses the claim boundary",
+        "criterion provenance does not bind the current clean commit and source tree",
+        "criterion substantive/profile/review semantics are invalid",
+        "criterion-specific substantive checks are incomplete"
+      ],
+      "bundle_evidence_status": "unproven",
+      "checks": {
+        "artifact_groups_complete": true,
+        "assessment_status_met": false,
+        "claim_boundary_valid": false,
+        "criterion_claim_flags_valid": false,
+        "evidence_digests_bind_artifact_groups": true,
+        "input_semantics_valid": false,
+        "internal_review_valid": false,
+        "no_declared_blockers": false,
+        "provenance_valid": false,
+        "reproducibility_valid": false,
+        "schema_valid": true,
+        "substantive_checks_valid": false
+      },
+      "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+      "claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_internal_theorem_closure": false,
+        "claims_mask_distribution_proven": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "criterion_id": "partial_contribution_soundness",
+      "declared_evidence_status": "required_unclosed",
+      "evidence_input": {
+        "path": "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
+        "present": true,
+        "sha256": "d93dd47df5a1fb747535e129abbe348809f6ae0fa3eed6b833ef43c51a5da28b",
+        "size_bytes": 6810
+      },
+      "internal_closure_ready": false,
+      "internal_review": {
+        "record": {
+          "completed": false,
+          "independent_review_completed": false,
+          "required_internal_reviewer_count": 2,
+          "review_digest_sha256": null,
+          "reviewed_at": null,
+          "reviewer_identity_sha256": null
+        },
+        "valid": false
+      },
+      "legacy_assessment_status": "partially_met",
+      "protocol_profile": {
+        "committee_authorization_bound_to_validator_threshold": true,
+        "exact_distributed_keygen": true,
+        "exact_expand_mask_mpc": true,
+        "maximum_committee_size": 64,
+        "no_secret_or_seed_reconstruction": true,
+        "parameter_set": "ML-DSA-65",
+        "per_receiver_private_share_custody": true,
+        "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+        "standard_wire_signature_bytes": 3309,
+        "threshold": 6667,
+        "validator_count": 10000
+      },
+      "reproducibility": {
+        "commands": [],
+        "valid": false
+      },
+      "statement": "Accepted partial contributions are sound, context-bound, and hiding."
+    },
+    {
+      "artifact_groups": {
+        "implementation_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "866f8741cab37a1fb87c4f54ee59739785f82f686e62d1ba745536e8568e4736",
+              "digest_matches": true,
+              "observed_sha256": "866f8741cab37a1fb87c4f54ee59739785f82f686e62d1ba745536e8568e4736",
+              "path": "src/production/selected_backend.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "0abe70fe778e3ea10ca4e8470a9dd4067114d95105fdf5ac347a217a9ef68414",
+              "digest_matches": true,
+              "observed_sha256": "0abe70fe778e3ea10ca4e8470a9dd4067114d95105fdf5ac347a217a9ef68414",
+              "path": "src/production/coordinator.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "b0ffdce2329f529785f80da03abbd961fbecbf7ee34534f6d312a7de63a0f630",
+              "digest_matches": true,
+              "observed_sha256": "b0ffdce2329f529785f80da03abbd961fbecbf7ee34534f6d312a7de63a0f630",
+              "path": "src/production/evidence.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "cc220c48f844781babbd94e20509e9f6712f00594d3a425f3c63602ad1ba6cf9",
+              "digest_matches": true,
+              "observed_sha256": "cc220c48f844781babbd94e20509e9f6712f00594d3a425f3c63602ad1ba6cf9",
+              "path": "src/adapter/evidence.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "f0c10c03c20e75c34fb367df00d03899b9535015ed5acc8d61cee8937cc5715b",
+              "digest_matches": true,
+              "observed_sha256": "f0c10c03c20e75c34fb367df00d03899b9535015ed5acc8d61cee8937cc5715b",
+              "path": "src/transcript.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "09e4ef916ddcb0e4361dd557970ff284f5526aa8956ad9fa7e343b0051854fc8"
+        },
+        "proof_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "55b14e604adef516a4a3007b610a7a1a2572724540d211de8f40e6e40a70d412",
+              "digest_matches": true,
+              "observed_sha256": "55b14e604adef516a4a3007b610a7a1a2572724540d211de8f40e6e40a70d412",
+              "path": "docs/cryptography/unauthorized-aggregate-reduction.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "fe5d228b1aa28c6dbbb8f672003f7b0218d9551065068ef65db468c2e4f71c9b",
+              "digest_matches": true,
+              "observed_sha256": "fe5d228b1aa28c6dbbb8f672003f7b0218d9551065068ef65db468c2e4f71c9b",
+              "path": "docs/cryptography/proof-obligations.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "2bd7fae8023f86b9edfddf935b19a03f2690a84967b51219c6ea21c03354d876",
+              "digest_matches": true,
+              "observed_sha256": "2bd7fae8023f86b9edfddf935b19a03f2690a84967b51219c6ea21c03354d876",
+              "path": "docs/cryptography/ideal-functionality.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "a98fd5184003e770dd47b0779826fade9a5dd6e1eb179d3216c1f0628a0c21e4",
+              "digest_matches": true,
+              "observed_sha256": "a98fd5184003e770dd47b0779826fade9a5dd6e1eb179d3216c1f0628a0c21e4",
+              "path": "docs/cryptography/random-oracle-game.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0",
+              "digest_matches": true,
+              "observed_sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0",
+              "path": "docs/cryptography/internal-proof-obligation-register.json",
+              "present": true
+            }
+          ],
+          "group_sha256": "79bccb7c5c3e4403deb0186a0b7e397ef42895c8e892a2137ec7c6d2ac4ec383"
+        },
+        "protocol_spec_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "digest_matches": true,
+              "observed_sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+              "path": "docs/cryptography/security-model.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "digest_matches": true,
+              "observed_sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+              "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "digest_matches": true,
+              "observed_sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+              "path": "docs/cryptography/formal-security-theorem.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "digest_matches": true,
+              "observed_sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+              "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+              "present": true
+            },
+            {
+              "declared_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "digest_matches": true,
+              "observed_sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+              "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+              "present": true
+            }
+          ],
+          "group_sha256": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba"
+        },
+        "test_artifacts": {
+          "files": [
+            {
+              "declared_sha256": "9c4478440e6f6296c3ac7e8d847e772f9dea50b67d153ac555d0c36a406721ee",
+              "digest_matches": true,
+              "observed_sha256": "9c4478440e6f6296c3ac7e8d847e772f9dea50b67d153ac555d0c36a406721ee",
+              "path": "tests/unauthorized_aggregate_reduction_manifest.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "8124a7005448b6da3eb2da03e2793df13673827a745443145f593da328c997d2",
+              "digest_matches": true,
+              "observed_sha256": "8124a7005448b6da3eb2da03e2793df13673827a745443145f593da328c997d2",
+              "path": "tests/internal_proof_obligation_register.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "fa513311bc43d34ab847ff7d2e4777884a3ce3bb7f7c1fbe62e78c2d9da10620",
+              "digest_matches": true,
+              "observed_sha256": "fa513311bc43d34ab847ff7d2e4777884a3ce3bb7f7c1fbe62e78c2d9da10620",
+              "path": "tests/proof_documentation_manifest.rs",
+              "present": true
+            },
+            {
+              "declared_sha256": "51a5eed4b91c798581fd69b68acc2fa73d5c8514eb01f0d94f944bff4a8f0b03",
+              "digest_matches": true,
+              "observed_sha256": "51a5eed4b91c798581fd69b68acc2fa73d5c8514eb01f0d94f944bff4a8f0b03",
+              "path": "tests/production_coordinator.rs",
+              "present": true
+            }
+          ],
+          "group_sha256": "babd109ae5141578d255449194c447d7bf202ee2f7934eb63e9ff5ee617aaa88"
+        }
+      },
+      "assessment_status": "unproven",
+      "blockers": [
+        "criterion evidence is not an internal closure candidate",
+        "criterion internal claims or pending-independent-review flags are invalid",
+        "criterion evidence declares unresolved blockers",
+        "reproducibility commands are incomplete or not recorded passing",
+        "internal review record is incomplete or crosses the claim boundary",
+        "criterion provenance does not bind the current clean commit and source tree",
+        "criterion substantive/profile/review semantics are invalid",
+        "criterion-specific substantive checks are incomplete"
+      ],
+      "bundle_evidence_status": "unproven",
+      "checks": {
+        "artifact_groups_complete": true,
+        "assessment_status_met": false,
+        "claim_boundary_valid": false,
+        "criterion_claim_flags_valid": false,
+        "evidence_digests_bind_artifact_groups": true,
+        "input_semantics_valid": false,
+        "internal_review_valid": false,
+        "no_declared_blockers": false,
+        "provenance_valid": false,
+        "reproducibility_valid": false,
+        "schema_valid": true,
+        "substantive_checks_valid": false
+      },
+      "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+      "claim_flags": {
+        "claims_cavp_acvts_validation": false,
+        "claims_criterion_met": false,
+        "claims_fips_validation": false,
+        "claims_internal_theorem_closure": false,
+        "claims_mask_distribution_proven": false,
+        "claims_production_threshold_mldsa_security": false,
+        "claims_rejection_distribution_preservation": false,
+        "claims_selected_backend_proof_closure": false,
+        "claims_standard_verifier_compatibility_complete": false,
+        "claims_theorem_closure": false
+      },
+      "criterion_id": "unauthorized_aggregate_reduction",
+      "declared_evidence_status": "required_unclosed",
+      "evidence_input": {
+        "path": "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
+        "present": true,
+        "sha256": "dffab3fc84f131143f5111fcad8d22fa92864a9138614272bbcb70b9335563da",
+        "size_bytes": 6847
+      },
+      "internal_closure_ready": false,
+      "internal_review": {
+        "record": {
+          "completed": false,
+          "independent_review_completed": false,
+          "required_internal_reviewer_count": 2,
+          "review_digest_sha256": null,
+          "reviewed_at": null,
+          "reviewer_identity_sha256": null
+        },
+        "valid": false
+      },
+      "legacy_assessment_status": "partially_met",
+      "protocol_profile": {
+        "committee_authorization_bound_to_validator_threshold": true,
+        "exact_distributed_keygen": true,
+        "exact_expand_mask_mpc": true,
+        "maximum_committee_size": 64,
+        "no_secret_or_seed_reconstruction": true,
+        "parameter_set": "ML-DSA-65",
+        "per_receiver_private_share_custody": true,
+        "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+        "standard_wire_signature_bytes": 3309,
+        "threshold": 6667,
+        "validator_count": 10000
+      },
+      "reproducibility": {
+        "commands": [],
+        "valid": false
+      },
+      "statement": "Unauthorized accepting outputs reduce to a named cryptographic failure."
+    }
+  ],
+  "generated_at": "2026-07-18T18:57:36Z",
+  "global_blockers": [
+    "artifact inventory is incomplete",
+    "Git worktree is not clean",
+    "real 24-case strong-profile aggregation campaign is missing or invalid"
+  ],
+  "independent_review": {
+    "completed": false,
+    "required": true,
+    "status": "pending_independent_cryptographic_review"
+  },
+  "inputs": {
+    "campaign_capture": {
+      "path": "artifacts/internal-aggregation-campaign/latest/capture.json",
+      "present": false,
+      "sha256": null,
+      "size_bytes": null
+    },
+    "campaign_request": {
+      "path": "artifacts/internal-aggregation-campaign/latest/request.json",
+      "present": true,
+      "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
+      "size_bytes": 27805
+    },
+    "campaign_validation": {
+      "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
+      "present": true,
+      "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2",
+      "size_bytes": 1499
+    },
+    "hypothesis_assessment": {
+      "path": "artifacts/hypothesis/latest/assessment.json",
+      "present": true,
+      "sha256": "45815e4f4d3782156d44c91db54986e417f5aa2f24a727759e429b2eae048c1a",
+      "size_bytes": 89923
+    },
+    "theorem_closure_readiness": {
+      "path": "artifacts/theorem-closure-readiness/latest/manifest.json",
+      "present": true,
+      "sha256": "d38c9a0fd9a2f1a7614d4bffd5d7f3b018256bd823b75a9ce3c74a0a20147f20",
+      "size_bytes": 7989
+    },
+    "theorem_closure_review": {
+      "path": "artifacts/theorem-closure-review/latest/manifest.json",
+      "present": true,
+      "sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
+      "size_bytes": 6568
+    }
+  },
+  "internal_closure_candidate": false,
+  "internal_review": {
+    "completed": false,
+    "required": true,
+    "status": "blocked_incomplete"
+  },
+  "legacy_context": {
+    "hypothesis_completely_proven": false,
+    "promotion_authority": false,
+    "theorem_closure_readiness_ready": true,
+    "theorem_closure_review_ready": true
+  },
+  "name": "internal-theorem-closure-bundle-v1",
+  "protocol_profile": {
+    "committee_authorization_bound_to_validator_threshold": true,
+    "exact_distributed_keygen": true,
+    "exact_expand_mask_mpc": true,
+    "maximum_committee_size": 64,
+    "no_secret_or_seed_reconstruction": true,
+    "parameter_set": "ML-DSA-65",
+    "per_receiver_private_share_custody": true,
+    "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+    "standard_wire_signature_bytes": 3309,
+    "threshold": 6667,
+    "validator_count": 10000
+  },
+  "provenance": {
+    "branch": "codex/post-119-crypto-evidence",
+    "changed_paths": [
+      "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
+      "artifacts/internal-theorem-closure-evidence/latest/manifest.json",
+      "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
+      "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
+      "rtifacts/internal-theorem-closure-evidence/latest/SHA256SUMS"
+    ],
+    "commit": "3bb65f46c8f197f09622425f1abb58f00cd59f32",
+    "repository_available": true,
+    "status_sha256": "4d51a348a5ce95e8674b6aa46935d9cc81d6b4cd80e1d47254db19edc1001f12",
+    "version_control": "git",
+    "worktree_clean": false
+  },
+  "reproducibility": {
+    "builder_command": [
+      "python3",
+      "scripts/build_internal_theorem_closure_bundle.py",
+      "--root",
+      "."
+    ],
+    "content_addressed": true,
+    "criterion_commands_embedded": true
+  },
+  "schema": "lattice-aggregation:internal-theorem-closure-bundle:v1",
+  "schema_version": 1,
+  "source_inventory": {
+    "file_count": 158,
+    "files": [
+      {
+        "path": "Cargo.lock",
+        "present": true,
+        "sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
+        "size_bytes": 14274
+      },
+      {
+        "path": "Cargo.toml",
+        "present": true,
+        "sha256": "5bd583232566d81e7ad9e78910f4e408cbec14a8accf0001c78f6ef53e3d0fa9",
+        "size_bytes": 1117
+      },
+      {
+        "path": "docs/cryptography/.DS_Store",
+        "present": true,
+        "sha256": "4a98eac1d12fde8b010f51c7d637e33bd90dcbf61cc587eaf3539770a27424ab",
+        "size_bytes": 8196
+      },
+      {
+        "path": "docs/cryptography/README.md",
+        "present": true,
+        "sha256": "d342974a851206b7539dccb6427f1a198509260d267c4420c9ced29ebab6c368",
+        "size_bytes": 3380
+      },
+      {
+        "path": "docs/cryptography/abort-retry-bias-evidence.md",
+        "present": true,
+        "sha256": "e99611e32b6c380dd7cf9570412cb3587fedc12e6c7488be2e2346cdf69d7f04",
+        "size_bytes": 5457
+      },
+      {
+        "path": "docs/cryptography/active-adversary-model.md",
+        "present": true,
+        "sha256": "e7ab5d58768bacc1bf6930b7f9496b565f0df7fd8aebfedfc324684bd219d128",
+        "size_bytes": 8740
+      },
+      {
+        "path": "docs/cryptography/bdlop-parameter-security-estimate.md",
+        "present": true,
+        "sha256": "464390282a5433578dd5d955361d63480732df5454de82cc48ff65ec8fe7ea23",
+        "size_bytes": 16360
+      },
+      {
+        "path": "docs/cryptography/blocker-closure-status.md",
+        "present": true,
+        "sha256": "96bbda22dd2212106e4bea1f8440d1ebf22a73efd3ba1a8a30367b30078bd8ea",
+        "size_bytes": 4850
+      },
+      {
+        "path": "docs/cryptography/claims-matrix.md",
+        "present": true,
+        "sha256": "f602bda60d000cc29eae45455c6c14106535decb386a07f7a4f0fae9e56963b5",
+        "size_bytes": 21278
+      },
+      {
+        "path": "docs/cryptography/correctness-lemmas.md",
+        "present": true,
+        "sha256": "e2e16787b70af16c1a593e0180aa6ad8f1c5c79a9dfbd76953b22447aad30040",
+        "size_bytes": 10465
+      },
+      {
+        "path": "docs/cryptography/criterion-1-proof-substance.json",
+        "present": true,
+        "sha256": "e6825872d971ea656047a889a828d744e76890a9055f3cb8694815f34871271a",
+        "size_bytes": 5591
+      },
+      {
+        "path": "docs/cryptography/criterion-1-proof-substance.md",
+        "present": true,
+        "sha256": "3ab9a342c9bd7beb93a9710fb5508fb081c6250340347c344917a00b9a53a8ef",
+        "size_bytes": 5210
+      },
+      {
+        "path": "docs/cryptography/criterion-2-proof-substance.json",
+        "present": true,
+        "sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d",
+        "size_bytes": 41608
+      },
+      {
+        "path": "docs/cryptography/criterion-2-proof-substance.md",
+        "present": true,
+        "sha256": "eb796438e85896042f9389997351b41377f960533c1e5f21d3ac0e5543381bfd",
+        "size_bytes": 39715
+      },
+      {
+        "path": "docs/cryptography/criterion-3-proof-substance.json",
+        "present": true,
+        "sha256": "b7144eb85325282949666ffcab728c629b0b85561dcff7896d11410dc7e26863",
+        "size_bytes": 5990
+      },
+      {
+        "path": "docs/cryptography/criterion-3-proof-substance.md",
+        "present": true,
+        "sha256": "e8a8bf138bffbc4e8f0805e7056b4a587f13a64432eb53651438d48cb897f8d6",
+        "size_bytes": 5783
+      },
+      {
+        "path": "docs/cryptography/design-space-boundary-theorems.md",
+        "present": true,
+        "sha256": "fd7a3daf353ddadbac412da6a85167fef65c55996e8dcff071ebeaeccc4d7377",
+        "size_bytes": 19434
+      },
+      {
+        "path": "docs/cryptography/distributed-keygen-capability-boundary.md",
+        "present": true,
+        "sha256": "92cea6f58e4f8ba2b405443d043adc81a83f0c27223cba738f2c6e03d48b624a",
+        "size_bytes": 10288
+      },
+      {
+        "path": "docs/cryptography/distributed-mask-mpc-feasibility.md",
+        "present": true,
+        "sha256": "af3404122a6e4ca50faeac14944f74a9f8b0459d376a0535c981de1f6e2606aa",
+        "size_bytes": 5548
+      },
+      {
+        "path": "docs/cryptography/epsilon-mask-fork-decision.md",
+        "present": true,
+        "sha256": "e2613bd402279e119af03dfae6616cfdfa0946b725cf1bfda08fba5ce6eaa32f",
+        "size_bytes": 17518
+      },
+      {
+        "path": "docs/cryptography/epsilon-mask-fork-reconciliation.md",
+        "present": true,
+        "sha256": "8db9258397e309d8a53327453f80ba1cad705cf27a9ed7064934d6f6fb686cbc",
+        "size_bytes": 7516
+      },
+      {
+        "path": "docs/cryptography/formal-security-theorem.md",
+        "present": true,
+        "sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d",
+        "size_bytes": 17757
+      },
+      {
+        "path": "docs/cryptography/formal-threshold-mldsa-transcript.md",
+        "present": true,
+        "sha256": "da241ddeb912bc947af517f829733951f673bb7fec48731215e985f255aae738",
+        "size_bytes": 3841
+      },
+      {
+        "path": "docs/cryptography/fst-l12-committee-cost-model.md",
+        "present": true,
+        "sha256": "dd178078192f1cc38e1d32d42dc3e2c54f6a61394d247aee1ed74b1880942e4b",
+        "size_bytes": 8160
+      },
+      {
+        "path": "docs/cryptography/hypothesis-outcome-taxonomy.md",
+        "present": true,
+        "sha256": "20334c079ca14cfbf164b365672993b65e282ba79e85f1c2dcacebf33df58e28",
+        "size_bytes": 9754
+      },
+      {
+        "path": "docs/cryptography/ideal-functionality.md",
+        "present": true,
+        "sha256": "2bd7fae8023f86b9edfddf935b19a03f2690a84967b51219c6ea21c03354d876",
+        "size_bytes": 14416
+      },
+      {
+        "path": "docs/cryptography/internal-aggregation-campaign-schema.md",
+        "present": true,
+        "sha256": "61e7fb5607cf59a330d4c4a742a0a28f7d4f6a7d55671caf5ada0d03cdfcb3de",
+        "size_bytes": 5864
+      },
+      {
+        "path": "docs/cryptography/internal-proof-obligation-register.json",
+        "present": true,
+        "sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0",
+        "size_bytes": 22528
+      },
+      {
+        "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+        "present": true,
+        "sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0",
+        "size_bytes": 3477
+      },
+      {
+        "path": "docs/cryptography/internal-theorem-closure-bundle.schema.json",
+        "present": true,
+        "sha256": "c55bbcc84e6bc6c26c7618436bf7c0784163cc9a3994fea8bf5ea01795dcc11f",
+        "size_bytes": 3975
+      },
+      {
+        "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+        "present": true,
+        "sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314",
+        "size_bytes": 7698
+      },
+      {
+        "path": "docs/cryptography/internal-theorem-closure-criterion-evidence.schema.json",
+        "present": true,
+        "sha256": "124eb8cdeaa284a68bb61d3ac90497887c55384fed9229802005ca3e8d16e893",
+        "size_bytes": 8780
+      },
+      {
+        "path": "docs/cryptography/mask-distribution-evidence.md",
+        "present": true,
+        "sha256": "7566bda014986f1dd6b286193a4e4df1f50bcc2724ec1f0c33f24dec2b14d3bd",
+        "size_bytes": 3950
+      },
+      {
+        "path": "docs/cryptography/noise-rejection-proof-plan.md",
+        "present": true,
+        "sha256": "5e492e1517fdd416ffe0ae12f39f155aca57b2c4ccf5b351b61c07cd4949900c",
+        "size_bytes": 10674
+      },
+      {
+        "path": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
+        "present": true,
+        "sha256": "de7c24e412eb455b822fd92643192844b27ed3dd1a35434e25cc5db84f280ef9",
+        "size_bytes": 17714
+      },
+      {
+        "path": "docs/cryptography/p1-nonce-producer-selection.json",
+        "present": true,
+        "sha256": "112114a0dad701f3bb86e6312f5088bec2b8e0d80097d60207eb1981bc70feb6",
+        "size_bytes": 2122
+      },
+      {
+        "path": "docs/cryptography/p1-nonce-producer-selection.md",
+        "present": true,
+        "sha256": "4984e5b81e0a2de322e1bb012400bc271e77f684d28dfa836419b61421b79ccc",
+        "size_bytes": 4072
+      },
+      {
+        "path": "docs/cryptography/partial-soundness-advancement-2026-07-12.md",
+        "present": true,
+        "sha256": "6c7f6a45aa538d0fd805a91f5ac9b42647000c7c1fc326eb3ecea5ffbde13455",
+        "size_bytes": 8952
+      },
+      {
+        "path": "docs/cryptography/partial-soundness-evidence.md",
+        "present": true,
+        "sha256": "0c37a38655d6437d5cd336d580ed2bf89c1e49ed909562e8774115a249995616",
+        "size_bytes": 5575
+      },
+      {
+        "path": "docs/cryptography/phase-1-noise-bound-model.md",
+        "present": true,
+        "sha256": "12e5b6a2d26e4f6b733ac8f46d8017f3af197d110ecb0386771e58ef4d2b09cc",
+        "size_bytes": 1246
+      },
+      {
+        "path": "docs/cryptography/proof-implementation-crosswalk.md",
+        "present": true,
+        "sha256": "ee2caaffc90c0f227c6c862a8f04c786dc5f80d88ba7a5613777328258456a91",
+        "size_bytes": 22772
+      },
+      {
+        "path": "docs/cryptography/proof-obligations.md",
+        "present": true,
+        "sha256": "fe5d228b1aa28c6dbbb8f672003f7b0218d9551065068ef65db468c2e4f71c9b",
+        "size_bytes": 17951
+      },
+      {
+        "path": "docs/cryptography/protocol-code-crosswalk.md",
+        "present": true,
+        "sha256": "c61d5451fd548c8ae231a34265c312473078cd8e005c948224016c0810c174d0",
+        "size_bytes": 22185
+      },
+      {
+        "path": "docs/cryptography/random-oracle-game.md",
+        "present": true,
+        "sha256": "a98fd5184003e770dd47b0779826fade9a5dd6e1eb179d3216c1f0628a0c21e4",
+        "size_bytes": 10850
+      },
+      {
+        "path": "docs/cryptography/rejection-equivalence-evidence.md",
+        "present": true,
+        "sha256": "7b6e6fee46bcd33f715986500636f13a7632ed7ef5f3393a561820258caa00c6",
+        "size_bytes": 30004
+      },
+      {
+        "path": "docs/cryptography/security-model.md",
+        "present": true,
+        "sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30",
+        "size_bytes": 12508
+      },
+      {
+        "path": "docs/cryptography/side-channel-boundary.md",
+        "present": true,
+        "sha256": "4dea682f875f8dd926d9a15737c2484d36c7aa3098aadc3ff23fdf34ef3f8abe",
+        "size_bytes": 7265
+      },
+      {
+        "path": "docs/cryptography/theorem-closure-assessment-readiness.md",
+        "present": true,
+        "sha256": "b62c6f33ceac911837597a2ee85bab0452ae55f87065abc1c749c38c1ad3c51d",
+        "size_bytes": 7116
+      },
+      {
+        "path": "docs/cryptography/thesis-operating-parameters.json",
+        "present": true,
+        "sha256": "70b10425d3f6d273760040935fad930d8fbe8ae7ffb6fc14a2a919d51dd3fd3a",
+        "size_bytes": 5817
+      },
+      {
+        "path": "docs/cryptography/thesis-operating-parameters.md",
+        "present": true,
+        "sha256": "be207c36a32c4f6ee5419ed1da56b6f34a8974a4046446c1b1adcf6d587bf86d",
+        "size_bytes": 6673
+      },
+      {
+        "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+        "present": true,
+        "sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6",
+        "size_bytes": 18951
+      },
+      {
+        "path": "docs/cryptography/threshold-stack-architecture.md",
+        "present": true,
+        "sha256": "4e91d17d7a54c0a3a0187e5c07152d14dd5ba11f0d5d13a773313fde842405de",
+        "size_bytes": 6629
+      },
+      {
+        "path": "docs/cryptography/unauthorized-aggregate-reduction.md",
+        "present": true,
+        "sha256": "55b14e604adef516a4a3007b610a7a1a2572724540d211de8f40e6e40a70d412",
+        "size_bytes": 17854
+      },
+      {
+        "path": "docs/cryptography/validator-10000-standard-verifier-gate.md",
+        "present": true,
+        "sha256": "2f25ed6dd0864ae5e7f0b05358dbaaf7b605864ffe4ee47f1c66f1a7633735bc",
+        "size_bytes": 9646
+      },
+      {
+        "path": "docs/cryptography/vss-dkg-security-plan.md",
+        "present": true,
+        "sha256": "0a2a6a794fd6fd86393e46b73c4d5477b32baacba3239cefbe6ed83fc29c4d19",
+        "size_bytes": 10894
+      },
+      {
+        "path": "scripts/assess_internal_theorem_closure.py",
+        "present": true,
+        "sha256": "8b9b1ccca76a790fb69e3ae01eb4e08406731c4d6de72d417afa0e9afe6bfd8e",
+        "size_bytes": 39070
+      },
+      {
+        "path": "scripts/assess_lattice_hypothesis.py",
+        "present": true,
+        "sha256": "4ab7b3f6c5cffb824913eb54f0f09b9ad0e5ef70febee0dec3dda078ab1a8ecd",
+        "size_bytes": 256976
+      },
+      {
+        "path": "scripts/assess_theorem_closure_readiness.py",
+        "present": true,
+        "sha256": "7c17a703480ab46922780ad6c17e2e7063a9786d94b91416d68d949436885cbb",
+        "size_bytes": 24030
+      },
+      {
+        "path": "scripts/build_backend_emission_request.py",
+        "present": true,
+        "sha256": "eaf32c1c8e7eac306d7d5fd456b33308739960be5f20bca04a54f1da3c6b6899",
+        "size_bytes": 9153
+      },
+      {
+        "path": "scripts/build_internal_aggregation_campaign_request.py",
+        "present": true,
+        "sha256": "81c4b5716dc3cb9f649fcf381c3e34d4a30ee12582907a031a34854c3680489e",
+        "size_bytes": 13986
+      },
+      {
+        "path": "scripts/build_internal_theorem_closure_bundle.py",
+        "present": true,
+        "sha256": "573aaa4e781c33f891ce3f9f9386c5275bc8094008ce3e24ca96ab75b0af7048",
+        "size_bytes": 44202
+      },
+      {
+        "path": "scripts/build_internal_theorem_closure_criterion_inputs.py",
+        "present": true,
+        "sha256": "4603182054fd1f558da17a22e2efd703424c3c23bbd46a32d9e7a61fc4202d4d",
+        "size_bytes": 19631
+      },
+      {
+        "path": "scripts/build_nonce_producer_request.py",
+        "present": true,
+        "sha256": "d16b3d221b2cdc6430bfe870e956cc7e8da6abbea621886dce5d6700323a0f35",
+        "size_bytes": 8262
+      },
+      {
+        "path": "scripts/build_p1_external_backend_cryptographic_closure_candidate.py",
+        "present": true,
+        "sha256": "a8ce73c87de25807f5f4db4e24d972ce0bf8742b34d1346cd073053ae6e93ffb",
+        "size_bytes": 27826
+      },
+      {
+        "path": "scripts/build_p1_external_backend_review_packages.py",
+        "present": true,
+        "sha256": "7fb6c965cfe7823495e18e64d614c9822bf9dbaa3b8b8af62af308bd93058131",
+        "size_bytes": 21172
+      },
+      {
+        "path": "scripts/build_p1_full_kat_cavp_validation_review.py",
+        "present": true,
+        "sha256": "cf0264744d4d2c36b4f2f118a5cb1c98a76383e99a822f5aa2866a6cd537b118",
+        "size_bytes": 18241
+      },
+      {
+        "path": "scripts/build_p1_rejection_distribution_preservation_review.py",
+        "present": true,
+        "sha256": "aa2af5a8e8a6a1f7fc06f698587aa0fdffc173c95cb1f923012a0a4141214e9a",
+        "size_bytes": 18507
+      },
+      {
+        "path": "scripts/build_p1_theorem_linkage_review.py",
+        "present": true,
+        "sha256": "fb73a11b3aff3674ee9dee2897b249b00de839e0c4a99561cbca8779d51a695a",
+        "size_bytes": 15869
+      },
+      {
+        "path": "scripts/build_theorem_closure_blocker_requests.py",
+        "present": true,
+        "sha256": "c46f3582103dbda885df1042f79d9ee3cf82e4d885283e3f4dbe341d102121f5",
+        "size_bytes": 15656
+      },
+      {
+        "path": "scripts/build_theorem_closure_review_manifest.py",
+        "present": true,
+        "sha256": "92e82629ada75f2e13511e7b8403be92067996ae0909e63481a4978c98bd105c",
+        "size_bytes": 35192
+      },
+      {
+        "path": "scripts/check_nonce_producer_backend_readiness.py",
+        "present": true,
+        "sha256": "902d11239ea0ea561eda3f4e474b1b86f4cf936846e326ae98ccb22cff6793cf",
+        "size_bytes": 22674
+      },
+      {
+        "path": "scripts/emit_reviewed_nonce_producer_capture.py",
+        "present": true,
+        "sha256": "3a71411858b56278fc7c6a8d035275fba65844d4631450d66415caa312ddb070",
+        "size_bytes": 12659
+      },
+      {
+        "path": "scripts/model_distributed_mask_mpc_feasibility.py",
+        "present": true,
+        "sha256": "051b73c69ff722167106ab44a2c470af3761e0fa5a7995cd3ef953073f8344cb",
+        "size_bytes": 9383
+      },
+      {
+        "path": "scripts/model_fst_algebra_check.py",
+        "present": true,
+        "sha256": "f13ab771a7a206a125f954fe7c82604871ff223ac6b21c13da254fe2a0bc62a6",
+        "size_bytes": 6900
+      },
+      {
+        "path": "scripts/model_fst_l12_committee_cost.py",
+        "present": true,
+        "sha256": "11748abfa09ef164f122e802d4261e80d9e435af81d7feeabb536c4936108e7c",
+        "size_bytes": 6589
+      },
+      {
+        "path": "scripts/model_fst_t5_boundaries.py",
+        "present": true,
+        "sha256": "17017e08fa2d142eff6bd8d4e43e1db21fd9bad986563a0393ff77867019b3b2",
+        "size_bytes": 3838
+      },
+      {
+        "path": "scripts/p1_nonce_producer_reference_cli.py",
+        "present": true,
+        "sha256": "7edf7dc461653bcc903e15184c5947ba12afd3d4c8844b2cc824207c90fd4729",
+        "size_bytes": 1428
+      },
+      {
+        "path": "scripts/run_admissible_nonce_producer_capture_attempt.py",
+        "present": true,
+        "sha256": "0af3599696727db7631ffe1a710a315a20c7db3fc31cff46a799fa048c4e2877",
+        "size_bytes": 13016
+      },
+      {
+        "path": "scripts/run_backend_emission_capture.py",
+        "present": true,
+        "sha256": "eaabc46d5f5d57cf6952fc56780f4b9f63b8acb1d38fb05e12d2c64f71f731d3",
+        "size_bytes": 29314
+      },
+      {
+        "path": "scripts/run_hazmat_rejection_equivalence_batch.py",
+        "present": true,
+        "sha256": "0c78d6cb91e91768d7f9fd5ea688abd97d97def302d59d0d5e379e4c9900792d",
+        "size_bytes": 36284
+      },
+      {
+        "path": "scripts/run_hazmat_threshold_backend_capture.py",
+        "present": true,
+        "sha256": "0b67b1bc2213ae65b3c8d371974bf64df14ecef8f28978afef746789da74f886",
+        "size_bytes": 21083
+      },
+      {
+        "path": "scripts/run_internal_theorem_closure_attempt.py",
+        "present": true,
+        "sha256": "165d9adeb7a82793326d4c81a1fb6325d06c67c492479973905f52bd4d1079ad",
+        "size_bytes": 23121
+      },
+      {
+        "path": "scripts/run_localnet_runner.py",
+        "present": true,
+        "sha256": "e535c7ebaecb52aca1c2c219a7de81f01c64a3fef869b4f0fda82c410fa884b1",
+        "size_bytes": 21499
+      },
+      {
+        "path": "scripts/run_nonce_producer_capture.py",
+        "present": true,
+        "sha256": "fe06c39e9847fa795f9f161eeab1d738c65a5937e942984cfd179fc7c82d1cf3",
+        "size_bytes": 27529
+      },
+      {
+        "path": "scripts/run_nonce_producer_handoff_replay.py",
+        "present": true,
+        "sha256": "59f105561824314b28d09ad55ca317d2ef05c3342f69ba518f6345c819b8cd8c",
+        "size_bytes": 16698
+      },
+      {
+        "path": "scripts/run_p1_external_backend_evidence_attempt.py",
+        "present": true,
+        "sha256": "c5efe7cd5b35a4ec2911b7b3165eee425103cf3f6383a160107dd5c8f32890bd",
+        "size_bytes": 26182
+      },
+      {
+        "path": "scripts/run_simulation_benchmarks.py",
+        "present": true,
+        "sha256": "3643a5d6d08bb23504c7aad17dbda29d2b62292e75e010d8da5e05c69fa91ccd",
+        "size_bytes": 10204
+      },
+      {
+        "path": "scripts/scaffold_p1_external_backend_workspace.py",
+        "present": true,
+        "sha256": "36f342114242fcd2058ee7e191da47149bd87e337aee67fb9e7ab9531a73edbb",
+        "size_bytes": 8375
+      },
+      {
+        "path": "scripts/stage_external_backend_emission_capture.py",
+        "present": true,
+        "sha256": "6587f6026b58f0c4df9754db9b861f01052a7613923ab164657d0ac339e217e1",
+        "size_bytes": 23065
+      },
+      {
+        "path": "scripts/stage_external_nonce_producer_capture.py",
+        "present": true,
+        "sha256": "c33590dd3df8e1ca2f96b7bc255d69e05fce3dab0f12837d4605d444848337dd",
+        "size_bytes": 27611
+      },
+      {
+        "path": "scripts/validate_internal_aggregation_campaign_capture.py",
+        "present": true,
+        "sha256": "8347675912b9aafd5b42ee8e5257f2c09b685284925dafc684a558003146babe",
+        "size_bytes": 38739
+      },
+      {
+        "path": "scripts/validate_internal_proof_obligation_register.py",
+        "present": true,
+        "sha256": "85ff2eb7d18760e1da0bd15efaba4ba04d27aba2dbb53c3175028f3bb801117c",
+        "size_bytes": 19440
+      },
+      {
+        "path": "scripts/verify_actual_nonce_producer_capture.py",
+        "present": true,
+        "sha256": "e0bf9dcf5be28ec42aad0959c58f2d88edf819d69ec1edc7cfcb72f93345a4de",
+        "size_bytes": 8827
+      },
+      {
+        "path": "src/adapter.rs",
+        "present": true,
+        "sha256": "d7091abfaa7ef5d8e171bcad4e67e1d01e94a5917071ed7ea453f7de59f5229a",
+        "size_bytes": 418
+      },
+      {
+        "path": "src/adapter/actor.rs",
+        "present": true,
+        "sha256": "7b86accc0536b1c73ff0d8361e26907fea32c480b72b23ae3b4f7299719d1348",
+        "size_bytes": 14966
+      },
+      {
+        "path": "src/adapter/evidence.rs",
+        "present": true,
+        "sha256": "cc220c48f844781babbd94e20509e9f6712f00594d3a425f3c63602ad1ba6cf9",
+        "size_bytes": 7411
+      },
+      {
+        "path": "src/adapter/localnet.rs",
+        "present": true,
+        "sha256": "4f2b6a6ff18d6cb2ec7ea13b31909fb9232c6f4fd6ef253c7cb6663dcb154d76",
+        "size_bytes": 24314
+      },
+      {
+        "path": "src/adapter/production_wire.rs",
+        "present": true,
+        "sha256": "99368aa7fd15e6b248e1f07c7aec285310d17297fb7158dc2137ad33213faa65",
+        "size_bytes": 13453
+      },
+      {
+        "path": "src/adapter/traits.rs",
+        "present": true,
+        "sha256": "e7b47fb88ef3edb029a70bb989581527743e51e5d9083f255989279a7d31528a",
+        "size_bytes": 1577
+      },
+      {
+        "path": "src/adapter/wire.rs",
+        "present": true,
+        "sha256": "5caeb3e05e26ae443e143dccf7df32c4f5caba3045c7b67b297223ce2cf860c3",
+        "size_bytes": 8149
+      },
+      {
+        "path": "src/aggregation.rs",
+        "present": true,
+        "sha256": "72e940f99805b776192a746bf3ebe1f0d6e269f1ed0f6a128fcb88dc29b308e1",
+        "size_bytes": 1886
+      },
+      {
+        "path": "src/backend/algebraic_partial.rs",
+        "present": true,
+        "sha256": "7aab479ad37bb3ff8f12684487589a6a7e81669418ac763b9e7269a94160c65f",
+        "size_bytes": 10993
+      },
+      {
+        "path": "src/backend/fips_sign.rs",
+        "present": true,
+        "sha256": "9b77447b67524d94beaef25f977de85732442a773267d87ce618f68351b6f428",
+        "size_bytes": 28145
+      },
+      {
+        "path": "src/backend/fips_wire.rs",
+        "present": true,
+        "sha256": "9797fc91c35b5adb37ddfb88f91e206c253db1c5dc4b4631e1ebe8ff6f90327b",
+        "size_bytes": 14180
+      },
+      {
+        "path": "src/backend/mod.rs",
+        "present": true,
+        "sha256": "b4d9963a72307f8c5cfe1f905eefed5b33b61ec4d00998a5d4fa0bd9a512b53c",
+        "size_bytes": 8640
+      },
+      {
+        "path": "src/backend/module_partial.rs",
+        "present": true,
+        "sha256": "3290aa5c6291e40d902b0098c344e1bee0e743ddf6710b47783b7609664ba732",
+        "size_bytes": 21888
+      },
+      {
+        "path": "src/backend/no_reconstruction.rs",
+        "present": true,
+        "sha256": "bb04457f40ca92dce2b468949c8e340691ee554c271a5711ee4ab979797455f1",
+        "size_bytes": 21103
+      },
+      {
+        "path": "src/backend/real.rs",
+        "present": true,
+        "sha256": "1044ac4c4dfe83d488a2051ec84bf146a20034d2e4af111c502151ab4b2682da",
+        "size_bytes": 26155
+      },
+      {
+        "path": "src/backend/threshold_core.rs",
+        "present": true,
+        "sha256": "a9e6a8c13a988fcb49889944e301f4fdf81e3b08dce75553160ac56e0c15ca7e",
+        "size_bytes": 27668
+      },
+      {
+        "path": "src/bin/threshold_backend_p1.rs",
+        "present": true,
+        "sha256": "dbfd629b3ae90e16cde1e738c6d84694f523086454ad6c53fde3396144f683ed",
+        "size_bytes": 111313
+      },
+      {
+        "path": "src/collections.rs",
+        "present": true,
+        "sha256": "0ea7e0ffca0edb0a4c001d760a67f2029253fdd7f68131feb82b5aad3fafaeee",
+        "size_bytes": 5484
+      },
+      {
+        "path": "src/crypto.rs",
+        "present": true,
+        "sha256": "73a5a4a474ecdb22327f68d2c52e2ea8a1988692036ee26b019ebd2aab85bc82",
+        "size_bytes": 651
+      },
+      {
+        "path": "src/crypto/bdlop.rs",
+        "present": true,
+        "sha256": "3a7e7a8192853a34243713c9298022e504b53bd1693a6f6e0349f7683a97fe9b",
+        "size_bytes": 9416
+      },
+      {
+        "path": "src/crypto/bdlop_pok.rs",
+        "present": true,
+        "sha256": "6fa678a57647124d5e8f021a4ebc6d5095e8fcc78855da709eae8c403a14846b",
+        "size_bytes": 20375
+      },
+      {
+        "path": "src/crypto/distributed_nonce.rs",
+        "present": true,
+        "sha256": "d5abbce481503c97a7b215ef484c761ba6dc2bd9259ed831bc1c4e089507a978",
+        "size_bytes": 14805
+      },
+      {
+        "path": "src/crypto/feldman_vss.rs",
+        "present": true,
+        "sha256": "91ce2d5cc38231193e60aa001586d2f7f387cb0a46ef67009c4742eead912a1e",
+        "size_bytes": 15114
+      },
+      {
+        "path": "src/crypto/fips_public_key.rs",
+        "present": true,
+        "sha256": "374b5c64ecc26f01e6c28cd67bbc6d75810593d64d10af53469b3e118c4688ce",
+        "size_bytes": 19918
+      },
+      {
+        "path": "src/crypto/interpolation.rs",
+        "present": true,
+        "sha256": "e053eacee1d4d1324ed282cf0f0b30b6172450f036b51e9b6134483e87065074",
+        "size_bytes": 3905
+      },
+      {
+        "path": "src/crypto/mldsa_dkg.rs",
+        "present": true,
+        "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d",
+        "size_bytes": 43213
+      },
+      {
+        "path": "src/crypto/mldsa_module.rs",
+        "present": true,
+        "sha256": "6752196473475fa5cf989fd20f74d8a7f48958d441af61695dddb0c0eee1f435",
+        "size_bytes": 24036
+      },
+      {
+        "path": "src/crypto/mldsa_primitives.rs",
+        "present": true,
+        "sha256": "26606cbe55524379c76a27793774446f68c1dfb05dc4e11171f94daff5e085b2",
+        "size_bytes": 8294
+      },
+      {
+        "path": "src/crypto/module_lattice.rs",
+        "present": true,
+        "sha256": "59d147de42400dffc0caddeb28711e223dc80c1cf8c7639b9ec1d2a27d027e15",
+        "size_bytes": 7926
+      },
+      {
+        "path": "src/crypto/receiver_custody.rs",
+        "present": true,
+        "sha256": "8cfada7eef4ce477ff53a06a56e25e46a26700e30836ceba0027cda22b756f29",
+        "size_bytes": 36254
+      },
+      {
+        "path": "src/crypto/share_transport.rs",
+        "present": true,
+        "sha256": "91c91edc307c540cfc60a4da35f8ca3a1bd669605d9d167fb2c604b5f01645a0",
+        "size_bytes": 15701
+      },
+      {
+        "path": "src/crypto/vss.rs",
+        "present": true,
+        "sha256": "c1926febcb109993ae511f0121422753d8455087efb4fe3b8610966ad1dca4bd",
+        "size_bytes": 3320
+      },
+      {
+        "path": "src/crypto/vss_bdlop.rs",
+        "present": true,
+        "sha256": "d1f73707bb04bf75bc2a1cbb587dfecdd697e40d6ef026fd8688fa30b55ded17",
+        "size_bytes": 15986
+      },
+      {
+        "path": "src/crypto/vss_real.rs",
+        "present": true,
+        "sha256": "ffeda268fa080214e136d50002ac028ba95306f6927aaa57c54f78938a061d17",
+        "size_bytes": 10620
+      },
+      {
+        "path": "src/dkg.rs",
+        "present": true,
+        "sha256": "2e8c621477a4f8507bc8d0dc320c5ac97a92b301a23543807756e299675e7d8b",
+        "size_bytes": 3133
+      },
+      {
+        "path": "src/errors.rs",
+        "present": true,
+        "sha256": "1cad70393bc13063f6873a38449295b6a7b415e09d55930a429fc8ecb90d35d9",
+        "size_bytes": 4989
+      },
+      {
+        "path": "src/lib.rs",
+        "present": true,
+        "sha256": "5c0c0b297b037f4a1566929183b3f29983b58c4860a4a95e30d9ff9b22033483",
+        "size_bytes": 3119
+      },
+      {
+        "path": "src/low_level.rs",
+        "present": true,
+        "sha256": "9ead557fca1e9745cdf966b60f0cb3ccb009b141be17b2c9882fae1d5fcfa619",
+        "size_bytes": 239
+      },
+      {
+        "path": "src/low_level/ntt.rs",
+        "present": true,
+        "sha256": "c1255fc558b4bed6ae19d22ca4202c5d5c91a4f98499220ca004eaa1a79e8a9f",
+        "size_bytes": 7279
+      },
+      {
+        "path": "src/low_level/poly.rs",
+        "present": true,
+        "sha256": "f4c3b1d85e515df3939a65fb42cd10b4d7971ad291079eaa3813635abc0d0165",
+        "size_bytes": 8939
+      },
+      {
+        "path": "src/low_level/ring.rs",
+        "present": true,
+        "sha256": "0de33b7f0c9d9320ff397453d5f07b6db4fb4b70aaf78abb49a92027c640c8ee",
+        "size_bytes": 3443
+      },
+      {
+        "path": "src/main.rs",
+        "present": true,
+        "sha256": "a684e2b34db482f4f5ea04225e45f9541da93b223701239f0d3be1a7b99b5337",
+        "size_bytes": 17875
+      },
+      {
+        "path": "src/production.rs",
+        "present": true,
+        "sha256": "7d30df12379934dc5a1cf0489b3650ae18364d8fa48eab6881fa3482a37b94aa",
+        "size_bytes": 1170
+      },
+      {
+        "path": "src/production/abort_bias.rs",
+        "present": true,
+        "sha256": "2f7ca0e460bebd22205464679a795ac74a568bbe4749f33a1ad1b05cb05c689d",
+        "size_bytes": 26951
+      },
+      {
+        "path": "src/production/acceptance.rs",
+        "present": true,
+        "sha256": "cf2a4c5d6a739b7c2ae0299f6a79646d9fc9f6658fc0ccb7139d25c5efcf0981",
+        "size_bytes": 10331
+      },
+      {
+        "path": "src/production/coordinator.rs",
+        "present": true,
+        "sha256": "0abe70fe778e3ea10ca4e8470a9dd4067114d95105fdf5ac347a217a9ef68414",
+        "size_bytes": 6325
+      },
+      {
+        "path": "src/production/epsilon.rs",
+        "present": true,
+        "sha256": "d23223645a4768dd0dc25fd5e183346ed4382ca87eeb5d08b5a8d3a49e20f045",
+        "size_bytes": 3163
+      },
+      {
+        "path": "src/production/evidence.rs",
+        "present": true,
+        "sha256": "b0ffdce2329f529785f80da03abbd961fbecbf7ee34534f6d312a7de63a0f630",
+        "size_bytes": 82
+      },
+      {
+        "path": "src/production/hints.rs",
+        "present": true,
+        "sha256": "92d023b90fa8fc30f1db21e11450e865898c0011ca654f4fcae18c03d149ee84",
+        "size_bytes": 2765
+      },
+      {
+        "path": "src/production/mask_distribution.rs",
+        "present": true,
+        "sha256": "358187174a51883ab7cfe36c9a4ce2839615eb87cd8e90a3fdbbab845e34e48c",
+        "size_bytes": 21494
+      },
+      {
+        "path": "src/production/partial_soundness.rs",
+        "present": true,
+        "sha256": "83b8180fbebbf34c61dfb9825ee86ffaee17b44565d8a954a9fef0de422a332a",
+        "size_bytes": 26844
+      },
+      {
+        "path": "src/production/policy.rs",
+        "present": true,
+        "sha256": "da5ae128ee6b61fdd938ffa412cfabed880e33408a61f51fe06f60144d0c5d82",
+        "size_bytes": 1908
+      },
+      {
+        "path": "src/production/prefilter.rs",
+        "present": true,
+        "sha256": "19801fc2d1b48bb1e41b6aff5cd71c45461a015e5ab0785c9e21f8daaba98f31",
+        "size_bytes": 13211
+      },
+      {
+        "path": "src/production/preprocess.rs",
+        "present": true,
+        "sha256": "6999633fc28505e3380115137608d3b3115f4ae2eea5dedc572ad77f65c81378",
+        "size_bytes": 5430
+      },
+      {
+        "path": "src/production/provider.rs",
+        "present": true,
+        "sha256": "02be8f226460d98d20d92b34c10acf0833636f4fc89d79cbc960d34b1e3b1d7f",
+        "size_bytes": 3776
+      },
+      {
+        "path": "src/production/rejection_equivalence.rs",
+        "present": true,
+        "sha256": "04ab0bf99ba2aee0ebb3eb7c924f766a9bedff34f8f02e06c9cd68f9e1d8d16c",
+        "size_bytes": 368967
+      },
+      {
+        "path": "src/production/selected_backend.rs",
+        "present": true,
+        "sha256": "866f8741cab37a1fb87c4f54ee59739785f82f686e62d1ba745536e8568e4736",
+        "size_bytes": 8471
+      },
+      {
+        "path": "src/production/transcript.rs",
+        "present": true,
+        "sha256": "e70c934e7f6af34f84d988b6d0c640a4f861dbb6a3e45cff65dbdcd8a33e7fd8",
+        "size_bytes": 5031
+      },
+      {
+        "path": "src/production/types.rs",
+        "present": true,
+        "sha256": "f27898eac4104c8d3b99ac2749ed48e9cf5bc6e873995c6b1a9401932113f59f",
+        "size_bytes": 3107
+      },
+      {
+        "path": "src/protocol.rs",
+        "present": true,
+        "sha256": "6a63582d550d5e265702ee1b1348180602b4114cc5d014b91ea6db52bd8b9516",
+        "size_bytes": 10231
+      },
+      {
+        "path": "src/serialization.rs",
+        "present": true,
+        "sha256": "95ef1b2bdf600d646b3c2f18989b481201040750e8b364267d3e92cb707d66eb",
+        "size_bytes": 2904
+      },
+      {
+        "path": "src/transcript.rs",
+        "present": true,
+        "sha256": "f0c10c03c20e75c34fb367df00d03899b9535015ed5acc8d61cee8937cc5715b",
+        "size_bytes": 3646
+      },
+      {
+        "path": "src/types.rs",
+        "present": true,
+        "sha256": "7f1442355e29df51d2239dc481b87056e6a45af8568b2e9f5eb41dc5ebccae58",
+        "size_bytes": 3008
+      },
+      {
+        "path": "src/utils.rs",
+        "present": true,
+        "sha256": "cf4face323f375338cbe718d93aad8f5fe0f4fd19784be497c515566bab71e23",
+        "size_bytes": 77
+      },
+      {
+        "path": "src/utils/exporter.rs",
+        "present": true,
+        "sha256": "4caf0a711d998fdd3718f87e52e98c6a92617ee015cce8a515822cfefda578c1",
+        "size_bytes": 5862
+      }
+    ],
+    "tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647"
+  },
+  "toolchain": {
+    "all_identified": true,
+    "commands": [
+      {
+        "command": [
+          "python3",
+          "--version"
+        ],
+        "exit_code": 0,
+        "output_sha256": "e55cc531440b2fc2f0cb402829c0ffd3a4729acd95a238badab9b8be261070c6",
+        "stderr": "",
+        "stdout": "Python 3.12.8"
+      },
+      {
+        "command": [
+          "rustc",
+          "--version",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "output_sha256": "aea7c77c2b0d24444d07240e4d785e4ba73b6c9e786748af2ddc22bbf4c104bf",
+        "stderr": "",
+        "stdout": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2"
+      },
+      {
+        "command": [
+          "cargo",
+          "--version",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "output_sha256": "9db411a77dc69b743e7aa51da9aafff8b31e7aaf1afc54ae1fdb5635fc8dc7cd",
+        "stderr": "",
+        "stdout": "cargo 1.96.0 (30a34c682 2026-05-25)\nrelease: 1.96.0\ncommit-hash: 30a34c6821b57de0aaec83a901aca39f88f6778c\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nlibgit2: 1.9.2 (sys:0.20.4 vendored)\nlibcurl: 8.7.1 (sys:0.4.87+curl-8.19.0 system ssl:(SecureTransport) LibreSSL/3.3.6)\nssl: OpenSSL 3.5.4 30 Sep 2025\nos: Mac OS 26.5.2 [64-bit]"
+      }
+    ],
+    "lockfiles": [
+      {
+        "path": "Cargo.toml",
+        "present": true,
+        "sha256": "5bd583232566d81e7ad9e78910f4e408cbec14a8accf0001c78f6ef53e3d0fa9",
+        "size_bytes": 1117
+      },
+      {
+        "path": "Cargo.lock",
+        "present": true,
+        "sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
+        "size_bytes": 14274
+      }
+    ]
+  }
+}

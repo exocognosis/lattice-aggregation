@@ -1,6 +1,6 @@
 # Production DKG No-Single-Secret Review
 
-- Review status: `reviewed_production_dkg_no_single_secret_ready`
+- Review status: `blocked_production_dkg_no_single_secret_review`
 - Claim boundary: `conformance/proof-review evidence`
 - Package class: `production_dkg_no_single_secret_review`
 

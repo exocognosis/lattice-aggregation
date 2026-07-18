@@ -20,7 +20,10 @@ THEOREM_REVIEW_SCHEMA = "lattice-aggregation:theorem-closure-review:v1"
 THEOREM_REVIEW_READY = "theorem_closure_review_ready"
 SELECTED_PROFILE = "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
 PRODUCTION_DKG_REVIEW_PACKAGE_CLASS = "production_dkg_no_single_secret_review"
-PRODUCTION_DKG_REVIEW_ROUTE = "tee_hsm_no_export"
+PRODUCTION_DKG_REVIEW_ROUTES = {
+    "tee_hsm_no_export",
+    "distributed_dkg_vss",
+}
 PRODUCTION_DKG_REVIEW_READY = "reviewed_production_dkg_no_single_secret_ready"
 ACCEPTED_DISTRIBUTION_ABORT_REVIEW_PACKAGE_CLASS = (
     "accepted_distribution_abort_review"
@@ -339,7 +342,7 @@ def external_evidence_checks(candidate, attempt, blocker_groups):
             isinstance(dkg_review_package, dict)
             and dkg_review_package.get("package_class")
             == PRODUCTION_DKG_REVIEW_PACKAGE_CLASS
-            and dkg_review_package.get("route") == PRODUCTION_DKG_REVIEW_ROUTE
+            and dkg_review_package.get("route") in PRODUCTION_DKG_REVIEW_ROUTES
             and dkg_review_package.get("review_status") == PRODUCTION_DKG_REVIEW_READY
         ),
         "external_distribution_abort_review_ready": (

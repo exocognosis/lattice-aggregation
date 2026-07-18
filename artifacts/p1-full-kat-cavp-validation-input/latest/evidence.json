@@ -1,6 +1,6 @@
 {
-  "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-  "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
+  "backend_capture_sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057",
+  "backend_manifest_sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe",
   "campaign": {
     "demo_acvts_transcript_present": true,
     "lab_reviewed_equivalent": true,
@@ -35,14 +35,14 @@
   },
   "external_reviewer_digest_hex": "6e35fd8bc1d51e584b02b729084d47d05535a81d975bc07b1e4c7d3c2cb317e6",
   "generated_at": "2026-07-07T00:00:00Z",
-  "implementation_digest_sha256": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
+  "implementation_digest_sha256": "6941061407feb36e88e1addb3ecc46f674dbe688e93d906d728e55b125fbfa14",
   "input_status": "external_validation_reviewed",
   "name": "p1-full-kat-cavp-validation-external-review-package",
   "note": "Reviewed validation input for the exact ML-DSA-65 provider/backend path. It binds the current backend capture and manifest, provider implementation/source digests, provider KATs, FIPS 204 ML-DSA-65 KATs, ACVTS/CAVP-style campaign transcript or lab-reviewed equivalent, keyGen/sigGen/sigVer coverage, and reviewer signoff digest while keeping theorem, FIPS, and CAVP/ACVTS certification claim flags false.",
   "schema": "external-review:p1-full-kat-cavp-validation:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
-  "source_digest_sha256": "0c844fbdf0f7f438ccb928037208d3087f09d2b89e76bb4d05f748c74cfe3786",
+  "source_digest_sha256": "83d91c59fd958dd6db5379d952578ea8f7c3f12598bf71ed7532a3b6c6792539",
   "validation_package": {
     "acvts_cavp_campaign_transcript": {
       "campaign_modes": [
@@ -73,14 +73,14 @@
       "sigVer": true
     },
     "provider_kat_vectors": {
-      "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-      "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-      "implementation_digest_sha256": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
+      "backend_capture_sha256": "b0de933f3e64013c84b6452bfca2020669b65c856fadb3c7fde446f5bfdc8704",
+      "backend_manifest_sha256": "898c5ddb7ae70d049a3cbff5f799501d53a574279770f04d79f34fa5dfacbbd7",
+      "implementation_digest_sha256": "6941061407feb36e88e1addb3ecc46f674dbe688e93d906d728e55b125fbfa14",
       "parameter_set": "ML-DSA-65",
       "passed": true,
       "provider": "ml-dsa crate MlDsa65",
       "reviewed": true,
-      "source_digest_sha256": "0c844fbdf0f7f438ccb928037208d3087f09d2b89e76bb4d05f748c74cfe3786"
+      "source_digest_sha256": "83d91c59fd958dd6db5379d952578ea8f7c3f12598bf71ed7532a3b6c6792539"
     },
     "reviewer_signoff_digest": {
       "digest_domain": "external-review-signoff:p1-full-kat-cavp-validation:v1",
