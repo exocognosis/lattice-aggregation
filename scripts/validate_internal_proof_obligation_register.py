@@ -70,6 +70,23 @@ INDEPENDENT_VALIDATION_STATUSES = {
 }
 ASSESSOR_STATUSES = {"blocked", "partially_met", "met", "failed"}
 
+OPEN_KEYGEN_CAPABILITIES = {
+    "fips204_exact_joint_expand_s_secret_sampling",
+    "joint_unbiasable_rho_generation",
+    "ceremony_context_construction_and_authentication",
+    "distributed_secret_k_generation",
+    "fips204_retained_t0_signing_state",
+    "production_pq_private_share_transport",
+    "process_isolated_private_share_custody",
+    "persistent_receiver_replay_state",
+    "malicious_secure_dkg_proof",
+    "secret_share_vss_and_shortness_proof",
+    "public_secret_relation_proof",
+    "authenticated_complaint_and_recovery",
+    "fips204_shared_signing_state",
+    "fips204_exact_distributed_key_generation",
+}
+
 
 def load_json(path):
     try:
@@ -254,6 +271,94 @@ def validate_claims(errors, register, criteria, obligations_by_id):
         )
 
 
+def validate_keygen_capability_boundary(errors, register, criteria, root):
+    boundary = register.get("implementation_capability_boundary")
+    if not isinstance(boundary, dict):
+        errors.append("implementation capability boundary must be an object")
+        return
+
+    public_key = boundary.get("fips204_exact_public_key_from_supplied_shares", {})
+    if public_key.get("status") != "engineering_guard_only":
+        errors.append(
+            "exact public-key derivation must remain an engineering guard"
+        )
+    if public_key.get("implemented") is not True:
+        errors.append(
+            "exact public-key derivation from supplied shares is not recorded as implemented"
+        )
+    if public_key.get("reveals_combined_t_and_t0") is not True:
+        errors.append(
+            "public-key derivation must record that combined t and t0 are revealed"
+        )
+    if public_key.get("model_permits_public_t_and_t0") is not True:
+        errors.append(
+            "public-key derivation must record the selected model's t/t0 declassification"
+        )
+    if public_key.get("establishes_exact_joint_secret_distribution") is not False:
+        errors.append(
+            "public-key derivation must not claim an exact joint secret distribution"
+        )
+    public_key_evidence = public_key.get("evidence", {})
+    for path_key in ("implementation_path", "test_path", "type_surface_test_path"):
+        relative = public_key_evidence.get(path_key)
+        if not relative:
+            errors.append(f"public-key derivation has no {path_key}")
+        elif not (root / relative).is_file():
+            errors.append(f"public-key derivation evidence is missing: {relative}")
+    if not public_key_evidence.get("verified_properties"):
+        errors.append("public-key derivation has no verified properties")
+
+    custody = boundary.get("encrypted_receiver_custody_seam", {})
+    if custody.get("status") != "engineering_guard_only":
+        errors.append("encrypted receiver-custody seam must remain an engineering guard")
+    if custody.get("implemented") is not True:
+        errors.append("encrypted receiver-custody seam is not recorded as implemented")
+    if custody.get("establishes_process_isolation") is not False:
+        errors.append("encrypted custody seam must not claim process isolation")
+    if custody.get("establishes_pq_key_exchange_or_production_aead") is not False:
+        errors.append("encrypted custody seam must not claim production transport")
+    custody_evidence = custody.get("evidence", {})
+    for path_key in (
+        "implementation_path",
+        "clear_share_consume_path",
+        "test_path",
+        "adversarial_test_path",
+        "capability_test_path",
+    ):
+        relative = custody_evidence.get(path_key)
+        if not relative:
+            errors.append(f"encrypted custody seam has no {path_key}")
+        elif not (root / relative).is_file():
+            errors.append(f"encrypted custody evidence is missing: {relative}")
+
+    for capability_id in sorted(OPEN_KEYGEN_CAPABILITIES):
+        capability = boundary.get(capability_id)
+        if not isinstance(capability, dict):
+            errors.append(f"missing keygen capability {capability_id}")
+            continue
+        if capability.get("status") != "open":
+            errors.append(f"keygen capability {capability_id} must remain open")
+        if capability.get("implemented") is not False:
+            errors.append(
+                f"keygen capability {capability_id} must remain unimplemented"
+            )
+        if not capability.get("blocker"):
+            errors.append(f"keygen capability {capability_id} has no blocker")
+
+    promotion = boundary.get("criterion_promotion", {})
+    if promotion.get("promoted_by_this_batch") is not False:
+        errors.append("public-key derivation batch must not promote a criterion")
+    recorded_statuses = promotion.get("criteria_status", {})
+    live_statuses = {
+        criterion.get("id"): criterion.get("assessor_status")
+        for criterion in criteria
+    }
+    if recorded_statuses != live_statuses:
+        errors.append(
+            "keygen capability criterion statuses have drifted from the register"
+        )
+
+
 def validate_current_evidence(errors, register, root):
     evidence = register.get("current_evidence", {})
     loaded = {}
@@ -366,6 +471,7 @@ def validate(register, root):
             errors.append(f"missing source document {relative}")
 
     validate_current_evidence(errors, register, root)
+    validate_keygen_capability_boundary(errors, register, criteria, root)
     validate_claims(errors, register, criteria, obligations_by_id)
     return errors
 

@@ -8,6 +8,7 @@
     "final_milestone": "independently_validated_theorem_closure",
     "source_documents": [
       "docs/cryptography/formal-security-theorem.md",
+      "docs/cryptography/distributed-keygen-capability-boundary.md",
       "docs/cryptography/proof-obligations.md",
       "docs/cryptography/security-model.md",
       "docs/cryptography/threshold-mldsa-protocol-spec.md",
@@ -75,6 +76,127 @@
       "dirty": true,
       "real_distributed_threshold_core_verified": false,
       "substantive_effect": "standard-verifier and scale-shaped evidence only"
+    }
+  },
+  "implementation_capability_boundary": {
+    "fips204_exact_public_key_from_supplied_shares": {
+      "status": "engineering_guard_only",
+      "implemented": true,
+      "scope": "derive exact ML-DSA-65 public-key bytes from caller-supplied additive or Shamir module-secret shares bound to rho and a caller-supplied ceremony digest",
+      "reveals_combined_t_and_t0": true,
+      "model_permits_public_t_and_t0": true,
+      "establishes_exact_joint_secret_distribution": false,
+      "substantive_effect": "public-output conformance evidence only",
+      "evidence": {
+        "implementation_path": "src/crypto/fips_public_key.rs",
+        "test_path": "tests/fips_keygen_conformance.rs",
+        "type_surface_test_path": "tests/fips_keygen_type_surface.rs",
+        "verified_properties": [
+          "fixed-seed byte parity with the standard ML-DSA-65 provider",
+          "additive supplied-share derivation and input-order invariance",
+          "Shamir threshold-subset derivation and subthreshold fail-closed behavior",
+          "committee-8 threshold-6 subset conformance",
+          "rho and ceremony-digest binding, uniqueness, and complete-share validation",
+          "Power2Round after public contribution aggregation"
+        ]
+      }
+    },
+    "fips204_exact_joint_expand_s_secret_sampling": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "No joint protocol derives rho_prime, s1, and s2 with the exact FIPS ExpandS distribution while retaining authenticated secret shares."
+    },
+    "joint_unbiasable_rho_generation": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "The public-key derivation accepts caller-supplied rho and does not prevent last-mover bias through joint generation."
+    },
+    "ceremony_context_construction_and_authentication": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "The component enforces equality of a caller-supplied digest but does not construct or authenticate the epoch, validator, threshold, commitment, and protocol transcript it represents."
+    },
+    "distributed_secret_k_generation": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "The FIPS signing seed K is not generated or retained in authenticated shares."
+    },
+    "fips204_retained_t0_signing_state": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "The public-output derivation returns exact t0 but does not bind retained public or authenticated shared t0 state into the finalized epoch and Sign_internal."
+    },
+    "encrypted_receiver_custody_seam": {
+      "status": "engineering_guard_only",
+      "implemented": true,
+      "scope": "in-process dealer-and-receiver-bound authenticated ciphertext bundles and receiver-pinned validated share vaults",
+      "transport_profile": "separately provisioned per-(dealer, receiver) PSK SHAKE256 reference interface",
+      "establishes_process_isolation": false,
+      "establishes_pq_key_exchange_or_production_aead": false,
+      "substantive_effect": "coordinator-object and receiver-routing guard only",
+      "evidence": {
+        "implementation_path": "src/crypto/receiver_custody.rs",
+        "clear_share_consume_path": "src/crypto/mldsa_module.rs",
+        "test_path": "tests/receiver_custody.rs",
+        "adversarial_test_path": "tests/receiver_custody_adversarial.rs",
+        "capability_test_path": "tests/committee8_no_reconstruction.rs"
+      }
+    },
+    "production_pq_private_share_transport": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "The reference seam assumes pre-shared keys and is not ML-KEM key exchange, a reviewed production AEAD, or forward-secure transport."
+    },
+    "process_isolated_private_share_custody": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "In-process computation and fixtures do not prove validator-process isolation, HSM enforcement, complete erasure, or OS-enforced private custody."
+    },
+    "persistent_receiver_replay_state": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "Accepted-envelope replay memory is in process only; restart-safe ceremony/dealer sequence storage and rollback resistance are absent."
+    },
+    "malicious_secure_dkg_proof": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "Public/secret consistency, shortness, binding, hiding, extraction, complaint, agreement, robustness, anti-framing, and key-bias proofs are incomplete."
+    },
+    "secret_share_vss_and_shortness_proof": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "Supplied shares are not proved short, exactly distributed, or bound to accepted VSS commitments."
+    },
+    "public_secret_relation_proof": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "No proof binds each public t contribution to the same secret share accepted by the DKG commitments."
+    },
+    "authenticated_complaint_and_recovery": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "Pairwise-PSK frame authentication is not a signed public dealer identity, and no complete complaint, exclusion, and recovery protocol is wired to the derivation."
+    },
+    "fips204_shared_signing_state": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "The path does not produce exact shared K and tr or bind retained t0 state for Sign_internal."
+    },
+    "fips204_exact_distributed_key_generation": {
+      "status": "open",
+      "implemented": false,
+      "blocker": "Exact public-key derivation and an encrypted in-process custody seam are only sub-capabilities; secret sampling, process isolation, production transport, shared signing state, and malicious-secure proof remain open."
+    },
+    "criterion_promotion": {
+      "promoted_by_this_batch": false,
+      "criteria_status": {
+        "aggregate_mask_distribution": "partially_met",
+        "aggregate_rejection_equivalence": "partially_met",
+        "abort_retry_bias": "partially_met",
+        "partial_contribution_soundness": "partially_met",
+        "unauthorized_aggregate_reduction": "partially_met"
+      },
+      "rule": "Exact public-key bytes from supplied shares do not discharge a theorem criterion or prove distributed key generation."
     }
   },
   "closure_gates": {
@@ -423,6 +545,14 @@
       "internal_review_status": "not_ready",
       "independent_validation_status": "not_requested",
       "blocker": "The final proof must cite and map the accepted ML-DSA-65 theorem and model."
+    },
+    {
+      "id": "IMPL-KEYGEN-PUBLIC-KEY",
+      "title": "exact public-key derivation from supplied module-secret shares",
+      "substantive_proof_status": "engineering_guard_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "Public-key conformance does not establish joint ExpandS sampling, retained t0 signing state, process-isolated custody, malicious-secure DKG, or shared signing state."
     },
     {
       "id": "IMPL-KAT",

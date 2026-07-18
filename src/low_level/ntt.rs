@@ -9,9 +9,11 @@
 //! Correctness is pinned by property tests: the transform round-trips
 //! (`inv_ntt(ntt(a)) == a`) and `ntt_mul` matches the schoolbook reference
 //! `Poly::mul_schoolbook` on random and edge inputs.
-//! The internal butterfly ordering is self-consistent but is **not** claimed
-//! byte-identical to the FIPS 204 `NTT`/`NTT^-1` coefficient ordering; matching
-//! that exactly (for wire-format ML-DSA interop) is deferred.
+//! The internal butterfly ordering is self-consistent.  This standalone module
+//! does not make a general FIPS 204 interoperability claim; however, its
+//! specific use by [`crate::crypto::fips_public_key`] is pinned end-to-end
+//! against standard-provider ML-DSA-65 public-key bytes over a fixed-seed
+//! corpus.
 
 use std::sync::OnceLock;
 

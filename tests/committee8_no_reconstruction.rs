@@ -1,10 +1,19 @@
 //! Committee-of-eight acceptance contract for the no-reconstruction path.
 
 use lattice_aggregation::{
-    crypto::{distributed_nonce, mldsa_module::expand_matrix_a},
+    crypto::{
+        distributed_nonce,
+        fips_public_key::{
+            evaluate_public_t_share, FipsKeygenMissingPrimitive, FipsModuleSecretShare65,
+            FipsPublicKeyContext65, MLDSA65_K, MLDSA65_L,
+        },
+        mldsa_module::expand_matrix_a,
+        poly::Poly,
+    },
+    derive_committee8_fips_public_key_from_t_shares, Committee8FipsKeygenCapabilities,
     Committee8Session, Committee8Uninitialized, NoReconstructionCapabilities,
-    NoReconstructionError, NoReconstructionPrimitive, COMMITTEE8_MIN_DKG_DEALERS, COMMITTEE8_SIZE,
-    COMMITTEE8_THRESHOLD,
+    NoReconstructionError, NoReconstructionPrimitive, ThresholdError, ValidatorId,
+    COMMITTEE8_MIN_DKG_DEALERS, COMMITTEE8_SIZE, COMMITTEE8_THRESHOLD,
 };
 
 fn dealer_seeds() -> [[u8; 32]; COMMITTEE8_MIN_DKG_DEALERS] {
@@ -85,4 +94,61 @@ fn committee8_contract_lists_current_standard_output_blockers() {
             NoReconstructionPrimitive::StandardWireSignatureFromPartials,
         ]
     );
+}
+
+#[test]
+fn committee8_fips_public_key_gate_accepts_only_public_threshold_contributions() {
+    let context = FipsPublicKeyContext65::new([0x31; 32], [0x91; 32]);
+    let shares: Vec<_> = (1..=COMMITTEE8_SIZE as u16)
+        .map(|receiver_index| {
+            let secret = FipsModuleSecretShare65::new(
+                receiver_index,
+                [Poly::zero(); MLDSA65_L],
+                [Poly::zero(); MLDSA65_K],
+            )
+            .expect("valid committee index");
+            evaluate_public_t_share(&context, &secret)
+        })
+        .collect();
+
+    let derived = derive_committee8_fips_public_key_from_t_shares(&context, &shares[..6])
+        .expect("six public contributions satisfy the committee threshold");
+    assert_eq!(derived.context(), &context);
+    assert_eq!(derived.public_key().0.len(), 1_952);
+
+    assert_eq!(
+        derive_committee8_fips_public_key_from_t_shares(&context, &shares[..5]),
+        Err(ThresholdError::InsufficientPartialShares {
+            required: COMMITTEE8_THRESHOLD,
+            received: 5,
+        })
+    );
+
+    let out_of_committee_secret =
+        FipsModuleSecretShare65::new(9, [Poly::zero(); MLDSA65_L], [Poly::zero(); MLDSA65_K])
+            .unwrap();
+    let out_of_committee = evaluate_public_t_share(&context, &out_of_committee_secret);
+    let mut invalid = shares[..5].to_vec();
+    invalid.push(out_of_committee);
+    assert_eq!(
+        derive_committee8_fips_public_key_from_t_shares(&context, &invalid),
+        Err(ThresholdError::UnknownValidator {
+            validator: ValidatorId(9),
+        })
+    );
+
+    let capabilities = Committee8FipsKeygenCapabilities::current();
+    assert!(capabilities.exact_public_key_from_supplied_shares);
+    assert!(capabilities.ceremony_bound_public_contributions);
+    assert!(capabilities.encrypted_receiver_custody_seam);
+    assert!(!capabilities.joint_exact_expand_s_sampling);
+    assert!(!capabilities.process_isolated_receiver_custody);
+    assert!(!capabilities.exact_distributed_key_generation);
+    assert_eq!(
+        capabilities.first_missing(),
+        FipsKeygenMissingPrimitive::JointExactExpandSSampling
+    );
+    assert!(capabilities
+        .missing_primitives()
+        .contains(&FipsKeygenMissingPrimitive::ReceiverPrivateShareCustody));
 }

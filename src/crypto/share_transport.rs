@@ -63,9 +63,9 @@ const MAC_LABEL: &[u8] = b"lattice-aggregation/share-transport/mac/v1";
 ///
 /// This is the **assumed** input of the transport, not something it produces:
 /// see the module security boundary. The key material is zeroized on drop; it is
-/// deliberately **not** `Debug`-printable (a redacting `Debug` is provided) and
-/// **not** `Clone` by default derivation semantics beyond the explicit
-/// constructor, to discourage accidental copies of secret bytes.
+/// deliberately not `Debug`-printable (a redacting `Debug` is provided). It is
+/// explicitly `Clone` for dealer/receiver provisioning; every clone is
+/// zeroized on drop, and callers should still minimize live copies.
 #[derive(Clone, Zeroize, ZeroizeOnDrop)]
 pub struct ReceiverKey([u8; KEY_BYTES]);
 

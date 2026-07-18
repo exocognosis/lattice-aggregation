@@ -39,6 +39,10 @@ use crate::{
     crypto::{
         bdlop::CommitmentKey,
         distributed_nonce::{self, NonceCommitment, NonceOpening},
+        fips_public_key::{
+            aggregate_public_key_from_t_shares, FipsKeygenMissingPrimitive, FipsPublicKeyContext65,
+            FipsPublicKeyDerivation65, FipsPublicTShare65, ShareAggregation,
+        },
         mldsa_dkg::{CommitRecord, DkgCoordinator},
         mldsa_module::PublicKey,
     },
@@ -54,6 +58,86 @@ pub const COMMITTEE8_THRESHOLD: u16 = 6;
 /// fixture. Two dealers are sufficient to exercise additive multi-dealer DKG;
 /// production ceremonies may supply more.
 pub const COMMITTEE8_MIN_DKG_DEALERS: usize = 2;
+
+/// Honest status of the separate committee-8 FIPS public-key derivation gate.
+///
+/// This describes repository sub-capabilities, not the legacy research DKG
+/// executed by [`Committee8Session::run_dkg`]. In particular, an exact public
+/// key from caller-supplied shares is not exact distributed key generation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct Committee8FipsKeygenCapabilities {
+    /// A coordinator can derive exact ML-DSA-65 public-key bytes while
+    /// accepting only ceremony-bound public `t` contributions.
+    pub exact_public_key_from_supplied_shares: bool,
+    /// Public contributions bind both `rho` and an opaque ceremony digest.
+    pub ceremony_bound_public_contributions: bool,
+    /// A reference encrypted per-receiver custody seam is available.
+    pub encrypted_receiver_custody_seam: bool,
+    /// Exact joint FIPS `ExpandS` sampling is implemented.
+    pub joint_exact_expand_s_sampling: bool,
+    /// Receiver custody is enforced by separate validator processes.
+    pub process_isolated_receiver_custody: bool,
+    /// The complete FIPS distributed KeyGen obligation is implemented.
+    pub exact_distributed_key_generation: bool,
+}
+
+impl Committee8FipsKeygenCapabilities {
+    /// Current capability boundary for the committee-8 key-generation batch.
+    pub const fn current() -> Self {
+        Self {
+            exact_public_key_from_supplied_shares: true,
+            ceremony_bound_public_contributions: true,
+            encrypted_receiver_custody_seam: true,
+            joint_exact_expand_s_sampling: false,
+            process_isolated_receiver_custody: false,
+            exact_distributed_key_generation: false,
+        }
+    }
+
+    /// Complete distributed-KeyGen blockers retained by the exact public-key
+    /// sub-capability.
+    pub const fn missing_primitives(self) -> &'static [FipsKeygenMissingPrimitive] {
+        crate::crypto::fips_public_key::missing_keygen_primitives()
+    }
+
+    /// First missing primitive in the intended implementation order.
+    pub const fn first_missing(self) -> FipsKeygenMissingPrimitive {
+        FipsKeygenMissingPrimitive::JointExactExpandSSampling
+    }
+}
+
+/// Derive the exact ML-DSA-65 public key for the 6-of-8 profile from only
+/// ceremony-bound public `t` contributions.
+///
+/// This coordinator-facing gate cannot accept dealer seeds or clear `s1`/`s2`
+/// shares. It accepts six through eight distinct committee indices and leaves
+/// the exact joint sampling, custody, and malicious-security obligations open.
+pub fn derive_committee8_fips_public_key_from_t_shares(
+    context: &FipsPublicKeyContext65,
+    shares: &[FipsPublicTShare65],
+) -> Result<FipsPublicKeyDerivation65, ThresholdError> {
+    if shares.len() > COMMITTEE8_SIZE {
+        return Err(ThresholdError::InvalidThresholdParameters {
+            threshold: COMMITTEE8_THRESHOLD,
+            total_nodes: shares.len().try_into().unwrap_or(u16::MAX),
+        });
+    }
+    if let Some(share) = shares
+        .iter()
+        .find(|share| usize::from(share.receiver_index()) > COMMITTEE8_SIZE)
+    {
+        return Err(ThresholdError::UnknownValidator {
+            validator: crate::types::ValidatorId(share.receiver_index()),
+        });
+    }
+    aggregate_public_key_from_t_shares(
+        context,
+        shares,
+        ShareAggregation::ShamirAtZero {
+            threshold: COMMITTEE8_THRESHOLD,
+        },
+    )
+}
 
 /// A primitive still required before the committee can emit a standard
 /// ML-DSA-65 signature without reconstructing secret material.

@@ -1,0 +1,23 @@
+error[E0599]: no method named `reconstruct_secret` found for struct `CoordinatorCustodyBundle` in the current scope
+ --> tests/ui/receiver_custody_no_reconstruction.rs:7:20
+  |
+7 |     let _ = bundle.reconstruct_secret();
+  |                    ^^^^^^^^^^^^^^^^^^ method not found in `CoordinatorCustodyBundle`
+
+error[E0599]: no method named `export_secret` found for struct `CoordinatorCustodyBundle` in the current scope
+ --> tests/ui/receiver_custody_no_reconstruction.rs:8:20
+  |
+8 |     let _ = bundle.export_secret();
+  |                    ^^^^^^^^^^^^^ method not found in `CoordinatorCustodyBundle`
+
+error[E0599]: no method named `reconstruct_secret` found for struct `ReceiverShareVault<T>` in the current scope
+  --> tests/ui/receiver_custody_no_reconstruction.rs:12:19
+   |
+12 |     let _ = vault.reconstruct_secret();
+   |                   ^^^^^^^^^^^^^^^^^^ method not found in `ReceiverShareVault<Shake256Transport>`
+
+error[E0599]: no method named `export_secret` found for struct `ReceiverShareVault<T>` in the current scope
+  --> tests/ui/receiver_custody_no_reconstruction.rs:13:19
+   |
+13 |     let _ = vault.export_secret();
+   |                   ^^^^^^^^^^^^^ method not found in `ReceiverShareVault<Shake256Transport>`
