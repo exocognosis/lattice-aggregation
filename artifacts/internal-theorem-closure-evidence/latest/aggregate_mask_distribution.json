@@ -25,7 +25,7 @@
     "test_evidence_digest": "9aafe6ded9a0f49938d009d2d8b2413df301b3303bc9b500c521406909745522"
   },
   "evidence_status": "required_unclosed",
-  "generated_at": "2026-07-18T18:51:44Z",
+  "generated_at": "2026-07-18T18:57:36Z",
   "implementation_artifacts": [
     {
       "path": "src/production/mask_distribution.rs",
@@ -115,27 +115,8 @@
     }
   ],
   "provenance": {
-    "changed_paths": [
-      "artifacts/internal-theorem-closure-attempt/latest/SHA256SUMS",
-      "artifacts/internal-theorem-closure-attempt/latest/manifest.json",
-      "artifacts/internal-theorem-closure-attempt/latest/summary.md",
-      "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
-      "artifacts/internal-theorem-closure-bundle/latest/summary.md",
-      "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
-      "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
-      "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
-      "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
-      "artifacts/internal-theorem-closure-evidence/latest/manifest.json",
-      "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
-      "artifacts/internal-theorem-closure-evidence/latest/summary.md",
-      "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
-      "artifacts/internal-theorem-closure/latest/SHA256SUMS",
-      "artifacts/internal-theorem-closure/latest/manifest.json",
-      "rtifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
-      "script_tests/test_run_internal_theorem_closure_attempt.py",
-      "scripts/run_internal_theorem_closure_attempt.py"
-    ],
-    "git_commit": "46dadf4c2421311f6106a0ec40fa939f385491e3",
+    "changed_paths": [],
+    "git_commit": "3bb65f46c8f197f09622425f1abb58f00cd59f32",
     "hazmat": false,
     "quarantined": true,
     "real_distributed_threshold_core_verified": false,
@@ -143,7 +124,7 @@
     "source_class": "fail_closed_requirements_inventory",
     "source_path": "artifacts/internal-theorem-closure-evidence/latest",
     "source_tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647",
-    "worktree_clean": false
+    "worktree_clean": true
   },
   "readiness_only": false,
   "reproducibility": {

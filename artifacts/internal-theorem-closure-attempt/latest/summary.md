@@ -3,7 +3,7 @@
 - Attempt status: `blocked_before_internal_closure`
 - Internal closure candidate: `false`
 - Claim boundary: `closure attempt only; theorem closure requires real campaign evidence, five substantive proof manifests, clean internal review, and independent cryptographic review`
-- Attempt digest SHA-256: `11240a110753c9d0992042e44c987d53bd95c28b88130c08db390d341a43f42b`
+- Attempt digest SHA-256: `d91aaf09b2f8933976fbbafacbd0a1e2278b7192b5bd2b2de9634e21de16352a`
 
 ## Requested Items
 

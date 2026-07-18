@@ -1,5 +1,5 @@
 {
-  "attempt_digest_sha256": "11240a110753c9d0992042e44c987d53bd95c28b88130c08db390d341a43f42b",
+  "attempt_digest_sha256": "d91aaf09b2f8933976fbbafacbd0a1e2278b7192b5bd2b2de9634e21de16352a",
   "attempt_status": "blocked_before_internal_closure",
   "blockers": [
     "real_24_case_n10000_t6667_distributed_campaign_capture: campaign capture unavailable or invalid: FileNotFoundError",
@@ -116,7 +116,7 @@
     "claims_production_threshold_mldsa_security": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-18T18:51:45Z",
+  "generated_at": "2026-07-18T18:57:37Z",
   "inputs": {
     "campaign_capture": {
       "path": "artifacts/internal-aggregation-campaign/latest/capture.json",
@@ -139,14 +139,14 @@
     "closure_bundle": {
       "path": "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
       "present": true,
-      "sha256": "767917f774a622e1aa1adab402ea138fbcda7f16e71662f74887c230fb93334a",
-      "size_bytes": 102639
+      "sha256": "d95e46b164c4dabe3474404d560bd411a5149af856ef73c57151b1a647f7ac57",
+      "size_bytes": 101894
     },
     "criterion_evidence_dir": "artifacts/internal-theorem-closure-evidence/latest",
     "internal_assessment": {
       "path": "artifacts/internal-theorem-closure/latest/manifest.json",
       "present": true,
-      "sha256": "2974b4c7aad383eb9dfcfbc1b10cc518e4c6931460fa68f9a203537d3d22678e",
+      "sha256": "4e64e966ed9fcc7e4e7fae36a8473681431028f5a7fcd1485d07f48fdc1ef5b4",
       "size_bytes": 18165
     }
   },
