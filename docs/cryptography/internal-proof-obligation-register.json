@@ -1,0 +1,444 @@
+{
+  "schema": "lattice-aggregation.internal-proof-obligation-register.v1",
+  "as_of": "2026-07-18",
+  "scope": {
+    "target": "native threshold ML-DSA-65 with an untrusted aggregator and no reconstructed signing key or seed",
+    "security_model": "static Byzantine corruption of at most t - 1 validators",
+    "internal_milestone": "internally_closed_pending_independent_review",
+    "final_milestone": "independently_validated_theorem_closure",
+    "source_documents": [
+      "docs/cryptography/formal-security-theorem.md",
+      "docs/cryptography/proof-obligations.md",
+      "docs/cryptography/security-model.md",
+      "docs/cryptography/threshold-mldsa-protocol-spec.md",
+      "docs/cryptography/thesis-operating-parameters.json"
+    ],
+    "assessor": "scripts/assess_lattice_hypothesis.py"
+  },
+  "status_vocabulary": {
+    "substantive_proof": [
+      "open",
+      "proof_sketch_only",
+      "engineering_guard_only",
+      "external_dependency_open",
+      "discharged"
+    ],
+    "internal_review": [
+      "not_ready",
+      "ready_for_internal_review",
+      "accepted",
+      "rejected"
+    ],
+    "independent_validation": [
+      "not_requested",
+      "in_progress",
+      "validated",
+      "rejected"
+    ],
+    "assessor_criterion": [
+      "blocked",
+      "partially_met",
+      "met",
+      "failed"
+    ]
+  },
+  "claim_boundary": {
+    "claims_internal_theorem_closure": false,
+    "claims_independent_validation": false,
+    "claims_theorem_closure": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_no_single_holder_threshold_signing": false,
+    "rule": "Evidence packaging, review readiness, an internal review, or an aggregation run does not discharge a mathematical obligation. Final theorem closure additionally requires independent validation."
+  },
+  "current_evidence": {
+    "hypothesis_assessment": {
+      "path": "artifacts/hypothesis/latest/assessment.json",
+      "overall_verdict": "partially_proven",
+      "all_five_criteria_status": "partially_met",
+      "substantive_effect": "supporting evidence only"
+    },
+    "theorem_closure_readiness": {
+      "path": "artifacts/theorem-closure-readiness/latest/manifest.json",
+      "status": "ready_for_theorem_closure_assessment",
+      "substantive_effect": "none"
+    },
+    "theorem_closure_review": {
+      "path": "artifacts/theorem-closure-review/latest/manifest.json",
+      "status": "theorem_closure_review_ready",
+      "substantive_effect": "none"
+    },
+    "backend_emission_capture": {
+      "path": "artifacts/backend-emission-capture/latest/manifest.json",
+      "validator_count": 10000,
+      "threshold": 6667,
+      "signature_bytes": 3309,
+      "dirty": true,
+      "real_distributed_threshold_core_verified": false,
+      "substantive_effect": "standard-verifier and scale-shaped evidence only"
+    }
+  },
+  "closure_gates": {
+    "internal_candidate": {
+      "required_criterion_state": {
+        "substantive_proof": "discharged",
+        "internal_review": "accepted"
+      },
+      "required_obligations": [
+        "FST-T1",
+        "FST-T2",
+        "FST-L1",
+        "FST-L2",
+        "FST-L3",
+        "FST-L4",
+        "FST-L5",
+        "FST-L6",
+        "FST-L7",
+        "FST-L8",
+        "FST-L9"
+      ],
+      "required_run_properties": [
+        "clean reproducible provenance",
+        "real distributed DKG/VSS transcript",
+        "live distributed nonce generation",
+        "no signing-key or signing-seed reconstruction",
+        "real partial response and hint aggregation",
+        "FIPS 204 rejection predicates over threshold partials",
+        "standard ML-DSA-65 verifier acceptance"
+      ],
+      "current_status": "not_achieved"
+    },
+    "independently_validated_closure": {
+      "requires_internal_candidate": true,
+      "required_criterion_validation": "validated",
+      "required_theorem_validation": "validated",
+      "current_status": "not_achieved"
+    }
+  },
+  "criteria": [
+    {
+      "id": "aggregate_mask_distribution",
+      "assessor_status": "partially_met",
+      "promotion_requires": [
+        "selected-backend mask-generation",
+        "Renyi divergence",
+        "distribution comparison"
+      ],
+      "proof_anchors": [
+        "FST-A4",
+        "FST-A5",
+        "FST-L7",
+        "Noise Lemma B",
+        "Noise Lemma H"
+      ],
+      "substantive_proof": {
+        "status": "open",
+        "required_artifacts": [
+          "exact distributed ExpandMask construction or selected alternative",
+          "machine-checkable distribution argument",
+          "explicit Renyi or statistical-distance bound",
+          "parameter-specialized distribution comparison corpus"
+        ],
+        "blockers": [
+          "The additive Stack A mask leaves epsilon_mask open.",
+          "No production bound proves equivalence or acceptable distance from centralized ML-DSA-65 masks."
+        ]
+      },
+      "internal_review": {
+        "status": "not_ready",
+        "reviewer_identity": null,
+        "review_artifact": null
+      },
+      "independent_validation": {
+        "status": "not_requested",
+        "reviewer_identity": null,
+        "validation_artifact": null
+      }
+    },
+    {
+      "id": "aggregate_rejection_equivalence",
+      "assessor_status": "partially_met",
+      "promotion_requires": [
+        "real threshold aggregate recomputation",
+        "standard-verifier compatibility",
+        "rejection-distribution review"
+      ],
+      "proof_anchors": [
+        "FST-A5",
+        "FST-L5",
+        "Correctness Lemma 7",
+        "Noise Lemma D",
+        "Noise Lemma F"
+      ],
+      "substantive_proof": {
+        "status": "open",
+        "required_artifacts": [
+          "real threshold recomputation transcript",
+          "exact norm, hint, challenge, and retry predicate equivalence proof",
+          "full ML-DSA-65 KAT and adversarial mutation corpus",
+          "standard-verifier acceptance evidence from real threshold outputs"
+        ],
+        "blockers": [
+          "The 10000-validator capture does not verify a real distributed threshold core.",
+          "Distributed DKG, partial z_i and hint aggregation, and FIPS rejection over threshold partials are absent from the captured backend."
+        ]
+      },
+      "internal_review": {
+        "status": "not_ready",
+        "reviewer_identity": null,
+        "review_artifact": null
+      },
+      "independent_validation": {
+        "status": "not_requested",
+        "reviewer_identity": null,
+        "validation_artifact": null
+      }
+    },
+    {
+      "id": "abort_retry_bias",
+      "assessor_status": "partially_met",
+      "promotion_requires": [
+        "retry transcript domain separation",
+        "selective-abort leakage",
+        "accepted-signature distribution"
+      ],
+      "proof_anchors": [
+        "FST-G5",
+        "FST-L7",
+        "Noise Lemma G",
+        "Noise Lemma H"
+      ],
+      "substantive_proof": {
+        "status": "open",
+        "required_artifacts": [
+          "formal retry-domain separation proof",
+          "selective-abort and last-mover leakage model",
+          "adversarial abort and retry corpus",
+          "accepted-signature distribution proof with explicit bound"
+        ],
+        "blockers": [
+          "No proof bounds information leaked by abort timing, retries, or participant-controlled omission.",
+          "No proof connects accepted threshold outputs after retries to the ML-DSA-65 accepted distribution."
+        ]
+      },
+      "internal_review": {
+        "status": "not_ready",
+        "reviewer_identity": null,
+        "review_artifact": null
+      },
+      "independent_validation": {
+        "status": "not_requested",
+        "reviewer_identity": null,
+        "validation_artifact": null
+      }
+    },
+    {
+      "id": "partial_contribution_soundness",
+      "assessor_status": "partially_met",
+      "promotion_requires": [
+        "production LocalAccept",
+        "VSS/DKG binding and hiding",
+        "context-binding and leakage review"
+      ],
+      "proof_anchors": [
+        "FST-A2",
+        "FST-A3",
+        "FST-A6",
+        "FST-L4",
+        "Noise Lemma E"
+      ],
+      "substantive_proof": {
+        "status": "open",
+        "required_artifacts": [
+          "production LocalAccept specification and proof",
+          "VSS/DKG binding, hiding, extraction, agreement, and key-bias proofs",
+          "context-binding proof and cross-session adversarial corpus",
+          "zero-knowledge or audited local-verification leakage proof"
+        ],
+        "blockers": [
+          "The current executable local algebraic verifier consumes y_i and s1_i in the clear.",
+          "The research VSS/DKG implementation lacks a complete malicious-secure proof and is not wired to real standard-verifier-compatible aggregation."
+        ]
+      },
+      "internal_review": {
+        "status": "not_ready",
+        "reviewer_identity": null,
+        "review_artifact": null
+      },
+      "independent_validation": {
+        "status": "not_requested",
+        "reviewer_identity": null,
+        "validation_artifact": null
+      }
+    },
+    {
+      "id": "unauthorized_aggregate_reduction",
+      "assessor_status": "partially_met",
+      "promotion_requires": [
+        "threshold unforgeability reduction",
+        "base ML-DSA theorem dependency",
+        "simulator and hybrid-bound"
+      ],
+      "proof_anchors": [
+        "FST-T1",
+        "FST-T2",
+        "FST-L6",
+        "FST-L8",
+        "IF-R6"
+      ],
+      "substantive_proof": {
+        "status": "open",
+        "required_artifacts": [
+          "threshold EUF-CMA reduction",
+          "precise base ML-DSA theorem citation and assumption mapping",
+          "real-to-ideal simulator",
+          "H0 through H5 hybrid transitions with explicit bounds"
+        ],
+        "blockers": [
+          "FST-T1 has no completed reduction.",
+          "FST-T2 has no completed simulator or distinguishing bounds.",
+          "The selected production protocol is not complete enough to instantiate either proof."
+        ]
+      },
+      "internal_review": {
+        "status": "not_ready",
+        "reviewer_identity": null,
+        "review_artifact": null
+      },
+      "independent_validation": {
+        "status": "not_requested",
+        "reviewer_identity": null,
+        "validation_artifact": null
+      }
+    }
+  ],
+  "obligations": [
+    {
+      "id": "FST-T1",
+      "title": "threshold unforgeability",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "FST-L1 through FST-L7 and the threshold EUF-CMA reduction are not discharged."
+    },
+    {
+      "id": "FST-T2",
+      "title": "real/ideal threshold-signing realization",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "FST-L1 through FST-L9, a complete simulator, and explicit H0-H5 bounds are absent."
+    },
+    {
+      "id": "FST-T3",
+      "title": "transcript non-malleability",
+      "substantive_proof_status": "proof_sketch_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "The exact production wire-encoding injectivity proof is absent."
+    },
+    {
+      "id": "FST-T4",
+      "title": "implementation conformance gate",
+      "substantive_proof_status": "engineering_guard_only",
+      "internal_review_status": "ready_for_internal_review",
+      "independent_validation_status": "not_requested",
+      "blocker": "Conformance is necessary but cannot discharge FST-T1 or FST-T2."
+    },
+    {
+      "id": "FST-L1",
+      "title": "canonical transcript injectivity",
+      "substantive_proof_status": "proof_sketch_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "No proof covers the exact production byte encoding."
+    },
+    {
+      "id": "FST-L2",
+      "title": "challenge binding",
+      "substantive_proof_status": "engineering_guard_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "Implementation guards exist, but production commitment semantics and FST-L1 remain open."
+    },
+    {
+      "id": "FST-L3",
+      "title": "validator-set soundness",
+      "substantive_proof_status": "engineering_guard_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "Collection guards exist, but they require proof linkage to the selected production protocol."
+    },
+    {
+      "id": "FST-L4",
+      "title": "partial-share validity",
+      "substantive_proof_status": "proof_sketch_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "No leakage-safe production LocalAccept proof is complete."
+    },
+    {
+      "id": "FST-L5",
+      "title": "aggregation correctness",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "No real no-reconstruction threshold core emits a standard-valid ML-DSA-65 signature."
+    },
+    {
+      "id": "FST-L6",
+      "title": "no subthreshold signing",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "Sharing soundness, partial validity, and the unauthorized-output reduction are incomplete."
+    },
+    {
+      "id": "FST-L7",
+      "title": "abort compatibility",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "No Fiat-Shamir-with-aborts preservation proof is complete for the threshold protocol."
+    },
+    {
+      "id": "FST-L8",
+      "title": "ideal extraction",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "The real-to-ideal simulator and extraction argument are absent."
+    },
+    {
+      "id": "FST-L9",
+      "title": "evidence noninterference",
+      "substantive_proof_status": "proof_sketch_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "Anti-framing and evidence-leakage proofs are incomplete."
+    },
+    {
+      "id": "EXT-MLDSA-EUF",
+      "title": "base ML-DSA-65 unforgeability theorem",
+      "substantive_proof_status": "external_dependency_open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "The final proof must cite and map the accepted ML-DSA-65 theorem and model."
+    },
+    {
+      "id": "IMPL-KAT",
+      "title": "production backend conformance and KAT campaign",
+      "substantive_proof_status": "engineering_guard_only",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "Current standard-verifier evidence is not emitted by a real no-reconstruction threshold core."
+    },
+    {
+      "id": "IMPL-SIDECHANNEL",
+      "title": "constant-time and side-channel discipline",
+      "substantive_proof_status": "open",
+      "internal_review_status": "not_ready",
+      "independent_validation_status": "not_requested",
+      "blocker": "No implementation side-channel audit is complete."
+    }
+  ]
+}

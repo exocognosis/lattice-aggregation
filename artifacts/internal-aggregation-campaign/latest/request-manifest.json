@@ -1,0 +1,19 @@
+{
+  "artifact_contract": {
+    "artifact_root": "artifacts/internal-aggregation-campaign/latest",
+    "capture_path": "artifacts/internal-aggregation-campaign/latest/capture.json",
+    "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+    "request_manifest_path": "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+    "request_path": "artifacts/internal-aggregation-campaign/latest/request.json",
+    "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+    "validation_manifest_path": "artifacts/internal-aggregation-campaign/latest/manifest.json"
+  },
+  "campaign_id": "theorem-closure-internal-001",
+  "campaign_status": "preregistered_fail_closed",
+  "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+  "case_count": 24,
+  "claim_boundary": "internal aggregation evidence; theorem unclosed pending proof review",
+  "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+  "request_sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
+  "schema_version": 1
+}

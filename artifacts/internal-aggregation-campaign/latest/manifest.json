@@ -1,0 +1,29 @@
+{
+  "artifact_contract": {
+    "artifact_root": "artifacts/internal-aggregation-campaign/latest",
+    "capture_path": "artifacts/internal-aggregation-campaign/latest/capture.json",
+    "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+    "request_manifest_path": "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+    "request_path": "artifacts/internal-aggregation-campaign/latest/request.json",
+    "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+    "validation_manifest_path": "artifacts/internal-aggregation-campaign/latest/manifest.json"
+  },
+  "blockers": [
+    "campaign capture unavailable or invalid: FileNotFoundError"
+  ],
+  "campaign_id": "theorem-closure-internal-001",
+  "campaign_status": "blocked_fail_closed",
+  "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+  "capture_sha256": null,
+  "claims_fips_validation": false,
+  "claims_theorem_closure": false,
+  "evidence_bindings": {},
+  "evidence_bundle_binding_sha256": null,
+  "internal_campaign_evidence_ready": false,
+  "preregistered_case_count": 24,
+  "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+  "request_sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
+  "schema": "lattice-aggregation:internal-aggregation-campaign-validation:v1",
+  "theorem_status": "unclosed_pending_proof_and_independent_review",
+  "validated_execution_count": 0
+}

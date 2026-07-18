@@ -4,6 +4,10 @@ Status: traceability matrix for proof targets and required completion artifacts.
 
 Date: 2026-05-27
 
+Machine-readable state:
+`docs/cryptography/internal-proof-obligation-register.json`. Validate it with
+`python3 scripts/validate_internal_proof_obligation_register.py --root .`.
+
 ## Scope
 
 This matrix tracks theorem and lemma areas for the threshold ML-DSA-65
@@ -18,6 +22,18 @@ to:
 An `implemented engineering guard` means the repository has a code or test
 invariant that supports the obligation as an implementation guard.
 Active-adversary security is promoted by the selected-backend proof package.
+
+Each machine-readable obligation has three independent status axes:
+
+- substantive proof state: whether the mathematical obligation is discharged;
+- internal review state: whether an identified project reviewer accepted the
+  submitted proof package;
+- independent validation state: whether cryptographers outside the project
+  validated the proof.
+
+Internal review cannot promote an open or proof-sketch obligation. Evidence
+packaging, theorem-assessment readiness, a successful standard-verifier run,
+and an aggregation run at the target validator count are also non-promoting.
 
 ## Matrix
 
@@ -77,3 +93,10 @@ Active-adversary security is promoted by the selected-backend proof package.
   that needs a selected-backend proof package for promotion.
 - Active-adversary and adaptive-corruption promotion requires a production
   VSS/DKG protocol, network model, erasure model, and simulator.
+- The internal milestone `internally_closed_pending_independent_review`
+  requires substantive discharge and accepted internal review for all five
+  hypothesis criteria, FST-T1, FST-T2, and FST-L1 through FST-L9, plus a clean
+  reproducible run from the real no-reconstruction distributed core.
+- Final theorem closure additionally requires independent validation of all
+  five criterion packages and FST-T1/FST-T2. It must not be inferred from the
+  internal milestone.

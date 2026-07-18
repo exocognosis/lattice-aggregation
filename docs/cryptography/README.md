@@ -13,6 +13,9 @@ and does not emit a FIPS-verifier-valid signature.
 Available notes:
 
 - [Active Adversary Model](active-adversary-model.md)
+- [Strong Threshold Security Model](security-model.md)
+- [Strong Threshold Protocol Specification](threshold-mldsa-protocol-spec.md)
+- [Internal Theorem-Closure Candidate Semantics](internal-theorem-closure-candidate.md)
 - [Cryptographic Claims Matrix](claims-matrix.md)
 - [Algebraic Correctness Lemmas](correctness-lemmas.md)
 - [Criterion 1 Proof Substance](criterion-1-proof-substance.md)

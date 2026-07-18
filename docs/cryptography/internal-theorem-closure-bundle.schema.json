@@ -1,0 +1,168 @@
+{
+  "$id": "lattice-aggregation:internal-theorem-closure-bundle:v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "bundle_digest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "bundle_status": {
+      "enum": [
+        "blocked_incomplete",
+        "internally_closed_pending_independent_review"
+      ]
+    },
+    "campaign": {
+      "additionalProperties": true,
+      "properties": {
+        "authorization_verification": {
+          "additionalProperties": true,
+          "properties": {
+            "required": {
+              "const": true
+            },
+            "verified": {
+              "type": "boolean"
+            },
+            "verifier_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "verifier_implementation_sha256": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "required",
+            "verified",
+            "verifier_id",
+            "verifier_implementation_sha256"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "ready",
+        "checks",
+        "inputs",
+        "request_sha256",
+        "capture_sha256",
+        "evidence_bundle_binding_sha256",
+        "authorization_verification"
+      ],
+      "type": "object"
+    },
+    "claim_boundary": {
+      "const": "internal theorem-closure candidate only; pending independent cryptographic review"
+    },
+    "claim_flags": {
+      "additionalProperties": {
+        "const": false
+      },
+      "type": "object"
+    },
+    "criteria": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "bundle_evidence_status": {
+            "enum": [
+              "unproven",
+              "internally_closed_candidate"
+            ]
+          },
+          "criterion_id": {
+            "enum": [
+              "aggregate_mask_distribution",
+              "aggregate_rejection_equivalence",
+              "abort_retry_bias",
+              "partial_contribution_soundness",
+              "unauthorized_aggregate_reduction"
+            ]
+          },
+          "internal_closure_ready": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "assessment_status",
+          "bundle_evidence_status",
+          "internal_closure_ready",
+          "claim_flags",
+          "checks",
+          "artifact_groups",
+          "reproducibility",
+          "internal_review",
+          "blockers"
+        ],
+        "type": "object"
+      },
+      "maxItems": 5,
+      "minItems": 5,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "independent_review": {
+      "properties": {
+        "completed": {
+          "const": false
+        },
+        "required": {
+          "const": true
+        },
+        "status": {
+          "const": "pending_independent_cryptographic_review"
+        }
+      },
+      "required": [
+        "required",
+        "completed",
+        "status"
+      ],
+      "type": "object"
+    },
+    "internal_closure_candidate": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "lattice-aggregation:internal-theorem-closure-bundle:v1"
+    },
+    "schema_version": {
+      "const": 1
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "bundle_status",
+    "internal_closure_candidate",
+    "claim_boundary",
+    "claim_flags",
+    "protocol_profile",
+    "internal_review",
+    "independent_review",
+    "criteria",
+    "checks",
+    "global_blockers",
+    "inputs",
+    "source_inventory",
+    "artifact_inventory",
+    "toolchain",
+    "provenance",
+    "campaign",
+    "reproducibility",
+    "bundle_digest_sha256"
+  ],
+  "title": "Internal theorem-closure bundle",
+  "type": "object"
+}
