@@ -39,7 +39,7 @@ selected-backend implementation, proof, and audit artifacts.
 | --- | --- | --- | --- |
 | DKG scaffold | `src/dkg.rs`, `src/backend.rs`, `src/crypto/vss.rs`, `src/crypto/interpolation.rs` | `tests/simulated_flow.rs`, `tests/low_level.rs` | Deterministic research scaffold evidence; no malicious-secure DKG claim. |
 | Distributed Stack A research cryptography | `src/crypto/vss_real.rs`, `src/crypto/bdlop.rs`, `src/crypto/bdlop_pok.rs`, `src/crypto/vss_bdlop.rs`, `src/crypto/mldsa_module.rs`, `src/crypto/mldsa_dkg.rs`, `src/crypto/distributed_nonce.rs`, `src/crypto/share_transport.rs`, `src/low_level/ntt.rs` | module tests, `tests/threshold_core.rs` | Real distributed VSS/DKG and nonce research path. It has no single key holder, but additive mask aggregation leaves `epsilon_mask` open and this path does not emit FIPS-verifier-valid signatures. |
-| Coordinator Stack B verifier-compatible path | `src/backend/fips_sign.rs`, `src/backend/fips_wire.rs`, `src/backend/real.rs`, `src/backend/threshold_core.rs`, `src/backend/module_partial.rs` | `tests/real_backend.rs`, `tests/partial_soundness_real_local_verifier.rs`, `tests/threshold_core.rs`, `tests/validator_10000_standard_verifier_gate.rs` | Standard-verifier-compatible coordinator-assisted path. It emits ML-DSA-verified signatures, but coordinator seed/nonce reconstruction means it is not cryptographic no-single-holder without the explicit TEE/HSM no-export assumption. |
+| Coordinator Stack B verifier-compatible path | `src/backend/fips_sign.rs`, `src/backend/fips_wire.rs`, `src/backend/real.rs`, `src/backend/threshold_core.rs`, `src/backend/module_partial.rs` | `tests/real_backend.rs`, `tests/partial_soundness_real_local_verifier.rs`, `tests/threshold_core.rs`, `tests/validator_10000_standard_verifier_gate.rs` | Standard-verifier-compatible coordinator-assisted path. The strict core emits a 3309-byte ML-DSA-65 signature from aggregated `s1/y` partials for the execution committee, but production 10000/6667 no-seed-dealer DKG, receiver-private custody, proofs, and audits remain open. |
 | Epsilon-mask MPC feasibility | `docs/cryptography/distributed-mask-mpc-feasibility.md`, `scripts/model_distributed_mask_mpc_feasibility.py` | `script_tests/test_model_distributed_mask_mpc_feasibility.py` | Feasibility model and prototype scope only; it does not implement MPC or close theorem criteria. |
 | Signing state machine | `src/protocol.rs`, `src/types.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/validation.rs` | Type-state and collection guards enforce call ordering and signer sets. |
 | Transcript binding | `src/transcript.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Deterministic challenge binding for scaffold tests; no distributional proof. |
@@ -73,8 +73,9 @@ contain real `R_q` VSS/DKG, hiding commitments, proof-of-knowledge wiring,
 distributed nonce generation, and encrypted share-transport scaffolding.
 
 The current boundary is deliberate: Stack A is useful cryptographic substrate,
-but it does not emit a FIPS 204 wire signature. The additive nonce path keeps
-`epsilon_mask` open, as pinned by the distributed nonce negative test.
+but it does not by itself emit a FIPS 204 wire signature. The additive nonce
+path keeps `epsilon_mask` open, as pinned by the distributed nonce negative
+test.
 
 ## Coordinator Stack B Verifier-Compatible Path
 
@@ -82,12 +83,15 @@ Stack B is the standard-verifier-compatible coordinator-assisted path.
 `src/backend/fips_sign.rs`, `src/backend/fips_wire.rs`, `src/backend/real.rs`,
 `src/backend/threshold_core.rs`, and `src/backend/module_partial.rs` provide the
 FIPS wire path, provider-verified signature emission, threshold-shaped
-accounting, and local `z_i = y_i + c*s1_i` validity checks.
+accounting, and local `z_i = y_i + c*s1_i` validity checks. The strict
+`fips_sign` path now aggregates threshold `s1/y` partials into the emitted FIPS
+wire signature and checks the functional FIPS rejection predicates.
 
 This path verifies against ordinary ML-DSA-65, but its security boundary is a
-TEE/HSM no-export coordinator assumption. It must not be described as
-cryptographic no-single-holder unless a future MPC/distributed mask route
-replaces reconstruction.
+research coordinator-assisted setup. It must not be described as production
+10000/6667 cryptographic no-single-holder unless a future no-seed-dealer
+DKG/custody design or MPC/distributed-mask route replaces the setup boundary and
+is independently reviewed.
 
 ## Epsilon-Mask MPC Feasibility
 

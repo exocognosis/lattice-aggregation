@@ -73,7 +73,7 @@
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
   "source_inputs": {
-    "accepted_distribution_abort_review_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
+    "accepted_distribution_abort_review_sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d",
     "draft_evidence_path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
     "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1",
     "review_package_path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json"

@@ -215,8 +215,9 @@ also keeps all theorem-closure and production-security claims false.
 The generated attempt manifest now exposes two explicit review-package classes
 for strict external backend closure attempts:
 
-- `production_dkg_no_single_secret_review` with route `tee_hsm_no_export` and
-  review status `reviewed_production_dkg_no_single_secret_ready`;
+- `production_dkg_no_single_secret_review` with route `distributed_dkg_vss` or
+  `tee_hsm_no_export` and review status
+  `reviewed_production_dkg_no_single_secret_ready`;
 - `accepted_distribution_abort_review` with review status
   `reviewed_distribution_abort_ready`.
 

@@ -23,7 +23,7 @@ def write_json(path, value):
 
 
 class TheoremClosureReviewManifestTests(unittest.TestCase):
-    def test_current_close_candidate_builds_ready_theorem_review_manifest(self):
+    def test_current_strict_core_keeps_theorem_review_incomplete(self):
         module = load_module(SCRIPT, "build_theorem_closure_review_manifest")
 
         report = module.build_report(ROOT, generated_at="2026-07-07T00:00:00Z")
@@ -35,13 +35,13 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
         )
         self.assertEqual(
             manifest["review_status"],
-            "theorem_closure_review_ready",
+            "theorem_closure_review_incomplete",
         )
         self.assertEqual(
             manifest["claim_boundary"],
             "readiness preflight only; pending theorem-closure review",
         )
-        self.assertTrue(manifest["review_flags"]["proof_payload_reviewed"])
+        self.assertFalse(manifest["review_flags"]["proof_payload_reviewed"])
         self.assertTrue(
             manifest["review_flags"]["standard_verifier_compatibility_reviewed"]
         )
@@ -49,7 +49,7 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
             manifest["review_flags"]["rejection_distribution_preservation_reviewed"]
         )
         self.assertTrue(manifest["review_flags"]["full_kat_validation_reviewed"])
-        self.assertTrue(manifest["review_flags"]["theorem_linkage_reviewed"])
+        self.assertFalse(manifest["review_flags"]["theorem_linkage_reviewed"])
         self.assertFalse(any(manifest["claim_flags"].values()))
         self.assertEqual(manifest["evidence_summary"]["predicate_mismatch_count"], 0)
         self.assertTrue(manifest["evidence_summary"]["saw_accepted_and_rejected"])
@@ -59,11 +59,21 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
         )
         self.assertTrue(
             manifest["evidence_summary"]["theorem_linkage_review"][
+                "present"
+            ]
+        )
+        self.assertFalse(
+            manifest["evidence_summary"]["theorem_linkage_review"][
                 "review_status_ready"
             ]
         )
         self.assertTrue(
             manifest["evidence_summary"]["validation_artifact_slot"]["slot_present"]
+        )
+        self.assertTrue(
+            manifest["evidence_summary"]["distribution_abort_review"][
+                "present"
+            ]
         )
         self.assertTrue(
             manifest["evidence_summary"]["distribution_abort_review"][
@@ -97,9 +107,16 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
         )
         self.assertEqual(manifest["blocker_groups"]["rejection_distribution_review"], [])
         self.assertEqual(manifest["blocker_groups"]["validation"], [])
-        self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
+        self.assertEqual(
+            manifest["blocker_groups"]["proof_payload_review"],
+            ["close-candidate proof payload is not fully review-ready"],
+        )
+        self.assertEqual(
+            manifest["blocker_groups"]["theorem_linkage_review"],
+            ["theorem-linkage review package is not ready"],
+        )
 
-    def test_current_theorem_review_readies_readiness_preflight(self):
+    def test_current_theorem_review_keeps_readiness_preflight_blocked(self):
         builder = load_module(SCRIPT, "build_theorem_closure_review_manifest")
         readiness = load_module(READINESS_SCRIPT, "assess_theorem_closure_readiness")
 
@@ -118,21 +135,27 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
         manifest = report["manifest"]
         self.assertTrue(manifest["checks"]["theorem_review_manifest_present"])
         self.assertTrue(manifest["checks"]["theorem_review_manifest_boundary_valid"])
-        self.assertTrue(manifest["checks"]["theorem_review_status_ready"])
-        self.assertTrue(manifest["checks"]["proof_payload_reviewed"])
+        self.assertFalse(manifest["checks"]["theorem_review_status_ready"])
+        self.assertFalse(manifest["checks"]["proof_payload_reviewed"])
         self.assertTrue(manifest["checks"]["standard_verifier_compatibility_reviewed"])
         self.assertTrue(manifest["checks"]["full_kat_validation_reviewed"])
         self.assertTrue(
             manifest["checks"]["rejection_distribution_preservation_reviewed"]
         )
-        self.assertTrue(manifest["checks"]["theorem_linkage_reviewed"])
-        self.assertTrue(manifest["theorem_closure_assessment_ready"])
-        self.assertEqual(manifest["blocker_groups"]["external_backend_evidence"], [])
+        self.assertFalse(manifest["checks"]["theorem_linkage_reviewed"])
+        self.assertFalse(manifest["theorem_closure_assessment_ready"])
+        self.assertIn(
+            "production DKG/no-single-secret review is incomplete",
+            manifest["blocker_groups"]["external_backend_evidence"],
+        )
         self.assertEqual(manifest["blocker_groups"]["validation"], [])
         self.assertEqual(manifest["blocker_groups"]["rejection_distribution_review"], [])
-        self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
+        self.assertIn(
+            "theorem review manifest has not satisfied theorem_linkage_reviewed",
+            manifest["blocker_groups"]["theorem_linkage_review"],
+        )
 
-    def test_reviewed_distribution_and_validation_packages_can_ready_assessment(self):
+    def test_reviewed_distribution_and_validation_packages_do_not_mask_proof_payload_blocker(self):
         module = load_module(SCRIPT, "build_theorem_closure_review_manifest")
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -200,15 +223,20 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
         manifest = report["manifest"]
         self.assertEqual(
             manifest["review_status"],
-            "theorem_closure_review_ready",
+            "theorem_closure_review_incomplete",
         )
         self.assertTrue(
             manifest["review_flags"]["rejection_distribution_preservation_reviewed"]
         )
         self.assertTrue(manifest["review_flags"]["full_kat_validation_reviewed"])
+        self.assertFalse(manifest["review_flags"]["proof_payload_reviewed"])
         self.assertFalse(any(manifest["claim_flags"].values()))
         self.assertEqual(manifest["blocker_groups"]["rejection_distribution_review"], [])
         self.assertEqual(manifest["blocker_groups"]["validation"], [])
+        self.assertIn(
+            "close-candidate proof payload is not fully review-ready",
+            manifest["blocker_groups"]["proof_payload_review"],
+        )
 
     def test_theorem_linkage_artifact_claiming_closure_is_rejected(self):
         module = load_module(SCRIPT, "build_theorem_closure_review_manifest")

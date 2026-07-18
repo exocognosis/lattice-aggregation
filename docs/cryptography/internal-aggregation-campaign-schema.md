@@ -81,8 +81,9 @@ request before handing the campaign to the external backend:
 ```sh
 python3 scripts/build_internal_aggregation_campaign_request.py \
   --campaign-id theorem-closure-internal-001 \
-  --authorization-verifier-id reviewed-threshold-auth-v1 \
-  --authorization-verifier-implementation-sha256 <64 lowercase hex digest>
+  --authorization-verifier-id reviewed-ed25519-threshold-authorization-v1 \
+  --authorization-verifier-implementation-sha256 \
+    "$(python3 scripts/threshold_authorization_verifier.py --implementation-sha256)"
 ```
 
 ## Capture gate
@@ -153,6 +154,7 @@ python3 scripts/run_internal_aggregation_campaign_capture.py \
   --campaign-out artifacts/internal-aggregation-campaign/latest \
   --run-out artifacts/internal-aggregation-campaign-run/latest \
   --evidence-base /outside/reviewed-campaign-evidence \
+  --authorization-verifier ed25519-v1 \
   --backend-command /outside/threshold-backend-p1 run-internal-aggregation-campaign \
     --request artifacts/internal-aggregation-campaign/latest/request.json
 ```

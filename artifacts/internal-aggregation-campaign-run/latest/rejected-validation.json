@@ -1,14 +1,19 @@
 {
-  "backend_command": [
-    "/Users/rickglenn/Documents/lattice-threshold-backend-p1/target/debug/threshold-backend-p1",
-    "run-internal-aggregation-campaign",
-    "--request",
-    "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/internal-aggregation-campaign/latest/request.json",
-    "--evidence-out",
-    "/tmp/lattice-internal-campaign-evidence-current"
-  ],
-  "backend_command_origin": "outside_repo_executable_or_script",
-  "backend_command_sha256": "a2b64afb3d73ccfe68fadcb7c54dba6517db10a8c3dea4e53a0566e2781a1aaa",
+  "artifact_contract": {
+    "artifact_root": "artifacts/internal-aggregation-campaign/latest",
+    "capture_path": "artifacts/internal-aggregation-campaign/latest/capture.json",
+    "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+    "request_manifest_path": "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+    "request_path": "artifacts/internal-aggregation-campaign/latest/request.json",
+    "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+    "validation_manifest_path": "artifacts/internal-aggregation-campaign/latest/manifest.json"
+  },
+  "authorization_verification": {
+    "required": true,
+    "verified": false,
+    "verifier_id": null,
+    "verifier_implementation_sha256": null
+  },
   "blockers": [
     "capture evidence class mismatch: expected 'actual_distributed_threshold_mldsa_campaign'",
     "capture execution mode mismatch: expected 'actual_distributed_threshold_backend'",
@@ -160,48 +165,26 @@
     "standard_verifier record missing",
     "threshold authorization record missing"
   ],
-  "campaign_out": "artifacts/internal-aggregation-campaign/latest",
+  "campaign_id": "theorem-closure-internal-001",
+  "campaign_status": "blocked_fail_closed",
+  "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
   "capture_sha256": "ab155c33b025e381b3c2eeb88f8da31d3ca76b0d80818983ed0cdf0b2d5a5ea0",
-  "claim_boundary": "exact distributed ML-DSA internal campaign capture runner; theorem closure remains pending five substantive criteria and independent review",
-  "claim_flags": {
-    "claims_fips_validation": false,
-    "claims_internal_campaign_evidence_ready": false,
-    "claims_internal_theorem_closure": false,
-    "claims_production_threshold_mldsa_security": false,
-    "claims_theorem_closure": false
+  "claims_fips_validation": false,
+  "claims_theorem_closure": false,
+  "evidence_bindings": {
+    "backend_unavailability_report": "3bea257aee103dd2098747df39f658a7212a5b9ec865634772460142e3e72368"
   },
-  "command_result": {
-    "duration_seconds": 0.017,
-    "exit_code": 0,
-    "stderr_bytes": 0,
-    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "stdout_bytes": 29224,
-    "stdout_sha256": "ab155c33b025e381b3c2eeb88f8da31d3ca76b0d80818983ed0cdf0b2d5a5ea0"
-  },
-  "generated_at": "2026-07-18T19:39:47Z",
-  "metadata": {
-    "branch": "codex/post-119-crypto-evidence",
-    "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
-    "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "4713eff36c051e10bc1aaecb315ba2c41a608113",
-    "dirty": true,
-    "os": "macOS-26.5.2-arm64-arm-64bit",
-    "python_version": "3.12.8",
-    "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
-  },
-  "official_capture_written": false,
-  "official_validation_written": false,
-  "request": {
-    "path": "artifacts/internal-aggregation-campaign/latest/request.json",
-    "present": true,
-    "sha256": "ca1679db8d0bd8451dd0a3d8f7a8a6a8b163aa20bd0e994719532a76a9393e88",
-    "size_bytes": 27895
-  },
-  "run_out": "artifacts/internal-aggregation-campaign-run/latest",
-  "runner_status": "blocked_capture_validation_failed",
-  "schema": "lattice-aggregation:internal-aggregation-campaign-run:v1",
-  "schema_version": 1,
+  "evidence_bundle_binding_sha256": "aa22ac77269f1fb5a460294c3266b0d90d1816ae0cb41714aeb9a9d137330a08",
+  "internal_campaign_evidence_ready": false,
+  "preregistered_case_count": 24,
+  "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+  "request_sha256": "ca1679db8d0bd8451dd0a3d8f7a8a6a8b163aa20bd0e994719532a76a9393e88",
+  "schema": "lattice-aggregation:internal-aggregation-campaign-validation:v1",
+  "theorem_status": "unclosed_pending_proof_and_independent_review",
   "validated_execution_count": 24,
-  "validation_sha256": "1515fe7f95dc076bed1aceaba171d664746fabe38901b2a078fdb84947f165e0",
-  "validation_status": "blocked_fail_closed"
+  "validator_authentication": {
+    "method": "deterministic_revalidation",
+    "report_sha256": "ed3fd0e4009e9e80eacc762735e6e2f79ad797374db09ff55456aa7a4bcc17dd",
+    "validator_implementation_sha256": "8347675912b9aafd5b42ee8e5257f2c09b685284925dafc684a558003146babe"
+  }
 }

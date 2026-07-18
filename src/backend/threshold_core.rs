@@ -8,7 +8,7 @@
 //! | Distributed nonce DKG (live) | Implemented (Shamir of per-attempt nonce seed + commit-reveal) |
 //! | Partial `z_i` over sk shares | Implemented as **verified partial contributions over sk/nonce seed shares** |
 //! | Aggregate partials + hints | Implemented (Lagrange reconstruct → standard ML-DSA-65 sign; hints inside FIPS sig) |
-//! | FIPS rejection over partials | Implemented (outer attempt loop + standard-provider internal rejection) |
+//! | FIPS rejection over partials | Implemented functionally in `fips_sign` for strict `s1/y` partial aggregation |
 //! | Binding DKG/VSS | Implemented as **binding Feldman-hash VSS** with share verification |
 //! | Malicious-secure DKG/VSS | Open; requires external proof/audit beyond hash commitments |
 //! | Closed proofs + audits | **Not closable in-repo** — residual ledger remains open |
@@ -19,10 +19,14 @@
 //!   reconstructed seed path succeeds.
 //! - Seed-layer partials reconstruct the signing seed and call `Sign_internal`.
 //! - Module-vector algebraic partials (`z = y + c·s1` over `R_q^L`) are
-//!   implemented in [`super::module_partial`] for composition/rejection tests;
-//!   packing those into a FIPS wire signature without seed reconstruction remains open.
+//!   implemented in [`super::module_partial`] for composition/rejection tests.
+//!   [`super::fips_sign::strict_distributed_sign_from_s1_y_partials`] now
+//!   assembles strict `s1/y` partials into an accepted FIPS wire signature for
+//!   the research execution committee.
 //! - VSS is binding and share-verifiable under hash commitments; it is **not** a
 //!   UC / discrete-log Feldman proof system and is not side-channel audited.
+//! - Production 10000/6667 no-seed-dealer DKG and receiver-private custody
+//!   remain open.
 //! - Formal security proofs and external audits remain open obligations.
 
 use sha3::{Digest, Sha3_256};

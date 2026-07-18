@@ -17,8 +17,9 @@
 //! - Produces standard-size ML-DSA-65 signatures (3,309 bytes) accepted by
 //!   `ml-dsa` verification when inputs are well-formed.
 //! - Seed-layer partials are in `threshold_core`; module-vector
-//!   `z = y + c·s1` over `R_q^L` is in `module_partial` (composition only;
-//!   FIPS wire packing from those partials remains open).
+//!   `z = y + c*s1` over `R_q^L` is in `module_partial`, and the strict
+//!   `fips_sign` path can assemble `s1/y` partials into an accepted FIPS wire
+//!   signature for the research execution committee.
 //! - Formal proofs and external audits remain open
 //!   (`docs/cryptography/blocker-closure-status.md`).
 //! - Feature-gated (`raw-real-mldsa`); not production-approved.

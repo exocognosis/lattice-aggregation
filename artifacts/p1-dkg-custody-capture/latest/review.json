@@ -1,0 +1,45 @@
+{
+  "blockers": [
+    "production 10000/6667 execution was not run by this bounded native capture",
+    "receiver custody is in-process and not process-isolated",
+    "finalizing process still transiently observes aggregate SharedSecretKey before custody sealing",
+    "strict signer does not yet consume custody-held shares"
+  ],
+  "capture": {
+    "capture_file_sha256": "4b25d30fb3617ebf7ea865bea8950e55c1475cd2d01791c10de453edaeb871ab",
+    "capture_sha256": "4b25d30fb3617ebf7ea865bea8950e55c1475cd2d01791c10de453edaeb871ab",
+    "capture_status": "bounded_dkg_custody_capture_ready_not_production_profile",
+    "schema": "lattice-aggregation:p1-dkg-custody-capture:v1"
+  },
+  "checks": {
+    "commit_before_reveal": true,
+    "coordinator_observed_clear_dkg_shares_before_custody": true,
+    "distributed_dkg_vss_transcript_present": true,
+    "encrypted_receiver_custody_seam_executed": true,
+    "expanded_key_exported_to_json": false,
+    "multiple_independent_dealers": true,
+    "no_seed_dealer_dkg": true,
+    "per_receiver_private_share_custody": false,
+    "process_isolated_receiver_custody": false,
+    "production_dkg_no_single_secret_ready": false,
+    "production_profile_executed": false,
+    "raw_seed_exported_to_json": false,
+    "receiver_vault_imports_verified": true,
+    "secret_material_exported_to_json": false,
+    "signer_consumes_custody_output": false
+  },
+  "claim_boundary": "conformance/proof-review evidence",
+  "closure_boundary": "bounded native DKG/custody ceremony review dossier only; production 10000/6667 process-isolated custody and signer consumption remain open",
+  "generated_at": "1970-01-01T00:00:00Z",
+  "review": {
+    "backend_command_digest_hex": "c52c7eb35847bf82760a3fa210d34dae8a261e9ed3d5cb83f54b41c857230bfe",
+    "capture_environment_digest_hex": "136c59240d87dfbc5f9fdb14d92152a8b5ccecfe15903607c881c2f66f658074",
+    "external_review_digest_hex": "4b25d30fb3617ebf7ea865bea8950e55c1475cd2d01791c10de453edaeb871ab",
+    "operator_identity_digest_hex": "86c62bd72ad8261831f7a4f3f833ed4592cfd50f1adbd3aec2d8f760b9615775",
+    "reviewer_identity_digest_hex": "024d5d1581f0c5c807c2c8b4e3477340dcba489aab374cf127a8feea71d23b85"
+  },
+  "review_status": "bounded_dkg_custody_review_ready_not_production_profile",
+  "schema": "lattice-aggregation:p1-dkg-custody-capture-review:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"
+}

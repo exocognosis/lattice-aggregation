@@ -219,6 +219,15 @@ class InternalAggregationCampaignRunnerTests(unittest.TestCase):
                     pathlib.Path(temp_dir), ["/opt/smoke-campaign", "run"]
                 )
 
+    def test_ed25519_authorization_verifier_loader_exposes_bound_profile(self):
+        runner = load_module(RUNNER_SCRIPT, "internal_campaign_runner_verifier")
+        verifier = runner.load_authorization_verifier("ed25519-v1")
+
+        self.assertEqual(
+            verifier.verifier_id, "reviewed-ed25519-threshold-authorization-v1"
+        )
+        self.assertRegex(verifier.implementation_sha256, r"^[0-9a-f]{64}$")
+
     def test_repo_local_backend_command_is_rejected(self):
         runner = load_module(RUNNER_SCRIPT, "internal_campaign_runner_local")
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -226,6 +235,25 @@ class InternalAggregationCampaignRunnerTests(unittest.TestCase):
             command = root / "bin" / "exact-campaign"
             with self.assertRaisesRegex(ValueError, "repo-local command"):
                 runner.validate_backend_command(root, [str(command), "run"])
+
+    def test_summary_caps_verbose_blocker_lists(self):
+        runner = load_module(RUNNER_SCRIPT, "internal_campaign_runner_summary")
+        summary = runner.render_summary(
+            {
+                "runner_status": "blocked_capture_validation_failed",
+                "official_capture_written": False,
+                "official_validation_written": False,
+                "backend_command_origin": "outside_repo_executable_or_script",
+                "capture_sha256": None,
+                "validation_status": "blocked_fail_closed",
+                "validated_execution_count": 24,
+                "blockers": [f"blocker-{index:02d}" for index in range(25)],
+            }
+        )
+
+        self.assertIn("blocker-19", summary)
+        self.assertNotIn("blocker-20", summary)
+        self.assertIn("5 additional blockers", summary)
 
 
 if __name__ == "__main__":

@@ -3,12 +3,21 @@
   "blocker_groups": {
     "claim_boundary": [],
     "criterion2_manifest": [],
-    "external_backend_evidence": [],
+    "external_backend_evidence": [
+      "production DKG/no-single-secret review is incomplete",
+      "production DKG/no-single-secret review package class or route is not ready",
+      "production DKG/no-single-secret review is not ready"
+    ],
     "hypothesis_assessment": [],
-    "proof_payload_review": [],
+    "proof_payload_review": [
+      "theorem review manifest is not ready",
+      "theorem review manifest has not satisfied proof_payload_reviewed"
+    ],
     "rejection_distribution_review": [],
     "standard_verifier_review": [],
-    "theorem_linkage_review": [],
+    "theorem_linkage_review": [
+      "theorem review manifest has not satisfied theorem_linkage_reviewed"
+    ],
     "validation": []
   },
   "checks": {
@@ -18,12 +27,12 @@
     "criterion2_promotion_requirements_present": true,
     "external_accepted_distribution_abort_review_package_valid": true,
     "external_closure_candidate_manifest_present": true,
-    "external_closure_candidate_ready": true,
+    "external_closure_candidate_ready": false,
     "external_distribution_abort_review_ready": true,
     "external_evidence_attempt_manifest_present": true,
-    "external_evidence_attempt_ready": true,
-    "external_production_dkg_no_single_secret_review_package_valid": true,
-    "external_production_dkg_no_single_secret_review_ready": true,
+    "external_evidence_attempt_ready": false,
+    "external_production_dkg_no_single_secret_review_package_valid": false,
+    "external_production_dkg_no_single_secret_review_ready": false,
     "external_review_package_binds_inputs": true,
     "external_review_package_ready": true,
     "external_source_exclusions_passed": true,
@@ -31,7 +40,7 @@
     "hypothesis_assessment_present": true,
     "hypothesis_boundary_is_research_scaffold_only": true,
     "hypothesis_not_already_completely_proven": true,
-    "proof_payload_reviewed": true,
+    "proof_payload_reviewed": false,
     "rejection_distribution_preservation_reviewed": true,
     "review_claims_cavp_acvts_validation_false": true,
     "review_claims_criterion_met_false": true,
@@ -42,10 +51,10 @@
     "review_claims_standard_verifier_compatibility_complete_false": true,
     "review_claims_theorem_closure_false": true,
     "standard_verifier_compatibility_reviewed": true,
-    "theorem_linkage_reviewed": true,
+    "theorem_linkage_reviewed": false,
     "theorem_review_manifest_boundary_valid": true,
     "theorem_review_manifest_present": true,
-    "theorem_review_status_ready": true
+    "theorem_review_status_ready": false
   },
   "claim_boundary": "readiness preflight only; pending theorem-closure review",
   "claims_cavp_acvts_validation": false,
@@ -56,22 +65,22 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility_complete": false,
   "claims_theorem_closure": false,
-  "generated_at": "2026-07-18T03:14:51Z",
+  "generated_at": "2026-07-18T21:20:26Z",
   "inputs": {
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
       "present": true,
-      "sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d"
+      "sha256": "7bdaf68a43f43706a195340744837506546e3ceb44e4b5d0d8aea9ed08dfe31c"
     },
     "external_closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "68c14cd210cd3670bed754e23fa0c7f6177e484f25951f536d265938838dc747"
+      "sha256": "fbd4ee7f8d5c430393dbd1750a2bed89d72c9531b43fc3ec5695113351117775"
     },
     "external_evidence_attempt_manifest": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "ab93dfd836734f94d3be67603b342a7f2bb39c5244620489214845a5684dd113"
+      "sha256": "bb57825e72afb353f9883bb533b4319abab233af50c930b5254990b95f948d4a"
     },
     "hypothesis_assessment": {
       "path": "artifacts/hypothesis/latest/assessment.json",
@@ -81,12 +90,12 @@
     "theorem_review_manifest": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
       "present": true,
-      "sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4"
+      "sha256": "5ffe7f3d162e3099089605d731e33a015f27f0af56ff9e8fa87f497e9efecae8"
     }
   },
   "name": "theorem-closure-assessment-readiness-v1",
-  "readiness_digest_sha256": "729f343c3469064968fbe1f3b3a404278a3c928ce14213288c9b13f5bb01ef3a",
-  "readiness_status": "ready_for_theorem_closure_assessment",
+  "readiness_digest_sha256": "8124e0c5ed94aca5a68dcf3a01598d27bea2b27e099e6b6932fe36661b53a209",
+  "readiness_status": "blocked_before_theorem_closure_assessment",
   "ready_checks": [
     "criterion2_manifest_present",
     "criterion2_manifest_schema_valid",
@@ -125,7 +134,7 @@
   "schema": "lattice-aggregation:theorem-closure-assessment-readiness:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
-  "theorem_closure_assessment_ready": true,
+  "theorem_closure_assessment_ready": false,
   "unresolved_promotion_requirements": [
     {
       "group": "proof_payload_review",
@@ -149,7 +158,7 @@
     },
     {
       "group": "proof_payload_review",
-      "requirement": "reviewed production DKG/no-single-secret package with package_class production_dkg_no_single_secret_review, route tee_hsm_no_export, and no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup"
+      "requirement": "reviewed production DKG/no-single-secret package with package_class production_dkg_no_single_secret_review, route distributed_dkg_vss or tee_hsm_no_export, and no centralized seed, expanded-key split, single-key, hazmat, or unreviewed trust setup"
     },
     {
       "group": "rejection_distribution_review",

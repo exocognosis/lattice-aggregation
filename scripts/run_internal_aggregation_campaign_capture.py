@@ -31,6 +31,7 @@ COMMAND_FAILED_STATUS = "blocked_backend_command_failed"
 PARSE_FAILED_STATUS = "blocked_backend_output_not_canonical_capture"
 DEFAULT_CAMPAIGN_OUT = "artifacts/internal-aggregation-campaign/latest"
 DEFAULT_RUN_OUT = "artifacts/internal-aggregation-campaign-run/latest"
+MAX_SUMMARY_BLOCKERS = 20
 CLAIM_BOUNDARY = (
     "exact distributed ML-DSA internal campaign capture runner; theorem closure "
     "remains pending five substantive criteria and independent review"
@@ -80,6 +81,25 @@ def load_campaign_validator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def load_authorization_verifier(name):
+    if name is None:
+        return None
+    if name not in {
+        "ed25519-v1",
+        "reviewed-ed25519-threshold-authorization-v1",
+    }:
+        raise ValueError(f"unsupported authorization verifier: {name}")
+    path = Path(__file__).with_name("threshold_authorization_verifier.py")
+    spec = importlib.util.spec_from_file_location(
+        "threshold_authorization_verifier_for_runner", path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("threshold authorization verifier module is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.Ed25519ThresholdAuthorizationVerifier()
 
 
 def file_record(path):
@@ -426,7 +446,13 @@ def render_summary(manifest):
         "",
     ]
     if manifest["blockers"]:
-        lines.extend(f"- {blocker}" for blocker in manifest["blockers"])
+        visible = manifest["blockers"][:MAX_SUMMARY_BLOCKERS]
+        lines.extend(f"- {blocker}" for blocker in visible)
+        hidden_count = len(manifest["blockers"]) - len(visible)
+        if hidden_count > 0:
+            lines.append(
+                f"- ... {hidden_count} additional blockers recorded in run-manifest.json"
+            )
     else:
         lines.append("- None")
     lines.extend(
@@ -631,6 +657,11 @@ def parse_args(argv):
         help="external exact backend command that writes canonical campaign capture JSON to stdout",
     )
     parser.add_argument(
+        "--authorization-verifier",
+        default=None,
+        help="reviewed verifier adapter to use for threshold authorization signatures",
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
         help="exit 2 unless the official campaign capture is written",
@@ -647,6 +678,7 @@ def main(argv=None):
         run_out=Path(args.run_out),
         evidence_base=Path(args.evidence_base) if args.evidence_base else None,
         backend_command=args.backend_command,
+        authorization_verifier=load_authorization_verifier(args.authorization_verifier),
     )
     if report["manifest"]["runner_status"] == READY_STATUS:
         validator = load_campaign_validator()

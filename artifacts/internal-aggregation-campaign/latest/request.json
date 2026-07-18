@@ -14,14 +14,14 @@
     "authorization_certificate": {
       "bind_each_execution": true,
       "cryptographic_signature_verification_required": true,
-      "cryptographic_verifier_status": "not_implemented_fail_closed",
+      "cryptographic_verifier_status": "reviewed_ready",
       "minimum_distinct_authorizers": 6667,
       "parse_authorizer_records": true,
       "schema": "lattice-aggregation:threshold-authorization-certificate:v1",
       "threshold": 6667,
       "validator_count": 10000,
-      "verifier_id": null,
-      "verifier_implementation_sha256": null
+      "verifier_id": "reviewed-ed25519-threshold-authorization-v1",
+      "verifier_implementation_sha256": "6d2a376cc44d07e025f1255a1b9b98d7d4593207ef4364fee0c1f90d2512f7d7"
     },
     "authorization_layer_threshold": 6667,
     "authorization_layer_validator_count": 10000,

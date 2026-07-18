@@ -2,7 +2,9 @@
 //!
 //! Ports KeyGen_internal + Sign_internal enough to produce wire signatures that
 //! the standard `ml-dsa` verifier accepts, then composes with module-vector
-//! threshold sharing of the packed `z`.
+//! threshold sharing of the packed `z`. The strict distributed helper splits
+//! `s1`, `s2`, and `y` into Shamir shares, aggregates threshold partials, and
+//! packs the resulting `(c_tilde, z, h)` tuple without calling provider sign.
 //!
 //! # Claim boundary
 //!
@@ -134,6 +136,41 @@ pub struct SelfContainedSignPackage {
     pub standard_verifier_accepted: bool,
     /// Inner rejection-loop aborts before acceptance.
     pub rejected_attempts: u32,
+    /// Stable packing mode label.
+    pub packing_mode: &'static str,
+}
+
+/// Result of strict distributed Sign_internal over real `s1` / `y` partials.
+#[derive(Clone, Debug)]
+pub struct StrictDistributedSignPackage {
+    /// Verifying key.
+    pub public_key: ThresholdPublicKey,
+    /// Wire signature (3,309 bytes).
+    pub signature: ThresholdSignature,
+    /// Aggregated module-vector `z` assembled from partial responses.
+    pub aggregate_z: ModuleVecL,
+    /// Aggregated `z` matched the direct FIPS equation.
+    pub aggregate_z_matches_direct: bool,
+    /// Aggregated `c*s2` from secret-share partials matched the direct value.
+    pub aggregate_cs2_matches_direct: bool,
+    /// Standard verifier accepted the final wire signature.
+    pub standard_verifier_accepted: bool,
+    /// Inner rejection-loop aborts before acceptance.
+    pub rejected_attempts: u32,
+    /// Number of threshold response partials consumed.
+    pub partial_count: usize,
+    /// Whether `||z||_inf < gamma1 - beta` passed on the aggregate.
+    pub z_bound_ok: bool,
+    /// Whether `||r0||_inf < gamma2 - beta` passed.
+    pub r0_bound_ok: bool,
+    /// Whether `||c*t0||_inf < gamma2` passed.
+    pub ct0_bound_ok: bool,
+    /// Whether `weight(h) <= omega` passed.
+    pub hint_omega_ok: bool,
+    /// Stable digest binding the emitted partial response bundle.
+    pub partial_bundle_digest: [u8; 32],
+    /// Stable digest binding the accepted rejection-predicate state.
+    pub rejection_predicate_digest: [u8; 32],
     /// Stable packing mode label.
     pub packing_mode: &'static str,
 }
@@ -383,6 +420,243 @@ pub fn self_contained_sign_with_module_z_shares(
         standard_verifier_accepted: true,
         rejected_attempts: rejected,
         packing_mode: "self_contained_sign_internal_plus_threshold_wire_z_sharing",
+    })
+}
+
+/// Strict distributed Sign_internal path for ML-DSA-65.
+///
+/// This path computes `z_i = y_i + c*s1_i` over Shamir shares, aggregates the
+/// threshold partials into the wire `z`, derives `h`, applies the FIPS rejection
+/// predicates, packs `(c_tilde, z, h)`, and verifies the result with the
+/// unmodified ML-DSA verifier. It does not call provider `sign()`.
+///
+/// The setup still starts from a local FIPS seed to derive test key material.
+/// That makes this an executable strict signing-core primitive, not a DKG proof
+/// or theorem-closure artifact.
+pub fn strict_distributed_sign_from_s1_y_partials(
+    seed: &[u8; POLY_SEED_BYTES],
+    rnd: &[u8; 32],
+    message: &[u8],
+    threshold: u16,
+    validators: &[ValidatorId],
+) -> Result<StrictDistributedSignPackage, ThresholdError> {
+    if validators.len() < threshold as usize || threshold == 0 {
+        return Err(ThresholdError::InvalidThresholdParameters {
+            threshold,
+            total_nodes: validators.len() as u16,
+        });
+    }
+
+    let secret = keygen_from_seed(seed)?;
+    let receivers: Vec<(ValidatorId, u16)> = validators
+        .iter()
+        .map(|v| (*v, v.0.wrapping_add(1)))
+        .collect();
+    let s1 = ModuleVecL {
+        components: secret.s1,
+    };
+
+    let mut mu_h = Shake256::default();
+    mu_h.update(&secret.tr);
+    mu_h.update(&[0u8]);
+    mu_h.update(&[0u8]);
+    mu_h.update(message);
+    let mut mu = [0u8; 64];
+    mu_h.finalize_xof().read(&mut mu);
+
+    let mut rp = Shake256::default();
+    rp.update(&secret.k_seed);
+    rp.update(rnd);
+    rp.update(&mu);
+    let mut rhopp = [0u8; 64];
+    rp.finalize_xof().read(&mut rhopp);
+
+    let a_hat = expand_a(&secret.rho);
+    let s1_hat: Vec<[u32; N]> = secret.s1.iter().map(ntt).collect();
+    let t0_hat: Vec<[u32; N]> = secret.t0.iter().map(ntt).collect();
+
+    let mut rejected = 0u32;
+    for kappa_base in (0..u16::MAX).step_by(L) {
+        let y = expand_mask(&rhopp, kappa_base);
+        let y_vec = ModuleVecL { components: y };
+        let y_hat: Vec<[u32; N]> = y.iter().map(ntt).collect();
+
+        let mut w = [Poly::zero(); K];
+        for r in 0..K {
+            let mut acc = [0u32; N];
+            for s in 0..L {
+                let prod = ntt_pointwise(&a_hat[r][s], &y_hat[s]);
+                for i in 0..N {
+                    acc[i] = field_add(acc[i], prod[i]);
+                }
+            }
+            w[r] = ntt_inverse(&acc);
+        }
+
+        let mut w1 = [Poly::zero(); K];
+        for r in 0..K {
+            w1[r] = high_bits_poly(&w[r]);
+        }
+        let w1_enc = encode_w1(&w1);
+
+        let mut ch = Shake256::default();
+        ch.update(&mu);
+        ch.update(&w1_enc);
+        let mut c_tilde = [0u8; LAMBDA_BYTES];
+        ch.finalize_xof().read(&mut c_tilde);
+
+        let c = sample_in_ball_poly(&c_tilde, TAU);
+        let c_hat = ntt(&c);
+
+        let direct_z = direct_z_from_secret(&y, &s1_hat, &c_hat);
+        let s1_share_seed = share_seed(
+            b"lattice-aggregation/fips-sign/strict-s1-share/v1",
+            &rhopp,
+            &c_tilde,
+            kappa_base,
+        );
+        let y_share_seed = share_seed(
+            b"lattice-aggregation/fips-sign/strict-y-share/v1",
+            &rhopp,
+            &c_tilde,
+            kappa_base,
+        );
+        let s1_shares = split_module_vector_shamir(&s1, threshold, &receivers, &s1_share_seed)?;
+        let y_shares = split_module_vector_shamir(&y_vec, threshold, &receivers, &y_share_seed)?;
+
+        let mut partials = Vec::with_capacity(threshold as usize);
+        for i in 0..threshold as usize {
+            let (signer, x, s1_i) = &s1_shares[i];
+            let (_, y_x, y_i) = &y_shares[i];
+            if x != y_x {
+                return Err(ThresholdError::TranscriptMismatch);
+            }
+            let z_i = compute_z_from_share_ntt(y_i, s1_i, &c_hat);
+            partials.push(ModulePartialZi {
+                signer: *signer,
+                x: *x,
+                z_i,
+            });
+        }
+        let aggregate = reconstruct_module_from_partials(&partials)?;
+        let aggregate_z_matches_direct = module_eq(&aggregate.z, &direct_z);
+        if !aggregate_z_matches_direct {
+            return Err(ThresholdError::PartialShareVerificationFailed {
+                validator: partials[0].signer,
+            });
+        }
+
+        let s2_share_seed = share_seed(
+            b"lattice-aggregation/fips-sign/strict-s2-share/v1",
+            &rhopp,
+            &c_tilde,
+            kappa_base,
+        );
+        let s2_shares = split_poly_array_shamir(&secret.s2, threshold, &receivers, &s2_share_seed)?;
+        let mut cs2_partials = Vec::with_capacity(threshold as usize);
+        for (signer, x, s2_i) in s2_shares.into_iter().take(threshold as usize) {
+            cs2_partials.push((signer, x, mul_poly_array_by_challenge(&s2_i, &c_hat)));
+        }
+        let cs2_from_shares = aggregate_poly_array_partials(&cs2_partials)?;
+        let direct_cs2 = mul_poly_array_by_challenge(&secret.s2, &c_hat);
+        let aggregate_cs2_matches_direct = poly_array_eq(&cs2_from_shares, &direct_cs2);
+        if !aggregate_cs2_matches_direct {
+            return Err(ThresholdError::PartialShareVerificationFailed {
+                validator: cs2_partials[0].0,
+            });
+        }
+
+        let mut r0_bound_ok = true;
+        for r in 0..K {
+            let w_cs2 = poly_sub(&w[r], &cs2_from_shares[r]);
+            let r0 = low_bits_poly(&w_cs2);
+            if infinity_norm(&r0) >= (GAMMA2 as u32).saturating_sub(BETA as u32) {
+                r0_bound_ok = false;
+                break;
+            }
+        }
+        let z_bound_ok = infinity_norm_vec_l(&aggregate.z.components)
+            < (GAMMA1 as u32).saturating_sub(BETA as u32);
+        if !r0_bound_ok || !z_bound_ok {
+            rejected = rejected.saturating_add(1);
+            continue;
+        }
+
+        let mut hints = [[false; N]; K];
+        let mut ct0_bound_ok = true;
+        let mut hint_weight = 0usize;
+        for r in 0..K {
+            let prod = ntt_pointwise(&c_hat, &t0_hat[r]);
+            let ct0 = ntt_inverse(&prod);
+            if infinity_norm(&ct0) >= GAMMA2 as u32 {
+                ct0_bound_ok = false;
+                break;
+            }
+            let w_cs2 = poly_sub(&w[r], &cs2_from_shares[r]);
+            let w_cs2_ct0 = poly_add(&w_cs2, &ct0);
+            let neg_ct0 = poly_neg(&ct0);
+            for j in 0..N {
+                let hz = make_hint(neg_ct0.coeffs[j], w_cs2_ct0.coeffs[j]);
+                hints[r][j] = hz;
+                if hz {
+                    hint_weight += 1;
+                }
+            }
+        }
+        let hint_omega_ok = hint_weight <= OMEGA;
+        if !ct0_bound_ok || !hint_omega_ok {
+            rejected = rejected.saturating_add(1);
+            continue;
+        }
+
+        let mut z_for_wire = aggregate.z;
+        for s in 0..L {
+            for j in 0..N {
+                z_for_wire.components[s].coeffs[j] =
+                    mod_plus_minus_q(z_for_wire.components[s].coeffs[j]);
+            }
+        }
+        let signature = pack_signature(&c_tilde, &z_for_wire, &hints)?;
+        let standard_verifier_accepted =
+            RealMldsa65Backend::verify_standard(&secret.public_key, message, &signature)?;
+        if !standard_verifier_accepted {
+            return Err(ThresholdError::StandardVerificationFailed);
+        }
+
+        let partial_bundle_digest = partial_bundle_digest(&partials, &c_tilde);
+        let rejection_predicate_digest =
+            rejection_predicate_digest(RejectionPredicateDigestInput {
+                c_tilde: &c_tilde,
+                z: &aggregate.z,
+                cs2: &cs2_from_shares,
+                z_bound_ok,
+                r0_bound_ok,
+                ct0_bound_ok,
+                hint_omega_ok,
+                hint_weight,
+            });
+
+        return Ok(StrictDistributedSignPackage {
+            public_key: secret.public_key,
+            signature,
+            aggregate_z: z_for_wire,
+            aggregate_z_matches_direct,
+            aggregate_cs2_matches_direct,
+            standard_verifier_accepted,
+            rejected_attempts: rejected,
+            partial_count: partials.len(),
+            z_bound_ok,
+            r0_bound_ok,
+            ct0_bound_ok,
+            hint_omega_ok,
+            partial_bundle_digest,
+            rejection_predicate_digest,
+            packing_mode: "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+        });
+    }
+
+    Err(ThresholdError::BackendUnavailable {
+        reason: "strict distributed Sign_internal rejection sampling exhausted",
     })
 }
 
@@ -862,6 +1136,248 @@ fn module_eq(a: &ModuleVecL, b: &ModuleVecL) -> bool {
         .all(|(x, y)| x.coeffs == y.coeffs)
 }
 
+fn share_seed(
+    domain: &[u8],
+    rhopp: &[u8; 64],
+    c_tilde: &[u8; LAMBDA_BYTES],
+    kappa: u16,
+) -> [u8; 32] {
+    let mut hasher = Shake256::default();
+    hasher.update(domain);
+    hasher.update(rhopp);
+    hasher.update(c_tilde);
+    hasher.update(&kappa.to_le_bytes());
+    let mut out = [0u8; 32];
+    hasher.finalize_xof().read(&mut out);
+    out
+}
+
+fn direct_z_from_secret(y: &[Poly; L], s1_hat: &[[u32; N]], c_hat: &[u32; N]) -> ModuleVecL {
+    let mut z = ModuleVecL::zero();
+    for s in 0..L {
+        let prod = ntt_pointwise(c_hat, &s1_hat[s]);
+        let cs1 = ntt_inverse(&prod);
+        z.components[s] = poly_add(&y[s], &cs1);
+    }
+    z
+}
+
+fn compute_z_from_share_ntt(y_i: &ModuleVecL, s1_i: &ModuleVecL, c_hat: &[u32; N]) -> ModuleVecL {
+    let mut z_i = ModuleVecL::zero();
+    for s in 0..L {
+        let cs1_i = mul_poly_by_challenge_hat(&s1_i.components[s], c_hat);
+        z_i.components[s] = poly_add(&y_i.components[s], &cs1_i);
+    }
+    z_i
+}
+
+fn mul_poly_by_challenge_hat(poly: &Poly, c_hat: &[u32; N]) -> Poly {
+    let poly_hat = ntt(poly);
+    let product = ntt_pointwise(c_hat, &poly_hat);
+    ntt_inverse(&product)
+}
+
+fn mul_poly_array_by_challenge<const M: usize>(polys: &[Poly; M], c_hat: &[u32; N]) -> [Poly; M] {
+    let mut out = [Poly::zero(); M];
+    for i in 0..M {
+        out[i] = mul_poly_by_challenge_hat(&polys[i], c_hat);
+    }
+    out
+}
+
+fn split_poly_array_shamir<const M: usize>(
+    secret: &[Poly; M],
+    threshold: u16,
+    receivers: &[(ValidatorId, u16)],
+    mask_seed: &[u8],
+) -> Result<Vec<(ValidatorId, u16, [Poly; M])>, ThresholdError> {
+    if threshold == 0 || receivers.len() < threshold as usize {
+        return Err(ThresholdError::InvalidThresholdParameters {
+            threshold,
+            total_nodes: receivers.len() as u16,
+        });
+    }
+    for &(_, x) in receivers {
+        if x == 0 {
+            return Err(ThresholdError::BackendUnavailable {
+                reason: "poly-array share evaluation point must be nonzero",
+            });
+        }
+    }
+
+    let degree = threshold as usize;
+    let mut component_polys: Vec<Vec<Poly>> = Vec::with_capacity(M);
+    for (component, secret_poly) in secret.iter().enumerate() {
+        let mut coeffs = vec![*secret_poly];
+        for d in 1..degree {
+            coeffs.push(derive_array_mask_poly(
+                mask_seed,
+                component as u16,
+                d as u16,
+            ));
+        }
+        component_polys.push(coeffs);
+    }
+
+    let mut shares = Vec::with_capacity(receivers.len());
+    for &(validator, x) in receivers {
+        let mut vector = [Poly::zero(); M];
+        for component in 0..M {
+            vector[component] = eval_array_poly_coeffs(&component_polys[component], x);
+        }
+        shares.push((validator, x, vector));
+    }
+    Ok(shares)
+}
+
+fn aggregate_poly_array_partials<const M: usize>(
+    partials: &[(ValidatorId, u16, [Poly; M])],
+) -> Result<[Poly; M], ThresholdError> {
+    if partials.is_empty() {
+        return Err(ThresholdError::InsufficientPartialShares {
+            required: 1,
+            received: 0,
+        });
+    }
+    let mut xs = Vec::with_capacity(partials.len());
+    let mut seen = std::collections::BTreeSet::new();
+    for (validator, x, _) in partials {
+        if *x == 0 {
+            return Err(ThresholdError::BackendUnavailable {
+                reason: "poly-array aggregate saw zero evaluation point",
+            });
+        }
+        if !seen.insert(*x) {
+            return Err(ThresholdError::DuplicateValidator {
+                validator: *validator,
+            });
+        }
+        xs.push(*x);
+    }
+
+    let mut out = [Poly::zero(); M];
+    for (_, x, vector) in partials {
+        let lambda = crate::crypto::interpolation::compute_lagrange_coefficient(&xs, *x);
+        for component in 0..M {
+            let scaled = crate::low_level::ring::poly_scale(&vector[component], lambda);
+            out[component].add_assign(&scaled);
+        }
+    }
+    Ok(out)
+}
+
+fn poly_array_eq<const M: usize>(a: &[Poly; M], b: &[Poly; M]) -> bool {
+    a.iter()
+        .zip(b.iter())
+        .all(|(x, y)| x.canonical().coeffs == y.canonical().coeffs)
+}
+
+fn derive_array_mask_poly(mask_seed: &[u8], component: u16, degree: u16) -> Poly {
+    let mut hasher = Shake256::default();
+    hasher.update(b"lattice-aggregation/fips-sign/poly-array-shamir-mask/v1");
+    hasher.update(mask_seed);
+    hasher.update(&component.to_le_bytes());
+    hasher.update(&degree.to_le_bytes());
+    let mut reader = hasher.finalize_xof();
+    let mut poly = Poly::zero();
+    for coeff in &mut poly.coeffs {
+        let mut word = [0u8; 4];
+        reader.read(&mut word);
+        *coeff = (u32::from_le_bytes(word) % (Q as u32)) as i32;
+    }
+    poly
+}
+
+fn eval_array_poly_coeffs(coeffs: &[Poly], x: u16) -> Poly {
+    let q = i64::from(Q);
+    let mut result = Poly::zero();
+    let mut x_pow = 1i64;
+    for (degree, poly_coeff) in coeffs.iter().enumerate() {
+        if degree > 0 {
+            x_pow = (x_pow * i64::from(x)) % q;
+        }
+        for (out, coeff) in result.coeffs.iter_mut().zip(poly_coeff.coeffs.iter()) {
+            let mut term = (i64::from(*coeff) * x_pow) % q;
+            if term < 0 {
+                term += q;
+            }
+            let mut sum = i64::from(*out) + term;
+            sum %= q;
+            if sum < 0 {
+                sum += q;
+            }
+            *out = sum as i32;
+        }
+    }
+    result
+}
+
+fn partial_bundle_digest(partials: &[ModulePartialZi], c_tilde: &[u8; LAMBDA_BYTES]) -> [u8; 32] {
+    let mut hasher = Shake256::default();
+    hasher.update(b"lattice-aggregation/fips-sign/strict-partial-bundle/v1");
+    hasher.update(c_tilde);
+    for partial in partials {
+        hasher.update(&partial.signer.0.to_be_bytes());
+        hasher.update(&partial.x.to_be_bytes());
+        for component in &partial.z_i.components {
+            for coeff in component.coeffs {
+                hasher.update(&coeff.to_le_bytes());
+            }
+        }
+    }
+    let mut out = [0u8; 32];
+    hasher.finalize_xof().read(&mut out);
+    out
+}
+
+struct RejectionPredicateDigestInput<'a> {
+    c_tilde: &'a [u8; LAMBDA_BYTES],
+    z: &'a ModuleVecL,
+    cs2: &'a [Poly; K],
+    z_bound_ok: bool,
+    r0_bound_ok: bool,
+    ct0_bound_ok: bool,
+    hint_omega_ok: bool,
+    hint_weight: usize,
+}
+
+fn rejection_predicate_digest(input: RejectionPredicateDigestInput<'_>) -> [u8; 32] {
+    let RejectionPredicateDigestInput {
+        c_tilde,
+        z,
+        cs2,
+        z_bound_ok,
+        r0_bound_ok,
+        ct0_bound_ok,
+        hint_omega_ok,
+        hint_weight,
+    } = input;
+
+    let mut hasher = Shake256::default();
+    hasher.update(b"lattice-aggregation/fips-sign/strict-rejection-predicates/v1");
+    hasher.update(c_tilde);
+    for component in &z.components {
+        for coeff in component.coeffs {
+            hasher.update(&coeff.to_le_bytes());
+        }
+    }
+    for poly in cs2 {
+        for coeff in poly.coeffs {
+            hasher.update(&coeff.to_le_bytes());
+        }
+    }
+    hasher.update(&[
+        z_bound_ok as u8,
+        r0_bound_ok as u8,
+        ct0_bound_ok as u8,
+        hint_omega_ok as u8,
+    ]);
+    hasher.update(&(hint_weight as u64).to_be_bytes());
+    let mut out = [0u8; 32];
+    hasher.finalize_xof().read(&mut out);
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -909,5 +1425,48 @@ mod tests {
         );
         let st = SelfContainedFipsStatus::current();
         assert!(st.fips204_wire_from_s1_y_partials_without_provider);
+    }
+
+    #[test]
+    fn strict_distributed_s1_y_partials_emit_standard_wire_signature() {
+        let seed = [0x52u8; 32];
+        let rnd = [0x19u8; 32];
+        let message = b"strict distributed partial core";
+        let validators = vec![
+            ValidatorId(0),
+            ValidatorId(1),
+            ValidatorId(2),
+            ValidatorId(3),
+        ];
+        let package =
+            strict_distributed_sign_from_s1_y_partials(&seed, &rnd, message, 3, &validators)
+                .expect("strict distributed partial package");
+
+        assert_eq!(
+            package.packing_mode,
+            "strict_distributed_s1_y_partials_to_fips204_wire_signature"
+        );
+        assert_eq!(package.partial_count, 3);
+        assert!(package.aggregate_z_matches_direct);
+        assert!(package.aggregate_cs2_matches_direct);
+        assert!(package.z_bound_ok);
+        assert!(package.r0_bound_ok);
+        assert!(package.ct0_bound_ok);
+        assert!(package.hint_omega_ok);
+        assert!(package.standard_verifier_accepted);
+        assert_ne!(package.partial_bundle_digest, [0u8; 32]);
+        assert_ne!(package.rejection_predicate_digest, [0u8; 32]);
+        assert!(RealMldsa65Backend::verify_standard(
+            &package.public_key,
+            message,
+            &package.signature
+        )
+        .unwrap());
+        assert!(!RealMldsa65Backend::verify_standard(
+            &package.public_key,
+            b"mutated",
+            &package.signature
+        )
+        .unwrap());
     }
 }

@@ -1,0 +1,134 @@
+{
+  "blockers": [
+    "production 10000/6667 execution was not run by this bounded native capture",
+    "receiver custody is in-process and not process-isolated",
+    "finalizing process still transiently observes aggregate SharedSecretKey before custody sealing",
+    "strict signer does not yet consume custody-held shares"
+  ],
+  "capture_status": "bounded_dkg_custody_capture_ready_not_production_profile",
+  "claim_boundary": "conformance/proof-review evidence",
+  "claim_flags": {
+    "claims_no_single_exposed_secret_key": false,
+    "claims_production_dkg_custody_closure": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_standard_verifier_threshold_signature_closure": false,
+    "claims_theorem_closure": false
+  },
+  "dkg_custody_evidence": {
+    "commit_before_reveal": true,
+    "coordinator_observed_clear_dkg_shares_before_custody": true,
+    "distributed_dkg_vss_transcript_present": true,
+    "encrypted_receiver_custody_seam_executed": true,
+    "expanded_key_exported_to_json": false,
+    "multiple_independent_dealers": true,
+    "no_seed_dealer_dkg": true,
+    "per_receiver_private_share_custody": false,
+    "process_isolated_receiver_custody": false,
+    "production_dkg_no_single_secret_ready": false,
+    "production_profile_executed": false,
+    "raw_seed_exported_to_json": false,
+    "receiver_vault_imports_verified": true,
+    "secret_material_exported_to_json": false,
+    "signer_consumes_custody_output": false
+  },
+  "execution_profile": {
+    "dealer_count": 2,
+    "threshold": 6,
+    "validator_count": 8
+  },
+  "name": "p1-threshold-backend-p1-dkg-custody-capture-001",
+  "schema": "lattice-aggregation:p1-dkg-custody-capture:v1",
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "target_profile": {
+    "threshold": 6667,
+    "validator_count": 10000
+  },
+  "transcript": {
+    "accepted_dealers": [
+      0,
+      1
+    ],
+    "commitment_key_digest_hex": "07f557cd7303ba652b6a2023f4806d50de048ca9ad9594344a642d8884cb2ec0",
+    "custody_bundle_digest_hex": "aaaf9a59dfd70b2a952d4106bf66c63fe8b5650e8f01067c867b2af697b1219c",
+    "custody_commitments_digest_hex": "099392b084ee0f182048a58214f8bf4eca73f84d593a73fdb7a1e2e807e8afa1",
+    "dealer_commitments": [
+      {
+        "commitment_digest_hex": "ef4b03cec2bb88d6bc51ab55f62056217b05e580dfd74d16b0b28dbe4d92b168",
+        "dealer_id": 0
+      },
+      {
+        "commitment_digest_hex": "69e020883f161ef8bcb36d93758a098f0627b00955ede5f0152c624adf7ba3bb",
+        "dealer_id": 1
+      }
+    ],
+    "dkg_transcript_digest_hex": "43599dbbba848df46ad0c63ebc4f5b6138a8370c8dc333e9b332d7a2848fd162",
+    "envelope_samples": [
+      {
+        "commitments_digest_hex": "099392b084ee0f182048a58214f8bf4eca73f84d593a73fdb7a1e2e807e8afa1",
+        "envelope_digest_hex": "7e07819f05e0a01d15167cc6a792c19019700525cdc540eae458dca7dbb69792",
+        "receiver_index": 1,
+        "s1_ciphertext_count": 5,
+        "s2_ciphertext_count": 6
+      },
+      {
+        "commitments_digest_hex": "099392b084ee0f182048a58214f8bf4eca73f84d593a73fdb7a1e2e807e8afa1",
+        "envelope_digest_hex": "cb8d8cb59a30f94bbc7a5f1bc2bf41dd0fa3f1eea9e50525b6372a9f0c6ff01f",
+        "receiver_index": 2,
+        "s1_ciphertext_count": 5,
+        "s2_ciphertext_count": 6
+      },
+      {
+        "commitments_digest_hex": "099392b084ee0f182048a58214f8bf4eca73f84d593a73fdb7a1e2e807e8afa1",
+        "envelope_digest_hex": "06f0fb5977090fe7749c33cdc272d0cfbfcf511a2638d77450cf8864464db102",
+        "receiver_index": 3,
+        "s1_ciphertext_count": 5,
+        "s2_ciphertext_count": 6
+      },
+      {
+        "commitments_digest_hex": "099392b084ee0f182048a58214f8bf4eca73f84d593a73fdb7a1e2e807e8afa1",
+        "envelope_digest_hex": "c4a70c676e221a980959ffbbe41cb64ffdfdb625c309797de88ef5a93e1ef928",
+        "receiver_index": 8,
+        "s1_ciphertext_count": 5,
+        "s2_ciphertext_count": 6
+      }
+    ],
+    "public_key_digest_hex": "98fee5a5f1d782220513254285ea75ed324f13f63d99ab3a14486ae45f4bc592",
+    "receiver_samples": [
+      {
+        "aggregated_s1_component_0_share_digest_hex": "a349e89a58fddff89cd4b21aead4b0e942c81ad4ed02036d30b9e329258fc149",
+        "aggregated_s2_component_0_share_digest_hex": "683e38672aa6ce478bbaa964ee540b33f50cc2001344db90f7f2048704764ea9",
+        "loaded_dealers": [
+          65535
+        ],
+        "receiver_index": 1
+      },
+      {
+        "aggregated_s1_component_0_share_digest_hex": "ea394fcc86eb5a7435f6b9bb8cb3a1a23dcb87a54db664c0a1d02e8db04749fc",
+        "aggregated_s2_component_0_share_digest_hex": "d6a7d13db7143dcc7bc84bb1b57f979cf2d89d0f8f99a35149294246e536a745",
+        "loaded_dealers": [
+          65535
+        ],
+        "receiver_index": 2
+      },
+      {
+        "aggregated_s1_component_0_share_digest_hex": "08b4cc192ff1fafdfa23845d324f111cd9e0e120701fb82b3fd866e108b197cf",
+        "aggregated_s2_component_0_share_digest_hex": "0c287eb61fb967b1281cc92bcbe4da3a7793ee4100edd4515298f1d1187a003b",
+        "loaded_dealers": [
+          65535
+        ],
+        "receiver_index": 3
+      },
+      {
+        "aggregated_s1_component_0_share_digest_hex": "ff82fa3bb3f5e19c18543fa3a7feb384cf10b026cc6511beeb1aaca9b7f89eed",
+        "aggregated_s2_component_0_share_digest_hex": "c0a55193a17b28a73ba626c56b8b494a53604bc4b1e4acce4d6e92b4a21209a3",
+        "loaded_dealers": [
+          65535
+        ],
+        "receiver_index": 8
+      }
+    ],
+    "receiver_vault_root_hex": "cf6ef814ef3ca9c070e6e88181da25a2d69d9a6ded2c2f393e39f25cd78c8a57",
+    "rho_digest_hex": "fafd2c7c34a6a89daab61b5b31234ec73b3b3273c686b20fc54e49e7b2b859ee",
+    "session_id_hex": "5e40c076740f73c86cf5a76e330f6f09c6317d300ea51e2fdf1924d0440b9cac"
+  }
+}

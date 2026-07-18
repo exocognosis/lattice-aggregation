@@ -10,6 +10,7 @@ a full threshold ML-DSA-65 backend. Engineering paths live in:
 - `src/crypto/feldman_vss.rs`
 - `src/backend/threshold_core.rs`
 - `src/backend/real.rs`
+- `src/backend/fips_sign.rs`
 
 Machine-readable status: `ThresholdMldsaEngine::blocker_status()`.
 
@@ -25,7 +26,7 @@ Machine-readable status: `ThresholdMldsaEngine::blocker_status()`.
 | FIPS wire packing + threshold z | **Closed** | open | Provider bridge (`fips_wire`) + **self-contained** Sign_internal (`fips_sign`) with standard-verifier acceptance |
 | Self-contained Sign_internal | **Closed** | open | `src/backend/fips_sign.rs` — KeyGen+Sign without provider sign call; KeyGen pk matches `ml-dsa` |
 | Aggregate partials + hints | **Closed** | open | Lagrange reconstruct → FIPS `Sign_internal`; hints inside standard sig |
-| FIPS rejection over partials | **Partial** | open | Outer attempt retry + provider-internal Fiat-Shamir-with-aborts on reconstructed distributed `rnd`; per-partial predicates remain open |
+| FIPS rejection over partials | **Closed (functional)** | open | Strict `s1/y` partial aggregation evaluates FIPS `z`, `r0`, `ct0`, and hint/omega predicates before packing; rejection-distribution proof remains open |
 | Binding DKG/VSS | **Closed (hash VSS)** | open | Coefficient + share commitments; not UC / DL-Feldman / audited CT |
 | Malicious-secure DKG/VSS | **Open** | open | Requires external proof/audit and stronger adversarial model |
 | Closed proofs + audits | **Open** | **Open** | Cannot be closed by repository code alone |
@@ -80,8 +81,10 @@ cargo run --features raw-real-mldsa --bin threshold_backend_p1 -- \
 
 `emit-threshold-core-capture` reports `blocker_status` and flips live-nonce,
 seed-layer partial, and module-vector composition engineering flags to true while
-keeping `production_approved: false`. It keeps FIPS wire packing from module
-partials, no-export security, proofs, and audits open.
+keeping `production_approved: false`. It now emits the standard wire signature
+from strict `s1/y` partial aggregation for the execution committee, while
+production 10000/6667 no-seed-dealer DKG, receiver-private custody,
+no-export/security proof, validation, and audits remain open.
 
 ## Claim boundary (do not over-claim)
 
@@ -91,13 +94,16 @@ May say:
 - Partial contributions over secret-key seed shares are implemented and tested.
 - Aggregation produces standard ML-DSA-65 signatures that verify.
 - Algebraic module-vector partial composition is implemented and tested.
-- FIPS rejection sampling runs via `Sign_internal` with reconstructed distributed `rnd`.
+- Strict `s1/y` partial aggregation produces the emitted 3309-byte FIPS wire
+  signature and evaluates the functional FIPS rejection predicates.
 
 Must not say:
 
 - Production threshold ML-DSA security is proved.
-- FIPS wire signatures are produced directly from module-vector partials.
-- Coordinator no-export security is proved; the current seed-layer path reconstructs seed material in-process.
+- Production 10000/6667 no-single-holder DKG/custody is implemented.
+- Rejection-distribution preservation or selective-abort resistance is proved.
+- Coordinator no-export security is proved; the current strict path still uses
+  research seed-dealer setup material and is not a production custody design.
 - Malicious-secure VSS/DKG is proved.
 - Audits or FIPS validation are complete.
 - `production_approved` may be flipped to true.

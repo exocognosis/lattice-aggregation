@@ -1,13 +1,23 @@
 {
-  "blockers": [],
+  "blockers": [
+    "no_seed_dealer_dkg_reviewed",
+    "receiver_private_share_custody_reviewed",
+    "no_single_exposed_mldsa_secret_key",
+    "threshold_authorization_enforced",
+    "no_secret_or_seed_reconstruction"
+  ],
   "checks": {
     "centralized_seed_or_expanded_key_setup_used": false,
-    "distributed_dkg_vss_reviewed": false,
+    "distributed_dkg_vss_reviewed": true,
     "hazmat_expanded_key_split_used": false,
-    "no_single_exposed_mldsa_secret_key": true,
+    "no_secret_or_seed_reconstruction_reviewed": false,
+    "no_seed_dealer_dkg_reviewed": false,
+    "no_single_exposed_mldsa_secret_key": false,
     "public_key_derivation_reviewed": true,
+    "receiver_private_share_custody_reviewed": false,
     "share_shortness_or_trust_assumption_reviewed": true,
-    "tee_hsm_no_export_trust_record_reviewed": true
+    "tee_hsm_no_export_trust_record_reviewed": false,
+    "threshold_authorization_reviewed": false
   },
   "claim_boundary": "conformance/proof-review evidence",
   "claim_flags": {
@@ -19,46 +29,49 @@
     "claims_standard_verifier_compatibility": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-18T00:18:19Z",
+  "generated_at": "2026-07-18T21:15:33Z",
   "name": "p1-production-dkg-no-single-secret-review",
   "package_class": "production_dkg_no_single_secret_review",
   "public_key_count": 1,
   "review_digests": {
-    "dkg_transcript_digest_hex": "bfe58545d26cabd85ace359e495cbb06dd332068e3d8ff623f9518d6535c597f",
-    "no_single_secret_review_digest_hex": "7ccf9d1184f8e9a9f45574af6813a07e9315dcd5cc4d1d65198ceb6f6c7ac283",
-    "public_key_derivation_digest_hex": "4c59c6f2ddf66f2bd6a240a760539bad8f19d4e4e89eb1eb1b6c40c43d13f025",
+    "dkg_transcript_digest_hex": "4fc90c417b6aae45809145cc7b99e88971e3ebaab23bcd4904b8dc96644fcefa",
+    "no_single_secret_review_digest_hex": "c8be207362e59782b416818d97b4a0a86872bdde93e7316d219dfcba57a4b44d",
+    "public_key_derivation_digest_hex": "379efa8a2f3eee9fa1fed061880370286eba8cc32868e584fcd6821e4c808003",
     "reviewer_identity_digest_hex": "b52a9e10250821fdf6acfb80a15431d729ed03422a1e2cf190ea3e4fab9d0f5f",
-    "share_shortness_or_trust_digest_hex": "bd57003e5a9f3e6bb2ff140649095b2593979163d9154a390bdffd98da73cba7"
+    "share_shortness_or_trust_digest_hex": "de67432b6db1ceb4633601bd97071f3e1324faadd59a23650e4febd213a3fefb"
   },
-  "review_status": "reviewed_production_dkg_no_single_secret_ready",
+  "review_status": "blocked_production_dkg_no_single_secret_review",
   "schema": "lattice-aggregation:p1-production-dkg-no-single-secret-review:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
-  "setup_route": "tee_hsm_no_export",
+  "setup_route": "distributed_dkg_vss",
   "source_inputs": {
     "backend_capture_expected": {
-      "accepted_signature_digest_hex": "560f55d8a4c9aa75490e665283ec444269eace1ca8fff654ec25efb4f344fbd8",
-      "artifact_digest_hex": "c7f81c08c13db5e9676cd3cd5e8d24257401f9597473596467b90974ba0a96a0",
-      "backend_evidence_digest_hex": "83d2431feaa0d5fd77b00451f3a12b628397bc2b7a845bcc6fd8fa57643493a8",
-      "backend_implementation_digest_hex": "05eb4bfa03dfa091348576a7c33aa52f4d562118d118e0c573a217f350d89161",
-      "backend_requirement_evidence_digest_hex": "2fbc71d8c66f00a23cf2644f7b56a26a5c59e469b99d3b72ab037bec13b4d517",
-      "backend_source_package_digest_hex": "0c844fbdf0f7f438ccb928037208d3087f09d2b89e76bb4d05f748c74cfe3786",
-      "backend_transcript_digest_hex": "5495c141d074447ca15ba63763ce5ce453b57b3309de0aecb43d9580093adc42",
+      "accepted_signature_digest_hex": "622ecf5780cfdb804d5ce4ed2bc5189bf9f36bf5dee8a5966bbdcbe29359c7f3",
+      "artifact_digest_hex": "90efbf92004bee750eb985ef31f61df16b0735e16aae81cee8b991ee0a0a2ffa",
+      "backend_evidence_digest_hex": "f2cf3c66ff6ada6eccabe300c8a0f36bb6e53c8a09314ea79408accba471f96f",
+      "backend_implementation_digest_hex": "6941061407feb36e88e1addb3ecc46f674dbe688e93d906d728e55b125fbfa14",
+      "backend_requirement_evidence_digest_hex": "20b1867d4a6456286be1b0c3678a7dc9a16c64b785860e5e26e94f91ff69c556",
+      "backend_source_package_digest_hex": "83d91c59fd958dd6db5379d952578ea8f7c3f12598bf71ed7532a3b6c6792539",
+      "backend_transcript_digest_hex": "a7cf4ab5573e21d169a9a5eb04c791b36391a72dd18e8c70687366bea2f23f28",
       "message_digest_hex": "4e6eaca508443033bd8eea1bd741af0087b79a1412f70aa146966fa4c1e05d02",
       "public_key_digest_hex": "f07600f87af83211d428d2f74451c1ad5a2a48547e87b14215a1e19ca67c8a80",
-      "strict_signature_transcript_digest_hex": "a07d2d677f1f1f51bacbbb437a3b6496dae91a81e0a0ce79d9728dc60e35b66c",
-      "threshold_core_accounting_digest_hex": "6b9435d422697f9d3641dab8c5267208dd824604fc5638acc15ecd489d4ac782"
+      "threshold_core_accounting_digest_hex": "8415013df5f73f1b074b0be5fa3913237ab213d7a15877c9774f022c53f246a6"
     },
-    "backend_manifest_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
+    "backend_manifest_sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057",
+    "setup_route": "distributed_dkg_vss",
     "strict_no_export_checks": {
       "core_mode": true,
-      "no_single_exposed_mldsa_secret_key": true,
+      "distributed_dkg_vss_reviewed": true,
+      "no_secret_or_seed_reconstruction": false,
+      "no_seed_dealer_dkg_reviewed": false,
+      "no_single_exposed_mldsa_secret_key": false,
       "public_key_count_one": true,
+      "receiver_private_share_custody_reviewed": false,
       "secret_material_not_exported": true,
       "signature_origin": true,
       "strict_threshold_core_admissible": true,
-      "tee_hsm_no_export_trust_record_reviewed": true,
-      "threshold_authorization_enforced": true
+      "threshold_authorization_enforced": false
     }
   },
   "threshold": 6667,

@@ -6,7 +6,10 @@
 //! When the `raw-real-mldsa` feature is enabled, [`real::RealMldsa65Backend`]
 //! and [`threshold_core::ThresholdMldsaEngine`] provide hazmat real-crypto
 //! paths: seed-share reconstruction, live nonce DKG, binding VSS, partial
-//! share contributions, and FIPS Sign_internal with rejection. Formal proofs
+//! share contributions, and FIPS Sign_internal with rejection. The strict
+//! [`fips_sign::strict_distributed_sign_from_s1_y_partials`] path emits an
+//! accepted ML-DSA-65 wire signature from aggregated `s1/y` partials for the
+//! research execution committee. Formal proofs, production 10000/6667 custody,
 //! and external audits remain open.
 
 pub mod no_reconstruction;
@@ -32,7 +35,8 @@ pub use algebraic_partial::{
 #[cfg(feature = "raw-real-mldsa")]
 pub use fips_sign::{
     keygen_from_seed, self_contained_sign_with_module_z_shares, sign_internal_empty_ctx,
-    ExpandedSecret65, SelfContainedFipsStatus, SelfContainedSignPackage,
+    strict_distributed_sign_from_s1_y_partials, ExpandedSecret65, SelfContainedFipsStatus,
+    SelfContainedSignPackage, StrictDistributedSignPackage,
 };
 #[cfg(feature = "raw-real-mldsa")]
 pub use fips_wire::{

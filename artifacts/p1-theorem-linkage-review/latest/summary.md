@@ -2,9 +2,9 @@
 
 This artifact links the current P1 evidence package to the named theorem obligations used by Criterion 2 review. It does not claim theorem closure.
 
-- Review status: `reviewed_theorem_linkage_ready`
+- Review status: `blocked_theorem_linkage_review`
 - Claim boundary: `conformance/proof-review evidence`
-- Theorem-linkage digest SHA-256: `f25f41cab9a7be5c501802fabcd075091c8f8d967e96589ad9a4a02dd3f8bffe`
+- Theorem-linkage digest SHA-256: `426e9e4b16e358a3e2d7dcb91e73377e4873ca7c1dcf9cf2df02cbc461f96141`
 
 Checks:
 - `criterion2_schema_valid`: `true`
@@ -22,14 +22,16 @@ Checks:
 - `correctness_lemma_7_linked`: `true`
 - `correctness_lemma_8_linked`: `true`
 - `noise_lemma_h_linked`: `true`
-- `closure_candidate_ready`: `true`
-- `external_attempt_ready`: `true`
+- `closure_candidate_ready`: `false`
+- `external_attempt_ready`: `false`
 - `external_attempt_source_exclusions_passed`: `true`
 - `rejection_batch_predicate_shape_linked`: `true`
 - `rejection_distribution_proof_still_open`: `true`
-- `dkg_review_ready`: `true`
+- `dkg_review_ready`: `false`
 - `distribution_abort_review_ready`: `true`
 - `review_claim_boundaries_preserved`: `true`
 
 Blockers:
-- none
+- `closure_candidate_ready`
+- `external_attempt_ready`
+- `dkg_review_ready`

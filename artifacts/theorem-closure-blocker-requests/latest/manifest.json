@@ -10,22 +10,22 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-18T03:14:51Z",
+  "generated_at": "2026-07-18T21:17:07Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe"
+      "sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d"
     },
     "backend_capture": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
+      "sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057"
     },
     "backend_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
+      "sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe"
     },
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
@@ -35,7 +35,7 @@
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "0fb8721fcdd83647b4fa4bddcedf6653c6657bbc5b184afc7e588664c26c36c0"
+      "sha256": "2585e64e910fe245cee7854dbd3e3e80c713c67d8a157a44cc5319f4918ccc2d"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -45,12 +45,12 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b"
+      "sha256": "340ef7640593afa3a33ef422c9ddd03d0a354ed5094e4473a2ae0e7e033e94ef"
     }
   },
   "name": "theorem-closure-blocker-requests-v1",
   "request_boundary": "This artifact defines the exact externally reviewed proof and validation packages required by theorem-review flags. It does not assert theorem closure, CAVP/ACVTS certification, or FIPS validation.",
-  "request_digest_sha256": "bb40530bcddb752b135407ae448ddb88569ff77b192c974d8724b2cff9fc84f6",
+  "request_digest_sha256": "c63a026a4cc99a7d3b09471dda01500c623d1c33edbd4322b0bbaf197625b97b",
   "request_status": "blocker_inputs_satisfied",
   "required_packages": {
     "full_kat_cavp_validation_review": {
@@ -84,8 +84,8 @@
         "claims_theorem_closure": false
       },
       "required_source_inputs": {
-        "backend_capture_sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-        "backend_manifest_sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
+        "backend_capture_sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057",
+        "backend_manifest_sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe"
       },
       "satisfies_review_flag": "full_kat_validation_reviewed",
       "schema": "lattice-aggregation:p1-full-kat-cavp-validation-review:v1"
@@ -122,7 +122,7 @@
         "claims_theorem_closure": false
       },
       "required_source_inputs": {
-        "accepted_distribution_abort_review_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
+        "accepted_distribution_abort_review_sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d",
         "rejection_batch_sha256": "148b990475c187beb8f006a58dd2337be88677a4f1dfb0ce0bece507d4e502b1"
       },
       "satisfies_review_flag": "rejection_distribution_preservation_reviewed",

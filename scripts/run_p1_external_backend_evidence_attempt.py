@@ -19,7 +19,10 @@ REVIEW_STATUS_READY = "reviewed_external_backend_evidence_ready"
 REVIEW_SOURCE_ORIGIN = "outside_repo_review_manifest"
 REVIEW_SOURCE_PROFILE = "admissible_external_backend_capture"
 PRODUCTION_DKG_REVIEW_PACKAGE_CLASS = "production_dkg_no_single_secret_review"
-PRODUCTION_DKG_REVIEW_ROUTE = "tee_hsm_no_export"
+PRODUCTION_DKG_REVIEW_ROUTES = {
+    "tee_hsm_no_export",
+    "distributed_dkg_vss",
+}
 PRODUCTION_DKG_REVIEW_READY = "reviewed_production_dkg_no_single_secret_ready"
 ACCEPTED_DISTRIBUTION_ABORT_REVIEW_PACKAGE_CLASS = (
     "accepted_distribution_abort_review"
@@ -373,7 +376,7 @@ def review_package_summaries(dkg_review, distribution_abort_review, blockers):
     }
     dkg_valid = (
         dkg_summary["package_class"] == PRODUCTION_DKG_REVIEW_PACKAGE_CLASS
-        and dkg_summary["route"] == PRODUCTION_DKG_REVIEW_ROUTE
+        and dkg_summary["route"] in PRODUCTION_DKG_REVIEW_ROUTES
         and dkg_summary["review_status"] == PRODUCTION_DKG_REVIEW_READY
     )
     distribution_valid = (

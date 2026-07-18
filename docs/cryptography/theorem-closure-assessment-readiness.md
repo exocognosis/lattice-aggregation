@@ -57,7 +57,7 @@ The preflight remains blocked unless all external evidence checks pass:
 - the Batch 8/9 attempt records an explicit
   `production_dkg_no_single_secret_review` package with
   `package_class = production_dkg_no_single_secret_review`,
-  `route = tee_hsm_no_export`, and
+  `route = distributed_dkg_vss` or `route = tee_hsm_no_export`, and
   `review_status = reviewed_production_dkg_no_single_secret_ready`;
 - the Batch 7 candidate includes
   `distribution_abort_review_present = true`;

@@ -1,17 +1,20 @@
 {
-  "attempt_digest_sha256": "864c3e1534bbaff6fd73e1ec3bd83cf8d85ef5bda625cfc3ffd2bff475d68d22",
-  "attempt_status": "external_evidence_close_candidate_ready",
-  "blockers": [],
-  "candidate_digest_sha256": "fbdc07e7ab0b85a08d7264730d544b35e6cd0648a7eceaf90310a59485c8b7c7",
+  "attempt_digest_sha256": "49adbad826ade2c9d0516d39bc121fa0b644ae6868e60d95bba41beef22031a6",
+  "attempt_status": "blocked_external_evidence_missing",
+  "blockers": [
+    "production DKG/no-single-secret review is incomplete",
+    "production DKG/no-single-secret review package class or route is not ready"
+  ],
+  "candidate_digest_sha256": "f0a7e2f8ae99b3b42f31f77ee63b35991a7349675f85c7bb4b205a710362089a",
   "candidate_manifest_path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
-  "candidate_manifest_sha256": "68c14cd210cd3670bed754e23fa0c7f6177e484f25951f536d265938838dc747",
+  "candidate_manifest_sha256": "fbd4ee7f8d5c430393dbd1750a2bed89d72c9531b43fc3ec5695113351117775",
   "checks": {
     "accepted_distribution_abort_review_package_valid": true,
     "comparison_close_candidate": true,
     "distribution_abort_review_present": true,
     "mutation_rejection_complete": true,
-    "production_dkg_no_single_secret_review_package_valid": true,
-    "production_dkg_no_single_secret_review_present": true,
+    "production_dkg_no_single_secret_review_package_valid": false,
+    "production_dkg_no_single_secret_review_present": false,
     "real_threshold_emission_present": true,
     "rejection_distribution_comparison_present": true,
     "review_package_binds_inputs": true,
@@ -31,14 +34,14 @@
   "claims_selected_backend_proof_closure": false,
   "claims_standard_verifier_compatibility": false,
   "claims_theorem_closure": false,
-  "close_candidate": true,
+  "close_candidate": false,
   "closure_boundary": "Batch 8 external evidence attempt only; pending theorem-closure review, requires rejection-distribution preservation proof, and requires selected-backend proof closure evidence.",
-  "generated_at": "2026-07-18T00:18:22Z",
+  "generated_at": "2026-07-18T21:15:33Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe"
+      "sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d"
     },
     "actual_external_nonce_gate_manifest": {
       "path": "artifacts/nonce-producer-actual-external-gate/latest/manifest.json",
@@ -48,22 +51,22 @@
     "closure_candidate_manifest": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "68c14cd210cd3670bed754e23fa0c7f6177e484f25951f536d265938838dc747"
+      "sha256": "fbd4ee7f8d5c430393dbd1750a2bed89d72c9531b43fc3ec5695113351117775"
     },
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "94bff5798e0524e5f6013aaf230f5f8dea09bd7ab59f2c7ec88065b23d9f5700"
+      "sha256": "ec2d3e05921ce8d63b6599b009edeab17c9b043b7a12717d62568121caf18f9d"
     },
     "real_threshold_backend_capture_json": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
       "present": true,
-      "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba"
+      "sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057"
     },
     "real_threshold_backend_capture_manifest": {
       "path": "artifacts/backend-emission-capture/latest/manifest.json",
       "present": true,
-      "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28"
+      "sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe"
     },
     "rejection_equivalence_batch_json": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -73,12 +76,12 @@
     "reviewed_external_evidence_package": {
       "path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
       "present": true,
-      "sha256": "60749159e35e3a7fa4075608d3a46f6bc3a95d5ea710981a777b504b837f534c"
+      "sha256": "7625a06bbb34b6fd7fa6d6ba0ee1511f7d1439e470f907dcc015cd00773f2b82"
     }
   },
   "name": "p1-external-backend-evidence-attempt-v1",
   "review_package_path": "artifacts/p1-external-backend-evidence-package-review/latest/manifest.json",
-  "review_package_sha256": "60749159e35e3a7fa4075608d3a46f6bc3a95d5ea710981a777b504b837f534c",
+  "review_package_sha256": "7625a06bbb34b6fd7fa6d6ba0ee1511f7d1439e470f907dcc015cd00773f2b82",
   "review_packages": {
     "accepted_distribution_abort_review": {
       "package_class": "accepted_distribution_abort_review",
@@ -86,8 +89,8 @@
     },
     "production_dkg_no_single_secret_review": {
       "package_class": "production_dkg_no_single_secret_review",
-      "review_status": "reviewed_production_dkg_no_single_secret_ready",
-      "route": "tee_hsm_no_export"
+      "review_status": "blocked_production_dkg_no_single_secret_review",
+      "route": "distributed_dkg_vss"
     }
   },
   "schema": "lattice-aggregation:p1-external-backend-evidence-attempt:v1",

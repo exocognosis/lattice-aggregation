@@ -60,12 +60,12 @@
     },
     "theorem_closure_readiness": {
       "path": "artifacts/theorem-closure-readiness/latest/manifest.json",
-      "status": "ready_for_theorem_closure_assessment",
+      "status": "blocked_before_theorem_closure_assessment",
       "substantive_effect": "none"
     },
     "theorem_closure_review": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
-      "status": "theorem_closure_review_ready",
+      "status": "theorem_closure_review_incomplete",
       "substantive_effect": "none"
     },
     "backend_emission_capture": {
@@ -74,8 +74,8 @@
       "threshold": 6667,
       "signature_bytes": 3309,
       "dirty": true,
-      "real_distributed_threshold_core_verified": false,
-      "substantive_effect": "standard-verifier and scale-shaped evidence only"
+      "real_distributed_threshold_core_verified": true,
+      "substantive_effect": "strict partial-aggregation standard-verifier evidence only; production DKG/custody remains blocked"
     }
   },
   "implementation_capability_boundary": {
