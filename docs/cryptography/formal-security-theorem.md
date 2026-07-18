@@ -10,10 +10,10 @@ This document states the formal security theorem that the project must prove
 before the threshold ML-DSA design can move from research scaffold to production
 cryptography. It is intentionally stronger than the current implementation.
 
-The current Rust backend is deterministic simulation machinery. It exercises API
-shape, transcript binding, canonical collection validation, and aggregation
-control flow. It does not instantiate ML-DSA signing, does not verify standard
-ML-DSA signatures, and does not satisfy the theorem below.
+The current Rust code contains simulation, conformance, and research components
+that exercise API shape, transcript binding, canonical collection validation,
+and aggregation control flow. No current implementation conforms to the strong
+no-single-holder protocol target or satisfies the theorem below.
 
 This document depends on related proof artifacts in two states.
 
@@ -21,15 +21,21 @@ Present in this checkout:
 
 - `docs/cryptography/formal-threshold-mldsa-transcript.md`
 - `docs/cryptography/proof-obligations.md`
-
-Still missing:
-
+- `docs/cryptography/internal-proof-obligation-register.json`
 - `docs/cryptography/security-model.md`
 - `docs/cryptography/threshold-mldsa-protocol-spec.md`
 
-Until the missing model and protocol inputs are added and the listed proof
-obligations are discharged, this document should be treated as a precise target
-statement and dependency map, not as evidence that a proof has been completed.
+The machine-readable register is the authoritative current-state index for the
+five hypothesis criteria and the FST theorem/lemma obligations. Validate its
+status and promotion invariants with:
+
+```text
+python3 scripts/validate_internal_proof_obligation_register.py --root .
+```
+
+Until the listed proof obligations are discharged, this document should be
+treated as a precise target statement and dependency map, not as evidence that
+a proof has been completed.
 
 ## FST-1. Objects and Notation
 
@@ -342,3 +348,35 @@ To complete this theorem package, later work must provide:
   standard ML-DSA-65 verification.
 - An implementation security review covering side channels, zeroization,
   panic/error behavior, serialization, and transcript compatibility.
+
+## FST-11. Closure State and Review Boundary
+
+The project uses two closure milestones. Neither is implied by aggregation-run
+scale, verifier acceptance, evidence-package completeness, or review readiness.
+
+`internally_closed_pending_independent_review` means all five hypothesis
+criteria have substantive proof status `discharged`, every required FST-T1,
+FST-T2, and FST-L1 through FST-L9 obligation has substantive proof status
+`discharged`, the selected production protocol has clean reproducible
+conformance evidence, and an identified internal reviewer has accepted each
+proof package. This is an internal candidate conclusion, not independent
+validation and not a production security claim.
+
+`independently_validated_theorem_closure` additionally requires independent
+cryptographers to validate the five criterion packages and FST-T1/FST-T2. A
+reviewer signoff is recorded separately from mathematical proof state so that a
+review-ready or internally reviewed package cannot promote an open proof.
+
+The status axes in
+`docs/cryptography/internal-proof-obligation-register.json` therefore remain
+orthogonal:
+
+- `substantive_proof` records mathematical discharge only.
+- `internal_review` records project review of the supplied proof.
+- `independent_validation` records validation outside the project.
+
+The current register claims none of these closure milestones. In particular,
+the present 10,000-validator, threshold-6,667 standard-signature capture is
+supporting scale and verifier evidence only: its dirty provenance and absent
+real distributed threshold-core verification prevent it from discharging
+FST-L5 or any criterion.

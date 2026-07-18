@@ -2,16 +2,16 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
-Branch: `codex/p1-validation-proof-packages`
-Commit: `b5932fcc5c665486fbc11a6450f4ccbd5e5a275a`
+Branch: `codex/post-119-crypto-evidence`
+Commit: `9999744b66bac4a94c3ab874f55edfba1462dff6`
 
 ## Criteria
 
-- `aggregate_mask_distribution`: `partially_met` (3 evidence entries, 2 blockers)
-- `aggregate_rejection_equivalence`: `partially_met` (28 evidence entries, 10 blockers)
-- `abort_retry_bias`: `partially_met` (3 evidence entries, 2 blockers)
-- `partial_contribution_soundness`: `partially_met` (5 evidence entries, 2 blockers)
-- `unauthorized_aggregate_reduction`: `partially_met` (3 evidence entries, 2 blockers)
+- `aggregate_mask_distribution`: `partially_met` (5 evidence entries, 4 blockers)
+- `aggregate_rejection_equivalence`: `partially_met` (31 evidence entries, 12 blockers)
+- `abort_retry_bias`: `partially_met` (4 evidence entries, 3 blockers)
+- `partial_contribution_soundness`: `partially_met` (6 evidence entries, 3 blockers)
+- `unauthorized_aggregate_reduction`: `partially_met` (4 evidence entries, 3 blockers)
 
 ## Proof Artifact Slots
 
@@ -27,6 +27,29 @@ Commit: `b5932fcc5c665486fbc11a6450f4ccbd5e5a275a`
 ### criterion_3
 - Status: `criterion3_proof_payload_formalized`
 - `required_unclosed`: accepted_signature_distribution_proof_digest, adversarial_abort_policy_corpus_digest, external_review_digest, formal_abort_leakage_model_digest, retry_domain_separation_proof_digest, sample_size_bucket_rationale_digest, timeout_retry_policy_digest
+
+## Post-119 Crypto Evidence
+
+- Status: `post_119_crypto_substrate_indexed`
+- Evidence status: `evidence_present_unclosed`
+- Boundary: evidence_present_unclosed; not theorem closure
+- `design_space_boundary_gate`: `True`
+- `distributed_mask_mpc_feasibility_gate`: `True`
+- `distributed_nonce_epsilon_mask_gate`: `True`
+- `mldsa_primitive_gate`: `True`
+- `partial_local_validity_gate`: `True`
+- `real_dkg_vss_stack_a_gate`: `True`
+- `two_stack_adr_gate`: `True`
+- `claims_theorem_closure`: `False`
+- `claims_criterion_met`: `False`
+- `claims_selected_backend_proof_closure`: `False`
+- `claims_rejection_distribution_preservation`: `False`
+- `claims_mask_distribution_proven`: `False`
+- `claims_standard_verifier_compatibility_complete`: `False`
+- `claims_production_threshold_mldsa_security`: `False`
+- `claims_cavp_acvts_validation`: `False`
+- `claims_fips_validation`: `False`
+- `claims_epsilon_mask_closed`: `False`
 
 ## Non-Closure Guards
 

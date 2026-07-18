@@ -19,7 +19,7 @@ def load_module():
 
 
 class TheoremClosureBlockerRequestsTests(unittest.TestCase):
-    def test_current_artifacts_emit_exact_remaining_package_requests(self):
+    def test_current_artifacts_emit_satisfied_package_requests(self):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-07T00:00:00Z")

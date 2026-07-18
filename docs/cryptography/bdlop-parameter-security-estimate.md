@@ -1,9 +1,7 @@
 # BDLOP Commitment Parameter Security Estimate
 
 Status: analytical core-SVP estimate (lattice-estimator NOT run — unavailable in
-this environment). This is reviewer-orientation evidence, **not** a closed
-security claim and **not** a substitute for the lattice-estimator or external
-review.
+this environment). This is reviewer-orientation evidence, **not a closed security claim** and **not** a substitute for the lattice-estimator or external review.
 
 Date: 2026-07-12
 

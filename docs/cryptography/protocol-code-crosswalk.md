@@ -38,6 +38,9 @@ selected-backend implementation, proof, and audit artifacts.
 | Protocol phase | Implementation surface | Test evidence | Current boundary |
 | --- | --- | --- | --- |
 | DKG scaffold | `src/dkg.rs`, `src/backend.rs`, `src/crypto/vss.rs`, `src/crypto/interpolation.rs` | `tests/simulated_flow.rs`, `tests/low_level.rs` | Deterministic research scaffold evidence; no malicious-secure DKG claim. |
+| Distributed Stack A research cryptography | `src/crypto/vss_real.rs`, `src/crypto/bdlop.rs`, `src/crypto/bdlop_pok.rs`, `src/crypto/vss_bdlop.rs`, `src/crypto/mldsa_module.rs`, `src/crypto/mldsa_dkg.rs`, `src/crypto/distributed_nonce.rs`, `src/crypto/share_transport.rs`, `src/low_level/ntt.rs` | module tests, `tests/threshold_core.rs` | Real distributed VSS/DKG and nonce research path. It has no single key holder, but additive mask aggregation leaves `epsilon_mask` open and this path does not emit FIPS-verifier-valid signatures. |
+| Coordinator Stack B verifier-compatible path | `src/backend/fips_sign.rs`, `src/backend/fips_wire.rs`, `src/backend/real.rs`, `src/backend/threshold_core.rs`, `src/backend/module_partial.rs` | `tests/real_backend.rs`, `tests/partial_soundness_real_local_verifier.rs`, `tests/threshold_core.rs`, `tests/validator_10000_standard_verifier_gate.rs` | Standard-verifier-compatible coordinator-assisted path. It emits ML-DSA-verified signatures, but coordinator seed/nonce reconstruction means it is not cryptographic no-single-holder without the explicit TEE/HSM no-export assumption. |
+| Epsilon-mask MPC feasibility | `docs/cryptography/distributed-mask-mpc-feasibility.md`, `scripts/model_distributed_mask_mpc_feasibility.py` | `script_tests/test_model_distributed_mask_mpc_feasibility.py` | Feasibility model and prototype scope only; it does not implement MPC or close theorem criteria. |
 | Signing state machine | `src/protocol.rs`, `src/types.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs`, `tests/validation.rs` | Type-state and collection guards enforce call ordering and signer sets. |
 | Transcript binding | `src/transcript.rs`, `src/backend.rs`, `src/protocol.rs` | `tests/transcript_determinism.rs`, `tests/simulated_flow.rs` | Deterministic challenge binding for scaffold tests; no distributional proof. |
 | Aggregation boundary | `src/aggregation.rs`, `src/backend.rs`, `src/collections.rs` | `tests/simulated_flow.rs`, `tests/type_state.rs` | Boundary validation before backend aggregation; no standard-verifier claim. |
@@ -59,6 +62,43 @@ The corresponding tests in `tests/simulated_flow.rs` and `tests/low_level.rs`
 show deterministic public-key binding, interpolation behavior, and arithmetic
 guard rails. They do not show VSS hiding, binding, extractability, complaint
 soundness, key-bias resistance, or active-adversary robustness.
+
+## Distributed Stack A Research Cryptography
+
+Stack A is the no-single-holder research path. `src/crypto/vss_real.rs`,
+`src/crypto/bdlop.rs`, `src/crypto/bdlop_pok.rs`, `src/crypto/vss_bdlop.rs`,
+`src/crypto/mldsa_module.rs`, `src/crypto/mldsa_dkg.rs`,
+`src/crypto/distributed_nonce.rs`, and `src/crypto/share_transport.rs` now
+contain real `R_q` VSS/DKG, hiding commitments, proof-of-knowledge wiring,
+distributed nonce generation, and encrypted share-transport scaffolding.
+
+The current boundary is deliberate: Stack A is useful cryptographic substrate,
+but it does not emit a FIPS 204 wire signature. The additive nonce path keeps
+`epsilon_mask` open, as pinned by the distributed nonce negative test.
+
+## Coordinator Stack B Verifier-Compatible Path
+
+Stack B is the standard-verifier-compatible coordinator-assisted path.
+`src/backend/fips_sign.rs`, `src/backend/fips_wire.rs`, `src/backend/real.rs`,
+`src/backend/threshold_core.rs`, and `src/backend/module_partial.rs` provide the
+FIPS wire path, provider-verified signature emission, threshold-shaped
+accounting, and local `z_i = y_i + c*s1_i` validity checks.
+
+This path verifies against ordinary ML-DSA-65, but its security boundary is a
+TEE/HSM no-export coordinator assumption. It must not be described as
+cryptographic no-single-holder unless a future MPC/distributed mask route
+replaces reconstruction.
+
+## Epsilon-Mask MPC Feasibility
+
+`docs/cryptography/distributed-mask-mpc-feasibility.md` and
+`scripts/model_distributed_mask_mpc_feasibility.py` define the next research
+route: a small committee jointly samples one `ExpandMask`-uniform mask and
+evaluates the nonlinear FIPS 204 predicates in MPC. The model is executable and
+reviewable, but it is a feasibility artifact only. It keeps theorem closure,
+`epsilon_mask` closure, rejection-distribution preservation, production
+threshold ML-DSA security, CAVP/ACVTS validation, and FIPS validation claims
+false.
 
 ## Signing State Machine
 
@@ -228,6 +268,9 @@ anchors:
 - `## Scope`
 - `## Protocol Phase Crosswalk`
 - `## DKG Scaffold`
+- `## Distributed Stack A Research Cryptography`
+- `## Coordinator Stack B Verifier-Compatible Path`
+- `## Epsilon-Mask MPC Feasibility`
 - `## Signing State Machine`
 - `## Transcript Binding`
 - `## Aggregation Boundary`

@@ -19,12 +19,14 @@ The available implementation evidence is:
 - `src/collections.rs`
 - `docs/cryptography/phase-1-noise-bound-model.md`
 
-The following requested inputs were not present in this checkout at the time of
-writing: `src/low_level/mldsa65.rs`,
-`tests/hazmat_mldsa65_threshold_bridge.rs`,
-`docs/cryptography/noise-bound-proof-outline.md`, and
-`docs/cryptography/threshold-mldsa-protocol-spec.md`. Lemmas that depend on
-those missing artifacts are stated as obligations for a future real backend.
+The following requested implementation and proof inputs are not present in this
+checkout: `src/low_level/mldsa65.rs`,
+`tests/hazmat_mldsa65_threshold_bridge.rs`, and
+`docs/cryptography/noise-bound-proof-outline.md`. The normative strong-path
+protocol target is now specified in
+[`threshold-mldsa-protocol-spec.md`](threshold-mldsa-protocol-spec.md), but it
+does not supply the missing implementation or proof artifacts. Lemmas that
+depend on those artifacts remain obligations for a future real backend.
 
 ## Notation
 

@@ -4,6 +4,10 @@ Status: traceability matrix for proof targets and required completion artifacts.
 
 Date: 2026-05-27
 
+Machine-readable state:
+`docs/cryptography/internal-proof-obligation-register.json`. Validate it with
+`python3 scripts/validate_internal_proof_obligation_register.py --root .`.
+
 ## Scope
 
 This matrix tracks theorem and lemma areas for the threshold ML-DSA-65
@@ -19,6 +23,18 @@ An `implemented engineering guard` means the repository has a code or test
 invariant that supports the obligation as an implementation guard.
 Active-adversary security is promoted by the selected-backend proof package.
 
+Each machine-readable obligation has three independent status axes:
+
+- substantive proof state: whether the mathematical obligation is discharged;
+- internal review state: whether an identified project reviewer accepted the
+  submitted proof package;
+- independent validation state: whether cryptographers outside the project
+  validated the proof.
+
+Internal review cannot promote an open or proof-sketch obligation. Evidence
+packaging, theorem-assessment readiness, a successful standard-verifier run,
+and an aggregation run at the target validator count are also non-promoting.
+
 ## Matrix
 
 | Area | Source surface | Obligation | Current status | Notes |
@@ -29,10 +45,13 @@ Active-adversary security is promoted by the selected-backend proof package.
 | FST-T4 implementation conformance gate | `formal-security-theorem.md`, `proof-implementation-crosswalk.md` | Keep conformance evidence separate from cryptographic reductions. | implemented engineering guard | Backend boundaries, type-state flow, and tests support traceability only. |
 | FST-T5 thesis and operating-parameter boundary | `thesis-operating-parameters.md`, `thesis-operating-parameters.json`, `claims-matrix.md` | Keep thesis id, Profile P1 assumptions, promotion criteria, failure criteria, and fallback trigger explicit without promoting any criterion. | implemented engineering guard | The manifest pins `research scaffold evidence`, all five criteria as `partially_met`, and Falcon/LaBRADOR-style proof aggregation as `evaluate_only`; this is requires selected-backend proof closure evidence or production threshold ML-DSA security. |
 | FST-T6 Criterion 2 proof-substance boundary | `criterion-2-proof-substance.md`, `criterion-2-proof-substance.json`, `p1-nonce-producer-selection.md`, `p1-nonce-producer-selection.json`, `rejection-equivalence-evidence.md` | Keep the aggregate rejection-equivalence proof payload explicit without claiming verifier compatibility, rejection-distribution preservation, reviewed distributed nonce-producer evidence, or criterion closure. | implemented engineering guard | The manifest pins required artifact slots and theorem links for proof review, including `distributed_nonce_producer_artifact_digest` as `required_unclosed` until a reviewed P1 Shamir nonce-DKG producer replaces the hazmat PRF-output oracle; Criterion 2 remains `partially_met` and open. |
+| FST-T7 two-stack boundary | `threshold-stack-architecture.md`, `epsilon-mask-fork-decision.md` | Preserve the separation between Stack A distributed/no-single-holder research and Stack B standard-verifier-compatible coordinator-assisted signing. | implemented engineering guard | The ADR makes the trade-off explicit: Stack A contains real distributed VSS/DKG and nonce components but leaves `epsilon_mask` open; Stack B verifies with the standard ML-DSA verifier but relies on a coordinator no-export assumption. |
+| FST-T8 design-space boundary | `design-space-boundary-theorems.md`, `scripts/model_fst_t5_boundaries.py` | Record that exact threshold ML-DSA exists by MPC completeness while additive-response designs cannot reach the 10,000-validator target at fixed ML-DSA-65 parameters. | proof sketch only | FST-T4 is a proof sketch reducible to external MPC theorems. FST-T5 is a model-level infeasibility boundary, not a formal impossibility result. |
+| FST-L12 committee-MPC feasibility | `fst-l12-committee-cost-model.md`, `distributed-mask-mpc-feasibility.md`, `scripts/model_fst_l12_committee_cost.py`, `scripts/model_distributed_mask_mpc_feasibility.py` | Convert the ratified heavy-MPC route into a costed small-committee scope for exact `ExpandMask` sampling and oblivious FIPS 204 rejection predicates. | proof sketch only | The executable models support epoch-certificate feasibility and per-block no-go guidance. They do not implement MPC, close `epsilon_mask`, or prove production threshold ML-DSA security. |
 | FST-L1 canonical transcript injectivity | `formal-security-theorem.md`, `formal-threshold-mldsa-transcript.md`, `correctness-lemmas.md` | Prove exact production byte encoding is injective for all challenge-bearing fields. | proof sketch only | `SigningTranscript` binds explicit fields; formal wire-level injectivity remains missing. |
 | FST-L2 challenge binding | `formal-security-theorem.md`, `formal-threshold-mldsa-transcript.md`, `random-oracle-game.md`, `correctness-lemmas.md`, `noise-rejection-proof-plan.md` | Prove commitments, session ID, threshold, validator set, key, message, and ordered commitment map are fixed before challenge use. | implemented engineering guard | The scaffold constructs transcripts after canonical commitments; real ML-DSA commitment semantics remain open. |
 | FST-L3 validator-set soundness | `formal-security-theorem.md`, `correctness-lemmas.md`, `proof-implementation-crosswalk.md` | Reject duplicate, unknown, insufficient, and mismatched validator collections before transcript or aggregation use. | implemented engineering guard | `CommitmentSet` and `PartialShareSet` enforce scaffold collection validation. |
-| FST-L4 partial-share validity | `formal-security-theorem.md`, `proof-implementation-crosswalk.md` | Verify each partial share against signer metadata, transcript, commitment, and public key with attributable failure evidence. | open | Requires real partial-share equations and selected-backend evidence. |
+| FST-L4 partial-share validity | `formal-security-theorem.md`, `proof-implementation-crosswalk.md`, `partial-soundness-advancement-2026-07-12.md` | Verify each partial share against signer metadata, transcript, commitment, and public key with attributable failure evidence. | proof sketch only | Stack B now has executable local algebraic validity checks for `z_i = y_i + c*s1_i`, but the verifier consumes `y_i` and `s1_i` in the clear. A ZK/audited local verifier and leakage proof remain open. |
 | FST-L5 aggregation correctness | `formal-security-theorem.md`, `correctness-lemmas.md` | Show at least `t` valid partial shares for one transcript aggregate to a standard-valid ML-DSA signature. | open | Algebraic response aggregation is stated for a future real backend. |
 | FST-L6 no subthreshold signing | `formal-security-theorem.md`, `vss-dkg-security-plan.md` | Show fewer than `t` corrupt shares cannot produce unauthorized aggregate signatures except by breaking listed assumptions. | open | Depends on real VSS/DKG sharing soundness and real partial verification. |
 | FST-L7 abort compatibility | `formal-security-theorem.md`, `noise-rejection-proof-plan.md` | Prove threshold abort and rejection behavior preserves the accepted ML-DSA-65 signature distribution. | open | Requires a selected threshold construction and Fiat-Shamir-with-aborts analysis. |
@@ -54,11 +73,11 @@ Active-adversary security is promoted by the selected-backend proof package.
 | Noise Lemma F aggregate rejection soundness | `noise-rejection-proof-plan.md` | Define and prove aggregate acceptance gates, including standard verification or equivalent checks. | open | Current aggregator delegates to a simulated hash backend. |
 | Noise Lemma G abort distribution | `noise-rejection-proof-plan.md`, `active-adversary-model.md` | Bound observable local and aggregate abort leakage under the chosen adversary view. | open | Requires network, retry, slashing, and leakage model choices. |
 | Noise Lemma H accepted-signature distribution | `noise-rejection-proof-plan.md` | Prove accepted threshold signatures have the standard ML-DSA-65 distribution or a quantified Renyi divergence bound accepted by the proof. | open | Needs external threshold ML-DSA construction and review. |
-| VSS binding | `vss-dkg-security-plan.md` | Prove accepted VSS commitments bind to one degree-`< tau` dealer polynomial and context. | open | Current VSS is deterministic scaffold code. |
-| VSS hiding | `vss-dkg-security-plan.md` | Prove fewer than `tau` corrupt validators learn no useful secret information before reconstruction. | open | Requires production commitments, encrypted shares, and proof system. |
-| VSS extractability | `vss-dkg-security-plan.md` | Extract a unique accepted dealer polynomial or reject with public evidence. | open | Requires selected production extractable proof-system artifacts. |
-| DKG output agreement and robustness | `vss-dkg-security-plan.md`, `active-adversary-model.md` | Prove honest validators finalize one accepted-dealer set, transcript, share relation, and public key. | open | Simulated DKG is not malicious-secure. |
-| DKG key-bias resistance | `vss-dkg-security-plan.md`, `active-adversary-model.md` | Prove rushing adversaries cannot bias the joint key beyond the stated bound. | open | Requires commit-before-share or equivalent production protocol proof. |
+| VSS binding | `vss-dkg-security-plan.md`, `bdlop-parameter-security-estimate.md` | Prove accepted VSS commitments bind to one degree-`< tau` dealer polynomial and context. | proof sketch only | Real `R_q` VSS, BDLOP commitments, and opening proofs now exist, with analytical parameter estimates. External lattice-estimator validation and malicious-dealer extractability review remain open. |
+| VSS hiding | `vss-dkg-security-plan.md`, `bdlop-parameter-security-estimate.md` | Prove fewer than `tau` corrupt validators learn no useful secret information before reconstruction. | proof sketch only | Hiding BDLOP VSS is implemented as research code. The checked estimate is reviewer-orientation evidence, not a closed security claim or external review. |
+| VSS extractability | `vss-dkg-security-plan.md`, `active-adversary-model.md` | Extract a unique accepted dealer polynomial or reject with public evidence. | proof sketch only | DKG commit-reveal and public fault evidence are implemented, but signed transport, slashing-grade attribution, and full malicious-secure extractability are still open. |
+| DKG output agreement and robustness | `vss-dkg-security-plan.md`, `active-adversary-model.md`, `threshold-stack-architecture.md` | Prove honest validators finalize one accepted-dealer set, transcript, share relation, and public key. | proof sketch only | Stack A has a multi-dealer DKG state machine with deterministic accepted-dealer ordering and fault records. It is not wired to standard-verifier signature emission and is not a production malicious-secure DKG proof. |
+| DKG key-bias resistance | `vss-dkg-security-plan.md`, `active-adversary-model.md` | Prove rushing adversaries cannot bias the joint key beyond the stated bound. | proof sketch only | Commit-before-reveal hardening reduces adaptive-choice bias. Last-mover abort bias, encrypted share transport, and proof-reviewed key-bias bounds remain open. |
 | Complaint evidence anti-framing | `active-adversary-model.md`, `vss-dkg-security-plan.md` | Define public evidence predicates that identify dealer or receiver faults without framing honest validators. | proof sketch only | Evidence semantics are specified as requirements; adapter evidence is not production slashing authority. |
 | Static active adversary model | `active-adversary-model.md`, `formal-security-theorem.md` | Choose and prove static active security for the first production claim. | proof sketch only | Requires the static-active proof package. |
 | Adaptive active adversary with erasures | `active-adversary-model.md`, `formal-security-theorem.md` | Prove adaptive security with erasure points, channel assumptions, and state-exposure theorem. | open | Requires erasure, channel-assumption, and state-exposure additions. |
@@ -74,3 +93,10 @@ Active-adversary security is promoted by the selected-backend proof package.
   that needs a selected-backend proof package for promotion.
 - Active-adversary and adaptive-corruption promotion requires a production
   VSS/DKG protocol, network model, erasure model, and simulator.
+- The internal milestone `internally_closed_pending_independent_review`
+  requires substantive discharge and accepted internal review for all five
+  hypothesis criteria, FST-T1, FST-T2, and FST-L1 through FST-L9, plus a clean
+  reproducible run from the real no-reconstruction distributed core.
+- Final theorem closure additionally requires independent validation of all
+  five criterion packages and FST-T1/FST-T2. It must not be inferred from the
+  internal milestone.

@@ -1,0 +1,756 @@
+{
+  "artifact_contract": {
+    "artifact_root": "artifacts/internal-aggregation-campaign/latest",
+    "capture_path": "artifacts/internal-aggregation-campaign/latest/capture.json",
+    "capture_schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+    "request_manifest_path": "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+    "request_path": "artifacts/internal-aggregation-campaign/latest/request.json",
+    "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+    "validation_manifest_path": "artifacts/internal-aggregation-campaign/latest/manifest.json"
+  },
+  "campaign_id": "theorem-closure-internal-001",
+  "campaign_status": "preregistered_fail_closed",
+  "capture_requirements": {
+    "authorization_certificate": {
+      "bind_each_execution": true,
+      "cryptographic_signature_verification_required": true,
+      "cryptographic_verifier_status": "not_implemented_fail_closed",
+      "minimum_distinct_authorizers": 6667,
+      "parse_authorizer_records": true,
+      "schema": "lattice-aggregation:threshold-authorization-certificate:v1",
+      "threshold": 6667,
+      "validator_count": 10000,
+      "verifier_id": null,
+      "verifier_implementation_sha256": null
+    },
+    "authorization_layer_threshold": 6667,
+    "authorization_layer_validator_count": 10000,
+    "clean_git_provenance": true,
+    "committee_authorization_bound": true,
+    "distributed_dkg_vss": true,
+    "evidence_class": "actual_distributed_threshold_mldsa_campaign",
+    "exact_distributed_expand_mask": true,
+    "exact_distributed_keygen": true,
+    "exact_expand_mask_mpc": true,
+    "execution_mode": "actual_distributed_threshold_backend",
+    "fips204_exact_distributed_key_generation": true,
+    "fips204_rejection_loop_over_threshold_partials": true,
+    "live_distributed_nonce_generation": true,
+    "no_secret_or_seed_reconstruction": true,
+    "partial_signing_over_secret_shares": true,
+    "partial_z_i_hint_aggregation": true,
+    "per_receiver_private_share_custody": true,
+    "private_per_receiver_share_custody": true,
+    "required_evidence_file_roles": [
+      "backend_source_archive",
+      "backend_implementation_manifest",
+      "backend_binary",
+      "backend_test_results",
+      "proof_artifact_bundle",
+      "authorization_certificate",
+      "toolchain_lock",
+      "environment_manifest",
+      "transcript_bundle",
+      "standard_verifier_binary",
+      "kat_results"
+    ],
+    "schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
+    "self_contained_relative_evidence_paths": true,
+    "standard_verifier_mutation_rejection": [
+      "message",
+      "public_key",
+      "signature"
+    ],
+    "standard_wire_output": true
+  },
+  "cases": [
+    {
+      "case_id": "k08-accepted-001",
+      "case_kind": "accepted",
+      "committee_size": 8,
+      "message": {
+        "encoding": "hex",
+        "sha256": "b55dcf4894707dd99af3d42c8b3bb519f09a2a446b280e28b898e44a761dcd50",
+        "value": "6a4f44ada5e696a1c20e2dde9123ecf7c535d8a687b1664c19577e2623cd924f"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-00",
+      "seed_sha256": "fa150e1bdfdb923a28518544809b925369ec8779840c7f2087e506e22618d1bc",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k08-rejected-001",
+      "case_kind": "rejected",
+      "committee_size": 8,
+      "message": {
+        "encoding": "hex",
+        "sha256": "a9a14dfde858ef68a827f010fd4d6290805b6de8aae96c10c85de9aa3a701abf",
+        "value": "8a7cc16347b6c105b456f378240126f133043937da8763f43df63b1c59e081e6"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-01",
+      "seed_sha256": "b5966e5995809ec33e753de7c5fe1bfde7d31a71f0ed8ec53f34b0bbca9c9c1a",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k08-retry-001",
+      "case_kind": "retry",
+      "committee_size": 8,
+      "message": {
+        "encoding": "hex",
+        "sha256": "913577acf648b82f7be1a7f83ce306a656614ddd0372d503897481d25c422b83",
+        "value": "c5d9e74944ba6f068e9e07244c7f87a0b63ad32352c48fd6c404c7376b18cfdc"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 1,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-02",
+      "seed_sha256": "b9b19f9b3c88f783ebbdd610fcb390314d901adebee3800f4d8d60a18ca90446",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k08-abort-001",
+      "case_kind": "abort",
+      "committee_size": 8,
+      "message": {
+        "encoding": "hex",
+        "sha256": "1f223352169dac764aee4cfa83d6effbf77c0e0db013fb490746be1e03931141",
+        "value": "62208f05e1130245f4f8b07aaed913271b10b5467cd9035883ca7088169b5f37"
+      },
+      "required_observations": {
+        "abort_recorded": true,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "aborted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-03",
+      "seed_sha256": "bf35c0761134ddce40b0ec8fcbb4a46c2143765949b82ec072048b15f95f3db1",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k08-malicious-share-001",
+      "case_kind": "malicious_share",
+      "committee_size": 8,
+      "message": {
+        "encoding": "hex",
+        "sha256": "648caedfa549ad5ff0ef82472d7a17b362034dcf942c2ff1aee958e209f55962",
+        "value": "4c362c1d0e4e17784a48eb3b6e9b5e96ca3ff8b58913dca2810736c5969a6592"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": true,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-04",
+      "seed_sha256": "45e64c41635ab5cd09796138c05f9b0b25db09d1fb1a1215ac3f2fdaa3d27b6e",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k08-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "committee_size": 8,
+      "message": {
+        "encoding": "hex",
+        "sha256": "4812fc28eff646d1ca69194d17bbd8c3e51031d9d67f922f0f0b339c64e4a599",
+        "value": "45df27c840c808797cc2cea0dd2d11a87627d20707259b7cb3dbe89d078a702a"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": true
+      },
+      "seed_id": "seed-05",
+      "seed_sha256": "69d0adfaf0fbb93b9f4a33e141334042b5dd36b610c8158ffc381ecbfb7be967",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k16-accepted-001",
+      "case_kind": "accepted",
+      "committee_size": 16,
+      "message": {
+        "encoding": "hex",
+        "sha256": "d2daeffaef24f9eeb3033c70dc9a0eedcd66b11dc8248621c09685f1b69a2a19",
+        "value": "a2afedd558f71c7bbcbe178022e8e44a1e2b59d4e0696c3d3c7e21037e3a7bcb"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-06",
+      "seed_sha256": "ab64177267b477b25d22e744fae9ee89cdef5786d8ae19946181f3b378ea66c0",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k16-rejected-001",
+      "case_kind": "rejected",
+      "committee_size": 16,
+      "message": {
+        "encoding": "hex",
+        "sha256": "ac360aa327870b5276f0a6b6d8e9bc5543a3a6635ff5a00a7e75fd9dd5605e8e",
+        "value": "dd1247def9e52aa5d6fb3950808445b7b92866ebb09a460abbc4a3602f3612c1"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-07",
+      "seed_sha256": "4e697cf3d31841a1586baa4b300cd9239bd178eff93bcc97e1a5bd5629a5e189",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k16-retry-001",
+      "case_kind": "retry",
+      "committee_size": 16,
+      "message": {
+        "encoding": "hex",
+        "sha256": "e0066765830443a9b3ca19379ea5be86c77d2b18ee3ed57eec4e9503de310f07",
+        "value": "fe0d2f10463102c92e96bd3eb54303212e8cfc023729a4ca5069c5d1e3fa0aca"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 1,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-00",
+      "seed_sha256": "fa150e1bdfdb923a28518544809b925369ec8779840c7f2087e506e22618d1bc",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k16-abort-001",
+      "case_kind": "abort",
+      "committee_size": 16,
+      "message": {
+        "encoding": "hex",
+        "sha256": "e6f64044496877f501e24b9e0cbea7afb0ad6fb4e65284b031ea1fb53a0d4827",
+        "value": "fc8020d9539e8b0b1932cbc4e8b5c33cbee23b44d5cc5a34f19e877660084ffc"
+      },
+      "required_observations": {
+        "abort_recorded": true,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "aborted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-01",
+      "seed_sha256": "b5966e5995809ec33e753de7c5fe1bfde7d31a71f0ed8ec53f34b0bbca9c9c1a",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k16-malicious-share-001",
+      "case_kind": "malicious_share",
+      "committee_size": 16,
+      "message": {
+        "encoding": "hex",
+        "sha256": "7eb48a3fccd4acd2bca7285e82f053e9d53f1498f05a9aab1fc7faa2bbeb867c",
+        "value": "5e3cec163048c29221fd92c2dc063ce49de63032d96eb2ae312966a96febe713"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": true,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-02",
+      "seed_sha256": "b9b19f9b3c88f783ebbdd610fcb390314d901adebee3800f4d8d60a18ca90446",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k16-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "committee_size": 16,
+      "message": {
+        "encoding": "hex",
+        "sha256": "d3f98d7d62848d2265ee5868ba97bdf5b9689abe9a579af34911ddeffd262e4c",
+        "value": "b3d24712d3383bd055fd323247a3709e5cbec3c8f574293f2ab59d24950c12fd"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": true
+      },
+      "seed_id": "seed-03",
+      "seed_sha256": "bf35c0761134ddce40b0ec8fcbb4a46c2143765949b82ec072048b15f95f3db1",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k32-accepted-001",
+      "case_kind": "accepted",
+      "committee_size": 32,
+      "message": {
+        "encoding": "hex",
+        "sha256": "c904e46bea2ce81ec9d651d06ef31e1810d3317fef3ace8ca0cbf0a91c488792",
+        "value": "db79431b6ea280abd6b6996c51d652cd0b1b5af2ec777a8ee0fdc6dbd99ae07e"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-04",
+      "seed_sha256": "45e64c41635ab5cd09796138c05f9b0b25db09d1fb1a1215ac3f2fdaa3d27b6e",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k32-rejected-001",
+      "case_kind": "rejected",
+      "committee_size": 32,
+      "message": {
+        "encoding": "hex",
+        "sha256": "092d8f8ee941f3a91d985586419261cb6e4118faf91c8954411c16153256ba3d",
+        "value": "f003887f2c743d57e7bf0abab3db87f899bb47833e48aa7b61c8bd92b0d13b5c"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-05",
+      "seed_sha256": "69d0adfaf0fbb93b9f4a33e141334042b5dd36b610c8158ffc381ecbfb7be967",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k32-retry-001",
+      "case_kind": "retry",
+      "committee_size": 32,
+      "message": {
+        "encoding": "hex",
+        "sha256": "9cc8370ae885184d3887fb6a2d16a646af6a2b5e79c2ae72e06849183523b44d",
+        "value": "8577e5ee4bf733f89f0304b3201b6d1419bb41d87531dee426d83cedf01b1c7e"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 1,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-06",
+      "seed_sha256": "ab64177267b477b25d22e744fae9ee89cdef5786d8ae19946181f3b378ea66c0",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k32-abort-001",
+      "case_kind": "abort",
+      "committee_size": 32,
+      "message": {
+        "encoding": "hex",
+        "sha256": "44b6dd14d827846acac59a20e9b98166a8d68f69bc863a22acdb24e7260bf46c",
+        "value": "07cbc8059212bb34f6e7dfd3eb5b041907a540d5f9411000779d9a59c41fc7ff"
+      },
+      "required_observations": {
+        "abort_recorded": true,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "aborted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-07",
+      "seed_sha256": "4e697cf3d31841a1586baa4b300cd9239bd178eff93bcc97e1a5bd5629a5e189",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k32-malicious-share-001",
+      "case_kind": "malicious_share",
+      "committee_size": 32,
+      "message": {
+        "encoding": "hex",
+        "sha256": "340160f4607c4bd965b3e266f120cdb5315ec17ca6078938b70b7da3b1e1fc05",
+        "value": "a13b1aa2d1b634310e5c44b7b579a2973f22c039b25a964a516d3fb8b199461e"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": true,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-00",
+      "seed_sha256": "fa150e1bdfdb923a28518544809b925369ec8779840c7f2087e506e22618d1bc",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k32-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "committee_size": 32,
+      "message": {
+        "encoding": "hex",
+        "sha256": "1a242e1494412c1ab78614e10000a0cc757a4713c6a7b44fe35faadeea0c8155",
+        "value": "0958990d54f3b25f59b33111f7396285c1f0c10bc1b752b39763c9e358119047"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": true
+      },
+      "seed_id": "seed-01",
+      "seed_sha256": "b5966e5995809ec33e753de7c5fe1bfde7d31a71f0ed8ec53f34b0bbca9c9c1a",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k64-accepted-001",
+      "case_kind": "accepted",
+      "committee_size": 64,
+      "message": {
+        "encoding": "hex",
+        "sha256": "aaccbda92a51ef7b484c9fe4a0cbb859326302ac6857e820eb81081fb86cd1df",
+        "value": "d2faa0fce1dc4fa65b7738d0ae8fed4313da833185dadbc6a9e1ebeb7c9d9716"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-02",
+      "seed_sha256": "b9b19f9b3c88f783ebbdd610fcb390314d901adebee3800f4d8d60a18ca90446",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k64-rejected-001",
+      "case_kind": "rejected",
+      "committee_size": 64,
+      "message": {
+        "encoding": "hex",
+        "sha256": "8e3185820a9c7e0997e1940ca92caccd3c53072bb960f4bb2a90eadc4dcb735b",
+        "value": "27a9128adaaf681beec2d5085f0e1210c65457a761827c9139830a633d02a2d8"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-03",
+      "seed_sha256": "bf35c0761134ddce40b0ec8fcbb4a46c2143765949b82ec072048b15f95f3db1",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k64-retry-001",
+      "case_kind": "retry",
+      "committee_size": 64,
+      "message": {
+        "encoding": "hex",
+        "sha256": "87dd021abfbfa6e0c894962b5f4f0297ef39d04c3ec173055f0196d4ef5e5622",
+        "value": "066e7fc0cf518845f34cb73b82959103870878b39a2906fbe69c5a98b58e4bf4"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": true,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "accepted",
+        "rejection_predicate_recorded": true,
+        "retry_count_min": 1,
+        "standard_verifier_accepted": true,
+        "standard_verifier_invoked": true,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-04",
+      "seed_sha256": "45e64c41635ab5cd09796138c05f9b0b25db09d1fb1a1215ac3f2fdaa3d27b6e",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k64-abort-001",
+      "case_kind": "abort",
+      "committee_size": 64,
+      "message": {
+        "encoding": "hex",
+        "sha256": "9d685997e04eb7930ec69e266c18b976059827d1633e1a2a3975111cdbea0479",
+        "value": "2f2b18146b291c349050f289fec0e632511b8559d7321f109e71232110a85b0f"
+      },
+      "required_observations": {
+        "abort_recorded": true,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "aborted",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-05",
+      "seed_sha256": "69d0adfaf0fbb93b9f4a33e141334042b5dd36b610c8158ffc381ecbfb7be967",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k64-malicious-share-001",
+      "case_kind": "malicious_share",
+      "committee_size": 64,
+      "message": {
+        "encoding": "hex",
+        "sha256": "744767007dab449b8c2af312bb5463d8d9e6f2778bab26ff2145ef741ff133e6",
+        "value": "c3f92e091a62adfc24a6dbfd10c017d0f1220d2f55518f11139c63253eded7a6"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": true,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": false
+      },
+      "seed_id": "seed-06",
+      "seed_sha256": "ab64177267b477b25d22e744fae9ee89cdef5786d8ae19946181f3b378ea66c0",
+      "threshold": 6667,
+      "validator_count": 10000
+    },
+    {
+      "case_id": "k64-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "committee_size": 64,
+      "message": {
+        "encoding": "hex",
+        "sha256": "d369e0458d2f2cdfcc0187ba30088527107fe31256aec9eb477d9a9de6b968ad",
+        "value": "027cf97fc476d65989e272d5003cbb7b0b9c1b481f3193d955699050fe3ffab7"
+      },
+      "required_observations": {
+        "abort_recorded": false,
+        "aggregate_emitted": false,
+        "malicious_share_rejected": false,
+        "protocol_outcome": "rejected",
+        "rejection_predicate_recorded": false,
+        "retry_count_min": 0,
+        "standard_verifier_accepted": false,
+        "standard_verifier_invoked": false,
+        "transcript_mutation_rejected": true
+      },
+      "seed_id": "seed-07",
+      "seed_sha256": "4e697cf3d31841a1586baa4b300cd9239bd178eff93bcc97e1a5bd5629a5e189",
+      "threshold": 6667,
+      "validator_count": 10000
+    }
+  ],
+  "claim_boundary": "internal aggregation evidence; theorem unclosed pending proof review",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_distribution_compatibility_proven": false,
+    "claims_fips_validation": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "forbidden_backend_sources": [
+    "simulation",
+    "fixture harness",
+    "localnet telemetry",
+    "single-key standard-provider output",
+    "threshold seed reconstruction",
+    "centralized signing oracle"
+  ],
+  "kat_requirements": {
+    "failed_vector_count": 0,
+    "minimum_vector_count": 1,
+    "parameter_set": "ML-DSA-65",
+    "required_vector_types": [
+      "keyGen",
+      "sigGen",
+      "sigVer"
+    ],
+    "source": "NIST ACVP/ACVTS ML-DSA vectors"
+  },
+  "mldsa_profile": {
+    "aggregate_signature_bytes": 3309,
+    "parameter_set": "ML-DSA-65",
+    "public_key_bytes": 1952
+  },
+  "schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
+  "seed_corpus": {
+    "domain": "lattice-aggregation:internal-campaign-seed:v1",
+    "seeds": [
+      {
+        "seed_hex": "fc30d994c2079aede242f9fcb2d360b80e30ba65c1e44fc9433ed632b2f07485",
+        "seed_id": "seed-00",
+        "seed_sha256": "fa150e1bdfdb923a28518544809b925369ec8779840c7f2087e506e22618d1bc"
+      },
+      {
+        "seed_hex": "d2eb02c55f6ab7cdab4f3ff1023cd8616eae0b29630d76516417b1af62ca0a71",
+        "seed_id": "seed-01",
+        "seed_sha256": "b5966e5995809ec33e753de7c5fe1bfde7d31a71f0ed8ec53f34b0bbca9c9c1a"
+      },
+      {
+        "seed_hex": "bdc0b75d8856d81ad0bd76f3ed097f0a6be30c3992989aebde35ab2f25728e05",
+        "seed_id": "seed-02",
+        "seed_sha256": "b9b19f9b3c88f783ebbdd610fcb390314d901adebee3800f4d8d60a18ca90446"
+      },
+      {
+        "seed_hex": "00dda962bacfc871779839e2de5ad4a1228e1f6c50ecba3f68f4689d04e61f6d",
+        "seed_id": "seed-03",
+        "seed_sha256": "bf35c0761134ddce40b0ec8fcbb4a46c2143765949b82ec072048b15f95f3db1"
+      },
+      {
+        "seed_hex": "61cc216446af3810c143373027f786898db1b4d35ea8a05ca1c907c1ef857e5e",
+        "seed_id": "seed-04",
+        "seed_sha256": "45e64c41635ab5cd09796138c05f9b0b25db09d1fb1a1215ac3f2fdaa3d27b6e"
+      },
+      {
+        "seed_hex": "44ce9320bb9b9e6f449f5a52247969ac6ba2fa4aa1379c163906dedb4c9545f1",
+        "seed_id": "seed-05",
+        "seed_sha256": "69d0adfaf0fbb93b9f4a33e141334042b5dd36b610c8158ffc381ecbfb7be967"
+      },
+      {
+        "seed_hex": "cce7c7eddc8932e964788558db2b8f8c6faea29241b5dec1ecb3b9a6855a5231",
+        "seed_id": "seed-06",
+        "seed_sha256": "ab64177267b477b25d22e744fae9ee89cdef5786d8ae19946181f3b378ea66c0"
+      },
+      {
+        "seed_hex": "225acd7fe7a9a1dbf3678f412bae51ed236d796f1b6e8bafe53ec491b4c1fb7c",
+        "seed_id": "seed-07",
+        "seed_sha256": "4e697cf3d31841a1586baa4b300cd9239bd178eff93bcc97e1a5bd5629a5e189"
+      }
+    ]
+  },
+  "topology": {
+    "committee_size_ladder": [
+      8,
+      16,
+      32,
+      64
+    ],
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}

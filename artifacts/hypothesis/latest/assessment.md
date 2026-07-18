@@ -2,8 +2,8 @@
 
 Overall verdict: `partially_proven`
 Claim boundary: `closure-run implementation track`
-Branch: `codex/p1-validation-proof-packages`
-Commit: `b5932fcc5c665486fbc11a6450f4ccbd5e5a275a`
+Branch: `codex/post-119-crypto-evidence`
+Commit: `9999744b66bac4a94c3ab874f55edfba1462dff6`
 
 ## Testing Statement
 
@@ -82,21 +82,57 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Artifact evidence sources: retry_domain_separation_proof_digest=p1_criterion3_retry_domain_separation_artifact_gate, formal_abort_leakage_model_digest=p1_criterion3_abort_leakage_model_artifact_gate, accepted_signature_distribution_proof_digest=p1_criterion3_accepted_signature_distribution_artifact_gate, adversarial_abort_policy_corpus_digest=p1_criterion3_adversarial_abort_policy_corpus_artifact_gate, sample_size_bucket_rationale_digest=p1_criterion3_sample_size_bucket_rationale_artifact_gate, timeout_retry_policy_digest=p1_criterion3_timeout_retry_policy_artifact_gate, external_review_digest=p1_criterion3_external_review_artifact_gate
 - Theorem links: Noise Lemma G, Noise Lemma H, FST-L7, FST-L9
 
+## Post-119 Crypto Evidence
+
+- Status: `post_119_crypto_substrate_indexed`
+- Evidence status: `evidence_present_unclosed`
+- Boundary: evidence_present_unclosed; not theorem closure
+- Overall verdict preserved: `partially_proven`
+- `aggregate_mask_distribution` preserved as `partially_met`
+- `aggregate_rejection_equivalence` preserved as `partially_met`
+- `abort_retry_bias` preserved as `partially_met`
+- `partial_contribution_soundness` preserved as `partially_met`
+- `unauthorized_aggregate_reduction` preserved as `partially_met`
+- `design_space_boundary_gate`: `True`
+- `distributed_mask_mpc_feasibility_gate`: `True`
+- `distributed_nonce_epsilon_mask_gate`: `True`
+- `mldsa_primitive_gate`: `True`
+- `partial_local_validity_gate`: `True`
+- `real_dkg_vss_stack_a_gate`: `True`
+- `two_stack_adr_gate`: `True`
+- `claims_theorem_closure`: `False`
+- `claims_criterion_met`: `False`
+- `claims_selected_backend_proof_closure`: `False`
+- `claims_rejection_distribution_preservation`: `False`
+- `claims_mask_distribution_proven`: `False`
+- `claims_standard_verifier_compatibility_complete`: `False`
+- `claims_production_threshold_mldsa_security`: `False`
+- `claims_cavp_acvts_validation`: `False`
+- `claims_fips_validation`: `False`
+- `claims_epsilon_mask_closed`: `False`
+
 ## Criteria
 
 ### Aggregate masks match or closely approximate centralized ML-DSA masks.
 
 - Status: `partially_met`
 - Evidence: Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.
+- Evidence: Post-119 Stack A distributed nonce code is present with commit/reveal aggregation and an executable negative gate pinning additive-mask epsilon_mask as open.
+- Evidence: Distributed-mask MPC feasibility evidence is present with a reproducible cost model and preserved false claim flags.
 - Evidence: MaskDistributionEvidence and AcceptedMaskDistributionCertificate evidence gates are present as implementation-track evidence.
 - Evidence: MaskDistributionClosurePackage and MaskDistributionClosureReport framework checks are present for proof-artifact completeness.
 - Blocker: Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.
+- Blocker: The current distributed nonce path sums per-signer masks; a proof or protocol producing exact ExpandMask-uniform joint masks is still required before epsilon_mask can close.
+- Blocker: The feasibility model does not implement the MPC circuit, prove leakage bounds, or provide reviewed execution evidence for exact distributed ExpandMask sampling.
 - Blocker: Renyi-divergence evidence for epsilon_mask is still a release-readiness blocker.
 
 ### Aggregate rejection checks match centralized ML-DSA rejection checks.
 
 - Status: `partially_met`
 - Evidence: Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.
+- Evidence: Post-119 two-stack architecture evidence separates Stack A distributed/no-single-holder research from Stack B standard-verifier-compatible coordinator-assisted signing.
+- Evidence: Design-space boundary evidence records the FST-T4 MPC-existence route and the FST-T5 additive-family infeasibility boundary at fixed ML-DSA-65 parameters.
+- Evidence: ML-DSA module primitives for decomposition, high/low bits, SampleInBall, gamma1 sampling, matrix expansion, and public-key relation checks are present as executable implementation evidence.
 - Evidence: AggregateAccept conformance checks are present as implementation-track evidence.
 - Evidence: AggregateRejectionEquivalenceGate and AggregateRecomputationTranscript bridge gates are present as implementation-track evidence.
 - Evidence: AggregateRejectionClosurePackage and AggregateRejectionClosureCertificate framework checks are present for recomputation, KAT, bound, and review artifacts.
@@ -125,6 +161,8 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 - Evidence: The hazmat threshold backend capture adapter now emits a per-attempt bound-predicate transcript: attempts[] records attempt id, mask-seed digest, challenge digest, retry count context, z/r0/ct0/hint predicate results, and accepted_or_rejected for each backend signing attempt. This exposes the per-attempt ML-DSA rejection predicates needed for batch comparison against centralized ML-DSA behavior, but it does not by itself prove rejection-distribution preservation or move aggregate_rejection_equivalence beyond partially_met.
 - Evidence: A hazmat centralized-vs-threshold rejection-equivalence batch comparator is present. It derives centralized ML-DSA per-attempt predicates and threshold per-attempt predicates from the explicit backend, records threshold_attempts, centralized_attempts, predicate_mismatches, challenge_digest_matches, accepted_or_rejected_matches, and close_candidate, and keeps claims_rejection_distribution_preservation and claims_theorem_closure false. This is the first runnable comparison harness for the actual rejection-sampling question. It can also run an aligned centralized mask domain mode keyed to centralized-rho-double-prime-kappa; a distributed-nonce-prf-output-shares mode now consumes active-set-bound nonce PRF output shares instead of the centralized masking helper on the threshold contribution path; a zero predicate mismatches close_candidate result there is strong algebraic closure-candidate evidence, but the PRF-output oracle still derives from expanded secret-key material until a reviewed distributed PRF/MPC producer replaces it, so it still records remaining theorem review requirements or move aggregate_rejection_equivalence beyond partially_met without reviewed distributed nonce-DKG replacement and external review.
 - Blocker: Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.
+- Blocker: The two stacks are not converged: Stack A does not emit FIPS-verifier-valid signatures, and Stack B relies on a coordinator no-export assumption.
+- Blocker: FST-T4/FST-T5 are proof-sketch and model-boundary evidence; they do not provide a reviewed implementation or a completed standard-verifier compatibility proof.
 - Blocker: 10,000-validator standard-verifier equivalence remains blocked until a real threshold ML-DSA backend emits a verifier-accepted aggregate signature.
 - Blocker: The P1 distributed nonce-producer gate is implemented, a backend-output adapter can derive its package from submitted nonce-producer material, and a canonical capture importer can bind actual backend capture JSON to request, predecessor, and expected package digests. Externally generated reviewed Shamir nonce-DKG/TEE producer material must still replace the hazmat PRF-output oracle before Criterion 2 can advance toward cryptographic closure.
 - Blocker: The distributed nonce-producer request and capture runner are present, but a reviewed external Shamir nonce-DKG/TEE producer must still emit a conforming capture whose expected package digests can be imported through the Rust gate before the hazmat PRF-output oracle is replaced.
@@ -139,29 +177,35 @@ If a threshold ML-DSA-65 lattice aggregation protocol emits an accepted aggregat
 
 - Status: `partially_met`
 - Evidence: Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.
+- Evidence: The distributed-mask MPC feasibility scope names the output-delivery, retry, and abort-policy artifacts needed for a future accepted-output distribution review.
 - Evidence: AbortBiasEvidence retry-domain, leakage, and accepted-sample checks are present as implementation-track evidence.
 - Evidence: AbortRetryBiasProofPackage and AbortBiasClosureReport framework checks are present for leakage, distribution, threshold, and review artifacts.
 - Blocker: Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.
+- Blocker: No implemented MPC output-delivery discipline, retry bound, or abort-leakage proof is checked in yet.
 - Blocker: Abort leakage and retry-bias distribution analysis remain open proof obligations.
 
 ### Every accepted partial contribution is sound, context-bound, and hiding enough for the chosen leakage model.
 
 - Status: `partially_met`
 - Evidence: Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.
+- Evidence: Post-119 real local partial-validity evidence is present for Stack B module partials: the verifier recomputes z_i = y_i + c*s1_i, rejects tampered/stale/cross-signer partials, and mints a real validity digest.
 - Evidence: Implementation-track evidence supports transcript binding, validator universe checks, or context-bound contribution shape.
 - Evidence: LocalAccept and AcceptedPartialContribution conformance tokens are present as implementation-track evidence.
 - Evidence: PartialContributionSoundnessEvidence and ProofBackedLocalVerifier gates are present as implementation-track evidence.
 - Evidence: PartialSoundnessClosurePackage framework checks are present for proof-backed verifier, VSS/DKG, leakage, context, and review artifacts.
 - Blocker: Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.
+- Blocker: Partial-contribution closure still needs hiding/ZK well-formedness evidence and enforcement on the full aggregate signing path, not only a local Stack B gate.
 - Blocker: Production local acceptance, partial verification, and hiding proof evidence are required for promotion.
 
 ### Every unauthorized accepting aggregate output reduces to a base ML-DSA forgery or a named threshold-side assumption violation.
 
 - Status: `partially_met`
 - Evidence: Selected backend direction is documented as ML-DSA-65 coordinator-assisted Shamir nonce DKG P1 under a TEE/HSM coordinator assumption with standard-verifier-compatible output; later migration candidates remain P2/MPC, TALUS.
+- Evidence: Post-119 Stack A DKG/VSS evidence is present: real Rq VSS, BDLOP commitments and opening proofs, multi-dealer DKG commit/reveal fault evidence, sealed share transport, and no-single-holder research components are indexed.
 - Evidence: Unauthorized aggregate reduction manifest names a base ML-DSA forgery case and threshold-side violation cases as implementation-track evidence.
 - Evidence: Unauthorized aggregate reduction closure package framework records protocol grammar, deterministic classifier, base theorem, hybrid-bound, simulator, and review slots.
 - Blocker: Selected backend direction requires proof artifacts, backend implementation evidence, and production approval for release promotion.
+- Blocker: The DKG/VSS substrate is not wired to a standard-verifier-compatible threshold signature, has not received lattice-estimator/external security review, and does not complete the EUF-CMA reduction.
 - Blocker: Threshold unforgeability reduction requires the completed proof package.
 
 ## Command Summary

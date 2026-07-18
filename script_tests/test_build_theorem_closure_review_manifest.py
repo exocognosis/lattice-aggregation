@@ -99,7 +99,7 @@ class TheoremClosureReviewManifestTests(unittest.TestCase):
         self.assertEqual(manifest["blocker_groups"]["validation"], [])
         self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
 
-    def test_ready_theorem_review_satisfies_readiness_preflight(self):
+    def test_current_theorem_review_readies_readiness_preflight(self):
         builder = load_module(SCRIPT, "build_theorem_closure_review_manifest")
         readiness = load_module(READINESS_SCRIPT, "assess_theorem_closure_readiness")
 

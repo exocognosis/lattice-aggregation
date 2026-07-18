@@ -9,6 +9,8 @@
 //! share contributions, and FIPS Sign_internal with rejection. Formal proofs
 //! and external audits remain open.
 
+pub mod no_reconstruction;
+
 #[cfg(feature = "raw-real-mldsa")]
 pub mod algebraic_partial;
 #[cfg(feature = "raw-real-mldsa")]

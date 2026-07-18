@@ -157,7 +157,9 @@ def write_minimal_inputs(root, *, external_ready, review_ready=None):
 
 
 class TheoremClosureReadinessTests(unittest.TestCase):
-    def test_current_checked_in_artifacts_are_ready_for_theorem_review_assessment(self):
+    def test_current_checked_in_artifacts_are_ready_for_closure_assessment(
+        self,
+    ):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-04T00:00:00Z")

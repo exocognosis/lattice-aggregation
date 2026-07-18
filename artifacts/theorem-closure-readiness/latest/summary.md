@@ -5,7 +5,7 @@ This artifact is a fail-closed preflight for starting theorem-closure assessment
 - Status: `ready_for_theorem_closure_assessment`
 - Theorem-closure assessment ready: `true`
 - Claim boundary: `readiness preflight only; pending theorem-closure review`
-- Readiness digest SHA-256: `e77b0e394786362feb461f89bca1641fad93601321c5ef0c82c2bc71997da6ac`
+- Readiness digest SHA-256: `729f343c3469064968fbe1f3b3a404278a3c928ce14213288c9b13f5bb01ef3a`
 
 Checks:
 - `criterion2_manifest_present`: `true`
