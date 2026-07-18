@@ -3,6 +3,7 @@
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import sys
@@ -19,12 +20,14 @@ EXPECTED_EVIDENCE_CLASS = "actual_distributed_threshold_mldsa_campaign"
 EXPECTED_EXECUTION_MODE = "actual_distributed_threshold_backend"
 EXPECTED_CORE_MODE = "distributed_threshold_mldsa65_partial_aggregation"
 EXPECTED_SIGNATURE_ORIGIN = "threshold_partial_aggregation"
-REQUIRED_CORE_CHECKS = (
+EVIDENCE_BOUND_CORE_CHECKS = (
     "distributed_dkg_vss",
     "fips204_exact_distributed_key_generation",
     "exact_distributed_keygen",
     "private_per_receiver_share_custody",
     "per_receiver_private_share_custody",
+)
+REQUIRED_TRUE_CORE_CHECKS = (
     "live_distributed_nonce_generation",
     "exact_distributed_expand_mask",
     "exact_expand_mask_mpc",
@@ -35,6 +38,7 @@ REQUIRED_CORE_CHECKS = (
     "standard_wire_output",
     "committee_authorization_bound",
 )
+REQUIRED_CORE_CHECKS = EVIDENCE_BOUND_CORE_CHECKS + REQUIRED_TRUE_CORE_CHECKS
 REQUIRED_CLEAN_CHECKS = (
     "repo_clean",
     "git_diff_empty",
@@ -59,6 +63,7 @@ REQUIRED_EVIDENCE_ROLES = (
     "backend_binary",
     "backend_test_results",
     "proof_artifact_bundle",
+    "dkg_custody_capability_evidence",
     "authorization_certificate",
     "toolchain_lock",
     "environment_manifest",
@@ -66,6 +71,11 @@ REQUIRED_EVIDENCE_ROLES = (
     "standard_verifier_binary",
     "kat_results",
 )
+CAPABILITY_EVIDENCE_SCHEMA = "lattice-threshold-backend-p1:dkg-custody-capability-evidence:v1"
+CAPABILITY_EVIDENCE_BINDING_SCHEMA = (
+    "lattice-threshold-backend-p1:dkg-custody-capability-evidence-binding:v1"
+)
+CAPABILITY_EVIDENCE_ROLE = "dkg_custody_capability_evidence"
 ARTIFACT_ROOT = "artifacts/internal-aggregation-campaign/latest"
 DEFAULT_REQUEST_PATH = f"{ARTIFACT_ROOT}/request.json"
 DEFAULT_CAPTURE_PATH = f"{ARTIFACT_ROOT}/capture.json"
@@ -294,7 +304,7 @@ def validate_provenance(capture, evidence_roles, blockers):
             blockers.append(f"forbidden backend source marker: {marker}")
 
 
-def validate_core(capture, blockers):
+def validate_core(capture, evidence_roles, evidence_base, blockers):
     check_equal(
         blockers,
         capture.get("evidence_class"),
@@ -318,8 +328,12 @@ def validate_core(capture, blockers):
         EXPECTED_SIGNATURE_ORIGIN,
         "signature origin",
     )
-    for field in REQUIRED_CORE_CHECKS:
+    for field in REQUIRED_TRUE_CORE_CHECKS:
         require_true(blockers, core, field, "cryptographic core check")
+    for field in EVIDENCE_BOUND_CORE_CHECKS:
+        if not isinstance(core.get(field), bool):
+            blockers.append(f"cryptographic core evidence-bound field must be boolean: {field}")
+    validate_capability_evidence(core, evidence_roles, evidence_base, blockers)
     check_equal(
         blockers,
         core.get("authorization_layer_validator_count"),
@@ -340,6 +354,143 @@ def validate_core(capture, blockers):
         "centralized_signing_oracle_used",
     ):
         require_false(blockers, core, field, "cryptographic core exclusion")
+
+
+def validate_capability_evidence(core, evidence_roles, evidence_base, blockers):
+    binding = core.get("digest_bound_capability_evidence")
+    if not isinstance(binding, dict):
+        blockers.append("digest-bound DKG/custody capability evidence missing")
+        return
+    check_equal(
+        blockers,
+        binding.get("schema"),
+        CAPABILITY_EVIDENCE_BINDING_SCHEMA,
+        "DKG/custody capability evidence binding schema",
+    )
+    check_equal(
+        blockers,
+        binding.get("evidence_file_role"),
+        CAPABILITY_EVIDENCE_ROLE,
+        "DKG/custody capability evidence role",
+    )
+    fields = binding.get("capability_fields")
+    if fields != list(EVIDENCE_BOUND_CORE_CHECKS):
+        blockers.append("DKG/custody capability evidence fields mismatch")
+    for field in ("evidence_file_digest_hex", "aggregate_evidence_digest_hex"):
+        if not is_digest(binding.get(field)):
+            blockers.append(f"DKG/custody capability evidence digest invalid: {field}")
+
+    record = evidence_roles.get(CAPABILITY_EVIDENCE_ROLE)
+    if not isinstance(record, dict):
+        blockers.append("DKG/custody capability evidence file role missing")
+        return
+    if binding.get("evidence_file_digest_hex") != record.get("sha256"):
+        blockers.append("DKG/custody capability evidence file digest binding mismatch")
+    path_value = record.get("path")
+    if not isinstance(path_value, str):
+        blockers.append("DKG/custody capability evidence path missing")
+        return
+    pure_path = PurePosixPath(path_value)
+    if pure_path.is_absolute() or ".." in pure_path.parts:
+        blockers.append("DKG/custody capability evidence path is not safely contained")
+        return
+    evidence_path = Path(evidence_base) / Path(*pure_path.parts)
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        blockers.append("DKG/custody capability evidence is not valid UTF-8 JSON")
+        return
+
+    check_equal(
+        blockers,
+        evidence.get("schema"),
+        CAPABILITY_EVIDENCE_SCHEMA,
+        "DKG/custody capability evidence schema",
+    )
+    if evidence.get("capability_fields") != list(EVIDENCE_BOUND_CORE_CHECKS):
+        blockers.append("DKG/custody capability evidence file fields mismatch")
+    check_equal(
+        blockers,
+        evidence.get("aggregate_evidence_digest_hex"),
+        binding.get("aggregate_evidence_digest_hex"),
+        "DKG/custody aggregate evidence binding",
+    )
+    if not is_digest(evidence.get("aggregate_evidence_digest_hex")):
+        blockers.append("DKG/custody aggregate evidence digest invalid")
+
+    source_digests = evidence.get("source_digests")
+    if not isinstance(source_digests, list) or not source_digests:
+        blockers.append("DKG/custody capability source digests missing")
+        source_digests = []
+    for source in source_digests:
+        if not isinstance(source, dict):
+            blockers.append("DKG/custody capability source digest record must be an object")
+            continue
+        path = source.get("path")
+        digest = source.get("sha256")
+        if not isinstance(path, str) or not path:
+            blockers.append("DKG/custody capability source path missing")
+            continue
+        if not is_digest(digest):
+            blockers.append("DKG/custody capability source digest invalid")
+            continue
+        source_path = Path(path)
+        if not source_path.is_file():
+            blockers.append(f"DKG/custody capability source file missing: {path}")
+            continue
+        if sha256_path(source_path) != digest:
+            blockers.append(f"DKG/custody capability source digest mismatch: {path}")
+
+    statuses = evidence.get("capability_statuses")
+    if not isinstance(statuses, dict):
+        blockers.append("DKG/custody capability statuses missing")
+        return
+    if sorted(statuses) != sorted(EVIDENCE_BOUND_CORE_CHECKS):
+        blockers.append("DKG/custody capability statuses do not match required fields")
+    for field in EVIDENCE_BOUND_CORE_CHECKS:
+        status = statuses.get(field)
+        if not isinstance(status, dict):
+            blockers.append(f"DKG/custody capability status missing: {field}")
+            continue
+        check_equal(blockers, status.get("field"), field, f"DKG/custody capability status field {field}")
+        check_equal(
+            blockers,
+            status.get("claim_value"),
+            core.get(field),
+            f"DKG/custody capability claim binding {field}",
+        )
+        if not isinstance(status.get("status"), str) or not status.get("status"):
+            blockers.append(f"DKG/custody capability status label missing: {field}")
+        if not is_digest(status.get("evidence_digest_hex")):
+            blockers.append(f"DKG/custody capability evidence digest invalid: {field}")
+        status_sources = status.get("source_digests")
+        if not isinstance(status_sources, list) or not status_sources:
+            blockers.append(f"DKG/custody capability status source digests missing: {field}")
+        elif any(
+            not isinstance(item, dict) or not is_digest(item.get("sha256"))
+            for item in status_sources
+        ):
+            blockers.append(f"DKG/custody capability status source digest invalid: {field}")
+        if core.get(field) is False:
+            counter = status.get("counter_evidence")
+            if not isinstance(counter, list) or not counter:
+                blockers.append(f"DKG/custody false capability lacks counter-evidence: {field}")
+        status_without_digest = dict(status)
+        status_without_digest.pop("evidence_digest_hex", None)
+        if is_digest(status.get("evidence_digest_hex")) and sha256_text(
+            canonical_json(status_without_digest)
+        ) != status.get("evidence_digest_hex"):
+            blockers.append(f"DKG/custody capability status digest mismatch: {field}")
+
+    aggregate_input = {
+        "schema": CAPABILITY_EVIDENCE_SCHEMA,
+        "source_digests": source_digests,
+        "capability_statuses": statuses,
+    }
+    if is_digest(evidence.get("aggregate_evidence_digest_hex")) and sha256_text(
+        canonical_json(aggregate_input)
+    ) != evidence.get("aggregate_evidence_digest_hex"):
+        blockers.append("DKG/custody aggregate evidence digest mismatch")
 
 
 def validate_authorization(
@@ -601,6 +752,25 @@ def validate_authorization(
     return authorization.get("certificate_digest_hex"), verification
 
 
+def load_authorization_verifier(name):
+    if name is None:
+        return None
+    if name not in {
+        "ed25519-v1",
+        "reviewed-ed25519-threshold-authorization-v1",
+    }:
+        raise ValueError(f"unsupported authorization verifier: {name}")
+    path = Path(__file__).with_name("threshold_authorization_verifier.py")
+    spec = importlib.util.spec_from_file_location(
+        "threshold_authorization_verifier_for_campaign_validator", path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("threshold authorization verifier module is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.Ed25519ThresholdAuthorizationVerifier()
+
+
 def validate_kat(capture, evidence_roles, blockers):
     verifier = capture.get("standard_verifier")
     if not isinstance(verifier, dict):
@@ -753,8 +923,8 @@ def validate_campaign(request, capture, evidence_base, authorization_verifier=No
     for flag in CLAIM_FLAGS:
         require_false(blockers, capture.get("claim_flags"), flag, "capture claim flag")
 
-    validate_core(capture, blockers)
     evidence_roles = validate_evidence_files(capture, Path(evidence_base), blockers)
+    validate_core(capture, evidence_roles, Path(evidence_base), blockers)
     validate_provenance(capture, evidence_roles, blockers)
     authorization_digest, authorization_verification = validate_authorization(
         request,
@@ -885,15 +1055,37 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(
         description="Validate an actual internal aggregation campaign capture"
     )
+    parser.add_argument("--root", default=".", help="repository root for relative paths")
     parser.add_argument("--request", default=DEFAULT_REQUEST_PATH)
     parser.add_argument("--capture", default=DEFAULT_CAPTURE_PATH)
+    parser.add_argument(
+        "--evidence-base",
+        default=None,
+        help="directory containing capture-relative evidence files; defaults to capture directory",
+    )
+    parser.add_argument(
+        "--authorization-verifier",
+        default=None,
+        help="reviewed verifier adapter to use for threshold authorization signatures",
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit nonzero unless the capture is campaign-evidence ready",
+    )
     parser.add_argument("--out", default=DEFAULT_VALIDATION_OUT)
     return parser.parse_args(argv)
 
 
+def resolve_path(root, value):
+    path = Path(value)
+    return path if path.is_absolute() else Path(root) / path
+
+
 def main(argv=None):
     args = parse_args(argv or sys.argv[1:])
-    request_path = Path(args.request)
+    root = Path(args.root)
+    request_path = resolve_path(root, args.request)
     try:
         request = json.loads(request_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -916,13 +1108,13 @@ def main(argv=None):
             "validated_execution_count": 0,
             "blockers": [f"campaign request unavailable or invalid: {type(exc).__name__}"],
         }
-        write_report(report, args.out)
+        write_report(report, resolve_path(root, args.out))
         print(f"campaign_status={report['campaign_status']}")
         print(f"blockers={len(report['blockers'])}")
         return 2
     if not isinstance(request, dict):
         request = {}
-    capture_path = Path(args.capture)
+    capture_path = resolve_path(root, args.capture)
     try:
         capture = json.loads(capture_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -945,14 +1137,55 @@ def main(argv=None):
             "validated_execution_count": 0,
             "blockers": [f"campaign capture unavailable or invalid: {type(exc).__name__}"],
         }
-        write_report(report, args.out)
+        write_report(report, resolve_path(root, args.out))
         print(f"campaign_status={report['campaign_status']}")
         print(f"blockers={len(report['blockers'])}")
         return 2
     if not isinstance(capture, dict):
         capture = {}
-    report = validate_campaign(request, capture, capture_path.parent)
-    write_report(report, args.out)
+    evidence_base = (
+        resolve_path(root, args.evidence_base)
+        if args.evidence_base is not None
+        else capture_path.parent
+    )
+    try:
+        authorization_verifier = load_authorization_verifier(args.authorization_verifier)
+    except (RuntimeError, ValueError) as exc:
+        report = {
+            "schema": REPORT_SCHEMA,
+            "request_schema": REQUEST_SCHEMA,
+            "capture_schema": CAPTURE_SCHEMA,
+            "campaign_id": request.get("campaign_id"),
+            "campaign_status": BLOCKED_STATUS,
+            "internal_campaign_evidence_ready": False,
+            "theorem_status": THEOREM_STATUS,
+            "claims_theorem_closure": False,
+            "claims_fips_validation": False,
+            "request_sha256": sha256_text(canonical_json(request)),
+            "capture_sha256": sha256_text(canonical_json(capture)),
+            "evidence_bundle_binding_sha256": None,
+            "evidence_bindings": {},
+            "artifact_contract": request.get("artifact_contract"),
+            "preregistered_case_count": len(request.get("cases", [])),
+            "validated_execution_count": 0,
+            "authorization_verification": {
+                "required": True,
+                "verified": False,
+                "verifier_id": args.authorization_verifier,
+                "verifier_implementation_sha256": None,
+            },
+            "blockers": [
+                "authorization verifier unavailable: " + type(exc).__name__
+            ],
+        }
+    else:
+        report = validate_campaign(
+            request,
+            capture,
+            evidence_base,
+            authorization_verifier=authorization_verifier,
+        )
+    write_report(report, resolve_path(root, args.out))
     print(f"campaign_status={report['campaign_status']}")
     print(f"blockers={len(report['blockers'])}")
     return 0 if report["internal_campaign_evidence_ready"] else 2

@@ -452,6 +452,7 @@ pub fn strict_distributed_sign_from_s1_y_partials(
         .iter()
         .map(|v| (*v, v.0.wrapping_add(1)))
         .collect();
+    let selected_receivers = selected_threshold_receivers(&receivers, threshold)?;
     let s1 = ModuleVecL {
         components: secret.s1,
     };
@@ -521,8 +522,10 @@ pub fn strict_distributed_sign_from_s1_y_partials(
             &c_tilde,
             kappa_base,
         );
-        let s1_shares = split_module_vector_shamir(&s1, threshold, &receivers, &s1_share_seed)?;
-        let y_shares = split_module_vector_shamir(&y_vec, threshold, &receivers, &y_share_seed)?;
+        let s1_shares =
+            split_module_vector_selected_threshold(&s1, &selected_receivers, &s1_share_seed)?;
+        let y_shares =
+            split_module_vector_selected_threshold(&y_vec, &selected_receivers, &y_share_seed)?;
 
         let mut partials = Vec::with_capacity(threshold as usize);
         for i in 0..threshold as usize {
@@ -538,8 +541,8 @@ pub fn strict_distributed_sign_from_s1_y_partials(
                 z_i,
             });
         }
-        let aggregate = reconstruct_module_from_partials(&partials)?;
-        let aggregate_z_matches_direct = module_eq(&aggregate.z, &direct_z);
+        let aggregate_z = aggregate_module_partials_selected(&partials, &selected_receivers)?;
+        let aggregate_z_matches_direct = module_eq(&aggregate_z, &direct_z);
         if !aggregate_z_matches_direct {
             return Err(ThresholdError::PartialShareVerificationFailed {
                 validator: partials[0].signer,
@@ -552,12 +555,14 @@ pub fn strict_distributed_sign_from_s1_y_partials(
             &c_tilde,
             kappa_base,
         );
-        let s2_shares = split_poly_array_shamir(&secret.s2, threshold, &receivers, &s2_share_seed)?;
+        let s2_shares =
+            split_poly_array_selected_threshold(&secret.s2, &selected_receivers, &s2_share_seed)?;
         let mut cs2_partials = Vec::with_capacity(threshold as usize);
         for (signer, x, s2_i) in s2_shares.into_iter().take(threshold as usize) {
             cs2_partials.push((signer, x, mul_poly_array_by_challenge(&s2_i, &c_hat)));
         }
-        let cs2_from_shares = aggregate_poly_array_partials(&cs2_partials)?;
+        let cs2_from_shares =
+            aggregate_poly_array_partials_selected(&cs2_partials, &selected_receivers)?;
         let direct_cs2 = mul_poly_array_by_challenge(&secret.s2, &c_hat);
         let aggregate_cs2_matches_direct = poly_array_eq(&cs2_from_shares, &direct_cs2);
         if !aggregate_cs2_matches_direct {
@@ -575,7 +580,7 @@ pub fn strict_distributed_sign_from_s1_y_partials(
                 break;
             }
         }
-        let z_bound_ok = infinity_norm_vec_l(&aggregate.z.components)
+        let z_bound_ok = infinity_norm_vec_l(&aggregate_z.components)
             < (GAMMA1 as u32).saturating_sub(BETA as u32);
         if !r0_bound_ok || !z_bound_ok {
             rejected = rejected.saturating_add(1);
@@ -609,7 +614,7 @@ pub fn strict_distributed_sign_from_s1_y_partials(
             continue;
         }
 
-        let mut z_for_wire = aggregate.z;
+        let mut z_for_wire = aggregate_z;
         for s in 0..L {
             for j in 0..N {
                 z_for_wire.components[s].coeffs[j] =
@@ -627,7 +632,7 @@ pub fn strict_distributed_sign_from_s1_y_partials(
         let rejection_predicate_digest =
             rejection_predicate_digest(RejectionPredicateDigestInput {
                 c_tilde: &c_tilde,
-                z: &aggregate.z,
+                z: &aggregate_z,
                 cs2: &cs2_from_shares,
                 z_bound_ok,
                 r0_bound_ok,
@@ -1185,6 +1190,251 @@ fn mul_poly_array_by_challenge<const M: usize>(polys: &[Poly; M], c_hat: &[u32; 
     out
 }
 
+#[derive(Clone, Copy, Debug)]
+struct SelectedReceiver {
+    validator: ValidatorId,
+    x: u16,
+    lambda: i32,
+}
+
+fn selected_threshold_receivers(
+    receivers: &[(ValidatorId, u16)],
+    threshold: u16,
+) -> Result<Vec<SelectedReceiver>, ThresholdError> {
+    if threshold == 0 || receivers.len() < threshold as usize {
+        return Err(ThresholdError::InvalidThresholdParameters {
+            threshold,
+            total_nodes: receivers.len() as u16,
+        });
+    }
+    let selected = &receivers[..threshold as usize];
+    let xs = selected.iter().map(|(_, x)| *x).collect::<Vec<_>>();
+    if xs.contains(&0) {
+        return Err(ThresholdError::BackendUnavailable {
+            reason: "selected receiver x must be nonzero",
+        });
+    }
+    let lambdas = if xs_are_consecutive(&xs) {
+        consecutive_lagrange_coefficients(&xs)
+    } else {
+        xs.iter()
+            .map(|x| crate::crypto::interpolation::compute_lagrange_coefficient(&xs, *x))
+            .collect()
+    };
+    Ok(selected
+        .iter()
+        .zip(lambdas)
+        .map(|((validator, x), lambda)| SelectedReceiver {
+            validator: *validator,
+            x: *x,
+            lambda,
+        })
+        .collect())
+}
+
+fn xs_are_consecutive(xs: &[u16]) -> bool {
+    xs.windows(2)
+        .all(|pair| pair[1] == pair[0].saturating_add(1))
+}
+
+fn consecutive_lagrange_coefficients(xs: &[u16]) -> Vec<i32> {
+    let q = i64::from(Q);
+    let count = xs.len();
+    let mut product_all = 1i64;
+    for x in xs {
+        product_all = (product_all * i64::from(*x)) % q;
+    }
+
+    let mut factorials = vec![1i64; count];
+    for index in 1..count {
+        factorials[index] = (factorials[index - 1] * index as i64) % q;
+    }
+
+    xs.iter()
+        .enumerate()
+        .map(|(index, x)| {
+            let inv_x = i64::from(crate::crypto::interpolation::modular_inverse(i32::from(*x)));
+            let numerator = (product_all * inv_x) % q;
+            let denom_abs = (factorials[index] * factorials[count - 1 - index]) % q;
+            let denom = if index % 2 == 0 {
+                denom_abs
+            } else {
+                (q - denom_abs) % q
+            };
+            let inv_denom = i64::from(crate::crypto::interpolation::modular_inverse(denom as i32));
+            ((numerator * inv_denom) % q) as i32
+        })
+        .collect()
+}
+
+fn split_module_vector_selected_threshold(
+    secret: &ModuleVecL,
+    selected: &[SelectedReceiver],
+    mask_seed: &[u8],
+) -> Result<Vec<(ValidatorId, u16, ModuleVecL)>, ThresholdError> {
+    if selected.is_empty() {
+        return Err(ThresholdError::InsufficientPartialShares {
+            required: 1,
+            received: 0,
+        });
+    }
+
+    let mut shares = Vec::with_capacity(selected.len());
+    let mut reconstructed_accumulator = ModuleVecL::zero();
+    for (index, receiver) in selected.iter().take(selected.len() - 1).enumerate() {
+        let share = derive_module_share(mask_seed, index as u16);
+        add_scaled_module(&mut reconstructed_accumulator, &share, receiver.lambda);
+        shares.push((receiver.validator, receiver.x, share));
+    }
+
+    let last = selected[selected.len() - 1];
+    let last_lambda_inv = crate::crypto::interpolation::modular_inverse(last.lambda);
+    let residual = module_sub(secret, &reconstructed_accumulator);
+    let last_share = scale_module(&residual, last_lambda_inv);
+    shares.push((last.validator, last.x, last_share));
+    Ok(shares)
+}
+
+fn derive_module_share(mask_seed: &[u8], share_index: u16) -> ModuleVecL {
+    let mut share = ModuleVecL::zero();
+    for component in 0..L {
+        share.components[component] = derive_selected_module_mask_poly(
+            mask_seed,
+            component as u16,
+            share_index.saturating_add(1),
+        );
+    }
+    share
+}
+
+fn derive_selected_module_mask_poly(mask_seed: &[u8], component: u16, share_index: u16) -> Poly {
+    let mut hasher = Shake256::default();
+    hasher.update(b"lattice-aggregation/fips-sign/selected-module-share-mask/v1");
+    hasher.update(mask_seed);
+    hasher.update(&component.to_le_bytes());
+    hasher.update(&share_index.to_le_bytes());
+    let mut reader = hasher.finalize_xof();
+    let mut poly = Poly::zero();
+    for coeff in &mut poly.coeffs {
+        let mut word = [0u8; 4];
+        reader.read(&mut word);
+        *coeff = (u32::from_le_bytes(word) % (Q as u32)) as i32;
+    }
+    poly
+}
+
+fn add_scaled_module(accumulator: &mut ModuleVecL, value: &ModuleVecL, scalar: i32) {
+    for component in 0..L {
+        let scaled = crate::low_level::ring::poly_scale(&value.components[component], scalar);
+        accumulator.components[component].add_assign(&scaled);
+    }
+}
+
+fn module_sub(left: &ModuleVecL, right: &ModuleVecL) -> ModuleVecL {
+    let mut out = ModuleVecL::zero();
+    for component in 0..L {
+        out.components[component] =
+            poly_sub(&left.components[component], &right.components[component]);
+    }
+    out
+}
+
+fn scale_module(value: &ModuleVecL, scalar: i32) -> ModuleVecL {
+    let mut out = ModuleVecL::zero();
+    for component in 0..L {
+        out.components[component] =
+            crate::low_level::ring::poly_scale(&value.components[component], scalar);
+    }
+    out
+}
+
+fn split_poly_array_selected_threshold<const M: usize>(
+    secret: &[Poly; M],
+    selected: &[SelectedReceiver],
+    mask_seed: &[u8],
+) -> Result<Vec<(ValidatorId, u16, [Poly; M])>, ThresholdError> {
+    if selected.is_empty() {
+        return Err(ThresholdError::InsufficientPartialShares {
+            required: 1,
+            received: 0,
+        });
+    }
+
+    let mut shares = Vec::with_capacity(selected.len());
+    let mut reconstructed_accumulator = [Poly::zero(); M];
+    for (index, receiver) in selected.iter().take(selected.len() - 1).enumerate() {
+        let share = derive_poly_array_share(mask_seed, index as u16);
+        for component in 0..M {
+            let scaled = crate::low_level::ring::poly_scale(&share[component], receiver.lambda);
+            reconstructed_accumulator[component].add_assign(&scaled);
+        }
+        shares.push((receiver.validator, receiver.x, share));
+    }
+
+    let last = selected[selected.len() - 1];
+    let last_lambda_inv = crate::crypto::interpolation::modular_inverse(last.lambda);
+    let mut last_share = [Poly::zero(); M];
+    for component in 0..M {
+        let residual = poly_sub(&secret[component], &reconstructed_accumulator[component]);
+        last_share[component] = crate::low_level::ring::poly_scale(&residual, last_lambda_inv);
+    }
+    shares.push((last.validator, last.x, last_share));
+    Ok(shares)
+}
+
+fn derive_poly_array_share<const M: usize>(mask_seed: &[u8], share_index: u16) -> [Poly; M] {
+    let mut share = [Poly::zero(); M];
+    for component in 0..M {
+        share[component] =
+            derive_array_mask_poly(mask_seed, component as u16, share_index.saturating_add(1));
+    }
+    share
+}
+
+fn aggregate_module_partials_selected(
+    partials: &[ModulePartialZi],
+    selected: &[SelectedReceiver],
+) -> Result<ModuleVecL, ThresholdError> {
+    if partials.len() != selected.len() {
+        return Err(ThresholdError::InsufficientPartialShares {
+            required: selected.len() as u16,
+            received: partials.len(),
+        });
+    }
+    let mut out = ModuleVecL::zero();
+    for (partial, receiver) in partials.iter().zip(selected.iter()) {
+        if partial.signer != receiver.validator || partial.x != receiver.x {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+        add_scaled_module(&mut out, &partial.z_i, receiver.lambda);
+    }
+    Ok(out)
+}
+
+fn aggregate_poly_array_partials_selected<const M: usize>(
+    partials: &[(ValidatorId, u16, [Poly; M])],
+    selected: &[SelectedReceiver],
+) -> Result<[Poly; M], ThresholdError> {
+    if partials.len() != selected.len() {
+        return Err(ThresholdError::InsufficientPartialShares {
+            required: selected.len() as u16,
+            received: partials.len(),
+        });
+    }
+    let mut out = [Poly::zero(); M];
+    for ((signer, x, value), receiver) in partials.iter().zip(selected.iter()) {
+        if *signer != receiver.validator || *x != receiver.x {
+            return Err(ThresholdError::TranscriptMismatch);
+        }
+        for component in 0..M {
+            let scaled = crate::low_level::ring::poly_scale(&value[component], receiver.lambda);
+            out[component].add_assign(&scaled);
+        }
+    }
+    Ok(out)
+}
+
+#[allow(dead_code)]
 fn split_poly_array_shamir<const M: usize>(
     secret: &[Poly; M],
     threshold: u16,
@@ -1230,6 +1480,7 @@ fn split_poly_array_shamir<const M: usize>(
     Ok(shares)
 }
 
+#[allow(dead_code)]
 fn aggregate_poly_array_partials<const M: usize>(
     partials: &[(ValidatorId, u16, [Poly; M])],
 ) -> Result<[Poly; M], ThresholdError> {
@@ -1288,6 +1539,7 @@ fn derive_array_mask_poly(mask_seed: &[u8], component: u16, degree: u16) -> Poly
     poly
 }
 
+#[allow(dead_code)]
 fn eval_array_poly_coeffs(coeffs: &[Poly], x: u16) -> Poly {
     let q = i64::from(Q);
     let mut result = Poly::zero();
@@ -1468,5 +1720,16 @@ mod tests {
             &package.signature
         )
         .unwrap());
+    }
+
+    #[test]
+    fn consecutive_lagrange_coefficients_match_generic_coefficients() {
+        let xs = vec![2, 3, 4, 5, 6, 7, 8];
+        let fast = consecutive_lagrange_coefficients(&xs);
+        let generic = xs
+            .iter()
+            .map(|x| crate::crypto::interpolation::compute_lagrange_coefficient(&xs, *x))
+            .collect::<Vec<_>>();
+        assert_eq!(fast, generic);
     }
 }

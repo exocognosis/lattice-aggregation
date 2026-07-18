@@ -82,6 +82,7 @@
 - `closure_bundle`: bundle does not contain five passing content-addressed criterion records
 - `closure_bundle`: bundle provenance is dirty, unpinned, or unavailable
 - `closure_bundle`: bundle does not bind the exact validated campaign manifest
+- `closure_bundle`: bundle source/artifact inventories are empty or lack tree digests
 - `closure_bundle`: bundle provenance does not match the current clean Git commit and worktree
 
 This status is an internal closure candidate only. It does not claim that independent

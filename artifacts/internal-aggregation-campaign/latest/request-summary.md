@@ -5,7 +5,7 @@
 - Validators / threshold: `10000` / `6667`
 - Committee ladder: `[8, 16, 32, 64]`
 - Preregistered cases: `24`
-- Request SHA-256: `ca1679db8d0bd8451dd0a3d8f7a8a6a8b163aa20bd0e994719532a76a9393e88`
+- Request SHA-256: `7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49`
 
 The capture gate accepts only a clean, digest-bound, actual distributed
 threshold backend campaign. Simulation, fixtures, single-key output, and

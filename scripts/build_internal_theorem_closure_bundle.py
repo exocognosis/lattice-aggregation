@@ -136,6 +136,30 @@ CAMPAIGN_CAPTURE_SCHEMA = "lattice-aggregation:internal-aggregation-campaign-cap
 CAMPAIGN_VALIDATION_SCHEMA = (
     "lattice-aggregation:internal-aggregation-campaign-validation:v1"
 )
+DKG_CUSTODY_CAPABILITY_EVIDENCE_SCHEMA = (
+    "lattice-threshold-backend-p1:dkg-custody-capability-evidence:v1"
+)
+DKG_CUSTODY_CAPABILITY_EVIDENCE_BINDING_SCHEMA = (
+    "lattice-threshold-backend-p1:dkg-custody-capability-evidence-binding:v1"
+)
+DKG_CUSTODY_CAPABILITY_FIELDS = (
+    "distributed_dkg_vss",
+    "fips204_exact_distributed_key_generation",
+    "exact_distributed_keygen",
+    "private_per_receiver_share_custody",
+    "per_receiver_private_share_custody",
+)
+CAMPAIGN_REQUIRED_TRUE_CORE_FLAGS = (
+    "live_distributed_nonce_generation",
+    "exact_distributed_expand_mask",
+    "exact_expand_mask_mpc",
+    "partial_signing_over_secret_shares",
+    "partial_z_i_hint_aggregation",
+    "fips204_rejection_loop_over_threshold_partials",
+    "no_secret_or_seed_reconstruction",
+    "standard_wire_output",
+    "committee_authorization_bound",
+)
 
 
 def canonical_json(data):
@@ -751,17 +775,43 @@ def validate_campaign_binding(
     )
     requirements = request.get("capture_requirements", {}) if isinstance(request, dict) else {}
     core = capture.get("cryptographic_core", {}) if isinstance(capture, dict) else {}
-    required_strong_flags = (
-        "exact_distributed_keygen",
-        "per_receiver_private_share_custody",
-        "exact_expand_mask_mpc",
-        "committee_authorization_bound",
+    dkg_requirement = (
+        requirements.get("dkg_custody_capability_evidence", {})
+        if isinstance(requirements, dict)
+        else {}
     )
-    strong_request = isinstance(requirements, dict) and all(
-        requirements.get(key) is True for key in required_strong_flags
+    dkg_binding = (
+        core.get("digest_bound_capability_evidence", {})
+        if isinstance(core, dict)
+        else {}
     )
-    strong_capture = isinstance(core, dict) and all(
-        core.get(key) is True for key in required_strong_flags
+    strong_request = (
+        isinstance(requirements, dict)
+        and all(
+            requirements.get(key) is True
+            for key in CAMPAIGN_REQUIRED_TRUE_CORE_FLAGS
+        )
+        and isinstance(dkg_requirement, dict)
+        and dkg_requirement.get("schema") == DKG_CUSTODY_CAPABILITY_EVIDENCE_SCHEMA
+        and dkg_requirement.get("evidence_file_role")
+        == "dkg_custody_capability_evidence"
+        and dkg_requirement.get("claim_values_must_be_digest_bound") is True
+        and dkg_requirement.get("capability_fields")
+        == list(DKG_CUSTODY_CAPABILITY_FIELDS)
+    )
+    strong_capture = (
+        isinstance(core, dict)
+        and all(core.get(key) is True for key in CAMPAIGN_REQUIRED_TRUE_CORE_FLAGS)
+        and all(isinstance(core.get(field), bool) for field in DKG_CUSTODY_CAPABILITY_FIELDS)
+        and isinstance(dkg_binding, dict)
+        and dkg_binding.get("schema")
+        == DKG_CUSTODY_CAPABILITY_EVIDENCE_BINDING_SCHEMA
+        and dkg_binding.get("evidence_file_role")
+        == "dkg_custody_capability_evidence"
+        and dkg_binding.get("capability_fields")
+        == list(DKG_CUSTODY_CAPABILITY_FIELDS)
+        and is_digest(dkg_binding.get("evidence_file_digest_hex"))
+        and is_digest(dkg_binding.get("aggregate_evidence_digest_hex"))
     )
     expected_validation = None
     if request_error is None and capture_error is None:
