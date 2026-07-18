@@ -2,10 +2,10 @@
 
 This artifact is a fail-closed preflight for starting theorem-closure assessment. It is pending theorem-closure review.
 
-- Status: `ready_for_theorem_closure_assessment`
-- Theorem-closure assessment ready: `true`
+- Status: `blocked_before_theorem_closure_assessment`
+- Theorem-closure assessment ready: `false`
 - Claim boundary: `readiness preflight only; pending theorem-closure review`
-- Readiness digest SHA-256: `e77b0e394786362feb461f89bca1641fad93601321c5ef0c82c2bc71997da6ac`
+- Readiness digest SHA-256: `601012837166a077b501553b2de34955ed695d78c03edd2e8e254fb9ca08d2e0`
 
 Checks:
 - `criterion2_manifest_present`: `true`
@@ -28,10 +28,10 @@ Checks:
 - `external_accepted_distribution_abort_review_package_valid`: `true`
 - `theorem_review_manifest_present`: `true`
 - `theorem_review_manifest_boundary_valid`: `true`
-- `theorem_review_status_ready`: `true`
+- `theorem_review_status_ready`: `false`
 - `proof_payload_reviewed`: `true`
 - `full_kat_validation_reviewed`: `true`
-- `rejection_distribution_preservation_reviewed`: `true`
+- `rejection_distribution_preservation_reviewed`: `false`
 - `standard_verifier_compatibility_reviewed`: `true`
 - `theorem_linkage_reviewed`: `true`
 - `review_claims_theorem_closure_false`: `true`
@@ -45,9 +45,11 @@ Checks:
 
 Blocker Groups:
 - `external_backend_evidence`: `0` blocker(s)
-- `proof_payload_review`: `0` blocker(s)
+- `proof_payload_review`: `1` blocker(s)
+  - theorem review manifest is not ready
 - `validation`: `0` blocker(s)
-- `rejection_distribution_review`: `0` blocker(s)
+- `rejection_distribution_review`: `1` blocker(s)
+  - theorem review manifest has not satisfied rejection_distribution_preservation_reviewed
 - `standard_verifier_review`: `0` blocker(s)
 - `theorem_linkage_review`: `0` blocker(s)
 - `criterion2_manifest`: `0` blocker(s)

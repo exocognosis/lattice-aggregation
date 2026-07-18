@@ -23,7 +23,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-10T15:02:36Z",
+  "generated_at": "2026-07-18T00:18:28Z",
   "name": "p1-full-kat-cavp-validation-review",
   "package_boundary": "This package records reviewed KAT/CAVP/ACVTS validation evidence for the selected ML-DSA-65 provider. It does not assert theorem closure or FIPS validation by itself.",
   "package_class": "full_kat_cavp_validation_review",

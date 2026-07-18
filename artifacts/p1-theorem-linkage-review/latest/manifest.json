@@ -37,17 +37,17 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-10T14:14:03Z",
+  "generated_at": "2026-07-18T00:18:33Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83"
+      "sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "4df16220a032eccd693fd1b064640c62b58d60517b6c09d3f471669c05bd23ce"
+      "sha256": "68c14cd210cd3670bed754e23fa0c7f6177e484f25951f536d265938838dc747"
     },
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
@@ -57,7 +57,7 @@
     "external_attempt": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "b498394c90f5a1fc5f17b5b122f8a7ce13c7e9e66eb67738b326fae09e55fb11"
+      "sha256": "ab93dfd836734f94d3be67603b342a7f2bb39c5244620489214845a5684dd113"
     },
     "formal_security_theorem": {
       "path": "docs/cryptography/formal-security-theorem.md",
@@ -67,12 +67,12 @@
     "production_dkg_no_single_secret_review": {
       "path": "artifacts/p1-production-dkg-no-single-secret-review/latest/manifest.json",
       "present": true,
-      "sha256": "b8b34b0105dd9caa4c2640be668f1123577b01ed01fd7afa732556cc396e2750"
+      "sha256": "94bff5798e0524e5f6013aaf230f5f8dea09bd7ab59f2c7ec88065b23d9f5700"
     },
     "proof_obligations": {
       "path": "docs/cryptography/proof-obligations.md",
       "present": true,
-      "sha256": "894f0425b0aff69202b014cdc4ac13869cc9cadd6ac62154fa2acd616662c3be"
+      "sha256": "8507de59bcdb5c8b047817e72f920c07de24c491f5cd5bca605b3b203d5cda8a"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -83,8 +83,8 @@
   "name": "p1-theorem-linkage-review",
   "review_digests": {
     "criterion2_theorem_links_digest_hex": "00d93aca1cf8f6695f65178d45c8106e095c94baaa03857400fd2564e9676781",
-    "source_inputs_digest_hex": "1ad1049a0e57c3a234ddc448ce5ababdd3c84213e2e5f8f066e4f16247d206e8",
-    "theorem_linkage_review_digest_hex": "a798c401fa79a3007c762c70ac19d3baa270a35604511fd985d1d7a73ba39fa9"
+    "source_inputs_digest_hex": "bb8f4d480a180b9e42e728b49ac192014d36276836aaa88c008feef84d337391",
+    "theorem_linkage_review_digest_hex": "f25f41cab9a7be5c501802fabcd075091c8f8d967e96589ad9a4a02dd3f8bffe"
   },
   "review_status": "reviewed_theorem_linkage_ready",
   "schema": "lattice-aggregation:p1-theorem-linkage-review:v1",

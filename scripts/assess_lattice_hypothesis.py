@@ -78,6 +78,24 @@ THESIS_CRITERION_IDS = [
     "partial_contribution_soundness",
     "unauthorized_aggregate_reduction",
 ]
+POST_119_CRYPTO_EVIDENCE_SCHEMA = (
+    "lattice-aggregation:post-119-crypto-evidence-index:v1"
+)
+POST_119_CLAIM_FLAG_KEYS = [
+    "claims_theorem_closure",
+    "claims_criterion_met",
+    "claims_selected_backend_proof_closure",
+    "claims_rejection_distribution_preservation",
+    "claims_mask_distribution_proven",
+    "claims_standard_verifier_compatibility_complete",
+    "claims_production_threshold_mldsa_security",
+    "claims_cavp_acvts_validation",
+    "claims_fips_validation",
+    "claims_epsilon_mask_closed",
+]
+POST_119_CRITERION_STATUS_PRESERVED = {
+    criterion_id: "partially_met" for criterion_id in THESIS_CRITERION_IDS
+}
 THESIS_OPERATING_PARAMETERS_EXPECTED = {
     "security_parameter": "lambda",
     "validator_count": "n",
@@ -1618,6 +1636,20 @@ def selected_backend_boundary_blocker():
     )
 
 
+def post_119_crypto_evidence_index(components):
+    """Return the machine-readable post-119 crypto evidence boundary."""
+    return {
+        "schema": POST_119_CRYPTO_EVIDENCE_SCHEMA,
+        "status": "post_119_crypto_substrate_indexed",
+        "claim_boundary": "evidence_present_unclosed; not theorem closure",
+        "evidence_status": "evidence_present_unclosed",
+        "overall_verdict_preserved": "partially_proven",
+        "criterion_status_preserved": dict(POST_119_CRITERION_STATUS_PRESERVED),
+        "claim_flags": {key: False for key in POST_119_CLAIM_FLAG_KEYS},
+        "components": dict(sorted(components.items())),
+    }
+
+
 def default_criteria():
     """Return the five canonical hypothesis success criteria."""
     return [
@@ -1884,6 +1916,142 @@ def scan_documents(root):
     criterion3_proof_substance = criterion3_proof_substance_status(
         read_optional(CRITERION3_PROOF_SUBSTANCE_DOC),
         read_optional(CRITERION3_PROOF_SUBSTANCE_MANIFEST),
+    )
+    threshold_stack_architecture = read_optional(
+        "docs/cryptography/threshold-stack-architecture.md"
+    )
+    epsilon_mask_fork_decision = read_optional(
+        "docs/cryptography/epsilon-mask-fork-decision.md"
+    )
+    epsilon_mask_fork_reconciliation = read_optional(
+        "docs/cryptography/epsilon-mask-fork-reconciliation.md"
+    )
+    design_space_boundary_theorems = read_optional(
+        "docs/cryptography/design-space-boundary-theorems.md"
+    )
+    fst_l12_committee_cost_model = read_optional(
+        "docs/cryptography/fst-l12-committee-cost-model.md"
+    )
+    distributed_mask_mpc_feasibility = read_optional(
+        "docs/cryptography/distributed-mask-mpc-feasibility.md"
+    )
+    distributed_mask_mpc_model = read_optional(
+        "scripts/model_distributed_mask_mpc_feasibility.py"
+    )
+    distributed_mask_mpc_model_test = read_optional(
+        "script_tests/test_model_distributed_mask_mpc_feasibility.py"
+    )
+    bdlop_parameter_security_estimate = read_optional(
+        "docs/cryptography/bdlop-parameter-security-estimate.md"
+    )
+    partial_soundness_advancement = read_optional(
+        "docs/cryptography/partial-soundness-advancement-2026-07-12.md"
+    )
+    partial_soundness_real_local_verifier_test = read_optional(
+        "tests/partial_soundness_real_local_verifier.rs"
+    )
+    vss_real_source = read_optional("src/crypto/vss_real.rs")
+    bdlop_source = read_optional("src/crypto/bdlop.rs")
+    bdlop_pok_source = read_optional("src/crypto/bdlop_pok.rs")
+    vss_bdlop_source = read_optional("src/crypto/vss_bdlop.rs")
+    mldsa_module_source = read_optional("src/crypto/mldsa_module.rs")
+    mldsa_dkg_source = read_optional("src/crypto/mldsa_dkg.rs")
+    distributed_nonce_source = read_optional("src/crypto/distributed_nonce.rs")
+    share_transport_source = read_optional("src/crypto/share_transport.rs")
+    mldsa_primitives_source = read_optional("src/crypto/mldsa_primitives.rs")
+    module_partial_source = read_optional("src/backend/module_partial.rs")
+
+    post_119_real_dkg_vss_stack_a_gate = (
+        "Stack A" in threshold_stack_architecture
+        and "multi-dealer DKG" in threshold_stack_architecture
+        and "no single key holder" in threshold_stack_architecture
+        and "epsilon_mask" in threshold_stack_architecture
+        and "pub struct DkgCoordinator" in mldsa_dkg_source
+        and "finalize_with_evidence" in mldsa_dkg_source
+        and "verify_fault" in mldsa_dkg_source
+        and "pub struct CommitmentKey" in bdlop_source
+        and "pub struct OpeningProof" in bdlop_pok_source
+        and "Hiding verifiable secret sharing" in vss_bdlop_source
+        and "pub fn deal_secret_key" in mldsa_module_source
+        and "pub struct SealedShare" in share_transport_source
+        and "lattice-estimator NOT run" in bdlop_parameter_security_estimate
+        and "closed security claim"
+        in normalize_whitespace(bdlop_parameter_security_estimate)
+    )
+    post_119_distributed_nonce_epsilon_mask_gate = (
+        "Distributed nonce generation" in distributed_nonce_source
+        and "Round 1 (commit)" in distributed_nonce_source
+        and "Round 2 (reveal + aggregate)" in distributed_nonce_source
+        and "aggregate_mask_exceeds_gamma1_epsilon_mask_open"
+        in distributed_nonce_source
+        and "epsilon_mask is OPEN" in distributed_nonce_source
+        and "RATIFIED" in epsilon_mask_fork_decision
+        and "heavy-MPC effort" in epsilon_mask_fork_decision
+        and "remains\n> open" in epsilon_mask_fork_decision
+        and "ratified fork survives FST-T5" in epsilon_mask_fork_reconciliation
+    )
+    post_119_partial_local_validity_gate = (
+        "pub fn compute_z" in module_partial_source
+        and "pub struct ModulePartialLocalValidity" in module_partial_source
+        and "pub fn verify_module_partial_local_validity" in module_partial_source
+        and "algebraic_module_vector_partial_zi = true" in module_partial_source
+        and "tests/partial_soundness_real_local_verifier.rs"
+        in partial_soundness_advancement
+        and "verify_module_partial_local_validity"
+        in partial_soundness_real_local_verifier_test
+        and "Criterion 4 stays `partially_met`" in partial_soundness_advancement
+    )
+    post_119_two_stack_adr_gate = (
+        "Stack B" in threshold_stack_architecture
+        and "standard-verifier-valid" in threshold_stack_architecture
+        and "Stack A" in threshold_stack_architecture
+        and "distributed, no-single-holder" in threshold_stack_architecture
+        and "The two stacks must not be presented as converged"
+        in threshold_stack_architecture
+    )
+    post_119_design_space_boundary_gate = (
+        "## DSB-3. Theorem FST-T4" in design_space_boundary_theorems
+        and "## DSB-4. Theorem FST-T5" in design_space_boundary_theorems
+        and "exact threshold ML-DSA-65 *exists*" in design_space_boundary_theorems
+        and "not yet a formal impossibility lemma" in design_space_boundary_theorems
+    )
+    post_119_distributed_mask_mpc_feasibility_gate = (
+        "Distributed Mask MPC Feasibility" in distributed_mask_mpc_feasibility
+        and "claims_theorem_closure = false" in distributed_mask_mpc_feasibility
+        and "scripts/model_distributed_mask_mpc_feasibility.py"
+        in distributed_mask_mpc_feasibility
+        and "not a protocol\nimplementation" in distributed_mask_mpc_feasibility
+        and "lattice-aggregation:distributed-mask-mpc-feasibility-model:v1"
+        in distributed_mask_mpc_model
+        and "STATUS = \"feasibility_model_only\"" in distributed_mask_mpc_model
+        and "claims_theorem_closure" in distributed_mask_mpc_model_test
+        and "claims_epsilon_mask_closed" in distributed_mask_mpc_feasibility
+    )
+    post_119_mldsa_primitive_gate = (
+        "pub fn mod_pm" in mldsa_primitives_source
+        and "pub fn power2round" in mldsa_primitives_source
+        and "pub fn decompose" in mldsa_primitives_source
+        and "pub fn high_bits" in mldsa_primitives_source
+        and "pub fn low_bits" in mldsa_primitives_source
+        and "pub fn sample_in_ball" in mldsa_primitives_source
+        and "pub fn sample_gamma1_poly" in mldsa_primitives_source
+        and "pub fn expand_matrix_a" in mldsa_module_source
+        and "pub fn compute_t" in mldsa_module_source
+    )
+    post_119_crypto_evidence = post_119_crypto_evidence_index(
+        {
+            "real_dkg_vss_stack_a_gate": post_119_real_dkg_vss_stack_a_gate,
+            "distributed_nonce_epsilon_mask_gate": (
+                post_119_distributed_nonce_epsilon_mask_gate
+            ),
+            "partial_local_validity_gate": post_119_partial_local_validity_gate,
+            "two_stack_adr_gate": post_119_two_stack_adr_gate,
+            "design_space_boundary_gate": post_119_design_space_boundary_gate,
+            "distributed_mask_mpc_feasibility_gate": (
+                post_119_distributed_mask_mpc_feasibility_gate
+            ),
+            "mldsa_primitive_gate": post_119_mldsa_primitive_gate,
+        }
     )
 
     acceptance_source_scaffold = all(
@@ -3990,6 +4158,24 @@ def scan_documents(root):
             criterion3_proof_substance["status"]
             == "criterion3_proof_payload_formalized"
         ),
+        "post_119_crypto_evidence": post_119_crypto_evidence,
+        "post_119_real_dkg_vss_stack_a_gate": (
+            post_119_real_dkg_vss_stack_a_gate
+        ),
+        "post_119_distributed_nonce_epsilon_mask_gate": (
+            post_119_distributed_nonce_epsilon_mask_gate
+        ),
+        "post_119_partial_local_validity_gate": (
+            post_119_partial_local_validity_gate
+        ),
+        "post_119_two_stack_adr_gate": post_119_two_stack_adr_gate,
+        "post_119_design_space_boundary_gate": (
+            post_119_design_space_boundary_gate
+        ),
+        "post_119_distributed_mask_mpc_feasibility_gate": (
+            post_119_distributed_mask_mpc_feasibility_gate
+        ),
+        "post_119_mldsa_primitive_gate": post_119_mldsa_primitive_gate,
         "acceptance_predicate_source_scaffold": acceptance_source_scaffold,
         "production_acceptance_tests_scaffold": production_acceptance_tests_scaffold,
         "local_acceptance_conformance_scaffold": (
@@ -4178,6 +4364,30 @@ def classify_criteria(criteria, scan):
         if missing_blocker:
             pass
         elif criterion["id"] == "aggregate_mask_distribution":
+            if scan.get("post_119_distributed_nonce_epsilon_mask_gate"):
+                partial_progress = True
+                observed.append(
+                    "Post-119 Stack A distributed nonce code is present with "
+                    "commit/reveal aggregation and an executable negative gate "
+                    "pinning additive-mask epsilon_mask as open."
+                )
+                blockers.append(
+                    "The current distributed nonce path sums per-signer masks; "
+                    "a proof or protocol producing exact ExpandMask-uniform "
+                    "joint masks is still required before epsilon_mask can "
+                    "close."
+                )
+            if scan.get("post_119_distributed_mask_mpc_feasibility_gate"):
+                partial_progress = True
+                observed.append(
+                    "Distributed-mask MPC feasibility evidence is present with "
+                    "a reproducible cost model and preserved false claim flags."
+                )
+                blockers.append(
+                    "The feasibility model does not implement the MPC circuit, "
+                    "prove leakage bounds, or provide reviewed execution "
+                    "evidence for exact distributed ExpandMask sampling."
+                )
             if scan["mask_distribution_evidence_gate"]:
                 partial_progress = True
                 observed.append(
@@ -4200,6 +4410,38 @@ def classify_criteria(criteria, scan):
                     "release-readiness blocker."
                 )
         elif criterion["id"] == "aggregate_rejection_equivalence":
+            if scan.get("post_119_two_stack_adr_gate"):
+                partial_progress = True
+                observed.append(
+                    "Post-119 two-stack architecture evidence separates Stack A "
+                    "distributed/no-single-holder research from Stack B "
+                    "standard-verifier-compatible coordinator-assisted signing."
+                )
+                blockers.append(
+                    "The two stacks are not converged: Stack A does not emit "
+                    "FIPS-verifier-valid signatures, and Stack B relies on a "
+                    "coordinator no-export assumption."
+                )
+            if scan.get("post_119_design_space_boundary_gate"):
+                partial_progress = True
+                observed.append(
+                    "Design-space boundary evidence records the FST-T4 "
+                    "MPC-existence route and the FST-T5 additive-family "
+                    "infeasibility boundary at fixed ML-DSA-65 parameters."
+                )
+                blockers.append(
+                    "FST-T4/FST-T5 are proof-sketch and model-boundary "
+                    "evidence; they do not provide a reviewed implementation "
+                    "or a completed standard-verifier compatibility proof."
+                )
+            if scan.get("post_119_mldsa_primitive_gate"):
+                partial_progress = True
+                observed.append(
+                    "ML-DSA module primitives for decomposition, high/low "
+                    "bits, SampleInBall, gamma1 sampling, matrix expansion, "
+                    "and public-key relation checks are present as executable "
+                    "implementation evidence."
+                )
             if scan["aggregate_acceptance_conformance_scaffold"]:
                 observed.append(
                     "AggregateAccept conformance checks are present as "
@@ -4903,6 +5145,17 @@ def classify_criteria(criteria, scan):
                         "rejection checks are not present."
                     )
         elif criterion["id"] == "abort_retry_bias":
+            if scan.get("post_119_distributed_mask_mpc_feasibility_gate"):
+                partial_progress = True
+                observed.append(
+                    "The distributed-mask MPC feasibility scope names the "
+                    "output-delivery, retry, and abort-policy artifacts needed "
+                    "for a future accepted-output distribution review."
+                )
+                blockers.append(
+                    "No implemented MPC output-delivery discipline, retry "
+                    "bound, or abort-leakage proof is checked in yet."
+                )
             if scan["abort_bias_evidence_gate"]:
                 partial_progress = True
                 observed.append(
@@ -4923,6 +5176,19 @@ def classify_criteria(criteria, scan):
                     "open proof obligations."
                 )
         elif criterion["id"] == "partial_contribution_soundness":
+            if scan.get("post_119_partial_local_validity_gate"):
+                partial_progress = True
+                observed.append(
+                    "Post-119 real local partial-validity evidence is present "
+                    "for Stack B module partials: the verifier recomputes "
+                    "z_i = y_i + c*s1_i, rejects tampered/stale/cross-signer "
+                    "partials, and mints a real validity digest."
+                )
+                blockers.append(
+                    "Partial-contribution closure still needs hiding/ZK "
+                    "well-formedness evidence and enforcement on the full "
+                    "aggregate signing path, not only a local Stack B gate."
+                )
             if scan["partial_soundness_scaffold"]:
                 observed.append(
                     "Implementation-track evidence supports transcript binding, validator "
@@ -4954,6 +5220,20 @@ def classify_criteria(criteria, scan):
                 )
             status = "partially_met" if observed and blockers else "blocked"
         elif criterion["id"] == "unauthorized_aggregate_reduction":
+            if scan.get("post_119_real_dkg_vss_stack_a_gate"):
+                partial_progress = True
+                observed.append(
+                    "Post-119 Stack A DKG/VSS evidence is present: real Rq "
+                    "VSS, BDLOP commitments and opening proofs, multi-dealer "
+                    "DKG commit/reveal fault evidence, sealed share transport, "
+                    "and no-single-holder research components are indexed."
+                )
+                blockers.append(
+                    "The DKG/VSS substrate is not wired to a "
+                    "standard-verifier-compatible threshold signature, has not "
+                    "received lattice-estimator/external security review, and "
+                    "does not complete the EUF-CMA reduction."
+                )
             if scan["unauthorized_reduction_manifest_gate"]:
                 partial_progress = True
                 observed.append(
@@ -5144,6 +5424,7 @@ def build_report(
         "criterion1_proof_substance": scan["criterion1_proof_substance"],
         "criterion2_proof_substance": scan["criterion2_proof_substance"],
         "criterion3_proof_substance": scan["criterion3_proof_substance"],
+        "post_119_crypto_evidence": scan["post_119_crypto_evidence"],
         "readme_comparison": readme_comparison(scan),
         "criteria": criteria,
         "commands": command_results,
@@ -5263,6 +5544,7 @@ def build_closure_dashboard(report):
         "branch": report.get("branch", ""),
         "criteria": criteria,
         "proof_artifact_slots": artifact_slot_dashboard(report),
+        "post_119_crypto_evidence": report.get("post_119_crypto_evidence", {}),
         "external_capture_provenance_requirements": (
             external_capture_provenance_requirements()
         ),
@@ -5303,6 +5585,20 @@ def render_closure_dashboard_markdown(dashboard):
         for slot_status, slots in slot_summary.get("artifact_slot_statuses", {}).items():
             lines.append(f"- `{slot_status}`: {', '.join(slots) if slots else 'none'}")
         lines.append("")
+    post_119 = dashboard.get("post_119_crypto_evidence", {})
+    lines.extend(["## Post-119 Crypto Evidence", ""])
+    lines.append(f"- Status: `{post_119.get('status', 'not_indexed')}`")
+    lines.append(
+        f"- Evidence status: `{post_119.get('evidence_status', 'not_indexed')}`"
+    )
+    lines.append(
+        f"- Boundary: {post_119.get('claim_boundary', 'not indexed')}"
+    )
+    for component, present in post_119.get("components", {}).items():
+        lines.append(f"- `{component}`: `{present}`")
+    for flag, value in post_119.get("claim_flags", {}).items():
+        lines.append(f"- `{flag}`: `{value}`")
+    lines.append("")
     lines.extend(["## Non-Closure Guards", ""])
     for guard in dashboard.get("non_closure_guards", []):
         lines.append(f"- {guard}")
@@ -5581,6 +5877,28 @@ def render_markdown(report):
             "- Missing evidence tokens: "
             + ", ".join(criterion3["missing_evidence"])
         )
+
+    post_119 = report.get("post_119_crypto_evidence", {})
+    lines.extend(["", "## Post-119 Crypto Evidence", ""])
+    lines.append(f"- Status: `{post_119.get('status', 'not_indexed')}`")
+    lines.append(
+        f"- Evidence status: `{post_119.get('evidence_status', 'not_indexed')}`"
+    )
+    lines.append(
+        f"- Boundary: {post_119.get('claim_boundary', 'not indexed')}"
+    )
+    lines.append(
+        "- Overall verdict preserved: "
+        f"`{post_119.get('overall_verdict_preserved', 'not_indexed')}`"
+    )
+    for criterion_id, status in post_119.get(
+        "criterion_status_preserved", {}
+    ).items():
+        lines.append(f"- `{criterion_id}` preserved as `{status}`")
+    for component, present in post_119.get("components", {}).items():
+        lines.append(f"- `{component}`: `{present}`")
+    for flag, value in post_119.get("claim_flags", {}).items():
+        lines.append(f"- `{flag}`: `{value}`")
 
     lines.extend(["", "## Criteria", ""])
     for criterion in report["criteria"]:

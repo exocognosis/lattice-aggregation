@@ -1,36 +1,36 @@
 {
-  "branch": "codex/p1-validation-proof-packages",
+  "branch": "codex/post-119-crypto-evidence",
   "claim_boundary": "closure-run implementation track",
-  "commit": "b5932fcc5c665486fbc11a6450f4ccbd5e5a275a",
+  "commit": "9999744b66bac4a94c3ab874f55edfba1462dff6",
   "criteria": [
     {
-      "blocker_count": 2,
+      "blocker_count": 4,
       "id": "aggregate_mask_distribution",
-      "observed_evidence_count": 3,
-      "status": "partially_met"
-    },
-    {
-      "blocker_count": 10,
-      "id": "aggregate_rejection_equivalence",
-      "observed_evidence_count": 28,
-      "status": "partially_met"
-    },
-    {
-      "blocker_count": 2,
-      "id": "abort_retry_bias",
-      "observed_evidence_count": 3,
-      "status": "partially_met"
-    },
-    {
-      "blocker_count": 2,
-      "id": "partial_contribution_soundness",
       "observed_evidence_count": 5,
       "status": "partially_met"
     },
     {
-      "blocker_count": 2,
+      "blocker_count": 12,
+      "id": "aggregate_rejection_equivalence",
+      "observed_evidence_count": 31,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 3,
+      "id": "abort_retry_bias",
+      "observed_evidence_count": 4,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 3,
+      "id": "partial_contribution_soundness",
+      "observed_evidence_count": 6,
+      "status": "partially_met"
+    },
+    {
+      "blocker_count": 3,
       "id": "unauthorized_aggregate_reduction",
-      "observed_evidence_count": 3,
+      "observed_evidence_count": 4,
       "status": "partially_met"
     }
   ],
@@ -71,6 +71,41 @@
     "requires rejection-distribution preservation proof"
   ],
   "overall_verdict": "partially_proven",
+  "post_119_crypto_evidence": {
+    "claim_boundary": "evidence_present_unclosed; not theorem closure",
+    "claim_flags": {
+      "claims_cavp_acvts_validation": false,
+      "claims_criterion_met": false,
+      "claims_epsilon_mask_closed": false,
+      "claims_fips_validation": false,
+      "claims_mask_distribution_proven": false,
+      "claims_production_threshold_mldsa_security": false,
+      "claims_rejection_distribution_preservation": false,
+      "claims_selected_backend_proof_closure": false,
+      "claims_standard_verifier_compatibility_complete": false,
+      "claims_theorem_closure": false
+    },
+    "components": {
+      "design_space_boundary_gate": true,
+      "distributed_mask_mpc_feasibility_gate": true,
+      "distributed_nonce_epsilon_mask_gate": true,
+      "mldsa_primitive_gate": true,
+      "partial_local_validity_gate": true,
+      "real_dkg_vss_stack_a_gate": true,
+      "two_stack_adr_gate": true
+    },
+    "criterion_status_preserved": {
+      "abort_retry_bias": "partially_met",
+      "aggregate_mask_distribution": "partially_met",
+      "aggregate_rejection_equivalence": "partially_met",
+      "partial_contribution_soundness": "partially_met",
+      "unauthorized_aggregate_reduction": "partially_met"
+    },
+    "evidence_status": "evidence_present_unclosed",
+    "overall_verdict_preserved": "partially_proven",
+    "schema": "lattice-aggregation:post-119-crypto-evidence-index:v1",
+    "status": "post_119_crypto_substrate_indexed"
+  },
   "proof_artifact_slots": {
     "criterion_1": {
       "artifact_slot_statuses": {

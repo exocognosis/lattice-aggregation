@@ -3,7 +3,9 @@
   "blocker_groups": {
     "claim_boundary": [],
     "proof_payload_review": [],
-    "rejection_distribution_review": [],
+    "rejection_distribution_review": [
+      "rejection-distribution preservation package is missing or not ready; see artifacts/theorem-closure-blocker-requests/latest/manifest.json"
+    ],
     "standard_verifier_review": [],
     "theorem_linkage_review": [],
     "validation": []
@@ -21,10 +23,10 @@
   },
   "evidence_summary": {
     "blocker_closure_requests": {
-      "claim_boundary_preserved": true,
+      "claim_boundary_preserved": false,
       "claims_false": true,
       "present": true,
-      "request_status_ready": true,
+      "request_status_ready": false,
       "required_packages_present": true,
       "schema_valid": true
     },
@@ -69,9 +71,9 @@
       "claims_false": true,
       "package_class_valid": true,
       "present": true,
-      "required_checks_pass": true,
-      "review_ready": true,
-      "review_status_ready": true,
+      "required_checks_pass": false,
+      "review_ready": false,
+      "review_status_ready": false,
       "schema_valid": true,
       "source_inputs_bound": true
     },
@@ -97,12 +99,12 @@
       "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-10T15:02:36Z",
+  "generated_at": "2026-07-18T00:18:38Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
       "present": true,
-      "sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83"
+      "sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe"
     },
     "backend_capture": {
       "path": "artifacts/backend-emission-capture/latest/capture.json",
@@ -117,12 +119,12 @@
     "blocker_closure_requests": {
       "path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
       "present": true,
-      "sha256": "40e9b04505c24a5194129ce719389ccc54ee3506a8b63e6affee8716815d493a"
+      "sha256": "2428412756d65742cff3effa4ce1cd58d814296b7d3e4488319aaae8ae0d6b5c"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
       "present": true,
-      "sha256": "4df16220a032eccd693fd1b064640c62b58d60517b6c09d3f471669c05bd23ce"
+      "sha256": "68c14cd210cd3670bed754e23fa0c7f6177e484f25951f536d265938838dc747"
     },
     "criterion2_manifest": {
       "path": "docs/cryptography/criterion-2-proof-substance.json",
@@ -132,12 +134,12 @@
     "external_attempt": {
       "path": "artifacts/p1-external-backend-evidence-attempt/latest/manifest.json",
       "present": true,
-      "sha256": "b498394c90f5a1fc5f17b5b122f8a7ce13c7e9e66eb67738b326fae09e55fb11"
+      "sha256": "ab93dfd836734f94d3be67603b342a7f2bb39c5244620489214845a5684dd113"
     },
     "full_kat_cavp_validation_review": {
       "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
       "present": true,
-      "sha256": "8ab82352958fdd0564624b1944ee5f789ff93669487785684ce50f85a50b5c47"
+      "sha256": "0fb8721fcdd83647b4fa4bddcedf6653c6657bbc5b184afc7e588664c26c36c0"
     },
     "rejection_batch": {
       "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -147,24 +149,24 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "45a1f40fc01ea98b75bc3ab2c84a02b4124d3dccb0e7a39c1d5d6554edf0c559"
+      "sha256": "cf22de41b3746f98402166b6ff33b21446610a649e290a42049229c977df69df"
     },
     "theorem_linkage_review": {
       "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
       "present": true,
-      "sha256": "50454116b7f91e206a357131145081dcfa2ecf2fc40a2e291d9dd4e29427a1d9"
+      "sha256": "fccf26b0f58493d21b924a94e0720bcb6f32dbabd902eb27c81c68c9ad51be5f"
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "2af4ab28509ef5525f89003ff8bebd61c66b1df57be28a832d88e33ee5a7e3b6",
+  "review_digest_sha256": "cfa379f07accdad2585b8dc51df0f0056ae69d42b7d08422323550caf7ff3777",
   "review_flags": {
     "full_kat_validation_reviewed": true,
     "proof_payload_reviewed": true,
-    "rejection_distribution_preservation_reviewed": true,
+    "rejection_distribution_preservation_reviewed": false,
     "standard_verifier_compatibility_reviewed": true,
     "theorem_linkage_reviewed": true
   },
-  "review_status": "theorem_closure_review_ready",
+  "review_status": "theorem_closure_review_incomplete",
   "schema": "lattice-aggregation:theorem-closure-review:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"

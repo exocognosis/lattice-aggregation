@@ -472,6 +472,43 @@ class DocumentClassificationTests(unittest.TestCase):
         )
         self.assertIn("https://arxiv.org/abs/2601.20917", status["sources"])
 
+    def test_post_119_crypto_evidence_index_keeps_non_closure_boundary(self):
+        module = load_module()
+
+        scan = module.scan_documents(ROOT)
+        evidence = scan["post_119_crypto_evidence"]
+
+        self.assertEqual(
+            evidence["schema"],
+            "lattice-aggregation:post-119-crypto-evidence-index:v1",
+        )
+        self.assertEqual(evidence["status"], "post_119_crypto_substrate_indexed")
+        self.assertEqual(evidence["evidence_status"], "evidence_present_unclosed")
+        self.assertEqual(evidence["overall_verdict_preserved"], "partially_proven")
+        self.assertFalse(any(evidence["claim_flags"].values()))
+        self.assertFalse(evidence["claim_flags"]["claims_theorem_closure"])
+        self.assertFalse(evidence["claim_flags"]["claims_epsilon_mask_closed"])
+        self.assertTrue(all(evidence["components"].values()))
+        for status in evidence["criterion_status_preserved"].values():
+            self.assertEqual(status, "partially_met")
+
+        report = module.build_report(ROOT, run_commands=False)
+        dashboard = module.build_closure_dashboard(report)
+
+        self.assertEqual(
+            report["post_119_crypto_evidence"]["schema"],
+            "lattice-aggregation:post-119-crypto-evidence-index:v1",
+        )
+        self.assertEqual(
+            dashboard["post_119_crypto_evidence"]["status"],
+            "post_119_crypto_substrate_indexed",
+        )
+        self.assertIn("Post-119 Crypto Evidence", module.render_markdown(report))
+        self.assertIn(
+            "Post-119 Crypto Evidence",
+            module.render_closure_dashboard_markdown(dashboard),
+        )
+
 
 class ReportGenerationTests(unittest.TestCase):
     def write_minimal_repo_docs(self, root):
@@ -3955,11 +3992,11 @@ class ReportGenerationTests(unittest.TestCase):
         old_nonclosure_phrases = [
             "not proof " + "closure",
             "not production " + "approval",
-            "theorem " + "closure",
             "research scaffold " + "only",
         ]
         for phrase in old_nonclosure_phrases:
             self.assertNotIn(phrase, combined)
+        self.assertIn("not theorem closure", combined)
 
     def test_build_report_writes_json_and_markdown(self):
         module = load_module()

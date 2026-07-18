@@ -2,12 +2,12 @@
 
 This artifact tracks the external proof and validation inputs required before theorem-closure assessment can become ready.
 
-- Request status: `blocker_inputs_satisfied`
-- Claim boundary: `readiness preflight only; external proof and validation packages present`
-- Request digest SHA-256: `0e8465542dc2e57bec75ba4dac8acc6534ab4fece8aac0cab5230479ec519e4e`
+- Request status: `blocker_inputs_required`
+- Claim boundary: `readiness preflight only; pending external proof and validation`
+- Request digest SHA-256: `0bbeeceaf922fa20e716f9abc95a6c898e44145a9d7e4844580ad5d2a19e5e38`
 
 Required Packages:
-- `rejection_distribution_preservation_review`: `package_ready`
+- `rejection_distribution_preservation_review`: `candidate_package_present_pending_review`
   - schema: `lattice-aggregation:p1-rejection-distribution-preservation-review:v1`
   - expected path: `artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json`
   - satisfies: `rejection_distribution_preservation_reviewed`
