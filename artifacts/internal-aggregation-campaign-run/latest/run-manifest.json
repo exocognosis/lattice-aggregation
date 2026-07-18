@@ -1,0 +1,57 @@
+{
+  "backend_command": [
+    "/bin/sh",
+    "-c",
+    "echo exact distributed campaign backend unavailable >&2; exit 2"
+  ],
+  "backend_command_origin": "outside_repo_executable_or_script",
+  "backend_command_sha256": "8aabe927dc2e52629fd1e5d81ce5dbf0e3ea63a291fe4ecf028314ab9a523747",
+  "blockers": [
+    "exact distributed campaign backend command failed",
+    "exact distributed campaign backend unavailable"
+  ],
+  "campaign_out": "artifacts/internal-aggregation-campaign/latest",
+  "capture_sha256": null,
+  "claim_boundary": "exact distributed ML-DSA internal campaign capture runner; theorem closure remains pending five substantive criteria and independent review",
+  "claim_flags": {
+    "claims_fips_validation": false,
+    "claims_internal_campaign_evidence_ready": false,
+    "claims_internal_theorem_closure": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "command_result": {
+    "duration_seconds": 0.007,
+    "exit_code": 2,
+    "stderr_bytes": 47,
+    "stderr_sha256": "36ad7742c6b75051ac5af72c9ad3fc0043360ab3843cbbcd3bc2ea5c12fe9a17",
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generated_at": "2026-07-18T19:19:55Z",
+  "metadata": {
+    "branch": "codex/post-119-crypto-evidence",
+    "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
+    "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "commit": "38f4e2c112453e5106d70f08f8b0d9c775d1c57f",
+    "dirty": true,
+    "os": "macOS-26.5.2-arm64-arm-64bit",
+    "python_version": "3.12.8",
+    "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
+  },
+  "official_capture_written": false,
+  "official_validation_written": false,
+  "request": {
+    "path": "artifacts/internal-aggregation-campaign/latest/request.json",
+    "present": true,
+    "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
+    "size_bytes": 27805
+  },
+  "run_out": "artifacts/internal-aggregation-campaign-run/latest",
+  "runner_status": "blocked_backend_command_failed",
+  "schema": "lattice-aggregation:internal-aggregation-campaign-run:v1",
+  "schema_version": 1,
+  "validated_execution_count": null,
+  "validation_sha256": null,
+  "validation_status": null
+}

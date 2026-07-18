@@ -75,6 +75,16 @@ python3 scripts/build_internal_aggregation_campaign_request.py \
 The generator is deterministic: the same campaign identifier produces the same
 request bytes and request digest.
 
+When a reviewed authorization verifier exists, bind its identity into the
+request before handing the campaign to the external backend:
+
+```sh
+python3 scripts/build_internal_aggregation_campaign_request.py \
+  --campaign-id theorem-closure-internal-001 \
+  --authorization-verifier-id reviewed-threshold-auth-v1 \
+  --authorization-verifier-implementation-sha256 <64 lowercase hex digest>
+```
+
 ## Capture gate
 
 The backend operator must write `capture.json` next to `request.json`. The
@@ -130,3 +140,38 @@ re-hashes every source/artifact inventory entry, and compares the embedded Git
 commit/cleanliness record with the current checkout. The campaign manifest is
 an input to the proof bundle. It is not a substitute for the five proof
 criteria, formal reductions, or later independent review.
+
+## Exact campaign runner
+
+The repo-side runner executes an external exact distributed ML-DSA campaign
+backend and promotes output only after the validator accepts it:
+
+```sh
+python3 scripts/run_internal_aggregation_campaign_capture.py \
+  --root . \
+  --request artifacts/internal-aggregation-campaign/latest/request.json \
+  --campaign-out artifacts/internal-aggregation-campaign/latest \
+  --run-out artifacts/internal-aggregation-campaign-run/latest \
+  --evidence-base /outside/reviewed-campaign-evidence \
+  --backend-command /outside/threshold-backend-p1 run-internal-aggregation-campaign \
+    --request artifacts/internal-aggregation-campaign/latest/request.json
+```
+
+The backend command must write canonical
+`lattice-aggregation:internal-aggregation-campaign-capture:v1` JSON to stdout.
+The runner rejects repo-local commands and command lines containing smoke,
+fixture, simulation, localnet, single-key, or seed-reconstruction markers.
+
+Successful runs write:
+
+```text
+artifacts/internal-aggregation-campaign/latest/capture.json
+artifacts/internal-aggregation-campaign/latest/manifest.json
+artifacts/internal-aggregation-campaign-run/latest/run-manifest.json
+```
+
+Failed or non-admissible runs write only the attempt artifacts under
+`artifacts/internal-aggregation-campaign-run/latest/`, including command logs
+and either parse blockers or `rejected-capture.json` plus
+`rejected-validation.json`. The official campaign capture path remains absent
+until the exact distributed backend evidence is validator-ready.
