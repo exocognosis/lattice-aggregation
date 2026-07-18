@@ -98,7 +98,7 @@ def reviewed_proof_input(module):
 
 
 class P1RejectionDistributionPreservationReviewTests(unittest.TestCase):
-    def test_current_artifacts_block_when_reviewed_proof_input_is_stale(self):
+    def test_current_artifacts_build_ready_preservation_package_with_reviewed_proof_input(self):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-07T00:00:00Z")
@@ -110,19 +110,19 @@ class P1RejectionDistributionPreservationReviewTests(unittest.TestCase):
         )
         self.assertEqual(
             manifest["review_status"],
-            "blocked_rejection_distribution_preservation_review",
+            "reviewed_rejection_distribution_preservation_ready",
         )
         self.assertEqual(
             manifest["claim_boundary"],
             "conformance/proof-review evidence",
         )
         self.assertTrue(manifest["checks"]["binds_rejection_batch_digest"])
-        self.assertFalse(manifest["checks"]["binds_distribution_abort_review_digest"])
+        self.assertTrue(manifest["checks"]["binds_distribution_abort_review_digest"])
         self.assertTrue(
             manifest["checks"]["accepted_distribution_distance_bound_reviewed"]
         )
         self.assertTrue(manifest["checks"]["external_reviewer_digest_present"])
-        self.assertEqual(manifest["blockers"], ["binds_distribution_abort_review_digest"])
+        self.assertEqual(manifest["blockers"], [])
         self.assertFalse(any(manifest["claim_flags"].values()))
 
     def test_reviewed_proof_input_can_build_ready_preservation_package(self):

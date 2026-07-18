@@ -157,7 +157,7 @@ def write_minimal_inputs(root, *, external_ready, review_ready=None):
 
 
 class TheoremClosureReadinessTests(unittest.TestCase):
-    def test_current_checked_in_artifacts_block_without_rejection_distribution_review(
+    def test_current_checked_in_artifacts_are_ready_for_closure_assessment(
         self,
     ):
         module = load_module()
@@ -167,32 +167,26 @@ class TheoremClosureReadinessTests(unittest.TestCase):
         manifest = report["manifest"]
         self.assertEqual(
             manifest["readiness_status"],
-            "blocked_before_theorem_closure_assessment",
+            "ready_for_theorem_closure_assessment",
         )
-        self.assertFalse(manifest["theorem_closure_assessment_ready"])
+        self.assertTrue(manifest["theorem_closure_assessment_ready"])
         self.assertFalse(manifest["claims_theorem_closure"])
         self.assertTrue(manifest["checks"]["external_evidence_attempt_ready"])
         self.assertTrue(manifest["checks"]["external_review_package_ready"])
         self.assertTrue(manifest["checks"]["theorem_review_manifest_present"])
         self.assertTrue(manifest["checks"]["theorem_review_manifest_boundary_valid"])
-        self.assertFalse(manifest["checks"]["theorem_review_status_ready"])
+        self.assertTrue(manifest["checks"]["theorem_review_status_ready"])
         self.assertTrue(manifest["checks"]["proof_payload_reviewed"])
         self.assertTrue(manifest["checks"]["standard_verifier_compatibility_reviewed"])
         self.assertTrue(manifest["checks"]["full_kat_validation_reviewed"])
-        self.assertFalse(
+        self.assertTrue(
             manifest["checks"]["rejection_distribution_preservation_reviewed"]
         )
         self.assertTrue(manifest["checks"]["theorem_linkage_reviewed"])
-        self.assertIn(
-            "theorem review manifest is not ready",
-            manifest["blocker_groups"]["proof_payload_review"],
-        )
+        self.assertEqual(manifest["blocker_groups"]["proof_payload_review"], [])
         self.assertEqual(manifest["blocker_groups"]["validation"], [])
         self.assertEqual(manifest["blocker_groups"]["external_backend_evidence"], [])
-        self.assertIn(
-            "theorem review manifest has not satisfied rejection_distribution_preservation_reviewed",
-            manifest["blocker_groups"]["rejection_distribution_review"],
-        )
+        self.assertEqual(manifest["blocker_groups"]["rejection_distribution_review"], [])
         self.assertEqual(manifest["blocker_groups"]["theorem_linkage_review"], [])
 
     def test_external_ready_bundle_without_theorem_review_stays_blocked(self):

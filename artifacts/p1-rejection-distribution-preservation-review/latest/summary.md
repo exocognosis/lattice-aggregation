@@ -2,7 +2,7 @@
 
 This package records whether reviewed rejection-distribution and abort bounds are bound to the current rejection batch.
 
-- Review status: `blocked_rejection_distribution_preservation_review`
+- Review status: `reviewed_rejection_distribution_preservation_ready`
 - Claim boundary: `conformance/proof-review evidence`
 
 Checks:
@@ -15,11 +15,11 @@ Checks:
 - `concurrency_model_reviewed`: `true`
 - `concrete_loss_bound_nonvacuous`: `true`
 - `binds_rejection_batch_digest`: `true`
-- `binds_distribution_abort_review_digest`: `false`
+- `binds_distribution_abort_review_digest`: `true`
 - `external_reviewer_digest_present`: `true`
 
 Blockers:
-- `binds_distribution_abort_review_digest`
+- none
 
 Proof package:
 - `accepted_threshold_output_distribution_vs_centralized_mldsa_distribution`: `reviewed=true`

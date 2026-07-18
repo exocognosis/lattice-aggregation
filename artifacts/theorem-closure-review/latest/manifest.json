@@ -3,9 +3,7 @@
   "blocker_groups": {
     "claim_boundary": [],
     "proof_payload_review": [],
-    "rejection_distribution_review": [
-      "rejection-distribution preservation package is missing or not ready; see artifacts/theorem-closure-blocker-requests/latest/manifest.json"
-    ],
+    "rejection_distribution_review": [],
     "standard_verifier_review": [],
     "theorem_linkage_review": [],
     "validation": []
@@ -23,10 +21,10 @@
   },
   "evidence_summary": {
     "blocker_closure_requests": {
-      "claim_boundary_preserved": false,
+      "claim_boundary_preserved": true,
       "claims_false": true,
       "present": true,
-      "request_status_ready": false,
+      "request_status_ready": true,
       "required_packages_present": true,
       "schema_valid": true
     },
@@ -71,9 +69,9 @@
       "claims_false": true,
       "package_class_valid": true,
       "present": true,
-      "required_checks_pass": false,
-      "review_ready": false,
-      "review_status_ready": false,
+      "required_checks_pass": true,
+      "review_ready": true,
+      "review_status_ready": true,
       "schema_valid": true,
       "source_inputs_bound": true
     },
@@ -99,7 +97,7 @@
       "slot_status_evidence_present_unclosed": true
     }
   },
-  "generated_at": "2026-07-18T00:18:38Z",
+  "generated_at": "2026-07-18T03:14:51Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -119,7 +117,7 @@
     "blocker_closure_requests": {
       "path": "artifacts/theorem-closure-blocker-requests/latest/manifest.json",
       "present": true,
-      "sha256": "2428412756d65742cff3effa4ce1cd58d814296b7d3e4488319aaae8ae0d6b5c"
+      "sha256": "160c48865fd59422eadee75289785b1c68d055be804c937ac9be8efb2a6eca86"
     },
     "closure_candidate": {
       "path": "artifacts/p1-external-backend-cryptographic-closure-candidate/latest/manifest.json",
@@ -149,7 +147,7 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "cf22de41b3746f98402166b6ff33b21446610a649e290a42049229c977df69df"
+      "sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b"
     },
     "theorem_linkage_review": {
       "path": "artifacts/p1-theorem-linkage-review/latest/manifest.json",
@@ -158,15 +156,15 @@
     }
   },
   "name": "theorem-closure-review-v1",
-  "review_digest_sha256": "cfa379f07accdad2585b8dc51df0f0056ae69d42b7d08422323550caf7ff3777",
+  "review_digest_sha256": "fe90ad914c49afc11facf9596952bf75379ac56b1dabc62eee081759c95b0780",
   "review_flags": {
     "full_kat_validation_reviewed": true,
     "proof_payload_reviewed": true,
-    "rejection_distribution_preservation_reviewed": false,
+    "rejection_distribution_preservation_reviewed": true,
     "standard_verifier_compatibility_reviewed": true,
     "theorem_linkage_reviewed": true
   },
-  "review_status": "theorem_closure_review_incomplete",
+  "review_status": "theorem_closure_review_ready",
   "schema": "lattice-aggregation:theorem-closure-review:v1",
   "schema_version": 1,
   "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1"

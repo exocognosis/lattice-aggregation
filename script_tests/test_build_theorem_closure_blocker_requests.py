@@ -19,7 +19,7 @@ def load_module():
 
 
 class TheoremClosureBlockerRequestsTests(unittest.TestCase):
-    def test_current_artifacts_emit_exact_remaining_package_requests(self):
+    def test_current_artifacts_emit_satisfied_package_requests(self):
         module = load_module()
 
         report = module.build_report(ROOT, generated_at="2026-07-07T00:00:00Z")
@@ -29,7 +29,7 @@ class TheoremClosureBlockerRequestsTests(unittest.TestCase):
             manifest["schema"],
             "lattice-aggregation:theorem-closure-blocker-requests:v1",
         )
-        self.assertEqual(manifest["request_status"], "blocker_inputs_required")
+        self.assertEqual(manifest["request_status"], "blocker_inputs_satisfied")
         self.assertEqual(
             sorted(manifest["required_packages"]),
             [
@@ -54,7 +54,7 @@ class TheoremClosureBlockerRequestsTests(unittest.TestCase):
         )
         self.assertEqual(
             rejection_request["current_status"],
-            "candidate_package_present_pending_review",
+            "package_ready",
         )
         validation_request = manifest["required_packages"][
             "full_kat_cavp_validation_review"

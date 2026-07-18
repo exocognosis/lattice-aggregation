@@ -1,5 +1,5 @@
 {
-  "accepted_distribution_abort_review_sha256": "879476714402a2ab069ca48ae81522bd783a8257f0515a625536243503525c83",
+  "accepted_distribution_abort_review_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
   "checks": {
     "accepted_distribution_distance_bound_reviewed": true,
     "centralized_mldsa_reference_distribution_reviewed": true,
@@ -30,7 +30,7 @@
     "selective_abort_loss": "epsilon_abort <= Pr[withholding changes availability without changing accepted-output law]; accepted-output distribution is conditioned on public acceptance and abort accountability records."
   },
   "external_reviewer_digest_hex": "8198cf8c6a693d2114540bf0ac3d60b1a28d0c79cfd1dd165536c1088593376d",
-  "generated_at": "2026-07-07T00:00:00Z",
+  "generated_at": "2026-07-18T03:13:59Z",
   "input_status": "external_proof_reviewed",
   "name": "p1-rejection-distribution-preservation-external-proof-package",
   "note": "Reviewed proof input for the rejection-distribution preservation package. It binds the current rejection batch and accepted-distribution/abort review, supplies a concrete total-variation distance/loss bound, records rejection-sampling conditioning, selective-abort/withholding, restart leakage, concurrency, and reviewer signoff digests, and keeps theorem/production claim flags false.",

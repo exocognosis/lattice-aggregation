@@ -1,5 +1,5 @@
 {
-  "claim_boundary": "readiness preflight only; pending external proof and validation",
+  "claim_boundary": "readiness preflight only; external proof and validation packages present",
   "claim_flags": {
     "claims_cavp_acvts_validation": false,
     "claims_criterion_met": false,
@@ -10,7 +10,7 @@
     "claims_standard_verifier_compatibility_complete": false,
     "claims_theorem_closure": false
   },
-  "generated_at": "2026-07-18T00:18:33Z",
+  "generated_at": "2026-07-18T03:14:51Z",
   "inputs": {
     "accepted_distribution_abort_review": {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
@@ -45,13 +45,13 @@
     "rejection_distribution_preservation_review": {
       "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "present": true,
-      "sha256": "cf22de41b3746f98402166b6ff33b21446610a649e290a42049229c977df69df"
+      "sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b"
     }
   },
   "name": "theorem-closure-blocker-requests-v1",
   "request_boundary": "This artifact defines the exact externally reviewed proof and validation packages required by theorem-review flags. It does not assert theorem closure, CAVP/ACVTS certification, or FIPS validation.",
-  "request_digest_sha256": "0bbeeceaf922fa20e716f9abc95a6c898e44145a9d7e4844580ad5d2a19e5e38",
-  "request_status": "blocker_inputs_required",
+  "request_digest_sha256": "bb40530bcddb752b135407ae448ddb88569ff77b192c974d8724b2cff9fc84f6",
+  "request_status": "blocker_inputs_satisfied",
   "required_packages": {
     "full_kat_cavp_validation_review": {
       "can_be_satisfied_from_current_repo": false,
@@ -92,7 +92,7 @@
     },
     "rejection_distribution_preservation_review": {
       "can_be_satisfied_from_current_repo": false,
-      "current_status": "candidate_package_present_pending_review",
+      "current_status": "package_ready",
       "description": "Externally reviewed proof package that bounds accepted threshold signature distribution against centralized ML-DSA behavior and covers selective abort, withholding, restart leakage, concurrency, and concrete loss terms.",
       "expected_path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
       "package_class": "rejection_distribution_preservation_review",
