@@ -1,0 +1,183 @@
+{
+  "assessment_status": "unproven",
+  "blockers": [
+    "selected_mask_construction_proven requires a real exact distributed ExpandMask/MPC construction artifact",
+    "centralized_distribution_reference_bound requires a reviewed ML-DSA-65 centralized mask-distribution reference proof",
+    "aggregate_distribution_bound requires a concrete statistical/Renyi distance bound for the aggregate mask distribution",
+    "distribution_distance_bound_nonvacuous requires a nonzero-security loss calculation at fixed ML-DSA-65 parameters",
+    "real 24-case 10,000-validator/6,667-threshold campaign capture is not bound",
+    "two named internal reviewers have not signed a passing criterion manifest",
+    "independent cryptographic review is pending and cannot be self-asserted"
+  ],
+  "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+  "claim_flags": {
+    "claims_criterion_met": false,
+    "claims_external_validation_complete": false,
+    "claims_independent_review_complete": false,
+    "claims_substantive_proof_complete": false
+  },
+  "criterion_id": "aggregate_mask_distribution",
+  "evidence_class": "fail_closed_internal_closure_input_requirements",
+  "evidence_digests": {
+    "implementation_digest": "74134b9d29d41aa49ebdeeee1f1b5a1d18a271c22b468a224758d97a209cff0c",
+    "proof_digest": "883208c34c6b457475c19ab504ea68992aa621714e8b96dafc0aff881caa81b2",
+    "protocol_spec_digest": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba",
+    "test_evidence_digest": "9aafe6ded9a0f49938d009d2d8b2413df301b3303bc9b500c521406909745522"
+  },
+  "evidence_status": "required_unclosed",
+  "generated_at": "2026-07-18T18:31:53Z",
+  "implementation_artifacts": [
+    {
+      "path": "src/production/mask_distribution.rs",
+      "sha256": "358187174a51883ab7cfe36c9a4ce2839615eb87cd8e90a3fdbbab845e34e48c"
+    },
+    {
+      "path": "src/production/epsilon.rs",
+      "sha256": "d23223645a4768dd0dc25fd5e183346ed4382ca87eeb5d08b5a8d3a49e20f045"
+    },
+    {
+      "path": "src/crypto/distributed_nonce.rs",
+      "sha256": "d5abbce481503c97a7b215ef484c761ba6dc2bd9259ed831bc1c4e089507a978"
+    },
+    {
+      "path": "src/crypto/mldsa_primitives.rs",
+      "sha256": "26606cbe55524379c76a27793774446f68c1dfb05dc4e11171f94daff5e085b2"
+    }
+  ],
+  "independent_review": {
+    "completed": false,
+    "required": true,
+    "status": "pending_independent_cryptographic_review"
+  },
+  "internal_review": {
+    "completed": false,
+    "independent_review_completed": false,
+    "required_internal_reviewer_count": 2,
+    "review_digest_sha256": null,
+    "reviewed_at": null,
+    "reviewer_identity_sha256": null
+  },
+  "proof_artifacts": [
+    {
+      "path": "docs/cryptography/criterion-1-proof-substance.md",
+      "sha256": "3ab9a342c9bd7beb93a9710fb5508fb081c6250340347c344917a00b9a53a8ef"
+    },
+    {
+      "path": "docs/cryptography/criterion-1-proof-substance.json",
+      "sha256": "e6825872d971ea656047a889a828d744e76890a9055f3cb8694815f34871271a"
+    },
+    {
+      "path": "docs/cryptography/mask-distribution-evidence.md",
+      "sha256": "7566bda014986f1dd6b286193a4e4df1f50bcc2724ec1f0c33f24dec2b14d3bd"
+    },
+    {
+      "path": "docs/cryptography/distributed-mask-mpc-feasibility.md",
+      "sha256": "af3404122a6e4ca50faeac14944f74a9f8b0459d376a0535c981de1f6e2606aa"
+    },
+    {
+      "path": "docs/cryptography/epsilon-mask-fork-decision.md",
+      "sha256": "e2613bd402279e119af03dfae6616cfdfa0946b725cf1bfda08fba5ce6eaa32f"
+    }
+  ],
+  "protocol_profile": {
+    "committee_authorization_bound_to_validator_threshold": true,
+    "exact_distributed_keygen": true,
+    "exact_expand_mask_mpc": true,
+    "maximum_committee_size": 64,
+    "no_secret_or_seed_reconstruction": true,
+    "parameter_set": "ML-DSA-65",
+    "per_receiver_private_share_custody": true,
+    "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+    "standard_wire_signature_bytes": 3309,
+    "threshold": 6667,
+    "validator_count": 10000
+  },
+  "protocol_spec_artifacts": [
+    {
+      "path": "docs/cryptography/security-model.md",
+      "sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30"
+    },
+    {
+      "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+      "sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6"
+    },
+    {
+      "path": "docs/cryptography/formal-security-theorem.md",
+      "sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d"
+    },
+    {
+      "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+      "sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314"
+    },
+    {
+      "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+      "sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0"
+    }
+  ],
+  "provenance": {
+    "changed_paths": [
+      "artifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
+      "artifacts/internal-theorem-closure-bundle/latest/summary.md",
+      "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
+      "artifacts/internal-theorem-closure-evidence/latest/manifest.json",
+      "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
+      "artifacts/internal-theorem-closure-evidence/latest/summary.md",
+      "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
+      "artifacts/internal-theorem-closure/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure/latest/manifest.json",
+      "artifacts/internal-theorem-closure/latest/summary.md",
+      "docs/cryptography/internal-theorem-closure-bundle.md",
+      "gitignore",
+      "script_tests/test_build_internal_theorem_closure_criterion_inputs.py",
+      "scripts/build_internal_theorem_closure_criterion_inputs.py"
+    ],
+    "git_commit": "c634948d6094c5d8512fef82aa080ceaa4f51371",
+    "hazmat": false,
+    "quarantined": true,
+    "real_distributed_threshold_core_verified": false,
+    "simulation": false,
+    "source_class": "fail_closed_requirements_inventory",
+    "source_path": "artifacts/internal-theorem-closure-evidence/latest",
+    "source_tree_sha256": "8b8af183ba46a05ba704e665b7bf44783c6a059a892e5d8f0c2ff5fc927f87df",
+    "worktree_clean": false
+  },
+  "readiness_only": false,
+  "reproducibility": {
+    "commands": [],
+    "required_commands": [
+      "real backend campaign replay",
+      "criterion proof reproduction",
+      "criterion negative/fault-injection suite"
+    ]
+  },
+  "schema": "lattice-aggregation:internal-theorem-closure-criterion-evidence:v1",
+  "schema_version": 1,
+  "substantive_checks": {
+    "aggregate_distribution_bound": false,
+    "centralized_distribution_reference_bound": false,
+    "distribution_distance_bound_nonvacuous": false,
+    "selected_mask_construction_proven": false
+  },
+  "test_artifacts": [
+    {
+      "path": "tests/production_mask_distribution.rs",
+      "sha256": "ac1d2bb210441310f0748247629597211c981b261bedf541203a34e32368ae89"
+    },
+    {
+      "path": "tests/production_epsilon.rs",
+      "sha256": "999d60d0d7a7794f9a726866bfe00d99af456fbadbd51d8c62189c3135930618"
+    },
+    {
+      "path": "tests/criterion1_proof_substance_manifest.rs",
+      "sha256": "e034705951347e4db572f6cd73e632857400ed568a4aebee301cb32879944ed5"
+    },
+    {
+      "path": "script_tests/test_model_distributed_mask_mpc_feasibility.py",
+      "sha256": "5a9fcc0e6aa8e4aa62945ae33742bbb0acf8f5ed58f9fa2de3511ea99d45cfa2"
+    }
+  ]
+}

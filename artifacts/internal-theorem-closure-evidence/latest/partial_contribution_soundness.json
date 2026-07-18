@@ -1,0 +1,191 @@
+{
+  "assessment_status": "unproven",
+  "blockers": [
+    "vss_dkg_binding_hiding_proven requires proof-backed DKG/VSS share validity and hiding evidence on the full signing path",
+    "partial_context_binding_proven requires each partial response to bind signer, commitment, challenge, attempt, transcript, and authorization",
+    "malicious_partials_rejected requires full-path rejection evidence for malformed, stale, duplicate, and out-of-set partials",
+    "local_accept_leakage_reviewed requires leakage review for local acceptance and partial-verification evidence",
+    "real 24-case 10,000-validator/6,667-threshold campaign capture is not bound",
+    "two named internal reviewers have not signed a passing criterion manifest",
+    "independent cryptographic review is pending and cannot be self-asserted"
+  ],
+  "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+  "claim_flags": {
+    "claims_criterion_met": false,
+    "claims_external_validation_complete": false,
+    "claims_independent_review_complete": false,
+    "claims_substantive_proof_complete": false
+  },
+  "criterion_id": "partial_contribution_soundness",
+  "evidence_class": "fail_closed_internal_closure_input_requirements",
+  "evidence_digests": {
+    "implementation_digest": "2a0bcf8054e5a45aad41dc1d7418a031e32cbc72ad35b26afa4795daddc6e361",
+    "proof_digest": "f15bfa9a625f0146936c954a95f2d85a34d99ce270aafe594c0d4e285eb98214",
+    "protocol_spec_digest": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba",
+    "test_evidence_digest": "891a2c201555f72d9666780dbb86122f579098010cf4324a5eb9f02fb4608b65"
+  },
+  "evidence_status": "required_unclosed",
+  "generated_at": "2026-07-18T18:31:53Z",
+  "implementation_artifacts": [
+    {
+      "path": "src/production/partial_soundness.rs",
+      "sha256": "83b8180fbebbf34c61dfb9825ee86ffaee17b44565d8a954a9fef0de422a332a"
+    },
+    {
+      "path": "src/backend/module_partial.rs",
+      "sha256": "3290aa5c6291e40d902b0098c344e1bee0e743ddf6710b47783b7609664ba732"
+    },
+    {
+      "path": "src/backend/algebraic_partial.rs",
+      "sha256": "7aab479ad37bb3ff8f12684487589a6a7e81669418ac763b9e7269a94160c65f"
+    },
+    {
+      "path": "src/crypto/bdlop.rs",
+      "sha256": "3a7e7a8192853a34243713c9298022e504b53bd1693a6f6e0349f7683a97fe9b"
+    },
+    {
+      "path": "src/crypto/bdlop_pok.rs",
+      "sha256": "6fa678a57647124d5e8f021a4ebc6d5095e8fcc78855da709eae8c403a14846b"
+    },
+    {
+      "path": "src/crypto/vss_bdlop.rs",
+      "sha256": "d1f73707bb04bf75bc2a1cbb587dfecdd697e40d6ef026fd8688fa30b55ded17"
+    },
+    {
+      "path": "src/crypto/mldsa_dkg.rs",
+      "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d"
+    }
+  ],
+  "independent_review": {
+    "completed": false,
+    "required": true,
+    "status": "pending_independent_cryptographic_review"
+  },
+  "internal_review": {
+    "completed": false,
+    "independent_review_completed": false,
+    "required_internal_reviewer_count": 2,
+    "review_digest_sha256": null,
+    "reviewed_at": null,
+    "reviewer_identity_sha256": null
+  },
+  "proof_artifacts": [
+    {
+      "path": "docs/cryptography/partial-soundness-evidence.md",
+      "sha256": "0c37a38655d6437d5cd336d580ed2bf89c1e49ed909562e8774115a249995616"
+    },
+    {
+      "path": "docs/cryptography/partial-soundness-advancement-2026-07-12.md",
+      "sha256": "6c7f6a45aa538d0fd805a91f5ac9b42647000c7c1fc326eb3ecea5ffbde13455"
+    },
+    {
+      "path": "docs/cryptography/vss-dkg-security-plan.md",
+      "sha256": "0a2a6a794fd6fd86393e46b73c4d5477b32baacba3239cefbe6ed83fc29c4d19"
+    },
+    {
+      "path": "docs/cryptography/formal-threshold-mldsa-transcript.md",
+      "sha256": "da241ddeb912bc947af517f829733951f673bb7fec48731215e985f255aae738"
+    }
+  ],
+  "protocol_profile": {
+    "committee_authorization_bound_to_validator_threshold": true,
+    "exact_distributed_keygen": true,
+    "exact_expand_mask_mpc": true,
+    "maximum_committee_size": 64,
+    "no_secret_or_seed_reconstruction": true,
+    "parameter_set": "ML-DSA-65",
+    "per_receiver_private_share_custody": true,
+    "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+    "standard_wire_signature_bytes": 3309,
+    "threshold": 6667,
+    "validator_count": 10000
+  },
+  "protocol_spec_artifacts": [
+    {
+      "path": "docs/cryptography/security-model.md",
+      "sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30"
+    },
+    {
+      "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+      "sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6"
+    },
+    {
+      "path": "docs/cryptography/formal-security-theorem.md",
+      "sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d"
+    },
+    {
+      "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+      "sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314"
+    },
+    {
+      "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+      "sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0"
+    }
+  ],
+  "provenance": {
+    "changed_paths": [
+      "artifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
+      "artifacts/internal-theorem-closure-bundle/latest/summary.md",
+      "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
+      "artifacts/internal-theorem-closure-evidence/latest/manifest.json",
+      "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
+      "artifacts/internal-theorem-closure-evidence/latest/summary.md",
+      "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
+      "artifacts/internal-theorem-closure/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure/latest/manifest.json",
+      "artifacts/internal-theorem-closure/latest/summary.md",
+      "docs/cryptography/internal-theorem-closure-bundle.md",
+      "gitignore",
+      "script_tests/test_build_internal_theorem_closure_criterion_inputs.py",
+      "scripts/build_internal_theorem_closure_criterion_inputs.py"
+    ],
+    "git_commit": "c634948d6094c5d8512fef82aa080ceaa4f51371",
+    "hazmat": false,
+    "quarantined": true,
+    "real_distributed_threshold_core_verified": false,
+    "simulation": false,
+    "source_class": "fail_closed_requirements_inventory",
+    "source_path": "artifacts/internal-theorem-closure-evidence/latest",
+    "source_tree_sha256": "8b8af183ba46a05ba704e665b7bf44783c6a059a892e5d8f0c2ff5fc927f87df",
+    "worktree_clean": false
+  },
+  "readiness_only": false,
+  "reproducibility": {
+    "commands": [],
+    "required_commands": [
+      "real backend campaign replay",
+      "criterion proof reproduction",
+      "criterion negative/fault-injection suite"
+    ]
+  },
+  "schema": "lattice-aggregation:internal-theorem-closure-criterion-evidence:v1",
+  "schema_version": 1,
+  "substantive_checks": {
+    "local_accept_leakage_reviewed": false,
+    "malicious_partials_rejected": false,
+    "partial_context_binding_proven": false,
+    "vss_dkg_binding_hiding_proven": false
+  },
+  "test_artifacts": [
+    {
+      "path": "tests/production_partial_soundness.rs",
+      "sha256": "cdadf00eead854dda640bc4ccbc804bc976005bed053d184963a5db2af52eea0"
+    },
+    {
+      "path": "tests/partial_soundness_real_local_verifier.rs",
+      "sha256": "f44f17ade3257f78396cdade7804af2661975e9e3bd0ede4992dbe27a6361594"
+    },
+    {
+      "path": "tests/threshold_core.rs",
+      "sha256": "5ecadebe49ddc84e3b6dcc5f93329433cd2354ba38ea15c6b3eb9ae031c427c8"
+    },
+    {
+      "path": "tests/ui/type_state_invalid_partial.rs",
+      "sha256": "9d02c19619f577263cb4403884c4faa7964b2de75d35dc00f885f1497b7c249c"
+    }
+  ]
+}

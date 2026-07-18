@@ -1,0 +1,189 @@
+{
+  "assessment_status": "unproven",
+  "blockers": [
+    "euf_cma_reduction_complete requires the total unauthorized-output classifier and reduction proof to be completed",
+    "base_theorem_dependency_bound requires a concrete bound to ML-DSA-65 EUF-CMA/MLWE/SelfTargetMSIS assumptions",
+    "simulator_complete requires a straight-line simulator for concurrent sessions under the selected corruption model",
+    "hybrid_bound_nonvacuous requires concrete loss accounting that remains meaningful at fixed ML-DSA-65 parameters",
+    "subthreshold_forgery_reduction_complete requires a proof that fewer than 6,667 validators cannot create an accepting aggregate except by a classified component break",
+    "real 24-case 10,000-validator/6,667-threshold campaign capture is not bound",
+    "two named internal reviewers have not signed a passing criterion manifest",
+    "independent cryptographic review is pending and cannot be self-asserted"
+  ],
+  "claim_boundary": "internal theorem-closure candidate only; pending independent cryptographic review",
+  "claim_flags": {
+    "claims_criterion_met": false,
+    "claims_external_validation_complete": false,
+    "claims_independent_review_complete": false,
+    "claims_substantive_proof_complete": false
+  },
+  "criterion_id": "unauthorized_aggregate_reduction",
+  "evidence_class": "fail_closed_internal_closure_input_requirements",
+  "evidence_digests": {
+    "implementation_digest": "09e4ef916ddcb0e4361dd557970ff284f5526aa8956ad9fa7e343b0051854fc8",
+    "proof_digest": "79bccb7c5c3e4403deb0186a0b7e397ef42895c8e892a2137ec7c6d2ac4ec383",
+    "protocol_spec_digest": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba",
+    "test_evidence_digest": "babd109ae5141578d255449194c447d7bf202ee2f7934eb63e9ff5ee617aaa88"
+  },
+  "evidence_status": "required_unclosed",
+  "generated_at": "2026-07-18T18:31:53Z",
+  "implementation_artifacts": [
+    {
+      "path": "src/production/selected_backend.rs",
+      "sha256": "866f8741cab37a1fb87c4f54ee59739785f82f686e62d1ba745536e8568e4736"
+    },
+    {
+      "path": "src/production/coordinator.rs",
+      "sha256": "0abe70fe778e3ea10ca4e8470a9dd4067114d95105fdf5ac347a217a9ef68414"
+    },
+    {
+      "path": "src/production/evidence.rs",
+      "sha256": "b0ffdce2329f529785f80da03abbd961fbecbf7ee34534f6d312a7de63a0f630"
+    },
+    {
+      "path": "src/adapter/evidence.rs",
+      "sha256": "cc220c48f844781babbd94e20509e9f6712f00594d3a425f3c63602ad1ba6cf9"
+    },
+    {
+      "path": "src/transcript.rs",
+      "sha256": "f0c10c03c20e75c34fb367df00d03899b9535015ed5acc8d61cee8937cc5715b"
+    }
+  ],
+  "independent_review": {
+    "completed": false,
+    "required": true,
+    "status": "pending_independent_cryptographic_review"
+  },
+  "internal_review": {
+    "completed": false,
+    "independent_review_completed": false,
+    "required_internal_reviewer_count": 2,
+    "review_digest_sha256": null,
+    "reviewed_at": null,
+    "reviewer_identity_sha256": null
+  },
+  "proof_artifacts": [
+    {
+      "path": "docs/cryptography/unauthorized-aggregate-reduction.md",
+      "sha256": "55b14e604adef516a4a3007b610a7a1a2572724540d211de8f40e6e40a70d412"
+    },
+    {
+      "path": "docs/cryptography/proof-obligations.md",
+      "sha256": "fe5d228b1aa28c6dbbb8f672003f7b0218d9551065068ef65db468c2e4f71c9b"
+    },
+    {
+      "path": "docs/cryptography/ideal-functionality.md",
+      "sha256": "2bd7fae8023f86b9edfddf935b19a03f2690a84967b51219c6ea21c03354d876"
+    },
+    {
+      "path": "docs/cryptography/random-oracle-game.md",
+      "sha256": "a98fd5184003e770dd47b0779826fade9a5dd6e1eb179d3216c1f0628a0c21e4"
+    },
+    {
+      "path": "docs/cryptography/internal-proof-obligation-register.json",
+      "sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0"
+    }
+  ],
+  "protocol_profile": {
+    "committee_authorization_bound_to_validator_threshold": true,
+    "exact_distributed_keygen": true,
+    "exact_expand_mask_mpc": true,
+    "maximum_committee_size": 64,
+    "no_secret_or_seed_reconstruction": true,
+    "parameter_set": "ML-DSA-65",
+    "per_receiver_private_share_custody": true,
+    "profile_id": "native-threshold-mldsa65-mpc-no-reconstruction-v1",
+    "standard_wire_signature_bytes": 3309,
+    "threshold": 6667,
+    "validator_count": 10000
+  },
+  "protocol_spec_artifacts": [
+    {
+      "path": "docs/cryptography/security-model.md",
+      "sha256": "e41d11b8fc97d76c4b81472aec9affab442f56accf770919f7a892279c1a1a30"
+    },
+    {
+      "path": "docs/cryptography/threshold-mldsa-protocol-spec.md",
+      "sha256": "0f5ce48565a7672e717c0ab4d28b7079a244c4c6a8935383f32920eef182c7b6"
+    },
+    {
+      "path": "docs/cryptography/formal-security-theorem.md",
+      "sha256": "f970a76f1603bc4fd010aacc63c65a058b64bd1212a268d16958a6692612292d"
+    },
+    {
+      "path": "docs/cryptography/internal-theorem-closure-candidate.md",
+      "sha256": "1368081dd5e5ff50fdb16f2bb1907f819e481caffe9504f3b7a0f4d907882314"
+    },
+    {
+      "path": "docs/cryptography/internal-theorem-closure-bundle.md",
+      "sha256": "2044c529ab8192b527b2913a6becb9a8fc28ce0e47a8171a96e2a1b4b6fb48e0"
+    }
+  ],
+  "provenance": {
+    "changed_paths": [
+      "artifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
+      "artifacts/internal-theorem-closure-bundle/latest/summary.md",
+      "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
+      "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
+      "artifacts/internal-theorem-closure-evidence/latest/manifest.json",
+      "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
+      "artifacts/internal-theorem-closure-evidence/latest/summary.md",
+      "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
+      "artifacts/internal-theorem-closure/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure/latest/manifest.json",
+      "artifacts/internal-theorem-closure/latest/summary.md",
+      "docs/cryptography/internal-theorem-closure-bundle.md",
+      "gitignore",
+      "script_tests/test_build_internal_theorem_closure_criterion_inputs.py",
+      "scripts/build_internal_theorem_closure_criterion_inputs.py"
+    ],
+    "git_commit": "c634948d6094c5d8512fef82aa080ceaa4f51371",
+    "hazmat": false,
+    "quarantined": true,
+    "real_distributed_threshold_core_verified": false,
+    "simulation": false,
+    "source_class": "fail_closed_requirements_inventory",
+    "source_path": "artifacts/internal-theorem-closure-evidence/latest",
+    "source_tree_sha256": "8b8af183ba46a05ba704e665b7bf44783c6a059a892e5d8f0c2ff5fc927f87df",
+    "worktree_clean": false
+  },
+  "readiness_only": false,
+  "reproducibility": {
+    "commands": [],
+    "required_commands": [
+      "real backend campaign replay",
+      "criterion proof reproduction",
+      "criterion negative/fault-injection suite"
+    ]
+  },
+  "schema": "lattice-aggregation:internal-theorem-closure-criterion-evidence:v1",
+  "schema_version": 1,
+  "substantive_checks": {
+    "base_theorem_dependency_bound": false,
+    "euf_cma_reduction_complete": false,
+    "hybrid_bound_nonvacuous": false,
+    "simulator_complete": false,
+    "subthreshold_forgery_reduction_complete": false
+  },
+  "test_artifacts": [
+    {
+      "path": "tests/unauthorized_aggregate_reduction_manifest.rs",
+      "sha256": "9c4478440e6f6296c3ac7e8d847e772f9dea50b67d153ac555d0c36a406721ee"
+    },
+    {
+      "path": "tests/internal_proof_obligation_register.rs",
+      "sha256": "8124a7005448b6da3eb2da03e2793df13673827a745443145f593da328c997d2"
+    },
+    {
+      "path": "tests/proof_documentation_manifest.rs",
+      "sha256": "fa513311bc43d34ab847ff7d2e4777884a3ce3bb7f7c1fbe62e78c2d9da10620"
+    },
+    {
+      "path": "tests/production_coordinator.rs",
+      "sha256": "51a5eed4b91c798581fd69b68acc2fa73d5c8514eb01f0d94f944bff4a8f0b03"
+    }
+  ]
+}
