@@ -39,11 +39,19 @@ errata. An output signature MUST be the ordinary 3309-byte encoding and MUST be
 accepted by an unmodified verifier for the same `(pk, message mode, ctx, m)`.
 
 The following values are secret throughout their lifetime: the FIPS
-key-generation seed, `K`, secret vectors `s1` and `s2`, `t0`, the per-signature
-`rho_prime_prime`, every rejected or unreleased `y`, intermediate low bits and
-rejection predicates, and every validator's persistent share. Secret values
-MUST exist only as authenticated MPC shares or as approved ephemeral local
-shares. No code path may reconstruct them at `Agg` or any other single party.
+key-generation seed, `K`, secret vectors `s1` and `s2`, the per-signature
+`rho_prime_prime`, every rejected or unreleased `y`, intermediate signing low
+bits and rejection predicates, and every validator's persistent secret share.
+Secret values MUST exist only as authenticated MPC shares or as approved
+ephemeral local shares. No code path may reconstruct them at `Agg` or any other
+single party.
+
+The full DKG public relation `t = A*s1+s2` and its `Power2Round` low part `t0`
+are a declared exception: FIPS 204 does not require the low bits of `t` to be
+secret. The DKG may declassify ephemeral `t` to derive exact `t1` and `t0`.
+Validators MUST nevertheless retain exact `t0` signing state, either publicly
+bound to the epoch or as authenticated shares. Public `t0` does not relax the
+secrecy requirements for `s1`, `s2`, `K`, or the key-generation seed.
 
 ## PS-2. Canonical Encoding and Domain Separation
 
@@ -141,12 +149,20 @@ both cases it MUST output:
 
 - the ordinary ML-DSA-65 public key `pk` publicly;
 - authenticated persistent shares of every secret value needed by exact
-  `Sign_internal`, including `K`, `s1`, `s2`, and `t0` or a proved equivalent;
+  `Sign_internal`, including `K`, `s1`, and `s2`, plus exact retained `t0`
+  signing state or a proved equivalent;
 - validator verification metadata bound to `E_final`; and
 - no reconstructable full `sk`, seed, or equivalent at any single party.
 
 The proof MUST establish that the public `(rho, t1)` and shared secret state
 satisfy the exact ML-DSA key relation and the required key distribution.
+
+Deriving byte-exact `pk = (rho, t1)` from caller-supplied shares is only one
+sub-capability of this relation. It does not establish exact joint `ExpandS`
+sampling, private receiver custody, secret-shared `K`, retained `t0` signing
+state, or a malicious-secure DKG proof. The current implementation boundary and
+its non-promotion rule are recorded in
+[`distributed-keygen-capability-boundary.md`](distributed-keygen-capability-boundary.md).
 
 ### PS-4.2 VSS state machine
 
@@ -183,7 +199,8 @@ requirements in [`vss-dkg-security-plan.md`](vss-dkg-security-plan.md).
 ### PS-4.3 Persistent-state rule
 
 After finalization, validators retain only their authenticated secret shares,
-verification metadata, `E_final`, and state required by the selected MPC. They
+exact `t0` signing state, verification metadata, `E_final`, and state required
+by the selected MPC. They
 MUST erase dealer polynomial randomness, decrypted inbound shares after
 combination, temporary openings, and superseded complaint secrets. There MUST
 be no production reconstruction API.
@@ -220,8 +237,8 @@ joint circuit MUST:
 4. reveal only the public `w1` value committed to the current attempt;
 5. compute `c_tilde` and `c` using the exact FIPS challenge derivation;
 6. compute authenticated secret shares of `z = y + c * s1`;
-7. compute authenticated secret shares of the low-bit relation, `c * t0`, and
-   the exact `MakeHint` result;
+7. compute the low-bit relation, `c * t0`, and the exact `MakeHint` result
+   inside MPC, using the retained public or shared `t0` state;
 8. evaluate all FIPS rejection predicates, including the `z`, `r0`, `c*t0`,
    and hint-weight bounds; and
 9. declassify `(c_tilde, z, h)` only for the first accepting attempt.

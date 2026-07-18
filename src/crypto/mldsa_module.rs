@@ -151,6 +151,19 @@ pub struct SharedSecretKey {
     s2_commitments: ComponentCommitments,
 }
 
+/// Clear dealer-side material consumed by the encrypted receiver-custody seam.
+///
+/// This type is crate-private so callers cannot turn the custody interface back
+/// into a public clear-share container. Its share fields are wiped on drop.
+pub(crate) struct ReceiverCustodyMaterial {
+    pub(crate) threshold: u16,
+    pub(crate) total_nodes: u16,
+    pub(crate) s1_shares: ComponentShares,
+    pub(crate) s2_shares: ComponentShares,
+    pub(crate) s1_commitments: ComponentCommitments,
+    pub(crate) s2_commitments: ComponentCommitments,
+}
+
 /// Deal an ML-DSA-65 secret key into hiding, verifiable threshold shares.
 ///
 /// Each secret component polynomial is shared with a component-separated dealer
@@ -196,6 +209,22 @@ impl SharedSecretKey {
     /// Configured validator count.
     pub fn total_nodes(&self) -> u16 {
         self.total_nodes
+    }
+
+    /// Consume this clear sharing into the crate-private receiver-custody seam.
+    ///
+    /// The method is intentionally not public. The dealer-side custody module
+    /// immediately encrypts each receiver's components and wipes this material;
+    /// coordinator-facing code receives only the resulting ciphertext bundle.
+    pub(crate) fn into_receiver_custody_material(mut self) -> ReceiverCustodyMaterial {
+        ReceiverCustodyMaterial {
+            threshold: self.threshold,
+            total_nodes: self.total_nodes,
+            s1_shares: core::mem::take(&mut self.s1_shares),
+            s2_shares: core::mem::take(&mut self.s2_shares),
+            s1_commitments: core::mem::take(&mut self.s1_commitments),
+            s2_commitments: core::mem::take(&mut self.s2_commitments),
+        }
     }
 
     /// Verify every validator's share of every component against the public
@@ -286,6 +315,20 @@ impl SharedSecretKey {
     }
 }
 
+impl Drop for SharedSecretKey {
+    fn drop(&mut self) {
+        zeroize_component_shares(&mut self.s1_shares);
+        zeroize_component_shares(&mut self.s2_shares);
+    }
+}
+
+impl Drop for ReceiverCustodyMaterial {
+    fn drop(&mut self) {
+        zeroize_component_shares(&mut self.s1_shares);
+        zeroize_component_shares(&mut self.s2_shares);
+    }
+}
+
 impl KeyProofs {
     /// Domain-separated digest binding every well-formedness opening proof.
     ///
@@ -353,6 +396,17 @@ fn add_shares_into(accumulator: &mut ComponentShares, other: &ComponentShares) {
         for (acc_share, other_share) in acc_component.iter_mut().zip(other_component.iter()) {
             acc_share.value.add_assign(&other_share.value);
             acc_share.randomness = vec_add(&acc_share.randomness, &other_share.randomness);
+        }
+    }
+}
+
+fn zeroize_component_shares(shares: &mut ComponentShares) {
+    use zeroize::Zeroize;
+
+    for share in shares.iter_mut().flatten() {
+        share.value.coeffs.zeroize();
+        for randomness in &mut share.randomness {
+            randomness.coeffs.zeroize();
         }
     }
 }

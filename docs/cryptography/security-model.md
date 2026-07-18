@@ -115,6 +115,14 @@ signature, a session-level completion or abort result, and public fault evidence
 proved noninterfering. A debugger, crash report, trace collector, enclave API,
 or test harness that materializes a prohibited value violates this model.
 
+The DKG public-output step may additionally declassify the ephemeral full
+public relation `t = A*s1+s2` and its `Power2Round` low part `t0`. FIPS 204 does
+not require the low bits of `t` to remain secret. A conforming implementation
+may therefore combine public `t` contributions before rounding. It must still
+retain exact `t0` signing state (publicly or in authenticated shares), and this
+declassification does not permit disclosure of `s1`, `s2`, `K`, the
+key-generation seed, or any reconstructable equivalent.
+
 ## SM-5. Authorization and Signing Queries
 
 `Z` may authorize a signing request only by producing a canonical authorization
@@ -169,6 +177,8 @@ The base model permits disclosure of:
 - protocol identifiers and versions;
 - epoch identifier, `n`, `t`, canonical validator-set digest, public key, and
   DKG transcript digest;
+- the DKG public-output intermediate `t = A*s1+s2` and derived `t0`, when bound
+  to the finalized epoch and erased where it is not retained as signing state;
 - authorized message/context or their application-approved digest;
 - requested signer set and authorization certificate;
 - public MPC frame metadata and authenticated transcript digests;

@@ -25,6 +25,7 @@ pub mod utils;
 
 pub use aggregation::{aggregate_with_backend, SignatureAggregator, SimulatedAggregator};
 pub use backend::no_reconstruction::{
+    derive_committee8_fips_public_key_from_t_shares, Committee8FipsKeygenCapabilities,
     Committee8Session, DkgReady as Committee8DkgReady, NoReconstructionCapabilities,
     NoReconstructionError, NoReconstructionPrimitive, NonceCommitted as Committee8NonceCommitted,
     NonceReady as Committee8NonceReady, Uninitialized as Committee8Uninitialized,
