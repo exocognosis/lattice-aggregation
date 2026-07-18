@@ -1,0 +1,121 @@
+# Internal Theorem-Closure Attempt
+
+- Attempt status: `blocked_before_internal_closure`
+- Internal closure candidate: `false`
+- Claim boundary: `closure attempt only; theorem closure requires real campaign evidence, five substantive proof manifests, clean internal review, and independent cryptographic review`
+- Attempt digest SHA-256: `11240a110753c9d0992042e44c987d53bd95c28b88130c08db390d341a43f42b`
+
+## Requested Items
+
+- `real_24_case_n10000_t6667_distributed_campaign_capture`: `blocked`
+- `passing_substantive_proof_manifests_for_all_five_criteria`: `blocked`
+- `internal_closure_bundle_clean_provenance_two_internal_reviewers`: `blocked`
+
+## Blockers
+
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign capture unavailable or invalid: FileNotFoundError
+- real_24_case_n10000_t6667_distributed_campaign_capture: real distributed campaign capture.json is absent
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign authorization signatures are not verified by a bound reviewed verifier
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: capture_present
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: exact_24_case_matrix
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: real_distributed_evidence_class
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: actual_distributed_execution_mode
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: strong_threshold_core
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: authorization_signatures_verified
+- real_24_case_n10000_t6667_distributed_campaign_capture: campaign check failed: campaign_validation_ready
+- passing_substantive_proof_manifests_for_all_five_criteria: passing substantive proof manifests for all five criteria are absent or incomplete
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: required substantive claim is not true: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: required substantive claim is not true: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: closure input retains a false claim flag: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: closure input retains a false claim flag: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion is not a blocker-free internal closure candidate
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion evidence is readiness-only or not substantive
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion assessment_status is not met
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: one or more criterion-specific substantive checks are not true
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion closure claim flags are invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion reproducibility commands are absent or did not pass
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion internal review is incomplete or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: abort_retry_bias: criterion provenance is not a real, non-hazmat, non-simulated production source
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: required substantive claim is not true: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: required substantive claim is not true: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: closure input retains a false claim flag: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: closure input retains a false claim flag: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion is not a blocker-free internal closure candidate
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion evidence is readiness-only or not substantive
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion assessment_status is not met
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: one or more criterion-specific substantive checks are not true
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion closure claim flags are invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion reproducibility commands are absent or did not pass
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion internal review is incomplete or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_mask_distribution: criterion provenance is not a real, non-hazmat, non-simulated production source
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: required substantive claim is not true: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: required substantive claim is not true: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: closure input retains a false claim flag: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: closure input retains a false claim flag: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion is not a blocker-free internal closure candidate
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion evidence is readiness-only or not substantive
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion assessment_status is not met
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: one or more criterion-specific substantive checks are not true
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion closure claim flags are invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion reproducibility commands are absent or did not pass
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion internal review is incomplete or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: aggregate_rejection_equivalence: criterion provenance is not a real, non-hazmat, non-simulated production source
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign capture manifest is missing
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: real distributed campaign evidence is not ready
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign validation status is not ready
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign does not validate exactly all 24 preregistered cases
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign capture digest is missing or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign evidence-bundle binding digest is missing or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign evidence file bindings are absent or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign validation retains blockers
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign validation was not reproduced from the exact request and capture bytes
+- passing_substantive_proof_manifests_for_all_five_criteria: campaign_validation: campaign authorization signatures lack a bound reviewed verifier result
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: closure bundle is blocked or not an internal closure candidate
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: bundle must complete internal review while keeping independent review explicitly pending
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: one or more closure bundle checks are not true
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: bundle does not contain five passing content-addressed criterion records
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: bundle provenance is dirty, unpinned, or unavailable
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: bundle does not bind the exact validated campaign manifest
+- passing_substantive_proof_manifests_for_all_five_criteria: closure_bundle: bundle provenance does not match the current clean Git commit and worktree
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: required substantive claim is not true: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: required substantive claim is not true: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: closure input retains a false claim flag: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: closure input retains a false claim flag: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion is not a blocker-free internal closure candidate
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion evidence is readiness-only or not substantive
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion assessment_status is not met
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: one or more criterion-specific substantive checks are not true
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion closure claim flags are invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion reproducibility commands are absent or did not pass
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion internal review is incomplete or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: partial_contribution_soundness: criterion provenance is not a real, non-hazmat, non-simulated production source
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: required substantive claim is not true: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: required substantive claim is not true: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: closure input retains a false claim flag: claims_criterion_met
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: closure input retains a false claim flag: claims_substantive_proof_complete
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion is not a blocker-free internal closure candidate
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion evidence is readiness-only or not substantive
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion assessment_status is not met
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: one or more criterion-specific substantive checks are not true
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion closure claim flags are invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion reproducibility commands are absent or did not pass
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion internal review is incomplete or invalid
+- passing_substantive_proof_manifests_for_all_five_criteria: unauthorized_aggregate_reduction: criterion provenance is not a real, non-hazmat, non-simulated production source
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: artifact inventory is incomplete
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: Git worktree is not clean
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: real 24-case strong-profile aggregation campaign is missing or invalid
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: closure bundle is blocked or not an internal closure candidate
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: bundle must complete internal review while keeping independent review explicitly pending
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: one or more closure bundle checks are not true
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: bundle does not contain five passing content-addressed criterion records
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: bundle provenance is dirty, unpinned, or unavailable
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: bundle does not bind the exact validated campaign manifest
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: closure bundle: bundle provenance does not match the current clean Git commit and worktree
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: two distinct internal reviewer signature records are missing or invalid
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: bundle check failed: bundle_internal_closure_candidate
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: bundle check failed: clean_git_provenance
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: bundle check failed: two_internal_reviewer_signatures
+- internal_closure_bundle_clean_provenance_two_internal_reviewers: bundle check failed: assessment_confirms_internal_candidate
+
+This attempt remains non-promotional unless every requested item is present
+and the independent cryptographic review boundary is preserved.

@@ -60,7 +60,7 @@
     "tree_sha256": "7f7dc159041663f1ae3084089b94c148863aad8364162bf8b9ee75b187c27776"
   },
   "assessment_boundary": "This bundle may record an internally closed candidate only after all five criteria and their content-addressed evidence pass. It never asserts public theorem closure, production security, FIPS validation, or completion of independent cryptographic review.",
-  "bundle_digest_sha256": "d70b902dbf93dfc93e68e89f4f253ffdcf44e4b1afe2857684175f2915b5c310",
+  "bundle_digest_sha256": "27a6862fca4f660ed0fa796e6d15fbe4c405da92ce083d8aaf99fe32c5cbaf65",
   "bundle_status": "blocked_incomplete",
   "campaign": {
     "authorization_verification": null,
@@ -334,8 +334,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
         "present": true,
-        "sha256": "fb44f6f9720e7cf396691a241a5cc786237b3b16d167c50abdb56b634fd2aa4f",
-        "size_bytes": 7879
+        "sha256": "7d0a63df297420ffdfe585a437f5e46189cc32563c9dd4b137ffdfbd83bb5eb8",
+        "size_bytes": 7926
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -604,8 +604,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
         "present": true,
-        "sha256": "89278e435b0ea6c26d49a71139915d332dc36b7769ddbdae6c8c74d87273c2b9",
-        "size_bytes": 8917
+        "sha256": "23b65494177471d94cdae3299d03289fe09e9522b5d93ef3642acb26aecb66c7",
+        "size_bytes": 8964
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -832,8 +832,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
         "present": true,
-        "sha256": "23cf4a5012bc869385cc79ba383b6d5e0c454c858b07d294401b8eca4f6340f8",
-        "size_bytes": 7905
+        "sha256": "9b2d5d3fb0a9ccfe6cd5a9e682f6b72cd5b6e77adcec2706acbe6b6cacce30a1",
+        "size_bytes": 7952
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -1074,8 +1074,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
         "present": true,
-        "sha256": "2f0521209a9d954f3057916128d011c824c22c244f7193a819189a8408308d3b",
-        "size_bytes": 8123
+        "sha256": "97d7a3482d3bc22e4eba85c501a64b0d7a542cafdf85dc2df702e1b55b06a17c",
+        "size_bytes": 8170
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -1309,8 +1309,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
         "present": true,
-        "sha256": "6af25d759affecd4936599418f028a7bd445c52bc73c65b98252bff59872f4c8",
-        "size_bytes": 8160
+        "sha256": "9e8ef5af290ba7f286791d52b0186bb59bfc80de43ca9a8fed51adb91c5c2953",
+        "size_bytes": 8207
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -1345,7 +1345,7 @@
       "statement": "Unauthorized accepting outputs reduce to a named cryptographic failure."
     }
   ],
-  "generated_at": "2026-07-18T18:31:53Z",
+  "generated_at": "2026-07-18T18:51:45Z",
   "global_blockers": [
     "artifact inventory is incomplete",
     "Git worktree is not clean",
@@ -1423,7 +1423,9 @@
   "provenance": {
     "branch": "codex/post-119-crypto-evidence",
     "changed_paths": [
-      "artifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-attempt/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-attempt/latest/manifest.json",
+      "artifacts/internal-theorem-closure-attempt/latest/summary.md",
       "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
       "artifacts/internal-theorem-closure-bundle/latest/summary.md",
       "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
@@ -1436,15 +1438,13 @@
       "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
       "artifacts/internal-theorem-closure/latest/SHA256SUMS",
       "artifacts/internal-theorem-closure/latest/manifest.json",
-      "artifacts/internal-theorem-closure/latest/summary.md",
-      "docs/cryptography/internal-theorem-closure-bundle.md",
-      "gitignore",
-      "script_tests/test_build_internal_theorem_closure_criterion_inputs.py",
-      "scripts/build_internal_theorem_closure_criterion_inputs.py"
+      "rtifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "script_tests/test_run_internal_theorem_closure_attempt.py",
+      "scripts/run_internal_theorem_closure_attempt.py"
     ],
-    "commit": "c634948d6094c5d8512fef82aa080ceaa4f51371",
+    "commit": "46dadf4c2421311f6106a0ec40fa939f385491e3",
     "repository_available": true,
-    "status_sha256": "a658643e2925bd03a729958cc779de5762f34d5f9090e9889d42bda5b9e6f4f4",
+    "status_sha256": "4bc0650e846cfe7a62b35e8490f6843b22937ee26512b5c947b5a5cd51babd23",
     "version_control": "git",
     "worktree_clean": false
   },
@@ -1461,7 +1461,7 @@
   "schema": "lattice-aggregation:internal-theorem-closure-bundle:v1",
   "schema_version": 1,
   "source_inventory": {
-    "file_count": 157,
+    "file_count": 158,
     "files": [
       {
         "path": "Cargo.lock",
@@ -1950,6 +1950,12 @@
         "size_bytes": 21083
       },
       {
+        "path": "scripts/run_internal_theorem_closure_attempt.py",
+        "present": true,
+        "sha256": "165d9adeb7a82793326d4c81a1fb6325d06c67c492479973905f52bd4d1079ad",
+        "size_bytes": 23121
+      },
+      {
         "path": "scripts/run_localnet_runner.py",
         "present": true,
         "sha256": "e535c7ebaecb52aca1c2c219a7de81f01c64a3fef869b4f0fda82c410fa884b1",
@@ -2406,7 +2412,7 @@
         "size_bytes": 5862
       }
     ],
-    "tree_sha256": "8b8af183ba46a05ba704e665b7bf44783c6a059a892e5d8f0c2ff5fc927f87df"
+    "tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647"
   },
   "toolchain": {
     "all_identified": true,

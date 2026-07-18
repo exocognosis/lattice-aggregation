@@ -47,7 +47,7 @@
     "partial_contribution_soundness": "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
     "unauthorized_aggregate_reduction": "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json"
   },
-  "generated_at": "2026-07-18T18:31:53Z",
+  "generated_at": "2026-07-18T18:51:44Z",
   "input_status": "fail_closed_requirements_generated",
   "name": "internal-theorem-closure-criterion-inputs-v1",
   "next_required_artifacts": [
@@ -59,7 +59,9 @@
   ],
   "provenance": {
     "changed_paths": [
-      "artifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-attempt/latest/SHA256SUMS",
+      "artifacts/internal-theorem-closure-attempt/latest/manifest.json",
+      "artifacts/internal-theorem-closure-attempt/latest/summary.md",
       "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
       "artifacts/internal-theorem-closure-bundle/latest/summary.md",
       "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
@@ -72,13 +74,11 @@
       "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
       "artifacts/internal-theorem-closure/latest/SHA256SUMS",
       "artifacts/internal-theorem-closure/latest/manifest.json",
-      "artifacts/internal-theorem-closure/latest/summary.md",
-      "docs/cryptography/internal-theorem-closure-bundle.md",
-      "gitignore",
-      "script_tests/test_build_internal_theorem_closure_criterion_inputs.py",
-      "scripts/build_internal_theorem_closure_criterion_inputs.py"
+      "rtifacts/internal-theorem-closure-bundle/latest/SHA256SUMS",
+      "script_tests/test_run_internal_theorem_closure_attempt.py",
+      "scripts/run_internal_theorem_closure_attempt.py"
     ],
-    "git_commit": "c634948d6094c5d8512fef82aa080ceaa4f51371",
+    "git_commit": "46dadf4c2421311f6106a0ec40fa939f385491e3",
     "worktree_clean": false
   },
   "schema": "lattice-aggregation:internal-theorem-closure-criterion-inputs:v1",
@@ -96,5 +96,5 @@
     "threshold": 6667,
     "validator_count": 10000
   },
-  "source_tree_sha256": "8b8af183ba46a05ba704e665b7bf44783c6a059a892e5d8f0c2ff5fc927f87df"
+  "source_tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647"
 }

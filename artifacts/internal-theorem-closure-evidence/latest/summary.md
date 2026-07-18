@@ -2,7 +2,7 @@
 
 - Status: `fail_closed_requirements_generated`
 - Claim boundary: `internal criterion input requirements only; theorem unclosed pending substantive proof, campaign validation, and independent review`
-- Source tree SHA-256: `8b8af183ba46a05ba704e665b7bf44783c6a059a892e5d8f0c2ff5fc927f87df`
+- Source tree SHA-256: `1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647`
 
 ## Criteria
 

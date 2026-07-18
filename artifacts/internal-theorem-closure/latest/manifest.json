@@ -318,17 +318,17 @@
     "abort_retry_bias": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
       "present": true,
-      "sha256": "23cf4a5012bc869385cc79ba383b6d5e0c454c858b07d294401b8eca4f6340f8"
+      "sha256": "9b2d5d3fb0a9ccfe6cd5a9e682f6b72cd5b6e77adcec2706acbe6b6cacce30a1"
     },
     "aggregate_mask_distribution": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
       "present": true,
-      "sha256": "fb44f6f9720e7cf396691a241a5cc786237b3b16d167c50abdb56b634fd2aa4f"
+      "sha256": "7d0a63df297420ffdfe585a437f5e46189cc32563c9dd4b137ffdfbd83bb5eb8"
     },
     "aggregate_rejection_equivalence": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
       "present": true,
-      "sha256": "89278e435b0ea6c26d49a71139915d332dc36b7769ddbdae6c8c74d87273c2b9"
+      "sha256": "23b65494177471d94cdae3299d03289fe09e9522b5d93ef3642acb26aecb66c7"
     },
     "campaign_capture": {
       "path": "artifacts/internal-aggregation-campaign/latest/capture.json",
@@ -348,17 +348,17 @@
     "closure_bundle": {
       "path": "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
       "present": true,
-      "sha256": "ddada51b7d776217d2e19b6cac615494955ddcf8587ab5c9fe00de679b288161"
+      "sha256": "767917f774a622e1aa1adab402ea138fbcda7f16e71662f74887c230fb93334a"
     },
     "partial_contribution_soundness": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
       "present": true,
-      "sha256": "2f0521209a9d954f3057916128d011c824c22c244f7193a819189a8408308d3b"
+      "sha256": "97d7a3482d3bc22e4eba85c501a64b0d7a542cafdf85dc2df702e1b55b06a17c"
     },
     "unauthorized_aggregate_reduction": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
       "present": true,
-      "sha256": "6af25d759affecd4936599418f028a7bd445c52bc73c65b98252bff59872f4c8"
+      "sha256": "9e8ef5af290ba7f286791d52b0186bb59bfc80de43ca9a8fed51adb91c5c2953"
     }
   },
   "internally_closed_pending_independent_review": false,
