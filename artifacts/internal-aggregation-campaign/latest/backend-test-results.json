@@ -1,0 +1,12 @@
+{
+  "claim_boundary": {
+    "claims_cavp_acvts_validation": false,
+    "claims_independent_test_review": false
+  },
+  "runtime_self_checks": {
+    "accepted_cases_standard_verified": true,
+    "kat_results_emitted": true,
+    "mutation_rejection_checked": true
+  },
+  "schema": "lattice-threshold-backend-p1:backend-test-results:v1"
+}

@@ -1,0 +1,20 @@
+{
+  "claims_theorem_closure": false,
+  "closed_components": [
+    "byte-exact ML-DSA-65 wire signature emission through partial z_i aggregation",
+    "unmodified verifier acceptance and mutation rejection on accepted cases",
+    "24-case campaign capture structure",
+    "threshold authorization certificate signature verification",
+    "digest-bound DKG/custody primitive evidence and counter-evidence for capability booleans"
+  ],
+  "open_components": [
+    "production DKG/VSS and custody proof",
+    "fixed-parameter distributed ExpandMask MPC/PRF proof",
+    "accepted-distribution preservation proof",
+    "abort/retry bias proof",
+    "independent cryptographic proof review"
+  ],
+  "proof_status": "partial_campaign_evidence_only",
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+  "schema": "lattice-threshold-backend-p1:proof-artifact-bundle:v1"
+}

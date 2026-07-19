@@ -1,0 +1,29 @@
+{
+  "claim_boundary": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false
+  },
+  "parameter_set": "ML-DSA-65",
+  "schema": "lattice-threshold-backend-p1:ml-dsa65-kat-results:v1",
+  "vector_source_digest_hex": "03a16170e5be98fcd48a4e3f8c6979a9796c066b83b3536273dbd13cad8d9054",
+  "vectors": [
+    {
+      "passed": true,
+      "public_key_len": 1952,
+      "type": "keyGen"
+    },
+    {
+      "passed": true,
+      "signature_len": 3309,
+      "type": "sigGen"
+    },
+    {
+      "accepted": true,
+      "mutated_message_rejected": true,
+      "mutated_public_key_rejected": true,
+      "mutated_signature_rejected": true,
+      "passed": true,
+      "type": "sigVer"
+    }
+  ]
+}

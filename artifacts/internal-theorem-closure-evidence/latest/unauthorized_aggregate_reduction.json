@@ -21,12 +21,12 @@
   "evidence_class": "fail_closed_internal_closure_input_requirements",
   "evidence_digests": {
     "implementation_digest": "09e4ef916ddcb0e4361dd557970ff284f5526aa8956ad9fa7e343b0051854fc8",
-    "proof_digest": "79bccb7c5c3e4403deb0186a0b7e397ef42895c8e892a2137ec7c6d2ac4ec383",
+    "proof_digest": "3b97552d7d2673254c4b3bc082e0627045e6d5426b24a89e61d11d1e6e7c42f7",
     "protocol_spec_digest": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba",
     "test_evidence_digest": "babd109ae5141578d255449194c447d7bf202ee2f7934eb63e9ff5ee617aaa88"
   },
   "evidence_status": "required_unclosed",
-  "generated_at": "2026-07-18T18:57:36Z",
+  "generated_at": "2026-07-19T18:11:31Z",
   "implementation_artifacts": [
     {
       "path": "src/production/selected_backend.rs",
@@ -81,7 +81,7 @@
     },
     {
       "path": "docs/cryptography/internal-proof-obligation-register.json",
-      "sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0"
+      "sha256": "004ce534938e4457358085938cea8338972f568b80a4bc766b26eb5515aa4aa5"
     }
   ],
   "protocol_profile": {
@@ -120,16 +120,25 @@
     }
   ],
   "provenance": {
-    "changed_paths": [],
-    "git_commit": "3bb65f46c8f197f09622425f1abb58f00cd59f32",
+    "changed_paths": [
+      "artifacts/internal-aggregation-campaign/latest/request-SHA256SUMS",
+      "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+      "artifacts/internal-aggregation-campaign/latest/request-summary.md",
+      "artifacts/internal-aggregation-campaign/latest/request.json",
+      "artifacts/internal-aggregation-campaign/latest/validation-SHA256SUMS",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.pdf",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.tex",
+      "rtifacts/internal-aggregation-campaign/latest/manifest.json"
+    ],
+    "git_commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "hazmat": false,
     "quarantined": true,
     "real_distributed_threshold_core_verified": false,
     "simulation": false,
     "source_class": "fail_closed_requirements_inventory",
     "source_path": "artifacts/internal-theorem-closure-evidence/latest",
-    "source_tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647",
-    "worktree_clean": true
+    "source_tree_sha256": "7e13b155a3745c9c003c9f8dfedb93bb21167354f162c4acec6e15152af73775",
+    "worktree_clean": false
   },
   "readiness_only": false,
   "reproducibility": {

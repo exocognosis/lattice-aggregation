@@ -28,6 +28,7 @@ from pathlib import Path
 ATTEMPT_SCHEMA = "lattice-aggregation:internal-theorem-closure-attempt:v1"
 NAME = "internal-theorem-closure-attempt-v1"
 DEFAULT_CAMPAIGN_ID = "theorem-closure-internal-001"
+DEFAULT_AUTHORIZATION_VERIFIER = "ed25519-v1"
 DEFAULT_OUT = "artifacts/internal-theorem-closure-attempt/latest"
 STATUS_READY = "internally_closed_pending_independent_review"
 STATUS_BLOCKED = "blocked_before_internal_closure"
@@ -385,24 +386,43 @@ def refresh_artifacts(args):
     bundle_builder = load_script("build_internal_theorem_closure_bundle.py")
     assessor = load_script("assess_internal_theorem_closure.py")
 
+    authorization_verifier = None
+    authorization_verifier_profile = None
+    if args.authorization_verifier:
+        authorization_verifier = campaign_validator.load_authorization_verifier(
+            args.authorization_verifier
+        )
+        authorization_verifier_profile = {
+            "verifier_id": authorization_verifier.verifier_id,
+            "verifier_implementation_sha256": (
+                authorization_verifier.implementation_sha256
+            ),
+        }
+
     if not args.skip_campaign_request:
-        request_report = campaign_builder.build_request(args.campaign_id)
+        request_report = campaign_builder.build_request(
+            args.campaign_id,
+            authorization_verifier_profile=authorization_verifier_profile,
+        )
         campaign_builder.write_artifacts(request_report, campaign_dir)
         campaign_request_path = campaign_dir / "request.json"
 
+    validator_args = [
+        "--request",
+        str(campaign_request_path),
+        "--capture",
+        str(campaign_capture_path),
+        "--out",
+        str(campaign_validation_path.parent),
+    ]
+    if args.authorization_verifier:
+        validator_args.extend(
+            ["--authorization-verifier", args.authorization_verifier]
+        )
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
         io.StringIO()
     ):
-        campaign_validator.main(
-            [
-                "--request",
-                str(campaign_request_path),
-                "--capture",
-                str(campaign_capture_path),
-                "--out",
-                str(campaign_validation_path.parent),
-            ]
-        )
+        campaign_validator.main(validator_args)
 
     if not args.skip_criterion_inputs:
         criterion_report = criterion_builder.build_report(root)
@@ -554,6 +574,14 @@ def parse_args(argv):
     )
     parser.add_argument("--root", default=".", help="repository root")
     parser.add_argument("--campaign-id", default=DEFAULT_CAMPAIGN_ID)
+    parser.add_argument(
+        "--authorization-verifier",
+        default=DEFAULT_AUTHORIZATION_VERIFIER,
+        help=(
+            "reviewed threshold-authorization verifier bound into rebuilt "
+            "campaign requests and used during validation"
+        ),
+    )
     parser.add_argument("--campaign-out", default=None)
     parser.add_argument("--campaign-request", default=None)
     parser.add_argument("--campaign-capture", default=None)

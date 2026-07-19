@@ -1,0 +1,19 @@
+{
+  "backend_name": "threshold-backend-p1-distributed-mldsa65",
+  "campaign_id": "theorem-closure-internal-001",
+  "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
+  "implementation_boundary": {
+    "centralized_signing_oracle_used_for_campaign_signatures": false,
+    "distributed_expand_mask_mpc_complete": false,
+    "dkg_custody_capability_evidence_digest_hex": "86de46657aa9298cda7255c57aada6ede7c841142e0dd3b3c77b518c55f5f4bb",
+    "production_dkg_vss_complete": false,
+    "single_key_provider_used_for_campaign_signatures": false,
+    "strict_partial_aggregation_primitive": "lattice_aggregation::strict_distributed_sign_from_s1_y_partials"
+  },
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+  "schema": "lattice-threshold-backend-p1:backend-implementation-manifest:v1",
+  "signature_len": 3309,
+  "signature_origin": "threshold_partial_aggregation",
+  "threshold": 6667,
+  "validator_count": 10000
+}

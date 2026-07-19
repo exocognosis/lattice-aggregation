@@ -51,6 +51,7 @@ class InternalTheoremClosureAttemptTests(unittest.TestCase):
                 )
 
             manifest = json.loads((attempt_dir / "manifest.json").read_text())
+            request = json.loads((campaign_dir / "request.json").read_text())
 
         self.assertEqual(exit_code, 2)
         self.assertEqual(
@@ -68,6 +69,16 @@ class InternalTheoremClosureAttemptTests(unittest.TestCase):
         self.assertFalse(
             manifest["claim_flags"]["claims_independent_review_complete"]
         )
+        authorization = request["capture_requirements"]["authorization_certificate"]
+        self.assertEqual(
+            authorization["verifier_id"],
+            "reviewed-ed25519-threshold-authorization-v1",
+        )
+        self.assertEqual(
+            authorization["cryptographic_verifier_status"],
+            "reviewed_ready",
+        )
+        self.assertEqual(len(authorization["verifier_implementation_sha256"]), 64)
         item_ids = {item["id"] for item in manifest["requested_items"]}
         self.assertEqual(
             item_ids,

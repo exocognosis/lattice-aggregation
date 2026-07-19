@@ -25,7 +25,7 @@
     "test_evidence_digest": "891a2c201555f72d9666780dbb86122f579098010cf4324a5eb9f02fb4608b65"
   },
   "evidence_status": "required_unclosed",
-  "generated_at": "2026-07-18T18:57:36Z",
+  "generated_at": "2026-07-19T18:11:31Z",
   "implementation_artifacts": [
     {
       "path": "src/production/partial_soundness.rs",
@@ -123,16 +123,25 @@
     }
   ],
   "provenance": {
-    "changed_paths": [],
-    "git_commit": "3bb65f46c8f197f09622425f1abb58f00cd59f32",
+    "changed_paths": [
+      "artifacts/internal-aggregation-campaign/latest/request-SHA256SUMS",
+      "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+      "artifacts/internal-aggregation-campaign/latest/request-summary.md",
+      "artifacts/internal-aggregation-campaign/latest/request.json",
+      "artifacts/internal-aggregation-campaign/latest/validation-SHA256SUMS",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.pdf",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.tex",
+      "rtifacts/internal-aggregation-campaign/latest/manifest.json"
+    ],
+    "git_commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "hazmat": false,
     "quarantined": true,
     "real_distributed_threshold_core_verified": false,
     "simulation": false,
     "source_class": "fail_closed_requirements_inventory",
     "source_path": "artifacts/internal-theorem-closure-evidence/latest",
-    "source_tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647",
-    "worktree_clean": true
+    "source_tree_sha256": "7e13b155a3745c9c003c9f8dfedb93bb21167354f162c4acec6e15152af73775",
+    "worktree_clean": false
   },
   "readiness_only": false,
   "reproducibility": {

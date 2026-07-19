@@ -5,14 +5,14 @@
       {
         "path": "artifacts/backend-emission-capture/latest/capture.json",
         "present": true,
-        "sha256": "2581bd372cb12a58000f91347ab3613f36d66366057b81971f2b43d3cf2b6fba",
-        "size_bytes": 47668
+        "sha256": "360c86b1dcd23f5cf1d6858b853b1722dd1dc63fffece4d1bed7a42f79325057",
+        "size_bytes": 58521
       },
       {
         "path": "artifacts/backend-emission-capture/latest/manifest.json",
         "present": true,
-        "sha256": "8b0baeed42997517b6d2ee9620ee85438122a27646819cbe4f638e6f8879ad28",
-        "size_bytes": 5740
+        "sha256": "fc3eb6201e7cfc8e80882e00e24953c6d60e96f9870fbbffcbf7f52c440b8dbe",
+        "size_bytes": 5619
       },
       {
         "path": "artifacts/hypothesis/latest/assessment.json",
@@ -23,20 +23,20 @@
       {
         "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
         "present": true,
-        "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2",
+        "sha256": "f101d1c8c4fcba0671d792abf7d5c65ebf62a90a8c4365abd27bc0a2ccece88b",
         "size_bytes": 1499
       },
       {
         "path": "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
         "present": true,
-        "sha256": "01ea439f946d652ed0bcc30d0e0502086df2e939f07675fe3724d7f5249e6b05",
+        "sha256": "1e4ca032d2d5554b5b4b4b06f9c8c81f07a1fce231de0cd87b126d229c46bd0d",
         "size_bytes": 1128
       },
       {
         "path": "artifacts/internal-aggregation-campaign/latest/request.json",
         "present": true,
-        "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
-        "size_bytes": 27805
+        "sha256": "558a197de668c05ac20d01ea7e26f30aab6c420720ca7e96378decacff1c3d56",
+        "size_bytes": 28115
       },
       {
         "path": "artifacts/p1-rejection-equivalence-batch/latest/batch.json",
@@ -47,20 +47,20 @@
       {
         "path": "artifacts/theorem-closure-readiness/latest/manifest.json",
         "present": true,
-        "sha256": "d38c9a0fd9a2f1a7614d4bffd5d7f3b018256bd823b75a9ce3c74a0a20147f20",
-        "size_bytes": 7989
+        "sha256": "fc2b83bd0e633a319a6a724cbff40d5dfdad0af7cca3af69ca93491325a45a91",
+        "size_bytes": 8440
       },
       {
         "path": "artifacts/theorem-closure-review/latest/manifest.json",
         "present": true,
-        "sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
-        "size_bytes": 6568
+        "sha256": "5ffe7f3d162e3099089605d731e33a015f27f0af56ff9e8fa87f497e9efecae8",
+        "size_bytes": 6699
       }
     ],
-    "tree_sha256": "7f7dc159041663f1ae3084089b94c148863aad8364162bf8b9ee75b187c27776"
+    "tree_sha256": "8e0b2247943db10ccbdf8ed19966584d8edb359c866469d333f4d8d773ec90f3"
   },
   "assessment_boundary": "This bundle may record an internally closed candidate only after all five criteria and their content-addressed evidence pass. It never asserts public theorem closure, production security, FIPS validation, or completion of independent cryptographic review.",
-  "bundle_digest_sha256": "c9e323577d1a34a433d9d0c3dc6b0b7a844de0cd4749d910e944f17e07867bb5",
+  "bundle_digest_sha256": "71f46660951d60f72ee9eeb87960f91312a09910589974108de9a24a81c67aaa",
   "bundle_status": "blocked_incomplete",
   "campaign": {
     "authorization_verification": null,
@@ -104,18 +104,18 @@
       "request": {
         "path": "artifacts/internal-aggregation-campaign/latest/request.json",
         "present": true,
-        "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
-        "size_bytes": 27805
+        "sha256": "558a197de668c05ac20d01ea7e26f30aab6c420720ca7e96378decacff1c3d56",
+        "size_bytes": 28115
       },
       "validation": {
         "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
         "present": true,
-        "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2",
+        "sha256": "f101d1c8c4fcba0671d792abf7d5c65ebf62a90a8c4365abd27bc0a2ccece88b",
         "size_bytes": 1499
       }
     },
     "ready": false,
-    "request_sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f"
+    "request_sha256": "558a197de668c05ac20d01ea7e26f30aab6c420720ca7e96378decacff1c3d56"
   },
   "checks": {
     "all_criteria_internally_closed": false,
@@ -334,8 +334,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
         "present": true,
-        "sha256": "e19bd0c2dfd3dbbc656213a9a613c15aa614adfe40810a8387ae796ce1ce164e",
-        "size_bytes": 6566
+        "sha256": "d9478d2572eb6592759ce36d94938af4e3f0132c49dcbc0e2c3ac9a4c4278349",
+        "size_bytes": 7165
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -395,9 +395,9 @@
               "present": true
             },
             {
-              "declared_sha256": "9b77447b67524d94beaef25f977de85732442a773267d87ce618f68351b6f428",
+              "declared_sha256": "20d6abd280cdf9bfc7ac5804cb160dafe186b7b122221a55a8e08ef1ca1a65fe",
               "digest_matches": true,
-              "observed_sha256": "9b77447b67524d94beaef25f977de85732442a773267d87ce618f68351b6f428",
+              "observed_sha256": "20d6abd280cdf9bfc7ac5804cb160dafe186b7b122221a55a8e08ef1ca1a65fe",
               "path": "src/backend/fips_sign.rs",
               "present": true
             },
@@ -409,28 +409,28 @@
               "present": true
             },
             {
-              "declared_sha256": "a9e6a8c13a988fcb49889944e301f4fdf81e3b08dce75553160ac56e0c15ca7e",
+              "declared_sha256": "fd4d9c188b9e9a1b4ff2c48b0a543d764f38c60c6d2e0246e370e7fe5d1f1093",
               "digest_matches": true,
-              "observed_sha256": "a9e6a8c13a988fcb49889944e301f4fdf81e3b08dce75553160ac56e0c15ca7e",
+              "observed_sha256": "fd4d9c188b9e9a1b4ff2c48b0a543d764f38c60c6d2e0246e370e7fe5d1f1093",
               "path": "src/backend/threshold_core.rs",
               "present": true
             }
           ],
-          "group_sha256": "92138f61f9f80f428b4d7c7e04819566d617ee54b3ffb4bd798dad38c10da8ae"
+          "group_sha256": "95af19f11eeff51ef409947f71e252a5bd4e1e540c3fd726f1792962b5a33f85"
         },
         "proof_artifacts": {
           "files": [
             {
-              "declared_sha256": "eb796438e85896042f9389997351b41377f960533c1e5f21d3ac0e5543381bfd",
+              "declared_sha256": "f6af9b659489bdb19b71462aebf37944e0b9593dd217929c502bc6a403dff183",
               "digest_matches": true,
-              "observed_sha256": "eb796438e85896042f9389997351b41377f960533c1e5f21d3ac0e5543381bfd",
+              "observed_sha256": "f6af9b659489bdb19b71462aebf37944e0b9593dd217929c502bc6a403dff183",
               "path": "docs/cryptography/criterion-2-proof-substance.md",
               "present": true
             },
             {
-              "declared_sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d",
+              "declared_sha256": "7bdaf68a43f43706a195340744837506546e3ceb44e4b5d0d8aea9ed08dfe31c",
               "digest_matches": true,
-              "observed_sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d",
+              "observed_sha256": "7bdaf68a43f43706a195340744837506546e3ceb44e4b5d0d8aea9ed08dfe31c",
               "path": "docs/cryptography/criterion-2-proof-substance.json",
               "present": true
             },
@@ -449,28 +449,28 @@
               "present": true
             },
             {
-              "declared_sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b",
+              "declared_sha256": "340ef7640593afa3a33ef422c9ddd03d0a354ed5094e4473a2ae0e7e033e94ef",
               "digest_matches": true,
-              "observed_sha256": "64f569fe26f703e5663c01486fc688a14dad98b8e23c4dc606f6fbbaf5d44a3b",
+              "observed_sha256": "340ef7640593afa3a33ef422c9ddd03d0a354ed5094e4473a2ae0e7e033e94ef",
               "path": "artifacts/p1-rejection-distribution-preservation-review/latest/manifest.json",
               "present": true
             },
             {
-              "declared_sha256": "0fb8721fcdd83647b4fa4bddcedf6653c6657bbc5b184afc7e588664c26c36c0",
+              "declared_sha256": "2585e64e910fe245cee7854dbd3e3e80c713c67d8a157a44cc5319f4918ccc2d",
               "digest_matches": true,
-              "observed_sha256": "0fb8721fcdd83647b4fa4bddcedf6653c6657bbc5b184afc7e588664c26c36c0",
+              "observed_sha256": "2585e64e910fe245cee7854dbd3e3e80c713c67d8a157a44cc5319f4918ccc2d",
               "path": "artifacts/p1-full-kat-cavp-validation-review/latest/manifest.json",
               "present": true
             },
             {
-              "declared_sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
+              "declared_sha256": "5ffe7f3d162e3099089605d731e33a015f27f0af56ff9e8fa87f497e9efecae8",
               "digest_matches": true,
-              "observed_sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
+              "observed_sha256": "5ffe7f3d162e3099089605d731e33a015f27f0af56ff9e8fa87f497e9efecae8",
               "path": "artifacts/theorem-closure-review/latest/manifest.json",
               "present": true
             }
           ],
-          "group_sha256": "7e33691573b1a84f16677d8dfd279d1b3fcd9594c209f46fa39e6c72b83ba848"
+          "group_sha256": "e4091ee91ea2309202c2304834357aca8b9392602bd639d0ac6ed802214c15b8"
         },
         "protocol_spec_artifacts": {
           "files": [
@@ -543,21 +543,21 @@
               "present": true
             },
             {
-              "declared_sha256": "06979cfc471fea148449da704b7b1df2a571451a8511d4067ad2a50f0c37447d",
+              "declared_sha256": "1ce52d4154cd1ac13ae3b92b7af59140d3db8b9fdd3196b6b8776ed4e54d109f",
               "digest_matches": true,
-              "observed_sha256": "06979cfc471fea148449da704b7b1df2a571451a8511d4067ad2a50f0c37447d",
+              "observed_sha256": "1ce52d4154cd1ac13ae3b92b7af59140d3db8b9fdd3196b6b8776ed4e54d109f",
               "path": "script_tests/test_build_theorem_closure_review_manifest.py",
               "present": true
             },
             {
-              "declared_sha256": "071a5030227c25a089cf01c9f2be8bd05e40c7323abebaed6457b5c754970ff1",
+              "declared_sha256": "c31cb84d7cfa895a3c6d3aef629df7eae4fdaf1e5561d9c0ec1ea99894a0ab0b",
               "digest_matches": true,
-              "observed_sha256": "071a5030227c25a089cf01c9f2be8bd05e40c7323abebaed6457b5c754970ff1",
+              "observed_sha256": "c31cb84d7cfa895a3c6d3aef629df7eae4fdaf1e5561d9c0ec1ea99894a0ab0b",
               "path": "script_tests/test_assess_theorem_closure_readiness.py",
               "present": true
             }
           ],
-          "group_sha256": "b63b723b69aabb69abf31b875fcf19497f63ced333c5b91e8846bc058c544b47"
+          "group_sha256": "9385687c239a3a7d0b8df0bb6ddfe8379794eb789acc38aa600c5a6815201cb6"
         }
       },
       "assessment_status": "unproven",
@@ -604,8 +604,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
         "present": true,
-        "sha256": "eead5d9f960c4dd94866dd83717af777cdb9146a0467e91150d5309c033a429b",
-        "size_bytes": 7604
+        "sha256": "0a081c5aef087ddbd13c4973764fab8316b5d5cd346307c45608c75f72931f98",
+        "size_bytes": 8203
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -698,21 +698,21 @@
               "present": true
             },
             {
-              "declared_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
+              "declared_sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d",
               "digest_matches": true,
-              "observed_sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe",
+              "observed_sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d",
               "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
               "present": true
             },
             {
-              "declared_sha256": "65119aed0396718aacec87adbc8968b0840eda968c07abd525f993f1837c2f9a",
+              "declared_sha256": "d4e6d5e7efad44c14928f04c0650b1ae1c1c1939f622609fea78cc64ed384841",
               "digest_matches": true,
-              "observed_sha256": "65119aed0396718aacec87adbc8968b0840eda968c07abd525f993f1837c2f9a",
+              "observed_sha256": "d4e6d5e7efad44c14928f04c0650b1ae1c1c1939f622609fea78cc64ed384841",
               "path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
               "present": true
             }
           ],
-          "group_sha256": "57331e533705139e1063d40dead803ddb4ff8b328d64050d32bae8b6ddff69f6"
+          "group_sha256": "57c8aa4512cb6b37f539db1f9889cabdb6d6377da397cd5c31dbc348ba286d96"
         },
         "protocol_spec_artifacts": {
           "files": [
@@ -832,8 +832,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
         "present": true,
-        "sha256": "b671394089b972fd01c55b2825c31e68fea04aa728cddbf65334a74a85f5145b",
-        "size_bytes": 6592
+        "sha256": "561f5d073d64928c2453fef81b0a8c95678cf01e94a7bd8aacb45e9126706d81",
+        "size_bytes": 7191
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -1074,8 +1074,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
         "present": true,
-        "sha256": "d93dd47df5a1fb747535e129abbe348809f6ae0fa3eed6b833ef43c51a5da28b",
-        "size_bytes": 6810
+        "sha256": "4021208b59ecce553de271a2510dfe4f29826d9fdddb87e9942395aa501b7712",
+        "size_bytes": 7409
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -1182,14 +1182,14 @@
               "present": true
             },
             {
-              "declared_sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0",
+              "declared_sha256": "004ce534938e4457358085938cea8338972f568b80a4bc766b26eb5515aa4aa5",
               "digest_matches": true,
-              "observed_sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0",
+              "observed_sha256": "004ce534938e4457358085938cea8338972f568b80a4bc766b26eb5515aa4aa5",
               "path": "docs/cryptography/internal-proof-obligation-register.json",
               "present": true
             }
           ],
-          "group_sha256": "79bccb7c5c3e4403deb0186a0b7e397ef42895c8e892a2137ec7c6d2ac4ec383"
+          "group_sha256": "3b97552d7d2673254c4b3bc082e0627045e6d5426b24a89e61d11d1e6e7c42f7"
         },
         "protocol_spec_artifacts": {
           "files": [
@@ -1309,8 +1309,8 @@
       "evidence_input": {
         "path": "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
         "present": true,
-        "sha256": "dffab3fc84f131143f5111fcad8d22fa92864a9138614272bbcb70b9335563da",
-        "size_bytes": 6847
+        "sha256": "7ef1ce223f6854bf65a5d7a3afca701df5e485142c4d43d445daa9ac4495c2c3",
+        "size_bytes": 7446
       },
       "internal_closure_ready": false,
       "internal_review": {
@@ -1345,7 +1345,7 @@
       "statement": "Unauthorized accepting outputs reduce to a named cryptographic failure."
     }
   ],
-  "generated_at": "2026-07-18T18:57:36Z",
+  "generated_at": "2026-07-19T18:11:31Z",
   "global_blockers": [
     "artifact inventory is incomplete",
     "Git worktree is not clean",
@@ -1366,13 +1366,13 @@
     "campaign_request": {
       "path": "artifacts/internal-aggregation-campaign/latest/request.json",
       "present": true,
-      "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f",
-      "size_bytes": 27805
+      "sha256": "558a197de668c05ac20d01ea7e26f30aab6c420720ca7e96378decacff1c3d56",
+      "size_bytes": 28115
     },
     "campaign_validation": {
       "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
       "present": true,
-      "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2",
+      "sha256": "f101d1c8c4fcba0671d792abf7d5c65ebf62a90a8c4365abd27bc0a2ccece88b",
       "size_bytes": 1499
     },
     "hypothesis_assessment": {
@@ -1384,14 +1384,14 @@
     "theorem_closure_readiness": {
       "path": "artifacts/theorem-closure-readiness/latest/manifest.json",
       "present": true,
-      "sha256": "d38c9a0fd9a2f1a7614d4bffd5d7f3b018256bd823b75a9ce3c74a0a20147f20",
-      "size_bytes": 7989
+      "sha256": "fc2b83bd0e633a319a6a724cbff40d5dfdad0af7cca3af69ca93491325a45a91",
+      "size_bytes": 8440
     },
     "theorem_closure_review": {
       "path": "artifacts/theorem-closure-review/latest/manifest.json",
       "present": true,
-      "sha256": "3e1b312a4338a6b21750a49cbd3a86e69b2a40c0e636cbfc43833c419f1432f4",
-      "size_bytes": 6568
+      "sha256": "5ffe7f3d162e3099089605d731e33a015f27f0af56ff9e8fa87f497e9efecae8",
+      "size_bytes": 6699
     }
   },
   "internal_closure_candidate": false,
@@ -1403,8 +1403,8 @@
   "legacy_context": {
     "hypothesis_completely_proven": false,
     "promotion_authority": false,
-    "theorem_closure_readiness_ready": true,
-    "theorem_closure_review_ready": true
+    "theorem_closure_readiness_ready": false,
+    "theorem_closure_review_ready": false
   },
   "name": "internal-theorem-closure-bundle-v1",
   "protocol_profile": {
@@ -1423,17 +1423,26 @@
   "provenance": {
     "branch": "codex/post-119-crypto-evidence",
     "changed_paths": [
+      "artifacts/internal-aggregation-campaign/latest/request-SHA256SUMS",
+      "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+      "artifacts/internal-aggregation-campaign/latest/request-summary.md",
+      "artifacts/internal-aggregation-campaign/latest/request.json",
+      "artifacts/internal-aggregation-campaign/latest/validation-SHA256SUMS",
+      "artifacts/internal-theorem-closure-evidence/latest/SHA256SUMS",
       "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
       "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
       "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
       "artifacts/internal-theorem-closure-evidence/latest/manifest.json",
       "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
+      "artifacts/internal-theorem-closure-evidence/latest/summary.md",
       "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
-      "rtifacts/internal-theorem-closure-evidence/latest/SHA256SUMS"
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.pdf",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.tex",
+      "rtifacts/internal-aggregation-campaign/latest/manifest.json"
     ],
-    "commit": "3bb65f46c8f197f09622425f1abb58f00cd59f32",
+    "commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "repository_available": true,
-    "status_sha256": "4d51a348a5ce95e8674b6aa46935d9cc81d6b4cd80e1d47254db19edc1001f12",
+    "status_sha256": "d15e2c81b2b0c7984c9e049ef64236de65ddb8421eee1ddc4e47b9ca3c64e133",
     "version_control": "git",
     "worktree_clean": false
   },
@@ -1450,7 +1459,7 @@
   "schema": "lattice-aggregation:internal-theorem-closure-bundle:v1",
   "schema_version": 1,
   "source_inventory": {
-    "file_count": 158,
+    "file_count": 160,
     "files": [
       {
         "path": "Cargo.lock",
@@ -1497,8 +1506,8 @@
       {
         "path": "docs/cryptography/blocker-closure-status.md",
         "present": true,
-        "sha256": "96bbda22dd2212106e4bea1f8440d1ebf22a73efd3ba1a8a30367b30078bd8ea",
-        "size_bytes": 4850
+        "sha256": "7e7e3223c8baa9005006f2851ca9e539abaf357b65c212c9f3a1d0689fa3a919",
+        "size_bytes": 5234
       },
       {
         "path": "docs/cryptography/claims-matrix.md",
@@ -1527,14 +1536,14 @@
       {
         "path": "docs/cryptography/criterion-2-proof-substance.json",
         "present": true,
-        "sha256": "cec417e751d0195663d068d581464f05a650f2ffe1bec481c4479aff313cf84d",
-        "size_bytes": 41608
+        "sha256": "7bdaf68a43f43706a195340744837506546e3ceb44e4b5d0d8aea9ed08dfe31c",
+        "size_bytes": 41731
       },
       {
         "path": "docs/cryptography/criterion-2-proof-substance.md",
         "present": true,
-        "sha256": "eb796438e85896042f9389997351b41377f960533c1e5f21d3ac0e5543381bfd",
-        "size_bytes": 39715
+        "sha256": "f6af9b659489bdb19b71462aebf37944e0b9593dd217929c502bc6a403dff183",
+        "size_bytes": 39773
       },
       {
         "path": "docs/cryptography/criterion-3-proof-substance.json",
@@ -1611,14 +1620,14 @@
       {
         "path": "docs/cryptography/internal-aggregation-campaign-schema.md",
         "present": true,
-        "sha256": "61e7fb5607cf59a330d4c4a742a0a28f7d4f6a7d55671caf5ada0d03cdfcb3de",
-        "size_bytes": 5864
+        "sha256": "880b9ed2429dca2284aa075f288898997eb2a1687dc03ec5cac68e6998d3269e",
+        "size_bytes": 7898
       },
       {
         "path": "docs/cryptography/internal-proof-obligation-register.json",
         "present": true,
-        "sha256": "f140c6175799769d808750c5b8ba36aa151216dd94649f3e907f28fd76ae36f0",
-        "size_bytes": 22528
+        "sha256": "004ce534938e4457358085938cea8338972f568b80a4bc766b26eb5515aa4aa5",
+        "size_bytes": 22587
       },
       {
         "path": "docs/cryptography/internal-theorem-closure-bundle.md",
@@ -1659,8 +1668,8 @@
       {
         "path": "docs/cryptography/p1-nonce-producer-backend-cli-contract.md",
         "present": true,
-        "sha256": "de7c24e412eb455b822fd92643192844b27ed3dd1a35434e25cc5db84f280ef9",
-        "size_bytes": 17714
+        "sha256": "18e88e974a94263364923ef1f0c6f163415cafd554d40068a552d4ab41fdd63e",
+        "size_bytes": 17741
       },
       {
         "path": "docs/cryptography/p1-nonce-producer-selection.json",
@@ -1695,8 +1704,8 @@
       {
         "path": "docs/cryptography/proof-implementation-crosswalk.md",
         "present": true,
-        "sha256": "ee2caaffc90c0f227c6c862a8f04c786dc5f80d88ba7a5613777328258456a91",
-        "size_bytes": 22772
+        "sha256": "30a0ac9a5ecb148c5bc1136af7eeb725dfd768c214d4c114f650ff087f48937d",
+        "size_bytes": 22934
       },
       {
         "path": "docs/cryptography/proof-obligations.md",
@@ -1707,8 +1716,8 @@
       {
         "path": "docs/cryptography/protocol-code-crosswalk.md",
         "present": true,
-        "sha256": "c61d5451fd548c8ae231a34265c312473078cd8e005c948224016c0810c174d0",
-        "size_bytes": 22185
+        "sha256": "651c76b41819d4ae8b34c253c223f01a5b8223a4176600e689e0b0be351689c4",
+        "size_bytes": 22484
       },
       {
         "path": "docs/cryptography/random-oracle-game.md",
@@ -1737,8 +1746,8 @@
       {
         "path": "docs/cryptography/theorem-closure-assessment-readiness.md",
         "present": true,
-        "sha256": "b62c6f33ceac911837597a2ee85bab0452ae55f87065abc1c749c38c1ad3c51d",
-        "size_bytes": 7116
+        "sha256": "ccc7c95ddec39a5f540830ac5023f827b0cb68d80aa9a55e8a55b3c9208ebca0",
+        "size_bytes": 7149
       },
       {
         "path": "docs/cryptography/thesis-operating-parameters.json",
@@ -1797,8 +1806,8 @@
       {
         "path": "scripts/assess_theorem_closure_readiness.py",
         "present": true,
-        "sha256": "7c17a703480ab46922780ad6c17e2e7063a9786d94b91416d68d949436885cbb",
-        "size_bytes": 24030
+        "sha256": "4dce6126e07d4d9729ed24a31d3854712155f412057814a78272f9028fbee8fc",
+        "size_bytes": 24068
       },
       {
         "path": "scripts/build_backend_emission_request.py",
@@ -1809,14 +1818,14 @@
       {
         "path": "scripts/build_internal_aggregation_campaign_request.py",
         "present": true,
-        "sha256": "81c4b5716dc3cb9f649fcf381c3e34d4a30ee12582907a031a34854c3680489e",
-        "size_bytes": 13986
+        "sha256": "e109085667c1db83101665bf5be475242fe1c35f172bc2eefe463a389b257a46",
+        "size_bytes": 15231
       },
       {
         "path": "scripts/build_internal_theorem_closure_bundle.py",
         "present": true,
-        "sha256": "573aaa4e781c33f891ce3f9f9386c5275bc8094008ce3e24ca96ab75b0af7048",
-        "size_bytes": 44202
+        "sha256": "7caaa870c368476764052ef3183163afa565e574fcb45b1ef24c001d99d06138",
+        "size_bytes": 46198
       },
       {
         "path": "scripts/build_internal_theorem_closure_criterion_inputs.py",
@@ -1839,8 +1848,8 @@
       {
         "path": "scripts/build_p1_external_backend_review_packages.py",
         "present": true,
-        "sha256": "7fb6c965cfe7823495e18e64d614c9822bf9dbaa3b8b8af62af308bd93058131",
-        "size_bytes": 21172
+        "sha256": "1b76be0107f4b856deb6c727df4cb93e485cd10213f93ba249995c601389612d",
+        "size_bytes": 25915
       },
       {
         "path": "scripts/build_p1_full_kat_cavp_validation_review.py",
@@ -1939,6 +1948,12 @@
         "size_bytes": 21083
       },
       {
+        "path": "scripts/run_internal_aggregation_campaign_capture.py",
+        "present": true,
+        "sha256": "672e25e72208d536aad59578a49e5531a8f656ef2d8ab49330eb0d9b266f5d8a",
+        "size_bytes": 23461
+      },
+      {
         "path": "scripts/run_internal_theorem_closure_attempt.py",
         "present": true,
         "sha256": "165d9adeb7a82793326d4c81a1fb6325d06c67c492479973905f52bd4d1079ad",
@@ -1965,8 +1980,8 @@
       {
         "path": "scripts/run_p1_external_backend_evidence_attempt.py",
         "present": true,
-        "sha256": "c5efe7cd5b35a4ec2911b7b3165eee425103cf3f6383a160107dd5c8f32890bd",
-        "size_bytes": 26182
+        "sha256": "9f2b556647896cc78d9b4bd2c55707485b3a697e955d340e1e197b60d4e78a03",
+        "size_bytes": 26220
       },
       {
         "path": "scripts/run_simulation_benchmarks.py",
@@ -1993,10 +2008,16 @@
         "size_bytes": 27611
       },
       {
+        "path": "scripts/threshold_authorization_verifier.py",
+        "present": true,
+        "sha256": "6d2a376cc44d07e025f1255a1b9b98d7d4593207ef4364fee0c1f90d2512f7d7",
+        "size_bytes": 8978
+      },
+      {
         "path": "scripts/validate_internal_aggregation_campaign_capture.py",
         "present": true,
-        "sha256": "8347675912b9aafd5b42ee8e5257f2c09b685284925dafc684a558003146babe",
-        "size_bytes": 38739
+        "sha256": "b8614689f70cb10df35181265398347e2786e16db76833a123e4c7abec0d5a24",
+        "size_bytes": 49118
       },
       {
         "path": "scripts/validate_internal_proof_obligation_register.py",
@@ -2067,8 +2088,8 @@
       {
         "path": "src/backend/fips_sign.rs",
         "present": true,
-        "sha256": "9b77447b67524d94beaef25f977de85732442a773267d87ce618f68351b6f428",
-        "size_bytes": 28145
+        "sha256": "20d6abd280cdf9bfc7ac5804cb160dafe186b7b122221a55a8e08ef1ca1a65fe",
+        "size_bytes": 56504
       },
       {
         "path": "src/backend/fips_wire.rs",
@@ -2079,8 +2100,8 @@
       {
         "path": "src/backend/mod.rs",
         "present": true,
-        "sha256": "b4d9963a72307f8c5cfe1f905eefed5b33b61ec4d00998a5d4fa0bd9a512b53c",
-        "size_bytes": 8640
+        "sha256": "4dcb6253e96ab6744072c84bc24982bbcb628f712c46f1991a94c5588ae3a201",
+        "size_bytes": 8949
       },
       {
         "path": "src/backend/module_partial.rs",
@@ -2097,20 +2118,20 @@
       {
         "path": "src/backend/real.rs",
         "present": true,
-        "sha256": "1044ac4c4dfe83d488a2051ec84bf146a20034d2e4af111c502151ab4b2682da",
-        "size_bytes": 26155
+        "sha256": "1e0dd3afe23b2c9f0536d752cee57f56623479f3cb2e52d01e2444d9f6a6ce6c",
+        "size_bytes": 26225
       },
       {
         "path": "src/backend/threshold_core.rs",
         "present": true,
-        "sha256": "a9e6a8c13a988fcb49889944e301f4fdf81e3b08dce75553160ac56e0c15ca7e",
-        "size_bytes": 27668
+        "sha256": "fd4d9c188b9e9a1b4ff2c48b0a543d764f38c60c6d2e0246e370e7fe5d1f1093",
+        "size_bytes": 27875
       },
       {
         "path": "src/bin/threshold_backend_p1.rs",
         "present": true,
-        "sha256": "dbfd629b3ae90e16cde1e738c6d84694f523086454ad6c53fde3396144f683ed",
-        "size_bytes": 111313
+        "sha256": "9910e6b644a2f960782fbebe9329f55be1768fd7840fff73f297cbd1b5a83e85",
+        "size_bytes": 139179
       },
       {
         "path": "src/collections.rs",
@@ -2229,8 +2250,8 @@
       {
         "path": "src/lib.rs",
         "present": true,
-        "sha256": "5c0c0b297b037f4a1566929183b3f29983b58c4860a4a95e30d9ff9b22033483",
-        "size_bytes": 3119
+        "sha256": "f3463c07a0150990b6b11b0f4726fb2a2958ee385a233294c9e5176e4b4ff1ff",
+        "size_bytes": 3193
       },
       {
         "path": "src/low_level.rs",
@@ -2401,7 +2422,7 @@
         "size_bytes": 5862
       }
     ],
-    "tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647"
+    "tree_sha256": "7e13b155a3745c9c003c9f8dfedb93bb21167354f162c4acec6e15152af73775"
   },
   "toolchain": {
     "all_identified": true,

@@ -10,6 +10,10 @@
 /artifacts/benchmarks/
 /artifacts/localnet/
 /dist/
+/mpc/Programs/Bytecode/
+/mpc/Programs/Schedules/
+/artifacts/internal-aggregation-campaign/latest/backend-binary
+/artifacts/internal-aggregation-campaign/latest/standard-verifier-binary
 .understand-anything/
 **/*.rs.bk
 **/__pycache__/

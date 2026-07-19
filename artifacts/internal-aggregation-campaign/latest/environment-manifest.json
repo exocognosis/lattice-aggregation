@@ -1,0 +1,9 @@
+{
+  "cargo_version": "cargo 1.88.0 (873a06493 2025-05-10)",
+  "current_exe": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/target/debug/threshold-backend-p1",
+  "git_head": "35fc2ef547fe1fe5975184c4dad8267db77cc3b1",
+  "git_status_short": "",
+  "rustc_version": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+  "schema": "lattice-threshold-backend-p1:environment-manifest:v1",
+  "source_root": "/Users/rickglenn/Documents/lattice-threshold-backend-p1"
+}

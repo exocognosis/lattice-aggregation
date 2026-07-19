@@ -1,0 +1,75 @@
+{
+  "blockers": [
+    "malicious MAMA execution with 6,667 signers is absent",
+    "private per-signer output-share custody evidence is absent",
+    "threshold DKG K-share input binding is absent",
+    "exact output equivalence corpus and independent review are absent"
+  ],
+  "candidate_ready_for_distributed_execution": true,
+  "checks": {
+    "candidate_compiles": true,
+    "compiler_preserves_memory_order": true,
+    "field_matches_mldsa_q": true,
+    "full_mldsa65_dimensions_compiled": true,
+    "full_mldsa65_dimensions_requested": true,
+    "malicious_dishonest_majority_protocol_selected": true,
+    "mp_spdz_compiler_present": true,
+    "program_source_present": true,
+    "target_n_10000": true,
+    "target_t_6667": true
+  },
+  "claim_flags": {
+    "claims_exact_distributed_expand_mask_complete": false,
+    "claims_independent_review_complete": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "compilation": {
+    "command": [
+      "/private/tmp/lattice-mp-spdz.pqhZ7n/MP-SPDZ/compile.py",
+      "-M",
+      "-X",
+      "-P",
+      "8380417",
+      "mldsa65_expandmask",
+      "2",
+      "0",
+      "5",
+      "256"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "stdout": "WARNING: --prime/-P activates code that usually isn't the most efficient variant. Consider using --field/-F and set the prime only during the actual computation.\nReducing fixed-point precision to (5, 10) to match prime 8380417\nDefault bit length for compilation: 21\nDefault security parameter for compilation: 40\nCompiling file Programs/Source/mldsa65_expandmask.mpc\nCompiled 100000 lines at Sun Jul 19 14:27:53 2026\nCompiled 200000 lines at Sun Jul 19 14:27:54 2026\nCompiled 300000 lines at Sun Jul 19 14:27:55 2026\nCompiled 400000 lines at Sun Jul 19 14:27:55 2026\nCompiled 500000 lines at Sun Jul 19 14:27:56 2026\nCompiled 600000 lines at Sun Jul 19 14:27:57 2026\nCompiled 700000 lines at Sun Jul 19 14:27:58 2026\nCompiled 800000 lines at Sun Jul 19 14:27:58 2026\nWriting to Programs/Schedules/mldsa65_expandmask-2-0-5-256.sch\nWriting to Programs/Bytecode/mldsa65_expandmask-2-0-5-256-0.bc\nHash: d08515fdf56871b70bd3e90e21d7cfd2b95c843dda705ce19a76aeda03e76591\nProgram requires at most:\n        1024 bit inputs from player 0\n         512 bit inputs from player 1\n        1280 strict edabits of length 20\n        1280 integer dabits\n        1280 integer randoms\n     1072640 bit triples\n      215040 bit opens\n        1280 integer inputs from player 0\n        1280 integer inputs from player 1\n        2560 integer opens\n         670 virtual machine rounds\n",
+    "timeout_seconds": 180
+  },
+  "exact_distributed_expand_mask": false,
+  "exact_expand_mask_mpc": false,
+  "generated_at": "2026-07-19T21:28:23Z",
+  "mp_spdz": {
+    "commit": "6a2256e327b507918859f605735543bb32a39d9d",
+    "compile_coefficients_per_component": 256,
+    "compile_components": 5,
+    "compile_signers": 2,
+    "root": "/private/tmp/lattice-mp-spdz.pqhZ7n/MP-SPDZ"
+  },
+  "protocol": {
+    "computation": "secret_shared_fips204_shake256_expandmask_mldsa65",
+    "execution_protocol": "MAMA_multiple_MAC_malicious_dishonest_majority",
+    "field_prime": 8380417,
+    "framework": "MP-SPDZ",
+    "joint_mask_opened": false,
+    "mixed_circuit_conversion": "edaBits",
+    "secret_or_seed_reconstruction_used": false
+  },
+  "schema": "lattice-aggregation:exact-expandmask-mpc-candidate:v1",
+  "source": {
+    "path": "/Users/rickglenn/Documents/Lattice Aggregation/mpc/Programs/Source/mldsa65_expandmask.mpc",
+    "sha256": "e1b5365906c0258d1352f56a3074244f0bb8a2762a17573cdc034fe07330e4bb"
+  },
+  "target": {
+    "parameter_set": "ML-DSA-65",
+    "signer_count": 6667,
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}
