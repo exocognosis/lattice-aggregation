@@ -74,7 +74,7 @@
     {
       "path": "backend-binary",
       "role": "backend_binary",
-      "sha256": "16d001886c6d09cbe9d64cdcf2bc15362df24c8391c71024e3842975e1b268d9"
+      "sha256": "2be171febf4fce721a92561ef22e0faa96a806bcc2f810eb5058239802a75c6e"
     },
     {
       "path": "backend-implementation-manifest.json",
@@ -109,7 +109,7 @@
     {
       "path": "environment-manifest.json",
       "role": "environment_manifest",
-      "sha256": "82af7dc1fcf597865b29b9d08554f5389c1c397118fbfb58450866ca2ea21c3a"
+      "sha256": "ab98d3d53686f53051c9993dbcbdd4c9ade05e50f28f45fc4f5f0f3de738fe84"
     },
     {
       "path": "kat-results.json",
@@ -124,7 +124,7 @@
     {
       "path": "standard-verifier-binary",
       "role": "standard_verifier_binary",
-      "sha256": "16d001886c6d09cbe9d64cdcf2bc15362df24c8391c71024e3842975e1b268d9"
+      "sha256": "2be171febf4fce721a92561ef22e0faa96a806bcc2f810eb5058239802a75c6e"
     },
     {
       "path": "toolchain-lock.txt",
@@ -811,15 +811,15 @@
   },
   "provenance": {
     "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
-    "backend_binary_digest_hex": "16d001886c6d09cbe9d64cdcf2bc15362df24c8391c71024e3842975e1b268d9",
+    "backend_binary_digest_hex": "2be171febf4fce721a92561ef22e0faa96a806bcc2f810eb5058239802a75c6e",
     "backend_command": "threshold-backend-p1 run-internal-aggregation-campaign",
     "backend_implementation_digest_hex": "3356241439cb0a98aa68c2e26b04c93820c9837dc7216adccb026789fef5ea62",
     "backend_name": "threshold-backend-p1-distributed-mldsa65",
     "backend_source_digest_hex": "9722cb2c04ac359a0a38b4dc2980dc82cabca1fad8c1b06281cfe7b8278f98c6",
     "backend_test_results_digest_hex": "d7e7d9a751b8e6650d0ab506cbc3d3859322fcf5b54331b7f7e3c077889f4273",
-    "capture_command_digest_hex": "43361b3bec43744a0ac084e1f234614a73574062ca3fab2a933c5a7cf622788c",
+    "capture_command_digest_hex": "8fbd816f399e205f1a2a5e4785d0186f35f16a0b28c42bcb6659a882d40cb306",
     "capture_generated_from_clean_checkout": true,
-    "environment_digest_hex": "82af7dc1fcf597865b29b9d08554f5389c1c397118fbfb58450866ca2ea21c3a",
+    "environment_digest_hex": "ab98d3d53686f53051c9993dbcbdd4c9ade05e50f28f45fc4f5f0f3de738fe84",
     "git_diff_empty": true,
     "proof_artifact_bundle_digest_hex": "365f8b76b95ff8696e1c49d2c08c959da6e0a096301fc50be75cb74e88b850b9",
     "repo_clean": true,
@@ -835,7 +835,7 @@
   },
   "schema": "lattice-aggregation:internal-aggregation-campaign-capture:v1",
   "standard_verifier": {
-    "implementation_digest_hex": "16d001886c6d09cbe9d64cdcf2bc15362df24c8391c71024e3842975e1b268d9",
+    "implementation_digest_hex": "2be171febf4fce721a92561ef22e0faa96a806bcc2f810eb5058239802a75c6e",
     "implementation_kind": "unmodified_mldsa65_standard_verifier",
     "parameter_set": "ML-DSA-65"
   }

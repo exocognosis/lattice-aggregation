@@ -1,0 +1,39 @@
+{
+  "blocking_core_flags": [
+    "distributed_dkg_vss",
+    "exact_distributed_keygen",
+    "fips204_exact_distributed_key_generation",
+    "private_per_receiver_share_custody",
+    "per_receiver_private_share_custody"
+  ],
+  "campaign_id": "theorem-closure-internal-001",
+  "claims_theorem_closure": false,
+  "implemented_evidence": {
+    "bounded_no_seed_dealer_dkg_custody_capture_available_in_main_repo": true,
+    "committee_authorization_certificate_verified": true,
+    "receiver_custody_engineering_seam_available_in_main_repo": true,
+    "standard_wire_signature_emitted": true,
+    "strict_partial_signature_path_consumes_threshold_partials": true
+  },
+  "not_yet_production_evidence": {
+    "coordinator_never_observes_clear_shares": false,
+    "fips204_exact_distributed_keygen_executed": false,
+    "process_isolated_or_hsm_receiver_custody_attested": false,
+    "production_10000_6667_dkg_executed": false,
+    "signer_path_consumes_custody_vault_shares": false
+  },
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+  "required_to_close": [
+    "replace seed-derived setup in the strict signing path with a no-seed-dealer DKG output",
+    "derive one standard ML-DSA-65 public key from the accepted distributed keygen transcript",
+    "route encrypted receiver shares into signer-held vaults before signing",
+    "prove or attest process/HSM isolation so the coordinator cannot reconstruct the full secret",
+    "bind DKG transcript, custody bundle, signer vault imports, and emitted signatures in the campaign capture"
+  ],
+  "schema": "lattice-threshold-backend-p1:dkg-custody-gap-report:v1",
+  "target_profile": {
+    "parameter_set": "ML-DSA-65",
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}

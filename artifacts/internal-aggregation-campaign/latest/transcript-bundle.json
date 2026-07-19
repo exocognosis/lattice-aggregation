@@ -1,0 +1,439 @@
+{
+  "campaign_id": "theorem-closure-internal-001",
+  "case_count": 24,
+  "claim_boundary": {
+    "claims_distribution_compatibility_proven": false,
+    "claims_production_dkg_custody_complete": false,
+    "claims_theorem_closure": false
+  },
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+  "schema": "lattice-threshold-backend-p1:internal-campaign-transcript-bundle:v1",
+  "threshold": 6667,
+  "transcripts": [
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "c83fa108a5585d68f1f596cc7df264d9f0b53c5c5554ccc148b0f9a82a65a652",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k08-accepted-001",
+      "case_kind": "accepted",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "b55dcf4894707dd99af3d42c8b3bb519f09a2a446b280e28b898e44a761dcd50",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "428bb1a95db089de6274e5103b6ab280feefcbd93acec7ebed4d155f4cb4b293",
+      "partial_count": 6667,
+      "public_key_digest_hex": "a02d6764a4e91068b1146e6965862e8aac2d0d51e1f6d820a37e954b9f2d930e",
+      "r0_bound_ok": true,
+      "rejected_attempts": 0,
+      "rejection_predicate_digest_hex": "fd8546b218b28f296831dfd7bca48fa562ecb4f850efa440724d1fbdd68daac4",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k08-rejected-001",
+      "case_kind": "rejected",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "a9a14dfde858ef68a827f010fd4d6290805b6de8aae96c10c85de9aa3a701abf",
+      "negative_control": true,
+      "negative_control_reason": "rejection predicate record emitted without aggregate signature"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "82aae4c107ab13799afb4e4591a635b43f0a15a88507fc1f22f1a305377c9ec0",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k08-retry-001",
+      "case_kind": "retry",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "913577acf648b82f7be1a7f83ce306a656614ddd0372d503897481d25c422b83",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "a01df9d3e44cbf8493f4c4a483df62569c8a21076ceb6b48b52645b2775205da",
+      "partial_count": 6667,
+      "public_key_digest_hex": "b72969e3a2b0b4bc5ab10802f49b5ab7468ce35e1cb771997461a289a5b6b841",
+      "r0_bound_ok": true,
+      "rejected_attempts": 5,
+      "rejection_predicate_digest_hex": "3e2777d52749b95a72b3b31092c09b328dc1d4bb2ba0c0f18e6e031d8297747c",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k08-abort-001",
+      "case_kind": "abort",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "1f223352169dac764aee4cfa83d6effbf77c0e0db013fb490746be1e03931141",
+      "negative_control": true,
+      "negative_control_reason": "authorized abort accountability record emitted without aggregate signature"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k08-malicious-share-001",
+      "case_kind": "malicious_share",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "648caedfa549ad5ff0ef82472d7a17b362034dcf942c2ff1aee958e209f55962",
+      "negative_control": true,
+      "negative_control_reason": "malformed threshold contribution rejected before aggregation"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k08-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "4812fc28eff646d1ca69194d17bbd8c3e51031d9d67f922f0f0b339c64e4a599",
+      "negative_control": true,
+      "negative_control_reason": "session transcript mutation rejected before aggregation"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "093af7d52bb9519d2cc0137edf647b781102a4fb5aac35138235803028389a36",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k16-accepted-001",
+      "case_kind": "accepted",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "d2daeffaef24f9eeb3033c70dc9a0eedcd66b11dc8248621c09685f1b69a2a19",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "d1e08853f531d6e42d7a77e4dafac605575659a0954dab784e63123a74c0b60e",
+      "partial_count": 6667,
+      "public_key_digest_hex": "a2e9d631acf1dac201254631007ec8214ec9aca588a6a7feabe2ca8e63d098ed",
+      "r0_bound_ok": true,
+      "rejected_attempts": 0,
+      "rejection_predicate_digest_hex": "f2210002228626a6b43228ed01eb535ab8d10799427e33d1075b188bdbf0f8a0",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k16-rejected-001",
+      "case_kind": "rejected",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "ac360aa327870b5276f0a6b6d8e9bc5543a3a6635ff5a00a7e75fd9dd5605e8e",
+      "negative_control": true,
+      "negative_control_reason": "rejection predicate record emitted without aggregate signature"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "0609c65c120583327a5227f9f98ce5170b334cd9c337435cd3ea5b4c2e350338",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k16-retry-001",
+      "case_kind": "retry",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "e0066765830443a9b3ca19379ea5be86c77d2b18ee3ed57eec4e9503de310f07",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "de21dd6ce408dbc5d388311851165c6307b2f17835feb2d8488af0264a75ed83",
+      "partial_count": 6667,
+      "public_key_digest_hex": "0151f93586a4d8d4b11c3ddb7ea1eefa29a5d195144fbf1596ff1f77a7f578f4",
+      "r0_bound_ok": true,
+      "rejected_attempts": 4,
+      "rejection_predicate_digest_hex": "442c586e86c2ed9795a9980ae1b0b7bba1653ddd2fe51209e572f55c8edf806e",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k16-abort-001",
+      "case_kind": "abort",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "e6f64044496877f501e24b9e0cbea7afb0ad6fb4e65284b031ea1fb53a0d4827",
+      "negative_control": true,
+      "negative_control_reason": "authorized abort accountability record emitted without aggregate signature"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k16-malicious-share-001",
+      "case_kind": "malicious_share",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "7eb48a3fccd4acd2bca7285e82f053e9d53f1498f05a9aab1fc7faa2bbeb867c",
+      "negative_control": true,
+      "negative_control_reason": "malformed threshold contribution rejected before aggregation"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k16-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "d3f98d7d62848d2265ee5868ba97bdf5b9689abe9a579af34911ddeffd262e4c",
+      "negative_control": true,
+      "negative_control_reason": "session transcript mutation rejected before aggregation"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "b9e781b684c2270b8feea7fb053fedbeee17bb6151db19577bf629b0684853ee",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k32-accepted-001",
+      "case_kind": "accepted",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "c904e46bea2ce81ec9d651d06ef31e1810d3317fef3ace8ca0cbf0a91c488792",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "7f3c61f4cf146645abbfb0a36d3dbd9f6ad2548a94b7f1c050874c4994fe99e7",
+      "partial_count": 6667,
+      "public_key_digest_hex": "63904032076d046d780c82ae2761375b2381debc35d97c82425aad957a79e377",
+      "r0_bound_ok": true,
+      "rejected_attempts": 0,
+      "rejection_predicate_digest_hex": "1ab7376f1d6d4adc08cb97ff83a7dcae67b95bb347d0b8615402b542b969a1fa",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k32-rejected-001",
+      "case_kind": "rejected",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "092d8f8ee941f3a91d985586419261cb6e4118faf91c8954411c16153256ba3d",
+      "negative_control": true,
+      "negative_control_reason": "rejection predicate record emitted without aggregate signature"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "eaaaf53a81dc83de65cdfb31708db82dc61e64b3b76526361dc3355582c6ab07",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k32-retry-001",
+      "case_kind": "retry",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "9cc8370ae885184d3887fb6a2d16a646af6a2b5e79c2ae72e06849183523b44d",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "348c4585a5f123920cb31798a570df5af269767bc963e35df834a311540284c0",
+      "partial_count": 6667,
+      "public_key_digest_hex": "b84ef34235c9c0d5eed31f87f67b6febb4c067c9e14928e0cd318df0518b7535",
+      "r0_bound_ok": true,
+      "rejected_attempts": 15,
+      "rejection_predicate_digest_hex": "d452114f378a33de8757352a082d476b6ff11161a211b430ee649ce0d2775300",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k32-abort-001",
+      "case_kind": "abort",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "44b6dd14d827846acac59a20e9b98166a8d68f69bc863a22acdb24e7260bf46c",
+      "negative_control": true,
+      "negative_control_reason": "authorized abort accountability record emitted without aggregate signature"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k32-malicious-share-001",
+      "case_kind": "malicious_share",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "340160f4607c4bd965b3e266f120cdb5315ec17ca6078938b70b7da3b1e1fc05",
+      "negative_control": true,
+      "negative_control_reason": "malformed threshold contribution rejected before aggregation"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k32-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "1a242e1494412c1ab78614e10000a0cc757a4713c6a7b44fe35faadeea0c8155",
+      "negative_control": true,
+      "negative_control_reason": "session transcript mutation rejected before aggregation"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "7f2d0706053ee6fdb7d69e70698285ff0cf4f4251f92ad3dd609b71eec6b9cec",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k64-accepted-001",
+      "case_kind": "accepted",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "aaccbda92a51ef7b484c9fe4a0cbb859326302ac6857e820eb81081fb86cd1df",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "2e43b799f33fd71fef1c3fe457a01a4cb0d27d21f0a63131300ea1f1b11fcb43",
+      "partial_count": 6667,
+      "public_key_digest_hex": "76f427590412f3a19368470598bfcca5d992c80002bdb8e6b72a855db365b1da",
+      "r0_bound_ok": true,
+      "rejected_attempts": 0,
+      "rejection_predicate_digest_hex": "bb8e51861893040d6979abfb8be8c278f3b6fbdb9af233b87917aa3e4a9f842a",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k64-rejected-001",
+      "case_kind": "rejected",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "8e3185820a9c7e0997e1940ca92caccd3c53072bb960f4bb2a90eadc4dcb735b",
+      "negative_control": true,
+      "negative_control_reason": "rejection predicate record emitted without aggregate signature"
+    },
+    {
+      "aggregate_cs2_matches_direct": true,
+      "aggregate_signature_digest_hex": "0123b07b52dbd4c0ca170115b73c677e158f4ef3d2290a6ac86ba0c5e9ec2db4",
+      "aggregate_signature_len": 3309,
+      "aggregate_z_matches_direct": true,
+      "case_id": "k64-retry-001",
+      "case_kind": "retry",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "ct0_bound_ok": true,
+      "hint_omega_ok": true,
+      "message_sha256": "87dd021abfbfa6e0c894962b5f4f0297ef39d04c3ec173055f0196d4ef5e5622",
+      "packing_mode": "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+      "partial_bundle_digest_hex": "d8c136246f3ba7c0dff6c0f0d44636f32cf023e51aac7b2610fc7229495e7281",
+      "partial_count": 6667,
+      "public_key_digest_hex": "5a83b197fec75beec7e54060b7578404c659f294684626a565d3d21f36327a83",
+      "r0_bound_ok": true,
+      "rejected_attempts": 2,
+      "rejection_predicate_digest_hex": "14a1d58d21e4462b52c6654d13b46952cbfbe43cb21bade7a29ee11517e69800",
+      "retry_requirement_matched": true,
+      "standard_verifier_accepted": true,
+      "threshold": 6667,
+      "validator_count": 10000,
+      "z_bound_ok": true
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k64-abort-001",
+      "case_kind": "abort",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "9d685997e04eb7930ec69e266c18b976059827d1633e1a2a3975111cdbea0479",
+      "negative_control": true,
+      "negative_control_reason": "authorized abort accountability record emitted without aggregate signature"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k64-malicious-share-001",
+      "case_kind": "malicious_share",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "744767007dab449b8c2af312bb5463d8d9e6f2778bab26ff2145ef741ff133e6",
+      "negative_control": true,
+      "negative_control_reason": "malformed threshold contribution rejected before aggregation"
+    },
+    {
+      "aggregate_emitted": false,
+      "authorization_certificate_digest_hex": "42d84f18ec6208b391dc589e903be3ff4629c9ab80dd47390bdf56229c69e3a4",
+      "case_id": "k64-transcript-mutation-001",
+      "case_kind": "transcript_mutation",
+      "claim_boundary": {
+        "claims_distribution_compatibility_proven": false,
+        "claims_theorem_closure": false
+      },
+      "message_sha256": "d369e0458d2f2cdfcc0187ba30088527107fe31256aec9eb477d9a9de6b968ad",
+      "negative_control": true,
+      "negative_control_reason": "session transcript mutation rejected before aggregation"
+    }
+  ],
+  "validator_count": 10000
+}

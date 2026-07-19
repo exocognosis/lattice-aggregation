@@ -1,0 +1,85 @@
+{
+  "blockers": [
+    "40-bit statistical-security MASCOT execution over the ML-DSA q field is absent",
+    "6,667-signer distributed execution is absent",
+    "threshold DKG K-share input binding is absent",
+    "production private-share custody evidence is absent",
+    "independent equivalence and security review are absent"
+  ],
+  "checks": {
+    "all_coefficients_match_fips204_oracle": true,
+    "all_parties_exited_zero": true,
+    "all_private_outputs_present": true,
+    "compiled_schedule_present": true,
+    "execution_did_not_time_out": true,
+    "full_mldsa65_dimensions": true,
+    "output_coefficient_count_matches": true,
+    "runtime_present": true
+  },
+  "claim_flags": {
+    "claims_functional_equivalence": true,
+    "claims_malicious_mpc_execution_at_test_scale": true,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "exact_distributed_expand_mask": false,
+  "exact_expand_mask_mpc": false,
+  "execution": {
+    "duration_seconds": 10.239928625058383,
+    "exit_codes": [
+      0,
+      0
+    ],
+    "log_tails": {
+      "0": "Using statistical security parameter 20\nTrying to run 23-bit computation (64-bit representation)\nNo proper key material found in Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P0-2, generating from scratch (cannot read from Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P0-2)\nNo proper key material found in Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P0-2, generating from scratch (cannot read from Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P0-2)\nNo proper key material found in Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P0-2, generating from scratch (cannot read from Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P0-2)\nmldsa65_expandmask_complete signers=2 coefficients=1280 kappa_base=0\nSignificant amount of unused triples of SPDZ gfp distorting the benchmark. For more accurate benchmarks, consider reducing the batch size with --batch-size.\nSignificant amount of unused dabits of SPDZ gfp distorting the benchmark. For more accurate benchmarks, consider reducing the batch size with --batch-size.\nSignificant amount of unused edaBits of size 20. This protocol has a large minimum batch size, which makes this unavoidable for small programs.\nThe following benchmarks are including preprocessing (offline phase).\nTime = 8.6176 seconds \nData sent = 1319.35 MB in ~18337 rounds (party 0 only; use '-v' for more details)\nGlobal data sent = 2638.69 MB (all parties)\n",
+      "1": "Using statistical security parameter 20\nTrying to run 23-bit computation (64-bit representation)\nNo proper key material found in Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P1-2, generating from scratch (cannot read from Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P1-2)\nNo proper key material found in Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P1-2, generating from scratch (cannot read from Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P1-2)\nNo proper key material found in Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P1-2, generating from scratch (cannot read from Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P1-2)\nSignificant amount of unused triples of SPDZ gfp distorting the benchmark. For more accurate benchmarks, consider reducing the batch size with --batch-size.\nSignificant amount of unused dabits of SPDZ gfp distorting the benchmark. For more accurate benchmarks, consider reducing the batch size with --batch-size.\nSignificant amount of unused edaBits of size 20. This protocol has a large minimum batch size, which makes this unavoidable for small programs.\nThe following benchmarks are including preprocessing (offline phase).\nTime = 8.61753 seconds \nData sent = 1319.34 MB in ~18050 rounds (party 1 only; use '-v' for more details)\nGlobal data sent = 2638.69 MB (all parties)\n"
+    },
+    "port_base": 18000,
+    "program": "mldsa65_expandmask-2-0-5-256",
+    "runtime": "/private/tmp/lattice-mp-spdz.pqhZ7n/MP-SPDZ/mascot-party.x",
+    "runtime_profile": "malicious_dishonest_majority_test_scale",
+    "signers": 2,
+    "statistical_security_parameter": 20,
+    "timed_out": false,
+    "timeout_seconds": 300
+  },
+  "fixture": {
+    "key_sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd",
+    "mu_sha256": "9afaeef005e286957ee9a18a2481a75c7fc7ba74bae8de50ffa6127b12a62cae",
+    "rhopp_sha256": "a69fe384aad27d6a94d47b70d590492c3c028a5ffde4f4b3c288d74536be8e60",
+    "rnd_sha256": "72dbb7336c76780023f83da4c355f2eeea85733b13d3477697917790c1229084"
+  },
+  "functional_equivalence_passed": true,
+  "generated_at": "2026-07-19T21:23:30Z",
+  "malicious_test_scale_execution_passed": true,
+  "mp_spdz": {
+    "commit": "6a2256e327b507918859f605735543bb32a39d9d",
+    "root": "/private/tmp/lattice-mp-spdz.pqhZ7n/MP-SPDZ"
+  },
+  "result": {
+    "actual_sha256": "eb56c7485c1a40984b6c9ce3f4eb555781b36954676d6e6de715e9b070e4ff92",
+    "coefficient_count": 1280,
+    "expected_sha256": "eb56c7485c1a40984b6c9ce3f4eb555781b36954676d6e6de715e9b070e4ff92",
+    "private_outputs": [
+      {
+        "byte_length": 10240,
+        "player": 0,
+        "present": true,
+        "sha256": "8e09e20a9ca80b9887beb0580f22765e9098cfd639a45dbad64391f353d906d4"
+      },
+      {
+        "byte_length": 10240,
+        "player": 1,
+        "present": true,
+        "sha256": "4cb2d99924ac00ce92b04c87b89a2f0ca6b9a04243adb76f25c8d6112f229f12"
+      }
+    ]
+  },
+  "schema": "lattice-aggregation:exact-expandmask-mpc-equivalence:v1",
+  "source": {
+    "path": "/Users/rickglenn/Documents/Lattice Aggregation/mpc/Programs/Source/mldsa65_expandmask.mpc",
+    "schedule": "/Users/rickglenn/Documents/Lattice Aggregation/mpc/Programs/Schedules/mldsa65_expandmask-2-0-5-256.sch",
+    "schedule_sha256": "53ecd0c4a81c4a398332fce5a48cbc4587b4320b7acde84ecd0cc09c8f3bdf1e",
+    "sha256": "e1b5365906c0258d1352f56a3074244f0bb8a2762a17573cdc034fe07330e4bb"
+  }
+}

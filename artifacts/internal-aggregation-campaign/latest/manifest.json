@@ -22,7 +22,7 @@
   "internal_campaign_evidence_ready": false,
   "preregistered_case_count": 24,
   "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
-  "request_sha256": "ca1679db8d0bd8451dd0a3d8f7a8a6a8b163aa20bd0e994719532a76a9393e88",
+  "request_sha256": "558a197de668c05ac20d01ea7e26f30aab6c420720ca7e96378decacff1c3d56",
   "schema": "lattice-aggregation:internal-aggregation-campaign-validation:v1",
   "theorem_status": "unclosed_pending_proof_and_independent_review",
   "validated_execution_count": 0

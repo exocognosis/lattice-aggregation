@@ -1,20 +1,20 @@
 {
   "backend_command": [
-    "/Users/rickglenn/Documents/lattice-threshold-backend-p1/target/release/threshold-backend-p1",
+    "/Users/rickglenn/Documents/lattice-threshold-backend-p1/target/debug/threshold-backend-p1",
     "run-internal-aggregation-campaign",
     "--request",
     "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/internal-aggregation-campaign/latest/request.json",
     "--evidence-out",
-    "/Users/rickglenn/Documents/lattice-threshold-backend-p1-runs/internal-campaign-evidence/latest"
+    "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/internal-aggregation-campaign/latest"
   ],
   "backend_command_origin": "outside_repo_executable_or_script",
-  "backend_command_sha256": "7868ea0e807fc67caadeae1aa1acc258f1b2f0724baba04a5d84279a9194d0b6",
+  "backend_command_sha256": "49084b937baf4902f5ff1df5e0d6a1cc25a930958bcbffe0ef9848f30270e90e",
   "blockers": [
     "cryptographic core check must be true: exact_distributed_expand_mask",
     "cryptographic core check must be true: exact_expand_mask_mpc"
   ],
   "campaign_out": "artifacts/internal-aggregation-campaign/latest",
-  "capture_sha256": "18d00c64b31dff6cbd531666408c04ce026c298d42e58a8c90d506133777da04",
+  "capture_sha256": "66d5d0a255cddc4afec096a0c54b2c7f6cee12f551938e562d3854b25a54cde9",
   "claim_boundary": "exact distributed ML-DSA internal campaign capture runner; theorem closure remains pending five substantive criteria and independent review",
   "claim_flags": {
     "claims_fips_validation": false,
@@ -24,19 +24,19 @@
     "claims_theorem_closure": false
   },
   "command_result": {
-    "duration_seconds": 59.614,
+    "duration_seconds": 2237.181,
     "exit_code": 0,
     "stderr_bytes": 0,
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "stdout_bytes": 34820,
-    "stdout_sha256": "18d00c64b31dff6cbd531666408c04ce026c298d42e58a8c90d506133777da04"
+    "stdout_sha256": "66d5d0a255cddc4afec096a0c54b2c7f6cee12f551938e562d3854b25a54cde9"
   },
-  "generated_at": "2026-07-18T23:32:30Z",
+  "generated_at": "2026-07-19T18:52:06Z",
   "metadata": {
     "branch": "codex/post-119-crypto-evidence",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "f64fff8f762edc8ac191b172f5a30fad1d1f8246",
+    "commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "dirty": true,
     "os": "macOS-26.5.2-arm64-arm-64bit",
     "python_version": "3.12.8",
@@ -55,6 +55,6 @@
   "schema": "lattice-aggregation:internal-aggregation-campaign-run:v1",
   "schema_version": 1,
   "validated_execution_count": 24,
-  "validation_sha256": "e27c32ab40740f442acac94e5e003be11a005021dae29819acc5f14779003ab8",
+  "validation_sha256": "d28bf8173a358f0b5ded6f2f95210203b7323e54930d519913b3a4cd76bc6b06",
   "validation_status": "blocked_fail_closed"
 }

@@ -20,12 +20,12 @@
   "evidence_class": "fail_closed_internal_closure_input_requirements",
   "evidence_digests": {
     "implementation_digest": "c7a1dea0f2888c33c8321300d3d2690fc75b23e0d981b20b6ed4680e451cf67f",
-    "proof_digest": "57331e533705139e1063d40dead803ddb4ff8b328d64050d32bae8b6ddff69f6",
+    "proof_digest": "57c8aa4512cb6b37f539db1f9889cabdb6d6377da397cd5c31dbc348ba286d96",
     "protocol_spec_digest": "71f814b16e4037213adde3e66212fab75a579f9e89b5e03e6c202976bac883ba",
     "test_evidence_digest": "e88ac87b893fe5ecdcdb485563695c5bb453ff7848655635b397786a413d2f19"
   },
   "evidence_status": "required_unclosed",
-  "generated_at": "2026-07-18T18:57:36Z",
+  "generated_at": "2026-07-19T18:11:31Z",
   "implementation_artifacts": [
     {
       "path": "src/production/abort_bias.rs",
@@ -72,11 +72,11 @@
     },
     {
       "path": "artifacts/p1-accepted-distribution-abort-review/latest/manifest.json",
-      "sha256": "ab3ee4f12b5b206aa673ae6c06b608204373786c246c848aa1ae85c5a3178ebe"
+      "sha256": "2ea16442c87562fa80ee57083056d88d60ce139c35fc0d9a47eafb401403aa2d"
     },
     {
       "path": "artifacts/p1-rejection-distribution-proof-input/latest/evidence.json",
-      "sha256": "65119aed0396718aacec87adbc8968b0840eda968c07abd525f993f1837c2f9a"
+      "sha256": "d4e6d5e7efad44c14928f04c0650b1ae1c1c1939f622609fea78cc64ed384841"
     }
   ],
   "protocol_profile": {
@@ -115,16 +115,25 @@
     }
   ],
   "provenance": {
-    "changed_paths": [],
-    "git_commit": "3bb65f46c8f197f09622425f1abb58f00cd59f32",
+    "changed_paths": [
+      "artifacts/internal-aggregation-campaign/latest/request-SHA256SUMS",
+      "artifacts/internal-aggregation-campaign/latest/request-manifest.json",
+      "artifacts/internal-aggregation-campaign/latest/request-summary.md",
+      "artifacts/internal-aggregation-campaign/latest/request.json",
+      "artifacts/internal-aggregation-campaign/latest/validation-SHA256SUMS",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.pdf",
+      "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.tex",
+      "rtifacts/internal-aggregation-campaign/latest/manifest.json"
+    ],
+    "git_commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "hazmat": false,
     "quarantined": true,
     "real_distributed_threshold_core_verified": false,
     "simulation": false,
     "source_class": "fail_closed_requirements_inventory",
     "source_path": "artifacts/internal-theorem-closure-evidence/latest",
-    "source_tree_sha256": "1122276b70210677be15abf6c5a7cc32ca912a9cf0af802fd7cc35d2a1ce5647",
-    "worktree_clean": true
+    "source_tree_sha256": "7e13b155a3745c9c003c9f8dfedb93bb21167354f162c4acec6e15152af73775",
+    "worktree_clean": false
   },
   "readiness_only": false,
   "reproducibility": {

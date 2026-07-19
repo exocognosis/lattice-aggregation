@@ -62,7 +62,6 @@
       "bundle does not contain five passing content-addressed criterion records",
       "bundle provenance is dirty, unpinned, or unavailable",
       "bundle does not bind the exact validated campaign manifest",
-      "bundle source/artifact inventories are empty or lack tree digests",
       "bundle provenance does not match the current clean Git commit and worktree"
     ],
     "partial_contribution_soundness": [
@@ -171,7 +170,6 @@
     "bundle does not contain five passing content-addressed criterion records",
     "bundle provenance is dirty, unpinned, or unavailable",
     "bundle does not bind the exact validated campaign manifest",
-    "bundle source/artifact inventories are empty or lack tree digests",
     "bundle provenance does not match the current clean Git commit and worktree"
   ],
   "checks": {
@@ -204,7 +202,7 @@
       "public_claims_preserved_false": true,
       "review_semantics_valid": false,
       "schema_valid": true,
-      "source_and_artifact_inventories_bound": false
+      "source_and_artifact_inventories_bound": true
     },
     "criteria": {
       "abort_retry_bias": {
@@ -320,17 +318,17 @@
     "abort_retry_bias": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/abort_retry_bias.json",
       "present": true,
-      "sha256": "b671394089b972fd01c55b2825c31e68fea04aa728cddbf65334a74a85f5145b"
+      "sha256": "561f5d073d64928c2453fef81b0a8c95678cf01e94a7bd8aacb45e9126706d81"
     },
     "aggregate_mask_distribution": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_mask_distribution.json",
       "present": true,
-      "sha256": "e19bd0c2dfd3dbbc656213a9a613c15aa614adfe40810a8387ae796ce1ce164e"
+      "sha256": "d9478d2572eb6592759ce36d94938af4e3f0132c49dcbc0e2c3ac9a4c4278349"
     },
     "aggregate_rejection_equivalence": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/aggregate_rejection_equivalence.json",
       "present": true,
-      "sha256": "eead5d9f960c4dd94866dd83717af777cdb9146a0467e91150d5309c033a429b"
+      "sha256": "0a081c5aef087ddbd13c4973764fab8316b5d5cd346307c45608c75f72931f98"
     },
     "campaign_capture": {
       "path": "artifacts/internal-aggregation-campaign/latest/capture.json",
@@ -340,27 +338,27 @@
     "campaign_request": {
       "path": "artifacts/internal-aggregation-campaign/latest/request.json",
       "present": true,
-      "sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49"
+      "sha256": "558a197de668c05ac20d01ea7e26f30aab6c420720ca7e96378decacff1c3d56"
     },
     "campaign_validation": {
       "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
       "present": true,
-      "sha256": "55dc545b25228a1c23b0f0536e420c25b4f615429c55b8fa0c2c3c73605e635e"
+      "sha256": "f101d1c8c4fcba0671d792abf7d5c65ebf62a90a8c4365abd27bc0a2ccece88b"
     },
     "closure_bundle": {
       "path": "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
       "present": true,
-      "sha256": "d95e46b164c4dabe3474404d560bd411a5149af856ef73c57151b1a647f7ac57"
+      "sha256": "439abe53c3400cb63d850abf730fefd0ead76e73d0b881e3e5c9217cd0ab795b"
     },
     "partial_contribution_soundness": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/partial_contribution_soundness.json",
       "present": true,
-      "sha256": "d93dd47df5a1fb747535e129abbe348809f6ae0fa3eed6b833ef43c51a5da28b"
+      "sha256": "4021208b59ecce553de271a2510dfe4f29826d9fdddb87e9942395aa501b7712"
     },
     "unauthorized_aggregate_reduction": {
       "path": "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
       "present": true,
-      "sha256": "dffab3fc84f131143f5111fcad8d22fa92864a9138614272bbcb70b9335563da"
+      "sha256": "7ef1ce223f6854bf65a5d7a3afca701df5e485142c4d43d445daa9ac4495c2c3"
     }
   },
   "internally_closed_pending_independent_review": false,

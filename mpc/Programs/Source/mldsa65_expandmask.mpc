@@ -1,0 +1,244 @@
+"""Exact secret-shared FIPS 204 ExpandMask for ML-DSA-65.
+
+Compile this program with MP-SPDZ mixed circuits over the ML-DSA field:
+
+    compile.py -M -X -P 8380417 mldsa65_expandmask \
+        <signers> <kappa-base> [components] [coefficients-per-component]
+
+Each signer supplies 32 XOR-share bytes for K followed by 32 XOR-share bytes
+for rnd. Player 0 additionally supplies the public 64-byte mu value. The
+program computes SHAKE256 and ExpandMask on secret bits, converts each 20-bit
+coefficient to an arithmetic sharing modulo q, and writes one additive share of
+each coefficient to each signer's private binary output.
+
+No joint K, rnd, rhopp, ExpandMask byte string, or mask polynomial is opened.
+The surrounding runner must use a malicious dishonest-majority MP-SPDZ
+protocol and bind all private outputs into the campaign transcript.
+"""
+
+from Compiler.GC.types import sbit, sbitvec
+from Compiler.library import function_block, print_ln
+from Compiler.types import sint
+
+
+Q = 8380417
+GAMMA1 = 1 << 19
+RATE_BYTES = 136
+K_BYTES = 32
+RND_BYTES = 32
+MU_BYTES = 64
+MODULE_L = 5
+POLY_N = 256
+
+ROUND_CONSTANTS = (
+    0x0000000000000001,
+    0x0000000000008082,
+    0x800000000000808A,
+    0x8000000080008000,
+    0x000000000000808B,
+    0x0000000080000001,
+    0x8000000080008081,
+    0x8000000000008009,
+    0x000000000000008A,
+    0x0000000000000088,
+    0x0000000080008009,
+    0x000000008000000A,
+    0x000000008000808B,
+    0x800000000000008B,
+    0x8000000000008089,
+    0x8000000000008003,
+    0x8000000000008002,
+    0x8000000000000080,
+    0x000000000000800A,
+    0x800000008000000A,
+    0x8000000080008081,
+    0x8000000000008080,
+    0x0000000080000001,
+    0x8000000080008008,
+)
+
+ROTATION_OFFSETS = (
+    (0, 36, 3, 41, 18),
+    (1, 44, 10, 45, 2),
+    (62, 6, 43, 15, 61),
+    (28, 55, 25, 21, 56),
+    (27, 20, 39, 8, 14),
+)
+
+Byte = sbitvec.get_type(8)
+Word20 = sbitvec.get_type(20)
+State = sbitvec.get_type(1600)
+
+program.use_edabit(True)
+
+
+def lane_index(x, y):
+    return x + 5 * y
+
+
+def public_byte(value):
+    return [sbit((value >> bit) & 1) for bit in range(8)]
+
+
+def input_xor_shared_bytes(length, signers):
+    result = [[sbit(0) for _ in range(8)] for _ in range(length)]
+    for player in range(signers):
+        for index in range(length):
+            incoming = Byte.get_input_from(player).bit_decompose(8)
+            result[index] = [
+                left + right for left, right in zip(result[index], incoming)
+            ]
+    return result
+
+
+def input_bytes_from_player(length, player):
+    return [Byte.get_input_from(player).bit_decompose(8) for _ in range(length)]
+
+
+@function_block
+def keccak_f1600(state_value):
+    state_bits = state_value.bit_decompose(1600)
+    state = [
+        state_bits[lane * 64:(lane + 1) * 64]
+        for lane in range(25)
+    ]
+    for round_constant in ROUND_CONSTANTS:
+        columns = [
+            [
+                sum((state[lane_index(x, y)][bit] for y in range(5)), sbit(0))
+                for bit in range(64)
+            ]
+            for x in range(5)
+        ]
+        for x in range(5):
+            for y in range(5):
+                lane = state[lane_index(x, y)]
+                left = columns[(x - 1) % 5]
+                right = columns[(x + 1) % 5]
+                state[lane_index(x, y)] = [
+                    lane[bit] + left[bit] + right[(bit - 1) % 64]
+                    for bit in range(64)
+                ]
+
+        rotated = [[sbit(0) for _ in range(64)] for _ in range(25)]
+        for x in range(5):
+            for y in range(5):
+                destination_x = y
+                destination_y = (2 * x + 3 * y) % 5
+                offset = ROTATION_OFFSETS[x][y]
+                source = state[lane_index(x, y)]
+                destination = rotated[lane_index(destination_x, destination_y)]
+                for bit in range(64):
+                    destination[(bit + offset) % 64] = source[bit]
+
+        for x in range(5):
+            for y in range(5):
+                current = rotated[lane_index(x, y)]
+                next_lane = rotated[lane_index((x + 1) % 5, y)]
+                next_next = rotated[lane_index((x + 2) % 5, y)]
+                state[lane_index(x, y)] = [
+                    current[bit] + ((next_lane[bit] + 1) * next_next[bit])
+                    for bit in range(64)
+                ]
+
+        for bit in range(64):
+            if (round_constant >> bit) & 1:
+                state[0][bit] = state[0][bit] + 1
+    return State.bit_compose([bit for lane in state for bit in lane])
+
+
+def permute_state(state):
+    state_value = State.bit_compose([bit for lane in state for bit in lane])
+    output_bits = keccak_f1600(state_value).bit_decompose(1600)
+    return [
+        output_bits[lane * 64:(lane + 1) * 64]
+        for lane in range(25)
+    ]
+
+
+def xor_byte_into_state(state, byte_index, value):
+    lane = byte_index // 8
+    base_bit = (byte_index % 8) * 8
+    for bit in range(8):
+        state[lane][base_bit + bit] = state[lane][base_bit + bit] + value[bit]
+
+
+def state_byte(state, byte_index):
+    lane = byte_index // 8
+    base_bit = (byte_index % 8) * 8
+    return state[lane][base_bit:base_bit + 8]
+
+
+def shake256(message, output_length):
+    if len(message) >= RATE_BYTES:
+        raise ValueError("this fixed-profile circuit expects one absorb block")
+    state = [[sbit(0) for _ in range(64)] for _ in range(25)]
+    for index, value in enumerate(message):
+        xor_byte_into_state(state, index, value)
+    xor_byte_into_state(state, len(message), public_byte(0x1F))
+    xor_byte_into_state(state, RATE_BYTES - 1, public_byte(0x80))
+    state = permute_state(state)
+
+    output = []
+    while len(output) < output_length:
+        take = min(RATE_BYTES, output_length - len(output))
+        output.extend(state_byte(state, index) for index in range(take))
+        if len(output) < output_length:
+            state = permute_state(state)
+    return output
+
+
+def bits_to_arithmetic(bits):
+    return sint(Word20.bit_compose(bits))
+
+
+def write_additive_shares(value, signers):
+    masks = sint(0)
+    for player in range(signers - 1):
+        share = sint.get_random()
+        masks += share
+        share.reveal_to(player).binary_output()
+    (value - masks).reveal_to(signers - 1).binary_output()
+
+
+if len(program.args) < 2:
+    raise ValueError("usage: mldsa65_expandmask <signers> [kappa-base]")
+
+SIGNERS = int(program.args[1])
+KAPPA_BASE = int(program.args[2]) if len(program.args) > 2 else 0
+COMPONENTS = int(program.args[3]) if len(program.args) > 3 else MODULE_L
+COEFFICIENTS = int(program.args[4]) if len(program.args) > 4 else POLY_N
+if SIGNERS < 2:
+    raise ValueError("exact distributed ExpandMask requires at least two signers")
+if COMPONENTS < 1 or COMPONENTS > MODULE_L:
+    raise ValueError("component count must be in the ML-DSA-65 range 1..5")
+if COEFFICIENTS < 1 or COEFFICIENTS > POLY_N:
+    raise ValueError("coefficient count must be in the ML-DSA range 1..256")
+if KAPPA_BASE < 0 or KAPPA_BASE + COMPONENTS > 65536:
+    raise ValueError("kappa base is outside the ML-DSA u16 domain")
+
+key = input_xor_shared_bytes(K_BYTES, SIGNERS)
+rnd = input_xor_shared_bytes(RND_BYTES, SIGNERS)
+mu = input_bytes_from_player(MU_BYTES, 0)
+rhopp = shake256(key + rnd + mu, 64)
+
+coefficient_count = 0
+packed_bytes = (COEFFICIENTS * 20 + 7) // 8
+for component in range(COMPONENTS):
+    nonce = KAPPA_BASE + component
+    nonce_bytes = [public_byte(nonce & 0xFF), public_byte((nonce >> 8) & 0xFF)]
+    packed = shake256(rhopp + nonce_bytes, packed_bytes)
+    packed_bits = [bit for byte in packed for bit in byte]
+    for coefficient in range(COEFFICIENTS):
+        start = coefficient * 20
+        encoded = bits_to_arithmetic(packed_bits[start:start + 20])
+        mask_coefficient = sint(GAMMA1) - encoded
+        write_additive_shares(mask_coefficient, SIGNERS)
+        coefficient_count += 1
+
+print_ln(
+    "mldsa65_expandmask_complete signers=%s coefficients=%s kappa_base=%s",
+    SIGNERS,
+    coefficient_count,
+    KAPPA_BASE,
+)

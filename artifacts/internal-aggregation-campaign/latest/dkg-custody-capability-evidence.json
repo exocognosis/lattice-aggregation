@@ -1,0 +1,228 @@
+{
+  "aggregate_evidence_digest_hex": "86de46657aa9298cda7255c57aada6ede7c841142e0dd3b3c77b518c55f5f4bb",
+  "campaign_id": "theorem-closure-internal-001",
+  "capability_fields": [
+    "distributed_dkg_vss",
+    "fips204_exact_distributed_key_generation",
+    "exact_distributed_keygen",
+    "private_per_receiver_share_custody",
+    "per_receiver_private_share_custody"
+  ],
+  "capability_statuses": {
+    "distributed_dkg_vss": {
+      "claim_boundary": "digest-bound primitive evidence only; unsupported campaign capability booleans remain false",
+      "claim_value": false,
+      "counter_evidence": [
+        "internal campaign signatures are produced from strict_distributed_sign_from_s1_y_partials seed-derived setup material",
+        "campaign capture does not consume DkgFinalizeReport output as signing key material"
+      ],
+      "evidence_digest_hex": "3c5b85937b5ec4598eb91280cedddcd7d9ba04983dbb2ff5cd411012d7f00143",
+      "field": "distributed_dkg_vss",
+      "positive_evidence": [
+        "mldsa_dkg exposes commit-bound multi-dealer DKG/VSS with transcript_digest and contribution_digest",
+        "finalize_with_evidence accepts only verified shares and commitment proofs"
+      ],
+      "source_digests": [
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/mldsa_dkg.rs",
+          "role": "distributed_dkg_vss_source",
+          "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs",
+          "role": "campaign_emitter_source",
+          "sha256": "1437bcd6ada7cf1f5829bb92d030e7c306af1a392552480484a2d4faaf0aa79d"
+        }
+      ],
+      "source_roles": [
+        "distributed_dkg_vss_source",
+        "campaign_emitter_source"
+      ],
+      "status": "primitive_available_not_campaign_keygen_evidence"
+    },
+    "exact_distributed_keygen": {
+      "claim_boundary": "digest-bound primitive evidence only; unsupported campaign capability booleans remain false",
+      "claim_value": false,
+      "counter_evidence": [
+        "exact distributed KeyGen_internal is an umbrella claim that remains open until exact sampling, custody, t0, K, consistency proofs, and active recovery close together"
+      ],
+      "evidence_digest_hex": "1c9fa9f0ebabe18407f469839ef5cd64821f10b48ecd7f16a7518748e2f9bf3e",
+      "field": "exact_distributed_keygen",
+      "positive_evidence": [
+        "bounded DKG/VSS and public-key derivation primitives are present as source-bound research components"
+      ],
+      "source_digests": [
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/fips_public_key.rs",
+          "role": "fips_public_key_source",
+          "sha256": "374b5c64ecc26f01e6c28cd67bbc6d75810593d64d10af53469b3e118c4688ce"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/mldsa_dkg.rs",
+          "role": "distributed_dkg_vss_source",
+          "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/receiver_custody.rs",
+          "role": "receiver_custody_source",
+          "sha256": "8cfada7eef4ce477ff53a06a56e25e46a26700e30836ceba0027cda22b756f29"
+        }
+      ],
+      "source_roles": [
+        "fips_public_key_source",
+        "distributed_dkg_vss_source",
+        "receiver_custody_source"
+      ],
+      "status": "blocked_by_exact_fips_keygen_and_custody_gaps"
+    },
+    "fips204_exact_distributed_key_generation": {
+      "claim_boundary": "digest-bound primitive evidence only; unsupported campaign capability booleans remain false",
+      "claim_value": false,
+      "counter_evidence": [
+        "missing_keygen_primitives keeps joint exact ExpandS, rho generation, secret K generation, retained t0 signing state, custody, and active recovery open",
+        "strict signing setup still starts from a local FIPS seed"
+      ],
+      "evidence_digest_hex": "1dad64eb0f1cf6428616780c7540692bb571b1ccc4ce04d278ac62a65a0a7e06",
+      "field": "fips204_exact_distributed_key_generation",
+      "positive_evidence": [
+        "fips_public_key derives the linear public t shares through exact Power2Round and pkEncode",
+        "strict_fips_sign emits verifier-compatible ML-DSA-65 wire signatures without provider sign"
+      ],
+      "source_digests": [
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/fips_public_key.rs",
+          "role": "fips_public_key_source",
+          "sha256": "374b5c64ecc26f01e6c28cd67bbc6d75810593d64d10af53469b3e118c4688ce"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/mldsa_dkg.rs",
+          "role": "distributed_dkg_vss_source",
+          "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/backend/fips_sign.rs",
+          "role": "strict_fips_sign_source",
+          "sha256": "20d6abd280cdf9bfc7ac5804cb160dafe186b7b122221a55a8e08ef1ca1a65fe"
+        }
+      ],
+      "source_roles": [
+        "fips_public_key_source",
+        "distributed_dkg_vss_source",
+        "strict_fips_sign_source"
+      ],
+      "status": "blocked_missing_umbrella_keygen_primitives"
+    },
+    "per_receiver_private_share_custody": {
+      "claim_boundary": "digest-bound primitive evidence only; unsupported campaign capability booleans remain false",
+      "claim_value": false,
+      "counter_evidence": [
+        "the campaign capture does not prove process-isolated validator custody, no-export hardware custody, persistent replay state, or signer consumption of custody-held shares"
+      ],
+      "evidence_digest_hex": "6cd648a64fdbfbdb951706d4446e9e9db018fbf4a14483cffd427ba70eae4106",
+      "field": "per_receiver_private_share_custody",
+      "positive_evidence": [
+        "receiver custody code can route sealed envelopes per receiver with commitment and bundle digests"
+      ],
+      "source_digests": [
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/share_transport.rs",
+          "role": "share_transport_source",
+          "sha256": "91c91edc307c540cfc60a4da35f8ca3a1bd669605d9d167fb2c604b5f01645a0"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/receiver_custody.rs",
+          "role": "receiver_custody_source",
+          "sha256": "8cfada7eef4ce477ff53a06a56e25e46a26700e30836ceba0027cda22b756f29"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs",
+          "role": "campaign_emitter_source",
+          "sha256": "1437bcd6ada7cf1f5829bb92d030e7c306af1a392552480484a2d4faaf0aa79d"
+        }
+      ],
+      "source_roles": [
+        "share_transport_source",
+        "receiver_custody_source",
+        "campaign_emitter_source"
+      ],
+      "status": "engineering_custody_seam_only_not_process_isolated_per_receiver_custody"
+    },
+    "private_per_receiver_share_custody": {
+      "claim_boundary": "digest-bound primitive evidence only; unsupported campaign capability booleans remain false",
+      "claim_value": false,
+      "counter_evidence": [
+        "transport assumes pre-shared symmetric receiver keys and is not ML-KEM or process isolation",
+        "dealer-side code sees clear shares before sealing and the internal campaign signer does not consume receiver vault output"
+      ],
+      "evidence_digest_hex": "8e8995078cec66686c43db4ae21ff70ed24cadd99971cd8d94516d5a337341b1",
+      "field": "private_per_receiver_share_custody",
+      "positive_evidence": [
+        "share_transport provides authenticated encryption with receiver-bound associated data",
+        "receiver_custody exposes a coordinator-facing ciphertext bundle and receiver vault digest boundary"
+      ],
+      "source_digests": [
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/share_transport.rs",
+          "role": "share_transport_source",
+          "sha256": "91c91edc307c540cfc60a4da35f8ca3a1bd669605d9d167fb2c604b5f01645a0"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/receiver_custody.rs",
+          "role": "receiver_custody_source",
+          "sha256": "8cfada7eef4ce477ff53a06a56e25e46a26700e30836ceba0027cda22b756f29"
+        },
+        {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/mldsa_dkg.rs",
+          "role": "distributed_dkg_vss_source",
+          "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d"
+        }
+      ],
+      "source_roles": [
+        "share_transport_source",
+        "receiver_custody_source",
+        "distributed_dkg_vss_source"
+      ],
+      "status": "engineering_custody_seam_only_not_private_campaign_custody"
+    }
+  },
+  "claim_boundary": {
+    "claims_fips204_exact_distributed_key_generation": false,
+    "claims_process_isolated_receiver_custody": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+  "schema": "lattice-threshold-backend-p1:dkg-custody-capability-evidence:v1",
+  "source_digests": [
+    {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/mldsa_dkg.rs",
+      "role": "distributed_dkg_vss_source",
+      "sha256": "7fcacc7ff30b1843c5dee3fdbf215d30cde3a4e9bba448c35df98a104e70893d"
+    },
+    {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/fips_public_key.rs",
+      "role": "fips_public_key_source",
+      "sha256": "374b5c64ecc26f01e6c28cd67bbc6d75810593d64d10af53469b3e118c4688ce"
+    },
+    {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/share_transport.rs",
+      "role": "share_transport_source",
+      "sha256": "91c91edc307c540cfc60a4da35f8ca3a1bd669605d9d167fb2c604b5f01645a0"
+    },
+    {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/crypto/receiver_custody.rs",
+      "role": "receiver_custody_source",
+      "sha256": "8cfada7eef4ce477ff53a06a56e25e46a26700e30836ceba0027cda22b756f29"
+    },
+    {
+      "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/backend/fips_sign.rs",
+      "role": "strict_fips_sign_source",
+      "sha256": "20d6abd280cdf9bfc7ac5804cb160dafe186b7b122221a55a8e08ef1ca1a65fe"
+    },
+    {
+      "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs",
+      "role": "campaign_emitter_source",
+      "sha256": "1437bcd6ada7cf1f5829bb92d030e7c306af1a392552480484a2d4faaf0aa79d"
+    }
+  ]
+}

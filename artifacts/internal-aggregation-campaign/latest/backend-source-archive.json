@@ -1,0 +1,126 @@
+{
+  "files": [
+    {
+      "bytes": 15053,
+      "path": "Cargo.lock",
+      "sha256": "faf933dddb42c7fc30779917c31265a5afc013f5fb0940888fb1b5f6a06463d8"
+    },
+    {
+      "bytes": 637,
+      "path": "Cargo.toml",
+      "sha256": "f73fd31e250f4e6fee8910841e5615a271a7fe82454f6e76cc3d791e75382375"
+    },
+    {
+      "bytes": 4168,
+      "path": "README.md",
+      "sha256": "64b74fd449e097f7a047bbf18d3051874bd57a230744fd7aab423968702ceded"
+    },
+    {
+      "bytes": 30729,
+      "path": "src/capture_emitter.rs",
+      "sha256": "8fd319a3a2ed8b6d18fc725ea866b10190cedcd7ee4c98b876b1bb547e1c85d1"
+    },
+    {
+      "bytes": 33416,
+      "path": "src/committee8_contract.rs",
+      "sha256": "ae705d9cd811f5356a114122fec6d13ae67e083fc85371e4e9fe7cf4ec26cbec"
+    },
+    {
+      "bytes": 397,
+      "path": "src/error.rs",
+      "sha256": "372dc768915fdc89ea07bdf7c53ef44c896991074b0d64fb12df4f92115d3a87"
+    },
+    {
+      "bytes": 2662,
+      "path": "src/fips204_provider.rs",
+      "sha256": "1f7f350f18fb6a080b1bd839456639d3a7049872165421e16efb6c2e689ed4f7"
+    },
+    {
+      "bytes": 55948,
+      "path": "src/internal_campaign.rs",
+      "sha256": "1437bcd6ada7cf1f5829bb92d030e7c306af1a392552480484a2d4faaf0aa79d"
+    },
+    {
+      "bytes": 307,
+      "path": "src/lib.rs",
+      "sha256": "62c392711d26798f4ae73d46392b506ed9042837f31079377fef26f3712d1094"
+    },
+    {
+      "bytes": 13544,
+      "path": "src/main.rs",
+      "sha256": "f9872483a4cff15b6ec1a68f99e1005c5ea8fc1b46576a005be40c7628b28bf5"
+    },
+    {
+      "bytes": 9550,
+      "path": "src/nonce_producer.rs",
+      "sha256": "408b5110b0e320b206fc2ff5ebe7a1655bf613ea4e17999c2fb19bc5c2a107dc"
+    },
+    {
+      "bytes": 11098,
+      "path": "src/rejection_predicates.rs",
+      "sha256": "f6a3e6735b9ff2926d97b80519c8d3538ffdc0a0845a44645416d554e31a4e64"
+    },
+    {
+      "bytes": 7820,
+      "path": "src/request.rs",
+      "sha256": "c821c098bcd76c44404bcc01bf03567dea55898d84ceccbc2fe36cf35a2f238f"
+    },
+    {
+      "bytes": 6299,
+      "path": "src/review_manifest.rs",
+      "sha256": "02a22d8e346cb87c05380c76ee04180d1d4ed7f67cf20c54d200108a0fa5ed5b"
+    },
+    {
+      "bytes": 12159,
+      "path": "src/signing_session.rs",
+      "sha256": "84f309d703cc344a56974a55b709bc8813373eccb1dfd13f9a887c3f0ab915fa"
+    },
+    {
+      "bytes": 12308,
+      "path": "src/threshold_core.rs",
+      "sha256": "8a042945366f7bebd74358471a37e9f2d0df7ef4c0b847ab78483e48838e8fce"
+    },
+    {
+      "bytes": 3623,
+      "path": "src/threshold_keygen.rs",
+      "sha256": "07f88a03f70c36f2053ee583dee0d3774e176962e2b50fd272e52eccf47fc51c"
+    },
+    {
+      "bytes": 4287,
+      "path": "src/util.rs",
+      "sha256": "edfd2d81c9e02bacf19a4d3b9e2b3b413f159e150c0c0355cd620d005a067734"
+    },
+    {
+      "bytes": 10507,
+      "path": "tests/artifact_contract.rs",
+      "sha256": "f9ed49b79b103ca628bee35665230e726c47549d6847eb0c57c23bb6b221d2c7"
+    },
+    {
+      "bytes": 4177,
+      "path": "tests/cli_contract.rs",
+      "sha256": "bc019ee441bbec0ff78a80cf95249e368e6bcb35de0e395e24b7bde74e898af8"
+    },
+    {
+      "bytes": 6667,
+      "path": "tests/cli_contract_legacy_disabled.rs",
+      "sha256": "3518c7bad1857c7813c77878c950996cf79fd9aead4ba4176a4ec0c77e09ffe9"
+    },
+    {
+      "bytes": 4316,
+      "path": "tests/committee8_keygen_state_contract.rs",
+      "sha256": "bc5e2c15cee3d97b65ebb134890d5ca05feb30934877285c6ffe199f7465aea0"
+    },
+    {
+      "bytes": 1602,
+      "path": "tests/committee8_state_contract.rs",
+      "sha256": "d4a5c1a656f6da388fc1fb7afa71c496a1f6ed2fb3cd5578b7110452b7111e1b"
+    },
+    {
+      "bytes": 6445,
+      "path": "tests/internal_campaign_cli_contract.rs",
+      "sha256": "86b74eb68038f506a841dec4a8b9535bcaff79fd81446d78c729f71fb2ff2fd8"
+    }
+  ],
+  "schema": "lattice-threshold-backend-p1:backend-source-archive-manifest:v1",
+  "source_root": "/Users/rickglenn/Documents/lattice-threshold-backend-p1"
+}

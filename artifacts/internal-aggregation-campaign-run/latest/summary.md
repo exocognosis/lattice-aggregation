@@ -4,7 +4,7 @@
 - Official capture written: `false`
 - Official validation written: `false`
 - Command origin: `outside_repo_executable_or_script`
-- Capture SHA-256: `18d00c64b31dff6cbd531666408c04ce026c298d42e58a8c90d506133777da04`
+- Capture SHA-256: `66d5d0a255cddc4afec096a0c54b2c7f6cee12f551938e562d3854b25a54cde9`
 - Validation status: `blocked_fail_closed`
 - Validated executions: `24`
 

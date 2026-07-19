@@ -3,7 +3,7 @@
 - Bundle status: `blocked_incomplete`
 - Internal closure candidate: `false`
 - Claim boundary: `internal theorem-closure candidate only; pending independent cryptographic review`
-- Bundle digest SHA-256: `c9e323577d1a34a433d9d0c3dc6b0b7a844de0cd4749d910e944f17e07867bb5`
+- Bundle digest SHA-256: `71f46660951d60f72ee9eeb87960f91312a09910589974108de9a24a81c67aaa`
 
 ## Criteria
 

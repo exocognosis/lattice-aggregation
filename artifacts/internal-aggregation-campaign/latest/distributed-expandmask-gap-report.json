@@ -1,0 +1,36 @@
+{
+  "blocking_core_flags": [
+    "exact_distributed_expand_mask",
+    "exact_expand_mask_mpc"
+  ],
+  "campaign_id": "theorem-closure-internal-001",
+  "claims_theorem_closure": false,
+  "implemented_evidence": {
+    "commit_before_reveal_nonce_coordination_available_in_main_repo": true,
+    "fips204_rejection_predicates_recorded": true,
+    "partial_z_i_aggregation_emits_standard_wire_signature": true,
+    "retry_cases_observed": true,
+    "strict_signing_path_uses_fips204_expandmask_distribution": true
+  },
+  "not_yet_production_evidence": {
+    "accepted_mask_distribution_proof_reviewed": false,
+    "expandmask_computed_by_distributed_mpc": false,
+    "no_party_knows_joint_mask_y": false,
+    "selective_abort_bias_bound_reviewed": false,
+    "threshold_prf_or_hsm_nonce_attestation_present": false
+  },
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+  "required_to_close": [
+    "replace local ExpandMask evaluation in the strict signing path with a threshold PRF/MPC/HSM-backed ExpandMask emitter",
+    "emit per-attempt commit-before-reveal transcript records for the MPC/PRF participants",
+    "prove the aggregate mask is byte/distribution equivalent to FIPS 204 ExpandMask at ML-DSA-65 parameters",
+    "bind abort and retry events to accountability evidence and reviewed bias bounds",
+    "feed the resulting y_i shares into the same partial z_i aggregation and standard verifier checks"
+  ],
+  "schema": "lattice-threshold-backend-p1:distributed-expandmask-gap-report:v1",
+  "target_profile": {
+    "parameter_set": "ML-DSA-65",
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}
