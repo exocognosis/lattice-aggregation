@@ -48,14 +48,26 @@ class InternalAggregationCampaignRequestTests(unittest.TestCase):
             },
         )
         requirements = request["capture_requirements"]
-        self.assertTrue(requirements["exact_distributed_keygen"])
-        self.assertTrue(requirements["per_receiver_private_share_custody"])
+        evidence = requirements["dkg_custody_capability_evidence"]
+        self.assertEqual(
+            evidence["schema"],
+            "lattice-threshold-backend-p1:dkg-custody-capability-evidence:v1",
+        )
+        self.assertTrue(evidence["claim_values_must_be_digest_bound"])
+        self.assertIn("exact_distributed_keygen", evidence["capability_fields"])
+        self.assertIn(
+            "per_receiver_private_share_custody", evidence["capability_fields"]
+        )
         self.assertTrue(requirements["exact_expand_mask_mpc"])
         self.assertTrue(requirements["committee_authorization_bound"])
         self.assertEqual(requirements["authorization_layer_validator_count"], 10000)
         self.assertEqual(requirements["authorization_layer_threshold"], 6667)
         self.assertIn("backend_test_results", requirements["required_evidence_file_roles"])
         self.assertIn("proof_artifact_bundle", requirements["required_evidence_file_roles"])
+        self.assertIn(
+            "dkg_custody_capability_evidence",
+            requirements["required_evidence_file_roles"],
+        )
         self.assertIn("authorization_certificate", requirements["required_evidence_file_roles"])
         self.assertTrue(all(flag is False for flag in request["claim_flags"].values()))
 

@@ -14,6 +14,6 @@
   "case_count": 24,
   "claim_boundary": "internal aggregation evidence; theorem unclosed pending proof review",
   "request_schema": "lattice-aggregation:internal-aggregation-campaign-request:v1",
-  "request_sha256": "ca1679db8d0bd8451dd0a3d8f7a8a6a8b163aa20bd0e994719532a76a9393e88",
+  "request_sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
   "schema_version": 1
 }

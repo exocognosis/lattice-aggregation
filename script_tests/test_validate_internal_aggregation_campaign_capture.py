@@ -22,15 +22,100 @@ def digest(value):
     return hashlib.sha256(value).hexdigest()
 
 
+def canonical_json(value):
+    return json.dumps(value, indent=2, sort_keys=True) + "\n"
+
+
+CAPABILITY_FIELDS = [
+    "distributed_dkg_vss",
+    "fips204_exact_distributed_key_generation",
+    "exact_distributed_keygen",
+    "private_per_receiver_share_custody",
+    "per_receiver_private_share_custody",
+]
+
+
+def capability_evidence_fixture(root):
+    source_records = []
+    source_root = root / "evidence" / "capability-sources"
+    for role in (
+        "distributed_dkg_vss_source",
+        "fips_public_key_source",
+        "share_transport_source",
+        "receiver_custody_source",
+        "strict_fips_sign_source",
+        "campaign_emitter_source",
+    ):
+        source_path = source_root / f"{role}.rs"
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_bytes = f"contract capability source fixture:{role}\n".encode()
+        source_path.write_bytes(source_bytes)
+        source_records.append(
+            {
+                "role": role,
+                "path": str(source_path),
+                "sha256": digest(source_bytes),
+            }
+        )
+
+    statuses = {}
+    for field in CAPABILITY_FIELDS:
+        status = {
+            "field": field,
+            "claim_value": False,
+            "status": "contract_fixture_counterevidence",
+            "source_roles": [source_records[0]["role"], source_records[-1]["role"]],
+            "source_digests": [source_records[0], source_records[-1]],
+            "positive_evidence": ["fixture source digest is present"],
+            "counter_evidence": ["fixture keeps unsupported DKG/custody claim false"],
+            "claim_boundary": "digest-bound primitive evidence only; unsupported campaign capability booleans remain false",
+        }
+        status["evidence_digest_hex"] = digest(canonical_json(status).encode())
+        statuses[field] = status
+
+    aggregate_input = {
+        "schema": "lattice-threshold-backend-p1:dkg-custody-capability-evidence:v1",
+        "source_digests": source_records,
+        "capability_statuses": statuses,
+    }
+    aggregate_digest = digest(canonical_json(aggregate_input).encode())
+    return {
+        "schema": "lattice-threshold-backend-p1:dkg-custody-capability-evidence:v1",
+        "capability_fields": CAPABILITY_FIELDS,
+        "source_digests": source_records,
+        "capability_statuses": statuses,
+        "aggregate_evidence_digest_hex": aggregate_digest,
+        "claim_boundary": {
+            "claims_theorem_closure": False,
+            "claims_production_threshold_mldsa_security": False,
+        },
+    }
+
+
 def evidence_bundle(root, roles):
     records = []
     for role in roles:
         path = pathlib.Path("evidence") / f"{role}.bin"
-        content = f"contract-test:{role}\n".encode()
         full_path = root / path
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        full_path.write_bytes(content)
-        records.append({"role": role, "path": path.as_posix(), "sha256": digest(content)})
+        if role == "dkg_custody_capability_evidence":
+            path = pathlib.Path("evidence") / "dkg-custody-capability-evidence.json"
+            full_path = root / path
+            evidence = capability_evidence_fixture(root)
+            content = canonical_json(evidence).encode()
+            full_path.write_bytes(content)
+            records.append(
+                {
+                    "role": role,
+                    "path": path.as_posix(),
+                    "sha256": digest(content),
+                    "aggregate_evidence_digest_hex": evidence["aggregate_evidence_digest_hex"],
+                }
+            )
+        else:
+            content = f"contract-test:{role}\n".encode()
+            full_path.write_bytes(content)
+            records.append({"role": role, "path": path.as_posix(), "sha256": digest(content)})
     return records
 
 
@@ -133,11 +218,11 @@ def capture_for(request, records):
     core = {
         "core_mode": "distributed_threshold_mldsa65_partial_aggregation",
         "signature_origin": "threshold_partial_aggregation",
-        "distributed_dkg_vss": True,
-        "fips204_exact_distributed_key_generation": True,
-        "exact_distributed_keygen": True,
-        "private_per_receiver_share_custody": True,
-        "per_receiver_private_share_custody": True,
+        "distributed_dkg_vss": False,
+        "fips204_exact_distributed_key_generation": False,
+        "exact_distributed_keygen": False,
+        "private_per_receiver_share_custody": False,
+        "per_receiver_private_share_custody": False,
         "live_distributed_nonce_generation": True,
         "exact_distributed_expand_mask": True,
         "exact_expand_mask_mpc": True,
@@ -154,6 +239,15 @@ def capture_for(request, records):
         "single_key_provider_used": False,
         "secret_or_seed_reconstruction_used": False,
         "centralized_signing_oracle_used": False,
+        "digest_bound_capability_evidence": {
+            "schema": "lattice-threshold-backend-p1:dkg-custody-capability-evidence-binding:v1",
+            "evidence_file_role": "dkg_custody_capability_evidence",
+            "evidence_file_digest_hex": by_role["dkg_custody_capability_evidence"]["sha256"],
+            "aggregate_evidence_digest_hex": by_role["dkg_custody_capability_evidence"][
+                "aggregate_evidence_digest_hex"
+            ],
+            "capability_fields": CAPABILITY_FIELDS,
+        },
     }
     executions = []
     for case in request["cases"]:

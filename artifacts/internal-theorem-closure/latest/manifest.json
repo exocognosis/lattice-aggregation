@@ -62,6 +62,7 @@
       "bundle does not contain five passing content-addressed criterion records",
       "bundle provenance is dirty, unpinned, or unavailable",
       "bundle does not bind the exact validated campaign manifest",
+      "bundle source/artifact inventories are empty or lack tree digests",
       "bundle provenance does not match the current clean Git commit and worktree"
     ],
     "partial_contribution_soundness": [
@@ -170,6 +171,7 @@
     "bundle does not contain five passing content-addressed criterion records",
     "bundle provenance is dirty, unpinned, or unavailable",
     "bundle does not bind the exact validated campaign manifest",
+    "bundle source/artifact inventories are empty or lack tree digests",
     "bundle provenance does not match the current clean Git commit and worktree"
   ],
   "checks": {
@@ -202,7 +204,7 @@
       "public_claims_preserved_false": true,
       "review_semantics_valid": false,
       "schema_valid": true,
-      "source_and_artifact_inventories_bound": true
+      "source_and_artifact_inventories_bound": false
     },
     "criteria": {
       "abort_retry_bias": {
@@ -338,12 +340,12 @@
     "campaign_request": {
       "path": "artifacts/internal-aggregation-campaign/latest/request.json",
       "present": true,
-      "sha256": "9362d6f7b26eb63273eb782b05940968cb83366e9474d76294f3cbc0d90a2d2f"
+      "sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49"
     },
     "campaign_validation": {
       "path": "artifacts/internal-aggregation-campaign/latest/manifest.json",
       "present": true,
-      "sha256": "7d8a9d358cb46adaa9810d4851d88bbbc39f50ae4bac435d365110b571a318f2"
+      "sha256": "55dc545b25228a1c23b0f0536e420c25b4f615429c55b8fa0c2c3c73605e635e"
     },
     "closure_bundle": {
       "path": "artifacts/internal-theorem-closure-bundle/latest/manifest.json",
