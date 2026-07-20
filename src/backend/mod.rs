@@ -20,11 +20,15 @@ pub mod algebraic_partial;
 #[cfg(feature = "raw-real-mldsa")]
 pub mod custody;
 #[cfg(feature = "raw-real-mldsa")]
+pub mod dkg_mpc_binding;
+#[cfg(feature = "raw-real-mldsa")]
 pub mod fips_sign;
 #[cfg(feature = "raw-real-mldsa")]
 pub mod fips_wire;
 #[cfg(feature = "raw-real-mldsa")]
 pub mod module_partial;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod mpc_import;
 #[cfg(feature = "raw-real-mldsa")]
 pub mod real;
 #[cfg(feature = "raw-real-mldsa")]
@@ -40,6 +44,12 @@ pub use custody::{
     end_to_end_linkage_digest, signing_set_identity_digest, AbortRecord, EndToEndLinkageInputs,
     LedgerError, MaskConsumptionLedger, MaskLedgerState, NonExportableModuleShare,
     NonExportablePolyArrayShare, ShareProvenance, SignerCustodyHandle65,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use dkg_mpc_binding::{
+    designated_checker_rhopp, dkg_mpc_input_binding_digest, kshare_set_commitments,
+    mpc_input_assignment, rhopp_commitment, share_commitment, DkgMpcInputBinding, XorShareSet32,
+    MU_BYTES as DKG_MPC_MU_BYTES, XOR_SHARE_BYTES,
 };
 #[cfg(feature = "raw-real-mldsa")]
 pub use fips_sign::{
@@ -65,6 +75,11 @@ pub use module_partial::{
     aggregate_module_partials, compute_z, emit_module_partial_zi, expand_s1_research,
     expand_y_research, module_partial_round_trip, sample_in_ball, split_module_vector_shamir,
     ModuleAggregateZ, ModulePartialZi, ModuleVecL, BETA, GAMMA1, L as MODULE_L, TAU, Z_BOUND,
+};
+#[cfg(feature = "raw-real-mldsa")]
+pub use mpc_import::{
+    fips_expandmask_oracle, import_expandmask_attempt, read_binary_output_share,
+    BINARY_OUTPUT_BYTE_LEN, BINARY_OUTPUT_COEFF_COUNT,
 };
 #[cfg(feature = "raw-real-mldsa")]
 pub use real::{
