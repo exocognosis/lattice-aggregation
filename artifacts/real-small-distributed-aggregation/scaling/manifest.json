@@ -1,0 +1,147 @@
+{
+  "description": "Real measured scaling curve of the distributed ML-DSA-65 aggregation (mama-party.x, malicious dishonest-majority, security_parameter=40). One MPC run per N (kappa=0 accepted on the first attempt). Numbers are from real ps sampling and real manifest/party-log parsing; failures are real.",
+  "extrapolation_to_target": {
+    "global_data_mb": {
+      "coefficient": 477.641261,
+      "exponent": 2.946,
+      "n_points": 2,
+      "predicted_at_target": 87762978821253.38
+    },
+    "mpc_compute_seconds": {
+      "coefficient": 11.735599,
+      "exponent": 1.872,
+      "n_points": 2,
+      "predicted_at_target": 169283264.012176
+    },
+    "peak_rss_sum_mb": {
+      "coefficient": 154.723143,
+      "exponent": 2.241,
+      "n_points": 2,
+      "predicted_at_target": 57159358942.755775
+    },
+    "target_n": 6667
+  },
+  "generated_at": "2026-07-20T20:16:48Z",
+  "honesty_boundary": "small-scale real distributed masks over a trusted-setup dealt-then-shared threshold key; NOT dealerless, NOT no-single-secret, NOT production, NOT the 6,667-signer scale. Extrapolations are power-law fits over the measured points and are labelled as extrapolation, not measurement.",
+  "machine": {
+    "cpus": 8,
+    "mp_spdz_commit": "6a2256e327b507918859f605735543bb32a39d9d",
+    "os": "macOS (Darwin 25.5.0)",
+    "ram_gib": 16,
+    "runtime_binary": "mama-party.x",
+    "runtime_profile": "mama_multiple_mac_malicious_dishonest_majority",
+    "security_parameter": 40,
+    "swap_total_mb_at_start": 5120.0,
+    "swap_used_mb_at_start": 3922.81
+  },
+  "rows": [
+    {
+      "N": 4,
+      "exit_code": 0,
+      "global_data_mb": 28353.0,
+      "manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling-n4/manifest.json",
+      "mpc_compute_seconds": 157.28,
+      "orchestrator_log": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling/orchestrator-n4.log",
+      "peak_party_process_count": 5,
+      "peak_rss_sum_mb": 3455.2,
+      "per_party_data_mb": 7088.26,
+      "per_party_data_mb_all": [
+        7088.51,
+        7088.18,
+        7088.18,
+        7088.18
+      ],
+      "port": 15540,
+      "signature_len": 3309,
+      "signature_sha256": "e1476ef905a9d9a5082c76bdb1ff485774e0a7cefb235b30e08362ce2f248ad8",
+      "standard_verifier_accepted": true,
+      "status": "ok",
+      "swap_used_mb_end": 6488.44,
+      "swap_used_mb_peak": 6488.4,
+      "swap_used_mb_start": 3922.81,
+      "wall_seconds": 253.73
+    },
+    {
+      "N": 5,
+      "exit_code": 0,
+      "global_data_mb": 54710.2,
+      "manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling-n5/manifest.json",
+      "mpc_compute_seconds": 238.84,
+      "orchestrator_log": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling/orchestrator-n5.log",
+      "peak_party_process_count": 5,
+      "peak_rss_sum_mb": 5696.4,
+      "per_party_data_mb": 10942.02,
+      "per_party_data_mb_all": [
+        10942.5,
+        10941.9,
+        10941.9,
+        10941.9,
+        10941.9
+      ],
+      "port": 15550,
+      "signature_len": 3309,
+      "signature_sha256": "e1476ef905a9d9a5082c76bdb1ff485774e0a7cefb235b30e08362ce2f248ad8",
+      "standard_verifier_accepted": true,
+      "status": "ok",
+      "swap_used_mb_end": 8618.19,
+      "swap_used_mb_peak": 8674.2,
+      "swap_used_mb_start": 6488.44,
+      "wall_seconds": 308.88
+    },
+    {
+      "N": 6,
+      "exit_code": 2,
+      "exit_codes": [
+        -13,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "failure_log_tail": "[party-1 marker='network receive error']\nUsing statistical security parameter 40\nNo proper key material found in Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P1-6, generating from scratch (cannot read from Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P1-6)\nNo proper key material found in Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P1-6, generating from scratch (cannot read from Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P1-6)\nNo proper key material found in Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P1-6, generating from scratch (cannot read from Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P1-6)\nnetwork receive error: No buffer space available\n at  /Users/rickglenn/Documents/MP-SPDZ/deps/libOTe/cryptoTools/cryptoTools/Network/Channel.cpp:821\nFatal error in OT thread: Bad receive buffer size.\n  Size transmitted: 4159675647 bytes\n  Size of buffer:   4194304 bytes\n\n",
+      "failure_reason": "MPC run not clean at N=6: all-pairs OT traffic exhausted OS network buffers (ENOBUFS 'No buffer space available' -> OT-thread fatal buffer desync) under memory pressure (swap peaked 10.7 GB); exit codes [-13,1,1,1,1,1], no outputs, no completion. Real saturation, not a clean abort.",
+      "failure_root_cause": "macOS kernel socket-buffer exhaustion (ENOBUFS): every OT thread died with 'network receive error: No buffer space available' / 'Bad receive buffer size' (desynced length prefixes up to ~4.16 GB vs 4 MB buffers); party 0 then took SIGPIPE (-13) writing to the dead peers. all_outputs_present=False, completion marker absent -> no signature produced.",
+      "global_data_mb": null,
+      "manifest_path": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling-n6/manifest.json",
+      "mpc_compute_seconds": 118.73,
+      "orchestrator_log": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling/orchestrator-n6.log",
+      "peak_party_process_count": 6,
+      "peak_rss_sum_mb": 5533.4,
+      "per_party_data_mb": null,
+      "per_party_data_mb_all": [],
+      "port": 15560,
+      "signature_len": null,
+      "signature_sha256": null,
+      "standard_verifier_accepted": false,
+      "status": "failed",
+      "swap_used_mb_end": 10807.0,
+      "swap_used_mb_peak": 10705.9,
+      "swap_used_mb_start": 8618.19,
+      "wall_seconds": 159.66
+    }
+  ],
+  "schema": "lattice-aggregation:real-small-distributed-aggregation:scaling:v1",
+  "sweep": {
+    "n_list_requested": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "n_measured": [
+      4,
+      5,
+      6
+    ],
+    "reference_n3": {
+      "global_data_mb": 12067.1,
+      "mpc_compute_seconds": 79.37,
+      "note": "prior reference run (not part of this sweep)",
+      "per_party_data_mb": 4022.4,
+      "wall_seconds": 86.02
+    },
+    "stopped_early_at_N": 6
+  }
+}

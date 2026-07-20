@@ -1,0 +1,55 @@
+
+===== N=4 | port=15540 | out=scaling-n4 =====
+  cmd: /usr/local/bin/python3 /Users/rickglenn/Documents/Lattice Aggregation/scripts/run_small_distributed_aggregation.py --root /Users/rickglenn/Documents/Lattice Aggregation --mp-spdz-root /Users/rickglenn/Documents/MP-SPDZ --runtime-binary mama-party.x --threshold 4 --validators 0,1,2,3 --message scaling curve real distributed aggregation --min-accepted-kappa 0 --max-accepted-kappa 0 --seed-pool 200 --out-name scaling-n4 --port 15540 --security-parameter 40 --compile-timeout-seconds 3600 --run-timeout-seconds 3600 --cargo-timeout-seconds 1800
+  per-N wall timeout: 9000s | rss-guard: 15000.0 MB
+  [N=4] t=20s parties=0 rss_sum=0MB peak=0MB swap_used=3922.81MB
+  [N=4] t=41s parties=0 rss_sum=0MB peak=0MB swap_used=3922.81MB
+  [N=4] t=63s parties=0 rss_sum=0MB peak=0MB swap_used=4748.38MB
+  [N=4] t=85s parties=1 rss_sum=2MB peak=2MB swap_used=4748.38MB
+  [N=4] t=107s parties=5 rss_sum=1135MB peak=1135MB swap_used=4740.38MB
+  [N=4] t=128s parties=5 rss_sum=1935MB peak=2601MB swap_used=4740.38MB
+  [N=4] t=150s parties=5 rss_sum=3284MB peak=3455MB swap_used=6309.12MB
+  [N=4] t=170s parties=5 rss_sum=2719MB peak=3455MB swap_used=6374.56MB
+  [N=4] t=192s parties=5 rss_sum=2795MB peak=3455MB swap_used=6374.56MB
+  [N=4] t=214s parties=4 rss_sum=2745MB peak=3455MB swap_used=6374.56MB
+  [N=4] t=235s parties=4 rss_sum=939MB peak=3455MB swap_used=6366.56MB
+  [N=4] DONE status=ok wall=253.73s mpc=157.28s global=28353.0MB peak_rss=3455.2MB accepted=True
+
+===== N=5 | port=15550 | out=scaling-n5 =====
+  cmd: /usr/local/bin/python3 /Users/rickglenn/Documents/Lattice Aggregation/scripts/run_small_distributed_aggregation.py --root /Users/rickglenn/Documents/Lattice Aggregation --mp-spdz-root /Users/rickglenn/Documents/MP-SPDZ --runtime-binary mama-party.x --threshold 5 --validators 0,1,2,3,4 --message scaling curve real distributed aggregation --min-accepted-kappa 0 --max-accepted-kappa 0 --seed-pool 200 --out-name scaling-n5 --port 15550 --security-parameter 40 --compile-timeout-seconds 3600 --run-timeout-seconds 3600 --cargo-timeout-seconds 1800
+  per-N wall timeout: 9000s | rss-guard: 15000.0 MB
+  [N=5] t=20s parties=0 rss_sum=0MB peak=0MB swap_used=6472.44MB
+  [N=5] t=41s parties=0 rss_sum=0MB peak=0MB swap_used=6472.44MB
+  [N=5] t=62s parties=5 rss_sum=257MB peak=257MB swap_used=6472.44MB
+  [N=5] t=82s parties=5 rss_sum=2511MB peak=2511MB swap_used=6472.44MB
+  [N=5] t=105s parties=5 rss_sum=2369MB peak=2901MB swap_used=6472.44MB
+  [N=5] t=125s parties=5 rss_sum=2348MB peak=2901MB swap_used=6472.44MB
+  [N=5] t=147s parties=5 rss_sum=2380MB peak=2901MB swap_used=6687.56MB
+  [N=5] t=169s parties=5 rss_sum=2436MB peak=2901MB swap_used=6687.56MB
+  [N=5] t=191s parties=5 rss_sum=2161MB peak=4922MB swap_used=8674.19MB
+  [N=5] t=212s parties=5 rss_sum=3525MB peak=5574MB swap_used=8674.19MB
+  [N=5] t=233s parties=5 rss_sum=5333MB peak=5696MB swap_used=8674.19MB
+  [N=5] t=254s parties=5 rss_sum=5584MB peak=5696MB swap_used=8674.19MB
+  [N=5] t=275s parties=5 rss_sum=5445MB peak=5696MB swap_used=8658.19MB
+  [N=5] t=296s parties=5 rss_sum=3010MB peak=5696MB swap_used=8642.19MB
+  [N=5] DONE status=ok wall=308.88s mpc=238.84s global=54710.2MB peak_rss=5696.4MB accepted=True
+
+===== N=6 | port=15560 | out=scaling-n6 =====
+  cmd: /usr/local/bin/python3 /Users/rickglenn/Documents/Lattice Aggregation/scripts/run_small_distributed_aggregation.py --root /Users/rickglenn/Documents/Lattice Aggregation --mp-spdz-root /Users/rickglenn/Documents/MP-SPDZ --runtime-binary mama-party.x --threshold 6 --validators 0,1,2,3,4,5 --message scaling curve real distributed aggregation --min-accepted-kappa 0 --max-accepted-kappa 0 --seed-pool 200 --out-name scaling-n6 --port 15560 --security-parameter 40 --compile-timeout-seconds 3600 --run-timeout-seconds 3600 --cargo-timeout-seconds 1800
+  per-N wall timeout: 9000s | rss-guard: 15000.0 MB
+  [N=6] t=20s parties=0 rss_sum=0MB peak=0MB swap_used=8602.19MB
+  [N=6] t=40s parties=6 rss_sum=73MB peak=73MB swap_used=8586.19MB
+  [N=6] t=62s parties=6 rss_sum=5533MB peak=5533MB swap_used=8538.19MB
+  [N=6] t=84s parties=6 rss_sum=5413MB peak=5533MB swap_used=8530.19MB
+  [N=6] t=105s parties=6 rss_sum=4670MB peak=5533MB swap_used=8522.19MB
+  [N=6] t=126s parties=6 rss_sum=4923MB peak=5533MB swap_used=8522.19MB
+  [N=6] t=147s parties=6 rss_sum=4407MB peak=5533MB swap_used=8514.19MB
+  [N=6] DONE status=failed wall=159.66s mpc=118.73s global=NoneMB peak_rss=5533.4MB accepted=False
+  [N=6] FAILURE: orchestrator exit 2; manifest failure=one or more MPC runs were not clean
+
+*** STOPPING EARLY at N=6 (first hard failure): orchestrator exit 2; manifest failure=one or more MPC runs were not clean ***
+
+==== SCALING SWEEP COMPLETE ====
+measured N: [4, 5, 6]
+stopped_early_at_N: 6
+outputs: /Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling/manifest.json , /Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling/summary.md

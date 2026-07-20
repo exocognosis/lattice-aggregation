@@ -1,0 +1,21 @@
+[emit-inputs] seed=00000000 local_rejected=1 local_accepted_kappa_base=5
+[emit-inputs] seed=00000000 local_rejected=5 local_accepted_kappa_base=25
+[emit-inputs] seed=00000000 local_rejected=4 local_accepted_kappa_base=20
+[emit-inputs] seed=00000000 local_rejected=2 local_accepted_kappa_base=10
+[emit-inputs] seed=00000000 local_rejected=5 local_accepted_kappa_base=25
+[emit-inputs] seed=00000000 local_rejected=0 local_accepted_kappa_base=0
+[plan] chosen_seed=00000000 accepted_kappa=0 kappa_list=[0]
+[compile] kappa=0 program=mldsa65_expandmask-6-0-5-256 compiled=True duration_s=38.3
+[mpc-run] kappa=0 exit_codes=[-13, 1, 1, 1, 1, 1] timed_out=False all_outputs_present=False logs_clean=True completion_seen=False reconstruct_ok=None duration_s=118.7
+[malicious-verified] value=False basis=all party logs clean, exits 0, outputs present, no abort/MAC
+
+==== SUMMARY ====
+real_distributed_mpc_masks   = False
+malicious_verified           = False
+accepted_kappa               = None
+standard_verifier_accepted   = False
+signature_sha256             = None
+no_single_secret_signing_path= False
+wall_time_seconds            = 159.34
+manifest                     = /Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling-n6/manifest.json
+FAILURE                      = one or more MPC runs were not clean

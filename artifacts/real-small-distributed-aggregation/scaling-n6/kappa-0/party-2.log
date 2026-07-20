@@ -1,0 +1,10 @@
+Using statistical security parameter 40
+No proper key material found in Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P2-6, generating from scratch (cannot read from Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P2-6)
+No proper key material found in Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P2-6, generating from scratch (cannot read from Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P2-6)
+No proper key material found in Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P2-6, generating from scratch (cannot read from Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P2-6)
+network receive error: No buffer space available
+ at  /Users/rickglenn/Documents/MP-SPDZ/deps/libOTe/cryptoTools/cryptoTools/Network/Channel.cpp:821
+Fatal error in OT thread: Bad receive buffer size.
+  Size transmitted: 2646265126 bytes
+  Size of buffer:   2415616 bytes
+
