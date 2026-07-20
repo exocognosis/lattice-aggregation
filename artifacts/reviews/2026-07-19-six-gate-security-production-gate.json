@@ -1,0 +1,297 @@
+{
+  "schema": "lattice-aggregation:six-gate-security-production-review:v1",
+  "review_date": "2026-07-19",
+  "review_kind": "internal_independent_agent_review_not_external",
+  "review_update": "additive_lagrange_equation_resolved_in_source_mask_privacy_still_blocked",
+  "review_update_2026_07_19": "custody_consumption_seam_linkage_digest_and_single_use_mask_ledger_reviewed_no_gate_promoted_all_six_gates_blocked",
+  "reviewed_source_digests": {
+    "custody_module_source_sha256": "2682d2b496c66fc0bc01d03b49552425c337a39010aeb09517b3ca8e8dc33835",
+    "fips_sign_source_sha256": "51c04f87a6ab3c25510bd59c42e8b3b4e41b424777914dac3a3d3a4bfffb4878",
+    "digest_note": "custody and fips_sign source digests recomputed this pass; other evidence digests referenced by findings were not re-verified in this pass"
+  },
+  "new_blockers_2026_07_19": [
+    "module_dkg_defers_byte_exact_fips204_expand_a_while_wire_path_is_byte_exact_so_wire_verifiable_key_shares_cannot_be_sourced_from_module_dkg",
+    "coordinator_rhopp_is_a_test_harness_artifact_production_requires_rhopp_jointly_derived_inside_exact_expandmask_mpc_and_never_learned_by_any_coordinator"
+  ],
+  "overall_status": "blocked_fail_closed",
+  "theorem_status": "unclosed",
+  "production_status": "not_ready",
+  "independent_external_review_status": "not_completed",
+  "claim_flags": {
+    "claims_all_six_gates_closed": false,
+    "claims_exact_expandmask_composed_with_partial_signing": false,
+    "claims_no_single_holder_dkg": false,
+    "claims_production_private_share_custody": false,
+    "claims_6667_distinct_custodial_mama_execution": false,
+    "claims_real_6667_of_10000_mldsa_campaign": false,
+    "claims_independent_external_review": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "reviewed_code_status": {
+    "additive_mask_secret_term_lagrange_weighting_correct": true,
+    "additive_partial_aggregation_is_plain_sum": true,
+    "former_sec_002_equation_defect_resolved": true,
+    "custody_consumption_seam_present": true,
+    "custody_held_shares_consumed_via_nonexportable_handles": true,
+    "coordinator_holds_no_plaintext_secret_share_vector": true,
+    "shares_dealt_once_via_genuine_shamir": true,
+    "end_to_end_linkage_digest_present": true,
+    "single_use_mask_ledger_present": true,
+    "standard_wire_signature_from_custody_seam": true,
+    "real_private_mpc_outputs_ingested": false,
+    "coordinator_joint_mask_reconstruction_absent": false,
+    "no_single_secret_signing_path": false,
+    "custody_share_provenance_external_attested": false,
+    "module_dkg_to_wire_expand_a_reconciled": false,
+    "coordinator_rhopp_is_secret_mpc_internal_value": false,
+    "production_gate_promoted": false
+  },
+  "gate_decisions": [
+    {
+      "gate_id": "G1",
+      "name": "additive_expandmask_into_lagrange_weighted_partial_signing",
+      "status": "blocked",
+      "progress": "source_equation_weights_only_s1_i_and_plain_sums_z_i_with_standard_wire_focused_test",
+      "blockers": [
+        "current_api_collects_all_signer_private_mask_shares_in_one_process",
+        "current_signer_explicitly_reconstructs_full_y_for_direct_check",
+        "focused_test_synthesizes_all_additive_shares_locally_instead_of_importing_real_private_mpc_outputs",
+        "malicious_mpc_and_equivalence_statuses_are_caller_supplied_booleans",
+        "no_authenticated_one_private_output_per_signer_campaign_evidence"
+      ]
+    },
+    {
+      "gate_id": "G2",
+      "name": "distributed_k_shares_bound_to_no_dealer_dkg",
+      "status": "blocked",
+      "progress": "bounded_multi_dealer_dkg_vss_capture_exists",
+      "blockers": [
+        "strict_signer_starts_from_one_local_fips_seed",
+        "distributed_k_is_not_produced_or_consumed",
+        "dkg_finalizer_can_observe_all_clear_shares",
+        "last_mover_abort_bias_and_production_attribution_are_open"
+      ]
+    },
+    {
+      "gate_id": "G3",
+      "name": "production_private_share_custody",
+      "status": "blocked",
+      "progress": "in_process_authenticated_ciphertext_and_receiver_vault_seam_exists",
+      "blockers": [
+        "dealer_observes_clear_shares_before_sealing",
+        "no_process_or_hsm_isolation_attestation",
+        "signer_does_not_consume_vault_held_shares",
+        "nonce_uniqueness_is_caller_managed",
+        "replay_state_is_not_persistent",
+        "transport_key_provisioning_and_forward_secrecy_are_absent"
+      ]
+    },
+    {
+      "gate_id": "G4",
+      "name": "malicious_mama_with_6667_distinct_custodial_signers",
+      "status": "blocked",
+      "progress": "two_party_full_dimension_mama_s40_equivalence_passed",
+      "blockers": [
+        "runner_spawns_local_processes_only",
+        "no_distinct_custodian_identity_or_attestation",
+        "no_authenticated_encrypted_production_network_configuration",
+        "no_6667_party_capacity_or_staged_scale_evidence",
+        "security_with_abort_does_not_supply_availability_or_selective_abort_closure"
+      ]
+    },
+    {
+      "gate_id": "G5",
+      "name": "real_6667_of_10000_mldsa_aggregation_campaign",
+      "status": "blocked",
+      "progress": "in_process_threshold_shaped_transcripts_and_standard_verifier_compatible_signatures_exist",
+      "blockers": [
+        "latest_campaign_manifest_reports_missing_capture_and_zero_validated_executions",
+        "mldsa_partials_are_generated_centrally_from_one_expanded_secret",
+        "ed25519_authorizers_are_deterministically_generated_in_one_process",
+        "negative_cases_are_declarative_records_not_malicious_protocol_executions",
+        "dkg_custody_and_mpc_outputs_are_not_consumed_by_the_campaign"
+      ]
+    },
+    {
+      "gate_id": "G6",
+      "name": "independent_equivalence_security_and_theorem_linkage_review",
+      "status": "blocked",
+      "progress": "internal_review_and_review_ready_metadata_exist",
+      "blockers": [
+        "no_external_named_reviewer_signature",
+        "no_digest_bound_external_equivalence_review",
+        "no_digest_bound_external_security_review",
+        "no_digest_bound_external_theorem_linkage_review",
+        "no_signed_finding_disposition_and_reproduction_record"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "SEC-001",
+      "severity": "critical",
+      "title": "campaign_no_reconstruction_assertions_contradict_executed_signer",
+      "affected_gates": ["G2", "G3", "G5", "G6"],
+      "evidence": [
+        "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs:210",
+        "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs:449",
+        "src/backend/fips_sign.rs:436",
+        "src/backend/fips_sign.rs:450",
+        "src/backend/fips_sign.rs:481",
+        "scripts/validate_internal_aggregation_campaign_capture.py:30"
+      ]
+    },
+    {
+      "finding_id": "SEC-002",
+      "severity": "resolved",
+      "status": "resolved_in_source_review_not_production_evidence",
+      "title": "additive_mask_partials_weight_only_s1_i_and_plain_sum_z_i",
+      "affected_gates": ["G1"],
+      "evidence": [
+        "src/backend/fips_sign.rs:1420",
+        "src/backend/fips_sign.rs:1431",
+        "src/backend/fips_sign.rs:1443",
+        "src/backend/fips_sign.rs:1459"
+      ],
+      "residual_boundary": [
+        "tests_inspected_not_executed",
+        "real_mpc_private_output_ingestion_not_established",
+        "no_coordinator_leakage_not_established"
+      ]
+    },
+    {
+      "finding_id": "SEC-011",
+      "severity": "critical",
+      "status": "open",
+      "title": "corrected_additive_seam_collects_and_reconstructs_all_private_mask_shares",
+      "affected_gates": ["G1", "G3", "G4", "G5", "G6"],
+      "evidence": [
+        "src/backend/fips_sign.rs:593",
+        "src/backend/fips_sign.rs:606",
+        "src/backend/fips_sign.rs:616",
+        "src/backend/fips_sign.rs:634",
+        "src/backend/fips_sign.rs:2067"
+      ]
+    },
+    {
+      "finding_id": "SEC-003",
+      "severity": "high",
+      "title": "dkg_and_custody_do_not_enforce_no_single_holder",
+      "affected_gates": ["G2", "G3", "G5"],
+      "evidence": [
+        "src/crypto/mldsa_dkg.rs:12",
+        "artifacts/p1-dkg-custody-capture/latest/capture.json",
+        "artifacts/internal-aggregation-campaign/latest/dkg-custody-gap-report.json"
+      ]
+    },
+    {
+      "finding_id": "SEC-004",
+      "severity": "high",
+      "title": "dkg_abort_bias_and_attribution_are_open",
+      "affected_gates": ["G2", "G5", "G6"],
+      "evidence": [
+        "src/crypto/mldsa_dkg.rs:53",
+        "src/crypto/mldsa_dkg.rs:56",
+        "src/crypto/mldsa_dkg.rs:62"
+      ]
+    },
+    {
+      "finding_id": "SEC-005",
+      "severity": "high",
+      "title": "syntactic_validator_uniqueness_does_not_prove_distinct_custodial_signers",
+      "affected_gates": ["G3", "G4", "G5"],
+      "evidence": [
+        "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs:571",
+        "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs:678",
+        "artifacts/internal-aggregation-campaign/latest/threshold-authorization-certificate.json"
+      ]
+    },
+    {
+      "finding_id": "SEC-006",
+      "severity": "high",
+      "title": "malicious_campaign_cases_are_declarative_not_executed",
+      "affected_gates": ["G4", "G5", "G6"],
+      "evidence": [
+        "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/internal_campaign.rs:487",
+        "artifacts/internal-aggregation-campaign/latest/transcript-bundle.json"
+      ]
+    },
+    {
+      "finding_id": "SEC-007",
+      "severity": "high",
+      "title": "mama_runner_and_network_model_do_not_support_6667_party_production_evidence",
+      "affected_gates": ["G4", "G5"],
+      "evidence": [
+        "scripts/run_exact_expandmask_mpc_equivalence.py:88",
+        "scripts/run_exact_expandmask_mpc_equivalence.py:111",
+        "scripts/run_exact_expandmask_mpc_equivalence.py:129",
+        "artifacts/exact-distributed-expandmask-mpc/mama-equivalence-latest/manifest.json"
+      ]
+    },
+    {
+      "finding_id": "SEC-008",
+      "severity": "high",
+      "title": "session_output_nonce_and_replay_bindings_are_incomplete",
+      "affected_gates": ["G1", "G2", "G3", "G4", "G5"],
+      "evidence": [
+        "mpc/Programs/Source/mldsa65_expandmask.mpc:220",
+        "src/crypto/share_transport.rs:31",
+        "src/crypto/share_transport.rs:146",
+        "src/crypto/receiver_custody.rs:27",
+        "src/crypto/receiver_custody.rs:349"
+      ]
+    },
+    {
+      "finding_id": "SEC-009",
+      "severity": "medium",
+      "title": "review_metadata_is_not_independently_verifiable_review_evidence",
+      "affected_gates": ["G6"],
+      "evidence": [
+        "artifacts/p1-dkg-custody-capture/latest/review.json"
+      ]
+    },
+    {
+      "finding_id": "SEC-010",
+      "severity": "medium",
+      "title": "test_scale_mp_spdz_dependency_is_not_production_reviewed",
+      "affected_gates": ["G4", "G6"],
+      "evidence": [
+        "docs/cryptography/exact-distributed-expandmask-mpc.md:57",
+        "artifacts/exact-distributed-expandmask-mpc/mama-equivalence-latest/manifest.json"
+      ]
+    }
+  ],
+  "network_assessment": {
+    "target_party_count": 6667,
+    "pairwise_connection_count": 22221111,
+    "one_tcp_port_per_party_required": true,
+    "dishonest_majority_default_transport_encrypted": false,
+    "current_runner_remote_host_inventory_present": false,
+    "current_runner_distinct_custodian_attestation_present": false,
+    "current_runner_authenticated_party_pki_present": false,
+    "current_runner_uses_local_plaintext_input_files": true,
+    "two_party_mama_s40_aggregate_data_sent_mb": 3268.97,
+    "production_capacity_model_present": false,
+    "production_scale_inference_permitted": false
+  },
+  "latest_campaign_assessment": {
+    "manifest_status": "blocked_fail_closed",
+    "capture_present_and_valid": false,
+    "validated_execution_count": 0,
+    "threshold_authorization_is_mldsa_partial_evidence": false,
+    "negative_cases_execute_real_malicious_protocol_actions": false
+  },
+  "required_closure_order": [
+    "correct_campaign_reconstruction_semantics",
+    "replace_all_shares_mask_api_with_one_private_share_per_signer_execution",
+    "bind_authenticated_real_mpc_outputs_to_the_corrected_additive_lagrange_equation",
+    "complete_no_single_holder_dkg_distributed_k_and_signer_consumed_custody",
+    "close_session_erasure_replay_and_abort_bias_semantics",
+    "establish_distinct_attested_custodial_identities_and_authenticated_network",
+    "pass_staged_mama_scale_and_capacity_gates",
+    "execute_real_6667_party_mldsa_campaign_with_protocol_level_malicious_cases",
+    "complete_signed_external_equivalence_security_and_theorem_linkage_reviews"
+  ],
+  "human_review_path": "docs/reviews/2026-07-19-six-gate-security-production-review.md"
+}

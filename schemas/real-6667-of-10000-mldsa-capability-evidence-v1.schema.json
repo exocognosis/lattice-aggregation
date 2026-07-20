@@ -1,0 +1,45 @@
+{
+  "$id": "https://lattice-aggregation.invalid/schemas/real-6667-of-10000-mldsa-capability-evidence-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "capability_id": {
+      "enum": [
+        "real_mldsa_partial_signing",
+        "no_secret_reconstruction",
+        "standards_verifier",
+        "negative_adversarial_checks"
+      ]
+    },
+    "evidence_class": { "const": "production_implementation_and_execution_evidence" },
+    "evidence_sha256": { "$ref": "#/$defs/nonzeroSha256" },
+    "implementation_sha256": { "$ref": "#/$defs/nonzeroSha256" },
+    "parameter_set": { "const": "ML-DSA-65" },
+    "production_profile": { "const": true },
+    "ready": { "const": true },
+    "schema": { "const": "lattice-aggregation:real-6667-of-10000-mldsa-capability-evidence:v1" },
+    "threshold": { "const": 6667 },
+    "validator_count": { "const": 10000 }
+  },
+  "required": [
+    "capability_id",
+    "evidence_class",
+    "evidence_sha256",
+    "implementation_sha256",
+    "parameter_set",
+    "production_profile",
+    "ready",
+    "schema",
+    "threshold",
+    "validator_count"
+  ],
+  "type": "object",
+  "$defs": {
+    "nonzeroSha256": {
+      "allOf": [
+        { "pattern": "^[0-9a-f]{64}$", "type": "string" },
+        { "not": { "const": "0000000000000000000000000000000000000000000000000000000000000000" } }
+      ]
+    }
+  }
+}

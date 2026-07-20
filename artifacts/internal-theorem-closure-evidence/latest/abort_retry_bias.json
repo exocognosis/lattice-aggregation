@@ -123,7 +123,7 @@
       "artifacts/internal-aggregation-campaign/latest/validation-SHA256SUMS",
       "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.pdf",
       "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.tex",
-      "rtifacts/internal-aggregation-campaign/latest/manifest.json"
+      "artifacts/internal-aggregation-campaign/latest/manifest.json"
     ],
     "git_commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "hazmat": false,

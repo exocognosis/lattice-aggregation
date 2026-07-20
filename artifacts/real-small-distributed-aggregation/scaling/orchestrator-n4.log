@@ -1,0 +1,21 @@
+[emit-inputs] seed=00000000 local_rejected=1 local_accepted_kappa_base=5
+[emit-inputs] seed=00000000 local_rejected=5 local_accepted_kappa_base=25
+[emit-inputs] seed=00000000 local_rejected=4 local_accepted_kappa_base=20
+[emit-inputs] seed=00000000 local_rejected=2 local_accepted_kappa_base=10
+[emit-inputs] seed=00000000 local_rejected=5 local_accepted_kappa_base=25
+[emit-inputs] seed=00000000 local_rejected=0 local_accepted_kappa_base=0
+[plan] chosen_seed=00000000 accepted_kappa=0 kappa_list=[0]
+[compile] kappa=0 program=mldsa65_expandmask-4-0-5-256 compiled=True duration_s=82.7
+[mpc-run] kappa=0 exit_codes=[0, 0, 0, 0] timed_out=False all_outputs_present=True logs_clean=True completion_seen=True reconstruct_ok=True duration_s=165.3
+[malicious-verified] value=True basis=all party logs clean, exits 0, outputs present, no abort/MAC
+[sign] exit_code=0 parsed=True result=accepted standard_verifier_accepted=True
+
+==== SUMMARY ====
+real_distributed_mpc_masks   = True
+malicious_verified           = True
+accepted_kappa               = 0
+standard_verifier_accepted   = True
+signature_sha256             = e1476ef905a9d9a5082c76bdb1ff485774e0a7cefb235b30e08362ce2f248ad8
+no_single_secret_signing_path= False
+wall_time_seconds            = 253.09
+manifest                     = /Users/rickglenn/Documents/Lattice Aggregation/artifacts/real-small-distributed-aggregation/scaling-n4/manifest.json

@@ -1,0 +1,212 @@
+{
+  "$id": "https://lattice-aggregation.invalid/schemas/real-6667-of-10000-mldsa-campaign-evidence-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "campaign_evidence_ready" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "aggregate_standards_verifiable": { "const": true },
+          "campaign_executed": { "const": true },
+          "claim_flags": {
+            "properties": { "claims_campaign_complete": { "const": true } },
+            "required": ["claims_campaign_complete"]
+          },
+          "negative_checks_passed": { "const": true },
+          "observed_counts": {
+            "properties": {
+              "contributing_signers": { "const": 6667 },
+              "eligible_custodians": { "minimum": 6667 },
+              "enrolled_identities": { "const": 10000 },
+              "partial_contributions": { "const": 6667 }
+            },
+            "required": ["contributing_signers", "eligible_custodians", "enrolled_identities", "partial_contributions"]
+          }
+        },
+        "required": ["aggregate_standards_verifiable", "campaign_executed", "claim_flags", "negative_checks_passed", "observed_counts"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": ["blocked_prerequisites_unmet", "blocked_backend_execution_failed", "blocked_capture_invalid"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "claim_flags": {
+            "properties": { "claims_campaign_complete": { "const": false } },
+            "required": ["claims_campaign_complete"]
+          }
+        },
+        "required": ["claim_flags"]
+      }
+    }
+  ],
+  "properties": {
+    "aggregate_standards_verifiable": { "type": "boolean" },
+    "campaign_executed": { "type": "boolean" },
+    "campaign_id": { "minLength": 3, "type": "string" },
+    "capture_sha256": { "$ref": "#/$defs/sha256" },
+    "claim_boundary": { "const": "real campaign orchestration evidence only; production security and theorem closure require the separate DKG, custody, malicious-MPC, equivalence, security, and theorem-linkage review gates" },
+    "claim_flags": {
+      "additionalProperties": false,
+      "properties": {
+        "claims_campaign_complete": { "type": "boolean" },
+        "claims_cryptographic_attestation_validation": { "const": false },
+        "claims_fips_validation": { "const": false },
+        "claims_independent_review_complete": { "const": false },
+        "claims_production_threshold_mldsa_security": { "const": false },
+        "claims_theorem_closure": { "const": false }
+      },
+      "required": [
+        "claims_campaign_complete",
+        "claims_cryptographic_attestation_validation",
+        "claims_fips_validation",
+        "claims_independent_review_complete",
+        "claims_production_threshold_mldsa_security",
+        "claims_theorem_closure"
+      ],
+      "type": "object"
+    },
+    "generated_at": { "format": "date-time", "type": "string" },
+    "engineering_interfaces": {
+      "additionalProperties": false,
+      "properties": {
+        "additive_mask_signing_seam": { "$ref": "#/$defs/engineeringInterface" },
+        "dealerless_dkg": { "$ref": "#/$defs/engineeringInterface" },
+        "private_share_custody": { "$ref": "#/$defs/engineeringInterface" }
+      },
+      "required": ["additive_mask_signing_seam", "dealerless_dkg", "private_share_custody"],
+      "type": "object"
+    },
+    "negative_checks_passed": { "type": "boolean" },
+    "observed_counts": {
+      "additionalProperties": false,
+      "properties": {
+        "contributing_signers": { "maximum": 6667, "minimum": 0, "type": "integer" },
+        "eligible_custodians": { "minimum": 0, "type": "integer" },
+        "enrolled_identities": { "maximum": 10000, "minimum": 0, "type": "integer" },
+        "partial_contributions": { "maximum": 6667, "minimum": 0, "type": "integer" }
+      },
+      "required": ["contributing_signers", "eligible_custodians", "enrolled_identities", "partial_contributions"],
+      "type": "object"
+    },
+    "parameter_set": { "const": "ML-DSA-65" },
+    "partial_binding_validation": {
+      "additionalProperties": false,
+      "properties": {
+        "cryptographic_attestation_verified": { "const": false },
+        "mode": { "const": "structural_digest_and_registry_binding_only" }
+      },
+      "required": ["cryptographic_attestation_verified", "mode"],
+      "type": "object"
+    },
+    "prerequisite_evidence": { "type": "object" },
+    "schema": { "const": "lattice-aggregation:real-6667-of-10000-mldsa-campaign-evidence:v1" },
+    "schema_version": { "const": 1 },
+    "standard_verifier_results": { "type": ["object", "null"] },
+    "status": {
+      "enum": [
+        "blocked_prerequisites_unmet",
+        "blocked_backend_execution_failed",
+        "blocked_capture_invalid",
+        "campaign_evidence_ready"
+      ]
+    },
+    "topology": {
+      "additionalProperties": false,
+      "properties": {
+        "threshold": { "const": 6667 },
+        "validator_count": { "const": 10000 }
+      },
+      "required": ["threshold", "validator_count"],
+      "type": "object"
+    }
+  },
+  "required": [
+    "aggregate_standards_verifiable",
+    "campaign_executed",
+    "campaign_id",
+    "claim_boundary",
+    "claim_flags",
+    "engineering_interfaces",
+    "generated_at",
+    "negative_checks_passed",
+    "observed_counts",
+    "parameter_set",
+    "partial_binding_validation",
+    "prerequisite_evidence",
+    "schema",
+    "schema_version",
+    "standard_verifier_results",
+    "status",
+    "topology"
+  ],
+  "type": "object",
+  "$defs": {
+    "engineeringInterface": {
+      "additionalProperties": false,
+      "properties": {
+        "claims_production_complete": { "const": false },
+        "implemented": { "type": "boolean" },
+        "marker_checks": {
+          "additionalProperties": { "type": "boolean" },
+          "minProperties": 1,
+          "type": "object"
+        },
+        "production_complete": { "const": false },
+        "recognition_basis": { "const": "source_interface_markers_and_digest_only" },
+        "remaining_requirements": {
+          "items": { "minLength": 1, "type": "string" },
+          "minItems": 1,
+          "type": "array"
+        },
+        "runtime_execution_evidence_present": { "const": false },
+        "source": {
+          "additionalProperties": false,
+          "properties": {
+            "path": { "minLength": 1, "type": "string" },
+            "sha256": {
+              "oneOf": [
+                { "$ref": "#/$defs/sha256" },
+                { "type": "null" }
+              ]
+            }
+          },
+          "required": ["path", "sha256"],
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "implemented_engineering_interface_not_production_complete",
+            "engineering_interface_not_detected"
+          ]
+        }
+      },
+      "required": [
+        "claims_production_complete",
+        "implemented",
+        "marker_checks",
+        "production_complete",
+        "recognition_basis",
+        "remaining_requirements",
+        "runtime_execution_evidence_present",
+        "source",
+        "status"
+      ],
+      "type": "object"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  }
+}

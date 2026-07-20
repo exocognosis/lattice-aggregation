@@ -549,6 +549,53 @@ fn derive_subseed(base: &[u8; 32], dealer_id: u16, label: &[u8]) -> [u8; 32] {
     hasher.finalize().into()
 }
 
+/// Centered infinity norm (max `|coeff|` over `(-Q/2, Q/2]`) of the joint secret
+/// reconstructed from a finalized DKG output at the given receiver indices.
+///
+/// # Honest boundary — coefficient growth (dealt-then-shared, NOT dealerless)
+///
+/// This DKG forms the joint key by **summing** each dealer's short contribution
+/// (the hiding VSS is additively homomorphic — see [`aggregate`] and
+/// [`DkgCoordinator::build_output`]). Summing `>= 2` independent `[-ETA, ETA]`
+/// secrets makes the joint `s1`/`s2` coefficients grow past the FIPS-204 bound
+/// `[-ETA, ETA] = [-4, 4]`, so this norm typically exceeds `ETA` and the
+/// reconstructed joint key is **not** a valid FIPS ML-DSA secret key. A
+/// byte-exact wire public key can still be encoded from any `t = A*s1 + s2`
+/// (see [`crate::crypto::mldsa_module::wire_public_key_from_module_secret`]), but
+/// no valid *short* wire signing key follows from the summed secret.
+///
+/// The honestly-deliverable reconciliation is therefore for a single, valid,
+/// short secret that is dealt once and Shamir-**shared** across receivers
+/// (trusted setup). Dealerless generation of a FIPS-valid short secret with no
+/// single holder remains an **open research problem**; this function exists to
+/// make the coefficient-growth blocker publicly checkable, not to paper over it.
+pub fn reconstructed_joint_secret_centered_infinity_norm(
+    output: &DkgOutput,
+    receiver_indices: &[u16],
+) -> Result<i32, ThresholdError> {
+    let secret = output.shared_key.reconstruct(receiver_indices)?;
+    let mut max = 0i32;
+    for poly in secret.s1.iter().chain(secret.s2.iter()) {
+        for &coeff in &poly.coeffs {
+            let magnitude = center_mod_q(coeff).unsigned_abs() as i32;
+            if magnitude > max {
+                max = magnitude;
+            }
+        }
+    }
+    Ok(max)
+}
+
+/// Centered representative of `value` modulo `Q` in `(-Q/2, Q/2]`.
+fn center_mod_q(value: i32) -> i32 {
+    let q = crate::crypto::poly::Q;
+    let mut reduced = value.rem_euclid(q);
+    if reduced > q / 2 {
+        reduced -= q;
+    }
+    reduced
+}
+
 #[cfg(test)]
 mod mldsa_dkg_tests {
     use super::*;

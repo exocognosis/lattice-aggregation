@@ -11,15 +11,39 @@
 //!
 //! ## Claim boundary
 //!
-//! This establishes the module structure and the linear key relation. It is
-//! **not** a wire-format FIPS 204 key:
+//! This establishes the module structure and the linear key relation. The
+//! original [`expand_matrix_a`] / [`keygen`] pair remains a research
+//! representation and is **not** a wire-format FIPS 204 key:
 //!
-//! - `A` is sampled uniformly over `R_q`; byte-exact `ExpandA` (NTT-domain
-//!   sampling) is not implemented.
+//! - [`expand_matrix_a`] samples `A` uniformly over `R_q` with an ad-hoc
+//!   SHAKE256 stream; it is **not** the byte-exact FIPS 204 `ExpandA`.
 //! - the `eta = 4` secret sampler covers the ML-DSA-65 coefficient range but is
 //!   not asserted bit-identical to `ExpandS`.
-//! - the `Power2Round` split of `t` into `(t1, t0)` and public-key encoding are
-//!   deferred.
+//!
+//! ## ExpandA / wire-public-key reconciliation
+//!
+//! To bridge module secrets to the standard wire path, this module *also*
+//! provides byte-exact primitives:
+//!
+//! - [`expand_a_fips_ntt`] reproduces the FIPS 204 `ExpandA`
+//!   (`SHAKE128(rho || s || r)` with 3-byte rejection into the NTT domain)
+//!   byte-for-byte, matching the wire signing path's matrix.
+//! - [`wire_public_key_from_module_secret`] derives the standard 1,952-byte
+//!   ML-DSA-65 public key `rho || pkEncode(t1)` from a module [`SecretKey`],
+//!   applying exact `Power2Round`. For the same `(rho, s1, s2)` it returns the
+//!   identical bytes to `crate::backend::keygen_from_seed(..).public_key`.
+//!
+//! ## Honesty note: dealt-then-shared, NOT dealerless
+//!
+//! The wire-public-key bridge reconciles the module layer with the standard
+//! verifier for a *single, valid* short secret that is Shamir-**shared** across
+//! receivers (trusted-setup / dealt-then-shared). It does **not** make the
+//! multi-dealer DKG of [`crate::crypto::mldsa_dkg`] produce a FIPS-valid key:
+//! that DKG forms the joint key by **summing** dealer contributions, so the
+//! joint `s1`/`s2` coefficients grow past the FIPS-204 bound
+//! `[-ETA, ETA] = [-4, 4]` and the summed key is **not** a valid FIPS ML-DSA
+//! secret key. Dealerless generation of a FIPS-valid *short* secret with no
+//! single holder remains an **open research problem** and is not solved here.
 //!
 //! Distributed key generation across multiple dealers (so the key is *jointly*
 //! generated, not dealt by one party) is Increment 4. Malicious-dealer binding
@@ -35,11 +59,14 @@ use crate::{
     crypto::{
         bdlop::{Commitment, CommitmentKey},
         bdlop_pok::OpeningProof,
+        mldsa_primitives::power2round,
         module_lattice::{matrix_vec_mul, sample_eta_vec, sample_uniform_matrix, vec_add},
-        poly::Poly,
+        poly::{Poly, N, Q},
         vss_bdlop::{self, HidingShare},
     },
     errors::ThresholdError,
+    low_level::ntt::{inv_ntt, ntt},
+    types::MLDSA65_PUBLICKEY_BYTES,
 };
 
 /// ML-DSA-65 module height `k` (length of `s2` and `t`).
@@ -108,6 +135,147 @@ pub struct PublicKey {
 /// deferred (see the module claim boundary).
 pub fn expand_matrix_a(rho: &[u8; 32]) -> Vec<Vec<Poly>> {
     sample_uniform_matrix(rho, MODULE_K, MODULE_L)
+}
+
+/// Encoded bytes per `t1` polynomial in the ML-DSA-65 public key (`256 * 10 / 8`).
+const WIRE_T1_ENCODED_BYTES: usize = 320;
+
+/// Byte-exact FIPS 204 `ExpandA` for ML-DSA-65, in the NTT domain.
+///
+/// Reproduces the wire signing path's matrix sampling
+/// (`crate::backend::fips_sign`'s private `expand_a` / `rej_ntt_poly`)
+/// byte-for-byte: entry `A_hat[r][s]` is drawn from `SHAKE128(rho || s || r)` by
+/// 3-byte rejection sampling
+/// (`coeff = ((b2 & 0x7f) << 16) | (b1 << 8) | b0`, rejecting `coeff >= Q`), and
+/// each accepted 23-bit sample is an NTT-domain coefficient directly (FIPS 204
+/// samples `A_hat` in the NTT domain, so no forward transform is applied). The
+/// returned matrix is `MODULE_K x MODULE_L`, with `A_hat[r][s]` at `out[r][s]`.
+///
+/// Unlike [`expand_matrix_a`] — which draws an ad-hoc uniform coefficient-domain
+/// matrix and is **not** interoperable with the standard verifier — this matrix
+/// is identical to the standard ML-DSA-65 `ExpandA`. See
+/// [`wire_public_key_from_module_secret`], whose byte-equality against
+/// `keygen_from_seed` transitively proves this matrix equals the wire matrix.
+pub fn expand_a_fips_ntt(rho: &[u8; 32]) -> Vec<Vec<[u32; N]>> {
+    (0..MODULE_K)
+        .map(|row| {
+            (0..MODULE_L)
+                .map(|column| rej_ntt_poly_fips(rho, column as u8, row as u8))
+                .collect()
+        })
+        .collect()
+}
+
+/// Sample one NTT-domain matrix entry `A_hat[r][s]` from `SHAKE128(rho || s || r)`
+/// via FIPS 204 3-byte rejection sampling. Pure re-implementation of the private
+/// `crate::backend::fips_sign::rej_ntt_poly` (duplicated to keep write scopes
+/// separate); byte-identical by construction and pinned by the reconciliation
+/// tests.
+fn rej_ntt_poly_fips(rho: &[u8; 32], s: u8, r: u8) -> [u32; N] {
+    use sha3::{
+        digest::{ExtendableOutput, Update, XofReader},
+        Shake128,
+    };
+
+    let mut hasher = Shake128::default();
+    hasher.update(rho);
+    hasher.update(&[s]);
+    hasher.update(&[r]);
+    let mut reader = hasher.finalize_xof();
+
+    let mut out = [0u32; N];
+    let mut filled = 0usize;
+    let mut buf = [0u8; 3];
+    while filled < N {
+        reader.read(&mut buf);
+        let b2 = u32::from(buf[2] & 0x7f);
+        let candidate = (b2 << 16) | (u32::from(buf[1]) << 8) | u32::from(buf[0]);
+        if candidate < Q as u32 {
+            out[filled] = candidate;
+            filled += 1;
+        }
+    }
+    out
+}
+
+/// Derive the byte-exact 1,952-byte ML-DSA-65 wire public key from a module
+/// secret key `(s1, s2)` and public matrix seed `rho`.
+///
+/// Computes `t = A * s1 + s2` with the byte-exact [`expand_a_fips_ntt`] matrix
+/// (using the crate's FIPS-pinned NTT), splits each coefficient of `t` with the
+/// exact FIPS 204 `Power2Round`, and encodes `rho || pkEncode(t1)`. For any
+/// `(rho, s1, s2)` this returns the identical bytes to
+/// `crate::backend::keygen_from_seed(seed).public_key.0` derived from the same
+/// secret, so the resulting key is accepted by the standard ML-DSA-65 verifier.
+///
+/// This is the reconciliation the module-form DKG previously lacked: it bridges
+/// a module [`SecretKey`] to the standard wire public key. It performs **no**
+/// distributed key generation and makes no dealerless claim; see the
+/// module-level honesty note. The secret's `s1`/`s2` may be supplied in either
+/// signed-centered or canonical `[0, Q)` form (both are normalized internally).
+pub fn wire_public_key_from_module_secret(
+    rho: &[u8; 32],
+    secret: &SecretKey,
+) -> Result<[u8; MLDSA65_PUBLICKEY_BYTES], ThresholdError> {
+    if secret.s1.len() != MODULE_L || secret.s2.len() != MODULE_K {
+        return Err(ThresholdError::BackendUnavailable {
+            reason: "wire public key requires exactly L s1 components and K s2 components",
+        });
+    }
+
+    let a_hat = expand_a_fips_ntt(rho);
+
+    // NTT of each canonicalized s1 component, in the FIPS-pinned NTT domain.
+    let mut s1_hat = vec![[0i32; N]; MODULE_L];
+    for (column, s1_column_hat) in s1_hat.iter_mut().enumerate() {
+        *s1_column_hat = secret.s1[column].canonical().coeffs;
+        ntt(s1_column_hat);
+    }
+
+    // t[r] = InvNTT( sum_s A_hat[r][s] o NTT(s1[s]) ) + s2[r].
+    let mut t = Vec::with_capacity(MODULE_K);
+    for (row, a_row_hat) in a_hat.iter().enumerate() {
+        let mut acc = [0i32; N];
+        for (a_column_hat, s1_column_hat) in a_row_hat.iter().zip(s1_hat.iter()) {
+            for i in 0..N {
+                let product = ((i64::from(a_column_hat[i]) * i64::from(s1_column_hat[i]))
+                    .rem_euclid(i64::from(Q))) as i32;
+                acc[i] = add_mod_q(acc[i], product);
+            }
+        }
+        inv_ntt(&mut acc);
+        let mut ti = Poly::from_coeffs(acc);
+        ti.add_assign(&secret.s2[row].canonical());
+        t.push(ti);
+    }
+
+    // Power2Round + pkEncode: pk = rho || SimpleBitPack_10(t1).
+    let mut pk = [0u8; MLDSA65_PUBLICKEY_BYTES];
+    pk[..32].copy_from_slice(rho);
+    for (row, ti) in t.iter().enumerate() {
+        let row_offset = 32 + row * WIRE_T1_ENCODED_BYTES;
+        for (i, &coeff) in ti.coeffs.iter().enumerate() {
+            let (t1, _t0) = power2round(coeff);
+            let value = t1 as u32; // Power2Round yields t1 in [0, 2^10).
+            let bit_offset = i * 10;
+            for bit in 0..10 {
+                if (value >> bit) & 1 == 1 {
+                    pk[row_offset + (bit_offset + bit) / 8] |= 1 << ((bit_offset + bit) % 8);
+                }
+            }
+        }
+    }
+    Ok(pk)
+}
+
+/// Add two canonical `[0, Q)` residues, staying canonical.
+fn add_mod_q(a: i32, b: i32) -> i32 {
+    let sum = a + b;
+    if sum >= Q {
+        sum - Q
+    } else {
+        sum
+    }
 }
 
 /// Sample a short ML-DSA-65 secret key `(s1, s2)` with coefficients in
@@ -623,5 +791,35 @@ mod mldsa_module_tests {
         let commit_key = CommitmentKey::from_seed(b"public");
         assert!(deal_secret_key(&sk, 0, 5, &[0u8; 32], &commit_key).is_err());
         assert!(deal_secret_key(&sk, 4, 3, &[0u8; 32], &commit_key).is_err());
+    }
+
+    #[test]
+    fn expand_a_fips_ntt_has_module_dimensions_and_is_deterministic() {
+        let rho = [0x24u8; 32];
+        let a = expand_a_fips_ntt(&rho);
+        assert_eq!(a.len(), MODULE_K, "ExpandA must have K rows");
+        for row in &a {
+            assert_eq!(row.len(), MODULE_L, "ExpandA rows must have L columns");
+            for entry in row {
+                for &coeff in entry {
+                    assert!(coeff < Q as u32, "ExpandA samples must be reduced mod Q");
+                }
+            }
+        }
+        assert_eq!(a, expand_a_fips_ntt(&rho), "ExpandA must be deterministic");
+        assert_ne!(
+            a,
+            expand_a_fips_ntt(&[0x25u8; 32]),
+            "ExpandA must separate on rho"
+        );
+    }
+
+    #[test]
+    fn wire_public_key_rejects_malformed_module_secret() {
+        let secret = SecretKey {
+            s1: Vec::new(),
+            s2: vec![Poly::zero(); MODULE_K],
+        };
+        assert!(wire_public_key_from_module_secret(&[0u8; 32], &secret).is_err());
     }
 }

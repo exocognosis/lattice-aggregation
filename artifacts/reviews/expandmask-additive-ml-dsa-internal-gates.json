@@ -1,0 +1,133 @@
+{
+  "claim_flags": {
+    "claims_10000_independent_mldsa_signatures_condensed": false,
+    "claims_6667_party_mama_execution": false,
+    "claims_external_independent_review_complete": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "evidence_digests": {
+    "circuit_sha256": "e1b5365906c0258d1352f56a3074244f0bb8a2762a17573cdc034fe07330e4bb",
+    "custody_module_source_sha256": "2682d2b496c66fc0bc01d03b49552425c337a39010aeb09517b3ca8e8dc33835",
+    "fips_sign_source_sha256": "51c04f87a6ab3c25510bd59c42e8b3b4e41b424777914dac3a3d3a4bfffb4878",
+    "fixed_fixture_coefficients_sha256": "eb56c7485c1a40984b6c9ce3f4eb555781b36954676d6e6de715e9b070e4ff92",
+    "mama_manifest_sha256": "accca57c439896183391cb0090a874e60999b777faefe8e10a870c002dbc54db",
+    "schedule_sha256": "53ecd0c4a81c4a398332fce5a48cbc4587b4320b7acde84ecd0cc09c8f3bdf1e"
+  },
+  "findings": [
+    {
+      "id": "R-01",
+      "severity": "critical",
+      "status": "resolved_in_source_algebra",
+      "title": "Mixed additive-mask and Shamir-secret response equation is implemented"
+    },
+    {
+      "id": "R-02",
+      "severity": "critical",
+      "status": "open",
+      "title": "The theorem transcript challenge is not the unmodified FIPS 204 challenge"
+    },
+    {
+      "id": "R-03",
+      "severity": "critical",
+      "status": "open",
+      "title": "The signer retains a central seed and centralized access to every private mask share"
+    },
+    {
+      "id": "R-04",
+      "severity": "high",
+      "status": "open",
+      "title": "MPC input provenance and output transfer are not cryptographically bound"
+    },
+    {
+      "id": "R-05",
+      "severity": "high",
+      "status": "open",
+      "title": "Retry selection exists but retry security, erasure, and partial-validity proofs are absent"
+    },
+    {
+      "id": "R-06",
+      "severity": "high",
+      "status": "open",
+      "title": "The signer seam exists but exact MPC evidence is not cryptographically linked"
+    },
+    {
+      "id": "R-07",
+      "severity": "medium",
+      "status": "open",
+      "title": "Equivalence and provenance evidence is narrow"
+    },
+    {
+      "id": "R-08",
+      "severity": "medium",
+      "status": "open",
+      "title": "Ten-thousand-signatures-into-one wording is not supported"
+    }
+  ],
+  "gates": {
+    "additive_mask_plain_sum_z_aggregation": "pass",
+    "additive_mask_to_shamir_secret_equation_implemented": "pass",
+    "coordinator_holds_no_plaintext_share_vector": "pass",
+    "coordinator_rhopp_is_secret_mpc_internal_value": "fail",
+    "current_signing_path_consumes_authenticated_additive_mask_outputs": "fail",
+    "custody_consumption_seam_present": "pass",
+    "custody_held_shares_consumed_via_nonexportable_handles": "pass",
+    "custody_share_provenance_external_attested": "fail",
+    "end_to_end_linkage_digest_present": "pass",
+    "module_dkg_to_wire_expand_a_reconciled": "fail",
+    "shares_dealt_once_via_genuine_shamir": "pass",
+    "single_use_mask_ledger_present": "pass",
+    "standard_wire_signature_from_custody_seam": "pass",
+    "exact_expandmask_static_equation_review": "pass",
+    "external_independent_equivalence_review": "fail",
+    "external_independent_security_review": "fail",
+    "external_independent_theorem_linkage_review": "fail",
+    "fixed_fixture_oracle_equivalence_recomputed": "pass",
+    "mama_40_bit_two_party_manifest_integrity": "pass",
+    "malicious_mama_6667_distinct_custodians": "fail",
+    "mpc_output_receipts_bound_to_partial_signatures": "fail",
+    "no_dealer_k_dkg_bound_to_mpc_inputs": "fail",
+    "no_single_secret_signing_path": "fail",
+    "production_private_share_custody": "fail",
+    "public_a_times_y_i_commitment_plain_sum": "pass",
+    "public_commitment_to_partial_consistency_proof": "fail",
+    "public_key_message_mu_binding": "fail",
+    "rejection_and_selective_abort_proof": "fail",
+    "retry_attempt_selected_by_kappa_and_local_binding": "pass",
+    "signing_set_lagrange_weights_applied_to_s1_only": "pass",
+    "standard_fips_challenge_and_threshold_transcript_reconciled": "fail",
+    "theorem_artifacts_bind_exact_mpc_evidence": "fail"
+  },
+  "mathematical_wiring": {
+    "correct_aggregate": "z = sum_i (y_i + lambda_i(A) * c * s1_i)",
+    "mask_share_relation": "y = sum_i y_i mod q",
+    "secret_share_relation": "s1 = sum_i lambda_i(A) * s1_i mod q",
+    "whole_partial_lagrange_weighting_allowed": false
+  },
+  "overall_verdict": "blocked_not_theorem_linked",
+  "review_date": "2026-07-19",
+  "review_id": "expandmask-additive-ml-dsa-internal-2026-07-19",
+  "review_revision": 3,
+  "review_revision_note": "rev3 2026-07-19: recorded custody-consumption seam, end-to-end linkage digest, and single-use mask ledger as implemented sub-checks; added ExpandA-reconciliation and coordinator-rhopp new blockers; source digests recomputed this pass, prior circuit/fixture/mama/schedule digests carried forward unverified",
+  "review_report": "docs/reviews/2026-07-19-expandmask-additive-ml-dsa-internal-review.md",
+  "reviewer_class": "internal_independent_review_not_external_certification",
+  "schema": "lattice-aggregation:expandmask-additive-ml-dsa-internal-review-gates:v1",
+  "supported_claims": {
+    "coordinator_holds_no_plaintext_share_vector_in_custody_seam": true,
+    "current_additive_mask_algebra_implemented": true,
+    "custody_consumption_seam_implemented": true,
+    "end_to_end_linkage_digest_implemented": true,
+    "fixed_fixture_full_dimension_expandmask_equivalence": true,
+    "mathematically_sound_mixed_share_wiring_exists": true,
+    "no_single_secret_signing_path_established": false,
+    "one_standard_size_signature_target_is_defensible": true,
+    "production_wiring_is_implemented": false,
+    "public_a_y_commitment_aggregation_implemented": true,
+    "single_use_mask_ledger_implemented": true
+  },
+  "target": {
+    "parameter_set": "ML-DSA-65",
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}
