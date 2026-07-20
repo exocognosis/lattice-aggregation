@@ -56,11 +56,11 @@ fn expand_a_reconciliation_expand_a_matches_fips204_known_answer() {
     for rho in &rhos {
         let a = expand_a_fips_ntt(rho);
         assert_eq!(a.len(), MODULE_K, "ExpandA must be a K-row matrix");
-        for r in 0..MODULE_K {
-            assert_eq!(a[r].len(), MODULE_L, "ExpandA rows must be L wide");
-            for s in 0..MODULE_L {
+        for (r, row) in a.iter().enumerate() {
+            assert_eq!(row.len(), MODULE_L, "ExpandA rows must be L wide");
+            for (s, entry) in row.iter().enumerate() {
                 assert_eq!(
-                    a[r][s],
+                    *entry,
                     reference_expand_a_entry(rho, s as u8, r as u8),
                     "A_hat[{r}][{s}] must equal the FIPS 204 ExpandA known answer for rho {rho:02x?}"
                 );

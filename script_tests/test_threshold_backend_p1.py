@@ -633,7 +633,7 @@ class ThresholdBackendP1Tests(unittest.TestCase):
         self.assertEqual(run["partial_count"], 5)
         self.assertEqual(
             run["packing_mode"],
-            "strict_distributed_s1_y_partials_to_fips204_wire_signature",
+            "local_expandmask_additive_y_partials_to_fips204_wire_signature",
         )
         self.assertTrue(run["aggregate_z_matches_direct"])
         self.assertTrue(run["aggregate_cs2_matches_direct"])
