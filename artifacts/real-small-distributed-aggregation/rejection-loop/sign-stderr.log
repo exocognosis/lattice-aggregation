@@ -1,0 +1,98 @@
+warning: function `aggregate_module_partials_selected` is never used
+    --> src/backend/fips_sign.rs:2199:4
+     |
+2199 | fn aggregate_module_partials_selected(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:195:5
+    |
+195 |     pub validator: ValidatorId,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+note: the lint level is defined here
+   --> src/lib.rs:2:9
+    |
+  2 | #![warn(missing_docs)]
+    |         ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:196:5
+    |
+196 |     pub x: u16,
+    |     ^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:197:5
+    |
+197 |     pub lagrange_weight: i32,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:203:5
+    |
+203 |     pub validator: ValidatorId,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:204:5
+    |
+204 |     pub x: u16,
+    |     ^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:205:5
+    |
+205 |     pub mask_share: ModuleVecL,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:211:5
+    |
+211 |     pub kappa_base: u16,
+    |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:212:5
+    |
+212 |     pub input_binding_digest: [u8; 32],
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:213:5
+    |
+213 |     pub malicious_mpc_verified: bool,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:214:5
+    |
+214 |     pub exact_expandmask_equivalence_verified: bool,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:215:5
+    |
+215 |     pub shares: Vec<AdditiveMaskShare65>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:221:5
+    |
+221 |     pub validator: ValidatorId,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:222:5
+    |
+222 |     pub x: u16,
+    |     ^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/backend/fips_sign.rs:223:5
+    |
+223 |     pub w_i: [Poly; K],
+    |     ^^^^^^^^^^^^^^^^^^
+

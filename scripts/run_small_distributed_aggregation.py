@@ -309,7 +309,7 @@ def build_and_run(args):
     root = Path(args.root).resolve()
     mp_spdz_root = Path(args.mp_spdz_root).expanduser().resolve()
     runtime = mp_spdz_root / args.runtime_binary
-    out_dir = root / "artifacts/real-small-distributed-aggregation/latest"
+    out_dir = root / "artifacts/real-small-distributed-aggregation" / args.out_name
     out_dir.mkdir(parents=True, exist_ok=True)
 
     steps = []
@@ -325,7 +325,7 @@ def build_and_run(args):
 
     # --- Step 1: emit-inputs, selecting a seed that accepts at kappa_base=0 ---
     staging = out_dir
-    candidate_seeds = [args.seed] + [f"{n:064x}" for n in range(1, 32)]
+    candidate_seeds = [args.seed] + [f"{n:064x}" for n in range(1, args.seed_pool)]
     candidate_rnd = args.rnd
     chosen = None
     for seed_hex in candidate_seeds:
@@ -346,12 +346,12 @@ def build_and_run(args):
         accepted = params["local_accepted_kappa_base"]
         note("emit-inputs", seed=seed_hex[:8], local_rejected=params["local_rejected_attempts"],
              local_accepted_kappa_base=accepted)
-        if accepted <= args.max_accepted_kappa:
+        if args.min_accepted_kappa <= accepted <= args.max_accepted_kappa:
             chosen = (seed_hex, params)
             break
     if chosen is None:
         return finalize(args, root, mp_spdz_root, out_dir, steps, None, started_wall,
-                        failure="no seed accepted within max_accepted_kappa")
+                        failure="no seed accepted within [min_accepted_kappa, max_accepted_kappa]")
     seed_hex, params = chosen
     step = params["kappa_step"]
     accepted_kappa = params["local_accepted_kappa_base"]
@@ -628,6 +628,12 @@ def parse_args(argv=None):
                         help="star-shaped comms routed through party 0")
     parser.add_argument("--batch-size", type=int, default=None,
                         help="MP-SPDZ preprocessing batch size (-b); default unset")
+    parser.add_argument("--out-name", default="latest",
+                        help="artifact subdir under real-small-distributed-aggregation/")
+    parser.add_argument("--seed-pool", type=int, default=32,
+                        help="number of candidate seeds to sweep for the target rejection count")
+    parser.add_argument("--min-accepted-kappa", type=int, default=0,
+                        help="lower bound on accepted kappa_base; raise to force real rejections")
     parser.add_argument("--max-accepted-kappa", type=int, default=0,
                         help="max kappa_base the chosen seed may accept at (0 = first attempt)")
     parser.add_argument("--compile-timeout-seconds", type=int, default=2400)

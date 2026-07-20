@@ -1,0 +1,15 @@
+Using statistical security parameter 40
+No proper key material found in Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P0-3, generating from scratch (cannot read from Player-Data//Mascot-Secrets-p-23-5505073db77fc298e8292f092c1aa75004f5dec2-P0-3)
+No proper key material found in Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P0-3, generating from scratch (cannot read from Player-Data//Mascot-Secrets-2-128-9a50bc35c6c9cc217be9a7ddd86266d523b22990-P0-3)
+No proper key material found in Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P0-3, generating from scratch (cannot read from Player-Data//Mascot-Secrets-B-64-fe9921394c99b45129ac41210fecc46e6277d1ca-P0-3)
+mldsa65_expandmask_complete signers=3 coefficients=1280 kappa_base=5
+Tinier open counter: 1330
+Significant amount of unused triples of Mama2 gfp distorting the benchmark. For more accurate benchmarks, consider reducing the batch size with --batch-size.
+Significant amount of unused dabits of Mama2 gfp distorting the benchmark. For more accurate benchmarks, consider reducing the batch size with --batch-size.
+Significant amount of unused edaBits of size 20. This protocol has a large minimum batch size, which makes this unavoidable for small programs.
+Mama2 gf2n_long open counter: 0
+Mama2 gfp open counter: 166
+The following benchmarks are including preprocessing (offline phase).
+Time = 28.1142 seconds 
+Data sent = 4022.47 MB in ~32600 rounds (party 0 only; use '-v' for more details)
+Global data sent = 12067.1 MB (all parties)

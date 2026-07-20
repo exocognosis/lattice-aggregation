@@ -1,0 +1,381 @@
+{
+  "claim_boundary": "small-scale (3-party) real distributed masks + trusted-setup-dealt-then-shared threshold key; NOT dealerless, NOT no-single-secret, NOT production, NOT 6667-scale.",
+  "claim_flags": {
+    "6667_scale": false,
+    "dealerless_dkg": false,
+    "dealt_then_shared_trusted_setup": true,
+    "no_single_secret_signing_path": false,
+    "production_custody": false,
+    "real_distributed_mpc_masks": true,
+    "standard_verifier_accepted": true,
+    "theorem_closure": false
+  },
+  "execution": {
+    "chosen_seed_hex": "0000000000000000000000000000000000000000000000000000000000000003",
+    "kappa_list": [
+      0,
+      5,
+      10,
+      15
+    ],
+    "message": "rejection loop demo",
+    "mpc_runs": 4,
+    "rnd_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+    "runtime": "/Users/rickglenn/Documents/MP-SPDZ/mama-party.x",
+    "runtime_binary": "mama-party.x",
+    "runtime_profile": "mama_multiple_mac_malicious_dishonest_majority_test_scale",
+    "wall_time_seconds": 221.74
+  },
+  "generated_at": "2026-07-20T19:18:42Z",
+  "mp_spdz": {
+    "commit": "6a2256e327b507918859f605735543bb32a39d9d",
+    "root": "/Users/rickglenn/Documents/MP-SPDZ"
+  },
+  "params": {
+    "dkg_transcript_digest_hex": "3c96f03d48142cb6351b2024ddd01553869f899cee1f5348a67b5dac92dadbd2",
+    "kappa_step": 5,
+    "local_accepted_kappa_base": 15,
+    "local_rejected_attempts": 3,
+    "message": "rejection loop demo",
+    "mu_hex": "beb2c8ebaca1bc25fda1a11815cb36f74d8f111729b66f5213141ebd1e5aeaa5c063defb85a0b13a5a8fefe12fe0ed113863c3f15c886d66e389e8893257d414",
+    "parties": 3,
+    "public_key_hex": "65e4c9e6cc4e0a4268731cf65451d45ea0a650c57b3ff19572ef3aa319bd5c496e1d2fd3ff3574a58e280b88f27ca925ed4b68488eb63d12ed6a89bde35732e0d69853af346070ff81bbf1d8733b04f3f34447722970c0288e2be061b39e748e8e146f33733afe6d79770894f32c22fff1448bba4cc69109bb1ed03b3de57451d6499c31afac5878618bc67e65fa68aea408bedc2c6e80dc502f735927039872b1274ca1361df73de00650dcad186aca890cf69187adbd61ecea37a31ab09d717cdfd0f2496d88c144177bd368ecaa59776a745f83b9a6ffd382f48a506eae55be583d65275b6d22e5a09397ec7160c638873f795d3b5d489483c6e8a9001d34cd414b4064dabbdac79b342d643d959048ffc49d513a9e6c77b3bcd3e32384d8e3f5c3991a56c9058bcca3a2990e7602935657c79217212ecede04a07108779bca6054a3095bca5e15997e5265fa31a74bc6a46acd3dee67fbc80496c8d335b5de18e7639d6a6bcdbb4d07d6b968174f4af7b6c9487e07155ba0458f95fd20f2426c5eb026820bcb493123aa0ebb99a50eaa16549272426c0496a36b1cfcd1d61549ef6f5b187af1a4e0f17d5a690d40048d5b34d0055d39ea0fa03f361283a9ccd3dd42c67d65ead3f7cf3cb04e78bc511e96badb84003bcc9b852c2f3711e4a469d68b0916ce27586ea601fa6ca6cd2998d402782b695a57a65eb0a4502c413e6eccd4bd57c46f6e12f78ae2522a2d0f7fafd74e28ed3b0f03218c5d3f8a685c3a731872448fe4df46497bb94784537b051e16158abcac486bba9b90dbcb3a7f9c7eb6811fc4789dcadc1920fe9d35a527a2968e085590bcf631aa3f98e8601a9f488afa8e3ac97ed206d8a6578078c43ee09299a0162c2b6707cba9ce5286bbc434349c78fdb70d184cf4b8aa04cbe1a4adec50b36270ef0319fd399d0bd66a379976ed337805cb332cd9ad206e213ec89b73236d36376208d856c646065dc3084eb815f4699899dcd28c73fc75bdc8244f0e72c2a9e33f7d94ecebba27da7c03209b9d5a80127199e05c1ed3b48f8faaeaee9b03b92c93d66f835564e0f2ec5cd7a545498a1cb3157a2d69b32421f274c6f7e125d68adcf8c894421f777499769f7e169cc0738fe5d35155c83d7bcad4b594369cdddfbd868871c856442ee674e2f118027f851a826e3cc64124cc8ed8b199861c49c3a5743b746cd8b4e8ee8e59add9ec73b108e7dff83315148b1b8274ffa5f004c5aac77463d31c7fe9bd5f95fb38f37352be476786ecfad250ec50a0e8dd2f9e0a02627137f0f310324a15069f5ea76cd54e70f7d72ac179c9c09a0a5dc59d82e44d1ac7632527117d3394888496c2cf2ffb6fbc65b19e2e5c6e10292bd54da0d25d6ce801eb4deef0d1913f7e3b442f149399b87b4a1995f3c5da68dbe17a8edf5b968d86f771dbcd09230688749dd66b64591ea937038df1f2bc7a1f9c6aac8864882c77500d8814acb4b5a5bca9296f36059b149038a0128bf1033cdfe68bfe608ced5995e344d8f134b92d55cc3479cc97ea59b6654123b3eaf4309cddca184397b158ab36014907d55ae76a24dcfc65122d32ecc51fd562b32180680ce0c0df8055387b237f5120c7ff86d2e908401ef126efbb7ca6970027b345d3b1ff428aac21a6fd0657336e9213962e163ac3126aa4748138c038f954b0d3233f4f99f6047b210321884a0ecef18d5193892d1d3a52d25d45847c1ce68ce175d4dcd59ca3316a3eb989e92fa819e9718a0a4b066bbc2946eb9bc7be0b24816ce3c7ef2094c8f333c7c80b2fce4bf920858069e3cadf1cded7af7bc2acb56ee9f1295305533d166a650949dae31e725ed28e047fba749e7dab18b5690c323ed5f68785281fd739cf078c63a71f8142819067dec3ffdc8d335340aad1f509af424fd3e037b6831a9eede7f500ec3db097675239f78bb7e30af1ac005f2e836e07855142e1d0f3e3237b92023ee19aa92468f2629e40c3bccfac1331b19478feeb1bb77c6d53540bb5e37eca37f93e3f42128cf1fc1653612dd62200a8080c7c5ba0cbf0c81f046c5e3d09cf246434906f05030e6a2526028ff1cb1e8c546df73fd1b644552608cbab5dac6788af881a46c046dc4e3e7255a4841054fcfc516400066161aa99f833c113ffc98c0bee6fe0fe471b7ef01fefe68119cd944a4d94c98649ade558048af0f0e0619cc42b7a5e818bbc26e7d7d2545ff9427e774cdfc2cf2c3ab5c1beb4e8aa4bb41398c4186fb08a1650261ba520ffd774bfa2628354868bf80090bfb8ea4fd488d9984dd49dd3bbbedcc149fdf1651cfec4789b6a233ea097ce5b038630050769e235e3f47135af270eff04af8f647338903a82fa565f5477a6e412c3ee79fe1db3d11a7e2e479cf9186967e0169d8700f3d6b04ec1e08efcaf9f6f3670ee7ef4d563173376f6f19a136fd7bca954fe1170788b825514f551e4afa877d12bcb6bc0703f6639b024903d128a524a39bf79aad6ba3effbfbb7b8a0c86a30afe37a469ef0f980c82f89be626f21e018c7ef9eab6ca21580f850314bc6d48548627b716e68bf4e749fc54049a8412a5ae419e2e663a6a1e26c321b19639e01349c24fcc47f342adaf7d3af150020b191fb900384f7f1ff49a70f2233f88a66ca68f39cf8d3f3a122f504f3762963e1b0a417d55e442e1d9cd3593d64ff082f7c4fd149115cf7fce8597cba8ad912659913c62d0d8d80c42c5278feae8a02b1d252124",
+    "rhopp_hex": "b281fdf78aaac6a42dfa0efa4fa8e290e9a3e81de9e777e4e9865306838805a7cadd222787f597076c3da0d02eca6e6161008b566b26b2eda53ef1e65ae66743",
+    "rnd_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+    "schema": "small-distributed-aggregation:params:v1",
+    "seed_hex": "0000000000000000000000000000000000000000000000000000000000000003",
+    "threshold": 3,
+    "tr_hex": "28d239651416466f81c9149375d377dd1bb9c0b8fd53343a54b75a6812c113b574da495a4e5554459784cc2f69e81734086807a133e86ef9407032f8df24eecb",
+    "validators": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "per_kappa_mpc": [
+    {
+      "all_outputs_present": true,
+      "binary_output_sha256": [
+        "449d5aa1d916016ab2e02f189f6bdd79cfc4503d63b24d945093f24cd0e1e02f",
+        "df68f957c80cf4dd0d40b7f0e34698bb82126747177fe80eeaebec674374ff78",
+        "28317d792cdb8008fc97ee9b29b050faaf38cb0cc97da2c13c8d0aa56cb7d3f2"
+      ],
+      "clean": true,
+      "compiled": true,
+      "duration_seconds": 29.7,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 0,
+      "party_logs_clean": [
+        true,
+        true,
+        true
+      ],
+      "program": "mldsa65_expandmask-3-0-5-256",
+      "reconstructed_coefficient_count_ok": true,
+      "timed_out": false
+    },
+    {
+      "all_outputs_present": true,
+      "binary_output_sha256": [
+        "4543e910bf0360d1c813a5ff581de3a0010fa0535634248d31b0528609275afc",
+        "440b4e866098638160e218ba6e71c8ddd592332409fbacff1ddc2bd426517d28",
+        "11e7ce807839996a07eb3c32062ad9d48f615310e528bc9f2f5c23a3deea71b4"
+      ],
+      "clean": true,
+      "compiled": true,
+      "duration_seconds": 30.36,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 5,
+      "party_logs_clean": [
+        true,
+        true,
+        true
+      ],
+      "program": "mldsa65_expandmask-3-5-5-256",
+      "reconstructed_coefficient_count_ok": true,
+      "timed_out": false
+    },
+    {
+      "all_outputs_present": true,
+      "binary_output_sha256": [
+        "8fb0674aca3964cab812e51c07535cc52096729e9089a450ce9a6e9590256ee5",
+        "599cabd44bfc1ff56eca78b763a92ea5313fed01d398e176f6fc2eeb4f501cbe",
+        "818bc202dfd7a19921e965c880af1e26634395ad1ddd4b0ef5bb9d3b7bdd0d2a"
+      ],
+      "clean": true,
+      "compiled": true,
+      "duration_seconds": 33.88,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 10,
+      "party_logs_clean": [
+        true,
+        true,
+        true
+      ],
+      "program": "mldsa65_expandmask-3-10-5-256",
+      "reconstructed_coefficient_count_ok": true,
+      "timed_out": false
+    },
+    {
+      "all_outputs_present": true,
+      "binary_output_sha256": [
+        "d9181eed207b75ee9d9ed23f69416be85a52f8a9eeda31867066e24ebe3b1fa4",
+        "a044ce49599886ea141f495c456995f457688dc0c38dc546edf8538f433482f7",
+        "968af748377b633f19e0ddff210cb760f7821ca2b215a8062dd353408bbade54"
+      ],
+      "clean": true,
+      "compiled": true,
+      "duration_seconds": 28.46,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 15,
+      "party_logs_clean": [
+        true,
+        true,
+        true
+      ],
+      "program": "mldsa65_expandmask-3-15-5-256",
+      "reconstructed_coefficient_count_ok": true,
+      "timed_out": false
+    }
+  ],
+  "result": {
+    "accepted_kappa": 15,
+    "end_to_end_linkage_digest_hex": "e56846a25db7d03ff95c25ca3952c058966a2dc83bc755176d904027c169f891",
+    "failure": null,
+    "malicious_verified": true,
+    "no_single_secret_signing_path": false,
+    "signature_len": 3309,
+    "signature_sha256": "912452c99831f357c9e6428ef251fffb50d09e2e2db0f6311a73668f7c4d1c82",
+    "standard_verifier_accepted": true
+  },
+  "schema": "lattice-aggregation:real-small-distributed-aggregation:v1",
+  "sign": {
+    "accepted_kappa": 15,
+    "additive_mask_outputs_consumed": true,
+    "coordinator_holds_no_plaintext_share_vector": true,
+    "end_to_end_linkage_digest_hex": "e56846a25db7d03ff95c25ca3952c058966a2dc83bc755176d904027c169f891",
+    "malicious_verified_input": true,
+    "mask_input_binding_digest_hex": "7588bbd0172b8cc73f34a7940f28c0be739b0bd3e0ca069b52f90f4c778988c5",
+    "mpc_transcript_digest_hex": "dfb4c7dc09f739d5d68d939c55f1800a7e0566be8d2091f96be823b6717cf6b3",
+    "no_single_secret_signing_path": false,
+    "partial_count": 3,
+    "per_kappa_equivalence": [
+      {
+        "exact_equivalence": true,
+        "kappa": 0,
+        "malicious_verified": true
+      },
+      {
+        "exact_equivalence": true,
+        "kappa": 5,
+        "malicious_verified": true
+      },
+      {
+        "exact_equivalence": true,
+        "kappa": 10,
+        "malicious_verified": true
+      },
+      {
+        "exact_equivalence": true,
+        "kappa": 15,
+        "malicious_verified": true
+      }
+    ],
+    "per_kappa_party_sha256": [
+      {
+        "kappa": 0,
+        "party_sha256": [
+          "449d5aa1d916016ab2e02f189f6bdd79cfc4503d63b24d945093f24cd0e1e02f",
+          "df68f957c80cf4dd0d40b7f0e34698bb82126747177fe80eeaebec674374ff78",
+          "28317d792cdb8008fc97ee9b29b050faaf38cb0cc97da2c13c8d0aa56cb7d3f2"
+        ]
+      },
+      {
+        "kappa": 5,
+        "party_sha256": [
+          "4543e910bf0360d1c813a5ff581de3a0010fa0535634248d31b0528609275afc",
+          "440b4e866098638160e218ba6e71c8ddd592332409fbacff1ddc2bd426517d28",
+          "11e7ce807839996a07eb3c32062ad9d48f615310e528bc9f2f5c23a3deea71b4"
+        ]
+      },
+      {
+        "kappa": 10,
+        "party_sha256": [
+          "8fb0674aca3964cab812e51c07535cc52096729e9089a450ce9a6e9590256ee5",
+          "599cabd44bfc1ff56eca78b763a92ea5313fed01d398e176f6fc2eeb4f501cbe",
+          "818bc202dfd7a19921e965c880af1e26634395ad1ddd4b0ef5bb9d3b7bdd0d2a"
+        ]
+      },
+      {
+        "kappa": 15,
+        "party_sha256": [
+          "d9181eed207b75ee9d9ed23f69416be85a52f8a9eeda31867066e24ebe3b1fa4",
+          "a044ce49599886ea141f495c456995f457688dc0c38dc546edf8538f433482f7",
+          "968af748377b633f19e0ddff210cb760f7821ca2b215a8062dd353408bbade54"
+        ]
+      }
+    ],
+    "rejected_attempts": 3,
+    "result": "accepted",
+    "signature_hex": "f8ed3f8d291d41ee2d87c686b46891c19b380c929185b90a853db5d364a962d0aa6fe68bf364faf6b8ca0588621aa623d405ab55495c8b9624a83217badf14d0d0f78c46f36fdff829387dd30c32fd0a600d47fb8b5cb982f3e380333c6ad4a955ea2581181957b188241af55eed907d60e4e3bfd1680133d08a3ac07f86afc75b0e9cb0e222b971c79a8530962991a3e6a609f08ff7eab67b832bd9e82e0743682db6d119e5ead7f92a9435f29985fec702096677878e853a63ffd436cf8fbda99304e57851c6861bfff91a1b57608c635f1b7145567fcc0b841ca50b7bba098476addca91fe8ba8dd205ae5cf259a4c7ac6c23a1a527bf14df374c53115a8fb658dc68acdf530d0b07009d6faf067c54f2ea64575f095dd6b2281cb048ce606de1b9d444ca7f02b0b8c95740989c8d4a0ecf714db08c68ca6bfd13162bac75aae4b050de38fda93eae84e1ba93d9c7d4e8037256a1df09cbb8d9544f5282760d44867da7e8933f18055bd97000338bd3ed22f7b118597bf09bab5e123c6754692d4add792e41d2acc62d7780be2915fb81e6fcf90d323c4238fe51454c32240927e3e4ffceb6849c43071f8d5aef468643505d08910a82efc562677ede9a80c6b842725dd7869f702c173711777f2e98a3da3f49a34b0bdbf6fcb52c39507e922c830fdd27d48d4d8568b2f77e0ed92c20b17a3ff0c3a654a27df56e14f85e98d80e2c7b27aff8ade6dc68f30cac6abef03c9e577b733bd6cbbffb059ff53a2cfed8e03930b34dc498a5fd9f101fdf099c68bf9cd19bc14636cf34c79f10ab2d3e27bc253eb500b6f2d5584524c7e3c8d1bb62b71ae8fcd7fc1a4dbdd755d3395093b4ca7b8d5213aff3e19160847502ef845fd5b89db5e0ce90ae6b144aa5604953efd0164a6db57e723b9947ff0ca267d575baeda3cfda45e484a5df086e17a9b5db34c6c8967af82b1bd4255933a502c33aa85031ca4a7fe39f1aa0ace89ad56ef93fa4edebfdcf50382a080be10cb3c4af6d2125c068987187d7097e852d2321146b9479a6aaea283b0849c416876065a1cb7eb64c3abfbbd5db82e9e519c60855f1e9f3ce7bb42f2c5da9d97757a620da07dd5962053a85bc11a94e6edb8eb16bfa49adfc866bbe405e912981a120d4e1bed2ae46996232f0a9b781928818264dc35144662763d4cca184f1fbc83af6f352d172d48ab2d5f240cadda38a948e32339121736f2fee1bb0026b68b86710e8e4e07e617d343638ccdc85221fefd9dfc5cac7d65f80577922a974aa08a102613361bcd488489480cb6d30088e7250fde7d6d1da18b1e087442f98846ab9f352e7bf9a39b478018aa9afa1cb3afd3193bbf6070bd418ac09cd8de4e5eb33a456e310de6e3f2d956bd9d5b5ac196006ecb7983ee57121b68e3692c379f9105c6941bbde1f2b6765703c91690be6741de14b743da97fdb3c399ff7637061efaeaba5badccf4dc771bc6a31f34b13bae0233313e9222723003b0c78b41c1590acf7c6a97566570dfed2e9301c2ffcc04453ebf2ab69fa37eb8cab34809dcc9fa04f6600a4d65ebd33cb8e218a322506bf7713c22b32429bbba3d6c0247e1d75f8df78bc404b439f5fb1426d75cfe9b78adac4eae2840048a3fb0636119d5328f62993ccbbd8c444b216cab4bdb53de73aa518a2734de9fb8eabdda26ef331d173a3a74992c5bb8832c22055f82adc3c1779504326b7dbf9bf2df23875d793593450df2fdec06e1d06a4b38a8cf0032a9a1bb8f20a37fda9093ae3b3e06ef9aca82e043e6713f03a5f6307675980861f2f3f40972ed319e570750d9434bdfba248000cb25a4ec9ff10cb0adc5cf2dcfc0e6bad365ae09fe8af5217015f6b65132ce832cbb496c688d4911a6e813d68a2434a6bee4f88c4b62bdeaf7f44018a250993ed6e12dd784600c9c29f0917c6428b04a0f772d3ecf74d4f8a4b7ce571360a0b749ee72d1ab5a9093bcaa66731f92697d6bfad90877818f0597ac822975e2808188a2029596bfcc87bb86d1832f0979fe5dc3f31aaa2a7f44b10657819111ca98fb2f4201a7638081633976d897b359d82f8616b8613acbd7a2a3943b1a80bb3fe7136f9064b03832c93835193081624e1fa9ed3cc1e16b0bdd3f3481d99df7f2c945dc3c04ec1e3bf6a02dbfeac68fc0d7ca29a39ae62a02bf7d9188d737f387671fa7157b744b32a743a27fdfbaf4b66499c8ee112fb1ba0737369954c11fad852480ae112d20a6d1efb3b6dd8e780cbd692309e8b0c21a9ebf5392999a241eb9b69b126af321eecf697e4dc2fc467d8ab6e3a67d410349a07bfd5fb7dccab6fefa0ffab51b1989d6dc659b46f96a61eff4380cb552181c9e3947b134d2e59c51624255f863854555ee96516d3226d7f0a5d0bbef4c7354975bf0a722d1127e430a2296cbdf97ecf2a5de4b80a105f3b8d79a3f0f96c7078944f56105385f2debda8a05b7963cc1df05ab7afedba9dc5384b11f914d3ea17be22acbde93f6b11c82af45ad68defd79aa60ee3d2ccb4bfe07057a9940cd7c9c9e39b7add925efa0e7a1f6f8c48e9dc3800f8d21409a9e78fa2c585eb81cd776b90be1b6aad9475d061d6ff190fad02afab2087e7e324d5f80aaac1cfbfd7601a824eb725118ef87a71d80b1e1fee8dd95a515f427d71623b01d4930dc964e4cb3f4df41fd58f0d7851fcbd5ee00b542f210db94e1cbacffc839fa16fc8b9d4ea287edb4c2a952d382162326d48d5118da235809f641a5197f72fd7cfae2abca68f16e978f54a0ecd757e2b796358d05b0a0060131c1d39cc48427dce6b41dd807d892d551496cc12bee4dae9b082835eb3522434136e2bffbb8c719fe47d2f1af317477fe521d6bfee10e559946bd4fc44269cf7b8fbc2894e6469b22420822e0563203b9e1e36b07637ce89fa39137c0b8c9ffe4fa2a4a3a8dd82c45101c6e9a07123d4f2523b1d814016b5ce2c33a27c344735b7d614252c4108b09ff3dbca1d595053f4cf6ce11433ab5c68eea68744c4c2fa5fdafd260b5bfcd24935bb825aaf9b5c738a89fb95e7a72569dbdea3971187e0c174ea1f2fb8766d7d4a1d2ad6ab446c8aaac1842f7fff9fe34ee901326bc639d35e3ad57ea77f23d34aa44a15e71df736e13365e4690a9bd05954b77875564c6137983b73bd3af5da51f7d9d203c06341da2422e06f774b0274b20b48e3ba27925b2b960968c94a5fc42eaab3907bc4c6f461bd0198034f13c624a81f42f793e730465db5513bc6c3f57cdbadae4262e2ad42aa27c526db22d0d62602f5d669262635dd1be81300f58c3146c77c773d9c6c662a8c61d85d7d2573ccc631e0fe80059f89d43e37159abadc93d0ef560fc961982fbe783232db4ee34047e26b72ff9f57ca9cf1f4f26703e64dfe0e8edfe1bce40c90e8a318183a3a825e52575dda6457adcd8eee5f085c57af9ea85d49c778d157475e380497dceb1af057026c0a711950fd9ad2d1d91481e885cc733206f360cf82f83145341159c9ce7cedfb712c29c63ee67cce48dd8f2337012df0d63ba5516ba411f64f97decaa1fee4e0c95392b6367db531644aa8b05eec9fecad2a4eafa89cc06bb0641697f580a1a1a8b60c0b3bc095bf276c3deda5b4fb4179d031a05920d72094bbf20ff1a9d34551723eee4641547598356ea7c3794b3b4f9e1678461249b7672f26e3dc80462adbb548f3766e11c87a59087d1d1b0a37f54ddcdd1edcdd962971552fa1c08e8a992504fd396589ea74ba894e03eacd1ff8130e5e9a8c75df56b9babfd95737cc18fa3370990e629b62d3cceb942530418326af0735f63a17c5159859117a03d942d68fe9428cadd0400da54cbadb17de7f3262b3969399829dee0b9955fdfb9e1db3dc1a861a766f583c8998a969b9cb28487e5ec52f7960b85d8aaddc7531395eca260b4533d9a14e483a26ce7e61afc964f11a283d33893b23ccff979e8725fea05e2d61ee5a4f95ad8af26e8cbf9182d4d250e3692d2efab3f432f5e81d505306d79e04e6bfc53a30a80b4fd68ac13ec9be7d63d65b5a0cae370fd559478253bf8b12d2c581a68cd1b157b2c24acccfca1b9df6f5d22aad7f3fbc96a2452c819eaeb452e964a319d84d2d65494d0a4235c3ecdc0c1ecd05d16ac7d273c4ba48d97bd3e4ad633ba6d4d99ff314955613242c35240c8a706311f6f181f161137220449ff5ebde1bf5bfddbb240ecc1d70732f8ee89a740b13ed9445ccad55333fda2c0ec9a1189df02240feda37aefbd874c1577640ae7540c609f7e55d3628093f2f0eb2ab3afb7769a7c3959a321cffc5d5bc542df7cce9bf9e3bd7b338f84f2d3cbd8cfaeaad43ccb1ff9c42b4060ddddaa148fc265f50bb68e7341cde89eb26828b1c70219dc6caf065c6c4c181bfed96ff988f7f4a841deff7c78d7e92aabbe7a4719b49797361085f225e448eedcc15215efe9f8eedeb2aa39f441e5a693d314a7401dad654add6358d367844e42523d898ce50f93850b6d7f5f45789a0b9999f1eade58e34a889e01d36062a8d340d14f3e40412d0771ab66f2f60113834b32fe0baf48b25ce3759ec2e1422404d89dff1238698999bb4c3cf071377a70352538083929aefff193f9badb6ed2029383e4657bac5c6dbf900000000000000000000070f131c222d",
+    "signature_len": 3309,
+    "signature_sha256": "912452c99831f357c9e6428ef251fffb50d09e2e2db0f6311a73668f7c4d1c82",
+    "signer_consumes_custody_held_shares_without_export": true,
+    "standard_verifier_accepted": true
+  },
+  "source": {
+    "path": "/Users/rickglenn/Documents/Lattice Aggregation/mpc/Programs/Source/mldsa65_expandmask.mpc",
+    "sha256": "e1b5365906c0258d1352f56a3074244f0bb8a2762a17573cdc034fe07330e4bb"
+  },
+  "steps": [
+    {
+      "local_accepted_kappa_base": 15,
+      "local_rejected": 3,
+      "seed": "00000000",
+      "stage": "emit-inputs"
+    },
+    {
+      "accepted_kappa": 15,
+      "chosen_seed": "00000000",
+      "kappa_list": [
+        0,
+        5,
+        10,
+        15
+      ],
+      "stage": "plan"
+    },
+    {
+      "compiled": true,
+      "duration_s": 0.0,
+      "kappa": 0,
+      "program": "mldsa65_expandmask-3-0-5-256",
+      "stage": "compile"
+    },
+    {
+      "all_outputs_present": true,
+      "completion_seen": true,
+      "duration_s": 29.7,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 0,
+      "logs_clean": true,
+      "reconstruct_ok": true,
+      "stage": "mpc-run",
+      "timed_out": false
+    },
+    {
+      "compiled": true,
+      "duration_s": 33.9,
+      "kappa": 5,
+      "program": "mldsa65_expandmask-3-5-5-256",
+      "stage": "compile"
+    },
+    {
+      "all_outputs_present": true,
+      "completion_seen": true,
+      "duration_s": 30.4,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 5,
+      "logs_clean": true,
+      "reconstruct_ok": true,
+      "stage": "mpc-run",
+      "timed_out": false
+    },
+    {
+      "compiled": true,
+      "duration_s": 32.1,
+      "kappa": 10,
+      "program": "mldsa65_expandmask-3-10-5-256",
+      "stage": "compile"
+    },
+    {
+      "all_outputs_present": true,
+      "completion_seen": true,
+      "duration_s": 33.9,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 10,
+      "logs_clean": true,
+      "reconstruct_ok": true,
+      "stage": "mpc-run",
+      "timed_out": false
+    },
+    {
+      "compiled": true,
+      "duration_s": 31.9,
+      "kappa": 15,
+      "program": "mldsa65_expandmask-3-15-5-256",
+      "stage": "compile"
+    },
+    {
+      "all_outputs_present": true,
+      "completion_seen": true,
+      "duration_s": 28.5,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "kappa": 15,
+      "logs_clean": true,
+      "reconstruct_ok": true,
+      "stage": "mpc-run",
+      "timed_out": false
+    },
+    {
+      "basis": "all party logs clean, exits 0, outputs present, no abort/MAC",
+      "stage": "malicious-verified",
+      "value": true
+    },
+    {
+      "exit_code": 0,
+      "parsed": true,
+      "result": "accepted",
+      "stage": "sign",
+      "standard_verifier_accepted": true
+    }
+  ],
+  "topology": {
+    "coefficient_count": 1280,
+    "coefficients_per_component": 256,
+    "components": 5,
+    "real_parties_N": 3,
+    "security_parameter": 40,
+    "signing_set": "first 3 validators (party p <-> signing_set[p])",
+    "threshold": 3,
+    "validators": [
+      0,
+      1,
+      2,
+      3
+    ]
+  }
+}
