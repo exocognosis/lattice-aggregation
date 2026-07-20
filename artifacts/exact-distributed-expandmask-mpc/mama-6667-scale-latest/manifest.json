@@ -1,0 +1,104 @@
+{
+  "blockers": [
+    "signed 6,667-party inventory is absent",
+    "local hard process limit 4000 is below 6667 parties",
+    "preflight detected one local host; local interfaces, ports, or processes cannot represent 6,667 distinct custodial signer hosts",
+    "distributed CPU, memory, bandwidth, and round-latency capacity has not been reserved and measured",
+    "6,667 production custody roots and signer endpoints are not available in this environment"
+  ],
+  "bounded_probe": {
+    "classification": "not_requested",
+    "passed": false
+  },
+  "campaign_classification": "local_simulation_or_preflight_only",
+  "claim_flags": {
+    "claims_6667_distinct_cryptographic_parties": false,
+    "claims_bounded_two_party_mama_probe": false,
+    "claims_production_private_share_custody": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_real_malicious_mama_6667_custodial_execution": false,
+    "claims_theorem_closure": false
+  },
+  "completion": {
+    "checks": {},
+    "errors": [
+      "completion validation was not attempted"
+    ],
+    "valid": false
+  },
+  "generated_at": "2026-07-19T23:17:51Z",
+  "host": {
+    "cpu_count": 8,
+    "local_host_count": 1,
+    "local_topology_classification": "single_local_host",
+    "memory_bytes": 17179869184,
+    "non_loopback_addresses": [
+      "10.180.28.172"
+    ],
+    "open_files_hard": 9223372036854775807,
+    "open_files_soft": 1048576,
+    "processes_hard": 4000,
+    "processes_soft": 2666,
+    "workspace_disk_free_bytes": 29661003776
+  },
+  "inventory": {
+    "checks": {},
+    "errors": [
+      "signed 6,667-party inventory is absent"
+    ],
+    "path": null,
+    "valid": false
+  },
+  "orchestrator": {
+    "invoked": false,
+    "reason": "production preflight did not pass"
+  },
+  "resource_plan": {
+    "all_to_all_pair_count": 22221111,
+    "local_host_process_limit_sufficient": false,
+    "measured_source": {
+      "benchmark_seconds_max": 14.4249,
+      "evidence_path": "/Users/rickglenn/Documents/Lattice Aggregation/artifacts/exact-distributed-expandmask-mpc/mama-equivalence-latest/manifest.json",
+      "evidence_sha256": "accca57c439896183391cb0090a874e60999b777faefe8e10a870c002dbc54db",
+      "global_data_mb": 3268.97,
+      "party_count": 2,
+      "per_party_data_mb_max": 1634.5,
+      "rounds_max": 18785,
+      "runner_wall_seconds": 16.229131917003542,
+      "security_parameter": 40
+    },
+    "minimum_party_processes": 6667,
+    "network_transfer_floor_seconds": {
+      "10": {
+        "optimistic_total": 8717.7692,
+        "pairwise_extrapolated_total": 58112649.4872
+      },
+      "100": {
+        "optimistic_total": 871.77692,
+        "pairwise_extrapolated_total": 5811264.94872
+      },
+      "25": {
+        "optimistic_total": 3487.10768,
+        "pairwise_extrapolated_total": 23245059.79488
+      }
+    },
+    "notes": [
+      "Two-party measurements do not establish 6,667-party feasibility.",
+      "The optimistic traffic floor assumes measured per-party traffic does not grow with peers.",
+      "The pairwise extrapolation assumes per-party traffic grows in proportion to n-1; it is a topology-sensitive planning bound, not a benchmark.",
+      "Wall time, CPU, and RAM require a staged distributed campaign and cannot be inferred reliably from a two-party run."
+    ],
+    "optimistic_total_network_mb": 10897211.5,
+    "pairwise_extrapolated_per_party_network_mb": 10895577.0,
+    "pairwise_extrapolated_total_network_mb": 72640811859.0
+  },
+  "schema": "lattice-aggregation:mama-6667-scale-run:v1",
+  "status": "blocked_fail_closed",
+  "target": {
+    "output_coefficient_count": 1280,
+    "parameter_set": "ML-DSA-65",
+    "party_count": 6667,
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}

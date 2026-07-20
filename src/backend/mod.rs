@@ -7,15 +7,18 @@
 //! and [`threshold_core::ThresholdMldsaEngine`] provide hazmat real-crypto
 //! paths: seed-share reconstruction, live nonce DKG, binding VSS, partial
 //! share contributions, and FIPS Sign_internal with rejection. The strict
-//! [`fips_sign::strict_distributed_sign_from_s1_y_partials`] path emits an
-//! accepted ML-DSA-65 wire signature from aggregated `s1/y` partials for the
-//! research execution committee. Formal proofs, production 10000/6667 custody,
-//! and external audits remain open.
+//! [`fips_sign::strict_distributed_sign_from_additive_mask_outputs`] path emits
+//! an accepted ML-DSA-65 wire signature from additive MPC `y_i` outputs and
+//! Lagrange-weighted `s1_i` partials for the research execution committee.
+//! Formal proofs, production 10000/6667 custody, and external audits remain
+//! open.
 
 pub mod no_reconstruction;
 
 #[cfg(feature = "raw-real-mldsa")]
 pub mod algebraic_partial;
+#[cfg(feature = "raw-real-mldsa")]
+pub mod custody;
 #[cfg(feature = "raw-real-mldsa")]
 pub mod fips_sign;
 #[cfg(feature = "raw-real-mldsa")]
@@ -33,10 +36,23 @@ pub use algebraic_partial::{
     split_secret_poly_shamir, AlgebraicAggregateZ, AlgebraicPartialStatus, AlgebraicPartialZi,
 };
 #[cfg(feature = "raw-real-mldsa")]
+pub use custody::{
+    end_to_end_linkage_digest, signing_set_identity_digest, AbortRecord, EndToEndLinkageInputs,
+    LedgerError, MaskConsumptionLedger, MaskLedgerState, NonExportableModuleShare,
+    NonExportablePolyArrayShare, ShareProvenance, SignerCustodyHandle65,
+};
+#[cfg(feature = "raw-real-mldsa")]
 pub use fips_sign::{
-    keygen_from_seed, self_contained_sign_with_module_z_shares, sign_internal_empty_ctx,
-    strict_distributed_sign_from_s1_y_partials, ExpandedSecret65, SelfContainedFipsStatus,
-    SelfContainedSignPackage, StrictDistributedSignPackage,
+    additive_mask_input_binding_digest, aggregate_additive_mask_commitments,
+    aggregate_additive_mask_partials, emit_additive_mask_commitment, emit_additive_mask_partial,
+    keygen_from_seed, provision_signer_custody_handles_from_seed_for_test,
+    self_contained_sign_with_module_z_shares, sign_internal_empty_ctx,
+    signing_set_lagrange_weights, strict_distributed_sign_from_additive_mask_outputs,
+    strict_distributed_sign_from_custody_and_mask_outputs,
+    strict_distributed_sign_from_s1_y_partials, AdditiveMaskAttempt65, AdditiveMaskCommitment65,
+    AdditiveMaskShare65, CustodyDistributedSignPackage, CustodySigningInputs, ExpandedSecret65,
+    SelfContainedFipsStatus, SelfContainedSignPackage, SigningSetMember65,
+    StrictDistributedSignPackage,
 };
 #[cfg(feature = "raw-real-mldsa")]
 pub use fips_wire::{

@@ -1,0 +1,191 @@
+{
+  "aggregate_standards_verifiable": false,
+  "campaign_executed": false,
+  "campaign_id": "real-6667-of-10000-mldsa-001",
+  "claim_boundary": "real campaign orchestration evidence only; production security and theorem closure require the separate DKG, custody, malicious-MPC, equivalence, security, and theorem-linkage review gates",
+  "claim_flags": {
+    "claims_campaign_complete": false,
+    "claims_cryptographic_attestation_validation": false,
+    "claims_fips_validation": false,
+    "claims_independent_review_complete": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_theorem_closure": false
+  },
+  "engineering_interfaces": {
+    "additive_mask_signing_seam": {
+      "claims_production_complete": false,
+      "implemented": true,
+      "marker_checks": {
+        "exact_mpc_mask_input_type": true,
+        "exact_mpc_signing_entrypoint": true,
+        "plain_sum_partial_aggregation": true,
+        "signer_partial_emission": true,
+        "signing_set_lagrange_weights": true,
+        "standard_wire_mode": true
+      },
+      "production_complete": false,
+      "recognition_basis": "source_interface_markers_and_digest_only",
+      "remaining_requirements": [
+        "bind supplied mask shares to a live 6,667-party malicious MAMA execution",
+        "consume dealerless-DKG K/s1/s2 shares through attested custody handles",
+        "capture 6,667 distinct real custodial partials and independently verify the aggregate"
+      ],
+      "runtime_execution_evidence_present": false,
+      "source": {
+        "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/backend/fips_sign.rs",
+        "sha256": "51c04f87a6ab3c25510bd59c42e8b3b4e41b424777914dac3a3d3a4bfffb4878"
+      },
+      "status": "implemented_engineering_interface_not_production_complete"
+    },
+    "dealerless_dkg": {
+      "claims_production_complete": false,
+      "implemented": true,
+      "marker_checks": {
+        "commitment_transcript_builder": true,
+        "dealerless_finalization": true,
+        "k_s1_s2_commitment_binding": true,
+        "live_execution_claim_false": true,
+        "no_trusted_dealer_record": true,
+        "participant_limit_10000": true
+      },
+      "production_complete": false,
+      "recognition_basis": "source_interface_markers_and_digest_only",
+      "remaining_requirements": [
+        "execute the 10,000-participant, 6,667-threshold ceremony across real hosts",
+        "use production VSS verification and production custody trust roots",
+        "bind finalized shares to the real partial-signing execution"
+      ],
+      "runtime_execution_evidence_present": false,
+      "source": {
+        "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/dealerless_dkg.rs",
+        "sha256": "5c42f462f14c64eecf2876431b7692f9efd3787d2816dac571fd94136b9a483a"
+      },
+      "status": "implemented_engineering_interface_not_production_complete"
+    },
+    "private_share_custody": {
+      "claims_production_complete": false,
+      "implemented": true,
+      "marker_checks": {
+        "attestation_verifier_interface": true,
+        "k_share_commitment": true,
+        "no_export_provider_interface": true,
+        "opaque_share_handle": true,
+        "production_policy_predicate": true,
+        "receipt_validation": true
+      },
+      "production_complete": false,
+      "recognition_basis": "source_interface_markers_and_digest_only",
+      "remaining_requirements": [
+        "deploy production custody providers backed by configured trust roots",
+        "collect 6,667 valid non-exportable custody attestations",
+        "prove the signing path consumes only custody-held shares"
+      ],
+      "runtime_execution_evidence_present": false,
+      "source": {
+        "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/private_share_custody.rs",
+        "sha256": "592f47ed4a070322e6a721085749de6c3b3c18c8830b4d31f0c420a4f6c3d4f9"
+      },
+      "status": "implemented_engineering_interface_not_production_complete"
+    }
+  },
+  "generated_at": "2026-07-19T23:17:42.692374+00:00",
+  "negative_checks_passed": false,
+  "observed_counts": {
+    "contributing_signers": 0,
+    "eligible_custodians": 0,
+    "enrolled_identities": 0,
+    "partial_contributions": 0
+  },
+  "parameter_set": "ML-DSA-65",
+  "partial_binding_validation": {
+    "cryptographic_attestation_verified": false,
+    "mode": "structural_digest_and_registry_binding_only"
+  },
+  "prerequisite_evidence": {
+    "engineering_interfaces": {
+      "additive_mask_signing_seam": {
+        "claims_production_complete": false,
+        "implemented": true,
+        "marker_checks": {
+          "exact_mpc_mask_input_type": true,
+          "exact_mpc_signing_entrypoint": true,
+          "plain_sum_partial_aggregation": true,
+          "signer_partial_emission": true,
+          "signing_set_lagrange_weights": true,
+          "standard_wire_mode": true
+        },
+        "production_complete": false,
+        "recognition_basis": "source_interface_markers_and_digest_only",
+        "remaining_requirements": [
+          "bind supplied mask shares to a live 6,667-party malicious MAMA execution",
+          "consume dealerless-DKG K/s1/s2 shares through attested custody handles",
+          "capture 6,667 distinct real custodial partials and independently verify the aggregate"
+        ],
+        "runtime_execution_evidence_present": false,
+        "source": {
+          "path": "/Users/rickglenn/Documents/Lattice Aggregation/src/backend/fips_sign.rs",
+          "sha256": "51c04f87a6ab3c25510bd59c42e8b3b4e41b424777914dac3a3d3a4bfffb4878"
+        },
+        "status": "implemented_engineering_interface_not_production_complete"
+      },
+      "dealerless_dkg": {
+        "claims_production_complete": false,
+        "implemented": true,
+        "marker_checks": {
+          "commitment_transcript_builder": true,
+          "dealerless_finalization": true,
+          "k_s1_s2_commitment_binding": true,
+          "live_execution_claim_false": true,
+          "no_trusted_dealer_record": true,
+          "participant_limit_10000": true
+        },
+        "production_complete": false,
+        "recognition_basis": "source_interface_markers_and_digest_only",
+        "remaining_requirements": [
+          "execute the 10,000-participant, 6,667-threshold ceremony across real hosts",
+          "use production VSS verification and production custody trust roots",
+          "bind finalized shares to the real partial-signing execution"
+        ],
+        "runtime_execution_evidence_present": false,
+        "source": {
+          "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/dealerless_dkg.rs",
+          "sha256": "5c42f462f14c64eecf2876431b7692f9efd3787d2816dac571fd94136b9a483a"
+        },
+        "status": "implemented_engineering_interface_not_production_complete"
+      },
+      "private_share_custody": {
+        "claims_production_complete": false,
+        "implemented": true,
+        "marker_checks": {
+          "attestation_verifier_interface": true,
+          "k_share_commitment": true,
+          "no_export_provider_interface": true,
+          "opaque_share_handle": true,
+          "production_policy_predicate": true,
+          "receipt_validation": true
+        },
+        "production_complete": false,
+        "recognition_basis": "source_interface_markers_and_digest_only",
+        "remaining_requirements": [
+          "deploy production custody providers backed by configured trust roots",
+          "collect 6,667 valid non-exportable custody attestations",
+          "prove the signing path consumes only custody-held shares"
+        ],
+        "runtime_execution_evidence_present": false,
+        "source": {
+          "path": "/Users/rickglenn/Documents/lattice-threshold-backend-p1/src/private_share_custody.rs",
+          "sha256": "592f47ed4a070322e6a721085749de6c3b3c18c8830b4d31f0c420a4f6c3d4f9"
+        },
+        "status": "implemented_engineering_interface_not_production_complete"
+      }
+    }
+  },
+  "schema": "lattice-aggregation:real-6667-of-10000-mldsa-campaign-evidence:v1",
+  "schema_version": 1,
+  "standard_verifier_results": null,
+  "status": "blocked_prerequisites_unmet",
+  "topology": {
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}

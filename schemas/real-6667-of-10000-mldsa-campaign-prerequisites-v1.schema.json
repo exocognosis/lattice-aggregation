@@ -1,0 +1,58 @@
+{
+  "$id": "https://lattice-aggregation.invalid/schemas/real-6667-of-10000-mldsa-campaign-prerequisites-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "campaign_command": { "$ref": "#/$defs/command" },
+    "capabilities": {
+      "additionalProperties": false,
+      "properties": {
+        "negative_adversarial_checks": { "$ref": "#/$defs/capability" },
+        "no_secret_reconstruction": { "$ref": "#/$defs/capability" },
+        "real_mldsa_partial_signing": { "$ref": "#/$defs/capability" },
+        "standards_verifier": { "$ref": "#/$defs/capability" }
+      },
+      "required": ["negative_adversarial_checks", "no_secret_reconstruction", "real_mldsa_partial_signing", "standards_verifier"],
+      "type": "object"
+    },
+    "custody_registry": { "$ref": "#/$defs/boundFile" },
+    "enrollment_registry": { "$ref": "#/$defs/boundFile" },
+    "parameter_set": { "const": "ML-DSA-65" },
+    "schema": { "const": "lattice-aggregation:real-6667-of-10000-mldsa-campaign-prerequisites:v1" },
+    "standard_verifier_command": { "$ref": "#/$defs/command" },
+    "threshold": { "const": 6667 },
+    "validator_count": { "const": 10000 }
+  },
+  "required": ["campaign_command", "capabilities", "custody_registry", "enrollment_registry", "parameter_set", "schema", "standard_verifier_command", "threshold", "validator_count"],
+  "type": "object",
+  "$defs": {
+    "boundFile": {
+      "additionalProperties": false,
+      "properties": {
+        "path": { "minLength": 1, "type": "string" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "required": ["path", "sha256"],
+      "type": "object"
+    },
+    "capability": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": { "$ref": "#/$defs/boundFile" },
+        "ready": { "const": true }
+      },
+      "required": ["evidence", "ready"],
+      "type": "object"
+    },
+    "command": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": { "items": { "minLength": 1, "type": "string" }, "minItems": 1, "type": "array" },
+        "executable_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "required": ["argv", "executable_sha256"],
+      "type": "object"
+    },
+    "sha256": { "pattern": "^[0-9a-f]{64}$", "type": "string" }
+  }
+}

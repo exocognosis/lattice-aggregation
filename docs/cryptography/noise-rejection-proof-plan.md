@@ -82,7 +82,13 @@ on rejection sampling removing challenge-dependent leakage.
 Required assumptions:
 
 - Local mask shares are sampled from the protocol-specified distribution.
-- The threshold protocol accounts for Lagrange scaling of mask shares.
+- The threshold protocol plain-sums the additive mask shares `y_i`, which are
+  NOT Lagrange-scaled (`y = sum_{i in A} y_i mod q`); Lagrange weighting
+  `lambda_i(A)` is applied only to the Shamir secret share `s1_i` inside each
+  `z_i = y_i + c*(lambda_i(A)*s1_i)`. Any residual Lagrange-scaled aggregate
+  form written elsewhere in this plan is superseded by the implemented additive
+  path (`src/backend/fips_sign.rs` `emit_additive_mask_partial` /
+  `aggregate_additive_mask_partials`).
 - The aggregate distribution has the correct support and min-entropy.
 
 Remaining proof work:

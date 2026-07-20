@@ -1,0 +1,186 @@
+{
+  "all_expected_evidence_present": true,
+  "bundle_digest": "a65e8ee63a3b7526498ef82410e5735a874c24238d2556c9a92de0ec4dffde6a",
+  "claim_boundary": "Evidence frozen and digest-bound for external review only. No external equivalence, security, or theorem-linkage review has occurred. Internal AI-agent review is not external independent review. Every production, no-single-secret, N-party-execution, and theorem-closure claim remains unproven and fail-closed.",
+  "claim_flags": {
+    "claims_6667_party_mama_execution": false,
+    "claims_external_independent_review_complete": false,
+    "claims_no_single_secret_signing_path": false,
+    "claims_production_private_share_custody": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_real_6667_of_10000_mldsa_campaign": false,
+    "claims_theorem_closure": false
+  },
+  "evidence": [
+    {
+      "name": "signer_custody_module",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "src/backend/custody.rs",
+      "sha256": "2682d2b496c66fc0bc01d03b49552425c337a39010aeb09517b3ca8e8dc33835",
+      "size_bytes": 22353
+    },
+    {
+      "name": "signer_fips_sign",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "src/backend/fips_sign.rs",
+      "sha256": "51c04f87a6ab3c25510bd59c42e8b3b4e41b424777914dac3a3d3a4bfffb4878",
+      "size_bytes": 94717
+    },
+    {
+      "name": "signer_backend_mod",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "src/backend/mod.rs",
+      "sha256": "1305b154be16b2768f58b326ab93e029afc80ce34eabe3925a0a33e5f48400e3",
+      "size_bytes": 9887
+    },
+    {
+      "name": "crate_root",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "src/lib.rs",
+      "sha256": "4c3579cad0e064c9b63488eebd8baf0b59dead0bbf9b9f3c022d7d352e2e36ef",
+      "size_bytes": 3976
+    },
+    {
+      "name": "internal_expandmask_additive_review",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "docs/reviews/2026-07-19-expandmask-additive-ml-dsa-internal-review.md",
+      "sha256": "634d792ff6ad36a36afa0b8a8beea24c2f4da0a4362e3fd2b869d70bcb1e6b69",
+      "size_bytes": 23498
+    },
+    {
+      "name": "internal_six_gate_review",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "docs/reviews/2026-07-19-six-gate-security-production-review.md",
+      "sha256": "0e53b3c1bc8d9fddc71a57c3ba18fa4add4d94e107e2737096401d55967bd8cc",
+      "size_bytes": 22149
+    },
+    {
+      "name": "internal_expandmask_additive_gates",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "artifacts/reviews/expandmask-additive-ml-dsa-internal-gates.json",
+      "sha256": "ae24f9ae067ad09955a75f9686727b6805ebbcd2254d1d071cbb44f0a075a6db",
+      "size_bytes": 5981
+    },
+    {
+      "name": "internal_six_gate_gates",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "artifacts/reviews/2026-07-19-six-gate-security-production-gate.json",
+      "sha256": "42a586bcbc2b2a7137937c9997ee0a988d550ae630eeb5934cbe380c8d539050",
+      "size_bytes": 12860
+    },
+    {
+      "name": "campaign_manifest",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "artifacts/real-6667-of-10000-mldsa-campaign/latest/manifest.json",
+      "sha256": "418342e5756502e8659c244dd0a63d92251169cccdeed5a534cc06259d32d37b",
+      "size_bytes": 8278
+    },
+    {
+      "name": "campaign_blockers",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "artifacts/real-6667-of-10000-mldsa-campaign/latest/blockers.json",
+      "sha256": "c8d3f4f3e7707f3c73fbbd3ccb9d77fbb9d6df2b3971a6de90bcb18a270e0343",
+      "size_bytes": 8709
+    },
+    {
+      "name": "mama_6667_scale_manifest",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "artifacts/exact-distributed-expandmask-mpc/mama-6667-scale-latest/manifest.json",
+      "sha256": "7ba6b5d582de5df9ac6b77071b91197a54bd87ac82c45b8bb5a21812f565270c",
+      "size_bytes": 3738
+    },
+    {
+      "name": "campaign_runner",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "scripts/run_real_6667_of_10000_mldsa_campaign.py",
+      "sha256": "7804cfaf5404c8e66c1639e3cf0c0778ec1342d2eb6b3888e5db505432060095",
+      "size_bytes": 46962
+    },
+    {
+      "name": "mama_scale_runner",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "scripts/run_mama_6667_scale.py",
+      "sha256": "1eb0574ce6ebc598df315c26a633b4bcc5b8768bc3ee24cd3660ac7460e26966",
+      "size_bytes": 47327
+    },
+    {
+      "name": "exact_expandmask_circuit",
+      "origin": "primary",
+      "present": true,
+      "relative_path": "mpc/Programs/Source/mldsa65_expandmask.mpc",
+      "sha256": "e1b5365906c0258d1352f56a3074244f0bb8a2762a17573cdc034fe07330e4bb",
+      "size_bytes": 7989
+    },
+    {
+      "name": "backend_dealerless_dkg",
+      "origin": "backend",
+      "present": true,
+      "relative_path": "src/dealerless_dkg.rs",
+      "sha256": "5c42f462f14c64eecf2876431b7692f9efd3787d2816dac571fd94136b9a483a",
+      "size_bytes": 29107
+    },
+    {
+      "name": "backend_private_share_custody",
+      "origin": "backend",
+      "present": true,
+      "relative_path": "src/private_share_custody.rs",
+      "sha256": "592f47ed4a070322e6a721085749de6c3b3c18c8830b4d31f0c420a4f6c3d4f9",
+      "size_bytes": 9707
+    },
+    {
+      "name": "backend_cli",
+      "origin": "backend",
+      "present": true,
+      "relative_path": "src/main.rs",
+      "sha256": "ea3bef001626f85437e85501f48f59f21bd421cdbb81ea65a383712b6517927d",
+      "size_bytes": 26649
+    },
+    {
+      "name": "backend_dkg_custody_doc",
+      "origin": "backend",
+      "present": true,
+      "relative_path": "docs/NO_DEALER_DKG_AND_CUSTODY.md",
+      "sha256": "1a7b3c3a40bd8071318b517dc38a73bbb0bd9072b60e4a1b336b18f9c3cf9719",
+      "size_bytes": 2683
+    }
+  ],
+  "external_review_status": "not_started",
+  "external_reviewers": [],
+  "generated_at": "2026-07-19T23:47:51Z",
+  "internal_ai_review_is_not_external_review": true,
+  "name": "external-review-freeze-bundle-v1",
+  "review_scope": [
+    "equivalence",
+    "security",
+    "theorem_linkage"
+  ],
+  "reviewer_checklist": [
+    "Independently confirm the additive/Lagrange mixed-share equation z_i = y_i + c*(lambda_i*s1_i) and the plain-sum z aggregation.",
+    "Confirm the custody-consumption seam is only a code seam: the test provisioner holds the whole secret, so no-single-secret is NOT proven.",
+    "Confirm the signer still derives the full key from one seed in the shipped harness (single-secret signing path remains open).",
+    "Confirm DKG K shares are not yet consumed by the MPC input path and that rhopp is coordinator-known in the custody harness (a test artifact).",
+    "Confirm custody-held s1/s2 shares trace to a locally generated secret, not a real attested hardware/TEE vault.",
+    "Confirm the end-to-end linkage digest only BINDS fields and does not prove the DKG/MPC transcripts came from real distributed executions.",
+    "Confirm retry/abort accounting exists but formal erasure and selective-abort proofs are incomplete.",
+    "Confirm ExpandA is byte-exact in the wire path but deferred in the module-form DKG, so wire-verifiable shares cannot yet be sourced from the module DKG (open reconciliation blocker).",
+    "Confirm no 6,667-party MAMA execution exists (only a 2-party run).",
+    "Confirm the real 6,667-of-10,000 campaign has not executed (blocked_prerequisites_unmet).",
+    "Provide named, signed external equivalence, security, and theorem-linkage reviews; none exist yet."
+  ],
+  "schema": "lattice-aggregation:external-review-freeze-bundle:v1",
+  "schema_version": 1,
+  "status": "frozen_prepared_for_external_review_not_reviewed"
+}
