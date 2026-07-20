@@ -29,3 +29,10 @@
 * [0-9].*
 * [0-9][0-9].*
 *(conflicted copy*).*
+
+# MPC run-capture ephemera: TLS keys/certs, preprocessing secrets, VM memory
+artifacts/real-small-distributed-aggregation/**/P[0-9].key
+artifacts/real-small-distributed-aggregation/**/P[0-9].pem
+artifacts/real-small-distributed-aggregation/**/Mascot-Secrets-*
+artifacts/real-small-distributed-aggregation/**/Memory-*
+artifacts/real-small-distributed-aggregation/**/Player-MAC-Keys-*
