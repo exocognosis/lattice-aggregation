@@ -6,15 +6,6 @@
 
 Unlike BLS, native ML-DSA signatures do not aggregate. A naive migration creates severe signature bloat (tens of MB per block for large validator sets). This project explores a zero-compromise path: an interactive threshold protocol that preserves standard verification.
 
-> ### ▶ Run it yourself in one command
-> Several parties jointly produce one real, standard ML-DSA-65 signature, and a **third party library** (RustCrypto `ml-dsa`) confirms it. No MPC build required for the default check.
->
-> ```
-> ./demo/run_demo.sh
-> ```
->
-> See **[demo/README.md](demo/README.md)** for what it proves, the honest limits, and the full live run.
-
 **Current status (v0.2.0)**: Closure-run implementation track
 
 `partially_proven` — All five tracked hypothesis criteria are `partially_met`. Three foundation results have already been proved. The remaining cryptographic backend, proof, validation, and audit artifacts are tracked explicitly as run inputs.
@@ -32,10 +23,41 @@ Post-quantum migration for proof-of-stake chains creates a difficult tradeoff: e
 ## What Exists Today
 
 - Type-state Rust protocol with deterministic transcripts and commitment-before-challenge enforcement
+- A working small-scale distributed signing pipeline with a reproducible demo (see below)
 - Reproducible evidence and hypothesis assessment tooling
 - Explicit Epsilon Residual Ledger tracking the five open security boundaries
 - Three proved foundation lemmas (transcript injectivity, subthreshold share privacy, conditional aggregation correctness)
 - Grant-ready documentation and reviewer materials
+
+## Working Demo: Distributed Signing You Can Verify Yourself
+
+The core claim of this project is demonstrable today at small scale. Several
+parties jointly produce one standard ML-DSA-65 signature. The per-signer nonce
+shares come from a real malicious-secure multi-party computation (MP-SPDZ,
+dishonest majority): the joint nonce is computed inside the MPC and is never
+held by any single party. Each signer contributes a partial signature from a
+sealed share of the key, the partials aggregate into one ordinary 3,309-byte
+signature, and the unmodified FIPS 204 verifier accepts it.
+
+You do not have to trust this repository's own code to check that claim. The
+demo verifies a committed signature from a real distributed run using the
+independent RustCrypto [`ml-dsa`](https://crates.io/crates/ml-dsa) crate, and
+confirms a tampered message is rejected. The default check needs only a Rust
+toolchain:
+
+```bash
+./demo/run_demo.sh
+```
+
+To regenerate the signature live via the full N-party MPC instead of verifying
+the committed run, use `./demo/run_demo.sh --full` (requires a built MP-SPDZ;
+see [demo/README.md](demo/README.md)).
+
+Honest scope, stated plainly: this is an engineering reproduction of published
+threshold ML-DSA work, not a novel result. Key sharing currently uses a trusted
+setup (dealt then shared, not a dealerless DKG), it runs at small party counts,
+and it has not had an external audit. [demo/README.md](demo/README.md) spells
+out exactly what is demonstrated and what is not yet.
 
 ## Quick Start – Reproduce Current Evidence
 
