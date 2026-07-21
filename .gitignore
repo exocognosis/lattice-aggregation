@@ -36,3 +36,7 @@ artifacts/real-small-distributed-aggregation/**/P[0-9].pem
 artifacts/real-small-distributed-aggregation/**/Mascot-Secrets-*
 artifacts/real-small-distributed-aggregation/**/Memory-*
 artifacts/real-small-distributed-aggregation/**/Player-MAC-Keys-*
+
+# demo verifier build artifacts
+demo/verify_signature/target/
+demo/verify_signature/Cargo.lock
