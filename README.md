@@ -6,15 +6,6 @@
 
 Unlike BLS, native ML-DSA signatures do not aggregate. A naive migration creates severe signature bloat (tens of MB per block for large validator sets). This project explores a zero-compromise path: an interactive threshold protocol that preserves standard verification.
 
-> ### ▶ Run it yourself in one command
-> Several parties jointly produce one real, standard ML-DSA-65 signature, and a **third party library** (RustCrypto `ml-dsa`) confirms it. No MPC build required for the default check.
->
-> ```
-> ./demo/run_demo.sh
-> ```
->
-> See **[demo/README.md](demo/README.md)** for what it proves, the honest limits, and the full live run.
-
 **Current status (v0.2.0)**: Closure-run implementation track
 
 `partially_proven` — All five tracked hypothesis criteria are `partially_met`. Three foundation results have already been proved. The remaining cryptographic backend, proof, validation, and audit artifacts are tracked explicitly as run inputs.
