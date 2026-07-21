@@ -49,8 +49,8 @@ mod driver {
         backend::Mldsa65Backend, import_expandmask_attempt, keygen_from_seed, mpc_input_assignment,
         provision_signer_custody_handles_from_seed_for_test, sign_internal_empty_ctx,
         signing_set_lagrange_weights, strict_distributed_sign_from_custody_and_mask_outputs,
-        CustodySigningInputs, MaskConsumptionLedger, RealMldsa65Backend, ValidatorId, XorShareSet32,
-        BINARY_OUTPUT_BYTE_LEN, MODULE_L,
+        CustodySigningInputs, MaskConsumptionLedger, RealMldsa65Backend, ValidatorId,
+        XorShareSet32, BINARY_OUTPUT_BYTE_LEN, MODULE_L,
     };
 
     /// Retry step of the signer's rejection loop (matches `(..).step_by(L)`).
@@ -68,7 +68,7 @@ mod driver {
 
     fn hex_decode(text: &str) -> Result<Vec<u8>, String> {
         let text = text.trim();
-        if text.len() % 2 != 0 {
+        if !text.len().is_multiple_of(2) {
             return Err(format!("hex string has odd length: {}", text.len()));
         }
         (0..text.len() / 2)
@@ -283,13 +283,17 @@ mod driver {
         // retries this (seed, rnd, message) needs. Because the custody path uses
         // the identical rhopp and rejection predicates, the accepted kappa_base
         // here is exactly the one the distributed run will accept at.
-        let (_sig, _z, local_rejected) =
-            sign_internal_empty_ctx(&secret, message.as_bytes(), &rnd)
-                .map_err(|error| format!("local preflight sign: {error:?}"))?;
+        let (_sig, _z, local_rejected) = sign_internal_empty_ctx(&secret, message.as_bytes(), &rnd)
+            .map_err(|error| format!("local preflight sign: {error:?}"))?;
         let local_accepted_kappa_base = local_rejected.saturating_mul(u32::from(KAPPA_STEP));
 
         // XOR-split K and rnd across the parties; build per-player MPC inputs.
-        let k_shares = xor_split(&secret.k_seed, parties, b"mldsa-expandmask-key-share", &seed);
+        let k_shares = xor_split(
+            &secret.k_seed,
+            parties,
+            b"mldsa-expandmask-key-share",
+            &seed,
+        );
         let rnd_shares = xor_split(&rnd, parties, b"mldsa-expandmask-rnd-share", &seed);
 
         let player_data = run_dir.join("Player-Data");
@@ -461,7 +465,10 @@ mod driver {
 
         let mut ledger = MaskConsumptionLedger::new();
         let sign_result = strict_distributed_sign_from_custody_and_mask_outputs(
-            &inputs, &handles, &attempts, &mut ledger,
+            &inputs,
+            &handles,
+            &attempts,
+            &mut ledger,
         );
 
         match sign_result {

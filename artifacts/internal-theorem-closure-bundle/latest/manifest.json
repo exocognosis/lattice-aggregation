@@ -1438,7 +1438,7 @@
       "artifacts/internal-theorem-closure-evidence/latest/unauthorized_aggregate_reduction.json",
       "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.pdf",
       "docs/whitepaper/ML-DSA_Lattice_Aggregator_research-paper-v0.3.tex",
-      "rtifacts/internal-aggregation-campaign/latest/manifest.json"
+      "artifacts/internal-aggregation-campaign/latest/manifest.json"
     ],
     "commit": "c9525c68156c4563f7977052f4dda86403aea29d",
     "repository_available": true,

@@ -227,18 +227,18 @@ pub fn wire_public_key_from_module_secret(
 
     // NTT of each canonicalized s1 component, in the FIPS-pinned NTT domain.
     let mut s1_hat = vec![[0i32; N]; MODULE_L];
-    for column in 0..MODULE_L {
-        s1_hat[column] = secret.s1[column].canonical().coeffs;
-        ntt(&mut s1_hat[column]);
+    for (column, s1_column_hat) in s1_hat.iter_mut().enumerate() {
+        *s1_column_hat = secret.s1[column].canonical().coeffs;
+        ntt(s1_column_hat);
     }
 
     // t[r] = InvNTT( sum_s A_hat[r][s] o NTT(s1[s]) ) + s2[r].
     let mut t = Vec::with_capacity(MODULE_K);
-    for row in 0..MODULE_K {
+    for (row, a_row_hat) in a_hat.iter().enumerate() {
         let mut acc = [0i32; N];
-        for column in 0..MODULE_L {
+        for (a_column_hat, s1_column_hat) in a_row_hat.iter().zip(s1_hat.iter()) {
             for i in 0..N {
-                let product = ((i64::from(a_hat[row][column][i]) * i64::from(s1_hat[column][i]))
+                let product = ((i64::from(a_column_hat[i]) * i64::from(s1_column_hat[i]))
                     .rem_euclid(i64::from(Q))) as i32;
                 acc[i] = add_mod_q(acc[i], product);
             }

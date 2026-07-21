@@ -192,34 +192,48 @@ pub struct StrictDistributedSignPackage {
 /// One member of the active signing set and its Lagrange coefficient at zero.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct SigningSetMember65 {
+    /// Validator identity for this signing-set member.
     pub validator: ValidatorId,
+    /// Nonzero Shamir evaluation point assigned to the validator.
     pub x: u16,
+    /// Lagrange coefficient at zero used to reconstruct the signed response.
     pub lagrange_weight: i32,
 }
 
 /// Signer-private additive share of an exact ML-DSA-65 `ExpandMask` output.
 #[derive(Clone, Debug)]
 pub struct AdditiveMaskShare65 {
+    /// Validator identity that owns this additive mask share.
     pub validator: ValidatorId,
+    /// Nonzero Shamir evaluation point assigned to the validator.
     pub x: u16,
+    /// Additive share of the signer-private `y` mask vector.
     pub mask_share: ModuleVecL,
 }
 
 /// One retry-safe exact-ExpandMask MPC output bundle.
 #[derive(Clone, Debug)]
 pub struct AdditiveMaskAttempt65 {
+    /// First rejection-sampling counter covered by this mask attempt.
     pub kappa_base: u16,
+    /// Digest binding this attempt to the ordered signing set and transcript input.
     pub input_binding_digest: [u8; 32],
+    /// Whether the malicious-secure MPC transcript verifier accepted this attempt.
     pub malicious_mpc_verified: bool,
+    /// Whether the MPC output was checked against exact FIPS `ExpandMask` semantics.
     pub exact_expandmask_equivalence_verified: bool,
+    /// Additive mask shares emitted for the active signing set.
     pub shares: Vec<AdditiveMaskShare65>,
 }
 
 /// Public nonce commitment emitted by a signer without revealing `y_i`.
 #[derive(Clone, Debug)]
 pub struct AdditiveMaskCommitment65 {
+    /// Validator identity that emitted the commitment.
     pub validator: ValidatorId,
+    /// Nonzero Shamir evaluation point assigned to the validator.
     pub x: u16,
+    /// Signer-local commitment vector `w_i = A * y_i`.
     pub w_i: [Poly; K],
 }
 
@@ -2196,6 +2210,7 @@ fn derive_poly_array_share<const M: usize>(mask_seed: &[u8], share_index: u16) -
     share
 }
 
+#[allow(dead_code)]
 fn aggregate_module_partials_selected(
     partials: &[ModulePartialZi],
     selected: &[SelectedReceiver],
