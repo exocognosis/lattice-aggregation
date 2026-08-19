@@ -202,7 +202,7 @@ def run_command(command, root, env):
     }
 
 
-def capture_value(command, root, fallback="unknown"):
+def capture_value(command, root, fallback="unknown", timeout_seconds=10):
     try:
         completed = subprocess.run(
             command,
@@ -211,8 +211,9 @@ def capture_value(command, root, fallback="unknown"):
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             check=False,
+            timeout=timeout_seconds,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         return fallback
     if completed.returncode != 0:
         return fallback
@@ -222,10 +223,17 @@ def capture_value(command, root, fallback="unknown"):
 
 def collect_metadata(root):
     root = Path(root)
+    dirty_output = capture_value(
+        ["git", "status", "--short"],
+        root,
+        fallback="__status_unavailable__",
+        timeout_seconds=5,
+    )
     return {
         "commit": capture_value(["git", "rev-parse", "HEAD"], root),
         "branch": capture_value(["git", "branch", "--show-current"], root),
-        "dirty": bool(capture_value(["git", "status", "--short"], root, fallback="")),
+        "dirty": dirty_output != "",
+        "dirty_status_unavailable": dirty_output == "__status_unavailable__",
         "cargo_version": capture_value(["cargo", "--version"], root),
         "rustc_version": capture_value(["rustc", "--version"], root),
         "os": platform.platform(),

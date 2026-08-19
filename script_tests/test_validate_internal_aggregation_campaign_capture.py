@@ -34,6 +34,8 @@ CAPABILITY_FIELDS = [
     "per_receiver_private_share_custody",
 ]
 
+EXPANDMASK_MPC_CONSUMPTION_ROLE = "exact_expandmask_mpc_consumption"
+
 
 def capability_evidence_fixture(root):
     source_records = []
@@ -112,6 +114,45 @@ def evidence_bundle(root, roles):
                     "aggregate_evidence_digest_hex": evidence["aggregate_evidence_digest_hex"],
                 }
             )
+        elif role == EXPANDMASK_MPC_CONSUMPTION_ROLE:
+            path = pathlib.Path("evidence") / "exact-expandmask-mpc-consumption.json"
+            full_path = root / path
+            consumed_attempts = [
+                {
+                    "case_id": "k08-accepted-001",
+                    "counter": 0,
+                    "kappa_base": 0,
+                    "signer_count": 6667,
+                    "input_binding_digest_hex": digest(b"input binding"),
+                    "transcript_digest_hex": digest(b"mpc transcript"),
+                    "exact_expandmask_equivalence_verified": True,
+                    "malicious_mpc_verified": True,
+                    "all_mpc_parties_exited_zero": True,
+                    "mac_check_passed": True,
+                }
+            ]
+            evidence = {
+                "schema": "lattice-threshold-backend-p1:exact-expandmask-mpc-consumption:v1",
+                "request_sha256": digest(b"request"),
+                "transcript_bundle_digest_hex": digest(b"transcript bundle"),
+                "exact_distributed_expand_mask": True,
+                "exact_expand_mask_mpc": True,
+                "all_required_attempts_consumed": True,
+                "all_attempts_exact_expandmask_equivalent": True,
+                "all_attempts_malicious_mpc_verified": True,
+                "no_local_expandmask_fallback_used": True,
+                "required_case_count": 1,
+                "consumed_case_count": 1,
+                "attempt_count": len(consumed_attempts),
+                "consumed_attempts": consumed_attempts,
+                "claim_boundary": {
+                    "claims_theorem_closure": False,
+                    "claims_distribution_compatibility_proven": False,
+                },
+            }
+            content = canonical_json(evidence).encode()
+            full_path.write_bytes(content)
+            records.append({"role": role, "path": path.as_posix(), "sha256": digest(content)})
         else:
             content = f"contract-test:{role}\n".encode()
             full_path.write_bytes(content)
