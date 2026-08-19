@@ -373,7 +373,7 @@ def git_inventory_records(paths, root):
 def build_inventory(paths, root):
     """Return per-file hashes plus a deterministic tree digest."""
     records = git_inventory_records(paths, root)
-    if records is None:
+    if records is None or not records:
         records = [file_record(path, root) for path in expand_files(paths)]
     digest_material = [
         {

@@ -77,6 +77,10 @@ CAPABILITY_EVIDENCE_BINDING_SCHEMA = (
     "lattice-threshold-backend-p1:dkg-custody-capability-evidence-binding:v1"
 )
 CAPABILITY_EVIDENCE_ROLE = "dkg_custody_capability_evidence"
+DKG_CUSTODY_CONSUMPTION_SCHEMA = (
+    "lattice-threshold-backend-p1:dkg-custody-record-consumption:v1"
+)
+DKG_CUSTODY_CONSUMPTION_ROLE = "dkg_custody_record_consumption"
 EXPANDMASK_MPC_CONSUMPTION_SCHEMA = (
     "lattice-threshold-backend-p1:exact-expandmask-mpc-consumption:v1"
 )
@@ -339,6 +343,7 @@ def validate_core(capture, evidence_roles, evidence_base, blockers):
         if not isinstance(core.get(field), bool):
             blockers.append(f"cryptographic core evidence-bound field must be boolean: {field}")
     validate_capability_evidence(core, evidence_roles, evidence_base, blockers)
+    validate_dkg_custody_consumption(core, evidence_roles, evidence_base, blockers)
     validate_expandmask_mpc_consumption(core, evidence_roles, evidence_base, blockers)
     check_equal(
         blockers,
@@ -497,6 +502,98 @@ def validate_capability_evidence(core, evidence_roles, evidence_base, blockers):
         canonical_json(aggregate_input)
     ) != evidence.get("aggregate_evidence_digest_hex"):
         blockers.append("DKG/custody aggregate evidence digest mismatch")
+
+
+def validate_dkg_custody_consumption(core, evidence_roles, evidence_base, blockers):
+    """Validate production DKG/custody evidence when the core claims it."""
+    claimed_fields = [
+        field for field in EVIDENCE_BOUND_CORE_CHECKS if core.get(field) is True
+    ]
+    record = evidence_roles.get(DKG_CUSTODY_CONSUMPTION_ROLE)
+    if not isinstance(record, dict):
+        if claimed_fields:
+            blockers.append(
+                "DKG/custody production core claims require dkg_custody_record_consumption evidence"
+            )
+        return
+    path_value = record.get("path")
+    if not isinstance(path_value, str):
+        blockers.append("DKG/custody consumption evidence path missing")
+        return
+    pure_path = PurePosixPath(path_value)
+    if pure_path.is_absolute() or ".." in pure_path.parts:
+        blockers.append("DKG/custody consumption evidence path is not safely contained")
+        return
+    evidence_path = Path(evidence_base) / Path(*pure_path.parts)
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        blockers.append("DKG/custody consumption evidence is not valid UTF-8 JSON")
+        return
+
+    check_equal(
+        blockers,
+        evidence.get("schema"),
+        DKG_CUSTODY_CONSUMPTION_SCHEMA,
+        "DKG/custody consumption schema",
+    )
+    if not is_digest(evidence.get("request_sha256")):
+        blockers.append("DKG/custody consumption request digest invalid")
+    source = evidence.get("source")
+    if not isinstance(source, dict):
+        blockers.append("DKG/custody consumption source missing")
+    else:
+        mode = source.get("mode")
+        if mode not in ("not_provided", "external_dkg_custody_record"):
+            blockers.append("DKG/custody consumption source mode invalid")
+        if mode == "external_dkg_custody_record" and not is_digest(source.get("sha256")):
+            blockers.append("DKG/custody consumption source digest invalid")
+
+    flags = evidence.get("capability_flags")
+    if not isinstance(flags, dict):
+        blockers.append("DKG/custody consumption capability_flags missing")
+        flags = {}
+    for field in EVIDENCE_BOUND_CORE_CHECKS:
+        value = flags.get(field)
+        if not isinstance(value, bool):
+            blockers.append(f"DKG/custody consumption capability flag must be boolean: {field}")
+        elif value != core.get(field):
+            blockers.append(f"DKG/custody consumption/core binding mismatch: {field}")
+
+    checks = evidence.get("checks")
+    if not isinstance(checks, dict):
+        blockers.append("DKG/custody consumption checks missing")
+        checks = {}
+    for key, value in checks.items():
+        if not isinstance(key, str) or not isinstance(value, bool):
+            blockers.append("DKG/custody consumption checks must map strings to booleans")
+            break
+
+    evidence_blockers = evidence.get("blockers")
+    if not isinstance(evidence_blockers, list) or any(
+        not isinstance(item, str) for item in evidence_blockers
+    ):
+        blockers.append("DKG/custody consumption blockers must be a string list")
+        evidence_blockers = []
+
+    if claimed_fields:
+        require_true(
+            blockers,
+            evidence,
+            "production_dkg_custody_ready",
+            "DKG/custody consumption",
+        )
+        if evidence_blockers:
+            blockers.append(
+                "DKG/custody production core claims require a blocker-free consumption record"
+            )
+        for field in EVIDENCE_BOUND_CORE_CHECKS:
+            require_true(
+                blockers,
+                flags,
+                field,
+                "DKG/custody production capability flag",
+            )
 
 
 def validate_expandmask_mpc_consumption(core, evidence_roles, evidence_base, blockers):

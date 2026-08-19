@@ -498,6 +498,25 @@ class InternalAggregationCampaignCaptureValidationTests(unittest.TestCase):
             report["blockers"],
         )
 
+    def test_production_dkg_claim_requires_bound_consumption_evidence(self):
+        builder = build_module()
+        validator = load_module(VALIDATE_SCRIPT, "validate_internal_campaign_dkg_claim")
+        request = builder.build_request("theorem-closure-internal-001")["request"]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            capture = capture_for(
+                request, evidence_bundle(root, validator.REQUIRED_EVIDENCE_ROLES)
+            )
+            capture["cryptographic_core"]["distributed_dkg_vss"] = True
+            report = validator.validate_campaign(request, capture, root)
+
+        self.assertEqual(report["campaign_status"], "blocked_fail_closed")
+        self.assertFalse(report["internal_campaign_evidence_ready"])
+        self.assertIn(
+            "DKG/custody production core claims require dkg_custody_record_consumption evidence",
+            report["blockers"],
+        )
+
     def test_missing_authorization_or_mutation_evidence_fails_closed(self):
         builder = build_module()
         validator = load_module(VALIDATE_SCRIPT, "validate_internal_campaign_missing")
