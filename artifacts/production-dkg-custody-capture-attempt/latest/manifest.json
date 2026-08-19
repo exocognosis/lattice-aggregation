@@ -1,0 +1,79 @@
+{
+  "backend_command": [],
+  "backend_command_origin": null,
+  "backend_command_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "blockers": [
+    "production DKG/custody backend command not supplied"
+  ],
+  "candidate_capture_path": "artifacts/production-dkg-custody-capture-attempt/latest/candidate-capture.json",
+  "capture_sha256": null,
+  "claim_boundary": "production DKG/custody acquisition gate only; theorem closure remains pending exact campaign, proof, validation, and independent review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_no_single_exposed_secret_key": false,
+    "claims_production_dkg_custody_closure": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_standard_verifier_threshold_signature_closure": false,
+    "claims_theorem_closure": false
+  },
+  "command_result": null,
+  "generated_at": "2026-08-19T21:43:41Z",
+  "metadata": {
+    "branch": "codex/post-119-crypto-evidence",
+    "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
+    "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "commit": "fc9ce8e1e4c5f0fb8c00c23b291a5abde23b6ed8",
+    "dirty": true,
+    "dirty_status_unavailable": false,
+    "os": "macOS-26.6.1-arm64-arm-64bit",
+    "python_version": "3.12.8",
+    "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
+  },
+  "production_dkg_custody_capture_ready": false,
+  "request": {
+    "path": "artifacts/production-dkg-custody-capture-attempt/latest/request.json",
+    "present": true,
+    "sha256": "407f3fffb688ca368b2f1a45d91c38a179ea3968bc4bab10093c80f6a47c3e49",
+    "size_bytes": 3005
+  },
+  "request_sha256": "407f3fffb688ca368b2f1a45d91c38a179ea3968bc4bab10093c80f6a47c3e49",
+  "required_false_evidence_fields": [
+    "coordinator_observed_clear_dkg_shares_before_custody",
+    "secret_material_exported_to_json",
+    "raw_seed_exported_to_json",
+    "expanded_key_exported_to_json"
+  ],
+  "required_transcript_digest_fields": [
+    "session_id_hex",
+    "rho_digest_hex",
+    "public_key_digest_hex",
+    "dkg_transcript_digest_hex",
+    "custody_bundle_digest_hex",
+    "custody_commitments_digest_hex",
+    "receiver_vault_root_hex",
+    "commitment_key_digest_hex"
+  ],
+  "required_true_evidence_fields": [
+    "commit_before_reveal",
+    "no_seed_dealer_dkg",
+    "multiple_independent_dealers",
+    "distributed_dkg_vss_transcript_present",
+    "encrypted_receiver_custody_seam_executed",
+    "process_isolated_receiver_custody",
+    "per_receiver_private_share_custody",
+    "receiver_vault_imports_verified",
+    "signer_consumes_custody_output",
+    "production_profile_executed",
+    "production_dkg_no_single_secret_ready"
+  ],
+  "run_out": "artifacts/production-dkg-custody-capture-attempt/latest",
+  "runner_status": "blocked_production_dkg_custody_backend_unavailable",
+  "schema": "lattice-aggregation:production-dkg-custody-capture-attempt:v1",
+  "schema_version": 1,
+  "validated_target": {
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}

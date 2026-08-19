@@ -1,0 +1,82 @@
+{
+  "claim_boundary": "production DKG/custody acquisition gate only; theorem closure remains pending exact campaign, proof, validation, and independent review evidence",
+  "generated_at": "2026-08-19T21:43:41Z",
+  "mldsa_profile": {
+    "aggregate_signature_bytes": 3309,
+    "parameter_set": "ML-DSA-65",
+    "public_key_bytes": 1952
+  },
+  "request_status": "production_dkg_custody_capture_requested",
+  "required_capture": {
+    "capture_status": "production_dkg_custody_capture_ready",
+    "execution_threshold": 6667,
+    "execution_validator_count": 10000,
+    "schema": "lattice-aggregation:p1-dkg-custody-capture:v1",
+    "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+    "target_threshold": 6667,
+    "target_validator_count": 10000
+  },
+  "required_claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_no_single_exposed_secret_key": false,
+    "claims_production_dkg_custody_closure": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_standard_verifier_threshold_signature_closure": false,
+    "claims_theorem_closure": false
+  },
+  "required_external_cli_contract": {
+    "capture_output": "canonical JSON file at --out",
+    "command": "threshold-backend-p1 emit-production-dkg-custody-capture",
+    "runner_appends_arguments": [
+      "--request",
+      "<request.json>",
+      "--out",
+      "<capture.json>"
+    ],
+    "stdout_contract": "diagnostic text only"
+  },
+  "required_false_evidence_fields": [
+    "coordinator_observed_clear_dkg_shares_before_custody",
+    "secret_material_exported_to_json",
+    "raw_seed_exported_to_json",
+    "expanded_key_exported_to_json"
+  ],
+  "required_transcript_digest_fields": [
+    "session_id_hex",
+    "rho_digest_hex",
+    "public_key_digest_hex",
+    "dkg_transcript_digest_hex",
+    "custody_bundle_digest_hex",
+    "custody_commitments_digest_hex",
+    "receiver_vault_root_hex",
+    "commitment_key_digest_hex"
+  ],
+  "required_true_evidence_fields": [
+    "commit_before_reveal",
+    "no_seed_dealer_dkg",
+    "multiple_independent_dealers",
+    "distributed_dkg_vss_transcript_present",
+    "encrypted_receiver_custody_seam_executed",
+    "process_isolated_receiver_custody",
+    "per_receiver_private_share_custody",
+    "receiver_vault_imports_verified",
+    "signer_consumes_custody_output",
+    "production_profile_executed",
+    "production_dkg_no_single_secret_ready"
+  ],
+  "schema": "lattice-aggregation:production-dkg-custody-request:v1",
+  "schema_version": 1,
+  "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+  "source_internal_campaign_request": {
+    "path": "artifacts/internal-aggregation-campaign/latest/request.json",
+    "present": true,
+    "sha256": "7bab7531ba8db736643aaf8f9fa5a0331045fdcd3c054f756732f89652c73b49",
+    "size_bytes": 28205
+  },
+  "target_profile": {
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}
