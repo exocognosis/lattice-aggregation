@@ -263,6 +263,32 @@ class ProductionDkgCustodyCaptureAttemptTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "repo-local command"):
                 runner.validate_backend_command(root, [str(local_command), "run"])
 
+    def test_backend_command_parser_preserves_cargo_separator(self):
+        runner = load_module(SCRIPT, "production_dkg_runner_parse_command")
+        args = runner.parse_args(
+            [
+                "--root",
+                ".",
+                "--backend-command",
+                "cargo",
+                "run",
+                "--quiet",
+                "--",
+                "emit-production-dkg-custody-capture",
+            ]
+        )
+
+        self.assertEqual(
+            args.backend_command,
+            [
+                "cargo",
+                "run",
+                "--quiet",
+                "--",
+                "emit-production-dkg-custody-capture",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

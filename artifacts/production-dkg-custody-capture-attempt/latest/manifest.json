@@ -1,9 +1,26 @@
 {
-  "backend_command": [],
-  "backend_command_origin": null,
-  "backend_command_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "backend_command": [
+    "/usr/bin/env",
+    "CARGO_TARGET_DIR=/tmp/lattice-threshold-backend-p1-next-target-cli",
+    "cargo",
+    "run",
+    "--quiet",
+    "--manifest-path",
+    "/Users/rickglenn/Documents/lattice-threshold-backend-p1/Cargo.toml",
+    "--bin",
+    "threshold-backend-p1",
+    "--",
+    "emit-production-dkg-custody-capture",
+    "--request",
+    "artifacts/production-dkg-custody-capture-attempt/latest/request.json",
+    "--out",
+    "artifacts/production-dkg-custody-capture-attempt/latest/candidate-capture.json"
+  ],
+  "backend_command_origin": "outside_repo_executable_or_script",
+  "backend_command_sha256": "66ca829cdf76a3490d036c00833a89d2d268fc6291fc8c4a4edddf080edeb4bf",
   "blockers": [
-    "production DKG/custody backend command not supplied"
+    "production DKG/custody backend command failed",
+    "production DKG/custody capture requires --provider-manifest from an external reviewed production provider"
   ],
   "candidate_capture_path": "artifacts/production-dkg-custody-capture-attempt/latest/candidate-capture.json",
   "capture_sha256": null,
@@ -18,13 +35,20 @@
     "claims_standard_verifier_threshold_signature_closure": false,
     "claims_theorem_closure": false
   },
-  "command_result": null,
-  "generated_at": "2026-08-19T21:43:41Z",
+  "command_result": {
+    "duration_seconds": 86.202,
+    "exit_code": 2,
+    "stderr_bytes": 106,
+    "stderr_sha256": "4c1139723662308350584a1a39007c61dbec42cfdcea48aa284e226c4bcdbf6a",
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generated_at": "2026-08-19T22:17:20Z",
   "metadata": {
     "branch": "codex/post-119-crypto-evidence",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "fc9ce8e1e4c5f0fb8c00c23b291a5abde23b6ed8",
+    "commit": "9241c965a83e7bb9cd9a01260ea690a10a3f346d",
     "dirty": true,
     "dirty_status_unavailable": false,
     "os": "macOS-26.6.1-arm64-arm-64bit",
@@ -35,10 +59,10 @@
   "request": {
     "path": "artifacts/production-dkg-custody-capture-attempt/latest/request.json",
     "present": true,
-    "sha256": "407f3fffb688ca368b2f1a45d91c38a179ea3968bc4bab10093c80f6a47c3e49",
+    "sha256": "3e3d5305a554169dc5f337941d1a8dfae129b3656bfcc717d24ce9cf7aee23f6",
     "size_bytes": 3005
   },
-  "request_sha256": "407f3fffb688ca368b2f1a45d91c38a179ea3968bc4bab10093c80f6a47c3e49",
+  "request_sha256": "3e3d5305a554169dc5f337941d1a8dfae129b3656bfcc717d24ce9cf7aee23f6",
   "required_false_evidence_fields": [
     "coordinator_observed_clear_dkg_shares_before_custody",
     "secret_material_exported_to_json",
@@ -69,7 +93,7 @@
     "production_dkg_no_single_secret_ready"
   ],
   "run_out": "artifacts/production-dkg-custody-capture-attempt/latest",
-  "runner_status": "blocked_production_dkg_custody_backend_unavailable",
+  "runner_status": "blocked_production_dkg_custody_command_failed",
   "schema": "lattice-aggregation:production-dkg-custody-capture-attempt:v1",
   "schema_version": 1,
   "validated_target": {

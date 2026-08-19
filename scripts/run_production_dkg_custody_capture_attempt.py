@@ -730,6 +730,11 @@ def build_report(
 
 
 def parse_args(argv):
+    backend_command = None
+    if "--backend-command" in argv:
+        index = argv.index("--backend-command")
+        backend_command = argv[index + 1 :]
+        argv = argv[:index]
     parser = argparse.ArgumentParser(
         description="Run the production DKG/custody capture acquisition gate"
     )
@@ -745,20 +750,13 @@ def parse_args(argv):
         help="production DKG/custody capture attempt artifact directory",
     )
     parser.add_argument(
-        "--backend-command",
-        nargs=argparse.REMAINDER,
-        default=None,
-        help=(
-            "external backend command prefix; the runner appends "
-            "--request <request.json> --out <candidate-capture.json>"
-        ),
-    )
-    parser.add_argument(
         "--strict",
         action="store_true",
         help="exit 2 unless production DKG/custody capture readiness is true",
     )
-    return parser.parse_args(argv)
+    parsed = parser.parse_args(argv)
+    parsed.backend_command = backend_command
+    return parsed
 
 
 def main(argv=None):
