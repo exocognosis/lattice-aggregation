@@ -133,6 +133,7 @@ class ProductionDkgCustodyCaptureAttemptTests(unittest.TestCase):
             )
             runner.write_attempt_artifacts(report, out)
             manifest = json.loads((out / "manifest.json").read_text())
+            request = json.loads((out / "request.json").read_text())
 
         self.assertEqual(
             manifest["runner_status"],
@@ -142,6 +143,11 @@ class ProductionDkgCustodyCaptureAttemptTests(unittest.TestCase):
         self.assertIn(
             "production DKG/custody backend command not supplied",
             manifest["blockers"],
+        )
+        self.assertFalse(manifest["provider_manifest"]["present"])
+        self.assertEqual(
+            request["required_provider_manifest_contract"]["schema"],
+            runner.PROVIDER_MANIFEST_SCHEMA,
         )
 
     def test_bounded_capture_is_rejected_as_nonproduction(self):
@@ -269,6 +275,8 @@ class ProductionDkgCustodyCaptureAttemptTests(unittest.TestCase):
             [
                 "--root",
                 ".",
+                "--provider-manifest",
+                "/outside/provider-manifest.json",
                 "--backend-command",
                 "cargo",
                 "run",
@@ -288,6 +296,54 @@ class ProductionDkgCustodyCaptureAttemptTests(unittest.TestCase):
                 "emit-production-dkg-custody-capture",
             ],
         )
+        self.assertEqual(args.provider_manifest, "/outside/provider-manifest.json")
+
+    def test_provider_manifest_is_passed_before_request_argument(self):
+        runner = load_module(SCRIPT, "production_dkg_runner_provider_manifest")
+        captured_command = {}
+
+        def fake_command(command, _root, _env):
+            captured_command["command"] = list(command)
+            request_path = pathlib.Path(command[command.index("--request") + 1])
+            out_path = pathlib.Path(command[command.index("--out") + 1])
+            request = json.loads(request_path.read_text(encoding="utf-8"))
+            out_path.write_text(
+                runner.canonical_json(production_capture(runner, request)),
+                encoding="utf-8",
+            )
+            return command_result(stdout="wrote production capture\n")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            provider_manifest = root / "provider-manifest.json"
+            provider_manifest.write_text('{"schema":"provider"}\n', encoding="utf-8")
+            provider_manifest_sha256 = digest(provider_manifest.read_bytes())
+            request_path = internal_request_file(root)
+            out = root / "attempt"
+            report = runner.build_report(
+                root,
+                internal_request_path=request_path,
+                out=out,
+                backend_command=["/opt/threshold-backend-p1", "emit-production-dkg-custody-capture"],
+                provider_manifest=provider_manifest,
+                command_runner=fake_command,
+                metadata_provider=fake_metadata,
+                generated_at="2026-08-19T00:00:00Z",
+            )
+            manifest = report["manifest"]
+
+        command = captured_command["command"]
+        self.assertLess(command.index("--provider-manifest"), command.index("--request"))
+        self.assertEqual(
+            command[command.index("--provider-manifest") + 1],
+            str(provider_manifest),
+        )
+        self.assertTrue(manifest["provider_manifest"]["present"])
+        self.assertEqual(
+            manifest["provider_manifest"]["sha256"],
+            provider_manifest_sha256,
+        )
+        self.assertEqual(manifest["runner_status"], runner.READY_STATUS)
 
 
 if __name__ == "__main__":

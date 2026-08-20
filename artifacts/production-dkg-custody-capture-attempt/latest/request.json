@@ -1,6 +1,6 @@
 {
   "claim_boundary": "production DKG/custody acquisition gate only; theorem closure remains pending exact campaign, proof, validation, and independent review evidence",
-  "generated_at": "2026-08-19T22:17:20Z",
+  "generated_at": "2026-08-20T00:04:37Z",
   "mldsa_profile": {
     "aggregate_signature_bytes": 3309,
     "parameter_set": "ML-DSA-65",
@@ -30,6 +30,8 @@
     "capture_output": "canonical JSON file at --out",
     "command": "threshold-backend-p1 emit-production-dkg-custody-capture",
     "runner_appends_arguments": [
+      "--provider-manifest",
+      "<provider-manifest.json>",
       "--request",
       "<request.json>",
       "--out",
@@ -43,6 +45,60 @@
     "raw_seed_exported_to_json",
     "expanded_key_exported_to_json"
   ],
+  "required_provider_manifest_contract": {
+    "required_false_evidence_fields": [
+      "coordinator_observed_clear_dkg_shares_before_custody",
+      "secret_material_exported_to_json",
+      "raw_seed_exported_to_json",
+      "expanded_key_exported_to_json"
+    ],
+    "required_provider_properties": [
+      "no seed dealer",
+      "multiple independent dealers",
+      "commit-before-reveal DKG transcript",
+      "process-isolated receiver custody",
+      "per-receiver private share custody",
+      "signer consumes custody output",
+      "no clear-share observation by coordinator",
+      "no raw seed or expanded key export",
+      "empty provider blockers"
+    ],
+    "required_transcript_digest_fields": [
+      "session_id_hex",
+      "rho_digest_hex",
+      "public_key_digest_hex",
+      "dkg_transcript_digest_hex",
+      "custody_bundle_digest_hex",
+      "custody_commitments_digest_hex",
+      "receiver_vault_root_hex",
+      "commitment_key_digest_hex"
+    ],
+    "required_true_evidence_fields": [
+      "commit_before_reveal",
+      "no_seed_dealer_dkg",
+      "multiple_independent_dealers",
+      "distributed_dkg_vss_transcript_present",
+      "encrypted_receiver_custody_seam_executed",
+      "process_isolated_receiver_custody",
+      "per_receiver_private_share_custody",
+      "receiver_vault_imports_verified",
+      "signer_consumes_custody_output",
+      "production_profile_executed",
+      "production_dkg_no_single_secret_ready"
+    ],
+    "review_signature": {
+      "domain": "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest-review:v1",
+      "scheme": "Ed25519",
+      "signed_payload": "canonical provider manifest without review_signature"
+    },
+    "review_status": "production_dkg_custody_provider_review_ready",
+    "schema": "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest:v1",
+    "target_profile": {
+      "selected_profile": "ML-DSA-65 coordinator-assisted Shamir nonce DKG P1",
+      "threshold": 6667,
+      "validator_count": 10000
+    }
+  },
   "required_transcript_digest_fields": [
     "session_id_hex",
     "rho_digest_hex",

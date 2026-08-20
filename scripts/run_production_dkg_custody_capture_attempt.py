@@ -23,6 +23,12 @@ RUN_SCHEMA = "lattice-aggregation:production-dkg-custody-capture-attempt:v1"
 REQUEST_SCHEMA = "lattice-aggregation:production-dkg-custody-request:v1"
 INTERNAL_REQUEST_SCHEMA = "lattice-aggregation:internal-aggregation-campaign-request:v1"
 CAPTURE_SCHEMA = "lattice-aggregation:p1-dkg-custody-capture:v1"
+PROVIDER_MANIFEST_SCHEMA = (
+    "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest:v1"
+)
+PROVIDER_MANIFEST_REVIEW_DOMAIN = (
+    "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest-review:v1"
+)
 READY_STATUS = "production_dkg_custody_capture_ready"
 MISSING_COMMAND_STATUS = "blocked_production_dkg_custody_backend_unavailable"
 COMMAND_FAILED_STATUS = "blocked_production_dkg_custody_command_failed"
@@ -146,6 +152,15 @@ def file_record(path):
     }
 
 
+def absent_file_record(path=None):
+    return {
+        "path": str(path) if path is not None else None,
+        "present": False,
+        "sha256": None,
+        "size_bytes": None,
+    }
+
+
 def capture_value(command, root, fallback="unknown", timeout_seconds=10):
     try:
         completed = subprocess.run(
@@ -242,9 +257,44 @@ def build_capture_request(internal_request_path, internal_request, generated_at)
         },
         "required_external_cli_contract": {
             "command": "threshold-backend-p1 emit-production-dkg-custody-capture",
-            "runner_appends_arguments": ["--request", "<request.json>", "--out", "<capture.json>"],
+            "runner_appends_arguments": [
+                "--provider-manifest",
+                "<provider-manifest.json>",
+                "--request",
+                "<request.json>",
+                "--out",
+                "<capture.json>",
+            ],
             "capture_output": "canonical JSON file at --out",
             "stdout_contract": "diagnostic text only",
+        },
+        "required_provider_manifest_contract": {
+            "schema": PROVIDER_MANIFEST_SCHEMA,
+            "review_status": "production_dkg_custody_provider_review_ready",
+            "review_signature": {
+                "scheme": "Ed25519",
+                "signed_payload": "canonical provider manifest without review_signature",
+                "domain": PROVIDER_MANIFEST_REVIEW_DOMAIN,
+            },
+            "target_profile": {
+                "validator_count": VALIDATOR_COUNT,
+                "threshold": THRESHOLD,
+                "selected_profile": SELECTED_PROFILE,
+            },
+            "required_true_evidence_fields": list(REQUIRED_TRUE_EVIDENCE_FIELDS),
+            "required_false_evidence_fields": list(REQUIRED_FALSE_EVIDENCE_FIELDS),
+            "required_transcript_digest_fields": list(REQUIRED_TRANSCRIPT_DIGEST_FIELDS),
+            "required_provider_properties": [
+                "no seed dealer",
+                "multiple independent dealers",
+                "commit-before-reveal DKG transcript",
+                "process-isolated receiver custody",
+                "per-receiver private share custody",
+                "signer consumes custody output",
+                "no clear-share observation by coordinator",
+                "no raw seed or expanded key export",
+                "empty provider blockers",
+            ],
         },
         "required_true_evidence_fields": list(REQUIRED_TRUE_EVIDENCE_FIELDS),
         "required_false_evidence_fields": list(REQUIRED_FALSE_EVIDENCE_FIELDS),
@@ -482,6 +532,7 @@ def build_manifest(
     root,
     out,
     request_path,
+    provider_manifest_path,
     capture_request,
     backend_command,
     backend_command_origin,
@@ -501,6 +552,16 @@ def build_manifest(
         "runner_status": status,
         "production_dkg_custody_capture_ready": status == READY_STATUS,
         "request": file_record(request_path),
+        "provider_manifest": (
+            file_record(provider_manifest_path)
+            if provider_manifest_path is not None
+            else absent_file_record()
+        ),
+        "provider_manifest_contract": {
+            "schema": PROVIDER_MANIFEST_SCHEMA,
+            "review_signature_domain": PROVIDER_MANIFEST_REVIEW_DOMAIN,
+            "required": True,
+        },
         "run_out": str(out),
         "candidate_capture_path": str(Path(out) / "candidate-capture.json"),
         "backend_command": list(backend_command or []),
@@ -594,6 +655,7 @@ def build_report(
     internal_request_path,
     out,
     backend_command=None,
+    provider_manifest=None,
     command_runner=run_command,
     metadata_provider=collect_metadata,
     generated_at=None,
@@ -604,6 +666,7 @@ def build_report(
     generated_at = generated_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     metadata = metadata_from_provider(metadata_provider, root)
     internal_request_path = Path(internal_request_path)
+    provider_manifest = Path(provider_manifest) if provider_manifest is not None else None
     internal_request = load_json(internal_request_path)
     request_blockers = validate_internal_campaign_request(internal_request)
     capture_request = build_capture_request(
@@ -622,6 +685,7 @@ def build_report(
             root=root,
             out=out,
             request_path=request_path,
+            provider_manifest_path=provider_manifest,
             capture_request=capture_request,
             backend_command=backend_command,
             backend_command_origin=origin,
@@ -638,6 +702,7 @@ def build_report(
             root=root,
             out=out,
             request_path=request_path,
+            provider_manifest_path=provider_manifest,
             capture_request=capture_request,
             backend_command=backend_command,
             backend_command_origin=None,
@@ -650,7 +715,13 @@ def build_report(
         return {"manifest": manifest, "request_json": request_json}
 
     capture_path = out / "candidate-capture.json"
-    full_command = backend_command + [
+    full_command = list(backend_command)
+    if provider_manifest is not None:
+        full_command += [
+            "--provider-manifest",
+            str(provider_manifest),
+        ]
+    full_command += [
         "--request",
         str(request_path),
         "--out",
@@ -662,6 +733,7 @@ def build_report(
             root=root,
             out=out,
             request_path=request_path,
+            provider_manifest_path=provider_manifest,
             capture_request=capture_request,
             backend_command=full_command,
             backend_command_origin=origin,
@@ -688,6 +760,7 @@ def build_report(
             root=root,
             out=out,
             request_path=request_path,
+            provider_manifest_path=provider_manifest,
             capture_request=capture_request,
             backend_command=full_command,
             backend_command_origin=origin,
@@ -710,6 +783,7 @@ def build_report(
         root=root,
         out=out,
         request_path=request_path,
+        provider_manifest_path=provider_manifest,
         capture_request=capture_request,
         backend_command=full_command,
         backend_command_origin=origin,
@@ -750,6 +824,11 @@ def parse_args(argv):
         help="production DKG/custody capture attempt artifact directory",
     )
     parser.add_argument(
+        "--provider-manifest",
+        default=None,
+        help="signed external production DKG/custody provider manifest JSON",
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
         help="exit 2 unless production DKG/custody capture readiness is true",
@@ -766,6 +845,7 @@ def main(argv=None):
         internal_request_path=Path(args.internal_request),
         out=Path(args.out),
         backend_command=args.backend_command,
+        provider_manifest=Path(args.provider_manifest) if args.provider_manifest else None,
     )
     write_attempt_artifacts(report, Path(args.out))
     print(f"runner_status={report['manifest']['runner_status']}")

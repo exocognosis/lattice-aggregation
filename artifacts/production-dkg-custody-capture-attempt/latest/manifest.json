@@ -36,19 +36,19 @@
     "claims_theorem_closure": false
   },
   "command_result": {
-    "duration_seconds": 86.202,
+    "duration_seconds": 94.697,
     "exit_code": 2,
     "stderr_bytes": 106,
     "stderr_sha256": "4c1139723662308350584a1a39007c61dbec42cfdcea48aa284e226c4bcdbf6a",
     "stdout_bytes": 0,
     "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
-  "generated_at": "2026-08-19T22:17:20Z",
+  "generated_at": "2026-08-20T00:04:37Z",
   "metadata": {
     "branch": "codex/post-119-crypto-evidence",
     "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
     "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
-    "commit": "9241c965a83e7bb9cd9a01260ea690a10a3f346d",
+    "commit": "e8ef4e30d07654dd84bc5451fcf94054365fea6f",
     "dirty": true,
     "dirty_status_unavailable": false,
     "os": "macOS-26.6.1-arm64-arm-64bit",
@@ -56,13 +56,24 @@
     "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
   },
   "production_dkg_custody_capture_ready": false,
+  "provider_manifest": {
+    "path": null,
+    "present": false,
+    "sha256": null,
+    "size_bytes": null
+  },
+  "provider_manifest_contract": {
+    "required": true,
+    "review_signature_domain": "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest-review:v1",
+    "schema": "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest:v1"
+  },
   "request": {
     "path": "artifacts/production-dkg-custody-capture-attempt/latest/request.json",
     "present": true,
-    "sha256": "3e3d5305a554169dc5f337941d1a8dfae129b3656bfcc717d24ce9cf7aee23f6",
-    "size_bytes": 3005
+    "sha256": "de345cae5dde4a80857229b2c08864225c6c7a598add2ef096007bb5c8aff857",
+    "size_bytes": 5106
   },
-  "request_sha256": "3e3d5305a554169dc5f337941d1a8dfae129b3656bfcc717d24ce9cf7aee23f6",
+  "request_sha256": "de345cae5dde4a80857229b2c08864225c6c7a598add2ef096007bb5c8aff857",
   "required_false_evidence_fields": [
     "coordinator_observed_clear_dkg_shares_before_custody",
     "secret_material_exported_to_json",
