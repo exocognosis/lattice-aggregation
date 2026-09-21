@@ -112,7 +112,7 @@ additional closure criteria.
 
 - **Maintainer:** Rick Glenn (GitHub: [`exocognosis`](https://github.com/exocognosis))
 - **Repository:** <https://github.com/exocognosis/lattice-aggregation>
-- **Contact:** rick@dytallixcom
+- **Contact:** rick@dytallix.com
 
 We welcome co-maintainers and reviewers from cryptography and post-quantum
 research groups. See [AUTHORS.md](../../AUTHORS.md).
