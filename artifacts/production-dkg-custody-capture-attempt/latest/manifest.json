@@ -1,0 +1,114 @@
+{
+  "backend_command": [
+    "/usr/bin/env",
+    "CARGO_TARGET_DIR=/tmp/lattice-threshold-backend-p1-next-target-cli",
+    "cargo",
+    "run",
+    "--quiet",
+    "--manifest-path",
+    "/Users/rickglenn/Documents/lattice-threshold-backend-p1/Cargo.toml",
+    "--bin",
+    "threshold-backend-p1",
+    "--",
+    "emit-production-dkg-custody-capture",
+    "--request",
+    "artifacts/production-dkg-custody-capture-attempt/latest/request.json",
+    "--out",
+    "artifacts/production-dkg-custody-capture-attempt/latest/candidate-capture.json"
+  ],
+  "backend_command_origin": "outside_repo_executable_or_script",
+  "backend_command_sha256": "66ca829cdf76a3490d036c00833a89d2d268fc6291fc8c4a4edddf080edeb4bf",
+  "blockers": [
+    "production DKG/custody backend command failed",
+    "production DKG/custody capture requires --provider-manifest from an external reviewed production provider"
+  ],
+  "candidate_capture_path": "artifacts/production-dkg-custody-capture-attempt/latest/candidate-capture.json",
+  "capture_sha256": null,
+  "claim_boundary": "production DKG/custody acquisition gate only; theorem closure remains pending exact campaign, proof, validation, and independent review evidence",
+  "claim_flags": {
+    "claims_cavp_acvts_validation": false,
+    "claims_fips_validation": false,
+    "claims_no_single_exposed_secret_key": false,
+    "claims_production_dkg_custody_closure": false,
+    "claims_production_threshold_mldsa_security": false,
+    "claims_rejection_distribution_preservation": false,
+    "claims_standard_verifier_threshold_signature_closure": false,
+    "claims_theorem_closure": false
+  },
+  "command_result": {
+    "duration_seconds": 94.697,
+    "exit_code": 2,
+    "stderr_bytes": 106,
+    "stderr_sha256": "4c1139723662308350584a1a39007c61dbec42cfdcea48aa284e226c4bcdbf6a",
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "generated_at": "2026-08-20T00:04:37Z",
+  "metadata": {
+    "branch": "codex/post-119-crypto-evidence",
+    "cargo_lock_sha256": "e964a373427dbc1eef019f00035527aa081718d24490dd4c8b2f3f19e3989e28",
+    "cargo_version": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "commit": "e8ef4e30d07654dd84bc5451fcf94054365fea6f",
+    "dirty": true,
+    "dirty_status_unavailable": false,
+    "os": "macOS-26.6.1-arm64-arm-64bit",
+    "python_version": "3.12.8",
+    "rustc_version": "rustc 1.96.0 (ac68faa20 2026-05-25)"
+  },
+  "production_dkg_custody_capture_ready": false,
+  "provider_manifest": {
+    "path": null,
+    "present": false,
+    "sha256": null,
+    "size_bytes": null
+  },
+  "provider_manifest_contract": {
+    "required": true,
+    "review_signature_domain": "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest-review:v1",
+    "schema": "lattice-threshold-backend-p1:production-dkg-custody-provider-manifest:v1"
+  },
+  "request": {
+    "path": "artifacts/production-dkg-custody-capture-attempt/latest/request.json",
+    "present": true,
+    "sha256": "de345cae5dde4a80857229b2c08864225c6c7a598add2ef096007bb5c8aff857",
+    "size_bytes": 5106
+  },
+  "request_sha256": "de345cae5dde4a80857229b2c08864225c6c7a598add2ef096007bb5c8aff857",
+  "required_false_evidence_fields": [
+    "coordinator_observed_clear_dkg_shares_before_custody",
+    "secret_material_exported_to_json",
+    "raw_seed_exported_to_json",
+    "expanded_key_exported_to_json"
+  ],
+  "required_transcript_digest_fields": [
+    "session_id_hex",
+    "rho_digest_hex",
+    "public_key_digest_hex",
+    "dkg_transcript_digest_hex",
+    "custody_bundle_digest_hex",
+    "custody_commitments_digest_hex",
+    "receiver_vault_root_hex",
+    "commitment_key_digest_hex"
+  ],
+  "required_true_evidence_fields": [
+    "commit_before_reveal",
+    "no_seed_dealer_dkg",
+    "multiple_independent_dealers",
+    "distributed_dkg_vss_transcript_present",
+    "encrypted_receiver_custody_seam_executed",
+    "process_isolated_receiver_custody",
+    "per_receiver_private_share_custody",
+    "receiver_vault_imports_verified",
+    "signer_consumes_custody_output",
+    "production_profile_executed",
+    "production_dkg_no_single_secret_ready"
+  ],
+  "run_out": "artifacts/production-dkg-custody-capture-attempt/latest",
+  "runner_status": "blocked_production_dkg_custody_command_failed",
+  "schema": "lattice-aggregation:production-dkg-custody-capture-attempt:v1",
+  "schema_version": 1,
+  "validated_target": {
+    "threshold": 6667,
+    "validator_count": 10000
+  }
+}

@@ -36,6 +36,11 @@ artifacts/real-small-distributed-aggregation/**/P[0-9].pem
 artifacts/real-small-distributed-aggregation/**/Mascot-Secrets-*
 artifacts/real-small-distributed-aggregation/**/Memory-*
 artifacts/real-small-distributed-aggregation/**/Player-MAC-Keys-*
+artifacts/internal-aggregation-campaign-expandmask-mpc-attempts/**/P[0-9].key
+artifacts/internal-aggregation-campaign-expandmask-mpc-attempts/**/P[0-9].pem
+artifacts/internal-aggregation-campaign-expandmask-mpc-attempts/**/Mascot-Secrets-*
+artifacts/internal-aggregation-campaign-expandmask-mpc-attempts/**/Memory-*
+artifacts/internal-aggregation-campaign-expandmask-mpc-attempts/**/Player-MAC-Keys-*
 
 # demo verifier build artifacts
 demo/verify_signature/target/

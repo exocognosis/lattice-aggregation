@@ -139,6 +139,14 @@ mod driver {
             .collect()
     }
 
+    fn message_bytes(flags: &BTreeMap<String, String>) -> Result<(Vec<u8>, &'static str), String> {
+        if let Some(hex) = flags.get("message-hex") {
+            return Ok((hex_decode(hex)?, "hex"));
+        }
+        let message = require(flags, "message")?.clone();
+        Ok((message.into_bytes(), "utf8"))
+    }
+
     // ---- deterministic setup material --------------------------------------
 
     fn shake256_xof(chunks: &[&[u8]], out_len: usize) -> Vec<u8> {
@@ -234,7 +242,7 @@ mod driver {
     fn emit_inputs(flags: &BTreeMap<String, String>) -> Result<(), String> {
         let seed = seed32(flags, "seed")?;
         let rnd = seed32(flags, "rnd")?;
-        let message = require(flags, "message")?.clone();
+        let (message, message_encoding) = message_bytes(flags)?;
         let threshold: u16 = require(flags, "threshold")?
             .parse()
             .map_err(|error| format!("invalid threshold: {error}"))?;
@@ -251,7 +259,7 @@ mod driver {
 
         // Trusted-setup keygen: derive K (k_seed) and tr.
         let secret = keygen_from_seed(&seed).map_err(|error| format!("keygen: {error:?}"))?;
-        let mu = compute_mu(&secret.tr, message.as_bytes());
+        let mu = compute_mu(&secret.tr, &message);
         let expected_rhopp = compute_rhopp(&secret.k_seed, &rnd, &mu);
 
         // Provision custody handles + coordinator context (also gives ctx.rhopp).
@@ -260,7 +268,7 @@ mod driver {
         let (_handles, ctx) = provision_signer_custody_handles_from_seed_for_test(
             &seed,
             &rnd,
-            message.as_bytes(),
+            &message,
             threshold,
             &validators,
             dkg_digest,
@@ -283,7 +291,7 @@ mod driver {
         // retries this (seed, rnd, message) needs. Because the custody path uses
         // the identical rhopp and rejection predicates, the accepted kappa_base
         // here is exactly the one the distributed run will accept at.
-        let (_sig, _z, local_rejected) = sign_internal_empty_ctx(&secret, message.as_bytes(), &rnd)
+        let (_sig, _z, local_rejected) = sign_internal_empty_ctx(&secret, &message, &rnd)
             .map_err(|error| format!("local preflight sign: {error:?}"))?;
         let local_accepted_kappa_base = local_rejected.saturating_mul(u32::from(KAPPA_STEP));
 
@@ -320,7 +328,8 @@ mod driver {
             "{{\n  \"schema\": \"small-distributed-aggregation:params:v1\",\n  \
              \"threshold\": {threshold},\n  \"parties\": {parties},\n  \
              \"validators\": [{validators_json}],\n  \
-             \"message\": {message:?},\n  \
+             \"message_encoding\": {message_encoding:?},\n  \
+             \"message_sha256\": \"{message_sha256}\",\n  \
              \"seed_hex\": \"{seed_hex}\",\n  \"rnd_hex\": \"{rnd_hex}\",\n  \
              \"mu_hex\": \"{mu_hex}\",\n  \"rhopp_hex\": \"{rhopp_hex}\",\n  \
              \"tr_hex\": \"{tr_hex}\",\n  \"public_key_hex\": \"{pk_hex}\",\n  \
@@ -330,6 +339,7 @@ mod driver {
              \"kappa_step\": {step}\n}}\n",
             seed_hex = hex_encode(&seed),
             rnd_hex = hex_encode(&rnd),
+            message_sha256 = sha256_hex(&message),
             mu_hex = hex_encode(&mu),
             rhopp_hex = hex_encode(&ctx.rhopp),
             tr_hex = hex_encode(&ctx.tr),
@@ -354,10 +364,19 @@ mod driver {
     // ---- sign --------------------------------------------------------------
 
     fn read_party_blob(base: &Path, kappa: u16, player: usize) -> Result<Vec<u8>, String> {
-        let path = base
+        let plain_path = base
             .join(format!("kappa-{kappa}"))
             .join("Player-Data")
             .join(format!("Binary-Output-P{player}-0"));
+        let padded_path = base
+            .join(format!("kappa-{kappa:05}"))
+            .join("Player-Data")
+            .join(format!("Binary-Output-P{player}-0"));
+        let path = if plain_path.is_file() {
+            plain_path
+        } else {
+            padded_path
+        };
         let bytes = fs::read(&path).map_err(|error| format!("read {}: {error}", path.display()))?;
         if bytes.len() != BINARY_OUTPUT_BYTE_LEN {
             return Err(format!(
@@ -373,7 +392,7 @@ mod driver {
     fn sign(flags: &BTreeMap<String, String>) -> Result<(), String> {
         let seed = seed32(flags, "seed")?;
         let rnd = seed32(flags, "rnd")?;
-        let message = require(flags, "message")?.clone();
+        let (message, _message_encoding) = message_bytes(flags)?;
         let threshold: u16 = require(flags, "threshold")?
             .parse()
             .map_err(|error| format!("invalid threshold: {error}"))?;
@@ -392,7 +411,7 @@ mod driver {
         let (handles, ctx) = provision_signer_custody_handles_from_seed_for_test(
             &seed,
             &rnd,
-            message.as_bytes(),
+            &message,
             threshold,
             &validators,
             dkg_digest,
@@ -458,7 +477,7 @@ mod driver {
             rhopp: &ctx.rhopp,
             dkg_transcript_digest: &ctx.dkg_transcript_digest,
             mpc_transcript_digest: &mpc_transcript_digest,
-            message: message.as_bytes(),
+            message: &message,
             threshold,
             validators: &validators,
         };
@@ -475,7 +494,7 @@ mod driver {
             Ok(package) => {
                 let standard_verifier_accepted = RealMldsa65Backend::verify_standard(
                     &package.public_key,
-                    message.as_bytes(),
+                    &message,
                     &package.signature,
                 )
                 .map_err(|error| format!("verify_standard: {error:?}"))?;

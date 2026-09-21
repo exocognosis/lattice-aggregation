@@ -36,6 +36,7 @@ REQUIRED_EVIDENCE_ROLES = (
     "backend_test_results",
     "proof_artifact_bundle",
     "dkg_custody_capability_evidence",
+    "exact_expandmask_mpc_consumption",
     "authorization_certificate",
     "toolchain_lock",
     "environment_manifest",

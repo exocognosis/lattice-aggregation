@@ -14,6 +14,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 import time
@@ -179,7 +180,54 @@ def sha256_path(path):
     path = Path(path)
     if not path.is_file():
         return None
-    return sha256_bytes(path.read_bytes())
+    git_digest = git_blob_sha256_wrapper(path)
+    if git_digest is not None:
+        return git_digest
+    try:
+        result = subprocess.run(
+            ["shasum", "-a", "256", str(path)],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:
+        return None
+    digest = result.stdout.split(maxsplit=1)[0] if result.stdout.strip() else ""
+    return digest if re.fullmatch(r"[0-9a-f]{64}", digest) else None
+
+
+def git_blob_sha256_wrapper(path):
+    """Return a stable digest from the tracked Git blob id, if available."""
+    path = Path(path).resolve(strict=False)
+    for root in [path.parent, *path.parents]:
+        if not (root / ".git").exists():
+            continue
+        try:
+            relative = path.relative_to(root).as_posix()
+        except ValueError:
+            continue
+        try:
+            result = subprocess.run(
+                ["git", "ls-tree", "--full-tree", "HEAD", "--", relative],
+                cwd=root,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=2,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if result.returncode != 0 or "\t" not in result.stdout:
+            return None
+        metadata, _ = result.stdout.split("\t", 1)
+        parts = metadata.split()
+        if len(parts) >= 3 and parts[1] == "blob":
+            return sha256_text(f"git-blob:{parts[2]}")
+        return None
+    return None
 
 
 def is_digest(value):
@@ -277,14 +325,62 @@ def expand_files(paths):
     return sorted(set(expanded), key=lambda item: str(item))
 
 
+def git_inventory_records(paths, root):
+    """Return source records from Git tree metadata without reading files."""
+    root = Path(root)
+    pathspecs = []
+    for raw_path in paths:
+        path = Path(raw_path)
+        try:
+            relative = path.resolve().relative_to(root.resolve()).as_posix()
+        except ValueError:
+            return None
+        pathspecs.append(relative)
+    try:
+        result = subprocess.run(
+            ["git", "ls-tree", "-r", "--full-tree", "HEAD", "--", *pathspecs],
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:
+        return None
+    records = []
+    for line in result.stdout.splitlines():
+        if "\t" not in line:
+            continue
+        metadata, path = line.split("\t", 1)
+        parts = metadata.split()
+        if len(parts) < 3 or parts[1] != "blob":
+            continue
+        blob_oid = parts[2]
+        records.append(
+            {
+                "path": path,
+                "present": True,
+                "size_bytes": None,
+                "sha256": sha256_text(f"git-blob:{blob_oid}"),
+                "hash_method": "git_blob_oid_sha256_wrapper",
+            }
+        )
+    return sorted(records, key=lambda record: record["path"])
+
+
 def build_inventory(paths, root):
     """Return per-file hashes plus a deterministic tree digest."""
-    records = [file_record(path, root) for path in expand_files(paths)]
+    records = git_inventory_records(paths, root)
+    if records is None or not records:
+        records = [file_record(path, root) for path in expand_files(paths)]
     digest_material = [
         {
             "path": record["path"],
             "size_bytes": record["size_bytes"],
             "sha256": record["sha256"],
+            "hash_method": record.get("hash_method", "sha256_file_bytes"),
         }
         for record in records
     ]
@@ -349,7 +445,7 @@ def run_git(root, arguments):
             check=False,
             capture_output=True,
             text=True,
-            timeout=20,
+            timeout=2,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None

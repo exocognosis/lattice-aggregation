@@ -216,16 +216,33 @@ def verify_inventory(inventory, root):
             return False
         if not resolved.is_file():
             return False
-        size = resolved.stat().st_size
-        digest = sha256_path(resolved)
-        if (
-            record.get("present") is not True
-            or record.get("size_bytes") != size
-            or record.get("sha256") != digest
-        ):
+        method = record.get("hash_method", "sha256_file_bytes")
+        if method == "git_blob_oid_sha256_wrapper":
+            blob_line = run_git(
+                root,
+                ["ls-tree", "--full-tree", "HEAD", "--", str(resolved.relative_to(root))],
+            )
+            if not blob_line or "\t" not in blob_line:
+                return False
+            metadata, _git_path = blob_line.split("\t", 1)
+            parts = metadata.split()
+            if len(parts) < 3 or parts[1] != "blob":
+                return False
+            size = None
+            digest = sha256_text(f"git-blob:{parts[2]}")
+        else:
+            method = "sha256_file_bytes"
+            size = resolved.stat().st_size
+            digest = sha256_path(resolved)
+        if record.get("present") is not True or record.get("size_bytes") != size or record.get("sha256") != digest:
             return False
         observed.append(
-            {"path": record["path"], "size_bytes": size, "sha256": digest}
+            {
+                "path": record["path"],
+                "size_bytes": size,
+                "sha256": digest,
+                "hash_method": method,
+            }
         )
     return (
         inventory.get("file_count") == len(records)

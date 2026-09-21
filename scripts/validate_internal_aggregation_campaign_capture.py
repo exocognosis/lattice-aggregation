@@ -64,6 +64,7 @@ REQUIRED_EVIDENCE_ROLES = (
     "backend_test_results",
     "proof_artifact_bundle",
     "dkg_custody_capability_evidence",
+    "exact_expandmask_mpc_consumption",
     "authorization_certificate",
     "toolchain_lock",
     "environment_manifest",
@@ -76,6 +77,14 @@ CAPABILITY_EVIDENCE_BINDING_SCHEMA = (
     "lattice-threshold-backend-p1:dkg-custody-capability-evidence-binding:v1"
 )
 CAPABILITY_EVIDENCE_ROLE = "dkg_custody_capability_evidence"
+DKG_CUSTODY_CONSUMPTION_SCHEMA = (
+    "lattice-threshold-backend-p1:dkg-custody-record-consumption:v1"
+)
+DKG_CUSTODY_CONSUMPTION_ROLE = "dkg_custody_record_consumption"
+EXPANDMASK_MPC_CONSUMPTION_SCHEMA = (
+    "lattice-threshold-backend-p1:exact-expandmask-mpc-consumption:v1"
+)
+EXPANDMASK_MPC_CONSUMPTION_ROLE = "exact_expandmask_mpc_consumption"
 ARTIFACT_ROOT = "artifacts/internal-aggregation-campaign/latest"
 DEFAULT_REQUEST_PATH = f"{ARTIFACT_ROOT}/request.json"
 DEFAULT_CAPTURE_PATH = f"{ARTIFACT_ROOT}/capture.json"
@@ -334,6 +343,8 @@ def validate_core(capture, evidence_roles, evidence_base, blockers):
         if not isinstance(core.get(field), bool):
             blockers.append(f"cryptographic core evidence-bound field must be boolean: {field}")
     validate_capability_evidence(core, evidence_roles, evidence_base, blockers)
+    validate_dkg_custody_consumption(core, evidence_roles, evidence_base, blockers)
+    validate_expandmask_mpc_consumption(core, evidence_roles, evidence_base, blockers)
     check_equal(
         blockers,
         core.get("authorization_layer_validator_count"),
@@ -491,6 +502,207 @@ def validate_capability_evidence(core, evidence_roles, evidence_base, blockers):
         canonical_json(aggregate_input)
     ) != evidence.get("aggregate_evidence_digest_hex"):
         blockers.append("DKG/custody aggregate evidence digest mismatch")
+
+
+def validate_dkg_custody_consumption(core, evidence_roles, evidence_base, blockers):
+    """Validate production DKG/custody evidence when the core claims it."""
+    claimed_fields = [
+        field for field in EVIDENCE_BOUND_CORE_CHECKS if core.get(field) is True
+    ]
+    record = evidence_roles.get(DKG_CUSTODY_CONSUMPTION_ROLE)
+    if not isinstance(record, dict):
+        if claimed_fields:
+            blockers.append(
+                "DKG/custody production core claims require dkg_custody_record_consumption evidence"
+            )
+        return
+    path_value = record.get("path")
+    if not isinstance(path_value, str):
+        blockers.append("DKG/custody consumption evidence path missing")
+        return
+    pure_path = PurePosixPath(path_value)
+    if pure_path.is_absolute() or ".." in pure_path.parts:
+        blockers.append("DKG/custody consumption evidence path is not safely contained")
+        return
+    evidence_path = Path(evidence_base) / Path(*pure_path.parts)
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        blockers.append("DKG/custody consumption evidence is not valid UTF-8 JSON")
+        return
+
+    check_equal(
+        blockers,
+        evidence.get("schema"),
+        DKG_CUSTODY_CONSUMPTION_SCHEMA,
+        "DKG/custody consumption schema",
+    )
+    if not is_digest(evidence.get("request_sha256")):
+        blockers.append("DKG/custody consumption request digest invalid")
+    source = evidence.get("source")
+    if not isinstance(source, dict):
+        blockers.append("DKG/custody consumption source missing")
+    else:
+        mode = source.get("mode")
+        if mode not in ("not_provided", "external_dkg_custody_record"):
+            blockers.append("DKG/custody consumption source mode invalid")
+        if mode == "external_dkg_custody_record" and not is_digest(source.get("sha256")):
+            blockers.append("DKG/custody consumption source digest invalid")
+
+    flags = evidence.get("capability_flags")
+    if not isinstance(flags, dict):
+        blockers.append("DKG/custody consumption capability_flags missing")
+        flags = {}
+    for field in EVIDENCE_BOUND_CORE_CHECKS:
+        value = flags.get(field)
+        if not isinstance(value, bool):
+            blockers.append(f"DKG/custody consumption capability flag must be boolean: {field}")
+        elif value != core.get(field):
+            blockers.append(f"DKG/custody consumption/core binding mismatch: {field}")
+
+    checks = evidence.get("checks")
+    if not isinstance(checks, dict):
+        blockers.append("DKG/custody consumption checks missing")
+        checks = {}
+    for key, value in checks.items():
+        if not isinstance(key, str) or not isinstance(value, bool):
+            blockers.append("DKG/custody consumption checks must map strings to booleans")
+            break
+
+    evidence_blockers = evidence.get("blockers")
+    if not isinstance(evidence_blockers, list) or any(
+        not isinstance(item, str) for item in evidence_blockers
+    ):
+        blockers.append("DKG/custody consumption blockers must be a string list")
+        evidence_blockers = []
+
+    if claimed_fields:
+        require_true(
+            blockers,
+            evidence,
+            "production_dkg_custody_ready",
+            "DKG/custody consumption",
+        )
+        if evidence_blockers:
+            blockers.append(
+                "DKG/custody production core claims require a blocker-free consumption record"
+            )
+        for field in EVIDENCE_BOUND_CORE_CHECKS:
+            require_true(
+                blockers,
+                flags,
+                field,
+                "DKG/custody production capability flag",
+            )
+
+
+def validate_expandmask_mpc_consumption(core, evidence_roles, evidence_base, blockers):
+    """Validate the exact ExpandMask/MPC evidence bound to the campaign core."""
+    record = evidence_roles.get(EXPANDMASK_MPC_CONSUMPTION_ROLE)
+    if not isinstance(record, dict):
+        blockers.append("exact ExpandMask/MPC consumption evidence file role missing")
+        return
+    path_value = record.get("path")
+    if not isinstance(path_value, str):
+        blockers.append("exact ExpandMask/MPC consumption evidence path missing")
+        return
+    pure_path = PurePosixPath(path_value)
+    if pure_path.is_absolute() or ".." in pure_path.parts:
+        blockers.append("exact ExpandMask/MPC consumption evidence path is not safely contained")
+        return
+    evidence_path = Path(evidence_base) / Path(*pure_path.parts)
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        blockers.append("exact ExpandMask/MPC consumption evidence is not valid UTF-8 JSON")
+        return
+
+    check_equal(
+        blockers,
+        evidence.get("schema"),
+        EXPANDMASK_MPC_CONSUMPTION_SCHEMA,
+        "exact ExpandMask/MPC consumption schema",
+    )
+    for field in ("request_sha256", "transcript_bundle_digest_hex"):
+        if not is_digest(evidence.get(field)):
+            blockers.append(f"exact ExpandMask/MPC consumption digest invalid: {field}")
+    for field in (
+        "exact_distributed_expand_mask",
+        "exact_expand_mask_mpc",
+        "all_required_attempts_consumed",
+        "all_attempts_exact_expandmask_equivalent",
+        "all_attempts_malicious_mpc_verified",
+        "no_local_expandmask_fallback_used",
+    ):
+        if not isinstance(evidence.get(field), bool):
+            blockers.append(f"exact ExpandMask/MPC consumption field must be boolean: {field}")
+    for field in ("exact_distributed_expand_mask", "exact_expand_mask_mpc"):
+        check_equal(
+            blockers,
+            evidence.get(field),
+            core.get(field),
+            f"exact ExpandMask/MPC core binding {field}",
+        )
+
+    attempt_count = evidence.get("attempt_count")
+    if not isinstance(attempt_count, int) or isinstance(attempt_count, bool) or attempt_count < 0:
+        blockers.append("exact ExpandMask/MPC attempt_count must be a nonnegative integer")
+        attempt_count = 0
+    required_case_count = evidence.get("required_case_count")
+    consumed_case_count = evidence.get("consumed_case_count")
+    for field, value in (
+        ("required_case_count", required_case_count),
+        ("consumed_case_count", consumed_case_count),
+    ):
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            blockers.append(f"exact ExpandMask/MPC {field} must be a nonnegative integer")
+
+    consumed_attempts = evidence.get("consumed_attempts")
+    if not isinstance(consumed_attempts, list):
+        blockers.append("exact ExpandMask/MPC consumed_attempts must be a list")
+        consumed_attempts = []
+    if attempt_count != len(consumed_attempts):
+        blockers.append("exact ExpandMask/MPC attempt_count must equal consumed_attempts length")
+
+    exact_claimed = (
+        core.get("exact_distributed_expand_mask") is True
+        or core.get("exact_expand_mask_mpc") is True
+    )
+    if exact_claimed:
+        for field in (
+            "all_required_attempts_consumed",
+            "all_attempts_exact_expandmask_equivalent",
+            "all_attempts_malicious_mpc_verified",
+            "no_local_expandmask_fallback_used",
+        ):
+            require_true(blockers, evidence, field, "exact ExpandMask/MPC consumption")
+        if attempt_count < 1:
+            blockers.append("exact ExpandMask/MPC consumption requires at least one consumed attempt")
+        if isinstance(required_case_count, int) and isinstance(consumed_case_count, int):
+            if required_case_count < 1 or consumed_case_count != required_case_count:
+                blockers.append("exact ExpandMask/MPC consumed case count must match required case count")
+
+    for index, attempt in enumerate(consumed_attempts):
+        if not isinstance(attempt, dict):
+            blockers.append(f"exact ExpandMask/MPC consumed attempt must be an object: {index}")
+            continue
+        if not isinstance(attempt.get("case_id"), str) or not attempt.get("case_id"):
+            blockers.append(f"exact ExpandMask/MPC consumed attempt case_id missing: {index}")
+        for field in ("counter", "kappa_base", "signer_count"):
+            value = attempt.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                blockers.append(f"exact ExpandMask/MPC consumed attempt integer invalid ({field}): {index}")
+        for field in ("input_binding_digest_hex", "transcript_digest_hex"):
+            if not is_digest(attempt.get(field)):
+                blockers.append(f"exact ExpandMask/MPC consumed attempt digest invalid ({field}): {index}")
+        if exact_claimed:
+            for field in (
+                "exact_expandmask_equivalence_verified",
+                "malicious_mpc_verified",
+                "all_mpc_parties_exited_zero",
+                "mac_check_passed",
+            ):
+                require_true(blockers, attempt, field, f"exact ExpandMask/MPC consumed attempt {index}")
 
 
 def validate_authorization(

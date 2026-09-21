@@ -31,6 +31,9 @@ DEFAULT_PREREQUISITES = "artifacts/real-6667-of-10000-mldsa-campaign/prerequisit
 DEFAULT_OUT = "artifacts/real-6667-of-10000-mldsa-campaign/latest"
 DEFAULT_SIBLING_BACKEND_ROOT = "/Users/rickglenn/Documents/lattice-threshold-backend-p1"
 KNOWN_DKG_CUSTODY_CAPTURE = "artifacts/p1-dkg-custody-capture/latest/capture.json"
+KNOWN_PRODUCTION_DKG_CUSTODY_ATTEMPT = (
+    "artifacts/production-dkg-custody-capture-attempt/latest/manifest.json"
+)
 KNOWN_MAMA_CAPTURE = "artifacts/exact-distributed-expandmask-mpc/mama-equivalence-latest/manifest.json"
 KNOWN_REJECTED_CAMPAIGN = "artifacts/internal-aggregation-campaign-run/latest/rejected-validation.json"
 CLAIM_BOUNDARY = (
@@ -83,7 +86,10 @@ def sha256_bytes(value):
 
 def sha256_path(path):
     path = Path(path)
-    return sha256_bytes(path.read_bytes()) if path.is_file() else None
+    try:
+        return sha256_bytes(path.read_bytes()) if path.is_file() else None
+    except OSError:
+        return None
 
 
 def is_sha256(value):
@@ -131,6 +137,7 @@ def first_value(document, key, default=None):
 
 def detect_engineering_interfaces(repository_root, sibling_backend_root):
     """Recognize source-level integration seams without promoting runtime gates."""
+    repository_root = Path(repository_root).resolve(strict=False)
     specifications = {
         "additive_mask_signing_seam": {
             "source": repository_root / "src/backend/fips_sign.rs",
@@ -193,6 +200,10 @@ def detect_engineering_interfaces(repository_root, sibling_backend_root):
     for interface_id, specification in specifications.items():
         source = Path(specification["source"]).resolve(strict=False)
         try:
+            source_path = str(source.relative_to(repository_root))
+        except ValueError:
+            source_path = str(source)
+        try:
             source_text = source.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             source_text = ""
@@ -210,7 +221,7 @@ def detect_engineering_interfaces(repository_root, sibling_backend_root):
             "implemented": implemented,
             "recognition_basis": "source_interface_markers_and_digest_only",
             "source": {
-                "path": str(source),
+                "path": source_path,
                 "sha256": sha256_path(source),
             },
             "marker_checks": marker_checks,
@@ -225,6 +236,49 @@ def detect_engineering_interfaces(repository_root, sibling_backend_root):
 def known_repository_blockers(repository_root):
     """Translate current reduced-scale evidence into explicit preflight failures."""
     blockers = []
+    production_dkg_attempt_path = repository_root / KNOWN_PRODUCTION_DKG_CUSTODY_ATTEMPT
+    if production_dkg_attempt_path.is_file():
+        try:
+            production_attempt = load_json(production_dkg_attempt_path)
+        except (OSError, ValueError) as error:
+            blockers.append(
+                blocker(
+                    "dkg_custody.production_capture_attempt_unreadable",
+                    None,
+                    "parseable JSON evidence",
+                    str(error),
+                    KNOWN_PRODUCTION_DKG_CUSTODY_ATTEMPT,
+                    "Production DKG/custody attempt manifest could not be parsed",
+                )
+            )
+        else:
+            ready = production_attempt.get("production_dkg_custody_capture_ready")
+            status = production_attempt.get("runner_status")
+            if ready is not True or status != "production_dkg_custody_capture_ready":
+                blockers.append(
+                    blocker(
+                        "dkg_custody.production_capture_attempt_not_ready",
+                        "production_dkg_custody_capture_ready",
+                        True,
+                        {
+                            "ready": ready,
+                            "runner_status": status,
+                        },
+                        KNOWN_PRODUCTION_DKG_CUSTODY_ATTEMPT,
+                        "Production DKG/custody acquisition gate is not ready",
+                    )
+                )
+    else:
+        blockers.append(
+            blocker(
+                "dkg_custody.production_capture_attempt_missing",
+                "production_dkg_custody_capture_attempt",
+                "digest-bound production DKG/custody attempt manifest",
+                None,
+                KNOWN_PRODUCTION_DKG_CUSTODY_ATTEMPT,
+                "Production DKG/custody acquisition gate has not been run",
+            )
+        )
     dkg_path = repository_root / KNOWN_DKG_CUSTODY_CAPTURE
     if dkg_path.is_file():
         try:
@@ -236,7 +290,7 @@ def known_repository_blockers(repository_root):
                     None,
                     "parseable JSON evidence",
                     str(error),
-                    dkg_path,
+                    KNOWN_DKG_CUSTODY_CAPTURE,
                     "DKG/custody capture could not be parsed",
                 )
             )
@@ -253,7 +307,7 @@ def known_repository_blockers(repository_root):
                             "validator_count": executed_validators,
                             "threshold": executed_threshold,
                         },
-                        dkg_path,
+                        KNOWN_DKG_CUSTODY_CAPTURE,
                         "DKG/custody evidence was executed only at reduced scale",
                     ),
                     blocker(
@@ -261,7 +315,7 @@ def known_repository_blockers(repository_root):
                         "production_profile_executed",
                         True,
                         first_value(dkg, "production_profile_executed", False),
-                        dkg_path,
+                        KNOWN_DKG_CUSTODY_CAPTURE,
                         "Production DKG/custody profile has not been executed",
                     ),
                     blocker(
@@ -269,7 +323,7 @@ def known_repository_blockers(repository_root):
                         "process_isolated_receiver_custody",
                         True,
                         first_value(dkg, "process_isolated_receiver_custody", False),
-                        dkg_path,
+                        KNOWN_DKG_CUSTODY_CAPTURE,
                         "Receiver custody is not process isolated",
                     ),
                     blocker(
@@ -277,7 +331,7 @@ def known_repository_blockers(repository_root):
                         "per_receiver_private_share_custody",
                         True,
                         first_value(dkg, "per_receiver_private_share_custody", False),
-                        dkg_path,
+                        KNOWN_DKG_CUSTODY_CAPTURE,
                         "Per-receiver private-share custody is absent",
                     ),
                     blocker(
@@ -285,7 +339,7 @@ def known_repository_blockers(repository_root):
                         "signer_consumes_custody_output",
                         True,
                         first_value(dkg, "signer_consumes_custody_output", False),
-                        dkg_path,
+                        KNOWN_DKG_CUSTODY_CAPTURE,
                         "The real partial signer does not consume custody output",
                     ),
                 ]
@@ -301,7 +355,7 @@ def known_repository_blockers(repository_root):
                     None,
                     "parseable JSON evidence",
                     str(error),
-                    mama_path,
+                    KNOWN_MAMA_CAPTURE,
                     "Malicious-MPC capture could not be parsed",
                 )
             )
@@ -314,7 +368,7 @@ def known_repository_blockers(repository_root):
                         "execution.signers",
                         THRESHOLD,
                         mama_signers,
-                        mama_path,
+                        KNOWN_MAMA_CAPTURE,
                         "Malicious MAMA execution has not run with 6,667 distinct signers",
                     ),
                     blocker(
@@ -322,7 +376,7 @@ def known_repository_blockers(repository_root):
                         "K_share_dkg_binding",
                         True,
                         False,
-                        mama_path,
+                        KNOWN_MAMA_CAPTURE,
                         "MAMA mask inputs are not bound to no-dealer K-share DKG output",
                     ),
                     blocker(
@@ -330,7 +384,7 @@ def known_repository_blockers(repository_root):
                         "production_private_share_custody",
                         True,
                         False,
-                        mama_path,
+                        KNOWN_MAMA_CAPTURE,
                         "MAMA parties are not backed by production private-share custody",
                     ),
                 ]
@@ -346,7 +400,7 @@ def known_repository_blockers(repository_root):
                     None,
                     "parseable JSON evidence",
                     str(error),
-                    rejected_path,
+                    KNOWN_REJECTED_CAMPAIGN,
                     "Prior rejected campaign capture could not be parsed",
                 )
             )
@@ -359,7 +413,7 @@ def known_repository_blockers(repository_root):
                         "validated_execution_count",
                         f"{THRESHOLD} distinct real ML-DSA partial contributions",
                         validated_count,
-                        rejected_path,
+                        KNOWN_REJECTED_CAMPAIGN,
                         "Prior campaign records validated executions, not 6,667 real partial contributions",
                     ),
                     blocker(
@@ -367,7 +421,7 @@ def known_repository_blockers(repository_root):
                         "exact_distributed_expand_mask",
                         True,
                         first_value(rejected, "exact_distributed_expand_mask", False),
-                        rejected_path,
+                        KNOWN_REJECTED_CAMPAIGN,
                         "Prior campaign was rejected with the exact distributed mask gate unresolved",
                     ),
                     blocker(
@@ -375,7 +429,7 @@ def known_repository_blockers(repository_root):
                         "real_mldsa_partial_contributions",
                         THRESHOLD,
                         0,
-                        rejected_path,
+                        KNOWN_REJECTED_CAMPAIGN,
                         "Prior campaign does not evidence one real ML-DSA partial per custodial signer",
                     ),
                 ]
